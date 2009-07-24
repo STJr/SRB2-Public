@@ -1,0 +1,25 @@
+EXPORTS
+_ClearBuffer@12       = ClearBuffer@12
+_ClearMipMapCache@0   = ClearMipMapCache@0
+_Draw2DLine@12        = Draw2DLine@12
+_DrawMD2@16           = DrawMD2@16
+_DrawPolygon@16       = DrawPolygon@16
+_FinishUpdate@4       = FinishUpdate@4
+_GClipRect@20         = GClipRect@20
+_GetModeList@8        = GetModeList@8
+_GetRenderVersion@0   = GetRenderVersion@0
+_GetTextureUsed@0     = GetTextureUsed@0
+_Init@4               = Init@4
+_ReadRect@24          = ReadRect@24
+_SetBlend@4           = SetBlend@4
+_SetPalette@8         = SetPalette@8
+_SetSpecialState@8    = SetSpecialState@8
+_SetTexture@4         = SetTexture@4
+_SetTransform@4       = SetTransform@4
+_Shutdown@0           = Shutdown@0
+_PostImgRedraw@4      = PostImgRedraw@4
+_StartScreenWipe@0    = StartScreenWipe@0
+_EndScreenWipe@0      = EndScreenWipe@0
+_DoScreenWipe@4       = DoScreenWipe@4
+_DrawIntermissionBG@0 = DrawIntermissionBG@0
+_MakeScreenTexture@0  = MakeScreenTexture@0

@@ -1,0 +1,20 @@
+EXPORTS
+_Add2DSource@4         = Add2DSource@4
+_Add3DSource@8         = Add3DSource@8
+_BeginFrameUpdate@0    = BeginFrameUpdate@0
+_EndFrameUpdate@0      = EndFrameUpdate@0
+_GetHW3DSVersion@0     = GetHW3DSVersion@0
+_IsPlaying@4           = IsPlaying@4
+_KillSource@4          = KillSource@4
+_Reload3DSource@8      = Reload3DSource@8
+_SetCone@8             = SetCone@8
+_SetGlobalSfxVolume@4  = SetGlobalSfxVolume@4
+_Shutdown@0            = Shutdown@0
+_StartSource@4         = StartSource@4
+_Startup@8             = Startup@8
+_StopSource@4          = StopSource@4
+_Update2DSoundParms@12 = Update2DSoundParms@12
+_Update3DSource@8      = Update3DSource@8
+_UpdateListener2@4     = UpdateListener2@4
+_UpdateListener@4      = UpdateListener@4
+_UpdateSourceVolume@8  = UpdateSourceVolume@8

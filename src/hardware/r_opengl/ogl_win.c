@@ -1,0 +1,582 @@
+// Emacs style mode select   -*- C++ -*-
+//-----------------------------------------------------------------------------
+//
+// Copyright (C) 1998-2000 by DooM Legacy Team.
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+//-----------------------------------------------------------------------------
+/// \file
+/// \brief Windows specific part of the OpenGL API for Doom Legacy
+///
+///	TODO:
+///	- check if windowed mode works
+///	- support different pixel formats
+
+
+#if defined (_WIN32) || defined (_WIN64)
+
+//#define WIN32_LEAN_AND_MEAN
+#define RPC_NO_WINDOWS_H
+#include <windows.h>
+#include <time.h>
+#include "r_opengl.h"
+
+
+// **************************************************************************
+//                                                                    GLOBALS
+// **************************************************************************
+
+#ifdef DEBUG_TO_FILE
+static unsigned long nb_frames = 0;
+static clock_t my_clock;
+HANDLE logstream = INVALID_HANDLE_VALUE;
+#endif
+
+static  HDC     hDC           = NULL;       // the window's device context
+static  HGLRC   hGLRC         = NULL;       // the OpenGL rendering context
+static  HWND    hWnd          = NULL;
+static  BOOL    WasFullScreen = FALSE;
+static void UnSetRes(void);
+
+#ifdef USE_WGL_SWAP
+PFNWGLEXTSWAPCONTROLPROC wglSwapIntervalEXT = NULL;
+#endif
+
+PFNglClear pglClear;
+PFNglGetIntegerv pglGetIntegerv;
+PFNglGetString pglGetString;
+
+#define MAX_VIDEO_MODES   32
+static  vmode_t     video_modes[MAX_VIDEO_MODES];
+int     oglflags = 0;
+
+// **************************************************************************
+//                                                                  FUNCTIONS
+// **************************************************************************
+
+// -----------------+
+// APIENTRY DllMain : DLL Entry Point,
+//                  : open/close debug log
+// Returns          :
+// -----------------+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
+                    DWORD fdwReason,    // reason for calling function
+                    LPVOID lpvReserved) // reserved
+{
+	// Perform actions based on the reason for calling.
+	UNREFERENCED_PARAMETER(lpvReserved);
+	switch (fdwReason)
+	{
+		case DLL_PROCESS_ATTACH:
+			// Initialize once for each new process.
+			// Return FALSE to fail DLL load.
+#ifdef DEBUG_TO_FILE
+			logstream = CreateFileA("ogllog.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+									 FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
+			if (logstream == INVALID_HANDLE_VALUE)
+				return FALSE;
+#endif
+			DisableThreadLibraryCalls(hinstDLL);
+			break;
+
+		case DLL_THREAD_ATTACH:
+			// Do thread-specific initialization.
+			break;
+
+		case DLL_THREAD_DETACH:
+			// Do thread-specific cleanup.
+			break;
+
+		case DLL_PROCESS_DETACH:
+			// Perform any necessary cleanup.
+#ifdef DEBUG_TO_FILE
+			if (logstream != INVALID_HANDLE_VALUE)
+			{
+				CloseHandle(logstream);
+				logstream  = INVALID_HANDLE_VALUE;
+			}
+#endif
+			break;
+	}
+
+	return TRUE;  // Successful DLL_PROCESS_ATTACH.
+}
+
+typedef void *(WINAPI *PFNwglGetProcAddress) (const char *);
+typedef HGLRC (WINAPI *PFNwglCreateContext) (HDC hdc);
+typedef BOOL (WINAPI *PFNwglDeleteContext) (HGLRC hglrc);
+typedef BOOL (WINAPI *PFNwglMakeCurrent) (HDC hdc, HGLRC hglrc);
+static HMODULE OGL32, GLU32;
+static PFNwglGetProcAddress pwglGetProcAddress;
+static PFNwglCreateContext pwglCreateContext;
+static PFNwglDeleteContext pwglDeleteContext;
+static PFNwglMakeCurrent pwglMakeCurrent;
+
+void *GetGLFunc(const char *proc)
+{
+	void *func = NULL;
+	if (pwglGetProcAddress)
+		func = pwglGetProcAddress(proc);
+	if (!func)
+		func = GetProcAddress(OGL32, proc);
+	if (!func)
+		func = GetProcAddress(GLU32, proc);
+	return func;
+}
+
+boolean LoadGL(void)
+{
+	OGL32 = LoadLibrary("OPENGL32.DLL");
+	if (OGL32)
+		pwglCreateContext = NULL;
+	else
+		return 0;
+
+	pwglGetProcAddress = GetGLFunc("wglGetProcAddress");
+	pwglCreateContext = GetGLFunc("wglCreateContext");
+	pwglDeleteContext = GetGLFunc("wglDeleteContext");
+	pwglMakeCurrent = GetGLFunc("wglMakeCurrent");
+	return SetupGLfunc();
+}
+
+// -----------------+
+// SetupPixelFormat : Set the device context's pixel format
+// Note             : Because we currently use only the desktop's BPP format, all the
+//                  : video modes in Doom Legacy OpenGL are of the same BPP, thus the
+//                  : PixelFormat is set only once.
+//                  : Setting the pixel format more than once on the same window
+//                  : doesn't work. (ultimately for different pixel formats, we
+//                  : should close the window, and re-create it)
+// -----------------+
+int SetupPixelFormat(int WantColorBits, int WantStencilBits, int WantDepthBits)
+{
+	static DWORD iLastPFD = 0;
+	int nPixelFormat;
+	PIXELFORMATDESCRIPTOR pfd =
+	{
+		sizeof (PIXELFORMATDESCRIPTOR),  // size
+		1,                              // version
+		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		PFD_TYPE_RGBA,                  // color type
+		32 /*WantColorBits*/,           // cColorBits : prefered color depth
+		0, 0,                           // cRedBits, cRedShift
+		0, 0,                           // cGreenBits, cGreenShift
+		0, 0,                           // cBlueBits, cBlueShift
+		0, 0,                           // cAlphaBits, cAlphaShift
+		0,                              // cAccumBits
+		0, 0, 0, 0,                     // cAccum Red/Green/Blue/Alpha Bits
+		0,                              // cDepthBits (0,16,24,32)
+		0,                              // cStencilBits
+		0,                              // cAuxBuffers
+		PFD_MAIN_PLANE,                 // iLayerType
+		0,                              // reserved, must be zero
+		0, 0, 0,                        // dwLayerMask, dwVisibleMask, dwDamageMask
+	};
+
+	DWORD iPFD = (WantColorBits<<16) | (WantStencilBits<<8) | WantDepthBits;
+
+	pfd.cDepthBits = (BYTE)WantDepthBits;
+	pfd.cStencilBits = (BYTE)WantStencilBits;
+
+	if (iLastPFD)
+	{
+		DBG_Printf("WARNING : SetPixelFormat() called twise not supported by all drivers !\n");
+	}
+
+	// set the pixel format only if different than the current
+	if (iPFD == iLastPFD)
+		return 2;
+	else
+		iLastPFD = iPFD;
+
+	DBG_Printf("SetupPixelFormat() - %d ColorBits - %d StencilBits - %d DepthBits\n",
+	           WantColorBits, WantStencilBits, WantDepthBits);
+
+	nPixelFormat = ChoosePixelFormat(hDC, &pfd);
+
+	if (nPixelFormat == 0)
+		DBG_Printf("ChoosePixelFormat() FAILED\n");
+
+	if (SetPixelFormat(hDC, nPixelFormat, &pfd) == 0)
+	{
+		DBG_Printf("SetPixelFormat() FAILED\n");
+		return 0;
+	}
+
+	return 1;
+}
+
+
+// -----------------+
+// SetRes           : Set a display mode
+// Notes            : pcurrentmode is actually not used
+// -----------------+
+static int WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
+{
+	LPCVOID renderer;
+	BOOL WantFullScreen = !(lvid->u.windowed);  //(lvid->u.windowed ? 0 : CDS_FULLSCREEN);
+
+	pcurrentmode = NULL;
+	DBG_Printf ("SetMode(): %dx%d %d bits (%s)\n",
+	            lvid->width, lvid->height, lvid->bpp*8,
+	            WantFullScreen ? "fullscreen" : "windowed");
+
+	hWnd = lvid->WndParent;
+
+	// BP : why flush texture ?
+	//      if important flush also the first one (white texture) and restore it !
+	Flush();    // Flush textures.
+
+// TODO: if not fullscreen, skip display stuff and just resize viewport stuff ...
+
+	// Exit previous mode
+	//if (hGLRC) //Hurdler: TODO: check if this is valid
+	//    UnSetRes();
+	if (WasFullScreen)
+		ChangeDisplaySettings(NULL, CDS_FULLSCREEN); //switch in and out of fullscreen
+
+		// Change display settings.
+	if (WantFullScreen)
+	{
+		DEVMODE dm;
+		ZeroMemory(&dm, sizeof (dm));
+		dm.dmSize       = sizeof (dm);
+		dm.dmPelsWidth  = lvid->width;
+		dm.dmPelsHeight = lvid->height;
+		dm.dmBitsPerPel = lvid->bpp*8;
+		dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+		if (ChangeDisplaySettings(&dm, CDS_TEST) != DISP_CHANGE_SUCCESSFUL)
+			return -2;
+		if (ChangeDisplaySettings(&dm, CDS_FULLSCREEN) !=DISP_CHANGE_SUCCESSFUL)
+			return -3;
+
+		SetWindowLong(hWnd, GWL_STYLE, WS_POPUP|WS_VISIBLE);
+		// faB : book says to put these, surely for windowed mode
+		//WS_CLIPCHILDREN|WS_CLIPSIBLINGS);
+		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, lvid->width, lvid->height, SWP_NOACTIVATE|SWP_NOZORDER);
+	}
+	else
+	{
+		RECT bounds;
+		int x, y;
+		int w = lvid->width, h = lvid->height;
+		GetWindowRect(hWnd, &bounds);
+		bounds.right = bounds.left+w;
+		bounds.bottom = bounds.top+h;
+		AdjustWindowRectEx(&bounds, GetWindowLong(hWnd, GWL_STYLE), (GetMenu(hWnd) != NULL), 0);
+		w = bounds.right-bounds.left;
+		h = bounds.bottom-bounds.top;
+		x = (GetSystemMetrics(SM_CXSCREEN)-w)/2;
+		y = (GetSystemMetrics(SM_CYSCREEN)-h)/2;
+		SetWindowPos(hWnd, NULL, x, y, w, h, SWP_NOACTIVATE|SWP_NOZORDER);
+	}
+
+	if (!hDC)
+		hDC = GetDC(hWnd);
+	if (!hDC)
+	{
+		DBG_Printf("GetDC() FAILED\n");
+		return 0;
+	}
+
+	{
+		int res;
+
+		// Set res.
+		res = SetupPixelFormat(lvid->bpp*8, 0, 16);
+
+		if (res == 0)
+			return 0;
+		else if (res == 1)
+		{
+			// Exit previous mode
+			if (hGLRC)
+				UnSetRes();
+			hGLRC = pwglCreateContext(hDC);
+			if (!hGLRC)
+			{
+				DBG_Printf("pwglCreateContext() FAILED\n");
+				return 0;
+			}
+			if (!pwglMakeCurrent(hDC, hGLRC))
+			{
+				DBG_Printf("wglMakeCurrent() FAILED\n");
+				return 0;
+			}
+		}
+	}
+
+	gl_extensions = pglGetString(GL_EXTENSIONS);
+	// Get info and extensions.
+	//BP: why don't we make it earlier ?
+	//Hurdler: we cannot do that before intialising gl context
+	renderer = pglGetString(GL_RENDERER);
+	DBG_Printf("Vendor     : %s\n", pglGetString(GL_VENDOR));
+	DBG_Printf("Renderer   : %s\n", renderer);
+	DBG_Printf("Version    : %s\n", pglGetString(GL_VERSION));
+	DBG_Printf("Extensions : %s\n", gl_extensions);
+
+	// BP: disable advenced feature that don't work on somes hardware
+	// Hurdler: Now works on G400 with bios 1.6 and certified drivers 6.04
+	if (strstr(renderer, "810"))   oglflags |= GLF_NOZBUFREAD;
+	DBG_Printf("oglflags   : 0x%X\n", oglflags);
+
+#ifdef USE_PALETTED_TEXTURE
+	if (isExtAvailable("GL_EXT_paletted_texture",gl_extensions))
+		glColorTableEXT = GetGLFunc("glColorTableEXT");
+	else
+		glColorTableEXT = NULL;
+#endif
+
+#ifdef USE_WGL_SWAP
+	if (isExtAvailable("WGL_EXT_swap_control",gl_extensions))
+		wglSwapIntervalEXT = GetGLFunc("wglSwapIntervalEXT");
+	else
+		wglSwapIntervalEXT = NULL;
+#endif
+
+	if (isExtAvailable("GL_EXT_texture_filter_anisotropic",gl_extensions))
+		pglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
+	else
+		maximumAnisotropy = 0;
+
+
+	screen_depth = (GLbyte)(lvid->bpp*8);
+	if (screen_depth > 16)
+		textureformatGL = GL_RGBA;
+	else
+		textureformatGL = GL_RGB5_A1;
+
+	SetModelView(lvid->width, lvid->height);
+	SetStates();
+	// we need to clear the depth buffer. Very important!!!
+	pglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+	lvid->buffer = NULL;    // unless we use the software view
+	lvid->direct = NULL;    // direct access to video memory, old DOS crap
+
+	WasFullScreen = WantFullScreen;
+
+	return 1;               // on renvoie une valeur pour dire que cela s'est bien passé
+}
+
+
+// -----------------+
+// UnSetRes         : Restore the original display mode
+// -----------------+
+static void UnSetRes(void)
+{
+	DBG_Printf("UnSetRes()\n");
+
+	pwglMakeCurrent(hDC, NULL);
+	pwglDeleteContext(hGLRC);
+	hGLRC = NULL;
+	if (WasFullScreen)
+		ChangeDisplaySettings(NULL, CDS_FULLSCREEN);
+}
+
+
+// -----------------+
+// GetModeList      : Return the list of available display modes.
+// Returns          : pvidmodes   - points to list of detected OpenGL video modes
+//                  : numvidmodes - number of detected OpenGL video modes
+// -----------------+
+EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, int *numvidmodes)
+{
+	int  i;
+
+#if 1
+	int iMode;
+/*
+	faB test code
+
+	Commented out because there might be a problem with combo (Voodoo2 + other card),
+	we need to get the 3D card's display modes only.
+*/
+	(*pvidmodes) = &video_modes[0];
+
+	// Get list of device modes
+	for (i = 0,iMode = 0; iMode < MAX_VIDEO_MODES; i++)
+	{
+		DEVMODE Tmp;
+		ZeroMemory(&Tmp, sizeof (Tmp));
+		Tmp.dmSize = sizeof (Tmp);
+		if (!EnumDisplaySettings(NULL, i, &Tmp))
+			break;
+
+		// add video mode
+		if (Tmp.dmBitsPerPel == 16 &&
+			 (iMode == 0 || !
+			  (Tmp.dmPelsWidth == video_modes[iMode-1].width &&
+			   Tmp.dmPelsHeight == video_modes[iMode-1].height)
+			)
+			)
+		{
+			video_modes[iMode].pnext = &video_modes[iMode+1];
+			video_modes[iMode].windowed = 0;                    // fullscreen is the default
+			video_modes[iMode].misc = 0;
+			video_modes[iMode].name = malloc(12 * sizeof (CHAR));
+			sprintf(video_modes[iMode].name, "%dx%d", (int)Tmp.dmPelsWidth, (int)Tmp.dmPelsHeight);
+			DBG_Printf ("Mode: %s\n", video_modes[iMode].name);
+			video_modes[iMode].width = Tmp.dmPelsWidth;
+			video_modes[iMode].height = Tmp.dmPelsHeight;
+			video_modes[iMode].bytesperpixel = Tmp.dmBitsPerPel/8;
+			video_modes[iMode].rowbytes = Tmp.dmPelsWidth * video_modes[iMode].bytesperpixel;
+			video_modes[iMode].pextradata = NULL;
+			video_modes[iMode].setmode = SetRes;
+			iMode++;
+		}
+	}
+	(*numvidmodes) = iMode;
+#else
+
+	// classic video modes (fullscreen/windowed)
+	// Added some. Tails
+	int res[][2] = {
+					{ 320, 200},
+					{ 320, 240},
+					{ 400, 300},
+					{ 512, 384},
+					{ 640, 400},
+					{ 640, 480},
+					{ 800, 600},
+					{ 960, 600},
+					{1024, 768},
+					{1152, 864},
+					{1280, 800},
+					{1280, 960},
+					{1280,1024},
+					{1600,1000},
+					{1920,1200},
+};
+
+	HDC bpphdc;
+	int iBitsPerPel;
+
+	DBG_Printf ("HWRAPI GetModeList()\n");
+
+	bpphdc = GetDC(NULL); // on obtient le bpp actuel
+	iBitsPerPel = GetDeviceCaps(bpphdc, BITSPIXEL);
+
+	ReleaseDC(NULL, bpphdc);
+
+	(*pvidmodes) = &video_modes[0];
+	(*numvidmodes) = sizeof (res) / sizeof (res[0]);
+	for (i = 0; i < (*numvidmodes); i++)
+	{
+		video_modes[i].pnext = &video_modes[i+1];
+		video_modes[i].windowed = 0; // fullscreen is the default
+		video_modes[i].misc = 0;
+		video_modes[i].name = malloc(12 * sizeof (CHAR));
+		sprintf(video_modes[i].name, "%dx%d", res[i][0], res[i][1]);
+		DBG_Printf ("Mode: %s\n", video_modes[i].name);
+		video_modes[i].width = res[i][0];
+		video_modes[i].height = res[i][1];
+		video_modes[i].bytesperpixel = iBitsPerPel/8;
+		video_modes[i].rowbytes = res[i][0] * video_modes[i].bytesperpixel;
+		video_modes[i].pextradata = NULL;
+		video_modes[i].setmode = SetRes;
+	}
+#endif
+	video_modes[(*numvidmodes)-1].pnext = NULL;
+}
+
+
+// -----------------+
+// Shutdown         : Shutdown OpenGL, restore the display mode
+// -----------------+
+EXPORT void HWRAPI(Shutdown) (void)
+{
+#ifdef DEBUG_TO_FILE
+	long nb_centiemes;
+
+	DBG_Printf ("HWRAPI Shutdown()\n");
+	nb_centiemes = ((clock()-my_clock)*100)/CLOCKS_PER_SEC;
+	DBG_Printf("Nb frames: %li;  Nb sec: %2.2f  ->  %2.1f fps\n",
+					nb_frames, nb_centiemes/100.0f, (100*nb_frames)/(double)nb_centiemes);
+#endif
+
+	Flush();
+
+	// Exit previous mode
+	if (hGLRC)
+		UnSetRes();
+
+	if (hDC)
+	{
+		ReleaseDC(hWnd, hDC);
+		hDC = NULL;
+	}
+	FreeLibrary(GLU32);
+	FreeLibrary(OGL32);
+	DBG_Printf ("HWRAPI Shutdown(DONE)\n");
+}
+
+// -----------------+
+// FinishUpdate     : Swap front and back buffers
+// -----------------+
+EXPORT void HWRAPI(FinishUpdate) (int waitvbl)
+{
+#ifdef USE_WGL_SWAP
+	static int oldwaitvbl = 0;
+#else
+	waitvbl = 0;
+#endif
+	// DBG_Printf ("FinishUpdate()\n");
+#ifdef DEBUG_TO_FILE
+	if ((++nb_frames)==2)  // on ne commence pas à la première frame
+		my_clock = clock();
+#endif
+
+#ifdef USE_WGL_SWAP
+	if (oldwaitvbl != waitvbl && wglSwapIntervalEXT)
+		wglSwapIntervalEXT(waitvbl);
+	oldwaitvbl = waitvbl;
+#endif
+
+	SwapBuffers(hDC);
+}
+
+
+// -----------------+
+// SetPalette       : Set the color lookup table for paletted textures
+//                  : in OpenGL, we store values for conversion of paletted graphics when
+//                  : they are downloaded to the 3D card.
+// -----------------+
+EXPORT void HWRAPI(SetPalette) (RGBA_t *pal, RGBA_t *gamma)
+{
+	int i;
+
+	for (i = 0; i < 256; i++)
+	{
+		myPaletteData[i].s.red   = (byte)MIN((pal[i].s.red*gamma->s.red)/127,     255);
+		myPaletteData[i].s.green = (byte)MIN((pal[i].s.green*gamma->s.green)/127, 255);
+		myPaletteData[i].s.blue  = (byte)MIN((pal[i].s.blue*gamma->s.blue)/127,   255);
+		myPaletteData[i].s.alpha = pal[i].s.alpha;
+	}
+#ifdef USE_PALETTED_TEXTURE
+	if (glColorTableEXT)
+	{
+		for (i = 0; i < 256; i++)
+		{
+			palette_tex[3*i+0] = pal[i].s.red;
+			palette_tex[3*i+1] = pal[i].s.green;
+			palette_tex[3*i+2] = pal[i].s.blue;
+		}
+		glColorTableEXT(GL_TEXTURE_2D, GL_RGB8, 256, GL_RGB, GL_UNSIGNED_BYTE, palette_tex);
+	}
+#endif
+	// on a changé de palette, il faut recharger toutes les textures
+	Flush();
+}
+
+#endif

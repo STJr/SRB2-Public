@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MasterServer", "Master.vcproj", "{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Client Debug|Win32 = Client Debug|Win32
+		Client Release|Win32 = Client Release|Win32
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Client Debug|Win32.ActiveCfg = Client Debug|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Client Debug|Win32.Build.0 = Client Debug|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Client Release|Win32.ActiveCfg = Client Release|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Client Release|Win32.Build.0 = Client Release|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Debug|Win32.Build.0 = Debug|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Release|Win32.ActiveCfg = Release|Win32
+		{0E1E88EB-B388-4E07-87CB-C4AFCF00E138}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
