@@ -93,7 +93,7 @@ extern FILE *logstream;
 #endif
 
 #define VERSION 200 // Game version
-#define VERSIONSTRING " v2.0.0"
+#define VERSIONSTRING " v2.0.1"
 
 // some tests, enable or disable it if it run or not
 #define SPLITSCREEN

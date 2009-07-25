@@ -947,7 +947,7 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 2.00.0;
+				CURRENT_PROJECT_VERSION = 2.00.1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					NORMALSRB2,
@@ -959,7 +959,7 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 2.00.0;
+				CURRENT_PROJECT_VERSION = 2.00.1;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					NORMALSRB2,

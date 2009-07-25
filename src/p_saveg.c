@@ -2107,6 +2107,8 @@ static void P_ArchiveMisc(void)
 	else
 		WRITESHORT(save_p, gamemap);
 
+	lastmapsaved = gamemap;
+
 	WRITEUSHORT(save_p, emeralds+357);
 	WRITESTRINGN(save_p, timeattackfolder, sizeof(timeattackfolder));
 }
