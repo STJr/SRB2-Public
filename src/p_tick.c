@@ -321,7 +321,7 @@ static void P_DoAutobalanceTeams(void)
 //
 // P_DoTeamscrambling()
 //
-// If a team scramble has been started, scramble one person from the 
+// If a team scramble has been started, scramble one person from the
 // pre-made scramble array. Said array is created in TeamScramble_OnChange()
 //
 void P_DoTeamscrambling(void)
