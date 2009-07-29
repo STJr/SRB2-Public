@@ -200,8 +200,8 @@ boolean P_InsideANonSolidFFloor(mobj_t *mobj, ffloor_t *rover);
 
 mobj_t *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 mobj_t *P_SpawnXYZMissile(mobj_t *source, mobj_t *dest, mobjtype_t type, fixed_t x, fixed_t y, fixed_t z);
-mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaim, int flags2);
-#define P_SpawnPlayerMissile(s,t,f) P_SPMAngle(s,t,s->angle,false,false,f)
+mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaim, int flags2, boolean reflected);
+#define P_SpawnPlayerMissile(s,t,f,r) P_SPMAngle(s,t,s->angle,false,false,f,r)
 void P_ColorTeamMissile(mobj_t *missile, player_t *source);
 
 void P_CameraThinker(camera_t *thiscam);

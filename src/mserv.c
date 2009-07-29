@@ -187,6 +187,7 @@ static void Command_Listserv_f(void);
 static void InternetServer_OnChange(void);
 static void MasterServer_OnChange(void);
 static void ServerName_OnChange(void);
+static int recvfull(int s, char *buf, int len, int flags);
 
 #define DEF_PORT "28900"
 consvar_t cv_internetserver = {"internetserver", "No", 0, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -274,7 +275,7 @@ static int MS_Read(msg_t *msg)
 	msg = NULL;
 	return MS_READ_ERROR;
 #else
-	if (recv(socket_fd, (char *)msg, HEADER_SIZE, 0) != HEADER_SIZE)
+	if (recvfull(socket_fd, (char *)msg, HEADER_SIZE, 0) != HEADER_SIZE)
 		return MS_READ_ERROR;
 
 	msg->type = ntohl(msg->type);
@@ -283,7 +284,7 @@ static int MS_Read(msg_t *msg)
 	if (!msg->length) // fix a bug in Windows 2000
 		return 0;
 
-	if (recv(socket_fd, (char *)msg->buffer, msg->length, 0) != msg->length)
+	if (recvfull(socket_fd, (char *)msg->buffer, msg->length, 0) != msg->length)
 		return MS_READ_ERROR;
 	return 0;
 #endif
@@ -817,4 +818,25 @@ static void MasterServer_OnChange(void)
 {
 	UnregisterServer();
 	RegisterServer();
+}
+
+
+// Like recv, but waits until we've got enough data to fill the buffer.
+static int recvfull(int s, char *buf, int len, int flags)
+{
+	/* Total received. */
+	int totallen = 0;
+
+	while(totallen < len)
+	{
+		int ret = recv(s, buf + totallen, len - totallen, flags);
+
+		/* Error. */
+		if(ret == -1)
+			return -1;
+
+		totallen += ret;
+	}
+
+	return totallen;
 }

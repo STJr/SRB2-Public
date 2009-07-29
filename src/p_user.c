@@ -7548,7 +7548,7 @@ if (gametype == GT_TAG)
 				&& !player->climbing)
 			{
 				player->pflags |= PF_ATTACKDOWN;
-				P_SPMAngle(player->mo, MT_FIREBALL, player->mo->angle, true, true, 0);
+				P_SPMAngle(player->mo, MT_FIREBALL, player->mo->angle, true, true, 0, false);
 				S_StartSound(player->mo, sfx_thok);
 			}
 		}
@@ -7585,7 +7585,7 @@ if (gametype == GT_TAG)
 					player->weapondelay *= 2;
 				}
 
-				mo = P_SpawnPlayerMissile(player->mo, MT_REDRING, 0);
+				mo = P_SpawnPlayerMissile(player->mo, MT_REDRING, 0, false);
 
 				if (mo)
 					P_ColorTeamMissile(mo, player);
@@ -7609,7 +7609,7 @@ if (gametype == GT_TAG)
 						player->weapondelay *= 2;
 					}
 
-					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNBOUNCE, MF2_BOUNCERING);
+					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNBOUNCE, MF2_BOUNCERING, false);
 
 					if (mo)
 						mo->fuse = 3*TICRATE; // Bounce Ring time
@@ -7630,7 +7630,7 @@ if (gametype == GT_TAG)
 						player->weapondelay *= 2;
 					}
 
-					mo = P_SpawnPlayerMissile(player->mo, MT_REDRING, MF2_RAILRING|MF2_DONTDRAW);
+					mo = P_SpawnPlayerMissile(player->mo, MT_REDRING, MF2_RAILRING|MF2_DONTDRAW, false);
 
 #ifdef WEAPON_SFX
 					//Due to the fact that the rail has no unique thrown object, this hack is necessary.
@@ -7650,7 +7650,7 @@ if (gametype == GT_TAG)
 					if (player->skin == 2) // Knuckles
 						player->weapondelay = 1;
 
-					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNAUTOMATIC, MF2_AUTOMATIC);
+					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNAUTOMATIC, MF2_AUTOMATIC, false);
 
 					player->powers[pw_automaticring]--;
 					player->mo->health--;
@@ -7668,7 +7668,7 @@ if (gametype == GT_TAG)
 						player->weapondelay *= 2;
 					}
 
-					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNEXPLOSION, MF2_EXPLOSION);
+					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNEXPLOSION, MF2_EXPLOSION, false);
 
 					player->powers[pw_explosionring]--;
 					player->mo->health--;
@@ -7691,7 +7691,7 @@ if (gametype == GT_TAG)
 					oldz = player->mo->z;
 
 					// Center
-					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNSCATTER, MF2_SCATTER);
+					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNSCATTER, MF2_SCATTER, false);
 					if (mo)
 					{
 						//P_ColorTeamMissile(mo, player);
@@ -7699,24 +7699,24 @@ if (gametype == GT_TAG)
 					}
 
 					// Left
-					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle-(ANG90/45), false, true, MF2_SCATTER);
+					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle-(ANG90/45), false, true, MF2_SCATTER, false);
 					//if (mo)
 						//P_ColorTeamMissile(mo, player);
 
 					// Right
-					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle+(ANG90/45), false, true, MF2_SCATTER);
+					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle+(ANG90/45), false, true, MF2_SCATTER, false);
 					//if (mo)
 						//P_ColorTeamMissile(mo, player);
 
 					// Down
 					player->mo->z += 16*FRACUNIT;
-					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle, false, true, MF2_SCATTER);
+					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle, false, true, MF2_SCATTER, false);
 					//if (mo)
 						//P_ColorTeamMissile(mo, player);
 
 					// Up
 					player->mo->z -= 32*FRACUNIT;
-					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle, false, true, MF2_SCATTER);
+					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle, false, true, MF2_SCATTER, false);
 					//if (mo)
 						//P_ColorTeamMissile(mo, player);
 
@@ -7741,7 +7741,7 @@ if (gametype == GT_TAG)
 						player->weapondelay *= 2;
 					}
 
-					mo = P_SpawnPlayerMissile(player->mo, MT_REDRING, 0);
+					mo = P_SpawnPlayerMissile(player->mo, MT_REDRING, 0, false);
 
 					if (mo)
 						P_ColorTeamMissile(mo, player);
@@ -7798,7 +7798,7 @@ if (gametype == GT_TAG)
 			if (player->aiming > ANG90-1)
 				player->aiming = ANG90-1;
 
-			mo = P_SPMAngle(player->mo, MT_THROWNGRENADE, player->mo->angle, true, true, MF2_GRENADE);
+			mo = P_SPMAngle(player->mo, MT_THROWNGRENADE, player->mo->angle, true, true, MF2_GRENADE, false);
 
 			player->aiming = oldaim;
 
@@ -9972,6 +9972,19 @@ void P_PlayerAfterThink(player_t *player)
 				P_MoveChaseCamera(player, &camera2, false);
 			else if (camera.chase && player == &players[displayplayer])
 				P_MoveChaseCamera(player, &camera, false);
+		}
+
+		// Possible zombie fix?
+		// Player is stuck in death frames but isn't being counted as dead?
+		if (player->mo->flags & MF_SOLID)
+		{
+			// Stolen from A_Fall()
+			player->mo->flags &= ~MF_SOLID;
+			player->mo->flags |= MF_NOCLIP;
+			player->mo->flags |= MF_NOGRAVITY;
+			player->mo->flags |= MF_FLOAT;
+
+			P_SetMobjState(player->mo, S_PLAY_DIE1);
 		}
 
 		return;

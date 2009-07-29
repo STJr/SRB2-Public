@@ -1755,3 +1755,5 @@ const CPUInfoFlags *I_CPUInfo(void)
 #endif
 	return &DOS_CPUInfo;
 }
+
+void I_RegisterSysCommands(void) {}

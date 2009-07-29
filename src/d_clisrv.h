@@ -24,7 +24,7 @@
 #include "tables.h"
 
 // more precise version number to compare in network
-#define SUBVERSION 001
+#define SUBVERSION 002
 
 // Network play related stuff.
 // There is a data struct that stores network
@@ -234,7 +234,7 @@ typedef struct
 #pragma pack()
 #endif
 
-#define MAXSERVERLIST 32 // depends only on the display
+#define MAXSERVERLIST 64 // depends only on the display
 typedef struct
 {
 	signed char node;
@@ -319,5 +319,6 @@ int D_NumPlayers(void);
 void D_ResetTiccmds(void);
 
 tic_t GetLag(int node);
+byte GetFreeXCmdSize(void);
 
 #endif

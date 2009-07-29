@@ -2208,11 +2208,11 @@ void G_ExitLevel(void)
 		lastdraw = true;
 
 		// If you want your teams scrambled on map change, start the process now.
-		// When the next map loads, teams will automatically start scrambling.
+		// When intermission starts, the teams will start scrambling.
 		if (cv_scrambleonchange.value && ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF))
 		{
 			if (server)
-				CV_Set(&cv_teamscramble, cv_scrambleonchange.string);
+				CV_SetValue(&cv_teamscramble, cv_scrambleonchange.value);
 		}
 
 		if (gametype != GT_COOP)

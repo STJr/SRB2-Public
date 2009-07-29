@@ -1707,6 +1707,10 @@ static void P_HitMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 	if (!source || !source->player)
 		return;
 
+	if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) &&
+		source->player->ctfteam == target->player->ctfteam)
+		return;
+
 	str = text[PHURT_HIT];
 
 	if (inflictor && (inflictor->flags2 & MF2_REFLECTED))
@@ -2332,8 +2336,13 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 	player_t *player = target->player;
 	(void)damage; //unused parm
 
-	// If flashing, or in the tag zone, or invulnerable, or IT, ignore the tag.
-	if (player->powers[pw_flashing] || player->tagzone || player->powers[pw_invulnerability] || (player->pflags & PF_TAGIT))
+	// If flashing, or in the tag zone, or invulnerable, ignore the tag,
+	if (player->powers[pw_flashing] || player->tagzone || player->powers[pw_invulnerability])
+		return false;
+
+	// Ignore IT players shooting each other, unless friendlyfire is on.
+	if ((player->pflags & PF_TAGIT && !(cv_friendlyfire.value &&
+		source && source->player && source->player->pflags & PF_TAGIT)))
 		return false;
 
 	// Don't allow any damage before the round starts.
@@ -2341,8 +2350,8 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 		return false;
 
 	// Don't allow players on the same team to hurt one another,
-	// unless cv_teamdamage is on.
-	if (!cv_teamdamage.value && (target->player->pflags & PF_TAGIT) == (source->player->pflags & PF_TAGIT))
+	// unless cv_friendlyfire is on.
+	if (!cv_friendlyfire.value && (target->player->pflags & PF_TAGIT) == (source->player->pflags & PF_TAGIT))
 	{
 		if (!(inflictor->flags & MF_FIRE))
 			P_GivePlayerRings(target->player, 1, false);
@@ -2350,7 +2359,8 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 		return false;
 	}
 
-	if (source->player->pflags & PF_TAGIT)
+	// The tag occurs so long as you aren't shooting another tagger with friendlyfire on.
+	if (source->player->pflags & PF_TAGIT && !(target->player->pflags & PF_TAGIT))
 	{
 		P_AddPlayerScore(source->player, 100); //award points to tagger.
 		P_HitMessages(target, inflictor, source);
@@ -2433,8 +2443,8 @@ static inline boolean P_PlayerHitsPlayer(mobj_t *target, mobj_t *inflictor, mobj
 	else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) // CTF + Team Match
 	{
 		// Don't allow players on the same team to hurt one another,
-		// unless cv_teamdamage is on.
-		if (!cv_teamdamage.value && target->player->ctfteam == source->player->ctfteam)
+		// unless cv_friendlyfire is on.
+		if (!cv_friendlyfire.value && target->player->ctfteam == source->player->ctfteam)
 		{
 			if (!(inflictor->flags & MF_FIRE))
 				P_GivePlayerRings(target->player, 1, false);
@@ -2494,10 +2504,20 @@ static void P_KillPlayer(player_t *player, mobj_t *source, int damage)
 	{
 		P_PlayerFlagBurst(player, false);
 		if (source && source->player)
-			P_AddPlayerScore(source->player, 25);
+		{
+			// Award no points when players shoot each other when cv_friendlyfire is on.
+			if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+				&& (source->player->ctfteam == player->ctfteam)))
+				P_AddPlayerScore(source->player, 25);
+		}
 	}
 	if (source && source->player && !player->powers[pw_super]) //don't score points against super players
-		P_AddPlayerScore(source->player, 100);
+	{
+		// Award no points when players shoot each other when cv_friendlyfire is on.
+		if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+			&& (source->player->ctfteam == player->ctfteam)))
+			P_AddPlayerScore(source->player, 100);
+	}
 
 	// If the player was super, tell them he/she ain't so super nomore.
 	if (gametype != GT_COOP && player->powers[pw_super])
@@ -2574,19 +2594,17 @@ static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *s
 
 		player->powers[pw_forceshield]--;
 
-		if ((inflictor && inflictor->flags & MF_MISSILE) &&
+		if ((inflictor && inflictor->flags & MF_MISSILE) && !(inflictor->flags2 & MF2_REFLECTED) &&
 			!(inflictor->flags2 & MF2_RAILRING || inflictor->flags2 & MF2_GRENADE || inflictor->flags2 & MF2_DEBRIS))
 		{
 			// Return to sender!
-			mo = P_SpawnPlayerMissile(player->mo, inflictor->type, inflictor->flags2);
+			mo = P_SpawnPlayerMissile(player->mo, inflictor->type, inflictor->flags2, true);
 
 			if (mo)
 			{
 				mo->momx = -inflictor->momx;
 				mo->momy = -inflictor->momy;
 				mo->momz = -inflictor->momz;
-
-				mo->flags2 |= MF2_REFLECTED;
 
 				if (mo->type == MT_REDRING)
 					P_ColorTeamMissile(mo, player);
@@ -2628,7 +2646,7 @@ static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *s
 		P_AddPlayerScore(source->player, cv_match_scoring.value == 1 ? 25 : 50);
 }
 
-static inline void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *source, int damage)
+static void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *source, int damage)
 {
 	if (!(inflictor && ((inflictor->flags & MF_MISSILE) || inflictor->player) && player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds])))
 	{
@@ -2644,19 +2662,34 @@ static inline void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *sou
 			S_StartSound(player->mo, sfx_spkdth);
 
 		if (source && source->player && !player->powers[pw_super]) //don't score points against super players
-			P_AddPlayerScore(source->player, 50);
+		{
+			// Award no points when players shoot each other when cv_friendlyfire is on.
+			if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+				&& (source->player->ctfteam == player->ctfteam)))
+				P_AddPlayerScore(source->player, 50);
+		}
 	}
 	else
 	{
 		if (source && source->player && !player->powers[pw_super]) //don't score points against super players
-			P_AddPlayerScore(source->player, 50);
+		{
+			// Award no points when players shoot each other when cv_friendlyfire is on.
+			if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+				&& (source->player->ctfteam == player->ctfteam)))
+				P_AddPlayerScore(source->player, 50);
+		}
 	}
 
 	if (gametype == GT_CTF && (player->gotflag & MF_REDFLAG || player->gotflag & MF_BLUEFLAG))
 	{
 		P_PlayerFlagBurst(player, false);
 		if (source && source->player)
-			P_AddPlayerScore(source->player, 25);
+		{
+			// Award no points when players shoot each other when cv_friendlyfire is on.
+			if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+				&& (source->player->ctfteam == player->ctfteam)))
+				P_AddPlayerScore(source->player, 25);
+		}
 	}
 
 	// Ring loss sound plays despite hitting spikes
@@ -2879,8 +2912,19 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int dama
 		}
 		else // No shield, no rings, no invincibility.
 		{
-			damage = 1;
-			P_KillPlayer(player, source, damage);
+			// To reduce griefing potential, don't allow players to be killed
+			// by friendly fire. Spilling their rings and other items is enough.
+			if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+				&& (source->player->ctfteam == player->ctfteam) && cv_friendlyfire.value))
+			{
+				damage = 1;
+				P_KillPlayer(player, source, damage);
+			}
+			else
+			{
+				damage = 0;
+				P_RingDamage(player, inflictor, source, damage);
+			}
 		}
 
 		if (inflictor && ((inflictor->flags & MF_MISSILE) || inflictor->player) && player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds]))

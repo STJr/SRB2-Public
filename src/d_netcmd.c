@@ -305,18 +305,18 @@ consvar_t cv_chaos_skim = {"chaos_skim", "Medium", CV_NETVAR, chances_cons_t, NU
 consvar_t cv_chaos_spawnrate = {"chaos_spawnrate", "30",CV_NETVAR, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
 
-consvar_t cv_recycler = {"recycler", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_teleporters = {"teleporters", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_superring = {"superring", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_supersneakers = {"supersneakers", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_invincibility = {"invincibility", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_jumpshield = {"jumpshield", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_watershield = {"watershield", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_ringshield = {"ringshield", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_forceshield = {"forceshield", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_bombshield = {"bombshield", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_1up = {"1up", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_eggmanbox = {"eggmantv", "Medium", CV_NETVAR, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_recycler = {"recycler", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_teleporters = {"teleporters", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_superring = {"superring", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_supersneakers = {"supersneakers", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_invincibility = {"invincibility", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_jumpshield = {"jumpshield", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_watershield = {"watershield", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_ringshield = {"ringshield", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_forceshield = {"forceshield", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_bombshield = {"bombshield", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_1up = {"1up", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_eggmanbox = {"eggmantv", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 // Question boxes aren't spawned by randomly respawning monitors, so there is no need
 // for chances. Rather, a simple on/off is used.
@@ -345,7 +345,7 @@ consvar_t cv_teamscramble = {"teamscramble", "Off", CV_NETVAR|CV_CALL|CV_NOINIT,
 consvar_t cv_scrambleonchange = {"scrambleonchange", "Off", CV_NETVAR, teamscramble_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_matchtype = {"matchtype", "Normal", CV_NETVAR|CV_CALL, matchtype_cons_t, MatchType_OnChange, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_teamdamage = {"teamdamage", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_friendlyfire = {"friendlyfire", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_timetic = {"timetic", "Off", 0, timetic_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL}; // use tics in display
 consvar_t cv_objectplace = {"objectplace", "Off", CV_CALL|CV_JOHNNY, CV_OnOff,
 	ObjectPlace_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -397,7 +397,6 @@ consvar_t cv_playersforexit = {"playersforexit", "One", CV_NETVAR, playersforexi
 
 consvar_t cv_runscripts = {"runscripts", "Yes", 0, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-consvar_t cv_friendlyfire = {"friendlyfire", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_pause = {"pausepermission", "Server", CV_NETVAR, pause_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_mute = {"mute", "Off", CV_NETVAR|CV_CALL, CV_OnOff, Mute_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
@@ -489,7 +488,7 @@ void D_RegisterServerCommands(void)
 
 	// misc
 	CV_RegisterVar(&cv_matchtype);
-	CV_RegisterVar(&cv_teamdamage);
+	CV_RegisterVar(&cv_friendlyfire);
 	CV_RegisterVar(&cv_pointlimit);
 	CV_RegisterVar(&cv_numlaps);
 	CV_RegisterVar(&cv_timetic);
@@ -553,7 +552,6 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_runscripts);
 	CV_RegisterVar(&cv_match_scoring);
 	CV_RegisterVar(&cv_overtime);
-	CV_RegisterVar(&cv_friendlyfire);
 	CV_RegisterVar(&cv_pause);
 	CV_RegisterVar(&cv_mute);
 
@@ -1054,7 +1052,7 @@ static void SendNameAndColor(void)
 	p = buf;
 
 	// normal player colors in single player
-	if (!multiplayer && !netgame && gamestate != GS_INTRO && gamestate != GS_INTRO2)
+	if (!multiplayer && !netgame && (gamestate == GS_LEVEL || gamestate == GS_INTERMISSION || gamestate == GS_WAITINGPLAYERS))
 		if (cv_playercolor.value != players[consoleplayer].prefcolor)
 			CV_StealthSetValue(&cv_playercolor, players[consoleplayer].prefcolor);
 
@@ -1076,7 +1074,14 @@ static void SendNameAndColor(void)
 
 	// never allow the color "none"
 	if (!cv_playercolor.value)
-		CV_StealthSetValue(&cv_playercolor, players[consoleplayer].skincolor);
+	{
+		if (players[consoleplayer].skincolor)
+			CV_StealthSetValue(&cv_playercolor, players[consoleplayer].skincolor);
+		else if (players[consoleplayer].prefcolor)
+			CV_StealthSetValue(&cv_playercolor, players[consoleplayer].prefcolor);
+		else
+			CV_StealthSet(&cv_playercolor, cv_playercolor.defaultvalue);
+	}
 
 	extrainfo = (byte)(extrainfo + (byte)cv_playercolor.value);
 
@@ -1235,7 +1240,14 @@ static void SendNameAndColor2(void)
 
 	// never allow the color "none"
 	if (!cv_playercolor2.value)
-		CV_StealthSetValue(&cv_playercolor2, players[secondplaya].skincolor);
+	{
+		if (players[secondplaya].skincolor)
+			CV_StealthSetValue(&cv_playercolor2, players[secondplaya].skincolor);
+		else if (players[secondplaya].prefcolor)
+			CV_StealthSetValue(&cv_playercolor2, players[secondplaya].prefcolor);
+		else
+			CV_StealthSet(&cv_playercolor2, cv_playercolor2.defaultvalue);
+	}
 
 	extrainfo = (byte)cv_playercolor2.value; // do this after, because the above might've changed it
 
@@ -2729,7 +2741,11 @@ static void Got_Teamchange(byte **cp, int playernum)
 			players[playernum].spectator = false;
 	}
 
-	if (NetPacket.packet.newteam == 1)
+	if (NetPacket.packet.autobalance)
+		CONS_Printf(text[AUTOBALANCE_SWITCH], player_names[playernum]);
+	else if (NetPacket.packet.scrambled)
+		CONS_Printf(text[SCRAMBLE_SWITCH], player_names[playernum]);
+	else if (NetPacket.packet.newteam == 1)
 	{
 		if (gametype == GT_TAG)
 			CONS_Printf(text[NOW_IT], player_names[playernum]);
@@ -2747,12 +2763,6 @@ static void Got_Teamchange(byte **cp, int playernum)
 		CONS_Printf(text[INGAME_SWITCH], player_names[playernum]);
 	else
 		CONS_Printf(text[SPECTATOR_SWITCH], player_names[playernum]);
-
-	if (NetPacket.packet.autobalance)
-		CONS_Printf(text[AUTOBALANCE_SWITCH], player_names[playernum]);
-
-	if (NetPacket.packet.scrambled)
-		CONS_Printf(text[SCRAMBLE_SWITCH], player_names[playernum]);
 
 	//reset view if you are changed, or viewing someone who was changed.
 	if (playernum == consoleplayer || displayplayer == playernum)
@@ -4007,7 +4017,7 @@ static void TeamScramble_OnChange(void)
 	if ((gametype != GT_MATCH && !cv_matchtype.value) && gametype != GT_CTF)
 	{
 		CONS_Printf("%s", text[NOTMCTF]);
-		CV_StealthSet(&cv_teamscramble, "Off");
+		CV_StealthSetValue(&cv_teamscramble, 0);
 		return;
 	}
 
@@ -4036,7 +4046,7 @@ static void TeamScramble_OnChange(void)
 
 	if (playercount < 2)
 	{
-		CV_StealthSet(&cv_teamscramble, "Off");
+		CV_StealthSetValue(&cv_teamscramble, 0);
 		return; // Don't scramble one or zero players.
 	}
 
@@ -4050,7 +4060,7 @@ static void TeamScramble_OnChange(void)
 		for (i = 0; i < playercount; i++)
 		{
 			if (repick)
-				newteam = (P_Random() % 2) + 1;
+				newteam = (M_Random() % 2) + 1;
 
 			// One team has the most players they can get, assign the rest to the other team.
 			if (red == maxcomposition || blue == maxcomposition)
@@ -4095,7 +4105,7 @@ static void TeamScramble_OnChange(void)
 		{
 			if (repick)
 			{
-				newteam = (P_Random() % 2) + 1;
+				newteam = (M_Random() % 2) + 1;
 				repick = false;
 			}
 			else
@@ -4125,20 +4135,20 @@ static void Cheats_OnChange(void)
 	if (cheats && (netgame || multiplayer) && !cv_cheats.value)
 	{
 		CONS_Printf("%s", text[CANNOT_CHANGE_CHEATS]);
-		CV_StealthSet(&cv_cheats, "On");
+		CV_StealthSetValue(&cv_cheats, 1);
 		return;
 	}
 
 	if (gamestate == GS_LEVEL && !(netgame || multiplayer) && cv_cheats.value)
 	{
 		CONS_Printf("%s", text[CANTUSESINGLEPLAYER]);
-		CV_StealthSet(&cv_cheats, "Off");
+		CV_StealthSetValue(&cv_cheats, 0);
 		return;
 	}
 
 	// Automatically disable cheats when playing single player.
 	if (gamestate == GS_WAITINGPLAYERS && !(netgame || multiplayer))
-		CV_StealthSet(&cv_cheats, "Off");
+		CV_StealthSetValue(&cv_cheats, 0);
 
 	if (cv_cheats.value && !cheats)
 		CONS_Printf("%s", text[CHEATS_ACTIVATED]);
@@ -4639,7 +4649,7 @@ static void DummyTeam_OnChange(void)
 		return;
 
 	if (!(gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)))
-		CV_StealthSet(&cv_dummyteam, "Spectator");
+		CV_StealthSetValue(&cv_dummyteam, 0);
 }
 
 static void Command_ShowScores_f(void)

@@ -67,7 +67,7 @@ extern consvar_t cv_tagtype;
 extern consvar_t cv_hidetime;
 
 extern consvar_t cv_matchtype;
-extern consvar_t cv_teamdamage;
+extern consvar_t cv_friendlyfire;
 extern consvar_t cv_pointlimit;
 extern consvar_t cv_timelimit;
 extern consvar_t cv_numlaps;
@@ -91,7 +91,7 @@ extern consvar_t cv_countdowntime;
 extern consvar_t cv_runscripts;
 extern consvar_t cv_mute;
 extern consvar_t cv_killingdead;
-extern consvar_t cv_pause, cv_friendlyfire;
+extern consvar_t cv_pause;
 
 extern consvar_t cv_allowteamchange;
 

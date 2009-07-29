@@ -1411,7 +1411,7 @@ void A_LobShot(mobj_t *actor)
 
 	// Keep track of where it's going to land
 	hitspot = P_SpawnMobj(actor->target->x&(64*FRACUNIT-1), actor->target->y&(64*FRACUNIT-1), actor->target->subsector->sector->floorheight, MT_DISS);
-	hitspot->tics = -1;
+	hitspot->tics = airtime;
 	P_SetTarget(&shot->tracer, hitspot);
 
 	P_SetTarget(&shot->target, actor); // where it came from
@@ -2630,8 +2630,8 @@ void A_ParticleSpawn(mobj_t *actor)
 
 	spawn = P_SpawnMobj(actor->x, actor->y, actor->z, type);
 	spawn->momz = speed;
-	spawn->destscale = 1;
-	spawn->scalespeed = (byte)((actor->spawnpoint->angle >> 8) & 63);
+//	spawn->destscale = 1;
+//	spawn->scalespeed = (byte)((actor->spawnpoint->angle >> 8) & 63);
 	actor->tics = actor->spawnpoint->extrainfo + 1;
 }
 
@@ -3028,8 +3028,8 @@ static inline boolean PIT_GrenadeRing(mobj_t *thing)
 		return true;
 
 	if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-		&& !cv_teamdamage.value && grenade->target->player && thing->player
-		&& grenade->target->player->ctfteam == thing->player->ctfteam) // Don't blow up at your teammates, unless teamdamage is on
+		&& !cv_friendlyfire.value && grenade->target->player && thing->player
+		&& grenade->target->player->ctfteam == thing->player->ctfteam) // Don't blow up at your teammates, unless friendlyfire is on
 		return true;
 
 	// see if it went over / under
@@ -4226,6 +4226,11 @@ void A_MixUp(mobj_t *actor)
 
 	actor = NULL;
 	if (!multiplayer)
+		return;
+
+	// No mix-up monitors in hide and seek! With so little time to hide,
+	// random factors causing you to lose your hiding spot are unfun.
+	if (gametype == GT_TAG && cv_tagtype.value)
 		return;
 
 	numplayers = 0;

@@ -32,10 +32,15 @@
 #define RPC_NO_WINDOWS_H
 #include <windows.h>
 #ifndef _WIN32_WCE
-typedef BOOL (WINAPI *P_GetDiskFreeSpaceExA) (LPCSTR RootName, PULARGE_INTEGER pulA, PULARGE_INTEGER pulB, PULARGE_INTEGER pulFreeBytes);
-typedef BOOL (WINAPI *P_IsProcessorFeaturePresent) (DWORD);
-typedef DWORD (WINAPI *P_timeGetTime) (void);
-typedef UINT (WINAPI *P_timeEndPeriod) (UINT);
+typedef BOOL (WINAPI *p_GetDiskFreeSpaceExA)(LPCSTR, PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER);
+typedef BOOL (WINAPI *p_IsProcessorFeaturePresent) (DWORD);
+typedef DWORD (WINAPI *p_timeGetTime) (void);
+typedef UINT (WINAPI *p_timeEndPeriod) (UINT);
+typedef HANDLE (WINAPI *p_OpenFileMappingA) (DWORD, BOOL, LPCSTR);
+typedef LPVOID (WINAPI *p_MapViewOfFile) (HANDLE, DWORD, DWORD, DWORD, SIZE_T);
+typedef HANDLE (WINAPI *p_GetCurrentProcess) (VOID);
+typedef BOOL (WINAPI *p_GetProcessAffinityMask) (HANDLE, PDWORD_PTR, PDWORD_PTR);
+typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
 #endif
 #endif
 #include <stdio.h>
@@ -1539,8 +1544,6 @@ static LinkedMem_p lm = NULL;
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 static HANDLE hMapObject = NULL;
 
-typedef HANDLE (WINAPI *MyFunc4) (DWORD, BOOL, LPCSTR);
-typedef LPVOID (WINAPI *MyFunc5) (HANDLE, DWORD, DWORD, DWORD, SIZE_T);
 #elif defined(HAVE_SHM)
 static int shmfd = -1;
 #endif
@@ -1550,8 +1553,9 @@ void I_SetupMumble(void)
 {
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 	const wchar_t GameW[] = {'S','R','B','2',0};
-	MyFunc4 pfnshm_open = (MyFunc4)GetProcAddress(GetModuleHandleA("kernel32.dll"), "OpenFileMappingA");
-	MyFunc5 pfnmmap = (MyFunc5)GetProcAddress(GetModuleHandleA("kernel32.dll"), "MapViewOfFile");
+	HMODULE h = GetModuleHandleA("kernel32.dll");
+	p_OpenFileMappingA pfnshm_open = (p_OpenFileMappingA)GetProcAddress(h, "OpenFileMappingA");
+	p_MapViewOfFile pfnmmap = (p_MapViewOfFile)GetProcAddress(h, "MapViewOfFile");
 	if (!pfnshm_open || !pfnmmap)
 		return;
 	hMapObject = pfnshm_open(FILE_MAP_ALL_ACCESS, FALSE, "MumbleLink");
@@ -1979,7 +1983,7 @@ ticcmd_t *I_BaseTiccmd2(void)
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 static HMODULE winmm = NULL;
 static DWORD starttickcount = 0; // hack for win2k time bug
-static P_timeGetTime pfntimeGetTime = NULL;
+static p_timeGetTime pfntimeGetTime = NULL;
 
 // ---------
 // I_GetTime
@@ -2032,7 +2036,7 @@ static void I_ShutdownTimer(void)
 	pfntimeGetTime = NULL;
 	if (winmm)
 	{
-		P_timeEndPeriod pfntimeEndPeriod = (P_timeEndPeriod)GetProcAddress(winmm, "timeEndPeriod");
+		p_timeEndPeriod pfntimeEndPeriod = (p_timeEndPeriod)GetProcAddress(winmm, "timeEndPeriod");
 		if (pfntimeEndPeriod)
 			pfntimeEndPeriod(1);
 		FreeLibrary(winmm);
@@ -2086,10 +2090,10 @@ void I_StartupTimer(void)
 	winmm = LoadLibraryA("winmm.dll");
 	if (winmm)
 	{
-		P_timeEndPeriod pfntimeBeginPeriod = (P_timeEndPeriod)GetProcAddress(winmm, "timeBeginPeriod");
+		p_timeEndPeriod pfntimeBeginPeriod = (p_timeEndPeriod)GetProcAddress(winmm, "timeBeginPeriod");
 		if (pfntimeBeginPeriod)
 			pfntimeBeginPeriod(1);
-		pfntimeGetTime = (P_timeGetTime)GetProcAddress(winmm, "timeGetTime");
+		pfntimeGetTime = (p_timeGetTime)GetProcAddress(winmm, "timeGetTime");
 	}
 	I_AddExitFunc(I_ShutdownTimer);
 #elif 0 //#elif !defined (_arch_dreamcast) && !defined(GP2X) // the DC have it own timer and GP2X have broken pthreads?
@@ -2437,14 +2441,14 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 	*freespace = stfs.f_bavail * stfs.f_bsize;
 #endif
 #elif (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-	static P_GetDiskFreeSpaceExA pfnGetDiskFreeSpaceEx = NULL;
+	static p_GetDiskFreeSpaceExA pfnGetDiskFreeSpaceEx = NULL;
 	static boolean testwin95 = false;
 
 	INT64 usedbytes;
 
 	if (!testwin95)
 	{
-		pfnGetDiskFreeSpaceEx = (P_GetDiskFreeSpaceExA)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetDiskFreeSpaceExA");
+		pfnGetDiskFreeSpaceEx = (p_GetDiskFreeSpaceExA)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetDiskFreeSpaceExA");
 		testwin95 = true;
 	}
 	if (pfnGetDiskFreeSpaceEx)
@@ -2886,7 +2890,7 @@ const CPUInfoFlags *I_CPUInfo(void)
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 	static CPUInfoFlags WIN_CPUInfo;
 	SYSTEM_INFO SI;
-	P_IsProcessorFeaturePresent pfnCPUID = pfnCPUID = (P_IsProcessorFeaturePresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsProcessorFeaturePresent");
+	p_IsProcessorFeaturePresent pfnCPUID = pfnCPUID = (p_IsProcessorFeaturePresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsProcessorFeaturePresent");
 
 	ZeroMemory(&WIN_CPUInfo,sizeof (WIN_CPUInfo));
 	if (pfnCPUID)
@@ -2941,5 +2945,54 @@ const CPUInfoFlags *I_CPUInfo(void)
 	return &SDL_CPUInfo;
 #else
 	return NULL; /// \todo CPUID asm
+#endif
+}
+
+#ifdef _WIN32
+static void CPUAffinity_OnChange(void);
+static consvar_t cv_cpuaffinity = {"cpuaffinity", "-1", CV_SAVE | CV_CALL, NULL, CPUAffinity_OnChange, 0, NULL, NULL, 0, 0, NULL};
+
+static p_GetCurrentProcess pfnGetCurrentProcess = NULL;
+static p_GetProcessAffinityMask pfnGetProcessAffinityMask = NULL;
+static p_SetProcessAffinityMask pfnSetProcessAffinityMask = NULL;
+
+static inline VOID GetAffinityFuncs(VOID)
+{
+	HMODULE h = GetModuleHandleA("kernel32.dll");
+	pfnGetCurrentProcess = (p_GetCurrentProcess)GetProcAddress(h, "GetCurrentProcess");
+	pfnGetProcessAffinityMask = (p_GetProcessAffinityMask)GetProcAddress(h, "GetProcessAffinityMask");
+	pfnSetProcessAffinityMask = (p_SetProcessAffinityMask)GetProcAddress(h, "SetProcessAffinityMask");
+}
+
+static void CPUAffinity_OnChange(void)
+{
+	DWORD dwProcMask, dwSysMask;
+	HANDLE selfpid;
+
+	if (!pfnGetCurrentProcess || !pfnGetProcessAffinityMask || !pfnSetProcessAffinityMask)
+		return;
+	else
+		selfpid = pfnGetCurrentProcess();
+
+	pfnGetProcessAffinityMask(selfpid, &dwProcMask, &dwSysMask);
+
+	/* If resulting mask is zero, don't change anything and fall back to
+	 * actual mask.
+	 */
+	if(dwSysMask & cv_cpuaffinity.value)
+	{
+		pfnSetProcessAffinityMask(selfpid, dwSysMask & cv_cpuaffinity.value);
+		CV_StealthSetValue(&cv_cpuaffinity, (int)(dwSysMask & cv_cpuaffinity.value));
+	}
+	else
+		CV_StealthSetValue(&cv_cpuaffinity, (int)dwProcMask);
+}
+#endif
+
+void I_RegisterSysCommands(void)
+{
+#ifdef _WIN32
+	GetAffinityFuncs();
+	CV_RegisterVar(&cv_cpuaffinity);
 #endif
 }

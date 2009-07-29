@@ -5816,31 +5816,26 @@ void P_MobjThinker(mobj_t *mobj)
 
 						newmobj = P_SpawnMobj(mobj->x, mobj->y, mobj->z, spawnchance[prandom%numchoices]);
 
-						if (mobj->flags2 & MF2_STRONGBOX)
-							newmobj->flags2 |= MF2_STRONGBOX;
+						// If the monitor respawns randomly, transfer the flag.
+						if (mobj->flags & MF_AMBUSH)
+							newmobj->flags |= MF_AMBUSH;
 
-						if (mobj->flags2 & MF2_OBJECTFLIP)
-							newmobj->flags2 |= MF2_OBJECTFLIP;
+						// Transfer flags2 (strongbox, objectflip)
+						newmobj->flags2 = mobj->flags2;
 					}
 					else
 					{
 						newmobj = P_SpawnMobj(mobj->x, mobj->y, mobj->z, mobj->type);
 
-						if (mobj->flags2 & MF2_STRONGBOX)
-							newmobj->flags2 |= MF2_STRONGBOX;
-
-						if (mobj->flags2 & MF2_OBJECTFLIP)
-							newmobj->flags2 |= MF2_OBJECTFLIP;
+						// Transfer flags2 (strongbox, objectflip)
+						newmobj->flags2 = mobj->flags2;
 					}
 					break;
 				case MT_QUESTIONBOX:
 					newmobj = P_SpawnMobj(mobj->x, mobj->y, mobj->z, MT_QUESTIONBOX);
 
-					if (mobj->flags2 & MF2_STRONGBOX)
-						newmobj->flags2 |= MF2_STRONGBOX;
-
-					if (mobj->flags2 & MF2_OBJECTFLIP)
-						newmobj->flags2 |= MF2_OBJECTFLIP;
+					// Transfer flags2 (strongbox, objectflip)
+					newmobj->flags2 = mobj->flags2;
 
 					break;
 				case MT_CHAOSSPAWNER: // Chaos Mode spawner thingy
@@ -8556,7 +8551,7 @@ void P_ColorTeamMissile(mobj_t *missile, player_t *source)
 // P_SPMAngle
 // Tries to aim at a nearby monster
 //
-mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaiming, int flags2)
+mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaiming, int flags2, boolean reflected)
 {
 	mobj_t *th;
 	angle_t an;
@@ -8611,6 +8606,9 @@ mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaim
 	th = P_SpawnMobj(x, y, z, type);
 
 	th->flags2 |= flags2;
+
+	if (reflected)
+		th->flags2 |= MF2_REFLECTED;
 
 #ifdef WEAPON_SFX
 	//Since rail and bounce have no thrown objects, this hack is necessary.

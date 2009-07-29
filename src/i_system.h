@@ -325,4 +325,6 @@ char *I_GetEnv(const char *name);
 
 int I_PutEnv(char *variable);
 
+void I_RegisterSysCommands(void);
+
 #endif

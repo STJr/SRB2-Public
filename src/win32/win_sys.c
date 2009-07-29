@@ -3049,14 +3049,15 @@ typedef struct LinkedMem_s {
 static LinkedMem_p lm = NULL;
 static HANDLE hMapObject = NULL;
 
-typedef HANDLE (WINAPI *MyFunc4) (DWORD, BOOL, LPCSTR);
-typedef LPVOID (WINAPI *MyFunc5) (HANDLE, DWORD, DWORD, DWORD, SIZE_T);
+typedef HANDLE (WINAPI *p_OpenFileMappingA) (DWORD, BOOL, LPCSTR);
+typedef LPVOID (WINAPI *p_MapViewOfFile) (HANDLE, DWORD, DWORD, DWORD, SIZE_T);
 
 void I_SetupMumble(void)
 {
 	const wchar_t GameW[] = {'S','R','B','2',0};
-	MyFunc4 pfnshm_open = (MyFunc4)GetProcAddress(GetModuleHandleA("kernel32.dll"), "OpenFileMappingA");
-	MyFunc5 pfnmmap = (MyFunc5)GetProcAddress(GetModuleHandleA("kernel32.dll"), "MapViewOfFile");
+	HMODULE h = GetModuleHandleA("kernel32.dll");
+	p_OpenFileMappingA pfnshm_open = (p_OpenFileMappingA)GetProcAddress(h, "OpenFileMappingA");
+	p_MapViewOfFile pfnmmap = (p_MapViewOfFile)GetProcAddress(h, "MapViewOfFile");
 	if (!pfnshm_open || !pfnmmap)
 		return;
 	hMapObject = pfnshm_open(FILE_MAP_ALL_ACCESS, FALSE, "MumbleLink");
@@ -3487,17 +3488,17 @@ void I_ShutdownSystem(void)
 }
 
 // my god how win32 suck
-typedef BOOL (WINAPI *MyFunc)(LPCSTR RootName, PULARGE_INTEGER pulA, PULARGE_INTEGER pulB, PULARGE_INTEGER pulFreeBytes);
+typedef BOOL (WINAPI *p_GetDiskFreeSpaceExA)(LPCSTR, PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER);
 
 void I_GetDiskFreeSpace(INT64* freespace)
 {
-	static MyFunc pfnGetDiskFreeSpaceEx = NULL;
+	static p_GetDiskFreeSpaceExA pfnGetDiskFreeSpaceEx = NULL;
 	static boolean testwin95 = false;
 	INT64 usedbytes;
 
 	if (!testwin95)
 	{
-		pfnGetDiskFreeSpaceEx = (MyFunc)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetDiskFreeSpaceExA");
+		pfnGetDiskFreeSpaceEx = (p_GetDiskFreeSpaceExA)GetProcAddress(GetModuleHandleA("kernel32.dll"), "GetDiskFreeSpaceExA");
 		testwin95 = true;
 	}
 	if (pfnGetDiskFreeSpaceEx)
@@ -3566,13 +3567,13 @@ int I_PutEnv(char *variable)
 	return putenv(variable);
 }
 
-typedef BOOL (WINAPI *MyFunc3) (DWORD);
+typedef BOOL (WINAPI *p_IsProcessorFeaturePresent) (DWORD);
 
 const CPUInfoFlags *I_CPUInfo(void)
 {
 	static CPUInfoFlags WIN_CPUInfo;
 	SYSTEM_INFO SI;
-	MyFunc3 pfnCPUID = (MyFunc3)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsProcessorFeaturePresent");
+	p_IsProcessorFeaturePresent pfnCPUID = (p_IsProcessorFeaturePresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsProcessorFeaturePresent");
 
 	ZeroMemory(&WIN_CPUInfo,sizeof (WIN_CPUInfo));
 	if (pfnCPUID)
@@ -3600,4 +3601,52 @@ const CPUInfoFlags *I_CPUInfo(void)
 	WIN_CPUInfo.IA64 = (SI.dwProcessorType == 2200); // PROCESSOR_INTEL_IA64
 	WIN_CPUInfo.AMD64 = (SI.dwProcessorType == 8664); // PROCESSOR_AMD_X8664
 	return &WIN_CPUInfo;
+}
+
+static void CPUAffinity_OnChange(void);
+static consvar_t cv_cpuaffinity = {"cpuaffinity", "1", CV_SAVE | CV_CALL, NULL, CPUAffinity_OnChange, 0, NULL, NULL, 0, 0, NULL};
+
+typedef HANDLE (WINAPI *p_GetCurrentProcess) (VOID);
+static p_GetCurrentProcess pfnGetCurrentProcess = NULL;
+typedef BOOL (WINAPI *p_GetProcessAffinityMask) (HANDLE, PDWORD_PTR, PDWORD_PTR);
+static p_GetProcessAffinityMask pfnGetProcessAffinityMask = NULL;
+typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
+static p_SetProcessAffinityMask pfnSetProcessAffinityMask = NULL;
+
+static inline VOID GetAffinityFuncs(VOID)
+{
+	HMODULE h = GetModuleHandleA("kernel32.dll");
+	pfnGetCurrentProcess = (p_GetCurrentProcess)GetProcAddress(h, "GetCurrentProcess");
+	pfnGetProcessAffinityMask = (p_GetProcessAffinityMask)GetProcAddress(h, "GetProcessAffinityMask");
+	pfnSetProcessAffinityMask = (p_SetProcessAffinityMask)GetProcAddress(h, "SetProcessAffinityMask");
+}
+
+static void CPUAffinity_OnChange(void)
+{
+	DWORD dwProcMask, dwSysMask;
+	HANDLE selfpid;
+
+	if (!pfnGetCurrentProcess || !pfnGetProcessAffinityMask || !pfnSetProcessAffinityMask)
+		return;
+	else
+		selfpid = pfnGetCurrentProcess();
+
+	pfnGetProcessAffinityMask(selfpid, &dwProcMask, &dwSysMask);
+
+	/* If resulting mask is zero, don't change anything and fall back to
+	 * actual mask.
+	 */
+	if(dwSysMask & cv_cpuaffinity.value)
+	{
+		pfnSetProcessAffinityMask(selfpid, dwSysMask & cv_cpuaffinity.value);
+		CV_StealthSetValue(&cv_cpuaffinity, (int)(dwSysMask & cv_cpuaffinity.value));
+	}
+	else
+		CV_StealthSetValue(&cv_cpuaffinity, (int)dwProcMask);
+}
+
+void I_RegisterSysCommands(void)
+{
+	GetAffinityFuncs();
+	CV_RegisterVar(&cv_cpuaffinity);
 }

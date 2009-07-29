@@ -66,7 +66,7 @@
 #define MK_XBUTTON2 64
 #endif
 
-typedef BOOL (WINAPI *P_IsDebuggerPresent)(VOID);
+typedef BOOL (WINAPI *p_IsDebuggerPresent)(VOID);
 
 HWND hWndMain = NULL;
 static HCURSOR windowCursor = NULL; // main window cursor
@@ -744,7 +744,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 	int Result = -1;
 
 	// Win95 and NT <4 don't have this, so link at runtime.
-	P_IsDebuggerPresent pfnIsDebuggerPresent = (P_IsDebuggerPresent)GetProcAddress(GetModuleHandleA("kernel32.dll"),"IsDebuggerPresent");
+	p_IsDebuggerPresent pfnIsDebuggerPresent = (p_IsDebuggerPresent)GetProcAddress(GetModuleHandleA("kernel32.dll"),"IsDebuggerPresent");
 
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);

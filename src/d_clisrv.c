@@ -159,7 +159,7 @@ void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam)
 	if (demoplayback)
 		return;
 
-	if (localtextcmd[0]+1+nparam > MAXTEXTCMD)
+	if (localtextcmd[0]+2+nparam > MAXTEXTCMD)
 	{
 		// Don't allow stupid users to fill up the command buffer.
 		if (cv_debug) // If you're not in debug, it just ain't gonna happen...
@@ -183,7 +183,7 @@ void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam)
 	if (demoplayback)
 		return;
 
-	if (localtextcmd2[0]+1+nparam > MAXTEXTCMD)
+	if (localtextcmd2[0]+2+nparam > MAXTEXTCMD)
 	{
 		I_Error("No more place in the buffer for netcmd %d\n",id);
 		return;
@@ -195,6 +195,12 @@ void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam)
 		memcpy(&localtextcmd2[localtextcmd2[0]+1], param, nparam);
 		localtextcmd2[0] = (byte)(localtextcmd2[0] + (byte)nparam);
 	}
+}
+
+byte GetFreeXCmdSize(void)
+{
+	// -1 for the size and another -1 for the ID.
+	return localtextcmd[0] - 2;
 }
 
 static void ExtraDataTicker(void)
@@ -1649,6 +1655,12 @@ void SV_ResetServer(void)
 	{
 		playeringame[i] = false;
 		playernode[i] = (byte)-1;
+
+		// keep your name, but clear everything else.
+		if (!i && cv_playername.string)
+			strcpy(player_names[i], cv_playername.string);
+		else
+			sprintf(player_names[i], "Player %d", i);
 	}
 
 	mynode = 0;
@@ -2233,6 +2245,8 @@ FILESTAMP
 				if (realstart <= gametic && realstart > gametic - BACKUPTICS+1 &&
 					consistancy[realstart%BACKUPTICS] != netbuffer->u.clientpak.consistancy)
 				{
+					boolean sentconsrestore = false;
+
 					if (cv_consfailprotect.value && players[netconsole].mo && consfailcount[netconsole] < cv_consfailprotect.value)
 					{
 						if (!timetonextconspacket) // Only allow one packet to be sent per second so we don't flood the net buffer.
@@ -2244,6 +2258,7 @@ FILESTAMP
 							int numbytes = 0;
 							int fakenumbytes = 0;
 							int i;
+							int xcmdfree = GetFreeXCmdSize();
 
 							if (cv_blamecfail.value)
 								CONS_Printf(text[CONSFAILRESTORE], netconsole);
@@ -2264,7 +2279,7 @@ FILESTAMP
 								if (!playeringame[i] || !players[i].mo)
 									continue;
 
-								if (fakenumbytes + 25 > 254)
+								if (fakenumbytes + 25 > xcmdfree)
 									break;
 
 								fakenumbytes += 25;
@@ -2280,7 +2295,7 @@ FILESTAMP
 								if (!playeringame[i] || !players[i].mo)
 									continue;
 
-								if (numbytes + 25 > 254)
+								if (numbytes + 25 > xcmdfree)
 									break;
 
 								WRITEBYTE(cp, (byte)i);
@@ -2294,8 +2309,14 @@ FILESTAMP
 								numbytes += 25;
 							}
 
-							SendNetXCmd(XD_CONSISTENCY, &buf, numbytes);
-							timetonextconspacket += TICRATE;
+							// Only send full restoration packets.
+							if (i >= MAXPLAYERS)
+							{
+								SendNetXCmd(XD_CONSISTENCY, &buf, numbytes);
+								sentconsrestore = true;
+								timetonextconspacket += TICRATE;
+							}
+
 /*
 							buf[0] = (char)netconsole;
 							buf[1] = P_GetRandIndex();

@@ -1156,6 +1156,8 @@ void D_SRB2Main(void)
 	R_RegisterEngineStuff();
 	S_RegisterSoundStuff();
 
+	I_RegisterSysCommands();
+
 	//--------------------------------------------------------- CONFIG.CFG
 	M_FirstLoadConfig(); // WARNING : this do a "COM_BufExecute()"
 

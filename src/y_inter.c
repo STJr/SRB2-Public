@@ -578,6 +578,15 @@ void Y_Ticker(void)
 
 	intertic++;
 
+	// Team scramble code for team match and CTF.
+	if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) && cv_teamscramble.value && server)
+	{
+		// If we run out of time in intermission, the beauty is that
+		// the P_Ticker() team scramble code will pick it up.
+		if ((intertic % (TICRATE/7)) == 0)
+			P_DoTeamscrambling();
+	}
+
 	// multiplayer uses timer (based on cv_inttime)
 	if (timer)
 	{

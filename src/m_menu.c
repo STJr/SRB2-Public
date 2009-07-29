@@ -6661,6 +6661,9 @@ void M_EndGame(int choice)
 	if (demoplayback || demorecording)
 		return;
 
+	if (!Playing())
+		return;
+
 	M_StartMessage(text[ENDGAME],M_EndGameResponse,MM_YESNO);
 }
 
@@ -7398,7 +7401,7 @@ boolean M_Responder(event_t *ev)
 				}
 				else if (currentMenu == &LevelSelectDef)
 				{
-					// Don't let people backdoor their way into the Pandora's Box if they havn't earned it.
+					// Don't let people backdoor their way into Pandora's Box if they havn't earned it.
 					if (pandoralevelselect)
 					{
 						currentMenu = &SecretsDef;
@@ -7432,6 +7435,21 @@ boolean M_Responder(event_t *ev)
 			{
 				curSaveSelected = itemOn; // Eww eww!
 				M_StartMessage("Are you sure you want to delete\nthis save game?\n(Y/N)\n",M_SaveGameDeleteResponse,MM_YESNO);
+				return true;
+			}
+			else if (currentMenu == &LevelSelectDef)
+			{
+				// Don't let people backdoor their way into Pandora's Box if they havn't earned it.
+				if (pandoralevelselect)
+				{
+					currentMenu = &SecretsDef;
+					itemOn = currentMenu->lastOn;
+				}
+				else
+				{
+					currentMenu = &LoadDef;
+					itemOn = currentMenu->lastOn;
+				}
 				return true;
 			}
 			currentMenu->lastOn = itemOn;

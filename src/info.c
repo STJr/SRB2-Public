@@ -1336,7 +1336,7 @@ state_t states[NUMSTATES] =
 	{SPR_SEED, 32768, -1, {NULL}, 0, 0, S_NULL}, // S_SEED
 
 	// Particle sprite
-	{SPR_PRTL, 32768, 2*TICRATE, {NULL}, 0, 0, S_DISS}, // S_PARTICLE
+	{SPR_PRTL, 32768, 1*TICRATE, {NULL}, 0, 0, S_DISS}, // S_PARTICLE
 	{SPR_DISS,     0,         1, {A_ParticleSpawn}, 0, 0, S_PARTICLEGEN}, // S_PARTICLEGEN
 
 	{SPR_SCOR, 0, 32, {A_ScoreRise}, 0, 0, S_DISS}, // S_SCRA

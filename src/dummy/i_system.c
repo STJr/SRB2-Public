@@ -169,5 +169,7 @@ int I_PutEnv(char *variable)
 	return -1;
 }
 
+void I_RegisterSysCommands(void) {}
+
 #include "../sdl/dosstr.c"
 

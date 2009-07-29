@@ -49,7 +49,7 @@ FILE *logstream = NULL;
 
 #if defined (_WIN32) && !defined (_XBOX)
 #include "../win32/win_dbg.h"
-typedef BOOL (WINAPI *P_IsDebuggerPresent)(VOID);
+typedef BOOL (WINAPI *p_IsDebuggerPresent)(VOID);
 #endif
 
 #ifdef _arch_dreamcast
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	I_StartupSystem();
 #if defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
 	{
-		P_IsDebuggerPresent pfnIsDebuggerPresent = (P_IsDebuggerPresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsDebuggerPresent");
+		p_IsDebuggerPresent pfnIsDebuggerPresent = (p_IsDebuggerPresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsDebuggerPresent");
 		if ((!pfnIsDebuggerPresent || !pfnIsDebuggerPresent())
 #ifdef BUGTRAP
 			&& !InitBugTrap()
