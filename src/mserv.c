@@ -187,7 +187,9 @@ static void Command_Listserv_f(void);
 static void InternetServer_OnChange(void);
 static void MasterServer_OnChange(void);
 static void ServerName_OnChange(void);
+#ifndef NONET
 static int recvfull(int s, char *buf, int len, int flags);
+#endif
 
 #define DEF_PORT "28900"
 consvar_t cv_internetserver = {"internetserver", "No", 0, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -820,7 +822,7 @@ static void MasterServer_OnChange(void)
 	RegisterServer();
 }
 
-
+#ifndef NONET
 // Like recv, but waits until we've got enough data to fill the buffer.
 static int recvfull(int s, char *buf, int len, int flags)
 {
@@ -840,3 +842,4 @@ static int recvfull(int s, char *buf, int len, int flags)
 
 	return totallen;
 }
+#endif
