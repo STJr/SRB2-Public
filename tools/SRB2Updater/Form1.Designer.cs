@@ -35,14 +35,14 @@ namespace SRB2Updater
             this.prgDownload = new System.Windows.Forms.ProgressBar();
             this.lblProgress = new System.Windows.Forms.Label();
             this.fileList = new System.Windows.Forms.DataGridView();
+            this.update_optional = new System.Windows.Forms.CheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.filename = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.localmd5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.md5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.optional = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.update_optional = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.fileList)).BeginInit();
             this.SuspendLayout();
@@ -53,7 +53,7 @@ namespace SRB2Updater
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.prgDownload.Location = new System.Drawing.Point(12, 335);
             this.prgDownload.Name = "prgDownload";
-            this.prgDownload.Size = new System.Drawing.Size(507, 23);
+            this.prgDownload.Size = new System.Drawing.Size(461, 23);
             this.prgDownload.TabIndex = 3;
             // 
             // lblProgress
@@ -112,9 +112,29 @@ namespace SRB2Updater
             this.fileList.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.fileList.RowHeadersVisible = false;
             this.fileList.RowTemplate.ReadOnly = true;
-            this.fileList.Size = new System.Drawing.Size(507, 209);
+            this.fileList.Size = new System.Drawing.Size(461, 209);
             this.fileList.TabIndex = 10;
-//            this.fileList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.fileList_CellContentClick);
+            this.fileList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.fileList_CellContentClick);
+            // 
+            // update_optional
+            // 
+            this.update_optional.AutoSize = true;
+            this.update_optional.Location = new System.Drawing.Point(314, 364);
+            this.update_optional.Name = "update_optional";
+            this.update_optional.Size = new System.Drawing.Size(159, 17);
+            this.update_optional.TabIndex = 12;
+            this.update_optional.Text = "Download Optional Updates";
+            this.update_optional.UseVisualStyleBackColor = true;
+            this.update_optional.CheckedChanged += new System.EventHandler(this.update_Reload);
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Yellow;
+            this.panel1.BackgroundImage = global::SRB2Updater.Properties.Resources.updaterbanner;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(485, 80);
+            this.panel1.TabIndex = 11;
             // 
             // name
             // 
@@ -170,26 +190,6 @@ namespace SRB2Updater
             this.optional.ReadOnly = true;
             this.optional.Visible = false;
             // 
-            // update_optional
-            // 
-            this.update_optional.AutoSize = true;
-            this.update_optional.Location = new System.Drawing.Point(360, 364);
-            this.update_optional.Name = "update_optional";
-            this.update_optional.Size = new System.Drawing.Size(159, 17);
-            this.update_optional.TabIndex = 12;
-            this.update_optional.Text = "Download Optional Updates";
-            this.update_optional.UseVisualStyleBackColor = true;
-            this.update_optional.CheckedChanged += new System.EventHandler(this.update_Reload);
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.Yellow;
-            this.panel1.BackgroundImage = global::SRB2Updater.Properties.Resources.updaterbanner;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(532, 80);
-            this.panel1.TabIndex = 11;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -207,7 +207,7 @@ namespace SRB2Updater
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(227)))), ((int)(((byte)(255)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(531, 387);
+            this.ClientSize = new System.Drawing.Size(485, 387);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.update_optional);
             this.Controls.Add(this.panel1);
@@ -220,11 +220,11 @@ namespace SRB2Updater
             this.Name = "Form1";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.Text = "Sonic Robo Blast 2 Automatic Updater";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.update_Load);
             ((System.ComponentModel.ISupportInitialize)(this.fileList)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
 
         }
 

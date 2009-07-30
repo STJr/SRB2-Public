@@ -11,7 +11,7 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
-//using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Diagnostics;
 
 namespace SRB2Updater
@@ -54,8 +54,7 @@ namespace SRB2Updater
         public string getMD5(string filename)
         {
             StringBuilder sb = new StringBuilder();
-            FileInfo f = new FileInfo(filename);
-            FileStream fs = f.OpenRead();
+            FileStream fs = new FileStream(filename, FileMode.Open);
             MD5 md5 = new MD5CryptoServiceProvider();
             byte[] hash = md5.ComputeHash(fs);
             fs.Close();
@@ -71,7 +70,7 @@ namespace SRB2Updater
             {
 
                 XmlDataDocument xmlDatadoc = new XmlDataDocument();
-                xmlDatadoc.DataSet.ReadXml("http://update.srb2.org/files/files.xml");
+                xmlDatadoc.DataSet.ReadXml("http://cue.srb2.org/update/files.xml");
                 DataSet ds = new DataSet("Files DataSet");
                 ds = xmlDatadoc.DataSet;
                 fileList.DataSource = ds.DefaultViewManager;
@@ -86,20 +85,16 @@ namespace SRB2Updater
             {
                 foreach (DataGridViewRow fileRow in fileList.Rows)
                 {
-                    if (!File.Exists(fileRow.Cells["filename"].Value.ToString()) && fileRow.Cells["filename"].Value.ToString() != "srb2update.update")
+                    if (!File.Exists(fileRow.Cells["filename"].Value.ToString()))
                     {
                         fileRow.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
                         fileRow.Cells["localmd5"].Value = "not_found";
                     } else {
-                        if (fileRow.Cells["filename"].Value.ToString() == "srb2update.update")
-                            fileRow.Cells["localmd5"].Value = getMD5("srb2update.exe");
-                        else
-                            fileRow.Cells["localmd5"].Value = getMD5(fileRow.Cells["filename"].Value.ToString());
+                        fileRow.Cells["localmd5"].Value = getMD5(fileRow.Cells["filename"].Value.ToString());
                     }
                     if (fileRow.Cells["localmd5"].Value.ToString() != fileRow.Cells["md5"].Value.ToString())
                     {
-                        if (fileRow.Cells["localmd5"].Value.ToString() != "not_found")
-                            fileRow.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(209)))), ((int)(((byte)(255)))));
+                        fileRow.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(209)))), ((int)(((byte)(255)))));
                         fileRow.Cells["status"].Value = "Queued";
                     }
                     else
@@ -135,7 +130,7 @@ namespace SRB2Updater
                 DialogResult dr = MessageBox.Show("Updates are complete, would you like to run SRB2 now?", "Updates Complete", MessageBoxButtons.YesNo);
                 switch(dr){
                     case DialogResult.Yes:
-                        System.Diagnostics.Process.Start(@"srb2win.exe"); Environment.Exit(0); break;
+                        System.Diagnostics.Process.Start(@"srb2win.exe"); Application.Exit();break;
                     case DialogResult.No: break;
                 }
             }
@@ -150,8 +145,8 @@ namespace SRB2Updater
             // Display the current progress on the form
             lblProgress.Text = downFile + " - " + (BytesRead / 1024) + "KB of " + (TotalBytes / 1024) + "KB (" + PercentProgress + "%)";
             this.Text = formTitle + " :: Downloading " + downFile + " (" + PercentProgress + "%)";
-            if (BytesRead >= TotalBytes - 1)
-                    updateList();          
+            if (BytesRead == TotalBytes)
+                updateList();
         }
 
         private void Download(object startpoint)
@@ -160,7 +155,7 @@ namespace SRB2Updater
             {
                 string filename = Convert.ToString(startpoint);
                 // Create a request to the file we are downloading
-                webRequest = (HttpWebRequest)WebRequest.Create("http://update.srb2.org/updater/" + downFile);
+                webRequest = (HttpWebRequest)WebRequest.Create("http://cue.srb2.org/update/" + downFile);
                 // Set the starting point of the request
                 webRequest.AddRange(0);
 
@@ -204,13 +199,12 @@ namespace SRB2Updater
                 downloadStatus = false;
                 if (downFile == "srb2update.update" && loadedBat != true)
                 {
-                    MessageBox.Show("The updater will now restart to apply a patch.", "Self Update", MessageBoxButtons.OK);
                     CreateUpdaterBat();
                     startinfo.WindowStyle = ProcessWindowStyle.Hidden;
                     startinfo.FileName = "srb2update.bat";
                     System.Diagnostics.Process.Start(startinfo);
                     downloadStatus = false;
-                    Environment.Exit(0);
+                    Application.Exit();
                 } else
                     updateList();
             }
@@ -223,7 +217,7 @@ namespace SRB2Updater
 
         private void CreateUpdaterBat()
         {
-            File.WriteAllText("srb2update.bat", "ping 127.0.0.1\ncopy srb2update.update srb2update.exe\ndel srb2update.update\nsrb2update.exe\nexit");
+            File.WriteAllText("srb2update.bat", "ping 127.0.0.1\ncopy srb2update.update srb2update.exe\ndel srb2update.update\nping 127.0.0.1\nsrb2update.exe\nexit");
         }
 
         private void ShowChangeLog()
@@ -240,11 +234,6 @@ namespace SRB2Updater
             updateList();
         }
 
-        private void On_Close(object sender, EventArgs e)
-        {
-            Environment.Exit(0);
-        }
-
         private void update_Reload(object sender, EventArgs e)
         {
             updateList();
@@ -255,14 +244,19 @@ namespace SRB2Updater
 
         }
 
+        private void btnQuit_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
         private void btnMinimize_Click(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
         }
 
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        private void fileList_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            Application.Exit();
+
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -271,5 +265,75 @@ namespace SRB2Updater
             thrChangeLog.SetApartmentState(ApartmentState.STA);
             thrChangeLog.Start();
         }
+
+/*        private void btnStop_Click(object sender, EventArgs e)
+        {
+            // Abort the thread that's downloading
+            thrDownload.Abort();
+            // Close the web response and the streams
+            webResponse.Close();
+            strResponse.Close();
+            strLocal.Close();
+            // Set the progress bar back to 0 and the label
+            prgDownload.Value = 0;
+            lblProgress.Text = "Download Stopped";
+            // Disable the Pause/Resume button because the download has ended
+            btnPauseResume.Enabled = false;
+        }
+
+        private void btnPauseResume_Click(object sender, EventArgs e)
+        {
+            // If the thread exists
+            if (thrDownload != null)
+            {
+                if (btnPauseResume.Text == "Pause")
+                {
+                    // The Pause/Resume button was set to Pause, thus pause the download
+                    goPause = true;
+
+                    // Now that the download was paused, turn the button into a resume button
+                    btnPauseResume.Text = "Resume";
+
+                    // Close the web response and the streams
+                    webResponse.Close();
+                    strResponse.Close();
+                    strLocal.Close();
+                    // Abort the thread that's downloading
+                    thrDownload.Abort();
+                }
+                else
+                {
+                    // The Pause/Resume button was set to Resume, thus resume the download
+                    goPause = false;
+
+                    // Now that the download was resumed, turn the button into a pause button
+                    btnPauseResume.Text = "Pause";
+
+                    long startPoint = 0;
+
+                    if (File.Exists(txtPath.Text))
+                    {
+                        startPoint = new FileInfo(txtPath.Text).Length;
+                    }
+                    else
+                    {
+                        MessageBox.Show("The file you choosed to resume doesn't exist.", "Could not resume", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    // Let the user know we are connecting to the server
+                    lblProgress.Text = "Download Resuming";
+                    // Create a new thread that calls the Download() method
+                    thrDownload = new Thread(new ParameterizedThreadStart(Download));
+                    // Start the thread, and thus call Download()
+                    thrDownload.Start(startPoint);
+                    // Enable the Pause/Resume button
+                    btnPauseResume.Enabled = true;
+                }
+            }
+            else
+            {
+                MessageBox.Show("A download does not appear to be in progress.", "Could not pause", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }*/
     }
 }
