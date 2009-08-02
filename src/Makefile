@@ -386,7 +386,7 @@ asm:
 
 # executable
 
-$(BIN)/$(EXENAME):
+$(BIN)/$(EXENAME): $(OBJS)
 	-@mkdir -p $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
