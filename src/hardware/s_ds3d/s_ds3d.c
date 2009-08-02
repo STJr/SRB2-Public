@@ -591,7 +591,7 @@ EXPORT BOOL HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 	// Query for 3D Listener object
 	hr = IDirectSoundBuffer_QueryInterface(PrimaryBuffer,
-	    &IID_IDirectSound3DListener, (void **)&Listener);
+	 &IID_IDirectSound3DListener, (void **)&Listener);
 
 	if (FAILED(hr))
 	{

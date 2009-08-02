@@ -289,7 +289,7 @@ void Y_IntermissionDrawer(void)
 	}
 	else if (inttype == int_match || inttype == int_race)
 	{
-		int i;
+		int i = 0, j = 0;
 		int x = 4;
 		int y = 48;
 		char name[MAXPLAYERNAME+1];
@@ -329,7 +329,8 @@ void Y_IntermissionDrawer(void)
 			if (data.match.spectator[i])
 				continue; //Ignore spectators.
 
-			V_DrawCenteredString(x+6, y, 0, va("%d", i+1));
+			V_DrawCenteredString(x+6, y, 0, va("%d", j+1));
+			j++; //We skip spectators, but not their number.
 
 			if (playeringame[data.match.num[i]])
 			{
@@ -560,6 +561,10 @@ void Y_IntermissionDrawer(void)
 	if (timer)
 		V_DrawCenteredString(BASEVIDWIDTH/2, 188, V_YELLOWMAP,
 			va("start in %d seconds", timer/TICRATE));
+
+	// Make it obvious that scrambling is happening next round.
+	if (cv_scrambleonchange.value && cv_teamscramble.value && (intertic/TICRATE % 2 == 0))
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2, V_YELLOWMAP, va("Teams will be scrambled next round!"));
 }
 
 //
@@ -579,7 +584,9 @@ void Y_Ticker(void)
 	intertic++;
 
 	// Team scramble code for team match and CTF.
-	if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) && cv_teamscramble.value && server)
+	// Don't do this if we're going to automatically scramble teams next round.
+	if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+	    && cv_teamscramble.value && !cv_scrambleonchange.value && server)
 	{
 		// If we run out of time in intermission, the beauty is that
 		// the P_Ticker() team scramble code will pick it up.

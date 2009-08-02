@@ -1274,7 +1274,7 @@ void I_UpdateNoBlit(void)
 }
 
 #define FPSPOINTS  35
-#define SCALE	  4
+#define SCALE      4
 #define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
 
 static int fpsgraph[FPSPOINTS];

@@ -371,7 +371,7 @@ void P_Ticker(void)
 	P_MapStart();
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		if (playeringame[i])
+		if (playeringame[i] && players[i].mo)
 			P_PlayerThink(&players[i]);
 
 	// Keep track of how long they've been playing!

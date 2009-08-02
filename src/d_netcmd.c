@@ -107,7 +107,6 @@ static void Skin2_OnChange(void);
 static void Color_OnChange(void);
 static void Color2_OnChange(void);
 static void DummyConsvar_OnChange(void);
-static void DummyTeam_OnChange(void);
 static void SoundTest_OnChange(void);
 
 #ifdef FISHCAKE
@@ -225,9 +224,13 @@ static consvar_t cv_fishcake = {"fishcake", "Off", CV_CALL|CV_NOSHOWHELP, CV_OnO
 static consvar_t cv_dummyconsvar = {"dummyconsvar", "Off", CV_CALL|CV_NOSHOWHELP, CV_OnOff,
 	DummyConsvar_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
-// Hack for team change menu.
+//Console variables used solely in the menu system.
+//todo: add a way to use non-console variables in the menu
+//      or make these consvars legitimate like color or skin.
 static CV_PossibleValue_t dummyteam_cons_t[] = {{0, "Spectator"}, {1, "Red"}, {2, "Blue"}, {0, NULL}};
-consvar_t cv_dummyteam = {"dummyteam", "Spectator", CV_CALL|CV_NOINIT|CV_HIDEN, dummyteam_cons_t, DummyTeam_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_dummyteam = {"dummyteam", "Spectator", CV_HIDEN, dummyteam_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+static CV_PossibleValue_t dummyscramble_cons_t[] = {{0, "Random"}, {1, "Points"}, {0, NULL}};
+consvar_t cv_dummyscramble = {"dummyscramble", "Random", CV_HIDEN, dummyscramble_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_allowteamchange = {"allowteamchange", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_racetype = {"racetype", "Normal", CV_NETVAR, racetype_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -334,11 +337,11 @@ consvar_t cv_gravity = {"gravity", "0.5", CV_NETVAR|CV_FLOAT|CV_CALL, NULL, Grav
 
 consvar_t cv_soundtest = {"soundtest", "0", CV_CALL, NULL, SoundTest_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
-consvar_t cv_countdowntime = {"countdowntime", "60", CV_NETVAR, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
+static CV_PossibleValue_t minitimelimit_cons_t[] = {{15, "MIN"}, {9999, "MAX"}, {0, NULL}};
+consvar_t cv_countdowntime = {"countdowntime", "60", CV_NETVAR, minitimelimit_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_tagtype = {"tagtype", "Normal", CV_NETVAR|CV_CALL, tagtype_cons_t, Tagtype_OnChange, 0, NULL, NULL, 0, 0, NULL};
-static CV_PossibleValue_t hidetime_cons_t[] = {{0, "MIN"}, {90, "MAX"}, {0, NULL}};
-consvar_t cv_hidetime = {"hidetime", "30", CV_NETVAR|CV_CALL, hidetime_cons_t, Hidetime_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_hidetime = {"hidetime", "30", CV_NETVAR|CV_CALL, minitimelimit_cons_t, Hidetime_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_autobalance = {"autobalance", "0", CV_NETVAR|CV_CALL, autobalance_cons_t, AutoBalance_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_teamscramble = {"teamscramble", "Off", CV_NETVAR|CV_CALL|CV_NOINIT, teamscramble_cons_t, TeamScramble_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -758,8 +761,9 @@ void D_RegisterClientCommands(void)
 	COM_AddCommand("hurtme", Command_Hurtme_f);
 	COM_AddCommand("charability", Command_Charability_f);
 
-	// hack for team change menu
+	// hacks for menu system.
 	CV_RegisterVar(&cv_dummyteam);
+	CV_RegisterVar(&cv_dummyscramble);
 }
 
 #if 0 //keeping this for refrence purposes. -Jazz
@@ -1870,6 +1874,9 @@ void D_MapChange(int mapnum, int newgametype, boolean pultmode, int resetplayers
 
 		buf[3] = (char)skipprecutscene;
 
+		if (netgame || multiplayer)
+			FLS = false;
+
 		buf[4] = (char)FLS;
 
 		SendNetXCmd(XD_MAP, buf, 5+strlen(MAPNAME)+1);
@@ -2138,7 +2145,7 @@ static void Got_Mapcmd(byte **cp, int playernum)
 
 	if (resetplayer)
 	{
-		if (!FLS)
+		if (!FLS || (netgame || multiplayer))
 			emeralds = 0;
 	}
 
@@ -3085,6 +3092,9 @@ static void Got_Consistency(byte **cp, int playernum)
 
 	for (i = 0; i < numplayers; i++)
 	{
+		if (!playeringame[i] || !players[i].mo)
+			continue;
+
 		j = READBYTE(*cp);
 		x = READFIXED(*cp);
 		y = READFIXED(*cp);
@@ -4151,7 +4161,10 @@ static void Cheats_OnChange(void)
 		CV_StealthSetValue(&cv_cheats, 0);
 
 	if (cv_cheats.value && !cheats)
-		CONS_Printf("%s", text[CHEATS_ACTIVATED]);
+	{
+		HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
+		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
+	}
 
 	cheats = cv_cheats.value;
 }
@@ -4230,7 +4243,7 @@ static void Tagtype_OnChange(void)
 
 static void Hidetime_OnChange(void)
 {
-	if (gamestate == GS_LEVEL && ((cv_timelimit.value * 60) <= cv_hidetime.value))
+	if ((gamestate == GS_LEVEL && gametype == GT_TAG) && ((cv_timelimit.value * 60) <= cv_hidetime.value))
 	{
 		CONS_Printf("%s", text[HIDETIME_ERROR]);
 		CV_StealthSetValue(&cv_hidetime, hidetime);
@@ -4639,17 +4652,6 @@ static void DummyConsvar_OnChange(void)
 		CV_SetValue(&cv_dummyconsvar, 0);
 		CV_ClearChangedFlags();
 	}
-}
-
-//todo: add a way to use non-console variables in the menu
-//      or make this consvar legitimate like color or skin.
-static void DummyTeam_OnChange(void)
-{
-	if (!(netgame || multiplayer))
-		return;
-
-	if (!(gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)))
-		CV_StealthSetValue(&cv_dummyteam, 0);
 }
 
 static void Command_ShowScores_f(void)

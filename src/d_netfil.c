@@ -631,21 +631,23 @@ void Got_Filetxpak(void)
 		{
 			Net_GetNetStat();
 			CONS_Printf("\r%s %luK/%luK %.1fK/s\n",fileneeded[filenum].filename,
-			                                   fileneeded[filenum].currentsize>>10,
-			                                   fileneeded[filenum].totalsize>>10,
-			                                   ((double)getbps)/1024);
+			                                       fileneeded[filenum].currentsize>>10,
+			                                       fileneeded[filenum].totalsize>>10,
+			                                       ((double)getbps)/1024);
 
 			// Draw a status box in the middle of the screen.
 			M_DrawTextBox(24, (BASEVIDHEIGHT/2)-7, 32, 4);
 			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2, 0, "Downloading files...");
 			V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+12, 0, va("\r%s\n",fileneeded[filenum].filename));
 			if (fileneeded[filenum].totalsize != (ULONG)-1)
-				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0, va("%luK/%luK %.1fK/s\n",fileneeded[filenum].currentsize>>10,
-		                                   fileneeded[filenum].totalsize>>10,
-		                                   ((double)getbps)/1024));
+				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0,
+		         va("%luK/%luK %.1fK/s\n",fileneeded[filenum].currentsize>>10,
+		                                  fileneeded[filenum].totalsize>>10,
+		                                  ((double)getbps)/1024));
 			else //don't show the total file size if we don't know what it IS!
-				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0, va("%luK/??K %.1fK/s\n",fileneeded[filenum].currentsize>>10,
-		                                   ((double)getbps)/1024));
+				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0,
+				 va("%luK/??K %.1fK/s\n",fileneeded[filenum].currentsize>>10,
+		                                 ((double)getbps)/1024));
 		}
 
 		// finished?

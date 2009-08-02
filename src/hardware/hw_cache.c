@@ -144,19 +144,22 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 
 				// hope compiler will get this switch out of the loops (dreams...)
 				// gcc do it ! but vcc not ! (why don't use cygwin gcc for win32 ?)
-			   // Alam: SRB2 uses Mingw, HUGS
+				// Alam: SRB2 uses Mingw, HUGS
 				switch (bpp)
 				{
-					case 2 : *((unsigned short *)dest) = (unsigned short)((alpha<<8) | texel);       break;
+					case 2 : *((unsigned short *)dest) = (unsigned short)((alpha<<8) | texel);
+					         break;
 					case 3 : colortemp = V_GetColor(texel);
 					         ((RGBA_t *)dest)->s.red   = colortemp.s.red;
 					         ((RGBA_t *)dest)->s.green = colortemp.s.green;
 					         ((RGBA_t *)dest)->s.blue  = colortemp.s.blue;
 					         break;
 					case 4 : *((RGBA_t *)dest) = V_GetColor(texel);
-							  ((RGBA_t *)dest)->s.alpha = alpha;                   break;
+					         ((RGBA_t *)dest)->s.alpha = alpha;
+					         break;
 					// default is 1
-					default: *dest = texel;                                       break;
+					default: *dest = texel;
+					         break;
 				}
 
 				dest += blockmodulo;
@@ -332,9 +335,9 @@ static void HWR_GenerateTexture(int texnum, GLTexture_t *grtex)
 
 	// hack the Legacy skies..
 	if (texture->name[0] == 'S' &&
-	     texture->name[1] == 'K' &&
-	     texture->name[2] == 'Y' &&
-	     texture->name[4] == 0)
+	    texture->name[1] == 'K' &&
+	    texture->name[2] == 'Y' &&
+	    texture->name[4] == 0)
 	{
 		skyspecial = true;
 		grtex->mipmap.flags = TF_WRAPXY; // don't use the chromakey for sky
@@ -368,20 +371,18 @@ static void HWR_GenerateTexture(int texnum, GLTexture_t *grtex)
 	}
 
 	// Composite the columns together.
-	for (i = 0, patch = texture->patches;
-	 i < texture->patchcount;
-	 i++, patch++)
+	for (i = 0, patch = texture->patches; i < texture->patchcount; i++, patch++)
 	{
 		realpatch = W_CacheLumpNum (patch->patch, PU_CACHE);
 		HWR_DrawPatchInCache(&grtex->mipmap,
-		                      blockwidth, blockheight,
-		                      blockwidth*format2bpp[grtex->mipmap.grInfo.format],
-		                      texture->width, texture->height,
-		                      patch->originx, patch->originy,
-		                      realpatch,
-		                      format2bpp[grtex->mipmap.grInfo.format]);
+		                     blockwidth, blockheight,
+		                     blockwidth*format2bpp[grtex->mipmap.grInfo.format],
+		                     texture->width, texture->height,
+		                     patch->originx, patch->originy,
+		                     realpatch,
+		                     format2bpp[grtex->mipmap.grInfo.format]);
 	}
-	 //Hurdler: not efficient at all but I don't remember exactly how HWR_DrawPatchInCache works :(
+	//Hurdler: not efficient at all but I don't remember exactly how HWR_DrawPatchInCache works :(
 	if (format2bpp[grtex->mipmap.grInfo.format]==4)
 	{
 		for (i = 3; i < blocksize; i += 4)
@@ -448,12 +449,12 @@ void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipm
 	newheight = min(SHORT(patch->height), blockheight);
 
 	HWR_DrawPatchInCache(grMipmap,
-	                      newwidth, newheight,
-	                      blockwidth*format2bpp[grMipmap->grInfo.format],
-	                      SHORT(patch->width), SHORT(patch->height),
-	                      0, 0,
-	                      patch,
-	                      format2bpp[grMipmap->grInfo.format]);
+	                     newwidth, newheight,
+	                     blockwidth*format2bpp[grMipmap->grInfo.format],
+	                     SHORT(patch->width), SHORT(patch->height),
+	                     0, 0,
+	                     patch,
+	                     format2bpp[grMipmap->grInfo.format]);
 
 	grPatch->max_s = (float)newwidth / (float)blockwidth;
 	grPatch->max_t = (float)newheight / (float)blockheight;

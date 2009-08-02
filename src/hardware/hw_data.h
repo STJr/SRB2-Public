@@ -86,7 +86,7 @@ struct GLPatch_s
 	//
 	float               max_s,max_t;
 	lumpnum_t           patchlump;      // the software patch lump num for when the hardware patch
-	                                   // was flushed, and we need to re-create it
+	                                    // was flushed, and we need to re-create it
 	GLMipmap_t       mipmap;
 };
 typedef struct GLPatch_s GLPatch_t;

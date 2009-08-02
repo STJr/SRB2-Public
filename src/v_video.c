@@ -2237,7 +2237,7 @@ int V_LevelNameHeight(const char *string)
 	{
 		c = toupper(string[i]) - LT_FONTSTART;
 		if (c < 0 || (c >= HU_REALFONTSIZE && c != '~' - HU_FONTSTART && c != '`' - HU_FONTSTART)
-		 || hu_font[c] == NULL)
+		    || hu_font[c] == NULL)
 			continue;
 
 		if (lt_font[c]->height > w)

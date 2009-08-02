@@ -818,9 +818,9 @@ boolean CON_Responder(event_t *ev)
 	if (key >= KEY_KEYPAD7 && key <= KEY_KPADDEL)
 	{
 		XBOXSTATIC char keypad_translation[] = {'7','8','9','-',
-		                             '4','5','6','+',
-		                             '1','2','3',
-		                             '0','.'};
+		                                        '4','5','6','+',
+		                                        '1','2','3',
+		                                        '0','.'};
 
 		key = keypad_translation[key - KEY_KEYPAD7];
 	}

@@ -165,12 +165,12 @@ namespace SRB2Updater
                 webResponse = (HttpWebResponse)webRequest.GetResponse();
                 // Ask the server for the file size and store it
                 Int64 fileSize = webResponse.ContentLength;
-                
-                // Open the URL for download 
+
+                // Open the URL for download
                 strResponse = webResponse.GetResponseStream();
 
                 // Create a new file stream where we will be saving the data (local drive)
-                strLocal = new FileStream(downFile, FileMode.Create, FileAccess.Write, FileShare.None);                
+                strLocal = new FileStream(downFile, FileMode.Create, FileAccess.Write, FileShare.None);
                 // It will store the current number of bytes we retrieved from the server
                 int bytesSize = 0;
                 // A buffer for storing and writing the data retrieved from the server

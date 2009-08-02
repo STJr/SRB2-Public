@@ -2926,8 +2926,8 @@ void A_ThrownRing(mobj_t *actor)
 		// magnetic player. If he gets too far away, make
 		// sure to stop the attraction!
 		if ((!actor->tracer->health) || (actor->tracer->player && actor->tracer->player->powers[pw_ringshield]
-		 && P_AproxDistance(P_AproxDistance(actor->tracer->x-actor->x,
-		 actor->tracer->y-actor->y), actor->tracer->z-actor->z) > RING_DIST/4))
+		    && P_AproxDistance(P_AproxDistance(actor->tracer->x-actor->x,
+		    actor->tracer->y-actor->y), actor->tracer->z-actor->z) > RING_DIST/4))
 		{
 			P_SetTarget(&actor->tracer, NULL);
 		}
@@ -3005,8 +3005,8 @@ void A_ThrownRing(mobj_t *actor)
 			continue; // out of sight
 
 		if ((player->powers[pw_ringshield] == true
-		 && P_AproxDistance(P_AproxDistance(player->mo->x-actor->x,
-		 player->mo->y-actor->y), player->mo->z-actor->z) < RING_DIST/4))
+		    && P_AproxDistance(P_AproxDistance(player->mo->x-actor->x,
+		    player->mo->y-actor->y), player->mo->z-actor->z) < RING_DIST/4))
 			P_SetTarget(&actor->tracer, player->mo);
 		return;
 	}
@@ -4423,7 +4423,7 @@ void A_RecyclePowers(mobj_t *actor)
 		for (i = 0; i < NUMPOWERS; i++)
 		{
 			if (i == pw_flashing || i == pw_underwater || i == pw_spacetime
-			 || i == pw_tailsfly || i == pw_extralife || i == pw_super || i == pw_nocontrol)
+			    || i == pw_tailsfly || i == pw_extralife || i == pw_super || i == pw_nocontrol)
 				continue;
 			temp[i] = players[one].powers[i];
 			players[one].powers[i] = players[two].powers[i];
@@ -4492,7 +4492,7 @@ void A_RecyclePowers(mobj_t *actor)
 				for (j = 0; j < NUMPOWERS; j++)
 				{
 					if (j == pw_flashing || j == pw_underwater || j == pw_spacetime
-					 || j == pw_tailsfly || j == pw_extralife || j == pw_super || j == pw_nocontrol)
+					    || j == pw_tailsfly || j == pw_extralife || j == pw_super || j == pw_nocontrol)
 						continue;
 					players[i].powers[j] = temp[recyclefrom][j];
 				}

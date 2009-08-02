@@ -547,10 +547,10 @@ static int AddToMasterServer(void)
 	{
 		if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 		{
-	           CONS_Printf("\x81Mastserver error on select #%d: %s\n", errno, strerror(errno));
-	           MSLastPing = timestamp;
-	           return ConnectionFailed();
-	        }
+			CONS_Printf("\x81Mastserver error on select #%d: %s\n", errno, strerror(errno));
+			MSLastPing = timestamp;
+			return ConnectionFailed();
+		}
 	}
 
 	// so, the socket is writable, but what does that mean, that the connection is

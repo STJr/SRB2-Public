@@ -1421,14 +1421,17 @@ void F_GameEvaluationDrawer(void)
 			if (ultimatemode)
 				grade |= 256;
 
-			G_SaveGame((unsigned int)cursaveslot);
+			// Other unlockables
+			if (gamemap == 29) // Cleared NiGHTS
+				grade |= 64;
+			else if (gamemap == 32) // Cleared Mario
+				grade |= 32;
+			else if (gamemap == 132) // Cleared SRB1
+				grade |= 1024;
+
+			if (cursaveslot != -1)
+				G_SaveGame((unsigned int)cursaveslot);
 		}
-		else if (!modifiedgame && gamemap == 29) // Cleared NiGHTS
-			grade |= 64;
-		else if (!modifiedgame && gamemap == 32) // Cleared Mario
-			grade |= 32;
-		else if (!modifiedgame && gamemap == 132) // Cleared SRB1
-			grade |= 1024;
 	}
 
 	G_SaveGameData();

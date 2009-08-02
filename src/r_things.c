@@ -1207,13 +1207,13 @@ static void R_ProjectSprite(mobj_t *thing)
 	{
 		long phs = viewplayer->mo->subsector->sector->heightsec;
 		if (phs != -1 && viewz < sectors[phs].floorheight ?
-		 thing->z >= sectors[heightsec].floorheight :
-		 gzt < sectors[heightsec].floorheight)
+		    thing->z >= sectors[heightsec].floorheight :
+		    gzt < sectors[heightsec].floorheight)
 			return;
 		if (phs != -1 && viewz > sectors[phs].ceilingheight ?
-		 gzt < sectors[heightsec].ceilingheight &&
-		 viewz >= sectors[heightsec].ceilingheight :
-		 thing->z >= sectors[heightsec].ceilingheight)
+		     gzt < sectors[heightsec].ceilingheight &&
+		     viewz >= sectors[heightsec].ceilingheight :
+		     thing->z >= sectors[heightsec].ceilingheight)
 			return;
 	}
 
@@ -1513,7 +1513,7 @@ void R_AddSprites(sector_t *sec, int lightlevel)
 
 	// NiGHTS stages have a draw distance limit because of the
 	// HUGE number of SPRiTES!
-	if (maptol & TOL_NIGHTS)
+	if (maptol & TOL_NIGHTS && players[displayplayer].mo)
 	{
 		for (thing = sec->thinglist; thing; thing = thing->snext)
 		{
@@ -1564,7 +1564,7 @@ void R_AddSprites(sector_t *sec, int lightlevel)
 	}
 
 	// Special function for precipitation Tails 08-18-2002
-	if (playeringame[displayplayer])
+	if (playeringame[displayplayer] && players[displayplayer].mo)
 	{
 		for (precipthing = sec->preciplist; precipthing; precipthing = precipthing->snext)
 		{

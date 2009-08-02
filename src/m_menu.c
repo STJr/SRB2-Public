@@ -439,10 +439,13 @@ static void M_CustomSecretsMenu(int choice);
 static void M_MapChange(int choice);
 static void M_TeamChange(int choice);
 static void M_ConfirmSpectate(int choice);
+static void M_TeamScramble(int choice);
+static void M_ConfirmTeamScramble(int choice);
 
 typedef enum
 {
-	spectate = 0,
+	scramble = 0,
+	spectate,
 	switchteam,
 	switchmap,
 	secrets,
@@ -455,14 +458,15 @@ typedef enum
 
 static menuitem_t MainMenu[] =
 {
-	{IT_STRING  | IT_CALL,   NULL, "Spectate...", M_ConfirmSpectate,     60},
-	{IT_STRING  | IT_CALL,   NULL, "Switch Team...", M_TeamChange,     60},
-	{IT_STRING  | IT_CALL,   NULL, "Switch Map...", M_MapChange,     72},
-	{IT_CALL    | IT_STRING, NULL, "secrets",   M_SecretsMenu,   84},
-	{IT_SUBMENU | IT_STRING, NULL, "1 player", &SinglePlayerDef, 92},
-	{IT_SUBMENU | IT_STRING, NULL, "multiplayer",  &MultiPlayerDef, 100},
-	{IT_CALL    | IT_STRING, NULL, "options",   M_OptionsMenu,  108},
-	{IT_CALL    | IT_STRING, NULL, "quit  game",  M_QuitSRB2,     116},
+	{IT_STRING  | IT_CALL,   NULL, "Scramble Teams...", M_TeamScramble,        56},
+	{IT_STRING  | IT_CALL,   NULL, "Spectate..."      , M_ConfirmSpectate,     64},
+	{IT_STRING  | IT_CALL,   NULL, "Switch Team..."   , M_TeamChange,          64},
+	{IT_STRING  | IT_CALL,   NULL, "Switch Map..."    , M_MapChange,           72},
+	{IT_CALL    | IT_STRING, NULL, "secrets"          , M_SecretsMenu,         84},
+	{IT_SUBMENU | IT_STRING, NULL, "1 player"         , &SinglePlayerDef,      92},
+	{IT_SUBMENU | IT_STRING, NULL, "multiplayer"      , &MultiPlayerDef,      100},
+	{IT_CALL    | IT_STRING, NULL, "options"          , M_OptionsMenu,        108},
+	{IT_CALL    | IT_STRING, NULL, "quit  game"       , M_QuitSRB2,           116},
 };
 
 menu_t MainDef =
@@ -715,27 +719,27 @@ static void M_Refresh(int choice)
 
 static menuitem_t  ConnectMenu[] =
 {
-	{IT_STRING | IT_CVAR, NULL, "Search On",&cv_serversearch, 0},
-	{IT_STRING | IT_CVAR, NULL, "Sort By",&cv_serversort, 0},
-	{IT_STRING | IT_CALL, NULL, "Next Page",  M_NextServerPage,        0},
-	{IT_STRING | IT_CALL, NULL, "Previous Page",  M_PrevServerPage,        0},
-	{IT_STRING | IT_CALL, NULL, "Refresh",  M_Refresh,        0},
+	{IT_STRING | IT_CVAR,  NULL, "Search On",      &cv_serversearch, 0},
+	{IT_STRING | IT_CVAR,  NULL, "Sort By",        &cv_serversort,   0},
+	{IT_STRING | IT_CALL,  NULL, "Next Page",      M_NextServerPage, 0},
+	{IT_STRING | IT_CALL,  NULL, "Previous Page",  M_PrevServerPage, 0},
+	{IT_STRING | IT_CALL,  NULL, "Refresh",        M_Refresh,        0},
 	{IT_WHITESTRING | IT_SPACE,
-	                       NULL, "Server Name                      ping plys gt",
-	                                        NULL,              0}, // Tails 01-18-2001
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
-	{IT_STRING | IT_SPACE, NULL, "",         M_Connect,        0},
+	                       NULL, "Server Name                      ping  plys gt",
+	                                              NULL,              0}, // Tails 01-18-2001
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
 };
 
 static void M_DisplayMSMOTD(void)
@@ -796,9 +800,9 @@ static void M_DrawConnectMenu(void)
 		}
 
 		p = va("%d/%d  %c", serverlist[slindex].info.numberofplayer,
-		                     serverlist[slindex].info.maxplayer,
-		                     cgametype); // Tails 01-18-2001
-		V_DrawString (currentMenu->x+250-V_StringWidth(p),currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,0,p);
+		                    serverlist[slindex].info.maxplayer,
+		                    cgametype); // Tails 01-18-2001
+		V_DrawString (currentMenu->x+260-V_StringWidth(p),currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,0,p);
 
 		ConnectMenu[i+FIRSTSERVERLINE].status = IT_STRING | IT_CALL;
 	}
@@ -2054,6 +2058,22 @@ static void M_ConfirmSpectate(int choice)
 	COM_BufAddText("changeteam spectator");
 }
 
+static void M_ConfirmTeamScramble(int choice)
+{
+	(void)choice;
+	M_ClearMenus(true);
+
+	switch (cv_dummyscramble.value)
+	{
+		case 0:
+			COM_BufAddText("teamscramble 1");
+			break;
+		case 1:
+			COM_BufAddText("teamscramble 2");
+			break;
+	}
+}
+
 static void M_ConfirmTeamChange(int choice)
 {
 	(void)choice;
@@ -2214,6 +2234,26 @@ menu_t ChangeTeamDef =
 	NULL
 };
 
+static menuitem_t TeamScrambleMenu[] =
+{
+	{IT_STRING|IT_CVAR,      NULL, "Scramble Method", &cv_dummyscramble,     30},
+
+	{IT_WHITESTRING|IT_CALL, NULL, "Confirm",         M_ConfirmTeamScramble, 90},
+};
+
+menu_t TeamScrambleDef =
+{
+	0,
+	"Scramble Teams",
+	sizeof (ChangeTeamMenu)/sizeof (menuitem_t),
+	&MainDef,
+	TeamScrambleMenu,
+	M_DrawGenericMenu,
+	27,40,
+	0,
+	NULL
+};
+
 //
 // M_PatchLevelNameTable
 //
@@ -2359,6 +2399,24 @@ static void M_TeamChange(int choice)
 	M_SetupNextMenu(&ChangeTeamDef);
 }
 
+static void M_TeamScramble(int choice)
+{
+	(void)choice;
+	if (!(netgame || multiplayer) || !Playing())
+	{
+		M_StartMessage("You aren't in a game!\nPress a key.", NULL, MM_NOTHING);
+		return;
+	}
+
+	if (!server && !adminplayer)
+	{
+		M_StartMessage("Only the server may use this command.\nPress a key.", NULL, MM_NOTHING);
+		return;
+	}
+
+	M_SetupNextMenu(&TeamScrambleDef);
+}
+
 //
 // M_PatchSkinNameTable
 //
@@ -2484,7 +2542,7 @@ static void M_Splitscreen(int choice)
 static menuitem_t  SecondMouseCfgMenu[] =
 {
 	{IT_STRING | IT_CVAR, NULL, "Second Mouse Serial Port",
-		                                             &cv_mouse2port,      0}, // Tails 01-18-2001
+	                                                &cv_mouse2port,      0}, // Tails 01-18-2001
 
 	{IT_STRING | IT_CVAR, NULL, "Use Mouse 2",      &cv_usemouse2,       0},
 
@@ -2493,10 +2551,10 @@ static menuitem_t  SecondMouseCfgMenu[] =
 
 	{IT_STRING | IT_CVAR, NULL, "Always MouseLook", &cv_alwaysfreelook2, 0},
 	{IT_STRING | IT_CVAR, NULL, "Mouse Move",       &cv_mousemove2,      0},
-	{IT_STRING | IT_CVAR, NULL, "Invert Mouse2", &cv_invertmouse2,    0},
+	{IT_STRING | IT_CVAR, NULL, "Invert Mouse2",    &cv_invertmouse2,    0},
 
 	{IT_STRING | IT_CVAR | IT_CV_SLIDER,
-	                      NULL, "Mlook Speed", &cv_mlooksens2,      0},
+	                      NULL, "Mlook Speed",      &cv_mlooksens2,      0},
 };
 
 menu_t SecondMouseCfgdef =
@@ -2523,17 +2581,17 @@ static boolean M_QuitMultiPlayerMenu(void);
 
 static menuitem_t SetupMultiPlayerMenu[] =
 {
-	{IT_KEYHANDLER | IT_STRING,  NULL, "Your name",   M_HandleSetupMultiPlayer,   0},
+	{IT_KEYHANDLER | IT_STRING,   NULL, "Your name",   M_HandleSetupMultiPlayer,   0},
 
 	{IT_CVAR | IT_STRING | IT_CV_NOPRINT,
 	                              NULL, "Your color",  &cv_playercolor,           16},
 
-	{IT_KEYHANDLER | IT_STRING,  NULL, "Your player", M_HandleSetupMultiPlayer,  96}, // Tails 01-18-2001
+	{IT_KEYHANDLER | IT_STRING,   NULL, "Your player", M_HandleSetupMultiPlayer,  96}, // Tails 01-18-2001
 
-	{IT_CALL | IT_WHITESTRING,  NULL, "Setup Controls...",
-	                                                  M_Setup2PControlsMenu,    120},
+	{IT_CALL | IT_WHITESTRING,    NULL, "Setup Controls...",
+	                                                   M_Setup2PControlsMenu,    120},
 	{IT_SUBMENU | IT_WHITESTRING, NULL, "Second Mouse config...",
-	                                                  &SecondMouseCfgdef,       130},
+	                                                   &SecondMouseCfgdef,       130},
 };
 
 enum
@@ -2692,7 +2750,7 @@ static void M_DrawConnectIPMenu(void)
 
 	// draw text cursor for name
 	if (itemOn == 0 &&
-		 skullAnimCounter < 4)   //blink cursor
+	    skullAnimCounter < 4)   //blink cursor
 		V_DrawCharacter(128+V_StringWidth(setupm_ip),40,'_',false);
 }
 
@@ -2934,7 +2992,7 @@ static boolean M_QuitMultiPlayerMenu(void)
 	{
 		// remove trailing whitespaces
 		for (l= strlen(setupm_name)-1;
-		 (signed)l >= 0 && setupm_name[l] ==' '; l--)
+		    (signed)l >= 0 && setupm_name[l] ==' '; l--)
 			setupm_name[l] =0;
 		COM_BufAddText (va("%s \"%s\"\n",setupm_cvname->name,setupm_name));
 	}
@@ -5272,15 +5330,15 @@ static void M_GametypeOptions(int choice)
 //===========================================================================
 static menuitem_t ServerOptionsMenu[] =
 {
-	{IT_STRING | IT_CVAR, NULL, "Internet server", &cv_internetserver,     10},
+	{IT_STRING | IT_CVAR, NULL, "Internet server",        &cv_internetserver,   10},
 	{IT_STRING | IT_CVAR | IT_CV_STRING,
-	                      NULL, "Master server",   &cv_masterserver,       30},
+	                      NULL, "Master server",          &cv_masterserver,     30},
 	{IT_STRING | IT_CVAR | IT_CV_STRING,
-	                      NULL, "Server name",     &cv_servername,         60},
+	                      NULL, "Server name",            &cv_servername,       60},
 
-	{IT_STRING | IT_CVAR, NULL, "Allow join player",      &cv_allownewplayer, 100},
-	{IT_STRING | IT_CVAR, NULL, "Allow WAD Downloading",  &cv_downloading,    110},
-	{IT_STRING | IT_CVAR, NULL, "Max Players",            &cv_maxplayers,     120},
+	{IT_STRING | IT_CVAR, NULL, "Allow join player",      &cv_allownewplayer , 100},
+	{IT_STRING | IT_CVAR, NULL, "Allow WAD Downloading",  &cv_downloading,     110},
+	{IT_STRING | IT_CVAR, NULL, "Max Players",            &cv_maxplayers,      120},
 	{IT_STRING | IT_CVAR, NULL, "Consistency Protection", &cv_consfailprotect, 130},
 };
 
@@ -5673,12 +5731,12 @@ menu_t ControlDef =
 //
 static menuitem_t ControlMenu2[] =
 {
-	{IT_CALL | IT_STRING2, NULL, "Talk key",         M_ChangeControl, gc_talkkey   },
-	{IT_CALL | IT_STRING2, NULL, "Team-Talk key",    M_ChangeControl, gc_teamkey   },
-	{IT_CALL | IT_STRING2, NULL, "Rankings/Scores",  M_ChangeControl, gc_scores    },
-	{IT_CALL | IT_STRING2, NULL, "Console",          M_ChangeControl, gc_console   },
-	{IT_CALL | IT_STRING2, NULL, "Next Weapon",      M_ChangeControl, gc_weaponnext},
-	{IT_CALL | IT_STRING2, NULL, "Prev Weapon",      M_ChangeControl, gc_weaponprev},
+	{IT_CALL | IT_STRING2, NULL, "Talk key",         M_ChangeControl, gc_talkkey      },
+	{IT_CALL | IT_STRING2, NULL, "Team-Talk key",    M_ChangeControl, gc_teamkey      },
+	{IT_CALL | IT_STRING2, NULL, "Rankings/Scores",  M_ChangeControl, gc_scores       },
+	{IT_CALL | IT_STRING2, NULL, "Console",          M_ChangeControl, gc_console      },
+	{IT_CALL | IT_STRING2, NULL, "Next Weapon",      M_ChangeControl, gc_weaponnext   },
+	{IT_CALL | IT_STRING2, NULL, "Prev Weapon",      M_ChangeControl, gc_weaponprev   },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 1",    M_ChangeControl, gc_normalring   },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 2",    M_ChangeControl, gc_autoring     },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 3",    M_ChangeControl, gc_bouncering   },
@@ -5686,13 +5744,13 @@ static menuitem_t ControlMenu2[] =
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 5",    M_ChangeControl, gc_grenadering  },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 6",    M_ChangeControl, gc_explosionring},
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 7",    M_ChangeControl, gc_railring     },
-	{IT_CALL | IT_STRING2, NULL, "Rotate Camera L",  M_ChangeControl, gc_camleft   },
-	{IT_CALL | IT_STRING2, NULL, "Rotate Camera R",  M_ChangeControl, gc_camright  },
-	{IT_CALL | IT_STRING2, NULL, "Reset Camera",     M_ChangeControl, gc_camreset  },
-	{IT_CALL | IT_STRING2, NULL, "Pause",            M_ChangeControl, gc_pause     },
+	{IT_CALL | IT_STRING2, NULL, "Rotate Camera L",  M_ChangeControl, gc_camleft      },
+	{IT_CALL | IT_STRING2, NULL, "Rotate Camera R",  M_ChangeControl, gc_camright     },
+	{IT_CALL | IT_STRING2, NULL, "Reset Camera",     M_ChangeControl, gc_camreset     },
+	{IT_CALL | IT_STRING2, NULL, "Pause",            M_ChangeControl, gc_pause        },
 
 	{IT_SUBMENU | IT_WHITESTRING,
-	                       NULL, "next",             &ControlDef,     140          },
+	                       NULL, "next",             &ControlDef,     140             },
 };
 
 menu_t ControlDef2 =
@@ -6009,24 +6067,19 @@ static void M_ChangecontrolResponse(event_t *ev)
 		found = -1;
 		if (setupcontrols[control][0] ==ch)
 			found = 0;
-		else
-		 if (setupcontrols[control][1] ==ch)
+		else if (setupcontrols[control][1] ==ch)
 			found = 1;
 		if (found >= 0)
 		{
 			// replace mouse and joy clicks by double clicks
 			if (ch >= KEY_MOUSE1 && ch <= KEY_MOUSE1+MOUSEBUTTONS)
 				setupcontrols[control][found] = ch-KEY_MOUSE1+KEY_DBLMOUSE1;
-			else
-			 if (ch >= KEY_JOY1 && ch <= KEY_JOY1+JOYBUTTONS)
+			else if (ch >= KEY_JOY1 && ch <= KEY_JOY1+JOYBUTTONS)
 				setupcontrols[control][found] = ch-KEY_JOY1+KEY_DBLJOY1;
-			else
-			 if (ch >= KEY_2MOUSE1 && ch <= KEY_2MOUSE1+MOUSEBUTTONS)
+			else if (ch >= KEY_2MOUSE1 && ch <= KEY_2MOUSE1+MOUSEBUTTONS)
 				setupcontrols[control][found] = ch-KEY_2MOUSE1+KEY_DBL2MOUSE1;
-			else
-			 if (ch >= KEY_2JOY1 && ch <= KEY_2JOY1+JOYBUTTONS)
+			else if (ch >= KEY_2JOY1 && ch <= KEY_2JOY1+JOYBUTTONS)
 				setupcontrols[control][found] = ch-KEY_2JOY1+KEY_DBL2JOY1;
-
 		}
 		else
 		{
@@ -6192,9 +6245,9 @@ static void M_DrawVideoMode(void)
 		// Pull out the width and height
 		sscanf(modedescs[i].desc, "%u%*c%u", &width, &height);
 
-		// If video modes over 640x400 are deemed stable, increase the second
-		// line's integers to show support for 960x600, 1280x800 and such.
-		if ((width % BASEVIDWIDTH == 0 && height % BASEVIDHEIGHT == 0))
+		// Show multiples of 320x200 as green.
+		if ((width % BASEVIDWIDTH == 0 && height % BASEVIDHEIGHT == 0) &&
+			(width / BASEVIDWIDTH == height / BASEVIDHEIGHT))
 			V_DrawString(row, col, modedescs[i].iscur ? V_YELLOWMAP : V_GREENMAP, modedescs[i].desc);
 		else
 			V_DrawString(row, col, modedescs[i].iscur ? V_YELLOWMAP : 0, modedescs[i].desc);
@@ -6989,12 +7042,11 @@ static void M_ChangeCvar(int choice)
 	consvar_t *cv = (consvar_t *)currentMenu->menuitems[itemOn].itemaction;
 
 	if (((currentMenu->menuitems[itemOn].status & IT_CVARTYPE) == IT_CV_SLIDER)
-	 ||((currentMenu->menuitems[itemOn].status & IT_CVARTYPE) == IT_CV_NOMOD))
+	    ||((currentMenu->menuitems[itemOn].status & IT_CVARTYPE) == IT_CV_NOMOD))
 	{
 		CV_SetValue(cv,cv->value+choice*2-1);
 	}
-	else
-	 if (cv->flags & CV_FLOAT)
+	else if (cv->flags & CV_FLOAT)
 	{
 		char s[20];
 		sprintf(s,"%f",FIXED_TO_FLOAT(cv->value)+(choice*2-1)*(1.0f/16.0f));
@@ -7365,25 +7417,39 @@ boolean M_Responder(event_t *ev)
 				// Catch Switch Map option in case we quit a game using the menu somewhere...
 				if (!(netgame || multiplayer) || !Playing()
 					|| !(server || adminplayer == consoleplayer))
+				{
 					MainMenu[switchmap].status = IT_DISABLED;
+					MainMenu[scramble].status = IT_DISABLED;
+				}
 				else
+				{
 					MainMenu[switchmap].status = IT_STRING | IT_CALL;
+
+					if((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
+						MainMenu[scramble].status = IT_STRING | IT_CALL;
+				}
+
 				// Make sure the Switch Team / Spectate option only shows up in gametypes that apply.
 				if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)
 					|| splitscreen || !(netgame || multiplayer) || !Playing())
 				{
 					MainMenu[spectate].status = IT_DISABLED;
 					MainMenu[switchteam].status = IT_DISABLED;
+					MainMenu[scramble].status = IT_DISABLED;
 				}
 				else if ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
 				{
 					MainMenu[spectate].status = IT_DISABLED;
 					MainMenu[switchteam].status = IT_STRING | IT_CALL;
+
+					if(server || adminplayer == consoleplayer)
+						MainMenu[scramble].status = IT_STRING | IT_CALL;
 				}
 				else
 				{
 					MainMenu[spectate].status = IT_STRING | IT_CALL;
 					MainMenu[switchteam].status = IT_DISABLED;
+					MainMenu[scramble].status = IT_DISABLED;
 				}
 
 				if (currentMenu == &TimeAttackDef)
@@ -7518,14 +7584,23 @@ void M_StartControlPanel(void)
 
 	if (!(netgame || multiplayer) || !Playing()
 		|| !(server || adminplayer == consoleplayer))
+	{
 		MainMenu[switchmap].status = IT_DISABLED;
+		MainMenu[scramble].status = IT_DISABLED;
+	}
 	else
+	{
 		MainMenu[switchmap].status = IT_STRING | IT_CALL;
+
+		if((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
+			MainMenu[scramble].status = IT_STRING | IT_CALL;
+	}
 
 	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF) || splitscreen)
 	{
 		MainMenu[spectate].status = IT_DISABLED;
 		MainMenu[switchteam].status = IT_DISABLED;
+		MainMenu[scramble].status = IT_DISABLED;
 	}
 	else if ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
 	{

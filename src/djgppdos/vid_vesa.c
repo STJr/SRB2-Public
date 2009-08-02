@@ -454,7 +454,7 @@ int VID_VesaGetModeInfo (int modenum)
 
 		// pagesize
 		if ((vesamodeinfo.BytesPerScanLine * vesamodeinfo.YResolution)
-			  > totalvidmem)
+		    > totalvidmem)
 		{
 			return false;
 		}

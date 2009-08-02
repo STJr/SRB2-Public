@@ -1019,9 +1019,9 @@ void I_StartupMouse2(void)
 	{
 		// COM file handle
 		mouse2filehandle = CreateFileA(cv_mouse2port.string, GENERIC_READ|GENERIC_WRITE,
-		                              0, // exclusive access
-		                              NULL, // no security attrs
-		                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		                               0, // exclusive access
+		                               NULL, // no security attrs
+		                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (mouse2filehandle == INVALID_HANDLE_VALUE)
 		{
 			int e = GetLastError();
@@ -1669,18 +1669,18 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 
 	// print out device name
 	CONS_Printf("%c%d: %s\n",
-	             (bUseThisOne) ? '\2' : ' ',   // show name in white if this is the one we will use
-	             iJoyNum,
-	             //(GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD) ? "Gamepad " : "Joystick",
-	             lpddi->tszProductName); //, lpddi->tszInstanceName);
+	            (bUseThisOne) ? '\2' : ' ',   // show name in white if this is the one we will use
+	            iJoyNum,
+	            //(GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD) ? "Gamepad " : "Joystick",
+	            lpddi->tszProductName); //, lpddi->tszInstanceName);
 
 	// use specified joystick (cv_usejoystick.value in pvRef)
 	if (!bUseThisOne)
 		return DIENUM_CONTINUE;
 
 	((consvar_t *)pvRef)->value = iJoyNum;
-	if (IDirectInput_CreateDevice (lpDI, &lpddi->guidInstance,
-	                                &pdev, NULL) != DI_OK)
+	if (IDirectInput_CreateDevice(lpDI, &lpddi->guidInstance,
+	                              &pdev, NULL) != DI_OK)
 	{
 		// if it failed, then we can't use this joystick for some
 		// bizarre reason.  (Maybe the user unplugged it while we
@@ -1713,7 +1713,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 
 
 	CONS_Printf("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %d\n",
-	             caps.dwAxes, caps.dwButtons, caps.dwPOVs, Joystick.bJoyNeedPoll, Joystick.bGamepadStyle);
+	            caps.dwAxes, caps.dwButtons, caps.dwPOVs, Joystick.bJoyNeedPoll, Joystick.bGamepadStyle);
 
 	// Set the data format to "simple joystick" - a predefined data format
 	//
@@ -1733,7 +1733,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	// this device should interact with the system and with other
 	// DirectInput applications.
 	if (IDirectInputDevice_SetCooperativeLevel (pdev, hWndMain,
-	         DISCL_EXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
+	 DISCL_EXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
 	{
 		CONS_Printf("DIEnumJoysticks(): SetCooperativeLevel FAILED\n");
 		IDirectInputDevice_Release (pdev);
@@ -1817,64 +1817,64 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	if (!Joystick.bGamepadStyle)
 	{
 		if (JoyInfo.X)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_X,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_X,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for X DEAD ZONE");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.Y)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_Y,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Y,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for Y DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.Z)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_Z,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Z,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for Z DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.Rx)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_RX,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RX,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for RX DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.Ry)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_RY,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RY,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for RY DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.Rz)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_RZ,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RZ,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for RZ DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.U)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(0),
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(0),
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for U DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo.V)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(1),
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(1),
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for V DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
@@ -1951,8 +1951,8 @@ void I_InitJoystick(void)
 	else
 		// don't do anything at the registration of the joystick cvar,
 		// until config is loaded
-		 if (!strcmp(cv_usejoystick.string, "0"))
-		return;
+		if (!strcmp(cv_usejoystick.string, "0"))
+			return;
 
 	// acquire the joystick only once
 	if (!lpDIJ)
@@ -1992,7 +1992,7 @@ void I_InitJoystick(void)
 
 		// set coop level
 		if (FAILED(IDirectInputDevice_SetCooperativeLevel(lpDIJ, hWndMain,
-		          DISCL_NONEXCLUSIVE|DISCL_FOREGROUND)))
+		 DISCL_NONEXCLUSIVE|DISCL_FOREGROUND)))
 		{
 			I_Error("I_InitJoystick: SetCooperativeLevel FAILED");
 		}
@@ -2030,10 +2030,10 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 
 	// print out device name
 	CONS_Printf("%c%d: %s\n",
-	             (bUseThisOne) ? '\2' : ' ',   // show name in white if this is the one we will use
-	             iJoy2Num,
-	             //(GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD) ? "Gamepad " : "Joystick",
-	             lpddi->tszProductName); //, lpddi->tszInstanceName);
+	            (bUseThisOne) ? '\2' : ' ',   // show name in white if this is the one we will use
+	            iJoy2Num,
+	            //(GET_DIDEVICE_SUBTYPE(lpddi->dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD) ? "Gamepad " : "Joystick",
+	            lpddi->tszProductName); //, lpddi->tszInstanceName);
 
 	// use specified joystick (cv_usejoystick.value in pvRef)
 	if (!bUseThisOne)
@@ -2041,7 +2041,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 
 	((consvar_t *)pvRef)->value = iJoy2Num;
 	if (IDirectInput_CreateDevice (lpDI, &lpddi->guidInstance,
-	                                &pdev, NULL) != DI_OK)
+	                               &pdev, NULL) != DI_OK)
 	{
 		// if it failed, then we can't use this joystick for some
 		// bizarre reason.  (Maybe the user unplugged it while we
@@ -2180,64 +2180,64 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	if (!Joystick2.bGamepadStyle)
 	{
 		if (JoyInfo2.X)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_X,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_X,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for X DEAD ZONE");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.Y)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_Y,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Y,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for Y DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.Z)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_Z,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Z,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for Z DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.Rx)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_RX,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RX,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for RX DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.Ry)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_RY,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RY,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for RY DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.Rz)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_RZ,
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RZ,
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for RZ DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.U)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(0),
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(0),
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for U DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
 		if (JoyInfo2.V)
-			if (FAILED(SetDIDwordProperty (pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(1),
-			                                 DIPH_BYOFFSET, DIDEADZONE)))
+			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(1),
+			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
 				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for V DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
@@ -2328,9 +2328,9 @@ void I_InitJoystick2 (void)
 		CONS_Printf("Looking for joystick devices:\n");
 		iJoy2Num = 0;
 		hr = IDirectInput_EnumDevices(lpDI, DIDEVTYPE_JOYSTICK,
-		                                DIEnumJoysticks2,
-		                                (LPVOID)&cv_usejoystick2,    // our user parameter is joystick number
-		                                DIEDFL_ATTACHEDONLY);
+		                              DIEnumJoysticks2,
+		                              (LPVOID)&cv_usejoystick2,    // our user parameter is joystick number
+		                              DIEDFL_ATTACHEDONLY);
 		if (FAILED(hr))
 		{
 			CONS_Printf("\nI_InitJoystick2(): EnumDevices FAILED\n");
@@ -2349,7 +2349,7 @@ void I_InitJoystick2 (void)
 				    cv_usejoystick2.value > iJoy2Num)
 				{
 					CONS_Printf("\2Set the use_joystick2 variable to one of the"
-					              " enumerated joysticks number\n");
+					            " enumerated joysticks number\n");
 				}
 			}
 			cv_usejoystick2.value = 0;

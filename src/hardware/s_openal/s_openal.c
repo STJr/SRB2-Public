@@ -841,7 +841,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 		// Return FALSE to fail DLL load.
 #ifdef DEBUG_TO_FILE
 			logstream = CreateFileA("s_openal.log", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-			                     FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
+			                        FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
 			if (logstream == INVALID_HANDLE_VALUE)
 				return FALSE;
 #endif

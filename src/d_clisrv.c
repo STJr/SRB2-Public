@@ -73,8 +73,6 @@ static boolean serverrunning = false;
 int serverplayer = 0;
 char adminpassword[9], motd[256]; // Password And Message of the Day
 
-int timetonextconspacket = 0; // Only allow the server to send one XD_CONSISTIENCY packet per tick.
-
 // server specific vars
 byte playernode[MAXPLAYERS];
 byte consfailcount[MAXPLAYERS];
@@ -790,7 +788,7 @@ static void CL_ConnectToServer(boolean viams)
 			}
 		}
 		if (gametypestr)
-			 CONS_Printf(text[NETGAMETYPE], gametypestr);
+			CONS_Printf(text[NETGAMETYPE], gametypestr);
 		CONS_Printf(text[NETVERSION], serverlist[i].info.version/100,
 		 serverlist[i].info.version%100, serverlist[i].info.subversion);
 	}
@@ -940,6 +938,13 @@ static void CL_ConnectToServer(boolean viams)
 	while (!(cl_mode == cl_connected && (!server || (server && nodewaited <= pnumnodes))));
 
 	DEBFILE(va("Synchronisation Finished\n"));
+
+	if (cv_cheats.value)
+	{
+		if (!server)
+			HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
+		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
+	}
 
 	displayplayer = consoleplayer;
 }
@@ -2249,88 +2254,79 @@ FILESTAMP
 
 					if (cv_consfailprotect.value && players[netconsole].mo && consfailcount[netconsole] < cv_consfailprotect.value)
 					{
-						if (!timetonextconspacket) // Only allow one packet to be sent per second so we don't flood the net buffer.
+						XBOXSTATIC char buf[255];
+						char *cp = buf;
+//						player_t *player = &players[netconsole];
+						int count = 0;
+						int numbytes = 0;
+						int fakenumbytes = 0;
+						int i;
+						int xcmdfree = GetFreeXCmdSize();
+
+						if (cv_blamecfail.value)
+							CONS_Printf(text[CONSFAILRESTORE], netconsole);
+
+						DEBFILE(va("Restoring player %d (consistency failure) [%lu] %d!=%d\n",
+							netconsole, realstart, consistancy[realstart%BACKUPTICS],
+							netbuffer->u.clientpak.consistancy));
+
+						WRITEBYTE(cp, P_GetRandIndex());
+						//WRITEBYTE(cp, (byte)netconsole);
+
+						numbytes += 1;
+
+						fakenumbytes = numbytes + 1; // Include the byte we are about to write
+
+						for (i = 0; i < MAXPLAYERS; i++)
 						{
-							XBOXSTATIC char buf[255];
-							char *cp = buf;
-//							player_t *player = &players[netconsole];
-							int count = 0;
-							int numbytes = 0;
-							int fakenumbytes = 0;
-							int i;
-							int xcmdfree = GetFreeXCmdSize();
+							if (!playeringame[i] || !players[i].mo)
+								continue;
 
-							if (cv_blamecfail.value)
-								CONS_Printf(text[CONSFAILRESTORE], netconsole);
+							if (fakenumbytes + 25 > xcmdfree)
+								break;
 
-							DEBFILE(va("Restoring player %d (consistency failure) [%lu] %d!=%d\n",
-								netconsole, realstart, consistancy[realstart%BACKUPTICS],
-								netbuffer->u.clientpak.consistancy));
+							fakenumbytes += 25;
 
-							WRITEBYTE(cp, P_GetRandIndex());
-							//WRITEBYTE(cp, (byte)netconsole);
+							count++;
+						}
 
-							numbytes += 1;
+						WRITEBYTE(cp, (byte)count); // # of players we are sending info about
+						numbytes++;
 
-							fakenumbytes = numbytes + 1; // Include the byte we are about to write
+						for (i = 0; i < MAXPLAYERS; i++)
+						{
+							if (!playeringame[i] || !players[i].mo)
+								continue;
 
-							for (i = 0; i < MAXPLAYERS; i++)
-							{
-								if (!playeringame[i] || !players[i].mo)
-									continue;
+							if (numbytes + 25 > xcmdfree)
+								break;
 
-								if (fakenumbytes + 25 > xcmdfree)
-									break;
+							WRITEBYTE(cp, (byte)i);
+							WRITEFIXED(cp, players[i].mo->x);
+							WRITEFIXED(cp, players[i].mo->y);
+							WRITEFIXED(cp, players[i].mo->z);
+							WRITEFIXED(cp, players[i].mo->momx);
+							WRITEFIXED(cp, players[i].mo->momy);
+							WRITEFIXED(cp, players[i].mo->momz);
 
-								fakenumbytes += 25;
+							numbytes += 25;
+						}
 
-								count++;
-							}
-
-							WRITEBYTE(cp, (byte)count); // # of players we are sending info about
-							numbytes++;
-
-							for (i = 0; i < MAXPLAYERS; i++)
-							{
-								if (!playeringame[i] || !players[i].mo)
-									continue;
-
-								if (numbytes + 25 > xcmdfree)
-									break;
-
-								WRITEBYTE(cp, (byte)i);
-								WRITEFIXED(cp, players[i].mo->x);
-								WRITEFIXED(cp, players[i].mo->y);
-								WRITEFIXED(cp, players[i].mo->z);
-								WRITEFIXED(cp, players[i].mo->momx);
-								WRITEFIXED(cp, players[i].mo->momy);
-								WRITEFIXED(cp, players[i].mo->momz);
-
-								numbytes += 25;
-							}
-
-							// Only send full restoration packets.
-							if (i >= MAXPLAYERS)
-							{
-								SendNetXCmd(XD_CONSISTENCY, &buf, numbytes);
-								sentconsrestore = true;
-								timetonextconspacket += TICRATE;
-							}
+						// Only send full restoration packets.
+						if (i >= MAXPLAYERS)
+						{
+							SendNetXCmd(XD_CONSISTENCY, &buf, numbytes);
+							sentconsrestore = true;
+						}
 
 /*
-							buf[0] = (char)netconsole;
-							buf[1] = P_GetRandIndex();
-							memcpy(&buf[2], players[netconsole].mo, sizeof(mobj_t));
+						buf[0] = (char)netconsole;
+						buf[1] = P_GetRandIndex();
+						memcpy(&buf[2], players[netconsole].mo, sizeof(mobj_t));
 
-							consfailcount[netconsole]++;
+						consfailcount[netconsole]++;
 
-							SendNetXCmd(XD_CONSISTENCY, &buf, sizeof(mobj_t)+2);*/
-						}
-						else
-						{
-							if (timetonextconspacket)
-								timetonextconspacket--;
-						}
+						SendNetXCmd(XD_CONSISTENCY, &buf, sizeof(mobj_t)+2);*/
 					}
 					else
 					{

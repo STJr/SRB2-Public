@@ -195,8 +195,8 @@ static VOID PrintTime(LPSTR output, FILETIME TimeToPrint)
 	{
 		// What a silly way to print out the file date/time.
 		wsprintfA(output, "%d/%d/%d %02d:%02d:%02d",
-		   (Date / 32) & 15, Date & 31, (Date / 512) + 1980,
-		   (Time / 2048), (Time / 32) & 63, (Time & 31) * 2);
+		          (Date / 32) & 15, Date & 31, (Date / 512) + 1980,
+		          (Time / 2048), (Time / 32) & 63, (Time & 31) * 2);
 	}
 	else
 		output[0] = 0;
@@ -354,13 +354,13 @@ static VOID RecordSystemInformation(HANDLE fileHandle)
 
 	GetSystemInfo(&SystemInfo);
 	FPrintf(fileHandle, "%d processor(s), type %d %d.%d.\r\n"
-	         "Program Memory from 0x%p to 0x%p\r\n",
-	         SystemInfo.dwNumberOfProcessors,
-	         SystemInfo.dwProcessorType,
-	         SystemInfo.wProcessorLevel,
-	         SystemInfo.wProcessorRevision,
-	         SystemInfo.lpMinimumApplicationAddress,
-	         SystemInfo.lpMaximumApplicationAddress);
+	        "Program Memory from 0x%p to 0x%p\r\n",
+	        SystemInfo.dwNumberOfProcessors,
+	        SystemInfo.dwProcessorType,
+	        SystemInfo.wProcessorLevel,
+	        SystemInfo.wProcessorRevision,
+	        SystemInfo.lpMinimumApplicationAddress,
+	        SystemInfo.lpMaximumApplicationAddress);
 
 	MemInfo.dwLength = sizeof(MemInfo);
 	GlobalMemoryStatus(&MemInfo);
@@ -439,9 +439,9 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	// code address, which is the same as the ModuleHandle. This can be used
 	// to get the filename of the module that the crash happened in.
 	if (VirtualQuery((LPVOID)(size_t)Context->Eip, &MemInfo, sizeof(MemInfo)) &&
-	     GetModuleFileName((HMODULE)MemInfo.AllocationBase,
-	                   CrashModulePathName,
-	                        sizeof(CrashModulePathName)) > 0)
+		GetModuleFileName((HMODULE)MemInfo.AllocationBase,
+		                   CrashModulePathName,
+		                   sizeof(CrashModulePathName)) > 0)
 		CrashModuleFileName = GetFilePart(CrashModulePathName);
 
 	// Print out the beginning of the error log in a Win95 error window
@@ -449,9 +449,9 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	FPrintf(fileHandle, "%s caused an %s in module %s at %04x:%08x.\r\n",
 		FileName, GetExceptionDescription(Exception->ExceptionCode),
 		CrashModuleFileName, Context->SegCs, Context->Eip);
-	 //if (&Message = Null)
+	//if (&Message = Null)
 		FPrintf(fileHandle, "Exception handler called in %s.\r\n", "main thread");
-	 //else
+	//else
 		//FPrintf(fileHandle, "Exception handler called in %s.\r\n", Message);
 
 	RecordSystemInformation(fileHandle);

@@ -46,18 +46,18 @@ namespace SRB2Updater
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.fileList)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // prgDownload
-            // 
+            //
             this.prgDownload.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.prgDownload.Location = new System.Drawing.Point(12, 335);
             this.prgDownload.Name = "prgDownload";
             this.prgDownload.Size = new System.Drawing.Size(461, 23);
             this.prgDownload.TabIndex = 3;
-            // 
+            //
             // lblProgress
-            // 
+            //
             this.lblProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblProgress.AutoSize = true;
             this.lblProgress.Font = new System.Drawing.Font("Tahoma", 12.75F);
@@ -68,9 +68,9 @@ namespace SRB2Updater
             this.lblProgress.TabIndex = 8;
             this.lblProgress.Text = "Checking Files...";
             this.lblProgress.Click += new System.EventHandler(this.lblProgress_Click);
-            // 
+            //
             // fileList
-            // 
+            //
             this.fileList.AllowUserToAddRows = false;
             this.fileList.AllowUserToDeleteRows = false;
             this.fileList.AllowUserToResizeRows = false;
@@ -115,9 +115,9 @@ namespace SRB2Updater
             this.fileList.Size = new System.Drawing.Size(461, 209);
             this.fileList.TabIndex = 10;
             this.fileList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.fileList_CellContentClick);
-            // 
+            //
             // update_optional
-            // 
+            //
             this.update_optional.AutoSize = true;
             this.update_optional.Location = new System.Drawing.Point(314, 364);
             this.update_optional.Name = "update_optional";
@@ -126,18 +126,18 @@ namespace SRB2Updater
             this.update_optional.Text = "Download Optional Updates";
             this.update_optional.UseVisualStyleBackColor = true;
             this.update_optional.CheckedChanged += new System.EventHandler(this.update_Reload);
-            // 
+            //
             // panel1
-            // 
+            //
             this.panel1.BackColor = System.Drawing.Color.Yellow;
             this.panel1.BackgroundImage = global::SRB2Updater.Properties.Resources.updaterbanner;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(485, 80);
             this.panel1.TabIndex = 11;
-            // 
+            //
             // name
-            // 
+            //
             this.name.DataPropertyName = "name";
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.White;
             this.name.DefaultCellStyle = dataGridViewCellStyle2;
@@ -145,9 +145,9 @@ namespace SRB2Updater
             this.name.HeaderText = "Name";
             this.name.Name = "name";
             this.name.ReadOnly = true;
-            // 
+            //
             // filename
-            // 
+            //
             this.filename.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.filename.DataPropertyName = "filename";
             this.filename.HeaderText = "File";
@@ -155,43 +155,43 @@ namespace SRB2Updater
             this.filename.ReadOnly = true;
             this.filename.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             this.filename.Width = 150;
-            // 
+            //
             // status
-            // 
+            //
             this.status.DataPropertyName = "status";
             this.status.FillWeight = 128.7982F;
             this.status.HeaderText = "Status";
             this.status.Name = "status";
             this.status.ReadOnly = true;
-            // 
+            //
             // localmd5
-            // 
+            //
             this.localmd5.DataPropertyName = "localmd5";
             this.localmd5.FillWeight = 13.60544F;
             this.localmd5.HeaderText = "localmd5";
             this.localmd5.Name = "localmd5";
             this.localmd5.ReadOnly = true;
             this.localmd5.Visible = false;
-            // 
+            //
             // md5
-            // 
+            //
             this.md5.DataPropertyName = "md5";
             this.md5.FillWeight = 128.7982F;
             this.md5.HeaderText = "md5";
             this.md5.Name = "md5";
             this.md5.ReadOnly = true;
             this.md5.Visible = false;
-            // 
+            //
             // optional
-            // 
+            //
             this.optional.DataPropertyName = "optional";
             this.optional.HeaderText = "optional";
             this.optional.Name = "optional";
             this.optional.ReadOnly = true;
             this.optional.Visible = false;
-            // 
+            //
             // label1
-            // 
+            //
             this.label1.AutoSize = true;
             this.label1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.label1.Location = new System.Drawing.Point(13, 364);
@@ -200,9 +200,9 @@ namespace SRB2Updater
             this.label1.TabIndex = 13;
             this.label1.Text = "View Changelog";
             this.label1.Click += new System.EventHandler(this.label1_Click);
-            // 
+            //
             // Form1
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(227)))), ((int)(((byte)(255)))));

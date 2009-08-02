@@ -282,8 +282,7 @@ typedef struct player_s
 	int charability2; // Secondary ability definition
 
 	ULONG charflags; // Extra abilities/settings for skins (combinable stuff)
-	               //
-	               // See SF_ flags
+	                 // See SF_ flags
 
 	mobjtype_t thokitem; // Object # to spawn for the thok
 	mobjtype_t spinitem; // Object # to spawn for spindash/spinning

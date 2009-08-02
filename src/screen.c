@@ -196,7 +196,7 @@ void SCR_Startup(void)
 			R_ASM = false; //with more than 1 CPU, ASM go BOOM!
 		}
 		CONS_Printf("CPU Info: 486: %i, 586: %i, MMX: %i, 3DNow: %i, MMXExt: %i, SSE2: %i\n",
-		 R_486, R_586, R_MMX, R_3DNow, R_MMXExt, R_SSE2);
+		            R_486, R_586, R_MMX, R_3DNow, R_MMXExt, R_SSE2);
 	}
 
 	if (M_CheckParm("-noASM"))

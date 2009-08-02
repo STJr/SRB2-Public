@@ -165,9 +165,9 @@ void I_FinishUpdate (void)
 		//added:16-01-98:use quickie asm routine, last 2 args are
 		//                   src and dest rowbytes
 		//                   (memcpy is as fast as this one...)
-		VID_BlitLinearScreen ( screens[0], vid.direct,
-		                       vid.width*vid.bpp, vid.height,
-		                       vid.width*vid.bpp, vid.rowbytes );
+		VID_BlitLinearScreen(screens[0], vid.direct,
+		                     vid.width*vid.bpp, vid.height,
+		                     vid.width*vid.bpp, vid.rowbytes );
 	}
 #ifdef TIMING
 	RDMSR(0x10,&mycount);
@@ -186,9 +186,9 @@ void I_FinishUpdate (void)
 //
 void I_ReadScreen (byte *scr)
 {
-	VID_BlitLinearScreen ( screens[0], scr,
-					   vid.width*vid.bpp, vid.height,
-					   vid.width*vid.bpp, vid.rowbytes );
+	VID_BlitLinearScreen(screens[0], scr,
+	                     vid.width*vid.bpp, vid.height,
+	                     vid.width*vid.bpp, vid.rowbytes );
 }
 
 

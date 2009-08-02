@@ -313,6 +313,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck);
 void P_PlayerFlagBurst(player_t *player, boolean toss);
 void P_CheckPointLimit(void);
 void P_CheckSurvivors(void);
+boolean P_CheckRacers(void);
 
 void P_PlayRinglossSound(mobj_t *source);
 void P_PlayDeathSound(mobj_t *source);

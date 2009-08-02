@@ -439,7 +439,7 @@ void P_LineOpening(line_t *linedef)
 		// Check for fake floors in the sector.
 		if (front->ffloors || back->ffloors
 #ifdef POLYOBJECTS
-		 || linedef->polyobj
+		    || linedef->polyobj
 #endif
 		   )
 		{

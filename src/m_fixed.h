@@ -115,11 +115,11 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t DMulScale16(fixed_t a, fixed_t b, 
 		fixed_t ret;
 		asm
 		(
-			  "imull %2;"           // a*b
-			  "shrdl $16,%%edx,%0;" // shift 16 bits
-			: "=a" (ret)            // eax is always the result and the first operand (%0,%1)
-			: "0" (a), "r" (b)      // and %2 is what we use imull on with what in %1
-			: "%cc", "%edx"         // edx and condition codes clobbered */
+			 "imull %2;"           // a*b
+			 "shrdl $16,%%edx,%0;" // shift 16 bits
+			:"=a" (ret)            // eax is always the result and the first operand (%0,%1)
+			:"0" (a), "r" (b)      // and %2 is what we use imull on with what in %1
+			:"%cc", "%edx"         // edx and condition codes clobbered */
 		);
 		return ret;
 	}

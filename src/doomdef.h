@@ -93,7 +93,7 @@ extern FILE *logstream;
 #endif
 
 #define VERSION 200 // Game version
-#define VERSIONSTRING " v2.0.2"
+#define VERSIONSTRING " v2.0.3"
 
 // some tests, enable or disable it if it run or not
 #define SPLITSCREEN
@@ -198,6 +198,6 @@ extern const char *compdate, *comptime;
 //#define SHUFFLE //Incomplete OpenGL sorting code
 //#define CHAOSISNOTDEADYET // Pre-1.08 Chaos gametype code
 //#define POLYOBJECTS_PLANES // Polyobject fake flat code
-
+//#define BLUE_SPHERES // Blue spheres for future use.
 
 #endif // __DOOMDEF__

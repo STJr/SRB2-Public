@@ -81,7 +81,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 			// Return FALSE to fail DLL load.
 #ifdef DEBUG_TO_FILE
 			logstream = CreateFileA("ogllog.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-									 FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
+			                        FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
 			if (logstream == INVALID_HANDLE_VALUE)
 				return FALSE;
 #endif
@@ -136,9 +136,14 @@ void *GetGLFunc(const char *proc)
 boolean LoadGL(void)
 {
 	OGL32 = LoadLibrary("OPENGL32.DLL");
+	GLU32 = LoadLibrary("GLU32.DLL");
+
 	if (OGL32)
 		pwglCreateContext = NULL;
 	else
+		return 0;
+
+	if (!GLU32)
 		return 0;
 
 	pwglGetProcAddress = GetGLFunc("wglGetProcAddress");
@@ -418,7 +423,7 @@ EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, int *numvidmodes)
 			 (iMode == 0 || !
 			  (Tmp.dmPelsWidth == video_modes[iMode-1].width &&
 			   Tmp.dmPelsHeight == video_modes[iMode-1].height)
-			)
+			 )
 			)
 		{
 			video_modes[iMode].pnext = &video_modes[iMode+1];

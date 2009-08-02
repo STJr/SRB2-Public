@@ -1833,18 +1833,21 @@ static void ST_drawChaosHUD(void)
 
 static void ST_drawSpecialStageHUD(void)
 {
-	if (totalrings > 0)
+	if (!(hu_showscores && (netgame || multiplayer)))
 	{
-		if (splitscreen)
-			ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS_SPLIT].x), SCY(hudinfo[HUD_SS_TOTALRINGS_SPLIT].y), totalrings, tallnum);
-		else
-			ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS].x), SCY(hudinfo[HUD_SS_TOTALRINGS].y), totalrings, tallnum);
-	}
+		if (totalrings > 0)
+		{
+			if (splitscreen)
+				ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS_SPLIT].x), SCY(hudinfo[HUD_SS_TOTALRINGS_SPLIT].y), totalrings, tallnum);
+			else
+				ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS].x), SCY(hudinfo[HUD_SS_TOTALRINGS].y), totalrings, tallnum);
+		}
 
-	if (leveltime < 5*TICRATE && totalrings > 0)
-	{
-		V_DrawScaledPatch(hudinfo[HUD_GETRINGS].x, (int)(SCY(hudinfo[HUD_GETRINGS].y)/vid.fdupy), V_TRANSLUCENT, getall);
-		ST_DrawOverlayNum(SCX(hudinfo[HUD_GETRINGSNUM].x), SCY(hudinfo[HUD_GETRINGSNUM].y), totalrings, tallnum);
+		if (leveltime < 5*TICRATE && totalrings > 0)
+		{
+			V_DrawScaledPatch(hudinfo[HUD_GETRINGS].x, (int)(SCY(hudinfo[HUD_GETRINGS].y)/vid.fdupy), V_TRANSLUCENT, getall);
+			ST_DrawOverlayNum(SCX(hudinfo[HUD_GETRINGSNUM].x), SCY(hudinfo[HUD_GETRINGSNUM].y), totalrings, tallnum);
+		}
 	}
 
 	if (sstimer)
@@ -2268,9 +2271,13 @@ static void ST_overlayDrawer(void)
 
 	if(!P_IsLocalPlayer(stplyr) && !(hu_showscores))
 	{
+		char name[MAXPLAYERNAME+1];
+		// shorten the name if its more than twelve characters.
+		strlcpy(name, player_names[stplyr-players], 13);
+
 		// Show name of player being displayed
 		V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-80, 0, "Viewpoint:");
-		V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-64, V_ALLOWLOWERCASE, player_names[stplyr-players]);
+		V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-64, V_ALLOWLOWERCASE, name);
 	}
 
 	// This is where we draw all the fun cheese if you have the chasecam off!

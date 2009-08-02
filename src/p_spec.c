@@ -5466,7 +5466,7 @@ void P_SpawnSpecials(void)
 				break;
 
 			case 177: // Air bobbing platform that will crumble and bob on
-			        // the water when it falls and hits, then never return
+				// the water when it falls and hits, then never return
 				P_AddFakeFloorsByLine(i, FF_EXISTS|FF_SOLID|FF_RENDERALL|FF_CUTLEVEL|FF_FLOATBOB|FF_CRUMBLE|FF_NORETURN);
 				lines[i].flags |= ML_BLOCKMONSTERS;
 				P_AddOldAirbob(lines[i].frontsector, lines + i, true);

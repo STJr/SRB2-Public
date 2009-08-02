@@ -75,7 +75,7 @@ void T_MoveCeiling(ceiling_t *ceiling)
 			if (res == pastdest)
 			{
 				switch (ceiling->type)
-	            {
+				{
 					case instantMoveCeilingByFrontSector:
 						ceiling->sector->ceilingpic = ceiling->texture;
 						ceiling->sector->ceilingdata = NULL;

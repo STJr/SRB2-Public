@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 /// \file
 /// \brief Implements special effects:
-///	 - Texture animation, height or lighting changes
+/// - Texture animation, height or lighting changes
 ///	 according to adjacent sectors, respective
 ///	 utility functions, etc.
 

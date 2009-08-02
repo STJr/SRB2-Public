@@ -188,8 +188,8 @@ typedef struct GLMipmap_s FTextureInfo;
 // Description of a renderable surface
 struct FSurfaceInfo
 {
-	 FUINT    PolyFlags;          // Surface flags -- UNUSED YET --
-	 RGBA_t   FlatColor;          // Flat-shaded color used with PF_Modulated mode
+	FUINT    PolyFlags;          // Surface flags -- UNUSED YET --
+	RGBA_t   FlatColor;          // Flat-shaded color used with PF_Modulated mode
 };
 typedef struct FSurfaceInfo FSurfaceInfo;
 

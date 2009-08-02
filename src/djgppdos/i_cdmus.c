@@ -192,7 +192,7 @@ static void Command_Cd_f (void)
 		if (cdPlaying)
 		{
 			CONS_Printf ("%s track : %d\n", cdLooping ? "looping" : "playing",
-						    cdPlayTrack);
+			             cdPlayTrack);
 		}
 		return;
 	}

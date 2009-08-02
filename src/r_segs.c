@@ -598,7 +598,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
 					my_topscreen = sprtopscreen + spryscale*col->topdelta;
 					my_bottomscreen = sprbotscreen == MAXINT ? my_topscreen + spryscale*col->length
-													  : sprbotscreen + spryscale*col->length;
+					                                         : sprbotscreen + spryscale*col->length;
 
 					my_yl = (my_topscreen+FRACUNIT-1)>>FRACBITS;
 					my_yh = (my_bottomscreen-1)>>FRACBITS;
@@ -1585,18 +1585,18 @@ void R_StoreWallRange(int start, int stop)
 		}
 
 		if (worldlow != worldbottom
-		 || backsector->floorpic != frontsector->floorpic
-		 || backsector->lightlevel != frontsector->lightlevel
-		 //SoM: 3/22/2000: Check floor x and y offsets.
-		 || backsector->floor_xoffs != frontsector->floor_xoffs
-		 || backsector->floor_yoffs != frontsector->floor_yoffs
-		 || backsector->floorpic_angle != frontsector->floorpic_angle
-		 //SoM: 3/22/2000: Prevents bleeding.
-		 || frontsector->heightsec != -1
-		 || backsector->floorlightsec != frontsector->floorlightsec
-		 //SoM: 4/3/2000: Check for colormaps
-		 || frontsector->extra_colormap != backsector->extra_colormap
-		 || (frontsector->ffloors != backsector->ffloors && frontsector->tag != backsector->tag))
+		    || backsector->floorpic != frontsector->floorpic
+		    || backsector->lightlevel != frontsector->lightlevel
+		    //SoM: 3/22/2000: Check floor x and y offsets.
+		    || backsector->floor_xoffs != frontsector->floor_xoffs
+		    || backsector->floor_yoffs != frontsector->floor_yoffs
+		    || backsector->floorpic_angle != frontsector->floorpic_angle
+		    //SoM: 3/22/2000: Prevents bleeding.
+		    || frontsector->heightsec != -1
+		    || backsector->floorlightsec != frontsector->floorlightsec
+		    //SoM: 4/3/2000: Check for colormaps
+		    || frontsector->extra_colormap != backsector->extra_colormap
+		    || (frontsector->ffloors != backsector->ffloors && frontsector->tag != backsector->tag))
 		{
 			markfloor = true;
 		}
@@ -1607,18 +1607,18 @@ void R_StoreWallRange(int start, int stop)
 		}
 
 		if (worldhigh != worldtop
-		 || backsector->ceilingpic != frontsector->ceilingpic
-		 || backsector->lightlevel != frontsector->lightlevel
-		 //SoM: 3/22/2000: Check floor x and y offsets.
-		 || backsector->ceiling_xoffs != frontsector->ceiling_xoffs
-		 || backsector->ceiling_yoffs != frontsector->ceiling_yoffs
-		 || backsector->ceilingpic_angle != frontsector->ceilingpic_angle
-		 //SoM: 3/22/2000: Prevents bleeding.
-		 || (frontsector->heightsec != -1 && frontsector->ceilingpic != skyflatnum)
-		 || backsector->floorlightsec != frontsector->floorlightsec
-		 //SoM: 4/3/2000: Check for colormaps
-		 || frontsector->extra_colormap != backsector->extra_colormap
-		 || (frontsector->ffloors != backsector->ffloors && frontsector->tag != backsector->tag))
+		    || backsector->ceilingpic != frontsector->ceilingpic
+		    || backsector->lightlevel != frontsector->lightlevel
+		    //SoM: 3/22/2000: Check floor x and y offsets.
+		    || backsector->ceiling_xoffs != frontsector->ceiling_xoffs
+		    || backsector->ceiling_yoffs != frontsector->ceiling_yoffs
+		    || backsector->ceilingpic_angle != frontsector->ceilingpic_angle
+		    //SoM: 3/22/2000: Prevents bleeding.
+		    || (frontsector->heightsec != -1 && frontsector->ceilingpic != skyflatnum)
+		    || backsector->floorlightsec != frontsector->floorlightsec
+		    //SoM: 4/3/2000: Check for colormaps
+		    || frontsector->extra_colormap != backsector->extra_colormap
+		    || (frontsector->ffloors != backsector->ffloors && frontsector->tag != backsector->tag))
 		{
 				markceiling = true;
 		}
@@ -1628,8 +1628,8 @@ void R_StoreWallRange(int start, int stop)
 			markceiling = false;
 		}
 
-		if (backsector->ceilingheight <= frontsector->floorheight
-		 || backsector->floorheight >= frontsector->ceilingheight)
+		if (backsector->ceilingheight <= frontsector->floorheight ||
+		    backsector->floorheight >= frontsector->ceilingheight)
 		{
 			// closed door
 			markceiling = markfloor = true;
@@ -1728,7 +1728,7 @@ void R_StoreWallRange(int start, int stop)
 					for (r2 = frontsector->ffloors; r2; r2 = r2->next)
 					{
 						if (!(r2->flags & FF_EXISTS) || !(r2->flags & FF_RENDERSIDES)
-						 || *r2->topheight < lowcut || *r2->bottomheight > highcut)
+						    || *r2->topheight < lowcut || *r2->bottomheight > highcut)
 							continue;
 
 						if (r2->norender == leveltime)
@@ -1775,7 +1775,7 @@ void R_StoreWallRange(int start, int stop)
 					for (r2 = backsector->ffloors; r2; r2 = r2->next)
 					{
 						if (!(r2->flags & FF_EXISTS) || !(r2->flags & FF_RENDERSIDES)
-						 || *r2->topheight < lowcut || *r2->bottomheight > highcut)
+						    || *r2->topheight < lowcut || *r2->bottomheight > highcut)
 							continue;
 
 						if (r2->norender == leveltime)
@@ -1911,8 +1911,8 @@ void R_StoreWallRange(int start, int stop)
 			markfloor = false;
 		}
 
-		if (frontsector->ceilingheight <= viewz
-		 && frontsector->ceilingpic != skyflatnum)
+		if (frontsector->ceilingheight <= viewz &&
+		    frontsector->ceilingpic != skyflatnum)
 		{
 			// below view plane
 			markceiling = false;
@@ -2018,9 +2018,9 @@ void R_StoreWallRange(int start, int stop)
 						continue;
 
 					if (*rover->bottomheight <= backsector->ceilingheight &&
-					 *rover->bottomheight >= backsector->floorheight &&
-					 ((viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
-					 (viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
+					    *rover->bottomheight >= backsector->floorheight &&
+					    ((viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
+					     (viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
 					{
 						ffloor[i].mark = true;
 						ffloor[i].b_pos = *rover->bottomheight;
@@ -2032,9 +2032,9 @@ void R_StoreWallRange(int start, int stop)
 					if (i >= MAXFFLOORS)
 						break;
 					if (*rover->topheight >= backsector->floorheight &&
-					 *rover->topheight <= backsector->ceilingheight &&
-					 ((viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
-					 (viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
+					    *rover->topheight <= backsector->ceilingheight &&
+					    ((viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
+					     (viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
 					{
 						ffloor[i].mark = true;
 						ffloor[i].b_pos = *rover->topheight;
@@ -2055,9 +2055,9 @@ void R_StoreWallRange(int start, int stop)
 						continue;
 
 					if (*rover->bottomheight <= frontsector->ceilingheight &&
-					 *rover->bottomheight >= frontsector->floorheight &&
-					 ((viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
-					 (viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
+					    *rover->bottomheight >= frontsector->floorheight &&
+					    ((viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
+					     (viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
 					{
 						ffloor[i].mark = true;
 						ffloor[i].b_pos = *rover->bottomheight;
@@ -2069,9 +2069,9 @@ void R_StoreWallRange(int start, int stop)
 					if (i >= MAXFFLOORS)
 						break;
 					if (*rover->topheight >= frontsector->floorheight &&
-					 *rover->topheight <= frontsector->ceilingheight &&
-					 ((viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
-					 (viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
+					    *rover->topheight <= frontsector->ceilingheight &&
+					    ((viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
+					     (viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
 					{
 						ffloor[i].mark = true;
 						ffloor[i].b_pos = *rover->topheight;

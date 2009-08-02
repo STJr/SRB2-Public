@@ -240,11 +240,12 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 		}
 
 		if ((toucher->z <= special->z + special->height && toucher->z + toucher->height
-		 >= special->z) // Are you touching the side of it?
-		 && (((toucher->player->pflags & PF_NIGHTSMODE) && (toucher->player->pflags & PF_DRILLING))
-		 || (toucher->player->pflags & PF_JUMPED) || (toucher->player->pflags & PF_SPINNING)
-		 || toucher->player->powers[pw_invulnerability] || toucher->player->powers[pw_super]))
-		 // Do you possess the ability to subdue the object?
+		     >= special->z) // Are you touching the side of it?
+		    && (((toucher->player->pflags & PF_NIGHTSMODE) && (toucher->player->pflags & PF_DRILLING))
+		        || (toucher->player->pflags & PF_JUMPED) || (toucher->player->pflags & PF_SPINNING)
+		        || toucher->player->powers[pw_invulnerability] || toucher->player->powers[pw_super]
+		       )
+		   ) // Do you possess the ability to subdue the object?
 		{
 			if (toucher->momz < 0)
 				toucher->momz = -toucher->momz;
@@ -253,13 +254,13 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
 		else if (toucher->z + toucher->height >= special->z
-		 && toucher->z < special->z
-		 && toucher->player->charability == CA_FLY
-		 && (toucher->player->powers[pw_tailsfly]
-		 || toucher->state == &states[S_PLAY_SPC1]
-		 || toucher->state == &states[S_PLAY_SPC2]
-		 || toucher->state == &states[S_PLAY_SPC3]
-		 || toucher->state == &states[S_PLAY_SPC4])) // Tails can shred stuff with his propeller.
+		         && toucher->z < special->z
+		         && toucher->player->charability == CA_FLY
+		         && (toucher->player->powers[pw_tailsfly]
+		             || toucher->state == &states[S_PLAY_SPC1]
+		             || toucher->state == &states[S_PLAY_SPC2]
+		             || toucher->state == &states[S_PLAY_SPC3]
+		             || toucher->state == &states[S_PLAY_SPC4])) // Tails can shred stuff with his propeller.
 		{
 			toucher->momz = -toucher->momz/2;
 
@@ -288,8 +289,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			P_DamageMobj(toucher, special, special, 1);
 		}
 		else if ((toucher->z <= special->z + special->height && toucher->z + toucher->height >= special->z) // Are you touching the side of it?
-		 && (((toucher->player->pflags & PF_NIGHTSMODE) && (toucher->player->pflags & PF_DRILLING)) || (toucher->player->pflags & PF_JUMPED) || (toucher->player->pflags & PF_SPINNING)
-		 || toucher->player->powers[pw_invulnerability] || toucher->player->powers[pw_super])) // Do you possess the ability to subdue the object?
+		         && (((toucher->player->pflags & PF_NIGHTSMODE) && (toucher->player->pflags & PF_DRILLING)) || (toucher->player->pflags & PF_JUMPED) || (toucher->player->pflags & PF_SPINNING)
+		             || toucher->player->powers[pw_invulnerability] || toucher->player->powers[pw_super])) // Do you possess the ability to subdue the object?
 		{
 			if (toucher->momz < 0)
 				toucher->momz = -toucher->momz;
@@ -297,13 +298,13 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
 		else if (toucher->z + toucher->height >= special->z
-		 && toucher->z < special->z
-		 && toucher->player->charability == CA_FLY
-		 && (toucher->player->powers[pw_tailsfly]
-		 || toucher->state == &states[S_PLAY_SPC1]
-		 || toucher->state == &states[S_PLAY_SPC2]
-		 || toucher->state == &states[S_PLAY_SPC3]
-		 || toucher->state == &states[S_PLAY_SPC4])) // Tails can shred stuff with his propeller.
+		         && toucher->z < special->z
+		         && toucher->player->charability == CA_FLY
+		         && (toucher->player->powers[pw_tailsfly]
+		             || toucher->state == &states[S_PLAY_SPC1]
+		             || toucher->state == &states[S_PLAY_SPC2]
+		             || toucher->state == &states[S_PLAY_SPC3]
+		             || toucher->state == &states[S_PLAY_SPC4])) // Tails can shred stuff with his propeller.
 		{
 			if (toucher->momz < 0)
 				toucher->momz = -toucher->momz/2;
@@ -718,7 +719,11 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 						}
 					}
 
-					if (!(mo2->type == MT_NIGHTSWING || mo2->type == MT_RING || mo2->type == MT_COIN || mo2->type == MT_BLUEBALL))
+					if (!(mo2->type == MT_NIGHTSWING || mo2->type == MT_RING || mo2->type == MT_COIN
+#ifdef BLUE_SPHERES
+					      || mo2->type == MT_BLUEBALL
+#endif
+					     ))
 						continue;
 
 					// Yay! The thing's in reach! Pull it in!
@@ -953,7 +958,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			                | ((13)<<MF_TRANSSHIFT);
 			sound = sfx_shield;
 			break;
-		     // rings
+			// coins
 		case MT_COIN:
 		case MT_FLINGCOIN:
 			if (!(P_CanPickupItem(toucher->player, false)))
@@ -967,7 +972,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			if (maptol & TOL_NIGHTS)
 				P_DoNightsScore(player);
 			break;
-
+			// rings
 		case MT_RING:
 		case MT_FLINGRING:
 			if (!(P_CanPickupItem(toucher->player, false)))
@@ -982,7 +987,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			if (maptol & TOL_NIGHTS)
 				P_DoNightsScore(player);
 			break;
-
+#ifdef BLUE_SPHERES
 		case MT_BLUEBALL:
 		case MT_FLINGBALL:
 			if (!(P_CanPickupItem(toucher->player, false)))
@@ -1001,7 +1006,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				P_DoNightsScore(player);
 			return;
 			break;
-
+#endif
 		case MT_REDTEAMRING:
 			if (!(P_CanPickupItem(toucher->player, false)))
 				return;
@@ -1277,7 +1282,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				sound = special->info->deathsound;
 			break;
 
-		     // Special Stage Token
+			// Special Stage Token
 		case MT_EMMY:
 			P_SpawnMobj(special->x, special->y, special->z, MT_SPARK);
 			tokenlist += special->health;
@@ -1376,8 +1381,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					spawnheight = special->spawnpoint->z;
 
 				if (special->x>>FRACBITS != special->spawnpoint->x
-				   || special->y>>FRACBITS != special->spawnpoint->y
-				   || special->z>>FRACBITS != spawnheight)
+				    || special->y>>FRACBITS != special->spawnpoint->y
+				    || special->z>>FRACBITS != spawnheight)
 				{
 					special->fuse = 1;
 
@@ -1427,8 +1432,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					spawnheight = special->spawnpoint->z;
 
 				if (special->x>>FRACBITS != special->spawnpoint->x
-				   || special->y>>FRACBITS != special->spawnpoint->y
-				   || special->z>>FRACBITS != spawnheight)
+				    || special->y>>FRACBITS != special->spawnpoint->y
+				    || special->z>>FRACBITS != spawnheight)
 					{
 						special->fuse = 1;
 
@@ -1883,6 +1888,28 @@ void P_CheckSurvivors(void)
 		if (server)
 			SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 	}
+}
+
+// Checks whether or not to end a race netgame.
+boolean P_CheckRacers(void)
+{
+	int i;
+
+	// Check if all the players in the race have finished. If so, end the level.
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		if (playeringame[i] && !players[i].exiting && players[i].lives > 0)
+			break;
+	}
+
+	if (i == MAXPLAYERS) // finished
+	{
+		countdown = 0;
+		countdown2 = 0;
+		return true;
+	}
+
+	return false;
 }
 
 /** Kills an object.
@@ -2377,9 +2404,9 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 
 		}
 
-	    //checks if tagger has tagged all players, if so, end round early.
-	    P_CheckSurvivors();
-	 }
+		//checks if tagger has tagged all players, if so, end round early.
+		P_CheckSurvivors();
+	}
 
 	P_DoPlayerPain(player, source, inflictor);
 
@@ -3048,6 +3075,10 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 	fixed_t ns;
 	int amt;
 
+	// Better safe than sorry.
+	if (!player)
+		return;
+
 	// If no health, don't spawn ring!
 	if (player->mo->health <= 1)
 		num_rings = 0;
@@ -3388,22 +3419,25 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 
 	for (i = 0; i < num_rings; i++)
 	{
+#ifdef BLUE_SPHERES
 		if (G_IsSpecialStage(gamemap))
 		{
 			mo = P_SpawnMobj(player->mo->x,
-							 player->mo->y,
-							 player->mo->z,
-							 MT_FLINGBALL);
+			                 player->mo->y,
+			                 player->mo->z,
+			                 MT_FLINGBALL);
 
 			mo->fuse = (8-player->losscount)*TICRATE;
 			P_SetTarget(&mo->target, player->mo);
 		}
-		else if (mariomode)
+		else //else if
+#endif
+		if (mariomode)
 		{
 			mo = P_SpawnMobj(player->mo->x,
-							 player->mo->y,
-							 player->mo->z,
-							 MT_FLINGCOIN);
+			                 player->mo->y,
+			                 player->mo->z,
+			                 MT_FLINGCOIN);
 
 			mo->fuse = (8-player->losscount)*TICRATE;
 			P_SetTarget(&mo->target, player->mo);
@@ -3411,9 +3445,9 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 		else
 		{
 			mo = P_SpawnMobj(player->mo->x,
-							 player->mo->y,
-							 player->mo->z,
-							 MT_FLINGRING);
+			                 player->mo->y,
+			                 player->mo->z,
+			                 MT_FLINGRING);
 
 			mo->fuse = (8-player->losscount)*TICRATE;
 			P_SetTarget(&mo->target, player->mo);
@@ -3498,6 +3532,10 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 	fixed_t ns;
 	int amt;
 	fixed_t z = 0, momx = 0, momy = 0;
+
+	// Better safe than sorry.
+	if (!player)
+		return;
 
 	// Spill power stones
 	if (player->powers[pw_emeralds])

@@ -218,7 +218,7 @@ static boolean CopyAndInvertSoundData(LPDIRECTSOUNDBUFFER dsbuffer, LPBYTE data,
 		if (FAILED(hr))
 			I_Error("CopyAndInvert: Lock fail(2) on %p, %s\n",dsbuffer,DXErrorToString(hr));
 	} else if (FAILED(hr))
-			  I_Error("CopyAndInvetrt: Lock fail(1) on %p, %s\n",dsbuffer,DXErrorToString(hr));
+			I_Error("CopyAndInvetrt: Lock fail(1) on %p, %s\n",dsbuffer,DXErrorToString(hr));
 
 	// copy wave data into the buffer (note: dwBytes1 should equal to dsbdesc->dwBufferBytes ...)
 	CopyAndInvertMemory(lpvAudio1, data, dwBytes1);
@@ -275,12 +275,12 @@ static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, size_t len)
 	// Set up DSBUFFERDESC structure.
 	ZeroMemory(&dsbdesc, sizeof (DSBUFFERDESC));
 	dsbdesc.dwSize = sizeof (DSBUFFERDESC);
-/*    dsbdesc.dwFlags = DSBCAPS_CTRLPAN |
-					  DSBCAPS_CTRLVOLUME |
-					  DSBCAPS_STICKYFOCUS |
-					  //DSBCAPS_LOCSOFTWARE |
-					  DSBCAPS_STATIC
-					  | DSBCAPS_CTRLFREQUENCY;    // This one for pitching
+/*	dsbdesc.dwFlags = DSBCAPS_CTRLPAN |
+	                  DSBCAPS_CTRLVOLUME |
+	                  DSBCAPS_STICKYFOCUS |
+	                  //DSBCAPS_LOCSOFTWARE |
+	                  DSBCAPS_STATIC
+	                  | DSBCAPS_CTRLFREQUENCY;    // This one for pitching
 */
 	dsbdesc.dwFlags = sound_buffer_flags;
 	dsbdesc.dwBufferBytes = (DWORD)(len-8);
@@ -981,8 +981,8 @@ void I_StartupSound(void)
 	if (FAILED(hr))
 	{
 		CONS_Printf(" DirectSoundCreate FAILED\n"
-					 " there is no sound device or the sound device is under\n"
-					 " the control of another application\n");
+		            " there is no sound device or the sound device is under\n"
+		            " the control of another application\n");
 		nosound = true;
 		return;
 	}
@@ -1314,7 +1314,7 @@ void I_InitMIDIMusic(void)
 	// create event for synch'ing the callback thread to main program thread
 	// when we will need it
 	hBufferReturnEvent = CreateEvent(NULL, FALSE, FALSE,
-	                                  TEXT("SRB2 Midi Playback: Wait For Buffer Return"));
+	                                 TEXT("SRB2 Midi Playback: Wait For Buffer Return"));
 
 	if (!hBufferReturnEvent)
 	{
@@ -1732,7 +1732,7 @@ void I_StopSong(int handle)
 		// calling SetEvent() once all buffers are returned to it
 		if ((devparm)
 			&& (WaitForSingleObject(hBufferReturnEvent, DEBUG_CALLBACK_TIMEOUT)
-			    == WAIT_TIMEOUT))
+			   == WAIT_TIMEOUT))
 		{
 			// Note, this is a risky move because the callback may be genuinely busy, but
 			// when we're debugging, it's safer and faster than freezing the application,
@@ -1877,7 +1877,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 	lumpnum_t lumpnum;
 
 	if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC &&
-	   fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM)
+	    fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM)
 		if (devparm) I_OutputMsg("FMOD(Start,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 
 	if (fmus)
@@ -2200,7 +2200,7 @@ static BOOL StreamBufferSetup(LPBYTE pMidiData, size_t iMidiSize)
 	mptd.cbStruct = sizeof (mptd);
 	mptd.dwTimeDiv = ifs.dwTimeDivision;
 	if ((mmrRetVal = midiStreamProperty(hStream, (LPBYTE)&mptd, MIDIPROP_SET|MIDIPROP_TIMEDIV))
-	   != MMSYSERR_NOERROR)
+	    != MMSYSERR_NOERROR)
 	{
 		MidiErrorMessageBox(mmrRetVal);
 		return TRUE;
@@ -2220,7 +2220,7 @@ static BOOL StreamBufferSetup(LPBYTE pMidiData, size_t iMidiSize)
 		ciStreamBuffers[nCurrentBuffer].bTimesUp = FALSE;
 
 		if ((nChkErr = Mid2StreamConvertToBuffer(dwConvertFlag, &ciStreamBuffers[nCurrentBuffer]))
-		   != CONVERTERR_NOERROR)
+		    != CONVERTERR_NOERROR)
 		{
 			if (nChkErr == CONVERTERR_DONE)
 				bFoundEnd = TRUE;
@@ -2443,7 +2443,7 @@ static VOID Mid2StreamFreeBuffers(VOID)
 		for (idx = 0; idx < NUM_STREAM_BUFFERS; idx++)
 		{
 			if ((mmrRetVal = midiOutUnprepareHeader((HMIDIOUT)hStream,
-			   &ciStreamBuffers[idx].mhBuffer, sizeof (MIDIHDR))) != MMSYSERR_NOERROR)
+			 &ciStreamBuffers[idx].mhBuffer, sizeof (MIDIHDR))) != MMSYSERR_NOERROR)
 			{
 				MidiErrorMessageBox(mmrRetVal);
 			}

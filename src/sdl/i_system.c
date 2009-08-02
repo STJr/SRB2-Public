@@ -1704,7 +1704,7 @@ static void I_ShutdownMouse2(void)
 	EscapeCommFunction(mouse2filehandle, CLRRTS);
 
 	PurgeComm(mouse2filehandle, PURGE_TXABORT | PURGE_RXABORT |
-		 PURGE_TXCLEAR | PURGE_RXCLEAR);
+	          PURGE_TXCLEAR | PURGE_RXCLEAR);
 
 	CloseHandle(mouse2filehandle);
 

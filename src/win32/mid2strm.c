@@ -640,7 +640,7 @@ static BOOL GetTrackVDWord(INTRACKSTATE *pInTrack, ULONG *lpdw)
 		}
 
 		b = *pInTrack->pTrackPointer++;
-		 --pInTrack->iBytesLeft;
+		--pInTrack->iBytesLeft;
 
 		dw = (dw << 7) | (b & 0x7F);
 	} while (b & 0x80);
@@ -696,7 +696,7 @@ static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 	// Get the first BYTE, which determines the type of event.
 	//
 	b = *pInTrack->pTrackPointer++;
-	 --pInTrack->iBytesLeft;
+	--pInTrack->iBytesLeft;
 
 	// If the high bit is not set, then this is a channel message
 	// which uses the status BYTE from the last channel message
@@ -814,7 +814,7 @@ static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 		}
 
 		pMe->abEvent[1] = *pInTrack->pTrackPointer++;
-		 --pInTrack->iBytesLeft;
+		--pInTrack->iBytesLeft;
 
 		if (!GetTrackVDWord(pInTrack, (ULONG *)&pMe->dwEventLength))
 		{
@@ -1170,10 +1170,10 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 
 #ifdef DEBUGMIDISTREAM
 	I_OutputMsg("MIDI Header:\n"
-				   "------------\n"
-				   "format: %d\n"
-				   "number of tracks: %d\n"
-				   "time division: %d\n", ifs.dwFormat, ifs.nTracks, ifs.dwTimeDivision);
+				"------------\n"
+				"format: %d\n"
+				"number of tracks: %d\n"
+				"time division: %d\n", ifs.dwFormat, ifs.nTracks, ifs.dwTimeDivision);
 #endif
 
 	/* faB: made static
@@ -1489,7 +1489,7 @@ int Mid2StreamConvertToBuffer(DWORD dwFlags, LPCONVERTINFO lpciInfo)
 		{
 		}
 		else if ((nChkErr = AddEventToStreamBuffer(&teTemp, lpciInfo))
-		          != CONVERTERR_NOERROR)
+		         != CONVERTERR_NOERROR)
 		{
 			if (nChkErr == CONVERTERR_BUFFERFULL)
 			{

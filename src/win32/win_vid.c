@@ -199,9 +199,11 @@ void I_StartupGraphics(void)
 		return;
 
 #ifdef HWRENDER
-/*	else if (M_CheckParm("-opengl"))
+#ifdef SHUFFLE
+	else if (M_CheckParm("-opengl"))
 		rendermode = render_opengl;
-	else*/
+	else
+#endif
 		rendermode = render_soft;
 #endif
 
@@ -509,7 +511,7 @@ void I_SetPalette(RGBA_t *palette)
 	}
 	else
 #ifdef HWRENDER
-	 if (rendermode == render_soft)
+	if (rendermode == render_soft)
 #endif
 	{
 		PALETTEENTRY mainpal[256];

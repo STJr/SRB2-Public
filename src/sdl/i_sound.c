@@ -999,7 +999,7 @@ static void SDLCALL I_UpdateStream(void *userdata, Uint8 *stream, int len)
 #endif
 
 	if ((audio.channels != 1 && audio.channels != 2) ||
-	     (audio.format != AUDIO_S8 && audio.format != AUDIO_S16SYS))
+	    (audio.format != AUDIO_S8 && audio.format != AUDIO_S16SYS))
 		; // no function to encode this type of stream
 	else if (audio.channels == 1 && audio.format == AUDIO_S8)
 		I_UpdateStream8M(stream, len);
@@ -1775,7 +1775,7 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 		return false;
 
 	if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC &&
-	   fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM)
+	    fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM)
 		if (devparm) I_OutputMsg("FMOD(Start,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 
 	if (fmus)

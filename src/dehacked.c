@@ -289,7 +289,7 @@ static void readAnimTex(MYFILE *f, int num)
 				strncpy(harddefs[num].startname, word2, 8);
 			if (!strcmp(word, "END"))
 				strncpy(harddefs[num].endname, word2, 8);
-			else if (!strcmp(word, "SPEED"))	  harddefs[num].speed = i;
+			else if (!strcmp(word, "SPEED")) harddefs[num].speed = i;
 			else if (!strcmp(word, "ISTEXTURE")) harddefs[num].istexture = i;
 
 			else deh_warning("readAnimTex %d: unknown word '%s'", num, word);

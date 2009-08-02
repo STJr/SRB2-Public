@@ -531,9 +531,9 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 
 		if (myCmdline[i] == '"')
 		{
-			 cSep = ' ';
-			 if (prevCvar)
-				 i++;       // get ending " quote in arg
+			cSep = ' ';
+			if (prevCvar)
+				i++; // get ending " quote in arg
 		}
 
 		prevCvar = bCvar;

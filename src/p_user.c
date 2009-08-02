@@ -1269,8 +1269,6 @@ static mobj_t *P_SpawnSpinMobj(player_t *player, mobjtype_t type)
 // Player exits the map via sector trigger
 void P_DoPlayerExit(player_t *player)
 {
-	int i;
-
 	if (player->exiting)
 		return;
 
@@ -1294,25 +1292,8 @@ void P_DoPlayerExit(player_t *player)
 		if (!countdown2)
 			countdown2 = (11 + cv_countdowntime.value)*TICRATE + 1; // 11sec more than countdowntime
 
-		// Check if all the players in the race have finished. If so, end the level.
-		for (i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playeringame[i])
-			{
-				if (!players[i].exiting)
-				{
-					if (players[i].lives > 0)
-						break;
-				}
-			}
-		}
-
-		if (i == MAXPLAYERS) // finished
-		{
+		if (P_CheckRacers())
 			player->exiting = (14*TICRATE)/5 + 1;
-			countdown = 0;
-			countdown2 = 0;
-		}
 	}
 	else
 		player->exiting = (14*TICRATE)/5 + 2; // Accidental death safeguard???
@@ -1794,6 +1775,9 @@ static void P_DoJumpShield(player_t *player)
 //
 static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 {
+	if (player->pflags & PF_STASIS || player->powers[pw_nocontrol])
+		return;
+
 	if (cmd->buttons & BT_JUMP && !(player->pflags & PF_JUMPDOWN) && !player->exiting && !(!(player->pflags & PF_SLIDING) && player->mo->state == &states[player->mo->info->painstate] && player->powers[pw_flashing]))
 	{
 		// can't jump while in air, can't jump while jumping
@@ -5454,7 +5438,11 @@ static void P_MovePlayer(player_t *player)
 
 			mo2 = (mobj_t *)th;
 
-			if (!(mo2->type == MT_NIGHTSWING || mo2->type == MT_RING || mo2->type == MT_COIN || mo2->type == MT_BLUEBALL))
+			if (!(mo2->type == MT_NIGHTSWING || mo2->type == MT_RING || mo2->type == MT_COIN
+#ifdef BLUE_SPHERES
+			      || mo2->type == MT_BLUEBALL
+#endif
+			     ))
 				continue;
 
 			if (P_AproxDistance(P_AproxDistance(mo2->x - x, mo2->y - y), mo2->z - z) > 128*FRACUNIT)
@@ -6092,7 +6080,7 @@ static void P_MovePlayer(player_t *player)
 	if (!(player->mo->state == &states[S_PLAY_ABL1] || player->mo->state == &states[S_PLAY_ABL2]))
 		player->powers[pw_tailsfly] = 0;
 
-	if (player->charability == CA_FLY || player->charability == CA_SWIM)
+	if ((player->charability == CA_FLY || player->charability == CA_SWIM) && !(player->pflags & PF_STASIS || player->powers[pw_nocontrol]))
 	{
 		// Fly counter for Tails.
 		if (player->powers[pw_tailsfly])
@@ -6792,7 +6780,7 @@ if (gametype == GT_TAG)
 						}
 					}
 
-					if (rover->flags & FF_CRUMBLE)
+					if (rover->flags & FF_CRUMBLE && !(netgame && player->spectator))
 						EV_StartCrumble(rover->master->frontsector, rover, (rover->flags & FF_FLOATBOB), player, rover->alpha, !(rover->flags & FF_NORETURN));
 
 					if (floorclimb)
@@ -7024,7 +7012,7 @@ if (gametype == GT_TAG)
 		else if ((!(player->mo->momx || player->mo->momy || player->mo->momz) || !climb) && player->mo->state != &states[S_PLAY_CLIMB1])
 			P_SetPlayerMobjState(player->mo, S_PLAY_CLIMB1);
 
-		if (cmd->buttons & BT_USE)
+		if (cmd->buttons & BT_USE && !(player->pflags & PF_STASIS || player->powers[pw_nocontrol]))
 		{
 			player->climbing = 0;
 			player->pflags |= PF_JUMPED;
@@ -7902,7 +7890,7 @@ blockchecking:
 	// Look for blocks to bust up
 	// Because of FF_SHATTER, we should look for blocks constantly,
 	// not just when spinning or playing as Knuckles
-	if (CheckForBustableBlocks)
+	if (CheckForBustableBlocks && !(netgame && player->spectator))
 	{
 		fixed_t oldx;
 		fixed_t oldy;
@@ -8362,7 +8350,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 	{
 		player->mo->height = P_GetPlayerHeight(player);
 
-		if (player->cmd.buttons & BT_USE) // Drop off of the rope
+		if (player->cmd.buttons & BT_USE && !(player->pflags & PF_STASIS || player->powers[pw_nocontrol])) // Drop off of the rope
 		{
 			P_SetTarget(&player->mo->tracer, NULL);
 
@@ -8934,7 +8922,7 @@ static void P_DeathThink(player_t *player)
 	if (gametype == GT_RACE || (gametype == GT_COOP && (multiplayer || netgame)))
 	{
 		// Keep time rolling in race mode
-		if (!(countdown2 && !countdown) && !player->exiting)
+		if (!(countdown2 && !countdown) && !player->exiting && !(player->pflags & PF_TIMEOVER))
 		{
 			if (gametype == GT_RACE)
 			{
@@ -9485,6 +9473,20 @@ void P_PlayerThink(player_t *player)
 	if (!player->mo)
 		I_Error("p_playerthink: players[%d].mo == NULL", player - players);
 #endif
+	// Possible zombie fixes.
+	// todo: Figure out what is actually causing these problems in the first place...
+	if ((player->health <= 0 || player->mo->health <= 0) && player->playerstate == PST_LIVE) //you should be DEAD!
+	{
+		CONS_Printf("Note: Player %d in PST_LIVE with 0 health. (Zombie bug)\n", player-players);
+		player->playerstate = PST_DEAD;
+	}
+
+	if (player->mo->state == &states[S_PLAY_PAIN] && !(player->pflags & PF_SLIDING) && (player->mo->z == player->mo->floorz ||
+	 ((player->mo->eflags & MFE_VERTICALFLIP) && player->mo->z == player->mo->ceilingz)))
+	{
+		CONS_Printf("Note: Player %d in S_PLAY_PAIN while touching a surface. (Zombie bug)\n", player-players);
+		P_SetPlayerMobjState(player->mo, S_PLAY_STND);
+	}
 
 	if (player->pflags & PF_GLIDING)
 	{
@@ -9492,8 +9494,8 @@ void P_PlayerThink(player_t *player)
 			P_SetPlayerMobjState(player->mo, S_PLAY_ABL1);
 	}
 	else if ((player->pflags & PF_JUMPED) && !player->powers[pw_super]
-		&& (player->mo->state - states < S_PLAY_ATK1
-		|| player->mo->state - states > S_PLAY_ATK4) && player->charability2 == CA2_SPINDASH)
+	          && (player->mo->state - states < S_PLAY_ATK1 || player->mo->state - states > S_PLAY_ATK4
+	         ) && player->charability2 == CA2_SPINDASH)
 	{
 		P_SetPlayerMobjState(player->mo, S_PLAY_ATK1);
 	}
@@ -9554,10 +9556,6 @@ void P_PlayerThink(player_t *player)
 				CONS_Printf(text[OUT_OF_TIME], player_names[player-players]);
 
 			player->pflags |= PF_TIMEOVER;
-
-			//Make time over players appear above
-			//game over players in the race rankings.
-			player->realtime--;
 
 			if (player->pflags & PF_NIGHTSMODE)
 			{

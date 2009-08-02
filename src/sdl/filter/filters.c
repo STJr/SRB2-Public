@@ -34,16 +34,16 @@ SDL_Surface *filter_2xe(SDL_Surface *src, SDL_Rect *srcclp, filter_2 filter,Uint
 		dstclp.h = (Uint16)src->h; //src's height
 	}
 	if(filter == hq2x32 || filter == lq2x32) // src 0888 surface
-	 srcfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w,dstclp.h+6,32,0x00FF0000,0x0000FF00,0x000000FF,0x00);
+		srcfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w,dstclp.h+6,32,0x00FF0000,0x0000FF00,0x000000FF,0x00);
 	else // src 565 surface
-	 srcfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w,dstclp.h+6,16,0x0000F800,0x000007E0,0x0000001F,0x00);
+		srcfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w,dstclp.h+6,16,0x0000F800,0x000007E0,0x0000001F,0x00);
 	if(!srcfilter) return NULL; //No Memory?
 	Fillcolor = SDL_MapRGB(srcfilter->format,R,G,B); //Choose color
 	SDL_FillRect(srcfilter,NULL,Fillcolor); //fill it
 	if(filter == filter_hq2x || filter == hq2x32 || filter == lq2x32) // dst 0888 surface
-	 dstfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w*2,dstclp.h*2,32,0x00FF0000,0x0000FF00,0x000000FF,0x00);
+		dstfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w*2,dstclp.h*2,32,0x00FF0000,0x0000FF00,0x000000FF,0x00);
 	else // dst 565 surface
-	 dstfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w*2,dstclp.h*2,16,0x0000F800,0x000007E0,0x0000001F,0x00);
+		dstfilter = SDL_CreateRGBSurface(SDL_SWSURFACE,dstclp.w*2,dstclp.h*2,16,0x0000F800,0x000007E0,0x0000001F,0x00);
 	if(!dstfilter || SDL_BlitSurface(src,srcclp,srcfilter,&dstclp) == -1) // No dstfilter or Blit failed
 	{
 		SDL_FreeSurface(srcfilter); // Free memory
@@ -66,7 +66,7 @@ int filter_init_2xsai(SDL_PixelFormat *BitFormat)
 		return 0;
 	}
 	else if (BitFormat->Rmask == 0xF800 && BitFormat->Gmask == 0x7E0
-	 && BitFormat->Bmask == 0x1F && BitFormat->BitsPerPixel == 16) //565
+		&& BitFormat->Bmask == 0x1F && BitFormat->BitsPerPixel == 16) //565
 	{
 		colorMask = 0xF7DEF7DE;
 		lowPixelMask = 0x08210821;
@@ -76,7 +76,7 @@ int filter_init_2xsai(SDL_PixelFormat *BitFormat)
 		greenMask = 0x7E0;
 	}
 	else if (BitFormat->Rmask == 0x7C00 && BitFormat->Gmask == 0x3E0
-	 && BitFormat->Bmask == 0x1F && BitFormat->BitsPerPixel == 15) //555
+		&& BitFormat->Bmask == 0x1F && BitFormat->BitsPerPixel == 15) //555
 	{
 		colorMask = 0x7BDE7BDE;
 		lowPixelMask = 0x04210421;

@@ -475,7 +475,7 @@ long P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 		levelflat->lumpnum = R_GetFlatNumForName(flatname);
 
 		if (devparm)
-			 I_OutputMsg("flat #%03u: %s\n", numlevelflats, levelflat->name);
+			I_OutputMsg("flat #%03u: %s\n", numlevelflats, levelflat->name);
 
 		numlevelflats++;
 

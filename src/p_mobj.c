@@ -663,7 +663,9 @@ void P_CheckGravity(mobj_t *mo, boolean affect)
 			{
 				case MT_FLINGRING:
 				case MT_FLINGCOIN:
+#ifdef BLUE_SPHERES
 				case MT_FLINGBALL:
+#endif
 				case MT_FLINGEMERALD:
 				case MT_BOUNCERING:
 				case MT_RAILRING:
@@ -825,7 +827,9 @@ void P_XYMovement(mobj_t *mo)
 
 	if ((mo->type == MT_FLINGRING
 		|| mo->type == MT_FLINGCOIN
+#ifdef BLUE_SPHERES
 		|| mo->type == MT_FLINGBALL
+#endif
 		|| mo->type == MT_FALLINGROCK
 		|| mo->type == MT_BIGTUMBLEWEED
 		|| mo->type == MT_LITTLETUMBLEWEED
@@ -890,7 +894,7 @@ void P_XYMovement(mobj_t *mo)
 	oldy = mo->y;
 
 	// Pushables can break some blocks
-	if (CheckForBustableBlocks && (mo->flags & MF_PUSHABLE))
+	if (CheckForBustableBlocks && (mo->flags & MF_PUSHABLE) && !(netgame && mo->player && mo->player->spectator))
 	{
 		msecnode_t *node;
 		P_UnsetThingPosition(mo);
@@ -1464,12 +1468,16 @@ static void P_ZMovement(mobj_t *mo)
 			break;
 		case MT_RING: // Ignore still rings
 		case MT_COIN:
+#ifdef BLUE_SPHERES
 		case MT_BLUEBALL:
+#endif
 		case MT_REDTEAMRING:
 		case MT_BLUETEAMRING:
 		case MT_FLINGCOIN:
 		case MT_FLINGRING:
+#ifdef BLUE_SPHERES
 		case MT_FLINGBALL:
+#endif
 		case MT_BOUNCERING:
 		case MT_AUTOMATICRING:
 		case MT_RAILRING:
@@ -1594,7 +1602,9 @@ static void P_ZMovement(mobj_t *mo)
 			// Flingrings bounce
 			if (mo->type == MT_FLINGRING
 				|| mo->type == MT_FLINGCOIN
+#ifdef BLUE_SPHERES
 				|| mo->type == MT_FLINGBALL
+#endif
 				|| mo->type == MT_BOUNCERING
 				|| mo->type == MT_AUTOMATICRING
 				|| mo->type == MT_RAILRING
@@ -1689,7 +1699,9 @@ static void P_ZMovement(mobj_t *mo)
 			// Flingrings bounce
 			if ((mo->eflags & MFE_VERTICALFLIP) && (mo->type == MT_FLINGRING
 				|| mo->type == MT_FLINGCOIN
+#ifdef BLUE_SPHERES
 				|| mo->type == MT_FLINGBALL
+#endif
 				|| mo->type == MT_BOUNCERING
 				|| mo->type == MT_AUTOMATICRING
 				|| mo->type == MT_RAILRING
@@ -2715,20 +2727,23 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 	else
 		P_TryMove(mobj, mobj->x, mobj->y, true);
 
-	// Crumbling platforms
-	for (node = mobj->touching_sectorlist; node; node = node->m_snext)
+	if (!(netgame && mobj->player && mobj->player->spectator))
 	{
-		ffloor_t *rover;
-
-		for (rover = node->m_sector->ffloors; rover; rover = rover->next)
+		// Crumbling platforms
+		for (node = mobj->touching_sectorlist; node; node = node->m_snext)
 		{
-			if (!(rover->flags & FF_EXISTS))
-				continue;
+			ffloor_t *rover;
 
-			if ((rover->flags & FF_CRUMBLE)
-				&& ((*rover->topheight == mobj->z && !(mobj->eflags & MFE_VERTICALFLIP))
-				|| (*rover->bottomheight == mobj->z + mobj->height && (mobj->eflags & MFE_VERTICALFLIP)))) // You nut.
-				EV_StartCrumble(rover->master->frontsector, rover, (rover->flags & FF_FLOATBOB), mobj->player, rover->alpha, !(rover->flags & FF_NORETURN));
+			for (rover = node->m_sector->ffloors; rover; rover = rover->next)
+			{
+				if (!(rover->flags & FF_EXISTS))
+					continue;
+
+				if ((rover->flags & FF_CRUMBLE)
+					&& ((*rover->topheight == mobj->z && !(mobj->eflags & MFE_VERTICALFLIP))
+					|| (*rover->bottomheight == mobj->z + mobj->height && (mobj->eflags & MFE_VERTICALFLIP)))) // You nut.
+					EV_StartCrumble(rover->master->frontsector, rover, (rover->flags & FF_FLOATBOB), mobj->player, rover->alpha, !(rover->flags & FF_NORETURN));
+			}
 		}
 	}
 
@@ -4432,6 +4447,7 @@ void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int
 		mobj->z -= mobj->height/2;
 	}
 }
+
 void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int number, mobjtype_t type, angle_t rotangle, boolean spawncenter, boolean ghostit)
 {
 	mobj_t *mobj;
@@ -5429,7 +5445,9 @@ void P_MobjThinker(mobj_t *mobj)
 			break;
 		case MT_RING:
 		case MT_COIN:
+#ifdef BLUE_SPHERES
 		case MT_BLUEBALL:
+#endif
 		case MT_REDTEAMRING:
 		case MT_BLUETEAMRING:
 			// No need to check water. Who cares?
@@ -6323,7 +6341,9 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 			break;
 		case MT_RING:
 		case MT_COIN:
+#ifdef BLUE_SPHERES
 		case MT_BLUEBALL:
+#endif
 			nummaprings++;
 		case MT_BOUNCERING:
 		case MT_RAILRING:
@@ -6367,7 +6387,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 			mobj->type == MT_BOUNCEPICKUP || mobj->type == MT_RAILPICKUP || mobj->type == MT_AUTOPICKUP ||
 			mobj->type == MT_EXPLODEPICKUP || mobj->type == MT_SCATTERPICKUP || mobj->type == MT_GRENADEPICKUP
 			|| mobj->type == MT_EMMY)
-		    && mobj->flags & MF_AMBUSH)
+			&& mobj->flags & MF_AMBUSH)
 			mobj->z = mobj->floorz + 32*FRACUNIT;
 		else
 			mobj->z = mobj->floorz;
@@ -6492,7 +6512,9 @@ void P_RemoveMobj(mobj_t *mobj)
 	 (
 	  mobj->type == MT_RING
 	  || mobj->type == MT_COIN
+#ifdef BLUE_SPHERES
 	  || mobj->type == MT_BLUEBALL
+#endif
 	  || mobj->type == MT_REDTEAMRING
 	  || mobj->type == MT_BLUETEAMRING
 	  || mobj->type == MT_BOUNCERING
@@ -6507,7 +6529,7 @@ void P_RemoveMobj(mobj_t *mobj)
 	  || mobj->type == MT_EXPLODEPICKUP
 	  || mobj->type == MT_SCATTERPICKUP
 	  || mobj->type == MT_GRENADEPICKUP
-	) && !(mobj->flags2 & MF2_DONTRESPAWN)
+	 ) && !(mobj->flags2 & MF2_DONTRESPAWN)
 	)
 	{
 		itemrespawnque[iquehead] = mobj->spawnpoint;
@@ -7265,8 +7287,14 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		runemeraldmanager = true;
 	}
 
+	// No outright emerald placement in match, CTF or tag.
+	if ((mthing->type >= mobjinfo[MT_EMERALD1].doomednum &&
+	     mthing->type <= mobjinfo[MT_EMERALD7].doomednum) &&
+	    (gametype == GT_MATCH || gametype == GT_CTF || gametype == GT_TAG))
+		return;
+
 	if (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF) // No enemies in match or CTF modes
-		if ((mobjinfo[i].flags & MF_ENEMY) || (mobjinfo[i].flags & MF_BOSS))
+		if ((mobjinfo[i].flags & MF_ENEMY) || (mobjinfo[i].flags & MF_BOSS) || i == MT_EGGGUARD)
 			return;
 
 	// Set powerup boxes to user settings for race.
@@ -7318,10 +7346,12 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	if (i == MT_SIGN && gametype != GT_COOP && gametype != GT_RACE)
 		return; // Don't spawn the level exit sign when it isn't needed.
 
+#ifdef BLUE_SPHERES
 	// Spawn rings as blue spheres in special stages.
-/*	if (G_IsSpecialStage(gamemap))
+	if (G_IsSpecialStage(gamemap))
 		if (i == MT_RING)
-			i = MT_BLUEBALL;*/
+			i = MT_BLUEBALL;
+#endif
 
 	if ((i == MT_BLUETEAMRING || i == MT_REDTEAMRING) && gametype != GT_CTF)
 		i = MT_RING; //spawn team rings as regular rings in non-CTF modes
@@ -7648,6 +7678,12 @@ ML_NOCLIMB : Direction not controllable
 	}
 	else if (i == MT_EMMY)
 	{
+		if (timeattacking)
+		{
+			P_SetMobjState (mobj, S_DISS);
+			return;
+		}
+
 		mobj->health = 1 << tokenbits++;
 		P_SpawnMobj(x, y, z, MT_TOKEN);
 	}
@@ -8068,10 +8104,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 			switch (mthing->type)
 			{
 				case 300: //MT_RING
+#ifdef BLUE_SPHERES
 					// Spawn rings as blue spheres in special stages, ala S3+K.
-/*					if (G_IsSpecialStage(gamemap))
+					if (G_IsSpecialStage(gamemap))
 						mobj = P_SpawnMobj(mthing->x << FRACBITS, mthing->y << FRACBITS,mthing->z << FRACBITS, MT_BLUEBALL);
-					else*/
+					else
+#endif
 						mobj = P_SpawnMobj(mthing->x << FRACBITS, mthing->y << FRACBITS,mthing->z << FRACBITS, MT_RING);
 					break;
 				case 1800: //MT_COIN
@@ -8113,11 +8151,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 					z = (R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS)) + 64*FRACUNIT*r;
 				else
 					z = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + 64*FRACUNIT*r;
-
+#ifdef BLUE_SPHERES
 				// Spawn rings as blue spheres in special stages, ala S3+K.
-/*				if (G_IsSpecialStage(gamemap))
+				if (G_IsSpecialStage(gamemap))
 					mobj = P_SpawnMobj(x, y, z, MT_BLUEBALL);
-				else*/
+				else
+#endif
 					mobj = P_SpawnMobj(x, y, z, MT_RING);
 
 				if (mobj->tics > 0)
@@ -8136,11 +8175,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 					z = (R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS)) + 128*FRACUNIT*r;
 				else
 					z = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + 128*FRACUNIT*r;
-
+#ifdef BLUE_SPHERES
 				// Spawn rings as blue spheres in special stages, ala S3+K.
-/*				if (G_IsSpecialStage(gamemap))
+				if (G_IsSpecialStage(gamemap))
 					mobj = P_SpawnMobj(x, y, z, MT_BLUEBALL);
-				else*/
+				else
+#endif
 					mobj = P_SpawnMobj(x, y, z, MT_RING);
 
 				if (mobj->tics > 0)
@@ -8164,11 +8204,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 					z = (R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS)) + 64*FRACUNIT*r;
 				else
 					z = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + 64*FRACUNIT*r;
-
+#ifdef BLUE_SPHERES
 				// Spawn rings as blue spheres in special stages, ala S3+K.
-/*				if (G_IsSpecialStage(gamemap))
+				if (G_IsSpecialStage(gamemap))
 					mobj = P_SpawnMobj(x, y, z, MT_BLUEBALL);
-				else*/
+				else
+#endif
 					mobj = P_SpawnMobj(x, y, z, MT_RING);
 
 				if (mobj->tics > 0)
@@ -8192,11 +8233,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 					z = (R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS)) + 64*FRACUNIT*r;
 				else
 					z = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + 64*FRACUNIT*r;
-
+#ifdef BLUE_SPHERES
 				// Spawn rings as blue spheres in special stages, ala S3+K.
-/*				if (G_IsSpecialStage(gamemap))
+				if (G_IsSpecialStage(gamemap))
 					mobj = P_SpawnMobj(x, y, z, MT_BLUEBALL);
-				else*/
+				else
+#endif
 					mobj = P_SpawnMobj(x, y, z, MT_RING);
 
 				if (mobj->tics > 0)
@@ -8234,11 +8276,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 				finalx = mthingx + v[0];
 				finaly = mthingy + v[1];
 				finalz = mthingz + v[2];
-
+#ifdef BLUE_SPHERES
 				// Spawn rings as blue spheres in special stages, ala S3+K.
-/*				if (G_IsSpecialStage(gamemap))
+				if (G_IsSpecialStage(gamemap))
 					mobj = P_SpawnMobj(finalx, finaly, finalz, MT_BLUEBALL);
-				else*/
+				else
+#endif
 					mobj = P_SpawnMobj(finalx, finaly, finalz, MT_RING);
 
 				mobj->z -= mobj->height/2;
@@ -8273,11 +8316,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 				finalx = mthingx + v[0];
 				finaly = mthingy + v[1];
 				finalz = mthingz + v[2];
-
+#ifdef BLUE_SPHERES
 				// Spawn rings as blue spheres in special stages, ala S3+K.
-/*				if (G_IsSpecialStage(gamemap))
+				if (G_IsSpecialStage(gamemap))
 					mobj = P_SpawnMobj(finalx, finaly, finalz, MT_BLUEBALL);
-				else*/
+				else
+#endif
 					mobj = P_SpawnMobj(finalx, finaly, finalz, MT_RING);
 
 				mobj->z -= mobj->height/2;
@@ -8315,10 +8359,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 
 				if (i & 1)
 				{
+#ifdef BLUE_SPHERES
 					// Spawn rings as blue spheres in special stages, ala S3+K.
-/*					if (G_IsSpecialStage(gamemap))
+					if (G_IsSpecialStage(gamemap))
 						mobj = P_SpawnMobj(finalx, finaly, finalz, MT_BLUEBALL);
-					else*/
+					else
+#endif
 						mobj = P_SpawnMobj(finalx, finaly, finalz, MT_RING);
 				}
 				else
@@ -8359,10 +8405,12 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 
 				if (i & 1)
 				{
+#ifdef BLUE_SPHERES
 					// Spawn rings as blue spheres in special stages, ala S3+K.
-/*					if (G_IsSpecialStage(gamemap))
+					if (G_IsSpecialStage(gamemap))
 						mobj = P_SpawnMobj(finalx, finaly, finalz, MT_BLUEBALL);
-					else*/
+					else
+#endif
 						mobj = P_SpawnMobj(finalx, finaly, finalz, MT_RING);
 				}
 				else

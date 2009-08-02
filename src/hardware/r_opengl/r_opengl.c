@@ -626,10 +626,11 @@ EXPORT void HWRAPI(ReadRect) (int x, int y, int width, int height,
 		{
 			for (j = 0; j < width; j++)
 			{
-				dst_data[(height-1-i)*width+j] = (unsigned short)(
-				                ((image[(i*width+j)*3]>>3)<<11) |
-				                ((image[(i*width+j)*3+1]>>2)<<5) |
-				                ((image[(i*width+j)*3+2]>>3)));
+				dst_data[(height-1-i)*width+j] =
+				(unsigned short)(
+				                 ((image[(i*width+j)*3]>>3)<<11) |
+				                 ((image[(i*width+j)*3+1]>>2)<<5) |
+				                 ((image[(i*width+j)*3+2]>>3)));
 			}
 		}
 		free(image);
@@ -769,32 +770,32 @@ EXPORT void HWRAPI(SetBlend) (FBITFIELD PolyFlags)
 		{
 			switch (PolyFlags & PF_Blending) {
 				case PF_Translucent & PF_Blending:
-					 pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // alpha = level of transparency
-					 break;
+					pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // alpha = level of transparency
+					break;
 				case PF_Masked & PF_Blending:
-					 // Hurdler: does that mean lighting is only made by alpha src?
-					 // it sounds ok, but not for polygonsmooth
-					 pglBlendFunc(GL_SRC_ALPHA, GL_ZERO);                // 0 alpha = holes in texture
-					 break;
+					// Hurdler: does that mean lighting is only made by alpha src?
+					// it sounds ok, but not for polygonsmooth
+					pglBlendFunc(GL_SRC_ALPHA, GL_ZERO);                // 0 alpha = holes in texture
+					break;
 				case PF_Additive & PF_Blending:
 #ifdef ATI_RAGE_PRO_COMPATIBILITY
-					 pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // alpha = level of transparency
+					pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // alpha = level of transparency
 #else
-					 pglBlendFunc(GL_SRC_ALPHA, GL_ONE);                 // src * alpha + dest
+					pglBlendFunc(GL_SRC_ALPHA, GL_ONE);                 // src * alpha + dest
 #endif
-					 break;
+					break;
 				case PF_Environment & PF_Blending:
-					 pglBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-					 break;
+					pglBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+					break;
 				case PF_Substractive & PF_Blending:
-					 // good for shadow
-					 // not realy but what else ?
-					 pglBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-					 break;
+					// good for shadow
+					// not realy but what else ?
+					pglBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
+					break;
 				default : // must be 0, otherwise it's an error
-					 // No blending
-					 pglBlendFunc(GL_ONE, GL_ZERO);   // the same as no blending
-					 break;
+					// No blending
+					pglBlendFunc(GL_ONE, GL_ZERO);   // the same as no blending
+					break;
 			}
 		}
 #ifndef KOS_GL_COMPATIBILITY
@@ -955,7 +956,7 @@ EXPORT void HWRAPI(SetTexture) (FTextureInfo *pTexInfo)
 				for (i = 0; i < w; i++)
 				{
 					if ((*pImgData == HWR_PATCHES_CHROMAKEY_COLORINDEX) &&
-					     (pTexInfo->flags & TF_CHROMAKEYED))
+					    (pTexInfo->flags & TF_CHROMAKEYED))
 					{
 						tex[w*j+i] = 0;
 					}
@@ -1033,7 +1034,7 @@ EXPORT void HWRAPI(SetTexture) (FTextureInfo *pTexInfo)
 				for (i = 0; i < w; i++)
 				{
 					if ((*pImgData == HWR_PATCHES_CHROMAKEY_COLORINDEX) &&
-					     (pTexInfo->flags & TF_CHROMAKEYED))
+					    (pTexInfo->flags & TF_CHROMAKEYED))
 					{
 						tex[w*j+i].s.red   = 0;
 						tex[w*j+i].s.green = 0;
@@ -1243,10 +1244,10 @@ EXPORT void HWRAPI(DrawPolygon) (FSurfaceInfo  *pSurf,
 		//DBG_Printf("Projection: (%f, %f, %f)\n", px, py, pz);
 
 		if ((pz <  0.0) ||
-		     (px < -8.0) ||
-		     (py < viewport[1]-8.0) ||
-		     (px > viewport[2]+8.0) ||
-		     (py > viewport[1]+viewport[3]+8.0))
+		    (px < -8.0) ||
+		    (py < viewport[1]-8.0) ||
+		    (px > viewport[2]+8.0) ||
+		    (py > viewport[1]+viewport[3]+8.0))
 			return;
 
 		// the damned slow glReadPixels functions :(
@@ -1525,7 +1526,7 @@ EXPORT void HWRAPI(SetTransform) (FTransform *stransform)
 		pglLoadIdentity();
 		if (special_splitscreen)
 			pgluPerspective(53.13, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
-						   NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
+			                NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
 		else
 			//Hurdler: is "fov" correct?
 			pgluPerspective(fov, ASPECT_RATIO, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);

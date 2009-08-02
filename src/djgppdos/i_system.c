@@ -1687,8 +1687,8 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 	struct diskfree_t df;
 	if (_dos_getdiskfree(0,&df))
 		*freespace = (unsigned long)df.avail_clusters *
-					 (unsigned long)df.bytes_per_sector *
-					 (unsigned long)df.sectors_per_cluster;
+		             (unsigned long)df.bytes_per_sector *
+		             (unsigned long)df.sectors_per_cluster;
 	else
 		*freespace = MAXINT;
 }

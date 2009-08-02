@@ -60,7 +60,7 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing);
 
 #ifdef SORTING
 void HWR_AddTransparentFloor(lumpnum_t lumpnum, extrasubsector_t *xsub,	fixed_t fixedheight,
-							 int lightlevel, int alpha, sector_t *FOFSector);
+                             int lightlevel, int alpha, sector_t *FOFSector);
 #endif
 #ifndef SORTING
 static void HWR_Add3DWater(lumpnum_t lumpnum, extrasubsector_t *xsub, fixed_t fixedheight,
@@ -410,7 +410,7 @@ static FOutVector  planeVerts[MAXPLANEVERTICES];
 // HWR_RenderPlane  : Render a floor or ceiling convex polygon
 // -----------------+
 static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fixedheight,
-			 FBITFIELD PolyFlags, int lightlevel, lumpnum_t lumpnum, sector_t *FOFsector)
+                           FBITFIELD PolyFlags, int lightlevel, lumpnum_t lumpnum, sector_t *FOFsector)
 {
 	polyvertex_t *  pv;
 	float           height; //constant y for all points on the convex flat polygon
@@ -581,13 +581,13 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	{
 		Surf.FlatColor.s.alpha = (byte)(PolyFlags>>24);
 		HWD.pfnDrawPolygon(&Surf, planeVerts, nrPlaneVerts,
-		   PF_Translucent|PF_Modulated|PF_Occlude|PF_Clip);
+		                   PF_Translucent|PF_Modulated|PF_Occlude|PF_Clip);
 	}
 	else
 	{
 		Surf.FlatColor.s.alpha = 0xff;
 		HWD.pfnDrawPolygon(&Surf, planeVerts, nrPlaneVerts,
-				 PolyFlags|PF_Masked|PF_Modulated|PF_Clip);
+		                   PolyFlags|PF_Masked|PF_Modulated|PF_Clip);
 	}
 }
 
@@ -640,10 +640,10 @@ static void HWR_RenderSkyPlane(extrasubsector_t *xsub, fixed_t fixedheight)
 
 /*
    wallVerts order is :
-		  3--2
-		  | /|
-		  |/ |
-		  0--1
+		3--2
+		| /|
+		|/ |
+		0--1
 */
 #ifdef WALLSPLATS
 static void HWR_DrawSegsSplats(FSurfaceInfo * pSurf)
@@ -767,10 +767,10 @@ static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, 
 // -----------------+
 /*
    wallVerts order is :
-		  3--2
-		  | /|
-		  |/ |
-		  0--1
+		3--2
+		| /|
+		|/ |
+		0--1
 */
 static void HWR_ProjectWall(wallVert3D   * wallVerts,
                                     FSurfaceInfo * pSurf,
@@ -1286,13 +1286,13 @@ static void HWR_StoreWallRange(int startfrac, int endfrac)
 				polybottom = polytop - textureheight[gr_midtexture];
 			}
 			if ((fvisibleceiling == bvisibleceiling)
-				 /*|| (gr_linedef->flags & ML_DONTDRAW)*/)
+			    /*|| (gr_linedef->flags & ML_DONTDRAW)*/)
 				h = polytop;
 			else
 				h = polytop < popentop ? polytop : popentop;
 
 			if ((fvisiblefloor == bvisiblefloor)
-			 /*    || (gr_linedef->flags & ML_DONTDRAW)*/)
+			    /*|| (gr_linedef->flags & ML_DONTDRAW)*/)
 				l = polybottom;
 			else
 				l = polybottom > popenbottom ? polybottom : popenbottom;
@@ -1689,7 +1689,7 @@ static void HWR_ClipPassWallSegment(int first, int last)
 {
 	cliprange_t *start;
 	float lowfrac, highfrac;
-	 //to allow noclipwalls but still solidseg reject of non-visible walls
+	//to allow noclipwalls but still solidseg reject of non-visible walls
 	boolean poorhack = false;
 
 	// Find the first range that touches the range
@@ -1754,7 +1754,7 @@ static void HWR_ClipPassWallSegment(int first, int last)
 			poorhack = true;
 		}
 		else
-			 HWR_StoreWallRange(0, 1);
+			HWR_StoreWallRange(0, 1);
 	}
 	else
 	{
@@ -1920,12 +1920,12 @@ static void HWR_AddLine(seg_t * line)
 
 	// Closed door.
 	if (gr_backsector->ceilingheight <= gr_frontsector->floorheight ||
-	 gr_backsector->floorheight >= gr_frontsector->ceilingheight)
+	    gr_backsector->floorheight >= gr_frontsector->ceilingheight)
 		goto clipsolid;
 
 	// Window.
 	if (gr_backsector->ceilingheight != gr_frontsector->ceilingheight ||
-	 gr_backsector->floorheight != gr_frontsector->floorheight)
+	    gr_backsector->floorheight != gr_frontsector->floorheight)
 		goto clippass;
 
 	// Reject empty lines used for triggers and special events.
@@ -1934,9 +1934,9 @@ static void HWR_AddLine(seg_t * line)
 	//  and no middle texture.
 	if (
 #ifdef POLYOBJECTS
-		!line->polyseg
+	    !line->polyseg
 #endif
-		&& gr_backsector->ceilingpic == gr_frontsector->ceilingpic
+	    && gr_backsector->ceilingpic == gr_frontsector->ceilingpic
 	    && gr_backsector->floorpic == gr_frontsector->floorpic
 	    && gr_backsector->lightlevel == gr_frontsector->lightlevel
 	    && gr_curline->sidedef->midtexture == 0
@@ -2072,8 +2072,8 @@ static void HWR_Subsector(size_t num)
 
 	/*if (num >= numsubsectors)
 		I_Error("HWR_Subsector: ss %i with numss = %i",
-						 num,
-						 numsubsectors);*/
+		        num,
+		        numsubsectors);*/
 #endif
 
 	if (num < numsubsectors)
@@ -2211,9 +2211,9 @@ static void HWR_Subsector(size_t num)
 				continue;
 
 			if (*rover->bottomheight <= gr_frontsector->ceilingheight &&
-			   *rover->bottomheight >= gr_frontsector->floorheight &&
-			   ((dup_viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
-			   (dup_viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
+			    *rover->bottomheight >= gr_frontsector->floorheight &&
+			    ((dup_viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
+			     (dup_viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
 			{
 				if (rover->flags & (FF_TRANSLUCENT|FF_FOG)) // SoM: Flags are more efficient
 				{
@@ -2226,10 +2226,10 @@ static void HWR_Subsector(size_t num)
 					               rover->alpha, rover->master->frontsector);
 #else
 					HWR_AddTransparentFloor(levelflats[*rover->bottompic].lumpnum,
-					               &extrasubsectors[num],
-					               *rover->bottomheight,
-					               *gr_frontsector->lightlist[light].lightlevel,
-					               rover->alpha, rover->master->frontsector);
+					                       &extrasubsectors[num],
+					                       *rover->bottomheight,
+					                       *gr_frontsector->lightlist[light].lightlevel,
+					                       rover->alpha, rover->master->frontsector);
 #endif
 				}
 				else
@@ -2237,13 +2237,13 @@ static void HWR_Subsector(size_t num)
 					HWR_GetFlat(levelflats[*rover->bottompic].lumpnum);
 					light = R_GetPlaneLight(gr_frontsector, *rover->bottomheight, dup_viewz < *rover->bottomheight ? true : false);
 					HWR_RenderPlane(NULL, &extrasubsectors[num], *rover->bottomheight, PF_Occlude, *gr_frontsector->lightlist[light].lightlevel, levelflats[*rover->bottompic].lumpnum,
-					                  rover->master->frontsector);
+					                rover->master->frontsector);
 				}
 			}
 			if (*rover->topheight >= gr_frontsector->floorheight &&
-			 *rover->topheight <= gr_frontsector->ceilingheight &&
-			  ((dup_viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
-			   (dup_viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
+			    *rover->topheight <= gr_frontsector->ceilingheight &&
+			    ((dup_viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
+			     (dup_viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
 			{
 				if (rover->flags & (FF_TRANSLUCENT|FF_FOG))
 				{
@@ -2256,10 +2256,10 @@ static void HWR_Subsector(size_t num)
 					                          rover->alpha, rover->master->frontsector);
 #else
 					HWR_AddTransparentFloor(levelflats[*rover->toppic].lumpnum,
-					                          &extrasubsectors[num],
-					                          *rover->topheight,
-					                          *gr_frontsector->lightlist[light].lightlevel,
-					                          rover->alpha, rover->master->frontsector);
+					                        &extrasubsectors[num],
+					                        *rover->topheight,
+					                        *gr_frontsector->lightlist[light].lightlevel,
+					                        rover->alpha, rover->master->frontsector);
 #endif
 
 				}
@@ -3333,8 +3333,8 @@ static void HWR_DrawSprites(void)
 
 		// draw all vissprites back to front
 		for (spr = gr_vsprsortedhead.next;
-		 spr != &gr_vsprsortedhead;
-		  spr = spr->next)
+		     spr != &gr_vsprsortedhead;
+		     spr = spr->next)
 		{
 			if (spr->precip == true)
 				HWR_DrawPrecipitationSprite(spr);
@@ -3389,7 +3389,7 @@ static void HWR_AddSprites(sector_t *sec)
 
 	// NiGHTS stages have a draw distance limit because of the
 	// HUGE number of SPRiTES!
-	if (maptol & TOL_NIGHTS)
+	if (maptol & TOL_NIGHTS && players[displayplayer].mo)
 	{
 		// Special function for precipitation Tails 08-18-2002
 		for (thing = sec->thinglist; thing; thing = thing->snext)
@@ -3441,33 +3441,36 @@ static void HWR_AddSprites(sector_t *sec)
 		}
 	}
 
-	for (precipthing = sec->preciplist; precipthing; precipthing = precipthing->snext)
+	if (playeringame[displayplayer] && players[displayplayer].mo)
 	{
-		if (!precipthing)
-			continue;
-
-		if (precipthing->invisible)
-			continue;
-
-		adx = abs(players[displayplayer].mo->x - precipthing->x);
-		ady = abs(players[displayplayer].mo->y - precipthing->y);
-
-		// From _GG1_ p.428. Approx. eucledian distance fast.
-		approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
-
-		// Only draw the precipitation oh-so-far from the player.
-		if (approx_dist < (cv_precipdist.value << FRACBITS))
-			HWR_ProjectPrecipitationSprite(precipthing);
-		else if (splitscreen && players[secondarydisplayplayer].mo)
+		for (precipthing = sec->preciplist; precipthing; precipthing = precipthing->snext)
 		{
-			adx = abs(players[secondarydisplayplayer].mo->x - precipthing->x);
-			ady = abs(players[secondarydisplayplayer].mo->y - precipthing->y);
+			if (!precipthing)
+				continue;
+
+			if (precipthing->invisible)
+				continue;
+
+			adx = abs(players[displayplayer].mo->x - precipthing->x);
+			ady = abs(players[displayplayer].mo->y - precipthing->y);
 
 			// From _GG1_ p.428. Approx. eucledian distance fast.
 			approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
 
+			// Only draw the precipitation oh-so-far from the player.
 			if (approx_dist < (cv_precipdist.value << FRACBITS))
 				HWR_ProjectPrecipitationSprite(precipthing);
+			else if (splitscreen && players[secondarydisplayplayer].mo)
+			{
+				adx = abs(players[secondarydisplayplayer].mo->x - precipthing->x);
+				ady = abs(players[secondarydisplayplayer].mo->y - precipthing->y);
+
+				// From _GG1_ p.428. Approx. eucledian distance fast.
+				approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
+
+				if (approx_dist < (cv_precipdist.value << FRACBITS))
+					HWR_ProjectPrecipitationSprite(precipthing);
+			}
 		}
 	}
 }
@@ -3681,7 +3684,7 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing)
 	if ((unsigned)thing->sprite >= numsprites)
 #ifdef RANGECHECK
 		I_Error("HWR_ProjectSprite: invalid sprite number %i ",
-				 thing->sprite);
+		        thing->sprite);
 #else
 		return;
 #endif
@@ -3691,7 +3694,7 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing)
 	if ((size_t)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
 #ifdef RANGECHECK
 		I_Error("HWR_ProjectSprite: invalid sprite frame %i : %i for %s",
-				 thing->sprite, thing->frame, sprnames[thing->sprite]);
+		        thing->sprite, thing->frame, sprnames[thing->sprite]);
 #else
 		return;
 #endif
@@ -3789,15 +3792,15 @@ static void HWR_DrawSkyBackground(player_t *player)
 			angle = (dup_viewangle + gr_xtoviewangle[0])%(ANGLE_MAX/4);
 
 		f = (float)((textures[skytexture]->width/2)
-		    * FIXED_TO_FLOAT(finetangent[(2048
-		     - ((int)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
+		            * FIXED_TO_FLOAT(finetangent[(2048
+		 - ((int)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
 
 		v[0].sow = v[3].sow = 0.22f+(f)/(textures[skytexture]->width/2);
 		v[2].sow = v[1].sow = 0.22f+(f+(127))/(textures[skytexture]->width/2);
 
 		f = (float)((textures[skytexture]->height/2)
-		    * FIXED_TO_FLOAT(finetangent[(2048
-		     - ((int)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
+		            * FIXED_TO_FLOAT(finetangent[(2048
+		 - ((int)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
 
 		v[3].tow = v[2].tow = 0.22f+(f)/(textures[skytexture]->height/2);
 		v[0].tow = v[1].tow = 0.22f+(f+(127))/(textures[skytexture]->height/2);
@@ -3820,10 +3823,10 @@ static inline void HWR_ClearView(void)
 	/// \bug faB - enable depth mask, disable color mask
 
 	HWD.pfnGClipRect((int)gr_viewwindowx,
-					 (int)gr_viewwindowy,
-					 (int)(gr_viewwindowx + gr_viewwidth),
-					 (int)(gr_viewwindowy + gr_viewheight),
-					 3.99f);
+	                 (int)gr_viewwindowy,
+	                 (int)(gr_viewwindowx + gr_viewwidth),
+	                 (int)(gr_viewwindowy + gr_viewheight),
+	                 3.99f);
 	HWD.pfnClearBuffer(false, true, 0);
 
 	//disable clip window - set to full size
@@ -3842,7 +3845,7 @@ void HWR_SetViewSize(void)
 	gr_viewheight = (float)vid.height;
 
 	if (splitscreen)
-		 gr_viewheight /= 2;
+		gr_viewheight /= 2;
 
 	gr_centerx = gr_viewwidth / 2;
 	gr_basecentery = gr_viewheight / 2; //note: this is (gr_centerx * gr_viewheight / gr_viewwidth)

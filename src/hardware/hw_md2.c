@@ -664,7 +664,7 @@ static void md2_loadTexture(md2_t *model)
 	}
 	else
 		grpatch = Z_Calloc(sizeof *grpatch, PU_HWRPATCHINFO,
-		 &(model->grpatch));
+		                   &(model->grpatch));
 
 	if (!grpatch->mipmap.downloaded && !grpatch->mipmap.grInfo.data)
 	{

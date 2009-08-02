@@ -226,7 +226,7 @@ void T_MoveFloor(floormove_t *movefloor)
 				case instantMoveFloorByFrontSector:
 					if (movefloor->texture > -1) // flat changing
 						movefloor->sector->floorpic = movefloor->texture;
-			        break;
+					break;
 				case bounceFloor: // Graue 03-12-2004
 					if (movefloor->floordestheight == lines[movefloor->texture].frontsector->floorheight)
 						movefloor->floordestheight = lines[movefloor->texture].backsector->floorheight;
@@ -985,7 +985,7 @@ void T_StartCrumble(elevator_t *elevator)
 				  elevator->speed,
 				  dest,
 				  0,
-				  1,                          // move floor
+				  1, // move floor
 				  elevator->direction
 				);
 
@@ -1052,7 +1052,7 @@ void T_MarioBlock(levelspecthink_t *block)
 	  block->speed,
 	  block->sector->ceilingheight + 70*FRACUNIT * block->direction,
 	  0,
-	  1,					// move floor
+	  1, // move floor
 	  block->direction
 	);
 
@@ -1062,7 +1062,7 @@ void T_MarioBlock(levelspecthink_t *block)
 	  block->speed,
 	  block->sector->floorheight + 70*FRACUNIT * block->direction,
 	  0,
-	  0,					// move ceiling
+	  0, // move ceiling
 	  block->direction
 	);
 

@@ -122,8 +122,8 @@ extern consvar_t cv_chaos_crawlacommander, cv_chaos_jettysynbomber, cv_chaos_jet
 extern consvar_t cv_chaos_eggmobile1, cv_chaos_eggmobile2, cv_chaos_skim;
 #endif
 
-//hack for team change menu
-extern consvar_t cv_dummyteam;
+// hacks for menu system.
+extern consvar_t cv_dummyteam, cv_dummyscramble;
 
 extern consvar_t cv_skipmapcheck;
 

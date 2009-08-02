@@ -124,7 +124,7 @@ static poly_t *HWR_AllocPoly(int numpts)
 
 	if (gr_ppfree < size)
 		I_Error("HWR_AllocPoly(): no more memory %u bytes left, %u bytes needed\n\n%s\n",
-				  gr_ppfree, size, "You can try the param -polypoolsize 2048 (or higher if needed)");
+		        gr_ppfree, size, "You can try the param -polypoolsize 2048 (or higher if needed)");
 
 	p = (poly_t *)gr_ppcurrent;
 	gr_ppcurrent += size;
@@ -143,7 +143,7 @@ static polyvertex_t *HWR_AllocVertex(void)
 #else
 	if (gr_ppfree < size)
 		I_Error("HWR_AllocVertex(): no more memory %u bytes left, %u bytes needed\n\n%s\n",
-		          gr_ppfree, size, "You can try the param -polypoolsize 2048 (or higher if needed)");
+		        gr_ppfree, size, "You can try the param -polypoolsize 2048 (or higher if needed)");
 
 	p = (polyvertex_t *)gr_ppcurrent;
 	gr_ppcurrent += size;
@@ -270,9 +270,9 @@ static boolean SameVertice (polyvertex_t *p1, polyvertex_t *p2)
 //   backpoly  : polygon on left side
 //
 static void SplitPoly (fdivline_t *bsp,         //splitting parametric line
-                       poly_t *poly,                   //the convex poly we split
-                       poly_t **frontpoly,             //return one poly here
-                       poly_t **backpoly)              //return the other here
+                       poly_t *poly,            //the convex poly we split
+                       poly_t **frontpoly,      //return one poly here
+                       poly_t **backpoly)       //return the other here
 {
 	int      i,j;
 	polyvertex_t *pv;
@@ -282,7 +282,7 @@ static void SplitPoly (fdivline_t *bsp,         //splitting parametric line
 	polyvertex_t vs = {0,0,0};
 	polyvertex_t ve = {0,0,0};
 	polyvertex_t lastpv = {0,0,0};
-	float        fracs = 0.0f,frace = 0.0f;   //used to tell which poly is on
+	float        fracs = 0.0f,frace = 0.0f; //used to tell which poly is on
 	                                        // the front side of the bsp partition line
 	int         psonline = 0, peonline = 0;
 
@@ -663,7 +663,7 @@ static void WalkBSPNode(int bspnum, poly_t *poly, unsigned short *leafnode, fixe
 		poly = extrasubsectors[bspnum&~NF_SUBSECTOR].planepoly;
 
 		for (i = 0, pt = poly->pts; i < poly->numpts; i++,pt++)
-			 M_AddToBox(bbox, (fixed_t)(pt->x * FRACUNIT), (fixed_t)(pt->y * FRACUNIT));
+			M_AddToBox(bbox, (fixed_t)(pt->x * FRACUNIT), (fixed_t)(pt->y * FRACUNIT));
 
 		return;
 	}
@@ -814,15 +814,15 @@ static void SearchSegInBSP(int bspnum,polyvertex_t *p,poly_t *poly)
 	}
 
 	if ((FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXBOTTOM])-MAXDIST <= p->y) &&
-	   (FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXTOP   ])+MAXDIST >= p->y) &&
-	   (FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXLEFT  ])-MAXDIST <= p->x) &&
-	   (FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXRIGHT ])+MAXDIST >= p->x))
+	    (FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXTOP   ])+MAXDIST >= p->y) &&
+	    (FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXLEFT  ])-MAXDIST <= p->x) &&
+	    (FIXED_TO_FLOAT(nodes[bspnum].bbox[0][BOXRIGHT ])+MAXDIST >= p->x))
 		SearchSegInBSP(nodes[bspnum].children[0],p,poly);
 
 	if ((FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXBOTTOM])-MAXDIST <= p->y) &&
-	   (FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXTOP   ])+MAXDIST >= p->y) &&
-	   (FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXLEFT  ])-MAXDIST <= p->x) &&
-	   (FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXRIGHT ])+MAXDIST >= p->x))
+	    (FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXTOP   ])+MAXDIST >= p->y) &&
+	    (FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXLEFT  ])-MAXDIST <= p->x) &&
+	    (FIXED_TO_FLOAT(nodes[bspnum].bbox[1][BOXRIGHT ])+MAXDIST >= p->x))
 		SearchSegInBSP(nodes[bspnum].children[1],p,poly);
 }
 
@@ -1020,7 +1020,7 @@ void HWR_CreatePlanePolygons(int bspnum)
 	//debug debug..
 	//if (nobackpoly)
 	//    CONS_Printf("no back polygon %u times\n",nobackpoly);
-							 //"(should happen only with the deep water trick)"
+	//"(should happen only with the deep water trick)"
 	//if (skipcut)
 	//    CONS_Printf("%u cuts were skipped because of only one point\n",skipcut);
 
