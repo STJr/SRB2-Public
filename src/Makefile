@@ -264,6 +264,7 @@ OBJS:=$(i_main_o) \
 		$(OBJDIR)/d_clisrv.o \
 		$(OBJDIR)/d_net.o    \
 		$(OBJDIR)/d_netfil.o \
+		$(OBJDIR)/d_netcmd.o \
 		$(OBJDIR)/dehacked.o \
 		$(OBJDIR)/dstrings.o \
 		$(OBJDIR)/z_zone.o   \
@@ -385,11 +386,10 @@ asm:
 
 # executable
 
-$(BIN)/$(EXENAME): $(OBJS) $(OBJDIR)/d_netcmd.o
+$(BIN)/$(EXENAME):
 	-@mkdir -p $(BIN)
 	@echo Linking $(EXENAME)...
-	$(LD) $(LDFLAGS) $(OBJS) $(OBJDIR)/d_netcmd.o \
-	-o $(BIN)/$(EXENAME) $(LIBS)
+	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
 
 $(OBJDIR):
 	-@mkdir -p $(OBJDIR)
