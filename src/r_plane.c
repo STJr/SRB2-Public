@@ -149,6 +149,11 @@ static int wtofs=0;
 static int waterofs;
 static boolean itswater;
 
+#ifdef __mips__
+#define NOWATER
+#endif
+
+#ifndef NOWATER
 static void R_DrawTranslucentWaterSpan_8(void)
 {
 	unsigned xposition;
@@ -225,6 +230,7 @@ static void R_DrawTranslucentWaterSpan_8(void)
 		yposition += ystep;
 	}
 }
+#endif
 
 void R_MapPlane(int y, int x1, int x2)
 {
@@ -692,6 +698,7 @@ void R_DrawSinglePlane(visplane_t *pl)
 		}
 		else light = (pl->lightlevel >> LIGHTSEGSHIFT);
 
+#ifndef NOWATER
 		if (pl->ffloor->flags & FF_RIPPLE)
 		{
 			int top, bottom;
@@ -716,6 +723,7 @@ void R_DrawSinglePlane(visplane_t *pl)
 						   vid.width, vid.width );
 			}
 		}
+#endif
 	}
 	else light = (pl->lightlevel >> LIGHTSEGSHIFT);
 

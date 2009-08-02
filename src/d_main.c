@@ -629,7 +629,7 @@ void D_PageDrawer(const char *lumpname)
 	// software mode which uses generally lower resolutions doesn't look
 	// good when the pic is scaled, so it fills space aorund with a pattern,
 	// and the pic is only scaled to integer multiples (x2, x3...)
-	lumpname = NULL;
+	(void)lumpname;
 	if (rendermode == render_soft)
 	{
 		if ((vid.width > BASEVIDWIDTH) || (vid.height > BASEVIDHEIGHT))

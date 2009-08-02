@@ -28,8 +28,8 @@
 #include "hardware/hw_main.h"
 #endif
 
-#if defined (_WIN32_WCE) || defined (DC) || defined (PSP)
-#define NOWIPE
+#if defined (_WIN32_WCE) || defined (__arm__) || defined (__sh__) || defined (__mips__)
+#define NOWIPE // do not enable wipe image post processing for ARM, SH and MIPS CPUs
 #endif
 
 //--------------------------------------------------------------------------
