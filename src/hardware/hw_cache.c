@@ -119,6 +119,10 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 			}
 
 			position = ((position * scale_y) + (FRACUNIT/2)) >> FRACBITS;
+
+			if (position < 0)
+				position = 0;
+
 			if (position + count >= pblockheight)
 				count = pblockheight - position;
 
