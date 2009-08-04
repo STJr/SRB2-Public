@@ -103,7 +103,7 @@ byte *PutFileNeeded(void)
 {
 	size_t i, count = 0;
 	byte *p = netbuffer->u.serverinfo.fileneeded;
-	char wadfilename[MAX_WADPATH];
+	char wadfilename[MAX_WADPATH] = "";
 	byte filestatus;
 	size_t bytesused = 0;
 
