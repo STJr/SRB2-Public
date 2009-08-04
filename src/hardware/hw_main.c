@@ -3767,44 +3767,26 @@ static void HWR_DrawSkyBackground(player_t *player)
 
 	v[0].z = v[1].z = v[2].z = v[3].z = 4.0f;
 
-	if (levelskynum == 97) // Zim's Base sky.
-	{ // And omfg did I waste a lot of time on it. >_<
-		angle = (dup_viewangle + gr_xtoviewangle[0])/4%(ANGLE_MAX/4);
-		f = (float)(FIXED_TO_FLOAT(finetangent[(2048
-			- ((int)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]))
-				+0.09f;
-		v[0].sow = v[3].sow = (float)textures[skytexture]->width/2560.0f + f;
-		v[1].sow = v[2].sow = 1.0f - (float)textures[skytexture]->width/2560.0f + f;
-
-		f = (float)(FIXED_TO_FLOAT(finetangent[(2048
-			- ((int)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]))
-				/2.0f-0.25f;
-		v[3].tow = v[2].tow = 0.5f + f;
-		v[0].tow = v[1].tow = (float)textures[skytexture]->height/256.0f + f;
-	}
+	if (textures[skytexture]->width > 256)
+		angle = (angle_t)((float)(dup_viewangle + gr_xtoviewangle[0])
+						/((float)textures[skytexture]->width/256.0f))
+							%(ANGLE_MAX/4);
 	else
-	{
-		if (textures[skytexture]->width > 256)
-			angle = (angle_t)((float)(dup_viewangle + gr_xtoviewangle[0])
-							/((float)textures[skytexture]->width/256.0f))
-								%(ANGLE_MAX/4);
-		else
-			angle = (dup_viewangle + gr_xtoviewangle[0])%(ANGLE_MAX/4);
+		angle = (dup_viewangle + gr_xtoviewangle[0])%(ANGLE_MAX/4);
 
-		f = (float)((textures[skytexture]->width/2)
-		            * FIXED_TO_FLOAT(finetangent[(2048
-		 - ((int)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
+	f = (float)((textures[skytexture]->width/2)
+	            * FIXED_TO_FLOAT(finetangent[(2048
+	 - ((int)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
 
-		v[0].sow = v[3].sow = 0.22f+(f)/(textures[skytexture]->width/2);
-		v[2].sow = v[1].sow = 0.22f+(f+(127))/(textures[skytexture]->width/2);
+	v[0].sow = v[3].sow = 0.22f+(f)/(textures[skytexture]->width/2);
+	v[2].sow = v[1].sow = 0.22f+(f+(127))/(textures[skytexture]->width/2);
 
-		f = (float)((textures[skytexture]->height/2)
-		            * FIXED_TO_FLOAT(finetangent[(2048
-		 - ((int)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
+	f = (float)((textures[skytexture]->height/2)
+	            * FIXED_TO_FLOAT(finetangent[(2048
+	 - ((int)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
 
-		v[3].tow = v[2].tow = 0.22f+(f)/(textures[skytexture]->height/2);
-		v[0].tow = v[1].tow = 0.22f+(f+(127))/(textures[skytexture]->height/2);
-	}
+	v[3].tow = v[2].tow = 0.22f+(f)/(textures[skytexture]->height/2);
+	v[0].tow = v[1].tow = 0.22f+(f+(127))/(textures[skytexture]->height/2);
 
 	HWD.pfnDrawPolygon(NULL, v, 4, 0);
 }
