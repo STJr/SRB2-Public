@@ -198,7 +198,7 @@ void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam)
 byte GetFreeXCmdSize(void)
 {
 	// -1 for the size and another -1 for the ID.
-	return localtextcmd[0] - 2;
+	return (byte)(localtextcmd[0] - 2);
 }
 
 static void ExtraDataTicker(void)
