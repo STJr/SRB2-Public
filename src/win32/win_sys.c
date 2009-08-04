@@ -3606,6 +3606,14 @@ const CPUInfoFlags *I_CPUInfo(void)
 static void CPUAffinity_OnChange(void);
 static consvar_t cv_cpuaffinity = {"cpuaffinity", "1", CV_SAVE | CV_CALL, NULL, CPUAffinity_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
+/* Older Visual C++ headers don't have the Win64-compatible typedefs... */
+#if ((_MSC_VER <= 1200) && (!defined(DWORD_PTR)))
+#define DWORD_PTR DWORD
+#endif
+#if ((_MSC_VER <= 1200) && (!defined(PDWORD_PTR)))
+#define PDWORD_PTR PDWORD
+#endif
+
 typedef HANDLE (WINAPI *p_GetCurrentProcess) (VOID);
 static p_GetCurrentProcess pfnGetCurrentProcess = NULL;
 typedef BOOL (WINAPI *p_GetProcessAffinityMask) (HANDLE, PDWORD_PTR, PDWORD_PTR);
