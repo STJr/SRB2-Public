@@ -39,12 +39,14 @@ typedef UINT (WINAPI *p_timeEndPeriod) (UINT);
 typedef HANDLE (WINAPI *p_OpenFileMappingA) (DWORD, BOOL, LPCSTR);
 typedef LPVOID (WINAPI *p_MapViewOfFile) (HANDLE, DWORD, DWORD, DWORD, SIZE_T);
 typedef HANDLE (WINAPI *p_GetCurrentProcess) (VOID);
+#if defined(_MSC_VER)
 /* Older Visual C++ headers don't have the Win64-compatible typedefs... */
 #if ((_MSC_VER <= 1200) && (!defined(DWORD_PTR)))
 #define DWORD_PTR DWORD
 #endif
 #if ((_MSC_VER <= 1200) && (!defined(PDWORD_PTR)))
 #define PDWORD_PTR PDWORD
+#endif
 #endif
 typedef BOOL (WINAPI *p_GetProcessAffinityMask) (HANDLE, PDWORD_PTR, PDWORD_PTR);
 typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
