@@ -1447,6 +1447,12 @@ static SDL_bool I_InitFMODMusic(void)
 	char fmod000dll[] = "fmod.so";
 #endif
 
+	if (M_CheckParm("-nofmod"))
+	{
+		CONS_Printf(" disabled loading FMOD\n");
+		return SDL_FALSE;
+	}
+
 	if (fmod375 && nofmodmusic)
 	{
 		FMOD_FreeInstance(fmod375);
