@@ -334,10 +334,16 @@ static void HWR_GenerateTexture(int texnum, GLTexture_t *grtex)
 	texture = textures[texnum];
 
 	// hack the Legacy skies..
-	if (texture->name[0] == 'S' &&
-	    texture->name[1] == 'K' &&
-	    texture->name[2] == 'Y' &&
-	    texture->name[4] == 0)
+	if ((texture->name[0] == 'S' &&
+	     texture->name[1] == 'K' &&
+	     texture->name[2] == 'Y' &&
+	     texture->name[4] == 0)
+	    ||
+	    (texture->name[0] == 'S' &&
+	     texture->name[1] == 'K' &&
+	     texture->name[2] == 'Y' &&
+	     texture->name[5] == 0)
+	   )
 	{
 		skyspecial = true;
 		grtex->mipmap.flags = TF_WRAPXY; // don't use the chromakey for sky
