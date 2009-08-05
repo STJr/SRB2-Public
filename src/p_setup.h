@@ -57,7 +57,7 @@ void P_SetupLevelSky(int skynum);
 void P_SpawnSecretItems(boolean loademblems);
 void P_LoadThingsOnly(void);
 void P_RehitStarposts(void);
-boolean P_SetupLevel(int map, boolean ultmode, boolean skipprecip);
+boolean P_SetupLevel(int map, boolean skipprecip);
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname);
 boolean P_DelWadFile(void);
 boolean P_RunSOC(const char *socfilename);

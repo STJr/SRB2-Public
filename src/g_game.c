@@ -1352,7 +1352,7 @@ void G_DoLoadLevel(boolean resetplayer)
 		mapmusic &= ~2048;
 	}
 #endif
-	if (!P_SetupLevel(gamemap, ultimatemode, false))
+	if (!P_SetupLevel(gamemap, false))
 	{
 		// fail so reset game stuff
 		Command_ExitGame_f();

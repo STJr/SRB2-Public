@@ -2239,7 +2239,7 @@ static boolean P_NetUnArchiveMisc(void)
 		players[i].playerstate = PST_REBORN;
 	}
 
-	if (!P_SetupLevel(gamemap, false, true))
+	if (!P_SetupLevel(gamemap, true))
 		return false;
 	// the "\2" instead of NULL is a hackishly hackish hack to avoid loading precipitation
 

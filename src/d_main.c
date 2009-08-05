@@ -1343,7 +1343,7 @@ void D_SRB2Main(void)
 		pagename = "TITLESKY";
 		levelstarttic = gametic;
 		G_SetGamestate(GS_LEVEL);
-		if (!P_SetupLevel(gamemap, ultimatemode, false))
+		if (!P_SetupLevel(gamemap, false))
 			I_Quit(); // fail so reset game stuff
 	}
 }

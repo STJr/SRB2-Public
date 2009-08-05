@@ -1855,11 +1855,10 @@ void P_LoadThingsOnly(void)
 /** Loads a level from a lump or external wad.
   *
   * \param map     Map number.
-  * \param ultmode Ultimate Mode?
   * \param skipprecip If true, don't spawn precipitation.
   * \todo Clean up, refactor, split up; get rid of the bloat.
   */
-boolean P_SetupLevel(int map, boolean ultmode, boolean skipprecip)
+boolean P_SetupLevel(int map, boolean skipprecip)
 {
 	int i, loadprecip = 1;
 	int loademblems = 1;
@@ -1874,7 +1873,6 @@ boolean P_SetupLevel(int map, boolean ultmode, boolean skipprecip)
 	if (!(grade & 2) && (maptol & TOL_SRB1))
 		I_Error("You have to unlock this level first!");
 
-	ultmode = 0; //ultimatemode?
 	HU_clearChatChars();
 
 	CON_Drawer(); // let the user know what we are going to do
