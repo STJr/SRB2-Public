@@ -113,6 +113,9 @@ void I_UpdateNoBlit(void);
 */
 void I_FinishUpdate(void);
 
+/**	\brief I_FinishUpdate(), but vsync disabled
+*/
+void I_UpdateNoVsync(void);
 
 /**	\brief	Wait for vertical retrace or pause a bit.
 

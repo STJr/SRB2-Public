@@ -49,6 +49,8 @@ void I_UpdateNoBlit(void){}
 
 void I_FinishUpdate(void){}
 
+void I_UpdateNoVsync(void) {}
+
 void I_WaitVBL(int count)
 {
 	(void)count;

@@ -452,6 +452,17 @@ void I_FinishUpdate(void)
 	}
 }
 
+// ---------------
+// I_UpdateNoVsync
+// ---------------
+void I_UpdateNoVsync(void)
+{
+	int real_vidwait = cv_vidwait.value;
+	cv_vidwait.value = 0;
+	I_FinishUpdate();
+	cv_vidwait.value = real_vidwait;
+}
+
 //
 // This is meant to be called only by CONS_Printf() while game startup
 //
