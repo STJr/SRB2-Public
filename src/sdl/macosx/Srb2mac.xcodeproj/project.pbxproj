@@ -770,6 +770,7 @@
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */,
+				679B708A102B872300AA9E4C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -833,6 +834,21 @@
 			shellPath = /bin/sh;
 			shellScript = "touch -c $SRCROOT/../../comptime.c";
 			showEnvVarsInLog = 0;
+		};
+		679B708A102B872300AA9E4C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				$BUILT_PRODUCTS_DIR/$PROJECT_NAME.$WRAPPER_EXTENSION,
+			);
+			outputPaths = (
+				$BUILT_PRODUCTS_DIR/$PROJECT_NAME.dmg,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/bin/sh -x";
+			shellScript = "set -ex\n\n#[ \"$ACTION\" = build ] || exit 0\n[ \"$BUILD_STYLE\" = \"Release\" ] || exit 0\n\ndir=\"$TEMP_FILES_DIR/$PROJECT_NAME.disk\"\ndmg=\"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.dmg\"\n\nrm -rf \"$dir\"\nmkdir \"$dir\"\ncp -R \"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.$WRAPPER_EXTENSION\" \"$dir\"\nrm -f \"$dmg\"\nhdiutil create -ov -fs HFS+ -srcfolder \"$dir\" -volname \"$PROJECT_NAME\" \"$dmg\"\nhdiutil internet-enable -yes \"$dmg\"\nrm -rf \"$dir\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
