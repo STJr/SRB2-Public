@@ -171,18 +171,20 @@ hudinfo_t hudinfo[NUMHUDITEMS] =
 
 boolean ST_SameTeam(player_t *a, player_t *b)
 {
+	// Just pipe team messages to everyone in co-op or race.
+	if (gametype == GT_COOP || gametype == GT_RACE)
+		return true;
+
+	// Spectator chat.
 	if (a->spectator && b->spectator)
 		return true;
 
-	if (gametype == GT_CTF)
-		return a->skincolor == b->skincolor;
+	// Team chat.
+	if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+		return a->ctfteam == b->ctfteam;
 
 	if (gametype == GT_TAG)
 		return ((a->pflags & PF_TAGIT) == (b->pflags & PF_TAGIT));
-
-	//todo: combine with ctf?
-	if (cv_matchtype.value)
-		return a->skincolor == b->skincolor;
 
 	return false;
 }
@@ -1492,103 +1494,62 @@ static void ST_drawRaceHUD(void)
 
 static void ST_drawTagHUD(void)
 {
+	char stime[33];
+	char stext[33];
+
+	// Figure out what we're going to print.
 	if (leveltime < hidetime * TICRATE) //during the hide time, the seeker and hiders have different messages on their HUD.
 	{
-		char shide[33];
-		sprintf(shide, "%lu", (hidetime - leveltime/TICRATE));
+		if (cv_hidetime.value)
+			sprintf(stime, "%lu", (hidetime - leveltime/TICRATE)); //hide time is in seconds, not tics.
 
 		if (stplyr->pflags & PF_TAGIT && !stplyr->spectator)
-		{
-			if (splitscreen)
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "WAITING FOR PLAYERS TO HIDE...");
-			else
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "WAITING FOR PLAYERS TO HIDE...");
-
-			if (splitscreen)
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, shide);
-			else
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, shide);
-		}
+			sprintf(stext, "WAITING FOR PLAYERS TO HIDE...");
 		else
 		{
 			if (!stplyr->spectator) //spectators get a generic HUD message rather than a gametype specific one.
 			{
 				if (cv_tagtype.value == 1) //hide and seek.
-				{
-					if (splitscreen)
-						V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "HIDE BEFORE TIME RUNS OUT!");
-					else
-						V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "HIDE BEFORE TIME RUNS OUT!");
-				}
-				else //survivor
-				{
-					if (splitscreen)
-						V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "FLEE BEFORE YOU ARE HUNTED!");
-					else
-						V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "FLEE BEFORE YOU ARE HUNTED!");
-				}
+					sprintf(stext, "HIDE BEFORE TIME RUNS OUT!");
+				else //default
+					sprintf(stext, "FLEE BEFORE YOU ARE HUNTED!");
 			}
 			else
-			{
-				if (splitscreen)
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "HIDE TIME REMAINING:");
-				else
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "HIDE TIME REMAINING:");
-			}
+				sprintf(stext, "HIDE TIME REMAINING:");
 		}
-
-		if (splitscreen)
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, shide);
-		else
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, shide);
 	}
 	else
 	{
+		if (cv_timelimit.value && timelimitintics >= leveltime)
+			sprintf(stime, "%lu", (timelimitintics-leveltime)/TICRATE);
+
 		if (stplyr->pflags & PF_TAGIT)
-		{
-			char stagit[33];
-
-			sprintf(stagit, "%lu", (timelimitintics-leveltime)/TICRATE);
-
-			if (splitscreen)
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "YOU'RE IT!");
-			else
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "YOU'RE IT!");
-
-			if (cv_timelimit.value) //Don't draw a time, if there is no timelimit.
-			{
-				if (splitscreen)
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stagit);
-				else
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, stagit);
-			}
-		}
+			sprintf(stext, "YOU'RE IT!");
 		else
 		{
-			char stagit[33];
-			sprintf(stagit, "%lu", (timelimitintics-leveltime)/TICRATE);
-
 			if (cv_timelimit.value)
-			{
-				if (splitscreen)
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "TIME REMAINING:");
-				else
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "TIME REMAINING:");
-
-				if (splitscreen)
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stagit);
-				else
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, stagit);
-			}
+				sprintf(stext, "TIME REMAINING:");
 			else //Since having no hud message in tag is not characteristic:
-			{
-				if (splitscreen)
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "NO TIME LIMIT");
-				else
-					V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "NO TIME LIMIT");
-			}
+				sprintf(stext, "NO TIME LIMIT");
 		}
 	}
+
+	// Print the stuff.
+	if (stext)
+	{
+		if (splitscreen)
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, stext);
+		else
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stext);
+	}
+	if (stime)
+	{
+		if (splitscreen)
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stime);
+		else
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, stime);
+	}
+
 
 	if (stplyr->tagzone)
 	{

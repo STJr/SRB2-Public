@@ -2596,6 +2596,7 @@ static void Command_ServerTeamChange_f(void)
 	SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
 }
 
+//todo: This and the other teamchange functions are getting too long and messy. Needs cleaning.
 static void Got_Teamchange(byte **cp, int playernum)
 {
 	changeteam_union NetPacket;
@@ -2786,6 +2787,15 @@ static void Got_Teamchange(byte **cp, int playernum)
 		}
 	}
 
+	// Clear player score and rings if a spectator.
+	if (players[playernum].spectator)
+	{
+		players[playernum].score = 0;
+		players[playernum].health = 1;
+		if (players[playernum].mo)
+			players[playernum].mo->health = 1;
+	}
+
 	// In tag, check to see if you still have a game.
 	if (gametype == GT_TAG)
 		P_CheckSurvivors();
@@ -2893,7 +2903,8 @@ static void Command_Verify_f(void)
 
 	WRITEBYTE(temp, playernum);
 
-	SendNetXCmd(XD_VERIFIED, buf, 1);
+	if (playeringame[playernum])
+		SendNetXCmd(XD_VERIFIED, buf, 1);
 }
 
 static void Got_Verification(byte **cp, int playernum)
@@ -2946,12 +2957,29 @@ static void Command_MotD_f(void)
 		strlcat(mymotd, COM_Argv(i), sizeof mymotd);
 	}
 
+	// Disallow non-printing characters and semicolons.
+	for (i = 0; mymotd[i] != '\0'; i++)
+		if (!isprint(mymotd[i]) || mymotd[i] == ';')
+			return;
+
 	SendNetXCmd(XD_SETMOTD, mymotd, strlen(mymotd));
 }
 
 static void Got_MotD_f(byte **cp, int playernum)
 {
-	if (playernum != serverplayer && playernum != adminplayer)
+	XBOXSTATIC char mymotd[256];
+	int i;
+	boolean kick = false;
+
+
+	READSTRINGN(*cp, mymotd, sizeof(mymotd));
+
+	// Disallow non-printing characters and semicolons.
+	for (i = 0; mymotd[i] != '\0'; i++)
+		if (!isprint(mymotd[i]) || mymotd[i] == ';')
+			kick = true;
+
+	if ((playernum != serverplayer && playernum != adminplayer) || kick)
 	{
 		CONS_Printf(text[ILLEGALMOTDCMD], player_names[playernum]);
 		if (server)
@@ -2965,7 +2993,7 @@ static void Got_MotD_f(byte **cp, int playernum)
 		return;
 	}
 
-	READSTRINGN(*cp, motd, sizeof(motd));
+	strcat(motd, mymotd);
 
 	CONS_Printf("%s", text[MOTD_SET]);
 }
@@ -3070,7 +3098,7 @@ static void Got_Consistency(byte **cp, int playernum)
 //	player_t *playstruct;
 //	void *oldskin;
 
-	if (playernum != serverplayer && playernum != adminplayer)
+	if (playernum != serverplayer) //server only
 	{
 		CONS_Printf(text[ILLEGALCONSCMD], player_names[playernum]);
 		if (server)
@@ -3092,9 +3120,6 @@ static void Got_Consistency(byte **cp, int playernum)
 
 	for (i = 0; i < numplayers; i++)
 	{
-		if (!playeringame[i] || !players[i].mo)
-			continue;
-
 		j = READBYTE(*cp);
 		x = READFIXED(*cp);
 		y = READFIXED(*cp);
@@ -3102,6 +3127,9 @@ static void Got_Consistency(byte **cp, int playernum)
 		momx = READFIXED(*cp);
 		momy = READFIXED(*cp);
 		momz = READFIXED(*cp);
+
+		if (!playeringame[j] || !players[j].mo)
+			continue; // ...huh?!
 
 		player = &players[j];
 		P_UnsetThingPosition(player->mo);
@@ -3148,6 +3176,7 @@ static void Command_Addfile(void)
 	const char *fn;
 	XBOXSTATIC char buf[255];
 	size_t length;
+	int i;
 
 	if (COM_Argc() != 2)
 	{
@@ -3156,6 +3185,11 @@ static void Command_Addfile(void)
 	}
 	else
 		fn = COM_Argv(1);
+
+	// Disallow non-printing characters and semicolons.
+	for (i = 0; fn[i] != '\0'; i++)
+		if (!isprint(fn[i]) || fn[i] == ';')
+			return;
 
 	if (!W_VerifyNMUSlumps(fn))
 	{
@@ -3253,6 +3287,8 @@ static void Got_RequestAddfilecmd(byte **cp, int playernum)
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
 	unsigned char md5sum[16+1];
+	boolean kick = false;
+	int i;
 
 	READSTRINGN(*cp, filename, 255);
 	(void)READBYTE(*cp);
@@ -3262,7 +3298,12 @@ static void Got_RequestAddfilecmd(byte **cp, int playernum)
 	if (!server)
 		return;
 
-	if (playernum != serverplayer && playernum != adminplayer)
+	// Disallow non-printing characters and semicolons.
+	for (i = 0; filename[i] != '\0'; i++)
+		if (!isprint(filename[i]) || filename[i] == ';')
+			kick = true;
+
+	if ((playernum != serverplayer && playernum != adminplayer) || kick)
 	{
 		XBOXSTATIC char buf[2];
 
@@ -4132,7 +4173,8 @@ static void TeamScramble_OnChange(void)
 		}
 	}
 
-	if (cv_teamscramble.value)
+	// Display a witty message, but only during scrambles specifically triggered by an admin.
+	if (cv_teamscramble.value && !(gamestate == GS_INTERMISSION && cv_scrambleonchange.value))
 	{
 		scrambletotal = playercount;
 		CONS_Printf("%s", text[TEAMS_SCRAMBLED]);

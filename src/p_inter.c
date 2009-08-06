@@ -2942,7 +2942,8 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int dama
 			// To reduce griefing potential, don't allow players to be killed
 			// by friendly fire. Spilling their rings and other items is enough.
 			if (!((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-				&& (source->player->ctfteam == player->ctfteam) && cv_friendlyfire.value))
+				&& source && source->player && (source->player->ctfteam == player->ctfteam)
+				&& cv_friendlyfire.value))
 			{
 				damage = 1;
 				P_KillPlayer(player, source, damage);

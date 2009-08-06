@@ -9477,14 +9477,16 @@ void P_PlayerThink(player_t *player)
 	// todo: Figure out what is actually causing these problems in the first place...
 	if ((player->health <= 0 || player->mo->health <= 0) && player->playerstate == PST_LIVE) //you should be DEAD!
 	{
-		CONS_Printf("Note: Player %d in PST_LIVE with 0 health. (Zombie bug)\n", player-players);
+		if (server && (netgame || cv_debug))
+			CONS_Printf("Note: Player %d in PST_LIVE with 0 health. (Zombie bug)\n", player-players);
 		player->playerstate = PST_DEAD;
 	}
 
 	if (player->mo->state == &states[S_PLAY_PAIN] && !(player->pflags & PF_SLIDING) && (player->mo->z == player->mo->floorz ||
 	 ((player->mo->eflags & MFE_VERTICALFLIP) && player->mo->z == player->mo->ceilingz)))
 	{
-		CONS_Printf("Note: Player %d in S_PLAY_PAIN while touching a surface. (Zombie bug)\n", player-players);
+		if (server && (netgame || cv_debug))
+			CONS_Printf("Note: Player %d in S_PLAY_PAIN while touching a surface. (Zombie bug)\n", player-players);
 		P_SetPlayerMobjState(player->mo, S_PLAY_STND);
 	}
 

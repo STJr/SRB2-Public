@@ -572,6 +572,13 @@ no_thing:
 //
 void P_UnsetThingPosition(mobj_t *thing)
 {
+	// Better safe than sorry!
+	if (!thing)
+	{
+		CONS_Printf("P_SetUnsetThingPosition: Tried to unset a thing that doesn't exist!\n");
+		return;
+	}
+
 	if (!(thing->flags & MF_NOSECTOR))
 	{
 		/* invisible things don't need to be in sector list
@@ -643,6 +650,13 @@ void P_SetThingPosition(mobj_t *thing)
 {                                                      // link into subsector
 	subsector_t *ss;
 	sector_t *oldsec = NULL;
+
+	// Better safe than sorry!
+	if (!thing)
+	{
+		CONS_Printf("P_SetThingPosition: Tried to set a thing that doesn't exist!\n");
+		return;
+	}
 
 	if (thing->player && thing->z <= thing->floorz && thing->subsector)
 		oldsec = thing->subsector->sector;

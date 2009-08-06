@@ -28,7 +28,7 @@
 //           heads up font
 //------------------------------------
 #define HU_FONTSTART '!' // the first font character
-#define HU_REALFONTEND '~' // the last font character
+#define HU_REALFONTEND 'z' // the last font character
 #define HU_FONTEND '~'
 
 #define HU_REALFONTSIZE (HU_REALFONTEND - HU_FONTSTART + 1)

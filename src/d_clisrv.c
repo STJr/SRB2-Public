@@ -2025,6 +2025,8 @@ FILESTAMP
 				SV_SendRefuse(node, va("Maximum players reached: %d", cv_maxplayers.value));
 			else if (netgame && netbuffer->u.clientcfg.localplayers > 1)	// Hacked client?
 				SV_SendRefuse(node, va("Too many players from\nthis node."));
+			else if (netgame && !netbuffer->u.clientcfg.localplayers) // Stealth join?
+				SV_SendRefuse(node, va("No players from\nthis node."));
 			else
 			{
 				boolean newnode = false;
@@ -2423,6 +2425,24 @@ FILESTAMP
 				break;
 // -------------------------------------------- CLIENT RECEIVE ----------
 			case PT_SERVERTICS:
+				// Only accept PT_SERVERTICS from the server.
+				if (node != servernode)
+				{
+					DEBFILE(va("PT_SERVERTICS recieved from non-host %d\n", node));
+
+					if (server)
+					{
+						XBOXSTATIC char buf[2];
+						CONS_Printf("PT_SERVERTICS recieved from non-host %d\n", node);
+
+						buf[0] = (char)node;
+						buf[1] = KICK_MSG_CON_FAIL;
+						SendNetXCmd(XD_KICK, &buf, 2);
+					}
+
+					break;
+				}
+
 				realstart = ExpandTics(netbuffer->u.serverpak.starttic);
 				realend = realstart + netbuffer->u.serverpak.numtics;
 

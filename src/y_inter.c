@@ -1395,6 +1395,7 @@ static void Y_CalculateTimeRaceWinners(void)
 
 	memset(data.match.color, 0, sizeof (data.match.color));
 	memset(data.match.character, 0, sizeof (data.match.character));
+	memset(data.match.spectator, 0, sizeof (data.match.spectator));
 	memset(completed, 0, sizeof (completed));
 	data.match.numplayers = 0;
 	i = j = 0;

@@ -1429,7 +1429,7 @@ boolean G_Responder(event_t *ev)
 					&& !(players[displayplayer].pflags & PF_TAGIT) && (players[consoleplayer].pflags & PF_TAGIT))
 					continue;
 
-				if (gametype == GT_MATCH && !(displayplayer == consoleplayer
+				if ((gametype == GT_MATCH && !cv_matchtype.value) && !(displayplayer == consoleplayer
 					|| players[consoleplayer].spectator))
 					continue;
 
@@ -2208,7 +2208,7 @@ void G_ExitLevel(void)
 		lastdraw = true;
 
 		// If you want your teams scrambled on map change, start the process now.
-		// When intermission starts, the teams will start scrambling.
+		// The teams will scramble at the start of the next round.
 		if (cv_scrambleonchange.value && ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF))
 		{
 			if (server)

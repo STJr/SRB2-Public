@@ -297,14 +297,7 @@ int CL_CheckFiles(void)
 		return 1;
 
 	// the first is the iwad (the main wad file)
-	// do not check file date, also don't download it (copyright problem)
-	nameonly(strcpy(wadfilename, wadfiles[0]->filename));
-	if (stricmp(wadfilename, fileneeded[0].filename))
-	{
-		M_StartMessage(va("You cannot connect to this server\nsince it uses %s\n"
-			"You are using %s\n", fileneeded[0].filename, wadfilename), NULL, MM_NOTHING);
-		return 2;
-	}
+	// we don't care if it's called srb2.srb or srb2.wad.
 	fileneeded[0].status = FS_OPEN;
 
 	for (i = 1; i < fileneedednum; i++)

@@ -466,7 +466,7 @@ void P_Ticker(void)
 
 	// Run any "after all the other thinkers" stuff
 	for (i = 0; i < MAXPLAYERS; i++)
-		if (playeringame[i])
+		if (playeringame[i] && players[i].mo)
 			P_PlayerAfterThink(&players[i]);
 
 	// Run shield positioning
