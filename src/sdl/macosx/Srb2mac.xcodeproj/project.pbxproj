@@ -849,7 +849,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\n\n#[ \"$ACTION\" = build ] || exit 0\n[ \"$BUILD_STYLE\" = \"Release\" ] || exit 0\n\ndir=\"$TEMP_FILES_DIR/$PROJECT_NAME.disk\"\ndmg=\"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.dmg\"\n\nrm -rf \"$dir\"\nmkdir \"$dir\"\ncp -R \"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.$WRAPPER_EXTENSION\" \"$dir\"\nrm -f \"$dmg\"\nhdiutil create -ov -fs HFS+ -srcfolder \"$dir\" -volname \"$PROJECT_NAME\" \"$dmg\"\nhdiutil internet-enable -yes \"$dmg\"\nrm -rf \"$dir\"";
+			shellScript = "set -ex\n\n#[ \"$ACTION\" = build ] || exit 0\n[ \"$CURRENT_VARIANT\" = \"normal\" ] || exit 0\n\ndir=\"$TEMP_FILES_DIR/$PROJECT_NAME.disk\"\ndmg=\"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.dmg\"\n\nrm -rf \"$dir\"\nmkdir \"$dir\"\ncp -R \"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.$WRAPPER_EXTENSION\" \"$dir\"\nrm -f \"$dmg\"\nhdiutil create -ov -fs HFS+ -srcfolder \"$dir\" -volname \"$PROJECT_NAME\" \"$dmg\"\nhdiutil internet-enable -yes \"$dmg\"\nrm -rf \"$dir\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -995,6 +995,12 @@
 					i386,
 					ppc,
 				);
+				BUILD_VARIANTS = (
+					rangecheck,
+					paranoia,
+					debugmode,
+					normal,
+				);
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 0.00.0;
 				DSTROOT = "$(HOME)/Applications";
@@ -1015,11 +1021,7 @@
 					SDL,
 					HAVE_MIXER,
 					HAVE_PNG,
-					_DEBUG,
-					PARANOIA,
-					RANGECHECK,
 				);
-				GCC_THREADSAFE_STATICS = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -1059,11 +1061,16 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=i386]" = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=ppc]" = 10.2;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				OBJROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
+				OTHER_CFLAGS_debugmode = "-D_DEBUG";
+				OTHER_CFLAGS_normal = "-DNDEBUG";
+				OTHER_CFLAGS_paranoia = "-DPARANOIA";
+				OTHER_CFLAGS_rangecheck = "-DRANGECHECK";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = SRB2dummy;
@@ -1072,6 +1079,7 @@
 				"SDKROOT[arch=ppc]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.2.8.sdk";
 				SDKROOT_i386 = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
 				SDKROOT_ppc = "$(DEVELOPER_SDK_DIR)/MacOSX10.2.8.sdk";
+				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1100,6 +1108,12 @@
 					i386,
 					ppc,
 				);
+				BUILD_VARIANTS = (
+					rangecheck,
+					paranoia,
+					debugmode,
+					normal,
+				);
 				CURRENT_PROJECT_VERSION = 0.00.0;
 				DSTROOT = "$(HOME)/Applications";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1120,7 +1134,6 @@
 					HAVE_MIXER,
 					HAVE_PNG,
 				);
-				GCC_THREADSAFE_STATICS = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
@@ -1160,11 +1173,16 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=i386]" = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=ppc]" = 10.2;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				OBJROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
+				OTHER_CFLAGS_debugmode = "-D_DEBUG";
+				OTHER_CFLAGS_normal = "-DNDEBUG";
+				OTHER_CFLAGS_paranoia = "-DPARANOIA";
+				OTHER_CFLAGS_rangecheck = "-DRANGECHECK";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = SRB2dummy;
