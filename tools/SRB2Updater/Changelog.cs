@@ -8,11 +8,16 @@ using System.Windows.Forms;
 
 namespace SRB2Updater
 {
-    public partial class Splash : Form
+    public partial class Changelog : Form
     {
-        public Splash()
+        public Changelog()
         {
             InitializeComponent();
         }
-}
+
+        private void Changelog_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
 }
