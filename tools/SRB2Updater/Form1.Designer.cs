@@ -244,4 +244,3 @@ namespace SRB2Updater
         private System.Windows.Forms.Label label1;
     }
 }
-
