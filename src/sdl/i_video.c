@@ -2085,5 +2085,5 @@ void I_ShutdownGraphics(void)
 #ifndef _arch_dreamcast
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
-
+	framebuffer = SDL_FALSE;
 }
