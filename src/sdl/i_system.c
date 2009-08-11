@@ -260,7 +260,7 @@ static int mouse2_started = 0;
 #endif
 
 SDL_bool consolevent = SDL_FALSE;
-
+SDL_bool framebuffer = SDL_FALSE;
 
 /// \brief max number of joystick buttons
 #define JOYBUTTONS_MIN JOYBUTTONS
@@ -454,6 +454,10 @@ static void I_StartupConsole(void)
 #if !defined(GP2X) //read is bad on GP2X
 	consolevent = !M_CheckParm("-noconsole");
 #endif
+	framebuffer = M_CheckParm("-framebuffer");
+
+	if (framebuffer)
+		consolevent = SDL_FALSE;
 
 	if (!consolevent) return;
 
@@ -819,7 +823,8 @@ void I_OutputMsg(const char *fmt, ...)
 	}
 #endif
 
-	fprintf(stderr, "%s", txt);
+	if (!framebuffer)
+		fprintf(stderr, "%s", txt);
 #ifdef HAVE_TERMIOS
 	if (consolevent)
 	{
@@ -828,7 +833,8 @@ void I_OutputMsg(const char *fmt, ...)
 #endif
 
 	// 2004-03-03 AJR Since not all messages end in newline, some were getting displayed late.
-	fflush(stderr);
+	if (!framebuffer)
+		fflush(stderr);
 
 #endif
 }
@@ -2306,7 +2312,8 @@ void I_Error(const char *error, ...)
 #else
 			// Don't print garbage
 			va_start(argptr, error);
-			vfprintf (stderr, error, argptr);
+			if (!framebuffer)
+				vfprintf (stderr, error, argptr);
 			va_end(argptr);
 #endif
 			W_Shutdown();
@@ -2322,12 +2329,16 @@ void I_Error(const char *error, ...)
 #ifndef MAC_ALERT
 	// Message first.
 	va_start(argptr,error);
-	fprintf(stderr, "Error: ");
-	vfprintf(stderr,error,argptr);
-	fprintf(stderr, "\n");
+	if (!framebuffer)
+	{
+		fprintf(stderr, "Error: ");
+		vfprintf(stderr,error,argptr);
+		fprintf(stderr, "\n");
+	}
 	va_end(argptr);
 
-	fflush(stderr);
+	if (!framebuffer)
+		fflush(stderr);
 #endif
 	M_SaveConfig(NULL); // save game config, cvars..
 	D_SaveBan(); // save the ban list

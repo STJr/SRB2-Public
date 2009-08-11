@@ -237,7 +237,7 @@ static void SDLSetMode(int width, int height, int bpp, Uint32 flags)
 #ifdef FILTERS
 	bpp = Setupf2x(width, height, bpp);
 #endif
-	if (SDLVD && strcmp(SDLVD,"glSDL")) //for glSDL videodriver
+	if (SDLVD && strncasecmp(SDLVD,"glSDL",6) == 0) //for glSDL videodriver
 		vidSurface = SDL_SetVideoMode(width, height,0,SDL_DOUBLEBUF);
 	else if (cv_vidwait.value && videoblitok && SDL_VideoModeOK(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF) >= bpp)
 		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF);
@@ -1919,6 +1919,8 @@ void I_StartupGraphics(void)
 	{
 		char vd[100]; //stack space for video name
 		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
+		if (strncasecmp(vd, "directfb", 9) == 0 || strncasecmp(vd, "gcvideo", 8) == 0)
+			framebuffer = SDL_TRUE;
 	}
 	if (M_CheckParm("-software"))
 		rendermode = render_soft;
@@ -2029,7 +2031,7 @@ void I_StartupGraphics(void)
 		char videodriver[4] = {'S','D','L',0};
 		if (!M_CheckParm("-mousegrab") &&
 		    SDL_VideoDriverName(videodriver,4) &&
-		    !strncasecmp("X11",videodriver,4))
+		    strncasecmp("X11",videodriver,4) == 0)
 			mousegrabok = SDL_FALSE; //X11's XGrabPointer not good
 	}
 #endif
