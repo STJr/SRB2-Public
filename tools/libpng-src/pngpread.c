@@ -1,7 +1,7 @@
 
 /* pngpread.c - read a png file in push mode
  *
- * Last changed in libpng 1.2.37 [July 16, 2009]
+ * Last changed in libpng 1.2.38 [July 16, 2009]
  * Copyright (c) 1998-2009 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
@@ -343,8 +343,6 @@ png_push_read_chunk(png_structp png_ptr, png_infop info_ptr)
 
       if (png_ptr->push_length + 4 > png_ptr->buffer_size)
       {
-         if (png_ptr->push_length != 13)
-            png_error(png_ptr, "Invalid IHDR length");
          png_push_save_buffer(png_ptr);
          return;
       }
@@ -865,7 +863,7 @@ void /* PRIVATE */
 png_push_read_IDAT(png_structp png_ptr)
 {
 #ifdef PNG_USE_LOCAL_ARRAYS
-   PNG_IDAT;
+   PNG_CONST PNG_IDAT;
 #if defined(PNG_READ_APNG_SUPPORTED)
    PNG_fdAT;
    PNG_IEND;
@@ -875,7 +873,7 @@ png_push_read_IDAT(png_structp png_ptr)
    {
       png_byte chunk_length[4];
 
-      if (png_ptr->buffer_size < 12)
+      if (png_ptr->buffer_size < 8)
       {
          png_push_save_buffer(png_ptr);
          return;
@@ -917,7 +915,7 @@ png_push_read_IDAT(png_structp png_ptr)
       }
       else 
 #endif
-      if ( png_memcmp(png_ptr->chunk_name, png_IDAT, 4)
+      if (png_memcmp(png_ptr->chunk_name, png_IDAT, 4))
 #if defined(PNG_READ_APNG_SUPPORTED)
                 && (png_ptr->num_frames_read == 0)
 #endif
