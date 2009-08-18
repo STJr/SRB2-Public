@@ -172,11 +172,15 @@ angle_t FixedAngle(fixed_t fa)
 
 	return ra;
 #else
-	float faf;
-	float an1;
-	faf = FIXED_TO_FLOAT(fa);
-	an1 = ((float)ANGLE_45/45.0f);
-	return (angle_t)(faf*an1);
+	if (fa == 0)
+		return 0;
+
+	while (fa < -360*FRACUNIT)
+		fa += 360*FRACUNIT;
+	while (fa >  360*FRACUNIT)
+		fa -= 360*FRACUNIT;
+
+	return (angle_t)(FIXED_TO_FLOAT(fa)*(ANGLE_45/45));
 #endif
 }
 
