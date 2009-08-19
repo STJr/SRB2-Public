@@ -3219,18 +3219,18 @@ boolean G_CheckDemoStatus(void)
 	boolean saved;
 	if (timingdemo)
 	{
-		int time;
+		int demotime;
 		double f1, f2;
-		time = I_GetTime() - demostarttime;
-		if (!time)
+		demotime = I_GetTime() - demostarttime;
+		if (!demotime)
 			return true;
 		G_StopDemo();
 		timingdemo = false;
-		f1 = (double)time;
+		f1 = (double)demotime;
 		f2 = (double)framecount*TICRATE;
 		CONS_Printf("timed %lu gametics in %d realtics\n"
 			"%f seconds, %f avg fps\n",
-			leveltime,time,f1/TICRATE,f2/f1);
+			leveltime,demotime,f1/TICRATE,f2/f1);
 		if (restorecv_vidwait != cv_vidwait.value)
 			CV_SetValue(&cv_vidwait, restorecv_vidwait);
 		D_AdvanceDemo();
