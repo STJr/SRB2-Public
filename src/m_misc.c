@@ -1193,7 +1193,7 @@ static boolean WritePCXfile(const char *filename, const byte *data, int width, i
   */
 void M_ScreenShot(void)
 {
-#if !defined (DC) && !defined (_WIN32_WCE) && !defined (PSP)
+#if NUMSCREENS > 2
 	const char *freename = NULL, *pathname = ".";
 	boolean ret = false;
 	byte *linear = NULL;

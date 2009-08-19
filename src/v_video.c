@@ -2288,7 +2288,7 @@ void V_DoPostProcessor(postimg_t type)
 		return;
 #endif
 
-#if defined (_WIN32_WCE) || defined (__arm__) || defined (__sh__) || defined (__mips__)
+#if NUMSCREENS > 4
 	return; // do not enable image post processing for ARM, SH and MIPS CPUs
 #endif
 

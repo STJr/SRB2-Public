@@ -28,7 +28,7 @@
 #include "hardware/hw_main.h"
 #endif
 
-#if defined (_WIN32_WCE) || defined (__arm__) || defined (__sh__) || defined (__mips__)
+#if NUMSCREENS > 3
 #define NOWIPE // do not enable wipe image post processing for ARM, SH and MIPS CPUs
 #endif
 
