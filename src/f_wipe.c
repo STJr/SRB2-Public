@@ -28,7 +28,7 @@
 #include "hardware/hw_main.h"
 #endif
 
-#if NUMSCREENS > 3
+#if NUMSCREENS < 3
 #define NOWIPE // do not enable wipe image post processing for ARM, SH and MIPS CPUs
 #endif
 
