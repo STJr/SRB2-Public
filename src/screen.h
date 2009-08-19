@@ -34,7 +34,7 @@
 #endif
 
 // quickhack for V_Init()... to be cleaned up
-#if defined (DC) || defined (_WIN32_WCE) || defined (PSP)
+#if defined (DC) || defined (_WIN32_WCE)
 #define NUMSCREENS 2
 #else
 #define NUMSCREENS 5
