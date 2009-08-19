@@ -1746,9 +1746,9 @@ void F_IntroDrawer(void)
 
 			// Stay on black for a bit. =)
 			{
-				tic_t time;
-				time = I_GetTime() + TICRATE*2; // Shortened the quit time, used to be 2 seconds
-				while (time > I_GetTime())
+				tic_t quittime;
+				quittime = I_GetTime() + TICRATE*2; // Shortened the quit time, used to be 2 seconds
+				while (quittime > I_GetTime())
 				{
 					I_OsPolling();
 					I_UpdateNoBlit();
