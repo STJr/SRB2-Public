@@ -915,7 +915,7 @@ png_push_read_IDAT(png_structp png_ptr)
       }
       else 
 #endif
-      if (png_memcmp(png_ptr->chunk_name, png_IDAT, 4))
+      if (png_memcmp(png_ptr->chunk_name, png_IDAT, 4)
 #if defined(PNG_READ_APNG_SUPPORTED)
                 && (png_ptr->num_frames_read == 0)
 #endif
