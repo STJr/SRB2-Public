@@ -1990,18 +1990,22 @@ void I_StartupGraphics(void)
 		vid.width = 640; // hack to make voodoo cards work in 640x480
 		vid.height = 480;
 #endif
-		HWD.pfnInit(I_Error); // let load the OpenGL library
-		/*
-		 * We want at least 1 bit R, G, and B,
-		 * and at least 16 bpp. Why 1 bit? May be more?
-		 */
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
-		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
-		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
-		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-		if (!OglSdlSurface(vid.width, vid.height, (USE_FULLSCREEN)))
-			if (!OglSdlSurface(vid.width, vid.height, !(USE_FULLSCREEN)))
-				rendermode = render_soft;
+		if (HWD.pfnInit(I_Error)) // let load the OpenGL library
+		{
+			/*
+			* We want at least 1 bit R, G, and B,
+			* and at least 16 bpp. Why 1 bit? May be more?
+			*/
+			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
+			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
+			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+			if (!OglSdlSurface(vid.width, vid.height, (USE_FULLSCREEN)))
+				if (!OglSdlSurface(vid.width, vid.height, !(USE_FULLSCREEN)))
+					rendermode = render_soft;
+		}
+		else
+			rendermode = render_soft;
 	}
 #else
 	rendermode = render_soft; //force software mode when there no HWRENDER code
