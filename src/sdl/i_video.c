@@ -1755,11 +1755,13 @@ static inline void SDLWMSet(void)
 
 static void* SDLGetDirect(void)
 {
+#ifndef __MACH__ // Do not directly access the MacOSX's OpenGL memory
 	if (!SDL_MUSTLOCK(vidSurface) && SDLmatchVideoformat())
 	{
 		vid.rowbytes = vidSurface->pitch;
 		return vidSurface->pixels;
 	}
+#endif // you can not use the video memory in pixels member in fullscreen mode
 	return NULL;
 }
 
