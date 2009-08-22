@@ -965,7 +965,6 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
 				CURRENT_PROJECT_VERSION = 2.00.4;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -978,7 +977,6 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 2.00.4;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
