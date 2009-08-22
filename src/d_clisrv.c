@@ -109,7 +109,6 @@ static byte textcmds[BACKUPTICS][MAXPLAYERS][MAXTEXTCMD];
 
 static consvar_t cv_showjoinaddress = {"showjoinaddress", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_playdemospeed = {"playdemospeed", "0", 0, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
-static consvar_t cv_makenathole = {"makenathole", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 void D_ResetTiccmds(void)
 {
@@ -723,10 +722,7 @@ void CL_UpdateServerList(boolean internetsearch)
 					node = I_NetMakeNode(addr_str);
 					if (node == -1)
 						break; // no more node free
-					if (cv_makenathole.value)
-						SendAskInfo(node, true);
-					else
-						SendAskInfo(node, false);
+					SendAskInfo(node, true);
 				}
 			}
 		}
@@ -1621,7 +1617,6 @@ void D_ClientServerInit(void)
 	CV_RegisterVar(&cv_showjoinaddress);
 	CV_RegisterVar(&cv_consfailprotect);
 	CV_RegisterVar(&cv_blamecfail);
-	CV_RegisterVar(&cv_makenathole);
 //	CV_RegisterVar(&cv_dumpconsistency);
 	Ban_Load_File(false);
 
