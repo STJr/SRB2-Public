@@ -997,10 +997,10 @@ void I_GetEvent(void)
 		switch (inputEvent.type)
 		{
 			case SDL_ACTIVEEVENT:
-				if (SDL_APPACTIVE & inputEvent.active.state || SDL_APPINPUTFOCUS & inputEvent.active.state)
+				if (inputEvent.active.state  & (SDL_APPACTIVE|SDL_APPINPUTFOCUS))
 				{
 					// pause music when alt-tab
-					if ( inputEvent.active.gain /*&& !paused */)
+					if (inputEvent.active.gain /*&& !paused */)
 					{
 						static SDL_bool firsttimeonmouse = SDL_TRUE;
 						if (!firsttimeonmouse)
@@ -1015,7 +1015,7 @@ void I_GetEvent(void)
 					else /*if (!paused)*/
 					{
 						if (!disable_mouse)
-							SDLdoUngrabMouse();
+							SDLforceUngrabMouse();
 						if (!netgame && gamestate == GS_LEVEL) paused = true;
 						memset(gamekeydown, 0, NUMKEYS);
 						//S_PauseSound();
@@ -1042,7 +1042,7 @@ void I_GetEvent(void)
 					SDLdoUngrabMouse();
 					break;
 				}
-				if ((SDL_APPMOUSEFOCUS&inputEvent.active.state) && USE_MOUSEINPUT && !inputEvent.active.gain)
+				if ((SDL_APPMOUSEFOCUS&inputEvent.active.state) && USE_MOUSEINPUT && inputEvent.active.gain)
 					HalfWarpMouse(realwidth, realheight);
 				break;
 			case SDL_KEYDOWN:
