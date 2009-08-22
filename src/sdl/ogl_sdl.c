@@ -189,8 +189,8 @@ boolean OglSdlSurface(int w, int h, boolean isFullscreen)
 		glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
 	else
 		glColorTableEXT = NULL;
-
 #endif
+
 #ifdef USE_WGL_SWAP
 	if (isExtAvailable("WGL_EXT_swap_control", gl_extensions))
 		wglSwapIntervalEXT = SDL_GL_GetProcAddress("wglSwapIntervalEXT");
@@ -202,6 +202,7 @@ boolean OglSdlSurface(int w, int h, boolean isFullscreen)
 	else
 		glXSwapIntervalSGIEXT = NULL;
 #endif
+
 	if (isExtAvailable("GL_EXT_texture_filter_anisotropic", gl_extensions))
 		pglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
 	else

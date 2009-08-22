@@ -638,7 +638,7 @@ static void VID_Command_ModeList_f(void)
 #if !defined (DC) && !defined (_WIN32_WCE)
 	int i;
 #ifdef HWRENDER
-	if (rendermode == render_opengl || M_CheckParm("-opengl"))
+	if (rendermode == render_opengl)
 		modeList = SDL_ListModes(NULL, SDL_OPENGL|SDL_FULLSCREEN);
 	else
 #endif
@@ -1355,6 +1355,9 @@ static void displayticrate(fixed_t value)
 static inline boolean I_SkipFrame(void)
 {
 	static boolean skip = false;
+
+	if (rendermode == render_opengl)
+		return true; //WTH?
 
 	if (render_soft != rendermode)
 		return false;
