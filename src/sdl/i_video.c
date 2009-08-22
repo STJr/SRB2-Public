@@ -1365,7 +1365,7 @@ static inline boolean I_SkipFrame(void)
 	skip = !skip;
 
 #if (defined (GP2X) || defined (PSP) || defined (_arch_dreamcast))
-	return skip;
+	//return skip;
 #endif
 
 	switch (gamestate)
