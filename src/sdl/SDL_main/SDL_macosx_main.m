@@ -258,7 +258,7 @@ static void CustomApplicationMain (int argc, char **argv)
     (void)theApplication;
 #endif
     addArgument("-iwad");
-    addArgument([filename cString]);
+    addArgument([filename UTF8String]);
     return YES;
 }
 

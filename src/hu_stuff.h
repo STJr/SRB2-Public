@@ -109,7 +109,7 @@ void HU_clearChatChars(void);
 void HU_DrawTabRankings(int x, int y, playersort_t *tab, int scorelines, int whiteplayer);
 void HU_DrawTeamTabRankings(playersort_t *tab, int whiteplayer);
 void HU_DrawDualTabRankings(int x, int y, playersort_t *tab, int scorelines, int whiteplayer);
-void HU_DrawEmeralds(int x, int y, int emeralds);
+void HU_DrawEmeralds(int x, int y, int pemeralds);
 
 int HU_CreateTeamScoresTbl(playersort_t *tab, ULONG dmtotals[]);
 void MatchType_OnChange(void);
