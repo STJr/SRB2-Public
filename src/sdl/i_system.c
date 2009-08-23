@@ -690,7 +690,12 @@ static inline void I_StartupConsole(void)
 	conio_putstr(title);
 	//printf("\nHello world!\n\n");
 #endif
-	consolevent = framebuffer = M_CheckParm("-framebuffer");
+	consolevent = !M_CheckParm("-noconsole");
+
+	framebuffer = M_CheckParm("-framebuffer");
+
+	if (framebuffer)
+		consolevent = SDL_FALSE;
 }
 static inline void I_ShutdownConsole(void){}
 #endif
