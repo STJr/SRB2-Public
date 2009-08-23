@@ -117,9 +117,11 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 
 #if defined (__linux__) || (defined (UNIXLIKE) && !defined (_arch_dreamcast) && !defined (_PSP))
+#ifndef NOTERMIOS
 #include <termios.h>
 #include <sys/ioctl.h> // ioctl
 #define HAVE_TERMIOS
+#endif
 #endif
 
 #if defined (__linux__) // need -lrt
