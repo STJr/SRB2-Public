@@ -690,6 +690,7 @@ static inline void I_StartupConsole(void)
 	conio_putstr(title);
 	//printf("\nHello world!\n\n");
 #endif
+	consolevent = framebuffer = M_CheckParm("-framebuffer");
 }
 static inline void I_ShutdownConsole(void){}
 #endif
