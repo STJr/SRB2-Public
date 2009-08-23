@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 OpenAL32.lib ALut.lib /nologo /dll /pdb:"..\..\..\bin\VC\Release\s_openal.pdb" /machine:I386 /out:"c:\srb2demo2\s_openal.dll"
+# ADD LINK32 OpenAL32.lib ALut.lib /nologo /dll /pdb:"..\..\..\bin\VC\Release\s_openal.pdb" /machine:I386 /out:"C:\srb2demo2\s_openal.dll"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "s_openal - Win32 Debug"
@@ -81,7 +81,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 OpenAL32.lib ALut.lib /nologo /dll /pdb:"..\..\..\bin\VC\Debug\s_openal.pdb" /debug /machine:I386 /out:"c:\srb2demo2\s_openaldebug.dll" /pdbtype:sept
+# ADD LINK32 OpenAL32.lib ALut.lib /nologo /dll /pdb:"..\..\..\bin\VC\Debug\s_openal.pdb" /debug /machine:I386 /out:"C:\srb2demo2\s_openaldebug.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
