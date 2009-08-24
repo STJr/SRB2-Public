@@ -47,6 +47,7 @@
 ///	Maps tan(angle) to angle fast. Gotta search.
 
 #include "tables.h"
+#define FIXEDPOINTCONV
 
 unsigned SlopeDiv(unsigned num, unsigned den)
 {
