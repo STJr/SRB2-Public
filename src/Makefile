@@ -228,6 +228,14 @@ ifdef FAKEDC
 	OPTS+=-DDC
 endif
 
+ifdef FAKEPSP
+	OPTS+=-DPSP
+endif
+
+ifdef NOPOSTPROCESSING
+	OPTS+=-DNOPOSTPROCESSING
+endif
+
 	OPTS:=-fno-exceptions $(OPTS)
 
 ifdef DEBUGMODE
