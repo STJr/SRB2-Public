@@ -206,7 +206,7 @@ static byte *R_GenerateTexture(size_t texnum)
 		texturecolumnofs[texnum] = colofs;
 		blocktex = block;
 		for (i = 0; i < texture->width; i++)
-			colofs[i] += 3;
+			colofs[i] = LONG(LONG(colofs[i]) + 3);
 		goto done;
 	}
 
@@ -246,9 +246,9 @@ static byte *R_GenerateTexture(size_t texnum)
 			patchcol = (column_t *)((byte *)realpatch + LONG(realpatch->columnofs[x-x1]));
 
 			// generate column ofset lookup
-			colofs[x] = (x * texture->height) + (texture->width*4);
+			colofs[x] = LONG((x * texture->height) + (texture->width*4));
 
-			R_DrawColumnInCache(patchcol, block + colofs[x], patch->originy, texture->height);
+			R_DrawColumnInCache(patchcol, block + LONG(colofs[x]), patch->originy, texture->height);
 		}
 	}
 
@@ -272,7 +272,7 @@ byte *R_GetColumn(fixed_t tex, int col)
 	if (!data)
 		data = R_GenerateTexture(tex);
 
-	return data + texturecolumnofs[tex][col];
+	return data + LONG(texturecolumnofs[tex][col]);
 }
 
 // convert flats to hicolor as they are requested

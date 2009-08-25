@@ -558,7 +558,7 @@ static inline int SCX(int x)
 void ST_DrawOverlayNum(int x /* right border */, int y, int num,
 	patch_t **numpat)
 {
-	int w = (numpat[0]->width);
+	int w = SHORT(numpat[0]->width);
 	boolean neg;
 
 	// special case for 0
@@ -594,7 +594,7 @@ void ST_DrawOverlayNum(int x /* right border */, int y, int num,
 static void ST_DrawNightsOverlayNum(int x /* right border */, int y, int num,
 	patch_t **numpat, int colornum)
 {
-	int w = (numpat[0]->width);
+	int w = SHORT(numpat[0]->width);
 	byte *colormap;
 	int flags = 0;
 
@@ -747,7 +747,7 @@ static void ST_drawLevelTitle(void)
 	if (actnum > 0)
 	{
 		ttlnum = W_CachePatchName(va("TTL%.2d", actnum), PU_CACHE);
-		lvlttlxpos = ((BASEVIDWIDTH/2) - (V_LevelNameWidth(lvlttl)/2)) - ttlnum->width;
+		lvlttlxpos = ((BASEVIDWIDTH/2) - (V_LevelNameWidth(lvlttl)/2)) - SHORT(ttlnum->width);
 	}
 	else
 	{
@@ -1020,7 +1020,7 @@ static void ST_drawFirstPersonHUD(void)
 	}
 
 	if (p)
-		V_DrawTranslucentPatch(SCX((BASEVIDWIDTH/2) - (p->width/2) + p->leftoffset), SCY(120 - p->topoffset),
+		V_DrawTranslucentPatch(SCX((BASEVIDWIDTH/2) - (SHORT(p->width)/2) + SHORT(p->leftoffset)), SCY(120 - SHORT(p->topoffset)),
 			V_NOSCALESTART, p);
 }
 
@@ -1475,13 +1475,13 @@ static void ST_drawMatchHUD(void)
 static void ST_drawRaceHUD(void)
 {
 	if (leveltime > TICRATE && leveltime <= 2*TICRATE)
-		V_DrawScaledPatch(SCX((BASEVIDWIDTH - race3->width)/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, race3);
+		V_DrawScaledPatch(SCX((BASEVIDWIDTH - SHORT(race3->width))/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, race3);
 	else if (leveltime > 2*TICRATE && leveltime <= 3*TICRATE)
-		V_DrawScaledPatch(SCX((BASEVIDWIDTH - race2->width)/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, race2);
+		V_DrawScaledPatch(SCX((BASEVIDWIDTH - SHORT(race2->width))/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, race2);
 	else if (leveltime > 3*TICRATE && leveltime <= 4*TICRATE)
-		V_DrawScaledPatch(SCX((BASEVIDWIDTH - race1->width)/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, race1);
+		V_DrawScaledPatch(SCX((BASEVIDWIDTH - SHORT(race1->width))/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, race1);
 	else if (leveltime > 4*TICRATE && leveltime <= 5*TICRATE)
-		V_DrawScaledPatch(SCX((BASEVIDWIDTH - racego->width)/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, racego);
+		V_DrawScaledPatch(SCX((BASEVIDWIDTH - SHORT(racego->width))/2), (int)(SCY(BASEVIDHEIGHT/2)), V_NOSCALESTART, racego);
 
 	if (circuitmap)
 	{
@@ -1846,7 +1846,7 @@ static void ST_drawContinueHUD(void)
 			V_DrawFill(0, 0, vid.width, vid.height, 31);
 
 			contsonic = W_CachePatchName("CONT1", PU_CACHE);
-			V_DrawScaledPatch((BASEVIDWIDTH-contsonic->width)/2, 64, 0, contsonic);
+			V_DrawScaledPatch((BASEVIDWIDTH-SHORT(contsonic->width))/2, 64, 0, contsonic);
 			V_DrawString(128,128,0, "CONTINUE?");
 			sprintf(stimeleft, "%lu", (stplyr->deadtimer - (gameovertics-11*TICRATE))/TICRATE);
 			V_DrawString(stplyr->deadtimer >= (gameovertics-TICRATE) ? 152 : 160,144,0, stimeleft);
@@ -1863,7 +1863,7 @@ static void ST_drawContinueHUD(void)
 	V_DrawString(128, 128, 0, "CONTINUE?");
 	// Draw a Sonic!
 	contsonic = W_CachePatchName("CONT1", PU_CACHE);
-	V_DrawScaledPatch((BASEVIDWIDTH - contsonic->width)/2, 64, 0, contsonic);
+	V_DrawScaledPatch((BASEVIDWIDTH - SHORT(contsonic->width))/2, 64, 0, contsonic);
 	sprintf(stimeleft, "%lu", (stplyr->deadtimer - (gameovertics-11*TICRATE))/TICRATE);
 	V_DrawString(stplyr->deadtimer >= (gameovertics-TICRATE) ? 152 : 160, 144, 0, stimeleft);
 	if (stplyr->deadtimer < (gameovertics-10*TICRATE))
@@ -1899,7 +1899,7 @@ static void ST_drawContinueHUD(void)
 		stplyr->starposty = 0;
 		stplyr->starpostz = 0;
 		contsonic = W_CachePatchName("CONT2", PU_CACHE);
-		V_DrawScaledPatch((BASEVIDWIDTH - contsonic->width)/2, 64, 0, contsonic);
+		V_DrawScaledPatch((BASEVIDWIDTH - SHORT(contsonic->width))/2, 64, 0, contsonic);
 	}
 }
 
@@ -2148,7 +2148,7 @@ static void ST_overlayDrawer(void)
 		else
 			p = sboover;
 
-		V_DrawScaledPatch((BASEVIDWIDTH - p->width)/2, STRINGY(BASEVIDHEIGHT/2 - (p->height/2)), 0, p);
+		V_DrawScaledPatch((BASEVIDWIDTH - SHORT(p->width))/2, STRINGY(BASEVIDHEIGHT/2 - (SHORT(p->height)/2)), 0, p);
 	}
 
 	if (cv_objectplace.value && stplyr->mo && stplyr->mo->target)

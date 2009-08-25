@@ -183,8 +183,8 @@ static void M_DrawMenuTitle(void)
 	{
 		patch_t *p = W_CachePatchName(currentMenu->menutitlepic, PU_CACHE);
 
-		int xtitle = (BASEVIDWIDTH - p->width)/2;
-		int ytitle = (currentMenu->y - p->height)/2;
+		int xtitle = (BASEVIDWIDTH - SHORT(p->width))/2;
+		int ytitle = (currentMenu->y - SHORT(p->height))/2;
 
 		if (xtitle < 0)
 			xtitle = 0;
@@ -218,7 +218,7 @@ void M_DrawGenericMenu(void)
 					{
 						patch_t *p;
 						p = W_CachePatchName(currentMenu->menuitems[i].patch, PU_CACHE);
-						V_DrawScaledPatch((BASEVIDWIDTH - p->width)/2, y, 0, p);
+						V_DrawScaledPatch((BASEVIDWIDTH - SHORT(p->width))/2, y, 0, p);
 					}
 					else
 					{
@@ -327,7 +327,7 @@ static void M_DrawCenteredMenu(void)
 					{
 						patch_t *p;
 						p = W_CachePatchName(currentMenu->menuitems[i].patch, PU_CACHE);
-						V_DrawScaledPatch((BASEVIDWIDTH - p->width)/2, y, 0, p);
+						V_DrawScaledPatch((BASEVIDWIDTH - SHORT(p->width))/2, y, 0, p);
 					}
 					else
 					{
@@ -2164,7 +2164,7 @@ static void M_DrawServerMenu(void)
 	else
 		PictureOfLevel = W_CachePatchName("BLANKLVL", PU_CACHE);
 
-	V_DrawSmallScaledPatch((BASEVIDWIDTH*3/4)-(PictureOfLevel->width/4), (BASEVIDHEIGHT*3/4)-(PictureOfLevel->height/4), 0, PictureOfLevel);
+	V_DrawSmallScaledPatch((BASEVIDWIDTH*3/4)-(SHORT(PictureOfLevel->width)/4), (BASEVIDHEIGHT*3/4)-(SHORT(PictureOfLevel->height)/4), 0, PictureOfLevel);
 }
 
 static menuitem_t ServerMenu[] =

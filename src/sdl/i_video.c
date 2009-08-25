@@ -128,11 +128,7 @@ static int numVidModes = -1;
 */
 static char vidModeName[33][32]; // allow 33 different modes
 
-#if defined(__BIG_ENDIAN__) && defined(HWRENDER) // Software code don't work in big endian systems
-rendermode_t rendermode=render_opengl;
-#else
 rendermode_t rendermode=render_soft;
-#endif
 
 boolean highcolor = false;
 
