@@ -1118,7 +1118,7 @@ static int joy_open(const char *fname)
 		{
 			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i, SDL_JoystickName(i));
+				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
 			I_ShutdownJoystick();
 			return -1;
 		}
@@ -1407,7 +1407,7 @@ static int joy_open2(const char *fname)
 		{
 			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i, SDL_JoystickName(i));
+				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
 			I_ShutdownJoystick2();
 			return -1;
 		}
