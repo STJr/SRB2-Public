@@ -268,7 +268,20 @@ static void Analog_OnChange(void);
 static void Analog2_OnChange(void);
 
 static CV_PossibleValue_t crosshair_cons_t[] = {{0, "Off"}, {1, "Cross"}, {2, "Angle"}, {3, "Point"}, {0, NULL}};
-static CV_PossibleValue_t joyaxis_cons_t[] = { {0, "None"}, {1, "X-Axis"}, {2, "Y-Axis"}, {-1, "X-Axis-"}, {-2, "Y-Axis-"},
+static CV_PossibleValue_t joyaxis_cons_t[] = {{0, "None"},
+#ifdef WMINPUT
+{1, "LStick.X"}, {2, "LStick.Y"}, {-1, "LStick.X-"}, {-2, "LStick.Y-"},
+#if JOYAXISSET > 1
+{3, "RStick.X"}, {4, "RStick.Y"}, {-3, "RStick.X-"}, {-4, "RStick.Y-"},
+#endif
+#if JOYAXISSET > 2
+{5, "NStick.X"}, {6, "NStick.Y"}, {-5, "NStick.X-"}, {-6, "NStick.Y-"},
+#endif
+#if JOYAXISSET > 3
+{7, "LAnalog"}, {8, "RAnalog"}, {-7, "LAnalog-"}, {-8, "RAnalog-"},
+#endif
+#else
+{1, "X-Axis"}, {2, "Y-Axis"}, {-1, "X-Axis-"}, {-2, "Y-Axis-"},
 #ifdef _arch_dreamcast
 {3, "R-Trig"}, {4, "L-Trig"}, {-3, "R-Trig-"}, {-4, "L-Trig-"},
 {5, "Alt X-Axis"}, {6, "Alt Y-Axis"}, {-5, "Alt X-Axis-"}, {-6, "Alt Y-Axis-"},
@@ -284,6 +297,7 @@ static CV_PossibleValue_t joyaxis_cons_t[] = { {0, "None"}, {1, "X-Axis"}, {2, "
 #endif
 #if JOYAXISSET > 3
 {7, "U-Axis"}, {8, "V-Axis"}, {-7, "U-Axis-"}, {-8, "V-Axis-"},
+#endif
 #endif
 #endif
  {0, NULL}};
