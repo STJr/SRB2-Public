@@ -1070,7 +1070,17 @@ void G_Controldefault(void)
 	gamecontrol[gc_jump       ][1] = KEY_MOUSE1+1;
 	gamecontrol[gc_console    ][0] = KEY_CONSOLE;
 	gamecontrol[gc_pause      ][0] = KEY_PAUSE;
-
+#ifdef WMINPUT
+	gamecontrol[gc_weaponnext ][0] = KEY_JOY1+06; //y
+	gamecontrol[gc_weaponprev ][0] = KEY_JOY1+05; //x
+	gamecontrol[gc_fire       ][0] = KEY_JOY1+08; //L
+	gamecontrol[gc_firenormal ][0] = KEY_JOY1+09; //R
+	gamecontrol[gc_use        ][0] = KEY_JOY1+00; //B
+	gamecontrol[gc_use        ][1] = KEY_JOY1+03; //b
+	gamecontrol[gc_jump       ][0] = KEY_JOY1+01; //A
+	gamecontrol[gc_jump       ][1] = KEY_JOY1+02; //a
+	gamecontrol[gc_pause      ][0] = KEY_JOY1+12; //Home
+#endif
 }
 #endif
 
