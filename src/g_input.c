@@ -355,13 +355,13 @@ static keyname_t keynames[] =
 	{KEY_JOY1+9,  "JOYR"},
 	{KEY_JOY1+10, "JOYZL"},
 	{KEY_JOY1+11, "JOYZR"},
-	{KEY_JOY1+12, "JOYHOME"},
-	{KEY_JOY1+13, "JOYMINUS"},
-	{KEY_JOY1+14, "JOYPLUS"},
-	{KEY_JOY1+15, "JOY_1"},
-	{KEY_JOY1+16, "JOY_2"},
-	{KEY_JOY1+17, "JOY18"},
-	{KEY_JOY1+18, "JOY19"},
+	{KEY_JOY1+12, "JOYSELECT"},
+	{KEY_JOY1+13, "JOYSTART"},
+	{KEY_JOY1+14, "JOYHOME"},
+	{KEY_JOY1+15, "JOYMINUS"},
+	{KEY_JOY1+16, "JOYPLUS"},
+	{KEY_JOY1+17, "JOY_1"},
+	{KEY_JOY1+18, "JOY_2"},
 	{KEY_JOY1+19, "JOY20"},
 	{KEY_JOY1+20, "JOY21"},
 	{KEY_JOY1+21, "JOY22"},
@@ -514,13 +514,13 @@ static keyname_t keynames[] =
 	{KEY_DBLJOY1+9,  "DBLJOYR"},
 	{KEY_DBLJOY1+10, "DBLJOYZL"},
 	{KEY_DBLJOY1+11, "DBLJOYZR"},
-	{KEY_DBLJOY1+12, "DBLJOYHOME"},
-	{KEY_DBLJOY1+13, "DBLJOYMINUS"},
-	{KEY_DBLJOY1+14, "DBLJOYPLUS"},
-	{KEY_DBLJOY1+15, "DBLJOY_1"},
-	{KEY_DBLJOY1+16, "DBLJOY_2"},
-	{KEY_DBLJOY1+17, "DBLJOY18"},
-	{KEY_DBLJOY1+18, "DBLJOY19"},
+	{KEY_DBLJOY1+12, "DBLJOYSELECT"},
+	{KEY_DBLJOY1+13, "DBLJOYSTART"},
+	{KEY_DBLJOY1+14, "DBLJOYHOME"},
+	{KEY_DBLJOY1+15, "DBLJOYMINUS"},
+	{KEY_DBLJOY1+16, "DBLJOYPLUS"},
+	{KEY_DBLJOY1+17, "DBLJOY_1"},
+	{KEY_DBLJOY1+18, "DBLJOY_2"},
 	{KEY_DBLJOY1+19, "DBLJOY20"},
 	{KEY_DBLJOY1+20, "DBLJOY21"},
 	{KEY_DBLJOY1+21, "DBLJOY22"},
@@ -640,13 +640,13 @@ static keyname_t keynames[] =
 	{KEY_2JOY1+9,  "SEC_JOYR"},
 	{KEY_2JOY1+10, "SEC_JOYZL"},
 	{KEY_2JOY1+11, "SEC_JOYZR"},
-	{KEY_2JOY1+12, "SEC_JOYHOME"},
-	{KEY_2JOY1+13, "SEC_JOYMINUS"},
-	{KEY_2JOY1+14, "SEC_JOYPLUS"},
-	{KEY_2JOY1+15, "SEC_JOY_1"},
-	{KEY_2JOY1+16, "SEC_JOY_2"},
-	{KEY_2JOY1+17, "SEC_JOY18"},
-	{KEY_2JOY1+18, "SEC_JOY19"},
+	{KEY_2JOY1+12, "SEC_JOYSELECT"},
+	{KEY_2JOY1+13, "SEC_JOYSTART"},
+	{KEY_2JOY1+14, "SEC_JOYHOME"},
+	{KEY_2JOY1+15, "SEC_JOYMINUS"},
+	{KEY_2JOY1+16, "SEC_JOYPLUS"},
+	{KEY_2JOY1+17, "SEC_JOY_1"},
+	{KEY_2JOY1+18, "SEC_JOY_2"},
 	{KEY_2JOY1+19, "SEC_JOY20"},
 	{KEY_2JOY1+20, "SEC_JOY21"},
 	{KEY_2JOY1+21, "SEC_JOY22"},
@@ -768,13 +768,13 @@ NOMOREJOYBTN_2DBL
 	{KEY_DBL2JOY1+9,  "DBLSEC_JOYR"},
 	{KEY_DBL2JOY1+10, "DBLSEC_JOYZL"},
 	{KEY_DBL2JOY1+11, "DBLSEC_JOYZR"},
-	{KEY_DBL2JOY1+12, "DBLSEC_JOYHOME"},
-	{KEY_DBL2JOY1+13, "DBLSEC_JOYMINUS"},
-	{KEY_DBL2JOY1+14, "DBLSEC_JOYPLUS"},
-	{KEY_DBL2JOY1+15, "DBLSEC_JOY_1"},
-	{KEY_DBL2JOY1+16, "DBLSEC_JOY_2"},
-	{KEY_DBL2JOY1+17, "DBLSEC_JOY18"},
-	{KEY_DBL2JOY1+18, "DBLSEC_JOY19"},
+	{KEY_DBL2JOY1+12, "DBLSEC_JOYSELECT"},
+	{KEY_DBL2JOY1+13, "DBLSEC_JOYSTART"},
+	{KEY_DBL2JOY1+14, "DBLSEC_JOYHOME"},
+	{KEY_DBL2JOY1+15, "DBLSEC_JOYMINUS"},
+	{KEY_DBL2JOY1+16, "DBLSEC_JOYPLUS"},
+	{KEY_DBL2JOY1+17, "DBLSEC_JOY_1"},
+	{KEY_DBL2JOY1+18, "DBLSEC_JOY_2"},
 	{KEY_DBL2JOY1+19, "DBLSEC_JOY20"},
 	{KEY_DBL2JOY1+20, "DBLSEC_JOY21"},
 	{KEY_DBL2JOY1+21, "DBLSEC_JOY22"},
@@ -1079,7 +1079,7 @@ void G_Controldefault(void)
 	gamecontrol[gc_use        ][1] = KEY_JOY1+03; //b
 	gamecontrol[gc_jump       ][0] = KEY_JOY1+01; //A
 	gamecontrol[gc_jump       ][1] = KEY_JOY1+02; //a
-	gamecontrol[gc_pause      ][0] = KEY_JOY1+12; //Home
+	gamecontrol[gc_pause      ][0] = KEY_JOY1+14; //Home
 	gamecontrolbis[gc_weaponnext ][0] = KEY_2JOY1+06; //y
 	gamecontrolbis[gc_weaponprev ][0] = KEY_2JOY1+05; //x
 	gamecontrolbis[gc_fire       ][0] = KEY_2JOY1+08; //L
@@ -1088,7 +1088,7 @@ void G_Controldefault(void)
 	gamecontrolbis[gc_use        ][1] = KEY_2JOY1+03; //b
 	gamecontrolbis[gc_jump       ][0] = KEY_2JOY1+01; //A
 	gamecontrolbis[gc_jump       ][1] = KEY_2JOY1+02; //a
-	gamecontrolbis[gc_pause      ][0] = KEY_2JOY1+12; //Home
+	gamecontrolbis[gc_pause      ][0] = KEY_2JOY1+14; //Home
 #endif
 }
 #endif
