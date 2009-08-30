@@ -1076,7 +1076,7 @@ void G_Controldefault(void)
 	gamecontrol[gc_turnleft   ][0] = KEY_JOY1+04; //LEFT
 	gamecontrol[gc_turnright  ][0] = KEY_JOY1+05; //RIGHIT
 	gamecontrol[gc_weaponnext ][0] = KEY_JOY1+10; //y
-	gamecontrol[gc_weaponprev ][0] = KEY_JOY1+09; //x
+	gamecontrol[gc_weaponprev ][0] = KEY_JOY1+9; //x
 	gamecontrol[gc_fire       ][0] = KEY_JOY1+12; //L
 	gamecontrol[gc_firenormal ][0] = KEY_JOY1+13; //R
 	gamecontrol[gc_use        ][0] = KEY_JOY1+00; //B
@@ -1089,7 +1089,7 @@ void G_Controldefault(void)
 	gamecontrolbis[gc_turnleft   ][0] = KEY_2JOY1+04; //LEFT
 	gamecontrolbis[gc_turnright  ][0] = KEY_2JOY1+05; //RIGHIT
 	gamecontrolbis[gc_weaponnext ][0] = KEY_2JOY1+10; //y
-	gamecontrolbis[gc_weaponprev ][0] = KEY_2JOY1+09; //x
+	gamecontrolbis[gc_weaponprev ][0] = KEY_2JOY1+9; //x
 	gamecontrolbis[gc_fire       ][0] = KEY_2JOY1+12; //L
 	gamecontrolbis[gc_firenormal ][0] = KEY_2JOY1+13; //R
 	gamecontrolbis[gc_use        ][0] = KEY_2JOY1+00; //B
