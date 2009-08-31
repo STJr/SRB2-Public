@@ -4185,13 +4185,13 @@ RetryAttack:
 			{
 				const angle_t fa = (i*FINEANGLES/16) & FINEMASK;
 				ns = 64 * FRACUNIT;
-				x = mobj->x + FixedMul(finesine[fa],ns);
-				y = mobj->y + FixedMul(finecosine[fa],ns);
+				x = mobj->x + FixedMul(FINESINE(fa),ns);
+				y = mobj->y + FixedMul(FINECOSINE(fa),ns);
 
 				mo2 = P_SpawnMobj(x, y, z, MT_EXPLODE);
 				ns = 16 * FRACUNIT;
-				mo2->momx = FixedMul(finesine[fa],ns);
-				mo2->momy = FixedMul(finecosine[fa],ns);
+				mo2->momx = FixedMul(FINESINE(fa),ns);
+				mo2->momy = FixedMul(FINECOSINE(fa),ns);
 			}
 			z -= 32*FRACUNIT;
 		}
@@ -5495,13 +5495,13 @@ void P_MobjThinker(mobj_t *mobj)
 					{
 						const angle_t fa = (i*FINEANGLES/16) & FINEMASK;
 						ns = 64 * FRACUNIT;
-						x = mobj->x + FixedMul(finesine[fa],ns);
-						y = mobj->y + FixedMul(finecosine[fa],ns);
+						x = mobj->x + FixedMul(FINESINE(fa),ns);
+						y = mobj->y + FixedMul(FINECOSINE(fa),ns);
 
 						mo2 = P_SpawnMobj(x, y, z, MT_EXPLODE);
 						ns = 16 * FRACUNIT;
-						mo2->momx = FixedMul(finesine[fa],ns);
-						mo2->momy = FixedMul(finecosine[fa],ns);
+						mo2->momx = FixedMul(FINESINE(fa),ns);
+						mo2->momy = FixedMul(FINECOSINE(fa),ns);
 					}
 					z -= 32*FRACUNIT;
 				}
