@@ -319,7 +319,6 @@ static keyname_t keynames[] =
 	{KEY_JOY1+9, "JOYN"},
 	{KEY_JOY1+10,"JOYW"},
 	{KEY_JOY1+11,"JOYE"},
-#define NOMOREJOYBTN_1S
 #elif defined (_PSP)
 	{KEY_JOY1+0, "TRIANGLE"},
 	{KEY_JOY1+1, "CIRCLE"  },
@@ -331,7 +330,6 @@ static keyname_t keynames[] =
 	{KEY_JOY1+7, "START"   },
 	{KEY_JOY1+8, "HOME"    },
 	{KEY_JOY1+9, "HOLD"    },
-#define NOMOREJOYBTN_1S
 #elif defined (GP2X)
 	{KEY_JOY1+0, "JOYA"},
 	{KEY_JOY1+1, "JOYY"},
@@ -342,40 +340,6 @@ static keyname_t keynames[] =
 	{KEY_JOY1+6, "JOYVOLUP"},
 	{KEY_JOY1+7, "JOYVOLDOWN"},
 	{KEY_JOY1+8, "JOYSELECT"},
-#elif defined (WMINPUT)
-	{KEY_JOY1+0,  "JOYB"},
-	{KEY_JOY1+1,  "JOYA"},
-	{KEY_JOY1+2,  "JOYUP"},
-	{KEY_JOY1+3,  "JOYDOWN"},
-	{KEY_JOY1+4,  "JOYLEFT"},
-	{KEY_JOY1+5,  "JOYRIGHT"},
-	{KEY_JOY1+6,  "JOYa"},
-	{KEY_JOY1+7,  "JOYb"},
-	{KEY_JOY1+8,  "JOYc"},
-	{KEY_JOY1+9,  "JOYx"},
-	{KEY_JOY1+10, "JOYy"},
-	{KEY_JOY1+11, "JOYz"},
-	{KEY_JOY1+12, "JOYL"},
-	{KEY_JOY1+13, "JOYR"},
-	{KEY_JOY1+14, "JOYZL"},
-	{KEY_JOY1+15, "JOYZR"},
-	{KEY_JOY1+16, "JOYSELECT"},
-	{KEY_JOY1+17, "JOYSTART"},
-	{KEY_JOY1+18, "JOYHOME"},
-	{KEY_JOY1+19, "JOYMINUS"},
-	{KEY_JOY1+20, "JOYPLUS"},
-	{KEY_JOY1+21, "JOY_1"},
-	{KEY_JOY1+22, "JOY_2"},
-	{KEY_JOY1+23, "JOY24"},
-	{KEY_JOY1+24, "JOY25"},
-	{KEY_JOY1+25, "JOY26"},
-	{KEY_JOY1+26, "JOY27"},
-	{KEY_JOY1+27, "JOY28"},
-	{KEY_JOY1+28, "JOY29"},
-	{KEY_JOY1+29, "JOY30"},
-	{KEY_JOY1+30, "JOY31"},
-	{KEY_JOY1+31, "JOY32"},
-#define NOMOREJOYBTN_1S
 #else
 	{KEY_JOY1+0, "JOY1"},
 	{KEY_JOY1+1, "JOY2"},
@@ -387,7 +351,7 @@ static keyname_t keynames[] =
 	{KEY_JOY1+7, "JOY8"},
 	{KEY_JOY1+8, "JOY9"},
 #endif
-#if !defined (_arch_dreamcast) && !defined (NOMOREJOYBTN_1S)
+#if !defined (_arch_dreamcast) && !defined (_XBOX) && !defined (_PSP)
 	// we use up to 32 buttons in DirectInput
 	{KEY_JOY1+9, "JOY10"},
 	{KEY_JOY1+10, "JOY11"},
@@ -478,7 +442,6 @@ static keyname_t keynames[] =
 	{KEY_DBLJOY1+9, "DBLJOYN"},
 	{KEY_DBLJOY1+10,"DBLJOYW"},
 	{KEY_DBLJOY1+11,"DBLJOYE"},
-#define NOMOREJOYBTN_1DBL
 #elif defined (_PSP)
 	{KEY_DBLJOY1+0, "DBLTRIANGLE"},
 	{KEY_DBLJOY1+1, "DBLCIRCLE"  },
@@ -490,51 +453,6 @@ static keyname_t keynames[] =
 	{KEY_DBLJOY1+7, "DBLSTART"   },
 	{KEY_DBLJOY1+8, "DBLHOME"    },
 	{KEY_DBLJOY1+9, "DBLHOLD"    },
-#elif defined (GP2X)
-	{KEY_DBLJOY1+0, "DBLJOYA"},
-	{KEY_DBLJOY1+1, "DBLJOYY"},
-	{KEY_DBLJOY1+2, "DBLJOYB"},
-	{KEY_DBLJOY1+3, "DBLJOYX"},
-	{KEY_DBLJOY1+4, "DBLJOYL"},
-	{KEY_DBLJOY1+5, "DBLJOYR"},
-	{KEY_DBLJOY1+6, "DBLJOYVOLUP"},
-	{KEY_DBLJOY1+7, "DBLJOYVOLDOWN"},
-	{KEY_DBLJOY1+8, "DBLJOYSELECT"},
-#define NOMOREJOYBTN_1DBL
-#elif defined (WMINPUT)
-	{KEY_DBLJOY1+0,  "DBLJOYB"},
-	{KEY_DBLJOY1+1,  "DBLJOYA"},
-	{KEY_DBLJOY1+2,  "DBLJOYUP"},
-	{KEY_DBLJOY1+3,  "DBLJOYDOWN"},
-	{KEY_DBLJOY1+4,  "DBLJOYLEFT"},
-	{KEY_DBLJOY1+5,  "DBLJOYRIGHT"},
-	{KEY_DBLJOY1+6,  "DBLJOYa"},
-	{KEY_DBLJOY1+7,  "DBLJOYb"},
-	{KEY_DBLJOY1+8,  "DBLJOYc"},
-	{KEY_DBLJOY1+9,  "DBLJOYx"},
-	{KEY_DBLJOY1+10, "DBLJOYy"},
-	{KEY_DBLJOY1+11, "DBLJOYz"},
-	{KEY_DBLJOY1+12, "DBLJOYL"},
-	{KEY_DBLJOY1+13, "DBLJOYR"},
-	{KEY_DBLJOY1+14, "DBLJOYZL"},
-	{KEY_DBLJOY1+15, "DBLJOYZR"},
-	{KEY_DBLJOY1+16, "DBLJOYSELECT"},
-	{KEY_DBLJOY1+17, "DBLJOYSTART"},
-	{KEY_DBLJOY1+18, "DBLJOYHOME"},
-	{KEY_DBLJOY1+19, "DBLJOYMINUS"},
-	{KEY_DBLJOY1+20, "DBLJOYPLUS"},
-	{KEY_DBLJOY1+21, "DBLJOY_1"},
-	{KEY_DBLJOY1+22, "DBLJOY_2"},
-	{KEY_DBLJOY1+23, "DBLJOY24"},
-	{KEY_DBLJOY1+24, "DBLJOY25"},
-	{KEY_DBLJOY1+25, "DBLJOY26"},
-	{KEY_DBLJOY1+26, "DBLJOY27"},
-	{KEY_DBLJOY1+27, "DBLJOY28"},
-	{KEY_DBLJOY1+28, "DBLJOY29"},
-	{KEY_DBLJOY1+29, "DBLJOY30"},
-	{KEY_DBLJOY1+30, "DBLJOY31"},
-	{KEY_DBLJOY1+31, "DBLJOY32"},
-#define NOMOREJOYBTN_1S
 #else
 	{KEY_DBLJOY1+0, "DBLJOY1"},
 	{KEY_DBLJOY1+1, "DBLJOY2"},
@@ -545,7 +463,7 @@ static keyname_t keynames[] =
 	{KEY_DBLJOY1+6, "DBLJOY7"},
 	{KEY_DBLJOY1+7, "DBLJOY8"},
 #endif
-#if !defined (_arch_dreamcast) && !defined (NOMOREJOYBTN_1DBL)
+#if !defined (_arch_dreamcast) && !defined (_XBOX) && !defined (_PSP)
 	{KEY_DBLJOY1+8, "DBLJOY9"},
 	{KEY_DBLJOY1+9, "DBLJOY10"},
 	{KEY_DBLJOY1+10, "DBLJOY11"},
@@ -614,53 +532,17 @@ static keyname_t keynames[] =
 	{KEY_2JOY1+9, "SEC_JOYN"},
 	{KEY_2JOY1+10,"SEC_JOYW"},
 	{KEY_2JOY1+11,"SEC_JOYE"},
-#define NOMOREJOYBTN_2S
 #elif defined (_PSP)
-	{KEY_2JOY1+0, "SEC_TRIANGLE"},
-	{KEY_2JOY1+1, "SEC_CIRCLE"  },
-	{KEY_2JOY1+2, "SEC_CROSS"   },
-	{KEY_2JOY1+3, "SEC_SQUARE"  },
-	{KEY_2JOY1+4, "SEC_LTRIGGER"},
-	{KEY_2JOY1+5, "SEC_RTRIGGER"},
-	{KEY_2JOY1+6, "SEC_SELECT"  },
-	{KEY_2JOY1+7, "SEC_START"   },
-	{KEY_2JOY1+8, "SEC_HOME"    },
-	{KEY_2JOY1+9, "SEC_HOLD"    },
-#define NOMOREJOYBTN_1S
-#elif defined (WMINPUT)
-	{KEY_2JOY1+0,  "SEC_JOYB"},
-	{KEY_2JOY1+1,  "SEC_JOYA"},
-	{KEY_2JOY1+2,  "SEC_JOYUP"},
-	{KEY_2JOY1+3,  "SEC_JOYDOWN"},
-	{KEY_2JOY1+4,  "SEC_JOYLEFT"},
-	{KEY_2JOY1+5,  "SEC_JOYRIGHT"},
-	{KEY_2JOY1+6,  "SEC_JOYa"},
-	{KEY_2JOY1+7,  "SEC_JOYb"},
-	{KEY_2JOY1+8,  "SEC_JOYc"},
-	{KEY_2JOY1+9,  "SEC_JOYx"},
-	{KEY_2JOY1+10, "SEC_JOYy"},
-	{KEY_2JOY1+11, "SEC_JOYz"},
-	{KEY_2JOY1+12, "SEC_JOYL"},
-	{KEY_2JOY1+13, "SEC_JOYR"},
-	{KEY_2JOY1+14, "SEC_JOYZL"},
-	{KEY_2JOY1+15, "SEC_JOYZR"},
-	{KEY_2JOY1+16, "SEC_JOYSELECT"},
-	{KEY_2JOY1+17, "SEC_JOYSTART"},
-	{KEY_2JOY1+18, "SEC_JOYHOME"},
-	{KEY_2JOY1+19, "SEC_JOYMINUS"},
-	{KEY_2JOY1+20, "SEC_JOYPLUS"},
-	{KEY_2JOY1+21, "SEC_JOY_1"},
-	{KEY_2JOY1+22, "SEC_JOY_2"},
-	{KEY_2JOY1+23, "SEC_JOY24"},
-	{KEY_2JOY1+24, "SEC_JOY25"},
-	{KEY_2JOY1+25, "SEC_JOY26"},
-	{KEY_2JOY1+26, "SEC_JOY27"},
-	{KEY_2JOY1+27, "SEC_JOY28"},
-	{KEY_2JOY1+28, "SEC_JOY29"},
-	{KEY_2JOY1+29, "SEC_JOY30"},
-	{KEY_2JOY1+30, "SEC_JOY31"},
-	{KEY_2JOY1+31, "SEC_JOY32"},
-#define NOMOREJOYBTN_1S
+	{KEY_2JOY1+0, "TRIANGLE"},
+	{KEY_2JOY1+1, "CIRCLE"  },
+	{KEY_2JOY1+2, "CROSS"   },
+	{KEY_2JOY1+3, "SQUARE"  },
+	{KEY_2JOY1+4, "LTRIGGER"},
+	{KEY_2JOY1+5, "RTRIGGER"},
+	{KEY_2JOY1+6, "SELECT"  },
+	{KEY_2JOY1+7, "START"   },
+	{KEY_2JOY1+8, "HOME"    },
+	{KEY_2JOY1+9, "HOLD"    },
 #else
 	{KEY_2JOY1+0, "SEC_JOY1"},
 	{KEY_2JOY1+1, "SEC_JOY2"},
@@ -671,7 +553,7 @@ static keyname_t keynames[] =
 	{KEY_2JOY1+6, "SEC_JOY7"},
 	{KEY_2JOY1+7, "SEC_JOY8"},
 #endif
-#if !defined (_arch_dreamcast) && !defined (NOMOREJOYBTN_1S)
+#if !defined (_arch_dreamcast) && !defined (_XBOX) && !defined (_XBOX_)
 	// we use up to 32 buttons in DirectInput
 	{KEY_2JOY1+8, "SEC_JOY9"},
 	{KEY_2JOY1+9, "SEC_JOY10"},
@@ -742,53 +624,17 @@ static keyname_t keynames[] =
 	{KEY_DBL2JOY1+9, "DBLSEC_JOYN"},
 	{KEY_DBL2JOY1+10,"DBLSEC_JOYW"},
 	{KEY_DBL2JOY1+11,"DBLSEC_JOYE"},
-NOMOREJOYBTN_2DBL
 #elif defined (_PSP)
-	{KEY_DBL2JOY1+0, "DBLSEC_TRIANGLE"},
-	{KEY_DBL2JOY1+1, "DBLSEC_CIRCLE"  },
-	{KEY_DBL2JOY1+2, "DBLSEC_CROSS"   },
-	{KEY_DBL2JOY1+3, "DBLSEC_SQUARE"  },
-	{KEY_DBL2JOY1+4, "DBLSEC_LTRIGGER"},
-	{KEY_DBL2JOY1+5, "DBLSEC_RTRIGGER"},
-	{KEY_DBL2JOY1+6, "DBLSEC_SELECT"  },
-	{KEY_DBL2JOY1+7, "DBLSEC_START"   },
-	{KEY_DBL2JOY1+8, "DBLSEC_HOME"    },
-	{KEY_DBL2JOY1+9, "DBLSEC_HOLD"    },
-#define NOMOREJOYBTN_2DBL
-#elif defined (WMINPUT)
-	{KEY_DBL2JOY1+0,  "DBLSEC_JOYB"},
-	{KEY_DBL2JOY1+1,  "DBLSEC_JOYA"},
-	{KEY_DBL2JOY1+2,  "DBLSEC_JOYUP"},
-	{KEY_DBL2JOY1+3,  "DBLSEC_JOYDOWN"},
-	{KEY_DBL2JOY1+4,  "DBLSEC_JOYLEFT"},
-	{KEY_DBL2JOY1+5,  "DBLSEC_JOYRIGHT"},
-	{KEY_DBL2JOY1+6,  "DBLSEC_JOYa"},
-	{KEY_DBL2JOY1+7,  "DBLSEC_JOYb"},
-	{KEY_DBL2JOY1+8,  "DBLSEC_JOYc"},
-	{KEY_DBL2JOY1+9,  "DBLSEC_JOYx"},
-	{KEY_DBL2JOY1+10, "DBLSEC_JOYy"},
-	{KEY_DBL2JOY1+11, "DBLSEC_JOYz"},
-	{KEY_DBL2JOY1+12, "DBLSEC_JOYL"},
-	{KEY_DBL2JOY1+13, "DBLSEC_JOYR"},
-	{KEY_DBL2JOY1+14, "DBLSEC_JOYZL"},
-	{KEY_DBL2JOY1+15, "DBLSEC_JOYZR"},
-	{KEY_DBL2JOY1+16, "DBLSEC_JOYSELECT"},
-	{KEY_DBL2JOY1+17, "DBLSEC_JOYSTART"},
-	{KEY_DBL2JOY1+18, "DBLSEC_JOYHOME"},
-	{KEY_DBL2JOY1+19, "DBLSEC_JOYMINUS"},
-	{KEY_DBL2JOY1+20, "DBLSEC_JOYPLUS"},
-	{KEY_DBL2JOY1+21, "DBLSEC_JOY_1"},
-	{KEY_DBL2JOY1+22, "DBLSEC_JOY_2"},
-	{KEY_DBL2JOY1+23, "DBLSEC_JOY24"},
-	{KEY_DBL2JOY1+24, "DBLSEC_JOY25"},
-	{KEY_DBL2JOY1+25, "DBLSEC_JOY26"},
-	{KEY_DBL2JOY1+26, "DBLSEC_JOY27"},
-	{KEY_DBL2JOY1+27, "DBLSEC_JOY28"},
-	{KEY_DBL2JOY1+28, "DBLSEC_JOY29"},
-	{KEY_DBL2JOY1+29, "DBLSEC_JOY30"},
-	{KEY_DBL2JOY1+30, "DBLSEC_JOY31"},
-	{KEY_DBL2JOY1+31, "DBLSEC_JOY32"},
-#define NOMOREJOYBTN_1S
+	{KEY_DBL2JOY1+0, "DBLTRIANGLE"},
+	{KEY_DBL2JOY1+1, "DBLCIRCLE"  },
+	{KEY_DBL2JOY1+2, "DBLCROSS"   },
+	{KEY_DBL2JOY1+3, "DBLSQUARE"  },
+	{KEY_DBL2JOY1+4, "DBLLTRIGGER"},
+	{KEY_DBL2JOY1+5, "DBLRTRIGGER"},
+	{KEY_DBL2JOY1+6, "DBLSELECT"  },
+	{KEY_DBL2JOY1+7, "DBLSTART"   },
+	{KEY_DBL2JOY1+8, "DBLHOME"    },
+	{KEY_DBL2JOY1+9, "DBLHOLD"    },
 #else
 	{KEY_DBL2JOY1+0, "DBLSEC_JOY1"},
 	{KEY_DBL2JOY1+1, "DBLSEC_JOY2"},
@@ -799,7 +645,7 @@ NOMOREJOYBTN_2DBL
 	{KEY_DBL2JOY1+6, "DBLSEC_JOY7"},
 	{KEY_DBL2JOY1+7, "DBLSEC_JOY8"},
 #endif
-#if !defined (_arch_dreamcast) && !defined (NOMOREJOYBTN_2DBL)
+#if !defined (_arch_dreamcast) && !defined (_XBOX) && !defined (_PSP)
 	{KEY_DBL2JOY1+8, "DBLSEC_JOY9"},
 	{KEY_DBL2JOY1+9, "DBLSEC_JOY10"},
 	{KEY_DBL2JOY1+10, "DBLSEC_JOY11"},
@@ -1070,34 +916,7 @@ void G_Controldefault(void)
 	gamecontrol[gc_jump       ][1] = KEY_MOUSE1+1;
 	gamecontrol[gc_console    ][0] = KEY_CONSOLE;
 	gamecontrol[gc_pause      ][0] = KEY_PAUSE;
-#ifdef WMINPUT
-	gamecontrol[gc_forward    ][0] = KEY_JOY1+02; //UP
-	gamecontrol[gc_backward   ][0] = KEY_JOY1+03; //DOWN
-	gamecontrol[gc_turnleft   ][0] = KEY_JOY1+04; //LEFT
-	gamecontrol[gc_turnright  ][0] = KEY_JOY1+05; //RIGHIT
-	gamecontrol[gc_weaponnext ][0] = KEY_JOY1+10; //y
-	gamecontrol[gc_weaponprev ][0] = KEY_JOY1+9; //x
-	gamecontrol[gc_fire       ][0] = KEY_JOY1+12; //L
-	gamecontrol[gc_firenormal ][0] = KEY_JOY1+13; //R
-	gamecontrol[gc_use        ][0] = KEY_JOY1+00; //B
-	gamecontrol[gc_use        ][1] = KEY_JOY1+07; //b
-	gamecontrol[gc_jump       ][0] = KEY_JOY1+01; //A
-	gamecontrol[gc_jump       ][1] = KEY_JOY1+06; //a
-	gamecontrol[gc_pause      ][0] = KEY_JOY1+18; //Home
-	gamecontrolbis[gc_forward    ][0] = KEY_2JOY1+02; //UP
-	gamecontrolbis[gc_backward   ][0] = KEY_2JOY1+03; //DOWN
-	gamecontrolbis[gc_turnleft   ][0] = KEY_2JOY1+04; //LEFT
-	gamecontrolbis[gc_turnright  ][0] = KEY_2JOY1+05; //RIGHIT
-	gamecontrolbis[gc_weaponnext ][0] = KEY_2JOY1+10; //y
-	gamecontrolbis[gc_weaponprev ][0] = KEY_2JOY1+9; //x
-	gamecontrolbis[gc_fire       ][0] = KEY_2JOY1+12; //L
-	gamecontrolbis[gc_firenormal ][0] = KEY_2JOY1+13; //R
-	gamecontrolbis[gc_use        ][0] = KEY_2JOY1+00; //B
-	gamecontrolbis[gc_use        ][1] = KEY_2JOY1+07; //b
-	gamecontrolbis[gc_jump       ][0] = KEY_2JOY1+01; //A
-	gamecontrolbis[gc_jump       ][1] = KEY_2JOY1+06; //a
-	gamecontrolbis[gc_pause      ][0] = KEY_2JOY1+18; //Home
-#endif
+
 }
 #endif
 

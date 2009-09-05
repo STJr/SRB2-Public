@@ -432,7 +432,7 @@ static void D_Display(void)
 		else
 			py = viewwindowy + 4;
 		patch = W_CachePatchName("M_PAUSE", PU_CACHE);
-		V_DrawScaledPatch(viewwindowx + (BASEVIDWIDTH - SHORT(patch->width))/2, py, 0, patch);
+		V_DrawScaledPatch(viewwindowx + (BASEVIDWIDTH - patch->width)/2, py, 0, patch);
 	}
 
 	// vid size change is now finished if it was on...
@@ -925,7 +925,7 @@ void D_SRB2Main(void)
 	boolean autostart = false;
 
 	// keep error messages until the final flush(stderr)
-#if !defined (PC_DOS) && !defined (_WIN32_WCE) && !defined(NOTERMIOS)
+#if !defined (PC_DOS) && !defined (_WIN32_WCE)
 	if (setvbuf(stderr, NULL, _IOFBF, 1000))
 		CONS_Printf("%s", text[SETVBUF_FAIL]);
 #endif
@@ -939,7 +939,7 @@ void D_SRB2Main(void)
 	// identify the main IWAD file to use
 	IdentifyVersion();
 
-#if !defined (_WIN32_WCE) && !defined(NOTERMIOS)
+#ifndef _WIN32_WCE
 	setbuf(stdout, NULL); // non-buffered output
 #endif
 

@@ -653,7 +653,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 		if (!(oldpatch && patch))
 			return;
 
-		for (x = 0; x < SHORT(oldpatch->width); x++)
+		for (x = 0; x < oldpatch->width; x++)
 		{
 			column = (column_t *)((byte *)oldpatch + LONG(oldpatch->columnofs[x]));
 			destcol = (column_t *)((byte *)patch + LONG(patch->columnofs[x]));

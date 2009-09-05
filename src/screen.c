@@ -179,9 +179,7 @@ void SCR_Startup(void)
 	const CPUInfoFlags *RCpuInfo = I_CPUInfo();
 	if (!M_CheckParm("-NOCPUID") && RCpuInfo)
 	{
-#if defined (__i386__) || defined (_M_IX86) || defined (__WATCOMC__)
 		R_486 = true;
-#endif
 		if (RCpuInfo->RDTSC)
 			R_586 = true;
 		if (RCpuInfo->MMX)

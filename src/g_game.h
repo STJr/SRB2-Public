@@ -76,12 +76,12 @@ void G_DeathMatchSpawnPlayer(int playernum);
 void G_CoopSpawnPlayer(int playernum, boolean starpost);
 void G_PlayerReborn(int player);
 void G_DoCompleted(void);
-void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer,
+void G_InitNew(boolean ultmode, const char *mapname, boolean resetplayer,
 	boolean skipprecutscene);
 
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1, but a warp test can start elsewhere
-void G_DeferedInitNew(boolean pultmode, const char *mapname, int pickedchar,
+void G_DeferedInitNew(boolean ultmode, const char *mapname, int pickedchar,
 	boolean SSSG, boolean FLS);
 void G_DoLoadLevel(boolean resetplayer);
 

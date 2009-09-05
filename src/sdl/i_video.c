@@ -128,7 +128,11 @@ static int numVidModes = -1;
 */
 static char vidModeName[33][32]; // allow 33 different modes
 
+#if defined(__BIG_ENDIAN__) && defined(HWRENDER) // Software code don't work in big endian systems
+rendermode_t rendermode=render_opengl;
+#else
 rendermode_t rendermode=render_soft;
+#endif
 
 boolean highcolor = false;
 
@@ -233,7 +237,7 @@ static void SDLSetMode(int width, int height, int bpp, Uint32 flags)
 #ifdef FILTERS
 	bpp = Setupf2x(width, height, bpp);
 #endif
-	if (SDLVD && strncasecmp(SDLVD,"glSDL",6) == 0) //for glSDL videodriver
+	if (SDLVD && strcmp(SDLVD,"glSDL")) //for glSDL videodriver
 		vidSurface = SDL_SetVideoMode(width, height,0,SDL_DOUBLEBUF);
 	else if (cv_vidwait.value && videoblitok && SDL_VideoModeOK(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF) >= bpp)
 		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF);
@@ -634,7 +638,7 @@ static void VID_Command_ModeList_f(void)
 #if !defined (DC) && !defined (_WIN32_WCE)
 	int i;
 #ifdef HWRENDER
-	if (rendermode == render_opengl)
+	if (rendermode == render_opengl || M_CheckParm("-opengl"))
 		modeList = SDL_ListModes(NULL, SDL_OPENGL|SDL_FULLSCREEN);
 	else
 #endif
@@ -993,10 +997,10 @@ void I_GetEvent(void)
 		switch (inputEvent.type)
 		{
 			case SDL_ACTIVEEVENT:
-				if (inputEvent.active.state  & (SDL_APPACTIVE|SDL_APPINPUTFOCUS))
+				if (SDL_APPACTIVE & inputEvent.active.state || SDL_APPINPUTFOCUS & inputEvent.active.state)
 				{
 					// pause music when alt-tab
-					if (inputEvent.active.gain /*&& !paused */)
+					if ( inputEvent.active.gain /*&& !paused */)
 					{
 						static SDL_bool firsttimeonmouse = SDL_TRUE;
 						if (!firsttimeonmouse)
@@ -1011,7 +1015,7 @@ void I_GetEvent(void)
 					else /*if (!paused)*/
 					{
 						if (!disable_mouse)
-							SDLforceUngrabMouse();
+							SDLdoUngrabMouse();
 						if (!netgame && gamestate == GS_LEVEL) paused = true;
 						memset(gamekeydown, 0, NUMKEYS);
 						//S_PauseSound();
@@ -1038,7 +1042,7 @@ void I_GetEvent(void)
 					SDLdoUngrabMouse();
 					break;
 				}
-				if ((SDL_APPMOUSEFOCUS&inputEvent.active.state) && USE_MOUSEINPUT && inputEvent.active.gain)
+				if ((SDL_APPMOUSEFOCUS&inputEvent.active.state) && USE_MOUSEINPUT && !inputEvent.active.gain)
 					HalfWarpMouse(realwidth, realheight);
 				break;
 			case SDL_KEYDOWN:
@@ -1352,16 +1356,13 @@ static inline boolean I_SkipFrame(void)
 {
 	static boolean skip = false;
 
-	if (rendermode == render_opengl)
-		return true; //WTH?
-
 	if (render_soft != rendermode)
 		return false;
 
 	skip = !skip;
 
 #if (defined (GP2X) || defined (PSP) || defined (_arch_dreamcast))
-	//return skip;
+	return skip;
 #endif
 
 	switch (gamestate)
@@ -1754,13 +1755,11 @@ static inline void SDLWMSet(void)
 
 static void* SDLGetDirect(void)
 {
-#ifndef __MACH__ // Do not directly access the MacOSX's OpenGL memory
 	if (!SDL_MUSTLOCK(vidSurface) && SDLmatchVideoformat())
 	{
 		vid.rowbytes = vidSurface->pitch;
 		return vidSurface->pixels;
 	}
-#endif // you can not use the video memory in pixels member in fullscreen mode
 	return NULL;
 }
 
@@ -1920,8 +1919,6 @@ void I_StartupGraphics(void)
 	{
 		char vd[100]; //stack space for video name
 		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
-		if (strncasecmp(vd, "directfb", 9) == 0 || strncasecmp(vd, "gcvideo", 8) == 0)
-			framebuffer = SDL_TRUE;
 	}
 	if (M_CheckParm("-software"))
 		rendermode = render_soft;
@@ -1991,22 +1988,18 @@ void I_StartupGraphics(void)
 		vid.width = 640; // hack to make voodoo cards work in 640x480
 		vid.height = 480;
 #endif
-		if (HWD.pfnInit(I_Error)) // let load the OpenGL library
-		{
-			/*
-			* We want at least 1 bit R, G, and B,
-			* and at least 16 bpp. Why 1 bit? May be more?
-			*/
-			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
-			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
-			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-			if (!OglSdlSurface(vid.width, vid.height, (USE_FULLSCREEN)))
-				if (!OglSdlSurface(vid.width, vid.height, !(USE_FULLSCREEN)))
-					rendermode = render_soft;
-		}
-		else
-			rendermode = render_soft;
+		HWD.pfnInit(I_Error); // let load the OpenGL library
+		/*
+		 * We want at least 1 bit R, G, and B,
+		 * and at least 16 bpp. Why 1 bit? May be more?
+		 */
+		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
+		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
+		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+		if (!OglSdlSurface(vid.width, vid.height, (USE_FULLSCREEN)))
+			if (!OglSdlSurface(vid.width, vid.height, !(USE_FULLSCREEN)))
+				rendermode = render_soft;
 	}
 #else
 	rendermode = render_soft; //force software mode when there no HWRENDER code
@@ -2036,7 +2029,7 @@ void I_StartupGraphics(void)
 		char videodriver[4] = {'S','D','L',0};
 		if (!M_CheckParm("-mousegrab") &&
 		    SDL_VideoDriverName(videodriver,4) &&
-		    strncasecmp("X11",videodriver,4) == 0)
+		    !strncasecmp("X11",videodriver,4))
 			mousegrabok = SDL_FALSE; //X11's XGrabPointer not good
 	}
 #endif
@@ -2090,5 +2083,5 @@ void I_ShutdownGraphics(void)
 #ifndef _arch_dreamcast
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
-	framebuffer = SDL_FALSE;
+
 }

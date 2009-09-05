@@ -318,7 +318,7 @@ static void V_DrawTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch,
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
 			}
 			// if it's meant to cover the whole screen, black out the rest
-			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
+			if (x == 0 && patch->width == BASEVIDWIDTH && y == 0 && patch->height == BASEVIDHEIGHT)
 				V_DrawFill(0, 0, vid.width, vid.height, 31);
 		}
 	}
@@ -418,7 +418,7 @@ void V_DrawMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *color
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
 			}
 			// if it's meant to cover the whole screen, black out the rest
-			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
+			if (x == 0 && patch->width == BASEVIDWIDTH && y == 0 && patch->height == BASEVIDHEIGHT)
 				V_DrawFill(0, 0, vid.width, vid.height, 31);
 		}
 	}
@@ -526,7 +526,7 @@ void V_DrawScaledPatch(int x, int y, int scrn, patch_t *patch)
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
 			}
 			// if it's meant to cover the whole screen, black out the rest
-			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
+			if (x == 0 && patch->width == BASEVIDWIDTH && y == 0 && patch->height == BASEVIDHEIGHT)
 				V_DrawFill(0, 0, vid.width, vid.height, 31);
 		}
 	}
@@ -798,7 +798,7 @@ void V_DrawSmallScaledPatch(int x, int y, int scrn, patch_t *patch)
 		}
 
 		// if it's meant to cover the whole screen, black out the rest
-		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
+		if (x == 0 && patch->width == BASEVIDWIDTH*2 && y == 0 && patch->height == BASEVIDHEIGHT*2)
 			V_DrawFill(0, 0, vid.width, vid.height, 31);
 	}
 
@@ -961,7 +961,7 @@ void V_DrawSmallTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch, c
 		}
 
 		// if it's meant to cover the whole screen, black out the rest
-		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
+		if (x == 0 && patch->width == BASEVIDWIDTH*2 && y == 0 && patch->height == BASEVIDHEIGHT*2)
 			V_DrawFill(0, 0, vid.width, vid.height, 31);
 	}
 
@@ -1124,7 +1124,7 @@ void V_DrawSmallTranslucentPatch(int x, int y, int scrn, patch_t *patch)
 		}
 
 		// if it's meant to cover the whole screen, black out the rest
-		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
+		if (x == 0 && patch->width == BASEVIDWIDTH*2 && y == 0 && patch->height == BASEVIDHEIGHT*2)
 			V_DrawFill(0, 0, vid.width, vid.height, 31);
 	}
 
@@ -1281,7 +1281,7 @@ void V_DrawSmallMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *
 		}
 
 		// if it's meant to cover the whole screen, black out the rest
-		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
+		if (x == 0 && patch->width == BASEVIDWIDTH*2 && y == 0 && patch->height == BASEVIDHEIGHT*2)
 			V_DrawFill(0, 0, vid.width, vid.height, 31);
 	}
 
@@ -1440,7 +1440,7 @@ void V_DrawTranslucentPatch(int x, int y, int scrn, patch_t *patch)
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
 			}
 			// if it's meant to cover the whole screen, black out the rest
-			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
+			if (x == 0 && patch->width == BASEVIDWIDTH && y == 0 && patch->height == BASEVIDHEIGHT)
 				V_DrawFill(0, 0, vid.width, vid.height, 31);
 		}
 	}
@@ -1781,7 +1781,7 @@ void V_DrawFlatFill(int x, int y, int w, int h, lumpnum_t flatnum)
 //
 void V_DrawPatchFill(patch_t *pat)
 {
-	int x, y, pw = SHORT(pat->width) * vid.dupx, ph = SHORT(pat->height) * vid.dupy;
+	int x, y, pw = pat->width * vid.dupx, ph = pat->height * vid.dupy;
 
 	for (x = 0; x < vid.width; x += pw)
 	{
@@ -1985,7 +1985,7 @@ void V_DrawCharacter(int x, int y, int c, boolean lowercaseallowed)
 	if (c < 0 || (c >= HU_REALFONTSIZE && c != '~' - HU_FONTSTART && c != '`' - HU_FONTSTART))
 		return;
 
-	w = SHORT(hu_font[c]->width);
+	w = hu_font[c]->width;
 	if (x + w > vid.width)
 		return;
 
@@ -2040,7 +2040,7 @@ void V_DrawString(int x, int y, int option, const char *string)
 			continue;
 		}
 
-		w = SHORT(hu_font[c]->width) * dupx;
+		w = hu_font[c]->width * dupx;
 		if (cx + w > scrwidth)
 			break;
 
@@ -2132,7 +2132,7 @@ void V_DrawCreditString(int x, int y, int option, const char *string)
 			continue;
 		}
 
-		w = SHORT(cred_font[c]->width) * dupx;
+		w = cred_font[c]->width * dupx;
 		if (cx + w > scrwidth)
 			break;
 
@@ -2154,7 +2154,7 @@ int V_CreditStringWidth(const char *string)
 		if (c < 0 || c >= CRED_FONTSIZE)
 			w += 8;
 		else
-			w += SHORT(cred_font[c]->width);
+			w += cred_font[c]->width;
 	}
 
 	return w;
@@ -2198,7 +2198,7 @@ void V_DrawLevelTitle(int x, int y, int option, const char *string)
 
 		c -= LT_FONTSTART;
 
-		w = SHORT(lt_font[c]->width) * dupx;
+		w = lt_font[c]->width * dupx;
 		if (cx + w > scrwidth)
 			break;
 
@@ -2220,7 +2220,7 @@ int V_LevelNameWidth(const char *string)
 		if (c < 0 || (c > 0 && c < LT_REALFONTSTART - LT_FONTSTART) || c >= LT_FONTSIZE)
 			w += 16;
 		else
-			w += SHORT(lt_font[c]->width);
+			w += lt_font[c]->width;
 	}
 
 	return w;
@@ -2240,8 +2240,8 @@ int V_LevelNameHeight(const char *string)
 		    || hu_font[c] == NULL)
 			continue;
 
-		if (SHORT(lt_font[c]->height) > w)
-			w = SHORT(lt_font[c]->height);
+		if (lt_font[c]->height > w)
+			w = lt_font[c]->height;
 	}
 
 	return w;
@@ -2264,7 +2264,7 @@ int V_StringWidth(const char *string)
 			w += 4;
 		}
 		else
-			w += SHORT(hu_font[c]->width);
+			w += hu_font[c]->width;
 	}
 
 	return w;
@@ -2288,7 +2288,7 @@ void V_DoPostProcessor(postimg_t type)
 		return;
 #endif
 
-#if NUMSCREENS < 4
+#if defined (_WIN32_WCE) || defined (__arm__) || defined (__sh__) || defined (__mips__)
 	return; // do not enable image post processing for ARM, SH and MIPS CPUs
 #endif
 

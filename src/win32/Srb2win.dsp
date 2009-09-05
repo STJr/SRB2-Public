@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"..\..\objs\Release\Srb2win.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 dxguid.lib user32.lib gdi32.lib winmm.lib advapi32.lib wsock32.lib dinput.lib /nologo /subsystem:windows /pdb:"C:\srb2demo2\srb2.pdb" /debug /machine:I386 /out:"C:\srb2demo2\srb2win.exe"
+# ADD LINK32 dxguid.lib user32.lib gdi32.lib winmm.lib advapi32.lib wsock32.lib dinput.lib /nologo /subsystem:windows /pdb:"c:\srb2demo2\srb2.pdb" /debug /machine:I386 /out:"c:\srb2demo2\srb2win.exe"
 # SUBTRACT LINK32 /profile /pdb:none /incremental:yes /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "Srb2win - Win32 Debug"

@@ -41,7 +41,7 @@
 // protos.
 //========
 static boolean COM_Exists(const char *com_name);
-static void COM_ExecuteString(char *com_text);
+static void COM_ExecuteString(char *text);
 
 static void COM_Alias_f(void);
 static void COM_Echo_f(void);

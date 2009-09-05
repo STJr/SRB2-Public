@@ -20,7 +20,6 @@
 #define __sdlmain__
 
 extern SDL_bool consolevent;
-extern SDL_bool framebuffer;
 
 /**	\brief	The JoyInfo_s struct
 

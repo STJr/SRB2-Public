@@ -206,7 +206,7 @@ static byte *R_GenerateTexture(size_t texnum)
 		texturecolumnofs[texnum] = colofs;
 		blocktex = block;
 		for (i = 0; i < texture->width; i++)
-			colofs[i] = LONG(LONG(colofs[i]) + 3);
+			colofs[i] += 3;
 		goto done;
 	}
 
@@ -246,9 +246,9 @@ static byte *R_GenerateTexture(size_t texnum)
 			patchcol = (column_t *)((byte *)realpatch + LONG(realpatch->columnofs[x-x1]));
 
 			// generate column ofset lookup
-			colofs[x] = LONG((x * texture->height) + (texture->width*4));
+			colofs[x] = (x * texture->height) + (texture->width*4);
 
-			R_DrawColumnInCache(patchcol, block + LONG(colofs[x]), patch->originy, texture->height);
+			R_DrawColumnInCache(patchcol, block + colofs[x], patch->originy, texture->height);
 		}
 	}
 
@@ -272,7 +272,7 @@ byte *R_GetColumn(fixed_t tex, int col)
 	if (!data)
 		data = R_GenerateTexture(tex);
 
-	return data + LONG(texturecolumnofs[tex][col]);
+	return data + texturecolumnofs[tex][col];
 }
 
 // convert flats to hicolor as they are requested
@@ -561,7 +561,6 @@ void R_ClearColormaps(void)
 
 	for (i = 0; i < MAXCOLORMAPS; i++)
 		foundcolormaps[i] = LUMPERROR;
-
 	memset(extra_colormaps, 0, sizeof (extra_colormaps));
 }
 
@@ -570,7 +569,7 @@ long R_ColormapNumForName(char *name)
 	lumpnum_t lump, i;
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
+		I_Error("R_ColormapNumForName: Too many colormaps!\n");
 
 	lump = R_CheckNumForNameList(name, colormaplumps, numcolormaplumps);
 	if (lump == LUMPERROR)
@@ -697,7 +696,7 @@ long R_CreateColormap(char *p1, char *p2, char *p3)
 	}
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
+		I_Error("R_CreateColormap: Too many colormaps!\n");
 
 	strncpy(colormapFixingArray[num_extra_colormaps][0], p1, 8);
 	strncpy(colormapFixingArray[num_extra_colormaps][1], p2, 8);
@@ -844,8 +843,7 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 	}
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
-
+		I_Error("R_CreateColormap: Too many colormaps!\n");
 	num_extra_colormaps++;
 
 	if (rendermode == render_soft)
@@ -971,7 +969,7 @@ const char *R_ColormapNameForNum(int num)
 		return "NONE";
 
 	if (num < 0 || num > MAXCOLORMAPS)
-		I_Error("R_ColormapNameForNum: num %d is invalid!\n", num);
+		I_Error("R_ColormapNameForNum: num is invalid!\n");
 
 	if (foundcolormaps[num] == LUMPERROR)
 		return "INLEVEL";

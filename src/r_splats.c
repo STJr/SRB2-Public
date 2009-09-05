@@ -159,8 +159,8 @@ void R_AddWallSplat(line_t *wallline, short sectorside, const char *patchname, f
 	// offset needed by draw code for texture mapping
 	flinelength = P_SegLength((seg_t *)wallline);
 	linelength = (fixed_t)flinelength;
-	splat->offset = FixedMul(wallfrac, linelength) - (SHORT(patch->width)<<(FRACBITS-1));
-	fracsplat = FixedDiv(((SHORT(patch->width)<<FRACBITS)>>1), linelength);
+	splat->offset = FixedMul(wallfrac, linelength) - (patch->width<<(FRACBITS-1));
+	fracsplat = FixedDiv(((patch->width<<FRACBITS)>>1), linelength);
 
 	wallfrac -= fracsplat;
 	if (wallfrac > linelength)

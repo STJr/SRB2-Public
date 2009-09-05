@@ -234,21 +234,21 @@ void Y_IntermissionDrawer(void)
 		if (mapheaderinfo[gamemap-1].actnum)
 			V_DrawScaledPatch(244, 57, 0, data.coop.ttlnum);
 
-		V_DrawScaledPatch(68, 84 + 3*SHORT(tallnum[0]->height)/2, 0, data.coop.ptimebonus);
-		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 3*SHORT(tallnum[0]->height)/2, data.coop.timebonus);
+		V_DrawScaledPatch(68, 84 + 3*tallnum[0]->height/2, 0, data.coop.ptimebonus);
+		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 3*tallnum[0]->height/2, data.coop.timebonus);
 
-		V_DrawScaledPatch(68, 84 + 3*SHORT(tallnum[0]->height), 0, data.coop.pringbonus);
-		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 3*SHORT(tallnum[0]->height), data.coop.ringbonus);
+		V_DrawScaledPatch(68, 84 + 3*tallnum[0]->height, 0, data.coop.pringbonus);
+		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 3*tallnum[0]->height, data.coop.ringbonus);
 
 		//PERFECT BONUS
 		if (data.coop.gotperfbonus)
 		{
-			V_DrawScaledPatch(56, 84 + ((9*SHORT(tallnum[0]->height))+1)/2, 0, data.coop.pperfbonus);
-			Y_DrawNum(BASEVIDWIDTH - 68, 85 + ((9*SHORT(tallnum[0]->height))+1)/2, data.coop.perfbonus);
+			V_DrawScaledPatch(56, 84 + ((9*tallnum[0]->height)+1)/2, 0, data.coop.pperfbonus);
+			Y_DrawNum(BASEVIDWIDTH - 68, 85 + ((9*tallnum[0]->height)+1)/2, data.coop.perfbonus);
 		}
 
-		V_DrawScaledPatch(88, 84 + 6*SHORT(tallnum[0]->height), 0, data.coop.ptotal);
-		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 6*SHORT(tallnum[0]->height), data.coop.total);
+		V_DrawScaledPatch(88, 84 + 6*tallnum[0]->height, 0, data.coop.ptotal);
+		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 6*tallnum[0]->height, data.coop.total);
 
 		if (gottimebonus && endtic != -1)
 			V_DrawCenteredString(BASEVIDWIDTH/2, 136, V_YELLOWMAP, "GOT TIME BONUS EMBLEM!");
@@ -324,7 +324,7 @@ void Y_IntermissionDrawer(void)
 
 		for (i = 0; i < data.match.numplayers; i++)
 		{
-			char strtime[10];
+			char time[10];
 
 			if (data.match.spectator[i])
 				continue; //Ignore spectators.
@@ -360,12 +360,12 @@ void Y_IntermissionDrawer(void)
 						V_DrawRightAlignedString(x+152, y, 0, va("%lu", data.match.scores[i]));
 					else if (inttype == int_race)
 					{
-						snprintf(strtime, sizeof strtime,
+						snprintf(time, sizeof time,
 							"%i:%02i.%02i",
 							G_TicsToMinutes(data.match.scores[i], true),
 							G_TicsToSeconds(data.match.scores[i]), G_TicsToCentiseconds(data.match.scores[i]));
-						strtime[sizeof strtime - 1] = '\0';
-						V_DrawRightAlignedString(x+152, y, 0, strtime);
+						time[sizeof time - 1] = '\0';
+						V_DrawRightAlignedString(x+152, y, 0, time);
 					}
 				}
 				else
@@ -377,24 +377,24 @@ void Y_IntermissionDrawer(void)
 						if (players[data.match.num[i]].pflags & PF_TIMEOVER)
 						{
 							if (data.match.numplayers > 9)
-								snprintf(strtime, sizeof strtime, "TIME O.");
+								snprintf(time, sizeof time, "TIME O.");
 							else
-								snprintf(strtime, sizeof strtime, "TIME OVER");
+								snprintf(time, sizeof time, "TIME OVER");
 						}
 						else if (players[data.match.num[i]].lives <= 0)
 						{
 							if (data.match.numplayers > 9)
-								snprintf(strtime, sizeof strtime, "GAME O.");
+								snprintf(time, sizeof time, "GAME O.");
 							else
-								snprintf(strtime, sizeof strtime, "GAME OVER");
+								snprintf(time, sizeof time, "GAME OVER");
 						}
 						else
-							snprintf(strtime, sizeof strtime, "%i:%02i.%02i", G_TicsToMinutes(data.match.scores[i], true),
+							snprintf(time, sizeof time, "%i:%02i.%02i", G_TicsToMinutes(data.match.scores[i], true),
 									G_TicsToSeconds(data.match.scores[i]), G_TicsToCentiseconds(data.match.scores[i]));
 
-						strtime[sizeof strtime - 1] = '\0';
+						time[sizeof time - 1] = '\0';
 
-						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, strtime);
+						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, time);
 					}
 				}
 			}
@@ -415,10 +415,10 @@ void Y_IntermissionDrawer(void)
 		char name[MAXPLAYERNAME+1];
 
 		// Show the team flags and the team score at the top instead of "RESULTS"
-		V_DrawSmallScaledPatch(128 - SHORT(data.match.blueflag->width)/4, 2, 0, data.match.blueflag);
+		V_DrawSmallScaledPatch(128 - data.match.blueflag->width/4, 2, 0, data.match.blueflag);
 		V_DrawCenteredString(128, 16, 0, va("%lu", bluescore));
 
-		V_DrawSmallScaledPatch(192 - SHORT(data.match.redflag->width)/4, 2, 0, data.match.redflag);
+		V_DrawSmallScaledPatch(192 - data.match.redflag->width/4, 2, 0, data.match.redflag);
 		V_DrawCenteredString(192, 16, 0, va("%lu", redscore));
 
 		// draw the level name
@@ -1432,7 +1432,7 @@ static void Y_CalculateRaceWinners(void)
 	int winners[5], numwins[MAXPLAYERS];
 	int i = 0, n = 0, ring, totalring, itembox, wins;
 	int numplayersingame;
-	ULONG score = 0, racetime;
+	ULONG score = 0, time;
 
 	// Everyone has zero wins.
 	memset(numwins, 0, sizeof (int)*MAXPLAYERS);
@@ -1463,19 +1463,19 @@ static void Y_CalculateRaceWinners(void)
 		winners[0] = -1; // tie
 
 	// Find the lowest time.
-	for (i = 0, n = 0, racetime = leveltime; i < MAXPLAYERS; i++)
+	for (i = 0, n = 0, time = leveltime; i < MAXPLAYERS; i++)
 	{
-		if (!playeringame[i] || players[i].realtime > racetime)
+		if (!playeringame[i] || players[i].realtime > time)
 			continue;
 
-		if (players[i].realtime == racetime)
+		if (players[i].realtime == time)
 		{
 			n++;
 			continue;
 		}
 
 		n = 1; // number of players with this time
-		racetime = players[i].realtime; // best time so far
+		time = players[i].realtime; // best time so far
 		winners[1] = i; // winner so far
 	}
 
@@ -1684,7 +1684,7 @@ static void Y_CalculateRaceWinners(void)
 //
 static void Y_DrawScaledNum(int x, int y, int flags, int num)
 {
-	int w = SHORT(tallnum[0]->width);
+	int w = (tallnum[0]->width);
 
 	// special case for 0
 	if (!num)

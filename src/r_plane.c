@@ -150,7 +150,7 @@ static int waterofs;
 static boolean itswater;
 
 #ifdef __mips__
-//#define NOWATER
+#define NOWATER
 #endif
 
 #ifndef NOWATER

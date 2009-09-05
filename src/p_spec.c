@@ -2493,12 +2493,12 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 		case 437: // Disable Player Controls
 			if (mo->player)
 				{
-				fixed_t fractime = (fixed_t)sides[line->sidenum[0]].textureoffset>>FRACBITS;
-				if (fractime < 1)
-					fractime = 1; //instantly wears off upon leaving
+				long time = sides[line->sidenum[0]].textureoffset>>FRACBITS;
+				if (time < 1)
+					time = 1; //instantly wears off upon leaving
 				if (line->flags & ML_NOCLIMB)
-					fractime += FRACUNIT; //more crazy &ing, as if music stuff wasn't enough
-				mo->player->powers[pw_nocontrol] = fractime;
+					time += 65536; //more crazy &ing, as if music stuff wasn't enough
+				mo->player->powers[pw_nocontrol] = time;
 				}
 			break;
 

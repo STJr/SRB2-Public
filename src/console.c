@@ -1162,7 +1162,7 @@ static inline void CON_DrawBackpic2(pic_t *pic, int startx, int destwidth)
 		src = pic->data + v*SHORT(pic->width);
 
 		// in case of the console backpic, simplify
-		if (SHORT(pic->width) == destwidth)
+		if (pic->width == destwidth)
 			memcpy(dest, src, destwidth);
 		else
 		{
