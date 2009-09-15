@@ -772,7 +772,7 @@ static void F_WriteText(int cx, int cy)
 			continue;
 		}
 
-		w = hu_font[c]->width;
+		w = SHORT(hu_font[c]->width);
 		if (cx + w > vid.width)
 			break;
 		V_DrawScaledPatch(cx, cy, 0, hu_font[c]);
@@ -824,7 +824,7 @@ static void F_WriteCutsceneText(void)
 			continue;
 		}
 
-		w = hu_font[c]->width;
+		w = SHORT(hu_font[c]->width);
 		if (cx + w > vid.width)
 			break;
 		V_DrawScaledPatch(cx, cy, 0, hu_font[c]);
@@ -1175,7 +1175,7 @@ static void F_SkyScroll(void)
 
 	pat = W_CachePatchName("TITLESKY", PU_CACHE);
 
-	animtimer = ((finalecount*((gamestate == GS_INTRO || gamestate == GS_INTRO2) ? titlescrollspeed*4 : titlescrollspeed))/16) % pat->width;
+	animtimer = ((finalecount*((gamestate == GS_INTRO || gamestate == GS_INTRO2) ? titlescrollspeed*4 : titlescrollspeed))/16) % SHORT(pat->width);
 
 	fakedwidth = vid.width / vid.dupx;
 
@@ -1184,7 +1184,7 @@ static void F_SkyScroll(void)
 		int yr = 0;
 
 		if (vid.fdupy > vid.dupy)
-			yr = vid.height - vid.dupy*pat->height;
+			yr = vid.height - vid.dupy*SHORT(pat->height);
 
 		scrolled = BASEVIDWIDTH - animtimer;
 		if (scrolled > BASEVIDWIDTH)
@@ -1193,13 +1193,13 @@ static void F_SkyScroll(void)
 			scrolled = 0;
 		for (x = 0, mx = 0; x < fakedwidth; x++, mx++)
 		{
-			if (mx >= pat->width)
+			if (mx >= SHORT(pat->width))
 				mx = 0;
 
-			if (mx + scrolled < pat->width)
+			if (mx + scrolled < SHORT(pat->width))
 				F_DrawPatchCol(x, pat, mx + scrolled, yr);
 			else
-				F_DrawPatchCol(x, pat, mx + scrolled - pat->width, yr);
+				F_DrawPatchCol(x, pat, mx + scrolled - SHORT(pat->width), yr);
 		}
 	}
 #ifdef HWRENDER
@@ -1207,11 +1207,11 @@ static void F_SkyScroll(void)
 	{ // I wish it were as easy as this for software. I really do.
 		scrolled = animtimer;
 		if (scrolled > 0)
-			V_DrawScaledPatch(scrolled - pat->width, 0, 0, pat);
+			V_DrawScaledPatch(scrolled - SHORT(pat->width), 0, 0, pat);
 		while(scrolled < BASEVIDWIDTH)
 		{
 			V_DrawScaledPatch(scrolled, 0, 0, pat);
-			scrolled += pat->width;
+			scrolled += SHORT(pat->width);
 		}
 	}
 #endif

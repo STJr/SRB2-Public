@@ -1411,7 +1411,7 @@ static void HU_DrawRankings(void)
 /*	if (gametype != GT_CTF)
 	{
 		p = W_CachePatchName("RESULT", PU_CACHE);
-		V_DrawScaledPatch((BASEVIDWIDTH - p->width)/2, 5, 0, p);
+		V_DrawScaledPatch((BASEVIDWIDTH - SHORT(p->width))/2, 5, 0, p);
 	}*/
 
 	// draw the current gametype in the lower right
@@ -1424,7 +1424,7 @@ static void HU_DrawRankings(void)
 		else
 			p = bmatcico;
 
-		V_DrawSmallScaledPatch(128 - p->width/4, 4, 0, p);
+		V_DrawSmallScaledPatch(128 - SHORT(p->width)/4, 4, 0, p);
 		V_DrawCenteredString(128, 16, 0, va("%lu", bluescore));
 
 		if (gametype == GT_CTF)
@@ -1432,7 +1432,7 @@ static void HU_DrawRankings(void)
 		else
 			p = rmatcico;
 
-		V_DrawSmallScaledPatch(192 - p->width/4, 4, 0, p);
+		V_DrawSmallScaledPatch(192 - SHORT(p->width)/4, 4, 0, p);
 		V_DrawCenteredString(192, 16, 0, va("%lu", redscore));
 	}
 
@@ -1588,7 +1588,7 @@ static void HU_DrawCoopOverlay(void)
 
 		sprintf(emblemsfound, "- %d/%d", found, numemblems);
 		V_DrawString(160, 144, 0, emblemsfound);
-		V_DrawScaledPatch(128, 144 - emblemicon->height/4, 0, emblemicon);
+		V_DrawScaledPatch(128, 144 - SHORT(emblemicon->height)/4, 0, emblemicon);
 	}
 
 	if (emeralds & EMERALD1)
