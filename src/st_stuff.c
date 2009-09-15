@@ -1494,8 +1494,8 @@ static void ST_drawRaceHUD(void)
 
 static void ST_drawTagHUD(void)
 {
-	char stime[33];
-	char stext[33];
+	char stime[33] = "";
+	char stext[33] = "";
 
 	// Figure out what we're going to print.
 	if (leveltime < hidetime * TICRATE) //during the hide time, the seeker and hiders have different messages on their HUD.
@@ -1535,14 +1535,14 @@ static void ST_drawTagHUD(void)
 	}
 
 	// Print the stuff.
-	if (stext)
+	if (stext[0])
 	{
 		if (splitscreen)
 			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, stext);
 		else
 			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stext);
 	}
-	if (stime)
+	if (stime[0])
 	{
 		if (splitscreen)
 			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stime);
