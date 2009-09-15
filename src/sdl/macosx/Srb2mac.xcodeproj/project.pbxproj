@@ -770,6 +770,7 @@
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */,
+				679B708A102B872300AA9E4C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -832,6 +833,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "touch -c $SRCROOT/../../comptime.c";
+			showEnvVarsInLog = 0;
+		};
+		679B708A102B872300AA9E4C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "make DMG file for Release builds";
+			files = (
+			);
+			inputPaths = (
+				$BUILT_PRODUCTS_DIR/$PROJECT_NAME.$WRAPPER_EXTENSION,
+			);
+			outputPaths = (
+				$BUILT_PRODUCTS_DIR/$PROJECT_NAME.nodata.dmg,
+				$BUILT_PRODUCTS_DIR/$PROJECT_NAME.dmg,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\n\n[ \"$ACTION\" = build ] || exit 0\n[ \"$CURRENT_VARIANT\" = \"normal\" ] || exit 0\n[ \"$BUILD_STYLE\" = \"Release\" ] || exit 0\n\ndir=\"$TEMP_FILES_DIR/$PROJECT_NAME.disk\"\ndmg=\"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.dmg\"\ndmg_nodata=\"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.nodata.dmg\"\n\nrm -rf \"$dir\"\nmkdir \"$dir\"\ncp -R \"$BUILT_PRODUCTS_DIR/$PROJECT_NAME.$WRAPPER_EXTENSION\" \"$dir\"\nrm -f \"$dmg\"\nhdiutil create -ov -fs HFS+ -srcfolder \"$dir\" -volname \"$PROJECT_NAME\" \"$dmg\"\nhdiutil internet-enable -yes \"$dmg\"\nrm  -f $dir/$PROJECT_NAME.$WRAPPER_EXTENSION/Contents/Resources/*.wad\nrm  -f $dir/$PROJECT_NAME.$WRAPPER_EXTENSION/Contents/Resources/*.dta\nrm  -f $dir/$PROJECT_NAME.$WRAPPER_EXTENSION/Contents/Resources/*.plr\nrm  -f $dir/$PROJECT_NAME.$WRAPPER_EXTENSION/Contents/Resources/*.wpn\nrm -f \"$dmg_nodata\"\nhdiutil create -ov -fs HFS+ -srcfolder \"$dir\" -volname \"$PROJECT_NAME Lite\" \"$dmg_nodata\"\nhdiutil internet-enable -yes \"$dmg_nodata\"\nrm -rf \"$dir\"";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -980,6 +999,7 @@
 				);
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 0.00.0;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DSTROOT = "$(HOME)/Applications";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
@@ -989,7 +1009,9 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_FAST_OBJC_DISPATCH = NO;
 				"GCC_MODEL_TUNING[arch=ppc]" = G3;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -998,9 +1020,6 @@
 					SDL,
 					HAVE_MIXER,
 					HAVE_PNG,
-					_DEBUG,
-					PARANOIA,
-					RANGECHECK,
 				);
 				GCC_THREADSAFE_STATICS = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
@@ -1008,11 +1027,13 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION_i386 = 4.0;
 				GCC_VERSION_ppc = 3.3;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = YES;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
@@ -1042,19 +1063,22 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=i386]" = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=ppc]" = 10.2;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				OBJROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
+				OTHER_CFLAGS_normal = "-D_DEBUG -DPARANOIA -DRANGECHECK";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = SRB2dummy;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				"SDKROOT[arch=i386]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
-				"SDKROOT[arch=ppc]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.2.8.sdk";
+				"SDKROOT[arch=ppc]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.3.9.sdk";
 				SDKROOT_i386 = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
-				SDKROOT_ppc = "$(DEVELOPER_SDK_DIR)/MacOSX10.2.8.sdk";
+				SDKROOT_ppc = "$(DEVELOPER_SDK_DIR)/MacOSX10.3.9.sdk";
+				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1092,7 +1116,9 @@
 				);
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_FAST_OBJC_DISPATCH = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				"GCC_MODEL_TUNING[arch=ppc]" = G3;
 				GCC_OPTIMIZATION_LEVEL = 2;
@@ -1109,11 +1135,13 @@
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_VERSION_i386 = 4.0;
 				GCC_VERSION_ppc = 3.3;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = YES;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
@@ -1143,19 +1171,21 @@
 				);
 				INFOPLIST_FILE = Info.plist;
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=i386]" = 10.4;
 				"MACOSX_DEPLOYMENT_TARGET[arch=ppc]" = 10.2;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				OBJROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
+				OTHER_CFLAGS_normal = "-DNDEBUG";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = SRB2dummy;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				"SDKROOT[arch=i386]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
-				"SDKROOT[arch=ppc]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.2.8.sdk";
+				"SDKROOT[arch=ppc]" = "$(DEVELOPER_SDK_DIR)/MacOSX10.3.9.sdk";
 				SDKROOT_i386 = "$(DEVELOPER_SDK_DIR)/MacOSX10.4u.sdk";
-				SDKROOT_ppc = "$(DEVELOPER_SDK_DIR)/MacOSX10.2.8.sdk";
+				SDKROOT_ppc = "$(DEVELOPER_SDK_DIR)/MacOSX10.3.9.sdk";
 				SYMROOT = "$(inherited)/$(PRODUCT_NAME)/$(CURRENT_PROJECT_VERSION)";
 				WARNING_CFLAGS = (
 					"-Wall",

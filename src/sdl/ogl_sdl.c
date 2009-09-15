@@ -76,13 +76,19 @@ boolean LoadGL(void)
 {
 	const char *OGLLibname = NULL;
 	const char *GLULibname = NULL;
+
 	if (M_CheckParm ("-OGLlib") && M_IsNextParm())
 		OGLLibname = M_GetNextParm();
+
 	if (SDL_GL_LoadLibrary(OGLLibname) != 0)
 	{
-		I_OutputMsg("Could not load OpenGL Library: %s", SDL_GetError());
+		I_OutputMsg("Could not load OpenGL Library: %s\n", SDL_GetError());
+		I_OutputMsg("falling back to Software mode\n");
+		if (!M_CheckParm ("-OGLlib"))
+			I_OutputMsg("if you know what is the OpenGL library's name, use -OGLlib\n");
 		return 0;
 	}
+
 #if 0
 	GLULibname = "/proc/self/exe";
 #elif defined (_WIN32)
@@ -94,21 +100,32 @@ boolean LoadGL(void)
 #elif defined (__unix__)
 	GLULibname = "libGLU.so";
 #else
-	GLULibname = "GLU";
+	GLULibname = NULL;
 #endif
+
 	if (M_CheckParm ("-GLUlib") && M_IsNextParm())
 		GLULibname = M_GetNextParm();
+
 	if (GLULibname)
 	{
 		GLUhandle = hwOpen(GLULibname);
-		if (!GLUhandle)
-			I_Error("Please install GLU library: %s", GLULibname);
+		if (GLUhandle)
+			return SetupGLfunc();
+		else
+		{
+			I_OutputMsg("Could not load GLU Library: %s\n", GLULibname);
+			I_OutputMsg("falling back to Software mode\n");
+			if (!M_CheckParm ("-GLUlib"))
+				I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
+		}
 	}
 	else
 	{
-		I_Error("Please fill a bug report to tell SRB2 where to find the GLU library for this unknown OS");
+		I_OutputMsg("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS");
+		I_OutputMsg("falling back to Software mode\n");
+		I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
 	}
-	return SetupGLfunc();
+	return 0;
 }
 
 /**	\brief	The OglSdlSurface function
@@ -172,8 +189,8 @@ boolean OglSdlSurface(int w, int h, boolean isFullscreen)
 		glColorTableEXT = SDL_GL_GetProcAddress("glColorTableEXT");
 	else
 		glColorTableEXT = NULL;
-
 #endif
+
 #ifdef USE_WGL_SWAP
 	if (isExtAvailable("WGL_EXT_swap_control", gl_extensions))
 		wglSwapIntervalEXT = SDL_GL_GetProcAddress("wglSwapIntervalEXT");
@@ -185,6 +202,7 @@ boolean OglSdlSurface(int w, int h, boolean isFullscreen)
 	else
 		glXSwapIntervalSGIEXT = NULL;
 #endif
+
 	if (isExtAvailable("GL_EXT_texture_filter_anisotropic", gl_extensions))
 		pglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
 	else
