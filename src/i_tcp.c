@@ -162,7 +162,7 @@ typedef struct sockaddr_ipx
 
 #ifdef HAVE_IP6
 #include <netinet/in.h>
-#elif !defined (__MACH__)
+#elif defined (__MINGW32__) || defined (__DJGPP__)
 #if !defined (_SA_FAMILY_T)
 typedef unsigned short sa_family_t;
 #endif
