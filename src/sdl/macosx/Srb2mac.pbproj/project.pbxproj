@@ -2163,7 +2163,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				JAVA_COMPILER_DEBUGGING_SYMBOLS = NO;
 				OPTIMIZATION_CFLAGS = "-O2";
-				OTHER_CFLAGS = "-DMAC_ALERT -DUNIXLIKE -DSDLMAIN -DHAVE_MIXER -DHAVE_PNG -D__BIG_ENDIAN__ -DSTDC_HEADERS -DSDL -Wall -Winline -fno-strict-aliasing";
+				OTHER_CFLAGS = "-DMAC_ALERT -DUNIXCOMMON -DSDLMAIN -DHAVE_MIXER -DHAVE_PNG -D__BIG_ENDIAN__ -DSTDC_HEADERS -DSDL -Wall -Winline -fno-strict-aliasing";
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Srb2;
@@ -2354,7 +2354,7 @@
 				HEADER_SEARCH_PATHS = "\"$(LOCAL_LIBRARY_DIR)/Frameworks/SDL.framework/Headers\" \"$(LOCAL_LIBRARY_DIR)/Frameworks/SDL_mixer.framework/Headers\" \"$(LOCAL_LIBRARY_DIR)/Frameworks/OpenAL.framework/Headers\" \"$(LOCAL_LIBRARY_DIR)/Frameworks/libpng.framework/Headers\"";
 				INSTALL_PATH = "$(HOME)/Applications";
 				OPTIMIZATION_CFLAGS = "-O0";
-				OTHER_CFLAGS = "-DMAC_ALERT -DUNIXLIKE  -DSDLMAIN -DHAVE_MIXER -DHAVE_PNG -D__BIG_ENDIAN__ -DSTDC_HEADERS -DSDL -Wall -W -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wsign-compare -Waggregate-return -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -fno-strict-aliasing -fno-exceptions -D_DEBUG";
+				OTHER_CFLAGS = "-DMAC_ALERT -DUNIXCOMMON  -DSDLMAIN -DHAVE_MIXER -DHAVE_PNG -D__BIG_ENDIAN__ -DSTDC_HEADERS -DSDL -Wall -W -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wsign-compare -Waggregate-return -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -fno-strict-aliasing -fno-exceptions -D_DEBUG";
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Srb2Debug;

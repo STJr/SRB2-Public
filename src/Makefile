@@ -106,16 +106,20 @@ ifdef MINGW
 include win32/Makefile.cfg
 endif #ifdef MINGW
 
+ifdef UNIX
+UNIXCOMMON=1
+endif
+
 ifdef LINUX
-UNIXLIKE=1
+UNIXCOMMON=1
 endif
 
 ifdef SOLARIS
-UNIXLIKE=1
+UNIXCOMMON=1
 endif
 
 ifdef FREEBSD
-UNIXLIKE=1
+UNIXCOMMON=1
 endif
 
 ifdef SDL
@@ -593,11 +597,11 @@ else
 
 $(OBJDIR)/s_fmod.o: hardware/s_fmod/s_fmod.c hardware/hw3dsdrv.h \
  hardware/hw_dll.h
-	$(CC) $(M5) -Os -o $(OBJDIR)/s_fmod.o -DHW3SOUND -DUNIXLIKE -shared -nostartfiles -c hardware/s_fmod/s_fmod.c
+	$(CC) $(M5) -Os -o $(OBJDIR)/s_fmod.o -DHW3SOUND -DUNIXCOMMON -shared -nostartfiles -c hardware/s_fmod/s_fmod.c
 
 $(OBJDIR)/s_openal.o: hardware/s_openal/s_openal.c hardware/hw3dsdrv.h \
  hardware/hw_dll.h
-	$(CC) $(M5) -Os -o $(OBJDIR)/s_openal.o -DHW3SOUND -DUNIXLIKE -shared -nostartfiles -c hardware/s_openal/s_openal.c
+	$(CC) $(M5) -Os -o $(OBJDIR)/s_openal.o -DHW3SOUND -DUNIXCOMMON -shared -nostartfiles -c hardware/s_openal/s_openal.c
 endif
 
 ifdef FILTERS

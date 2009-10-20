@@ -190,7 +190,7 @@ void V_SetPalette(int palettenum)
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 		HWR_SetPalette(&pLocalPalette[palettenum*256]);
-#if defined (__unix__) || defined (UNIXLIKE) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	else
 #endif
 #endif
@@ -204,7 +204,7 @@ void V_SetPaletteLump(const char *pal)
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 		HWR_SetPalette(pLocalPalette);
-#if defined (__unix__) || defined (UNIXLIKE) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	else
 #endif
 #endif

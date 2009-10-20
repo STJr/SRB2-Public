@@ -85,7 +85,7 @@
 
 #define STD_STRING_LEN 256 // Just some standard length for a char string
 
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 	#include <sys/time.h>
 	#ifdef __GLIBC__
 		#include <netipx/ipx.h>
@@ -101,7 +101,7 @@
 	#ifndef __CYGWIN__
 	typedef struct sockaddr_ipx SOCKADDR_IPX, *PSOCKADDR_IPX;
 	#endif
-#endif // unixlike
+#endif // UNIXCOMMON
 #endif // win32
 
 #if defined (_WIN32_WCE) || defined (_WIN32)
@@ -271,7 +271,7 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 	}
 #ifdef USEIPX
 	else
-#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE)) && !defined (__CYGWIN__)
+#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
 	if (sk->sa_family == AF_IPX)
 	{
 #ifdef FREEBSD
@@ -303,7 +303,7 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 			(byte)sk->ipx.sa_nodenum[5],
 			sk->ipx.sa_socket);
 	}
-#endif // unixlike
+#endif // UNIXCOMMON
 #endif // USEIPX
 #ifdef HAVE_IP6
 	if (sk->sa_family == AF_INET6)
@@ -359,7 +359,7 @@ static const char *SOCK_GetBanMask(size_t ban)
 static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
 {
 	(void)mask;
-#if (defined (__unix__) || defined (UNIXLIKE)) && !defined (__CYGWIN__)
+#if (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
 #ifdef FREEBSD
 	return ipx_neteq(a->ipx.sipx_addr, b->ipx.sipx_addr)
 		&& ipx_hosteq(a->ipx.sipx_addr, b->ipx.sipx_addr);
@@ -370,7 +370,7 @@ static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
 #else
 	return ((!memcmp(&(a->ipx.sa_netnum), &(b->ipx.sa_netnum), 4))
 		&& (!memcmp(&(a->ipx.sa_nodenum), &(b->ipx.sa_nodenum), 6)));
-#endif // unixlike
+#endif // UNIXCOMMON
 }
 #endif // USEIPX
 
@@ -751,13 +751,13 @@ static SOCKET_TYPE IPX_Socket(void)
 		I_Error("IPX_socket error #%d: Can't create socket: %s", errno, strerror(errno));
 
 	memset(&address, 0, sizeof (address));
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE) && !defined (__CYGWIN__)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
 	address.sipx_family = AF_IPX;
 	address.sipx_port = htons(sock_port);
 #else
 	address.sa_family = AF_IPX;
 	address.sa_socket = htons(sock_port);
-#endif // unixlike
+#endif // UNIXCOMMON
 	if (bind(s, (void *)&address, sizeof (address)) == ERRSOCKET)
 		I_Error("IPX_Bind error #%d: %s", errno, strerror(errno));
 
@@ -789,7 +789,7 @@ static SOCKET_TYPE IPX_Socket(void)
 	packetheaderlength = 30; // for stats
 
 	// setup broadcast adress to BROADCASTADDR entry
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE) && !defined (__CYGWIN__)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
 	clientaddress[BROADCASTADDR].sa_family = AF_IPX;
 	clientaddress[BROADCASTADDR].ipx.sipx_port = htons(sock_port);
 #ifndef FREEBSD
@@ -809,7 +809,7 @@ static SOCKET_TYPE IPX_Socket(void)
 		clientaddress[BROADCASTADDR].ipx.sa_netnum[i] = 0;
 	for (i = 0; i < 6; i++)
 		clientaddress[BROADCASTADDR].ipx.sa_nodenum[i] = (byte)0xFF;
-#endif // unixlike
+#endif // UNIXCOMMON
 	SOCK_cmpaddr = IPX_cmpaddr;
 	return s;
 }

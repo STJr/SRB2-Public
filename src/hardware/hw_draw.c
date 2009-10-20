@@ -34,7 +34,7 @@
 #include "../v_video.h"
 #include "../st_stuff.h"
 
-#if !(defined(__unix__) || defined(UNIXLIKE)) // unix does not need this 19991024 by Kin
+#if !(defined(__unix__) || defined(UNIXCOMMON)) // unix does not need this 19991024 by Kin
 #ifdef __GNUC__
 #include <sys/unistd.h>
 #endif

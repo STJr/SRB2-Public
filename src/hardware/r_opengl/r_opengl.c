@@ -847,7 +847,7 @@ EXPORT void HWRAPI(SetBlend) (FBITFIELD PolyFlags)
 #else
 		if (Xor&PF_Modulated)
 		{
-#if defined (unix) || defined (UNIXLIKE)
+#if defined (unix) || defined (UNIXCOMMON)
 			if (oglflags & GLF_NOTEXENV)
 			{
 				if (!(PolyFlags & PF_Modulated))

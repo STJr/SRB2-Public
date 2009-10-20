@@ -64,7 +64,7 @@ typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
 #define M_PI 3.14159265358979323846
 #endif
 #endif
-#if defined (unix) || defined (UNIXLIKE)
+#if defined (unix) || defined (UNIXCOMMON)
 #include <fcntl.h>
 #endif
 
@@ -99,7 +99,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #ifdef _PSP
 #include <pspiofilemgr.h>
 #else
-#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXLIKE) && !defined (_arch_dreamcast))
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast))
 #if defined (__linux__)
 #include <sys/vfs.h>
 #else
@@ -116,7 +116,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #endif
 
-#if defined (__linux__) || (defined (UNIXLIKE) && !defined (_arch_dreamcast) && !defined (_PSP))
+#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP))
 #include <termios.h>
 #include <sys/ioctl.h> // ioctl
 #define HAVE_TERMIOS
@@ -152,7 +152,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION4 "/tmp/mnt/sd/SRB2"
 #define DEFAULTSEARCHPATH1 "/mnt/sd"
 #define DEFAULTSEARCHPATH2 "/tmp/mnt/sd"
-#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE)
+#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2"
 #define DEFAULTWADLOCATION2 "/usr/local/games/srb2"
 #define DEFAULTWADLOCATION3 "/usr/share/games/srb2"
@@ -301,7 +301,7 @@ static void signal_handler(int num)
 	case SIGTERM:
 		sigmsg = "Software termination signal from kill";
 		break;
-#if !(defined (__unix_) || defined (UNIXLIKE))
+#if !(defined (__unix_) || defined (UNIXCOMMON))
 	case SIGBREAK:
 		sigmsg = "Ctrl-Break sequence";
 		break;
@@ -2436,7 +2436,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 {
 #if defined (_arch_dreamcast) || defined (_PSP)
 	*freespace = 0;
-#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE)
+#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #ifdef SOLARIS
 	*freespace = MAXINT;
 	return;
@@ -2524,7 +2524,7 @@ char *I_GetUserName(void)
 int I_mkdir(const char *dirname, int unixright)
 {
 //[segabor]
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE) || defined (__CYGWIN__) || defined (__OS2__)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) || defined (__CYGWIN__) || defined (__OS2__)
 	return mkdir(dirname, unixright);
 #elif (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
 	unixright = 0; /// \todo should implement ntright under nt...

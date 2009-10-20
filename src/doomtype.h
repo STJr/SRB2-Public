@@ -70,7 +70,7 @@
 #endif
 #ifdef _PSP
 	#include <malloc.h>
-#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE)
+#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 	#undef stricmp
 	#define stricmp(x,y) strcasecmp(x,y)
 	#undef strnicmp

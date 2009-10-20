@@ -4967,7 +4967,7 @@ static menuitem_t VideoOptionsMenu[] =
 {
 	// Tails
 	{IT_STRING | IT_SUBMENU, NULL, "Video Modes...",      &VidModeDef,        0},
-#if defined (__unix__) || defined (UNIXLIKE) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	{IT_STRING|IT_CVAR,      NULL, "Fullscreen",          &cv_fullscreen,    10},
 #endif
 #ifdef HWRENDER
@@ -6173,7 +6173,7 @@ static void M_DrawVideoMode(void)
 	// draw title
 	M_DrawMenuTitle();
 
-#if defined (__unix__) || defined (UNIXLIKE) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	VID_PrepareModeList(); // FIXME: hack
 #endif
 	vidm_nummodes = 0;

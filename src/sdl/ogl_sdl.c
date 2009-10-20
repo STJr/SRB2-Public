@@ -177,7 +177,7 @@ boolean OglSdlSurface(int w, int h, boolean isFullscreen)
 	// BP: disable advenced feature that don't work on somes hardware
 	// Hurdler: Now works on G400 with bios 1.6 and certified drivers 6.04
 	if (strstr(glrenderer, "810")) oglflags |= GLF_NOZBUFREAD;
-#elif defined (unix) || defined (UNIXLIKE)
+#elif defined (unix) || defined (UNIXCOMMON)
 	// disable advanced features not working on somes hardware
 	if (strstr(glrenderer, "G200")) oglflags |= GLF_NOTEXENV;
 	if (strstr(glrenderer, "G400")) oglflags |= GLF_NOTEXENV;

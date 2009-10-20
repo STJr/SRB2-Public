@@ -167,7 +167,7 @@ static SDL_mutex *Msc_Mutex = NULL;
 #define MIDI_PATH2    "/tmp/mnt/sd/srb2"
 #else
 #define MIDI_PATH     srb2home
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXLIKE)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #define MIDI_PATH2    "/tmp"
 #endif
 #endif
