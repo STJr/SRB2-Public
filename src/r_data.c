@@ -561,6 +561,7 @@ void R_ClearColormaps(void)
 
 	for (i = 0; i < MAXCOLORMAPS; i++)
 		foundcolormaps[i] = LUMPERROR;
+
 	memset(extra_colormaps, 0, sizeof (extra_colormaps));
 }
 
@@ -569,7 +570,7 @@ long R_ColormapNumForName(char *name)
 	lumpnum_t lump, i;
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_ColormapNumForName: Too many colormaps!\n");
+		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
 
 	lump = R_CheckNumForNameList(name, colormaplumps, numcolormaplumps);
 	if (lump == LUMPERROR)
@@ -696,7 +697,7 @@ long R_CreateColormap(char *p1, char *p2, char *p3)
 	}
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_CreateColormap: Too many colormaps!\n");
+		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
 
 	strncpy(colormapFixingArray[num_extra_colormaps][0], p1, 8);
 	strncpy(colormapFixingArray[num_extra_colormaps][1], p2, 8);
@@ -843,7 +844,8 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 	}
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_CreateColormap: Too many colormaps!\n");
+		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
+
 	num_extra_colormaps++;
 
 	if (rendermode == render_soft)
@@ -969,7 +971,7 @@ const char *R_ColormapNameForNum(int num)
 		return "NONE";
 
 	if (num < 0 || num > MAXCOLORMAPS)
-		I_Error("R_ColormapNameForNum: num is invalid!\n");
+		I_Error("R_ColormapNameForNum: num %d is invalid!\n", num);
 
 	if (foundcolormaps[num] == LUMPERROR)
 		return "INLEVEL";
