@@ -75,6 +75,8 @@ unsigned SlopeDiv(unsigned num, unsigned den)
 #define ANGLE_TO_FIXED(a) (fixed_t)(((a)>>(29-FRACBITS))*45)
 #define FIXED_TO_ANGLE(x) (angle_t)(((x)/45)<<(29-FRACBITS))
 
+//#define FIXEDPOINTCONV
+
 /*
 Old code that failed if FRACBITS was not 16.
 In particular, the use of FRACUNIT in the definition of ANGLE_F is completely
@@ -92,6 +94,23 @@ of FRACUNIT.
 
 fixed_t AngleFixed(angle_t af)
 {
+#ifdef FIXEDPOINTCONV
+	angle_t wa = ANGLE_180;
+	fixed_t wf = 180*FRACUNIT;
+	fixed_t rf = 0*FRACUNIT;
+
+	while (af)
+	{
+		while (af < wa)
+		{
+			wa /= 2;
+			wf /= 2;
+		}
+		rf += wf;
+		af -= wa;
+	}
+	return rf;
+#else
 	const fixed_t cfn = 180*FRACUNIT;
 	if (af == 0)
 		return 0;
@@ -100,79 +119,105 @@ fixed_t AngleFixed(angle_t af)
 	else if (af < ANGLE_180)
 		return ANGLE_TO_FIXED(af);
 	else return cfn;
+#endif
+}
+
+FUNCMATH static fixed_t FixRange(fixed_t fa)
+{
+	const fixed_t rl = 360*FRACUNIT;
+	const boolean fan = fa < 0;
+	if (fan)
+		fa = -fa;
+	while (fa > rl)
+		fa -= rl;
+	if (fan)
+		fa = -fa;
+	return fa;
 }
 
 angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 {
-#if 0 //FixedMod off?
-	const boolean neqda = da < 0, neqfa = fa < 0;
-	const fixed_t afactor = abs(factor);
-	angle_t ra = ANGLE_180;
+#ifdef FIXEDPOINTCONV
+	angle_t wa = ANGLE_180;
+	fixed_t wf = 180*FRACUNIT;
+	angle_t ra = 0;
+	const boolean fan = fa < 0;
 
-	if (factor == 0)
-		return FixedAngle(fa);
-	else if (fa == 0)
-		return 0;
-
-	if (neqfactor)
-	{
-		const fixed_t maf = FixedDiv(afactor, ANGLE_F);
-		const fixed_t cfn = FixedMul(360*FRACUNIT, afactor), hcfn = (cfn/2);
-		const fixed_t fam = FixedMod(fa, cfn);
-
-		if (fam > hcfn)
-			ra = ANGLE_180 + (angle_t)FixedMul(fam - hcfn, maf);
-		else if (fam < hcfn)
-			ra = (angle_t)FixedMul(fam, maf);
-	}
-	else
-	{
-		const fixed_t maf = FixedMul(afactor, ANGLE_F);
-		const fixed_t cfn = FixedDiv(360*FRACUNIT, afactor), hcfn = (cfn/2);
-		const fixed_t fam = FixedMod(fa, cfn);
-
-		if (fam > hcfn)
-			ra = ANGLE_180 + (angle_t)FixedDiv(fam - hcfn, maf);
-		else if (fam < hcfn)
-			ra = (angle_t)FixedDiv(fam, maf);
-	}
-
-	if (neqfa)
-		ra = ANGLE_MAX-ra;
-
-	return ra;
-#else
 	if (factor == 0)
 		return FixedAngle(fa);
 	else if (factor > 0)
-		return (angle_t)((FIXED_TO_FLOAT(fa)/FIXED_TO_FLOAT(factor))*(ANGLE_45/45));
+		wf = FixedMul(wf, factor);
+	else if (factor < 0)
+		wf = FixedDiv(wf, -factor);
+
+	fa = FixRange(fa);
+
+	if (fan)
+		fa = -fa;
+
+	while (fa)
+	{
+		while (fa < wf)
+		{
+			wa /= 2;
+			wf /= 2;
+		}
+		ra = ra + wa;
+		fa = fa - wf;
+	}
+
+	if (fan)
+		return (angle_t)(-ra);
 	else
-		return (angle_t)((FIXED_TO_FLOAT(fa)*FIXED_TO_FLOAT(-factor))*(ANGLE_45/45));
+		return ra;
+#else
+	if (factor == 0)
+		return FixedAngle(fa);
+
+	fa = FixRange(fa);
+
+	if (factor > 0)
+		return (angle_t)((FIXED_TO_FLOAT(fa)/FIXED_TO_FLOAT(factor))*(ANGLE_45/45.0f));
+	else
+		return (angle_t)((FIXED_TO_FLOAT(fa)*FIXED_TO_FLOAT(-factor))*(ANGLE_45/45.0f));
 #endif
 }
 
 angle_t FixedAngle(fixed_t fa)
 {
-#if 0 //FixedMod off?
-	const boolean neqfa = fa < 0;
-	const fixed_t cfn = 180*FRACUNIT;
-	const fixed_t fam = FixedMod(fa, 360*FRACUNIT);
-	angle_t ra = ANGLE_180;
+#ifdef FIXEDPOINTCONV
+	angle_t wa = ANGLE_180;
+	fixed_t wf = 180*FRACUNIT;
+	angle_t ra = 0;
+	const boolean fan = fa < 0;
+
+	fa = FixRange(fa);
+
+	if (fan)
+		fa = -fa;
+
+	while (fa)
+	{
+		while (fa < wf)
+		{
+			wa /= 2;
+			wf /= 2;
+		}
+		ra = ra + wa;
+		fa = fa - wf;
+	}
+
+	if (fan)
+		return (angle_t)(-ra);
+	else
+		return ra;
+#else
+	fa = FixRange(fa);
 
 	if (fa == 0)
 		return 0;
 
-	if (fam > cfn)
-		ra = ANGLE_180+FIXED_TO_ANGLE(fam-cfn);
-	else if (fam < cfn)
-		ra = FIXED_TO_ANGLE(fam);
-
-	if (neqfa)
-		ra = ANGLE_MAX-ra;
-
-	return ra;
-#else
-	return (angle_t)(FIXED_TO_FLOAT(fa)*(ANGLE_45/45));
+	return (angle_t)(FIXED_TO_FLOAT(fa)*(ANGLE_45/45.0f));
 #endif
 }
 

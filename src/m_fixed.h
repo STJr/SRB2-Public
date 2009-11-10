@@ -186,25 +186,4 @@ FUNCINLINE static ATTRINLINE fixed_t FixedDiv(fixed_t a, fixed_t b)
 
 	return FixedDiv2(a, b);
 }
-
-
-/**	\brief	The FixedMod function
-	\author CPhipps from PrBoom
-
-	\param	a	fixed_t number
-	\param	b	fixed_t number
-
-	\return	 a % b, guaranteeing 0 <= a < b
-	\note that the C standard for % does not guarantee this
-*/
-FUNCINLINE static ATTRINLINE fixed_t FixedMod(fixed_t a, fixed_t b)
-{
-	if (b & (b-1))
-	{
-		const fixed_t r = a % b;
-		return ((r < 0) ? r+b : r);
-	}
-	return (a & (b-1));
-}
-
 #endif //m_fixed.h
