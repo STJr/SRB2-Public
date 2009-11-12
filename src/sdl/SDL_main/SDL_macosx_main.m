@@ -43,10 +43,19 @@ static BOOL   gFinderLaunch;
 static void addArgument(const char *value)
 {
 	if(!gArgc)
-            gArgv = (char **)malloc(sizeof(*gArgv));
-        else
-            gArgv = (char **)realloc(gArgv, sizeof(*gArgv) * (gArgc + 1));
-        gArgc++;
+		gArgv = (char **)malloc(sizeof(*gArgv));
+	else
+	{
+		char **newgArgv = (char **)realloc(gArgv, sizeof(*gArgv) * (gArgc + 1));
+		if (!newgArgv)
+		{
+			newgArgv = malloc(sizeof(*gArgv) * (gArgc + 1));
+			memcpy(newgArgv, gArgv, sizeof(*gArgv) * gArgc);
+			free(gArgv);
+		}
+		gArgv = newgArgv;
+	}
+	gArgc++;
 	gArgv[gArgc - 1] = (char *)malloc(sizeof(char) * (strlen(value) + 1));
 	strcpy(gArgv[gArgc - 1], value);
 }
