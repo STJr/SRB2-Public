@@ -98,6 +98,16 @@ OBJS=$(OBJDIR)/i_video.o
 LIBS=-lm
 endif
 
+ifdef WIILINUX
+LINUX=1
+NONX86=1
+NOTERMIOS=1
+NOHW=1
+CFLAGS+=-DWMINPUT
+NOTERMIOS=1
+NOPOSTPROCESSING=1
+endif
+
 ifdef DJGPPDOS
 include djgppdos/Makefile.cfg
 endif
@@ -232,6 +242,14 @@ ifdef FAKEDC
 	OPTS+=-DDC
 endif
 
+ifdef FAKEPSP
+	OPTS+=-DPSP
+endif
+
+ifdef NOPOSTPROCESSING
+	OPTS+=-DNOPOSTPROCESSING
+endif
+
 	OPTS:=-fno-exceptions $(OPTS)
 
 ifdef DEBUGMODE
@@ -247,6 +265,9 @@ else
 	CFLAGS+=$(OPTS) $(M5) -Os $(WINDRESFLAGS)
 ifndef DC
 	CFLAGS+=-fomit-frame-pointer
+endif
+ifdef DEBUG
+	CFLAGS+=-g
 endif
 		# -fgcse -fcse-follow-jumps -fcse-skip-blocks -frerun-cse-after-loop -ffunction-cse \
 		# -fexpensive-optimizations -fforce-mem -fstrength-reduce -fthread-jumps  \
@@ -514,10 +535,10 @@ $(OBJDIR)/romdisk.o: romdisk.img
 	$(KOS_BASE)/utils/bin2o/bin2o romdisk.img romdisk romdisk.o
 
 $(OBJDIR)/dchelp.o: $(INTERFACE)/SRB2DC/dchelp.c
-		$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 
 $(OBJDIR)/i_udp.o: $(INTERFACE)/SRB2DC/i_udp.c
-		$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 endif
 
 ifdef XBOX

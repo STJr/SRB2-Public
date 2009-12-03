@@ -296,7 +296,7 @@ USHORT W_LoadWadFile(const char *filename)
 		// read the header
 		if (fread(&header, 1, sizeof header, handle) < sizeof header)
 		{
-			CONS_Printf("Can't read wad header from %s\n", filename);
+			CONS_Printf("Can't read wad header from %s because %s\n", filename, strerror(ferror(handle)));
 			return MAXSHORT;
 		}
 
@@ -319,7 +319,7 @@ USHORT W_LoadWadFile(const char *filename)
 		if (fseek(handle, header.infotableofs, SEEK_SET) == -1
 			|| fread(fileinfo, 1, i, handle) < i)
 		{
-			CONS_Printf("%s wadfile directory is corrupt\n", filename);
+			CONS_Printf("%s wadfile directory is corrupt; maybe %s\n", filename, strerror(ferror(handle)));
 			free(fileinfov);
 			return MAXSHORT;
 		}
@@ -340,8 +340,8 @@ USHORT W_LoadWadFile(const char *filename)
 					== -1 || fread(&realsize, 1, sizeof realsize,
 					handle) < sizeof realsize)
 				{
-					I_Error("corrupt compressed file: %s",
-						filename);
+					I_Error("corrupt compressed file: %s; maybe %s",
+						filename, strerror(ferror(handle)));
 				}
 				realsize = LONG(realsize);
 				if (realsize != 0)

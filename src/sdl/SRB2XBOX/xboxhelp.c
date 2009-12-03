@@ -48,36 +48,36 @@ int access(const char *path, int amode)
 
 char *getcwd(char *_buf, size_t _size )
 {
-	_buf = NULL;
-	_size = 0;
+	(void)_buf;
+	(void)_size;
 	return _buf;
 }
 
-#ifdef __GNUC__
-int mkdir(const char *path, mode_t _mode)
-{
-	path = NULL;
-	_mode = 0;
-	return 0;
-}
-#else
+#ifdef _MSC_VER
 int mkdir(const char *path)
 {
-	path = NULL;
+	(void)path;
+	return 0;
+}
+#elif 0 //__GNUC__?
+int mkdir(const char *path, mode_t _mode)
+{
+	(void)path;
+	(void)_mode;
 	return 0;
 }
 #endif
 
 int chdir (const char *__path )
 {
-	__path = NULL;
+	(void)__path;
 	return 0;
 }
 
 time_t time(time_t *T)
 {
 	long returntime = 0;
-	T = NULL;
+	(void)T;
 /*
 	SYSTEMTIME st;
 	FILETIME stft;

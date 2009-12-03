@@ -324,7 +324,7 @@ void Y_IntermissionDrawer(void)
 
 		for (i = 0; i < data.match.numplayers; i++)
 		{
-			char time[10];
+			char strtime[10];
 
 			if (data.match.spectator[i])
 				continue; //Ignore spectators.
@@ -360,12 +360,12 @@ void Y_IntermissionDrawer(void)
 						V_DrawRightAlignedString(x+152, y, 0, va("%lu", data.match.scores[i]));
 					else if (inttype == int_race)
 					{
-						snprintf(time, sizeof time,
+						snprintf(strtime, sizeof strtime,
 							"%i:%02i.%02i",
 							G_TicsToMinutes(data.match.scores[i], true),
 							G_TicsToSeconds(data.match.scores[i]), G_TicsToCentiseconds(data.match.scores[i]));
-						time[sizeof time - 1] = '\0';
-						V_DrawRightAlignedString(x+152, y, 0, time);
+						strtime[sizeof strtime - 1] = '\0';
+						V_DrawRightAlignedString(x+152, y, 0, strtime);
 					}
 				}
 				else
@@ -377,24 +377,24 @@ void Y_IntermissionDrawer(void)
 						if (players[data.match.num[i]].pflags & PF_TIMEOVER)
 						{
 							if (data.match.numplayers > 9)
-								snprintf(time, sizeof time, "TIME O.");
+								snprintf(strtime, sizeof strtime, "TIME O.");
 							else
-								snprintf(time, sizeof time, "TIME OVER");
+								snprintf(strtime, sizeof strtime, "TIME OVER");
 						}
 						else if (players[data.match.num[i]].lives <= 0)
 						{
 							if (data.match.numplayers > 9)
-								snprintf(time, sizeof time, "GAME O.");
+								snprintf(strtime, sizeof strtime, "GAME O.");
 							else
-								snprintf(time, sizeof time, "GAME OVER");
+								snprintf(strtime, sizeof strtime, "GAME OVER");
 						}
 						else
-							snprintf(time, sizeof time, "%i:%02i.%02i", G_TicsToMinutes(data.match.scores[i], true),
+							snprintf(strtime, sizeof strtime, "%i:%02i.%02i", G_TicsToMinutes(data.match.scores[i], true),
 									G_TicsToSeconds(data.match.scores[i]), G_TicsToCentiseconds(data.match.scores[i]));
 
-						time[sizeof time - 1] = '\0';
+						strtime[sizeof strtime - 1] = '\0';
 
-						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, time);
+						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, strtime);
 					}
 				}
 			}
@@ -1432,7 +1432,7 @@ static void Y_CalculateRaceWinners(void)
 	int winners[5], numwins[MAXPLAYERS];
 	int i = 0, n = 0, ring, totalring, itembox, wins;
 	int numplayersingame;
-	ULONG score = 0, time;
+	ULONG score = 0, racetime;
 
 	// Everyone has zero wins.
 	memset(numwins, 0, sizeof (int)*MAXPLAYERS);
@@ -1463,19 +1463,19 @@ static void Y_CalculateRaceWinners(void)
 		winners[0] = -1; // tie
 
 	// Find the lowest time.
-	for (i = 0, n = 0, time = leveltime; i < MAXPLAYERS; i++)
+	for (i = 0, n = 0, racetime = leveltime; i < MAXPLAYERS; i++)
 	{
-		if (!playeringame[i] || players[i].realtime > time)
+		if (!playeringame[i] || players[i].realtime > racetime)
 			continue;
 
-		if (players[i].realtime == time)
+		if (players[i].realtime == racetime)
 		{
 			n++;
 			continue;
 		}
 
 		n = 1; // number of players with this time
-		time = players[i].realtime; // best time so far
+		racetime = players[i].realtime; // best time so far
 		winners[1] = i; // winner so far
 	}
 

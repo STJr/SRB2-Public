@@ -73,7 +73,7 @@
 #include "hwsym_sdl.h"
 #endif
 
-#if defined (_WIN32) || defined (HAVE_FMOD)
+#if (defined (_WIN32) && !defined (_XBOX)) || defined (HAVE_FMOD)
 #define FMODSOUND
 #endif
 
@@ -1391,7 +1391,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 
 	if (fwrite(data, lumplength, 1, midfile) == 0)
 	{
-		CONS_Printf("Couldn't write music into file %s\n", tempname);
+		CONS_Printf("Couldn't write music into file %s because %s\n", tempname, strerror(ferror(midfile)));
 		Z_Free(data);
 		fclose(midfile);
 		return false;

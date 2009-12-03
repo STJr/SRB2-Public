@@ -701,7 +701,7 @@ static void P_DeNightserizePlayer(player_t *player)
 // P_NightserizePlayer
 //
 // NiGHTS Time!
-void P_NightserizePlayer(player_t *player, int time)
+void P_NightserizePlayer(player_t *player, int nighttime)
 {
 	int oldmare;
 
@@ -739,7 +739,7 @@ void P_NightserizePlayer(player_t *player, int time)
 	else if (player == &players[displayplayer])
 		CV_SetValue(&cv_cam_dist, 320);
 
-	player->nightstime = time;
+	player->nightstime = nighttime;
 	player->bonustime = false;
 
 	P_SetMobjState(player->mo->tracer, S_SUPERTRANS1);

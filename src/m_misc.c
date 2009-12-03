@@ -481,7 +481,7 @@ void M_SaveConfig(char *filename)
 }
 
 
-#if !defined (DC) && !defined (_WIN32_WCE) && !defined (PSP)
+#if NUMSCREENS > 2 || defined (HAVE_PNG)
 static const char *Newsnapshotfile(const char *pathname, const char *ext)
 {
 	static char freename[13] = "srb2XXXX.ext";
@@ -1129,7 +1129,7 @@ typedef struct
   * \param height   Height of the picture.
   * \param palette  Palette of image data
   */
-#if !defined (DC) && !defined (_WIN32_WCE) && !defined (PSP)
+#if NUMSCREENS > 2
 static boolean WritePCXfile(const char *filename, const byte *data, int width, int height, const byte *palette)
 {
 	int i;
@@ -1193,7 +1193,7 @@ static boolean WritePCXfile(const char *filename, const byte *data, int width, i
   */
 void M_ScreenShot(void)
 {
-#if !defined (DC) && !defined (_WIN32_WCE) && !defined (PSP)
+#if NUMSCREENS > 2
 	const char *freename = NULL, *pathname = ".";
 	boolean ret = false;
 	byte *linear = NULL;

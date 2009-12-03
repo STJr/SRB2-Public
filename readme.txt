@@ -1,4 +1,4 @@
-Here it is! SRB2 Final Demo 1.1 (in development) source code!
+Here it is! SRB2 v2.0 source code!
 
 
 Win32 with Visual C (6SP6+Processor Pack OR 7)
@@ -59,6 +59,13 @@ Build instructions:
 cd src
 make LINUX=1 # you may optionally add DEBUGMODE=1 to build it
              # with debugging symbols
+
+Build instructions to build for Wii Linux/SRB2Wii on a PowerPC system,
+follow cross-compiling instructions for cross-compiling on a x86 system:
+
+cd src
+make LINUX=1 WIILINUX=1
+
 Solaris
 ~~~
 

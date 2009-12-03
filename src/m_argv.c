@@ -167,7 +167,7 @@ void M_FindResponseFile(void)
 			if (!file)
 				I_Error("No more free memory for the respone file");
 			if (fread(file, size, 1, handle) != 1)
-				I_Error("Couldn't read respone file");
+				I_Error("Couldn't read respone file because %s", strerror(ferror(handle)));
 			fclose(handle);
 
 			// keep all the command line arguments following @responsefile

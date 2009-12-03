@@ -1916,7 +1916,7 @@ static inline void P_UnArchivePolyObj(polyobj_t *po)
 	Polyobj_MoveOnLoad(po, angle, spawnSpot.x, spawnSpot.y);
 }
 
-static inline void P_ArchivePolyObjects(void)
+static void P_ArchivePolyObjects(void)
 {
 	int i;
 

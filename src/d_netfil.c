@@ -561,7 +561,7 @@ void FiletxTicker(void)
 		if (ram)
 			memcpy(p->data, &f->filename[transfer[i].position], size);
 		else if (fread(p->data, 1, size, transfer[i].currentfile) != size)
-			I_Error("FiletxTicker: can't read %u byte on %s at %lu", size,f->filename,transfer[i].position);
+			I_Error("FiletxTicker: can't read %u byte on %s at %lu because %s", size,f->filename,transfer[i].position, strerror(ferror(transfer[i].currentfile)));
 		p->position = transfer[i].position;
 		// put flag so receiver know the totalsize
 		if (transfer[i].position + size == f->size)
@@ -618,7 +618,7 @@ void Got_Filetxpak(void)
 		// we can receive packet in the wrong order, anyway all os support gaped file
 		fseek(fileneeded[filenum].phandle,netbuffer->u.filetxpak.position,SEEK_SET);
 		if (fwrite(netbuffer->u.filetxpak.data,netbuffer->u.filetxpak.size,1,fileneeded[filenum].phandle)!=1)
-			I_Error("Can't write %s: disk full ?\n",fileneeded[filenum].filename);
+			I_Error("Can't write %s: disk full ? or %s\n",fileneeded[filenum].filename, strerror(ferror(fileneeded[filenum].phandle)));
 		fileneeded[filenum].currentsize += netbuffer->u.filetxpak.size;
 		if (filetime == 0)
 		{

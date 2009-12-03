@@ -175,11 +175,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile="c:\srb2demo2\srb2win.exe"
+				OutputFile="C:\srb2demo2\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="c:\srb2demo2\srb2.pdb"
+				ProgramDatabaseFile="C:\srb2demo2\srb2.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"

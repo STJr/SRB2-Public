@@ -1920,6 +1920,8 @@ void I_StartupGraphics(void)
 	{
 		char vd[100]; //stack space for video name
 		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
+		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0)
+			framebuffer = SDL_TRUE;
 	}
 	if (M_CheckParm("-software"))
 		rendermode = render_soft;
@@ -2018,6 +2020,7 @@ void I_StartupGraphics(void)
 		{
 			CONS_Printf("Could not set vidmode: %s\n",SDL_GetError());
 			vid.rowbytes = 0;
+			graphics_started = true;
 			return;
 		}
 		vid.rowbytes = vid.width * vid.bpp;
@@ -2088,4 +2091,5 @@ void I_ShutdownGraphics(void)
 #ifndef _arch_dreamcast
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 #endif
+	framebuffer = SDL_FALSE;
 }
