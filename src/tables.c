@@ -77,6 +77,12 @@ unsigned SlopeDiv(unsigned num, unsigned den)
 
 #define FIXEDPOINTCONV
 
+#ifdef FIXEDPOINTCONV
+#ifdef _MSC_VER
+#pragma warning(disable : 4146)
+#endif
+#endif
+
 /*
 Old code that failed if FRACBITS was not 16.
 In particular, the use of FRACUNIT in the definition of ANGLE_F is completely
@@ -98,6 +104,9 @@ fixed_t AngleFixed(angle_t af)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	fixed_t rf = 0*FRACUNIT;
+
+	if (af == 0)
+		return 0;
 
 	while (af)
 	{
@@ -150,7 +159,7 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	else if (factor < 0)
 		wf = FixedDiv(wf, -factor);
 
-	fa = FixRange(fa);
+	//fa = FixRange(fa);
 
 	if (fan)
 		fa = -fa;
@@ -174,7 +183,7 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	if (factor == 0)
 		return FixedAngle(fa);
 
-	fa = FixRange(fa);
+	//fa = FixRange(fa);
 
 	if (factor > 0)
 		return (angle_t)((FIXED_TO_FLOAT(fa)/FIXED_TO_FLOAT(factor))*(ANGLE_45/45.0f));

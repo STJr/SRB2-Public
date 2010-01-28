@@ -193,7 +193,7 @@ static int recvfull(int s, char *buf, int len, int flags);
 
 #define DEF_PORT "28900"
 consvar_t cv_internetserver = {"internetserver", "No", 0, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_masterserver = {"masterserver", "srb2.servegame.org:"DEF_PORT, CV_SAVE, NULL, MasterServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_masterserver = {"masterserver", "ms.srb2.org:"DEF_PORT, CV_SAVE, NULL, MasterServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_servername = {"servername", "SRB2 server", CV_SAVE, NULL, ServerName_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
 static enum { MSCS_NONE, MSCS_WAITING, MSCS_REGISTERED, MSCS_FAILED } con_state = MSCS_NONE;
@@ -636,7 +636,9 @@ const char *GetMasterServerIP(void)
 	static char str_ip[64];
 	char *t = str_ip;
 
-	if (strstr(cv_masterserver.string, "srb2.ssntails.org : 28910") || strstr(cv_masterserver.string, "srb2.servegame.org : 28910"))
+	if (strstr(cv_masterserver.string, "srb2.ssntails.org:28910")
+	 || strstr(cv_masterserver.string, "srb2.servegame.org:28910")
+	   )
 	{
 		// replace it with the current default one
 		CV_Set(&cv_masterserver, cv_masterserver.defaultvalue);
