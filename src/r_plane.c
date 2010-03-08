@@ -57,7 +57,7 @@ visplane_t *ceilingplane;
 static visplane_t *currentplane;
 
 planemgr_t ffloor[MAXFFLOORS];
-int numffloors;
+INT32 numffloors;
 
 //SoM: 3/23/2000: Boom visplane hashing routine.
 #define visplane_hash(picnum,lightlevel,height) \
@@ -79,7 +79,7 @@ fixed_t frontscale[MAXVIDWIDTH];
 // spanstart holds the start of a plane span
 // initialized to 0 at start
 //
-static int spanstart[MAXVIDHEIGHT];
+static INT32 spanstart[MAXVIDHEIGHT];
 
 //
 // texture mapping
@@ -121,9 +121,9 @@ void R_InitPlanes(void)
 //#define TIMING
 #ifdef TIMING
 #include "p5prof.h"
-         long long mycount;
-         long long mytotal = 0;
-         unsigned long nombre = 100000;
+         INT64 mycount;
+         INT64 mytotal = 0;
+         UINT32 nombre = 100000;
 #endif
 //profile stuff ---------------------------------------------------------
 
@@ -144,9 +144,9 @@ void R_InitPlanes(void)
 //
 // BASIC PRIMITIVE
 //
-static int bgofs;
-static int wtofs=0;
-static int waterofs;
+static INT32 bgofs;
+static INT32 wtofs=0;
+static INT32 waterofs;
 static boolean itswater;
 
 #ifdef __mips__
@@ -232,7 +232,7 @@ static void R_DrawTranslucentWaterSpan_8(void)
 }
 #endif
 
-void R_MapPlane(int y, int x1, int x2)
+void R_MapPlane(INT32 y, INT32 x1, INT32 x2)
 {
 	angle_t angle;
 	fixed_t distance, length;
@@ -270,11 +270,11 @@ void R_MapPlane(int y, int x1, int x2)
 
 	if (itswater)
 	{
-		const int yay = (wtofs + (distance>>10) ) & 8191;
+		const INT32 yay = (wtofs + (distance>>10) ) & 8191;
 		// ripples da water texture
 		bgofs = FixedDiv(FINESINE(yay),distance>>9)>>FRACBITS;
 
-		angle = (angle + 2048) & 8191;  //90ø
+		angle = (angle + 2048) & 8191;  //90ï¿½
 		ds_xfrac += FixedMul(FINECOSINE(angle), (bgofs<<FRACBITS));
 		ds_yfrac += FixedMul(FINESINE(angle), (bgofs<<FRACBITS));
 
@@ -309,7 +309,7 @@ void R_MapPlane(int y, int x1, int x2)
 	RDMSR(0x10, &mycount);
 	mytotal += mycount; // 64bit add
 	if (!(nombre--))
-	I_Error("spanfunc() CPU Spy reports: 0x%d %d\n", *((int *)&mytotal+1), (int)mytotal);
+	I_Error("spanfunc() CPU Spy reports: 0x%d %d\n", *((INT32 *)&mytotal+1), (INT32)mytotal);
 #endif
 }
 
@@ -321,7 +321,7 @@ void R_MapPlane(int y, int x1, int x2)
 //       we don't draw the part of the view hidden under the console.
 void R_ClearPlanes(void)
 {
-	int i, p;
+	INT32 i, p;
 	angle_t angle;
 
 	// opening / clipping determination
@@ -352,7 +352,7 @@ void R_ClearPlanes(void)
 	memset(cachedheight, 0, sizeof (cachedheight));
 
 	// left to right mapping
-	angle = (viewangle-ANG90)>>ANGLETOFINESHIFT;
+	angle = (viewangle-ANGLE_90)>>ANGLETOFINESHIFT;
 
 	// scale will be unit scale at SCREENWIDTH/2 distance
 	basexscale = FixedDiv (FINECOSINE(angle),centerxfrac);
@@ -383,7 +383,7 @@ static visplane_t *new_visplane(unsigned hash)
 //              Same height, same flattexture, same lightlevel.
 //              If not, allocates another of them.
 //
-visplane_t *R_FindPlane(fixed_t height, long picnum, int lightlevel,
+visplane_t *R_FindPlane(fixed_t height, INT32 picnum, INT32 lightlevel,
 	fixed_t xoff, fixed_t yoff, angle_t plangle, extracolormap_t *planecolormap,
 	ffloor_t *pfloor)
 {
@@ -440,11 +440,11 @@ visplane_t *R_FindPlane(fixed_t height, long picnum, int lightlevel,
 //
 // R_CheckPlane: return same visplane or alloc a new one if needed
 //
-visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
+visplane_t *R_CheckPlane(visplane_t *pl, INT32 start, INT32 stop)
 {
-	int intrl, intrh;
-	int unionl, unionh;
-	int x;
+	INT32 intrl, intrh;
+	INT32 unionl, unionh;
+	INT32 x;
 
 	if (start < pl->minx)
 	{
@@ -515,11 +515,11 @@ visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop)
 // need to create new ones with R_CheckPlane, because 3D floor planes
 // are created by subsector and there is no way a subsector can graphically
 // overlap.
-void R_ExpandPlane(visplane_t *pl, int start, int stop)
+void R_ExpandPlane(visplane_t *pl, INT32 start, INT32 stop)
 {
-	int intrl, intrh;
-	int unionl, unionh;
-//	int x;
+	INT32 intrl, intrh;
+	INT32 unionl, unionh;
+//	INT32 x;
 
 #ifdef POLYOBJECTS_PLANES
 	// Don't expand polyobject planes here - we do that on our own.
@@ -562,7 +562,7 @@ void R_ExpandPlane(visplane_t *pl, int start, int stop)
 //
 // R_MakeSpans
 //
-void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
+void R_MakeSpans(INT32 x, INT32 t1, INT32 b1, INT32 t2, INT32 b2)
 {
 	//    Alam: from r_splats's R_RenderFloorSplat
 	if (t1 >= vid.height) t1 = vid.height-1;
@@ -591,9 +591,9 @@ void R_MakeSpans(int x, int t1, int b1, int t2, int b2)
 void R_DrawPlanes(void)
 {
 	visplane_t *pl;
-	int x;
-	int angle;
-	int i;
+	INT32 x;
+	INT32 angle;
+	INT32 i;
 
 	spanfunc = basespanfunc;
 	wallcolfunc = walldrawerfunc;
@@ -646,9 +646,9 @@ void R_DrawPlanes(void)
 
 void R_DrawSinglePlane(visplane_t *pl)
 {
-	int light = 0;
-	int x;
-	int stop, angle;
+	INT32 light = 0;
+	INT32 x;
+	INT32 stop, angle;
 	size_t size;
 
 	if (!(pl->minx <= pl->maxx))
@@ -701,7 +701,7 @@ void R_DrawSinglePlane(visplane_t *pl)
 #ifndef NOWATER
 		if (pl->ffloor->flags & FF_RIPPLE)
 		{
-			int top, bottom;
+			INT32 top, bottom;
 
 			itswater = true;
 			if (spanfunc == R_DrawTranslucentSpan_8)
@@ -730,7 +730,7 @@ void R_DrawSinglePlane(visplane_t *pl)
 	if (viewangle != pl->viewangle)
 	{
 		memset(cachedheight, 0, sizeof (cachedheight));
-		angle = (pl->viewangle-ANG90)>>ANGLETOFINESHIFT;
+		angle = (pl->viewangle-ANGLE_90)>>ANGLETOFINESHIFT;
 		basexscale = FixedDiv(FINECOSINE(angle),centerxfrac);
 		baseyscale = -FixedDiv(FINESINE(angle),centerxfrac);
 		viewangle = pl->viewangle;
@@ -835,7 +835,7 @@ using the palette colors.
 #ifdef QUINCUNX
 	if (spanfunc == R_DrawSpan_8)
 	{
-		int i;
+		INT32 i;
 		ds_transmap = ((tr_trans50)<<FF_TRANSSHIFT) - 0x10000 + transtables;
 		spanfunc = R_DrawTranslucentSpan_8;
 		for (i=0; i<4; i++)
@@ -892,8 +892,8 @@ using the palette colors.
 
 void R_PlaneBounds(visplane_t *plane)
 {
-	int i;
-	int hi, low;
+	INT32 i;
+	INT32 hi, low;
 
 	hi = plane->top[plane->minx];
 	low = plane->bottom[plane->minx];

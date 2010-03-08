@@ -46,6 +46,7 @@
 #define LZFP_h
 
 #include "lzf.h"
+#include "m_misc.h"
 
 /*
  * Size of hashtable is (1 << HLOG) * sizeof (char *)
@@ -181,9 +182,9 @@ typedef const u8 *LZF_STATE[1 << (HLOG)];
 # define SET_ERRNO(n) errno = (n)
 #endif
 
-unsigned int
-lzf_decompress (const void *const in_data,  unsigned int in_len,
-                void             *out_data, unsigned int out_len)
+size_t
+lzf_decompress (const void *const in_data,  size_t in_len,
+                void             *out_data, size_t out_len)
 {
   u8 const *ip = (const u8 *)in_data;
   u8       *op = (u8 *)out_data;

@@ -41,8 +41,8 @@ thinker_t thinkercap;
 
 void Command_Numthinkers_f(void)
 {
-	int num;
-	int count = 0;
+	INT32 num;
+	INT32 count = 0;
 	actionf_p1 action;
 	thinker_t *think;
 
@@ -104,7 +104,7 @@ void Command_CountMobjs_f(void)
 {
 	thinker_t *th;
 	mobjtype_t i;
-	int count;
+	INT32 count;
 
 	CONS_Printf("Count of active objects in level:\n");
 
@@ -261,16 +261,17 @@ static inline void P_RunThinkers(void)
 static void P_DoAutobalanceTeams(void)
 {
 	changeteam_union NetPacket;
-	int i=0;
-	int red=0, blue=0;
-	int redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
+	USHORT usvalue;
+	INT32 i=0;
+	INT32 red=0, blue=0;
+	INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
 
 	memset(redarray, 0, sizeof(redarray));
 	memset(bluearray, 0, sizeof(bluearray));
 
 	// Only do it if we have enough room in the net buffer to send it.
 	// Otherwise, come back next time and try again.
-	if (sizeof(NetPacket.value) > GetFreeXCmdSize())
+	if (sizeof(usvalue) > GetFreeXCmdSize())
 		return;
 
 	//We have to store the players in an array with the rest of their team.
@@ -302,7 +303,8 @@ static void P_DoAutobalanceTeams(void)
 			NetPacket.packet.verification = true;
 			NetPacket.packet.autobalance = true;
 
-			SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+			usvalue  = SHORT(NetPacket.value.l|NetPacket.value.b);
+			SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 		}
 
 		if (blue > red)
@@ -313,7 +315,8 @@ static void P_DoAutobalanceTeams(void)
 			NetPacket.packet.verification = true;
 			NetPacket.packet.autobalance = true;
 
-			SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+			usvalue  = SHORT(NetPacket.value.l|NetPacket.value.b);
+			SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 		}
 	}
 }
@@ -327,11 +330,12 @@ static void P_DoAutobalanceTeams(void)
 void P_DoTeamscrambling(void)
 {
 	changeteam_union NetPacket;
-	NetPacket.value = 0;
+	USHORT usvalue;
+	NetPacket.value.l = NetPacket.value.b = 0;
 
 	// Only do it if we have enough room in the net buffer to send it.
 	// Otherwise, come back next time and try again.
-	if (sizeof(NetPacket.value) > GetFreeXCmdSize())
+	if (sizeof(usvalue) > GetFreeXCmdSize())
 		return;
 
 	if (scramblecount < scrambletotal)
@@ -343,7 +347,8 @@ void P_DoTeamscrambling(void)
 			NetPacket.packet.verification = true;
 			NetPacket.packet.scrambled = true;
 
-			SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+			usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
+			SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 		}
 
 		scramblecount++; //Increment, and get to the next player when we come back here next time.
@@ -357,7 +362,7 @@ void P_DoTeamscrambling(void)
 //
 void P_Ticker(void)
 {
-	int i;
+	INT32 i;
 
 	// Check for pause or menu up in single player
 	if (paused || (!netgame && menuactive && !demoplayback))
@@ -509,7 +514,7 @@ void P_Ticker(void)
 		//increment survivor scores
 		if (leveltime % TICRATE == 0 && leveltime > (hidetime * TICRATE))
 		{
-			int spectators = 0;
+			INT32 spectators = 0;
 
 			for (i=0; i < MAXPLAYERS; i++) //count spectators to subtract from the player count.
 			{

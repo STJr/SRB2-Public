@@ -21,7 +21,7 @@
 extern SDL_Surface *vidSurface;
 extern void *GLUhandle;
 
-boolean OglSdlSurface(int w, int h, boolean isFullscreen);
+boolean OglSdlSurface(INT32 w, INT32 h, boolean isFullscreen);
 
 void OglSdlFinishUpdate(boolean vidwait);
 

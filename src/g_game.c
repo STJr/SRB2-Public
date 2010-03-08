@@ -61,16 +61,16 @@ JoyType_t Joystick2;
 char gamedatafilename[64] = "gamedata.dat";
 char timeattackfolder[64] = "main";
 
-static void G_ReadDemoTiccmd(ticcmd_t *cmd, int playernum);
-static void G_WriteDemoTiccmd(ticcmd_t *cmd, int playernum);
+static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum);
+static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum);
 static void G_DoWorldDone(void);
 
 short gamemap = 1;
 musicenum_t mapmusic;
 short maptol;
-int globalweather = 0;
-int curWeather = PRECIP_NONE;
-int cursaveslot = -1; // Auto-save 1p savegame slot
+INT32 globalweather = 0;
+INT32 curWeather = PRECIP_NONE;
+INT32 cursaveslot = -1; // Auto-save 1p savegame slot
 short lastmapsaved = 0; // Last map we auto-saved at
 boolean gamecomplete = false;
 
@@ -94,9 +94,9 @@ boolean playeringame[MAXPLAYERS];
 boolean addedtogame;
 player_t players[MAXPLAYERS];
 
-int consoleplayer; // player taking events and displaying
-int displayplayer; // view being displayed
-int secondarydisplayplayer; // for splitscreen
+INT32 consoleplayer; // player taking events and displaying
+INT32 displayplayer; // view being displayed
+INT32 secondarydisplayplayer; // for splitscreen
 
 tic_t gametic;
 tic_t levelstarttic; // gametic at level start
@@ -121,7 +121,7 @@ byte countdowntimeup = false;
 cutscene_t cutscenes[128];
 
 short nextmapoverride;
-int nextmapgametype;
+INT32 nextmapgametype;
 boolean skipstats;
 
 // Original flag spawn locations
@@ -136,13 +136,13 @@ static boolean exitgame = false;
 USHORT emeralds;
 ULONG token; // Number of tokens collected in a level
 ULONG tokenlist; // List of tokens collected
-int tokenbits; // Used for setting token bits
-long sstimer; // Time allotted in the special stage
+INT32 tokenbits; // Used for setting token bits
+INT32 sstimer; // Time allotted in the special stage
 
 char lvltable[LEVELARRAYSIZE+3][64];
 
 tic_t totalplaytime;
-int numemblems = 40;
+INT32 numemblems = 40;
 boolean gamedataloaded = 0;
 
 // Mystic's funky SA ripoff emblem idea
@@ -187,7 +187,7 @@ emblem_t emblemlocations[MAXEMBLEMS] =
 };
 
 // ring count... for PERFECT!
-int nummaprings = 0;
+INT32 nummaprings = 0;
 
 // Time attack data for levels
 timeattack_t timedata[NUMMAPS];
@@ -207,16 +207,16 @@ boolean CheckForReverseGravity;
 // Powerup durations
 tic_t invulntics = 20*TICRATE;
 tic_t sneakertics = 20*TICRATE;
-int flashingtics = 3*TICRATE;
+INT32 flashingtics = 3*TICRATE;
 tic_t tailsflytics = 8*TICRATE;
-int underwatertics = 30*TICRATE;
+INT32 underwatertics = 30*TICRATE;
 tic_t spacetimetics = 11*TICRATE + (TICRATE/2);
 tic_t extralifetics = 4*TICRATE;
 tic_t gravbootstics = 20*TICRATE;
 tic_t paralooptics = 20*TICRATE;
 tic_t helpertics = 20*TICRATE;
 
-int gameovertics = 45*TICRATE;
+INT32 gameovertics = 45*TICRATE;
 
 byte introtoplay;
 byte creditscutscene;
@@ -230,17 +230,17 @@ ULONG countdown, countdown2; // for racing
 
 fixed_t gravity;
 
-int autobalance; //for CTF team balance
-int teamscramble; //for CTF team scramble
-int scrambleplayers[MAXPLAYERS]; //for CTF team scramble
-int scrambleteams[MAXPLAYERS]; //for CTF team scramble
-int scrambletotal; //for CTF team scramble
-int scramblecount; //for CTF team scramble
+INT32 autobalance; //for CTF team balance
+INT32 teamscramble; //for CTF team scramble
+INT32 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
+INT32 scrambleteams[MAXPLAYERS]; //for CTF team scramble
+INT32 scrambletotal; //for CTF team scramble
+INT32 scramblecount; //for CTF team scramble
 
-int cheats; //for multiplayer cheat commands
+INT32 cheats; //for multiplayer cheat commands
 
-int matchtype;
-int tagtype; // for tag
+INT32 matchtype;
+INT32 tagtype; // for tag
 tic_t hidetime;
 
 // Grading
@@ -445,7 +445,7 @@ char player_names[MAXPLAYERS][MAXPLAYERNAME+1] =
   * \return Pointer to a static buffer containing the desired map name.
   * \sa M_MapNumber
   */
-const char *G_BuildMapName(int map)
+const char *G_BuildMapName(INT32 map)
 {
 	static char mapname[9] = "MAPXX"; // internal map name (wad resource name)
 
@@ -473,15 +473,15 @@ const char *G_BuildMapName(int map)
   * \param aiming Pointer to the vertical angle to clip.
   * \return Short version of the clipped angle for building a ticcmd.
   */
-short G_ClipAimingPitch(int *aiming)
+short G_ClipAimingPitch(INT32 *aiming)
 {
-	int limitangle;
+	INT32 limitangle;
 
 	// note: the current software mode implementation doesn't have true perspective
 	if (rendermode == render_soft)
-		limitangle = ANG45 + (ANG45/2) - ((ANG45/45)*3); // Some viewing fun, but not too far down...
+		limitangle = ANG64h; // Some viewing fun, but not too far down...
 	else
-		limitangle = ANG90 - 1;
+		limitangle = ANGLE_90 - 1;
 
 	if (*aiming > limitangle)
 		*aiming = limitangle;
@@ -491,10 +491,10 @@ short G_ClipAimingPitch(int *aiming)
 	return (short)((*aiming)>>16);
 }
 
-static int JoyAxis(axis_input_e axissel)
+static INT32 JoyAxis(axis_input_e axissel)
 {
-	int retaxis;
-	int axisval;
+	INT32 retaxis;
+	INT32 axisval;
 	boolean flp = false;
 
 	//find what axis to get
@@ -560,7 +560,7 @@ static int JoyAxis(axis_input_e axissel)
 		retaxis = +JOYAXISRANGE;
 	if (!Joystick.bGamepadStyle && axissel < AXISDEAD)
 	{
-		const int jdeadzone = JOYAXISRANGE/4;
+		const INT32 jdeadzone = JOYAXISRANGE/4;
 		if (-jdeadzone < retaxis && retaxis < jdeadzone)
 			return 0;
 	}
@@ -568,10 +568,10 @@ static int JoyAxis(axis_input_e axissel)
 	return retaxis;
 }
 
-static int Joy2Axis(axis_input_e axissel)
+static INT32 Joy2Axis(axis_input_e axissel)
 {
-	int retaxis;
-	int axisval;
+	INT32 retaxis;
+	INT32 axisval;
 	boolean flp = false;
 
 	//find what axis to get
@@ -638,7 +638,7 @@ static int Joy2Axis(axis_input_e axissel)
 		retaxis = +JOYAXISRANGE;
 	if (!Joystick2.bGamepadStyle && axissel < AXISDEAD)
 	{
-		const int jdeadzone = JOYAXISRANGE/4;
+		const INT32 jdeadzone = JOYAXISRANGE/4;
 		if (-jdeadzone < retaxis && retaxis < jdeadzone)
 			return 0;
 	}
@@ -655,28 +655,23 @@ static int Joy2Axis(axis_input_e axissel)
 //
 // set secondaryplayer true to build player 2's ticcmd in splitscreen mode
 //
-int localaiming, localaiming2;
+INT32 localaiming, localaiming2;
 angle_t localangle, localangle2;
-
-// mouseaiming (looking up/down with the mouse or keyboard)
-#define KB_LOOKSPEED (1<<25)
-#define MAXPLMOVE (forwardmove[1])
-#define SLOWTURNTICS (6*NEWTICRATERATIO)
 
 static fixed_t forwardmove[2] = {25/NEWTICRATERATIO, 50/NEWTICRATERATIO};
 static fixed_t sidemove[2] = {25/NEWTICRATERATIO, 50/NEWTICRATERATIO}; // faster!
 static fixed_t angleturn[3] = {640/NEWTICRATERATIO, 1280/NEWTICRATERATIO, 320/NEWTICRATERATIO}; // + slow turn
 
-void G_BuildTiccmd(ticcmd_t *cmd, int realtics)
+void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 {
 	boolean strafe;
-	int tspeed, forward, side, axis;
-	const int speed = 1;
+	INT32 tspeed, forward, side, axis;
+	const INT32 speed = 1;
 	ticcmd_t *base;
 	// these ones used for multiple conditions
 	boolean turnleft, turnright, mouseaiming, analogjoystickmove, gamepadjoystickmove;
 
-	static int turnheld; // for accelerative turning
+	static INT32 turnheld; // for accelerative turning
 	static boolean keyboard_look; // true if lookup/down using keyboard
 
 	base = I_BaseTiccmd(); // empty, or external driver
@@ -990,16 +985,16 @@ void G_BuildTiccmd(ticcmd_t *cmd, int realtics)
 }
 
 // like the g_buildticcmd 1 but using mouse2, gamcontrolbis, ...
-void G_BuildTiccmd2(ticcmd_t *cmd, int realtics)
+void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 {
 	boolean strafe;
-	int tspeed, forward, side, axis;
-	const int speed = 1;
+	INT32 tspeed, forward, side, axis;
+	const INT32 speed = 1;
 	ticcmd_t *base;
 	// these ones used for multiple conditions
 	boolean turnleft, turnright, mouseaiming, analogjoystickmove, gamepadjoystickmove;
 
-	static int turnheld; // for accelerative turning
+	static INT32 turnheld; // for accelerative turning
 	static boolean keyboard_look; // true if lookup/down using keyboard
 
 	base = I_BaseTiccmd2(); // empty, or external driver
@@ -1359,7 +1354,7 @@ static void Analog2_OnChange(void)
 //
 void G_DoLoadLevel(boolean resetplayer)
 {
-	int i;
+	INT32 i;
 
 	if (server || (adminplayer == consoleplayer))
 		CV_StealthSetValue(&cv_objectplace, 0); // Make sure objectplace is OFF when you first start the level!
@@ -1425,7 +1420,7 @@ void G_DoLoadLevel(boolean resetplayer)
 		SetSavedSkin(0, players[0].skin, players[0].prefcolor);
 }
 
-static int pausedelay = 0;
+static INT32 pausedelay = 0;
 
 //
 // G_Responder
@@ -1606,7 +1601,7 @@ boolean G_Responder(event_t *ev)
 void G_Ticker(void)
 {
 	ULONG i;
-	int buf;
+	INT32 buf;
 	ticcmd_t *cmd;
 
 	P_MapStart();
@@ -1664,7 +1659,7 @@ dontcompleteyet:
 			if (demoplayback)
 				G_ReadDemoTiccmd(cmd, i);
 			else
-				M_Memcpy(cmd, &netcmds[buf][i], sizeof (ticcmd_t));
+				G_CopyTiccmd(cmd, &netcmds[buf][i], 1);
 
 			if (demorecording)
 				G_WriteDemoTiccmd(cmd, i);
@@ -1747,7 +1742,7 @@ dontcompleteyet:
 // G_PlayerFinishLevel
 // Called when a player completes a level.
 //
-static inline void G_PlayerFinishLevel(int player)
+static inline void G_PlayerFinishLevel(INT32 player)
 {
 	player_t *p;
 
@@ -1774,46 +1769,46 @@ static inline void G_PlayerFinishLevel(int player)
 // G_PlayerReborn
 // Called after a player dies. Almost everything is cleared and initialized.
 //
-void G_PlayerReborn(int player)
+void G_PlayerReborn(INT32 player)
 {
 	player_t *p;
-	int score;
-	int lives;
-	long continues;
-	int xtralife;
-	int charability;
-	int charability2;
-	int normalspeed;
-	int runspeed;
-	int thrustfactor;
-	int accelstart;
-	int acceleration;
-	long charflags;
-	long pflags = 0;
-	int thokitem;
-	int spinitem;
-	int actionspd;
-	int mindash;
-	int maxdash;
-	int starttrans;
-	int prefcolor;
-	long ctfteam;
-	int starposttime;
-	int starpostx;
-	int starposty;
-	int starpostz;
-	int starpostnum;
-	int starpostangle;
-	unsigned int starpostbit;
-	int jumpfactor;
-	int exiting;
-	int numboxes;
-	int laps;
-	int totalring;
-	int dbginfo;
+	INT32 score;
+	INT32 lives;
+	INT32 continues;
+	INT32 xtralife;
+	INT32 charability;
+	INT32 charability2;
+	INT32 normalspeed;
+	INT32 runspeed;
+	INT32 thrustfactor;
+	INT32 accelstart;
+	INT32 acceleration;
+	INT32 charflags;
+	INT32 pflags = 0;
+	INT32 thokitem;
+	INT32 spinitem;
+	INT32 actionspd;
+	INT32 mindash;
+	INT32 maxdash;
+	INT32 starttrans;
+	INT32 prefcolor;
+	INT32 ctfteam;
+	INT32 starposttime;
+	INT32 starpostx;
+	INT32 starposty;
+	INT32 starpostz;
+	INT32 starpostnum;
+	INT32 starpostangle;
+	UINT32 starpostbit;
+	INT32 jumpfactor;
+	INT32 exiting;
+	INT32 numboxes;
+	INT32 laps;
+	INT32 totalring;
+	INT32 dbginfo;
 	byte mare;
-	int skincolor;
-	int skin;
+	INT32 skincolor;
+	INT32 skin;
 	tic_t jointime;
 	boolean spectator;
 
@@ -1969,12 +1964,12 @@ void G_PlayerReborn(int player)
 // at the given mapthing_t spot
 // because something is occupying it
 //
-static boolean G_CheckSpot(int playernum, mapthing_t *mthing)
+static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 {
 	fixed_t x;
 	fixed_t y;
 	subsector_t *ss;
-	int i;
+	INT32 i;
 
 	// maybe there is no player start
 	if (!mthing)
@@ -2008,9 +2003,9 @@ static boolean G_CheckSpot(int playernum, mapthing_t *mthing)
 // Spawns a player at one of the random death match spots
 // called at level load and each death
 //
-void G_DeathMatchSpawnPlayer(int playernum)
+void G_DeathMatchSpawnPlayer(INT32 playernum)
 {
-	int i, j;
+	INT32 i, j;
 
 	if (gametype == GT_TAG && (players[playernum].pflags & PF_TAGIT))//the chosen one spawns all by his lonesome.
 	{
@@ -2053,9 +2048,9 @@ void G_DeathMatchSpawnPlayer(int playernum)
 
 // G_CoopSpawnPlayer
 //
-void G_CoopSpawnPlayer(int playernum, boolean starpost)
+void G_CoopSpawnPlayer(INT32 playernum, boolean starpost)
 {
-	int i, j;
+	INT32 i, j;
 
 	// CTF Start Spawns
 	if (gametype == GT_CTF)
@@ -2133,7 +2128,7 @@ startdeath:
 //
 // G_DoReborn
 //
-void G_DoReborn(int playernum)
+void G_DoReborn(INT32 playernum)
 {
 	player_t *player = &players[playernum];
 	boolean starpost = false;
@@ -2153,7 +2148,7 @@ void G_DoReborn(int playernum)
 		}
 		if (mapheaderinfo[gamemap-1].noreload && !imcontinuing && !timeattacking)
 		{
-			int i;
+			INT32 i;
 
 			P_LoadThingsOnly();
 
@@ -2225,7 +2220,7 @@ void G_DoReborn(int playernum)
 	}
 }
 
-void G_AddPlayer(int playernum)
+void G_AddPlayer(INT32 playernum)
 {
 	player_t *p = &players[playernum];
 
@@ -2258,7 +2253,7 @@ void G_ExitLevel(void)
 // Returns TRUE if
 // the given map is a special stage.
 //
-boolean G_IsSpecialStage(int mapnum)
+boolean G_IsSpecialStage(INT32 mapnum)
 {
 	if ((!useNightsSS && mapnum >= sstage_start && mapnum <= sstage_end)
 		|| (useNightsSS && mapnum >= nsstage_start && mapnum <= nsstage_end))
@@ -2273,7 +2268,7 @@ boolean G_IsSpecialStage(int mapnum)
   * \return The typeoflevel flag to check for that gametype.
   * \author Graue <graue@oceanbase.org>
   */
-static short TOLFlag(int pgametype)
+static short TOLFlag(INT32 pgametype)
 {
 	if (!multiplayer)          return TOL_SP;
 	if (pgametype == GT_COOP)  return TOL_COOP;
@@ -2300,9 +2295,9 @@ static short TOLFlag(int pgametype)
 static short RandMap(short tolflags)
 {
 	XBOXSTATIC short okmaps[NUMMAPS];
-	int numokmaps = 0;
+	INT32 numokmaps = 0;
 	short ix;
-	int mapnum;
+	INT32 mapnum;
 
 	// Find all the maps that are ok and and put them in an array.
 	for (ix = 0; ix < NUMMAPS; ix++)
@@ -2324,7 +2319,7 @@ static short RandMap(short tolflags)
 //
 void G_DoCompleted(void)
 {
-	int i;
+	INT32 i;
 	boolean gottoken = false;
 
 	tokenlist = 0; // Reset the list
@@ -2418,7 +2413,7 @@ void G_DoCompleted(void)
 
 	if (gametype == GT_COOP && token)
 	{
-		int sstagestartmap;
+		INT32 sstagestartmap;
 
 		if (useNightsSS)
 			sstagestartmap = nsstage_start;
@@ -2509,7 +2504,7 @@ static void G_DoWorldDone(void)
 	// not in demo because demo have the mapcommand on it
 	if (server && !demoplayback)
 	{
-		int nextgametype;
+		INT32 nextgametype;
 
 		// for custom exit (linetype 2) that changes gametype
 		if (nextmapgametype != -1)
@@ -2559,7 +2554,7 @@ void G_LoadGameSettings(void)
 void G_LoadGameData(void)
 {
 	size_t length;
-	int i;
+	INT32 i;
 	boolean modded = false;
 	boolean corrupt = false;
 
@@ -2651,7 +2646,7 @@ void G_LoadGameData(void)
 void G_SaveGameData(void)
 {
 	size_t length;
-	int i;
+	INT32 i;
 	ULONG stemp;
 	byte btemp;
 
@@ -2709,7 +2704,7 @@ void G_SaveGameData(void)
 //
 #define VERSIONSIZE 16
 
-void G_LoadGame(unsigned int slot, short mapoverride)
+void G_LoadGame(UINT32 slot, short mapoverride)
 {
 	size_t length;
 	char vcheck[VERSIONSIZE];
@@ -2773,7 +2768,7 @@ void G_LoadGame(unsigned int slot, short mapoverride)
 // G_SaveGame
 // Saves your game.
 //
-void G_SaveGame(unsigned int savegameslot)
+void G_SaveGame(UINT32 savegameslot)
 {
 	boolean saved;
 	char savename[256] = "";
@@ -2822,7 +2817,7 @@ void G_SaveGame(unsigned int savegameslot)
 // Can be called by the startup code or the menu task,
 // consoleplayer, displayplayer, playeringame[] should be set.
 //
-void G_DeferedInitNew(boolean pultmode, const char *mapname, int pickedchar, boolean SSSG, boolean FLS)
+void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar, boolean SSSG, boolean FLS)
 {
 	paused = false;
 
@@ -2850,7 +2845,7 @@ void G_DeferedInitNew(boolean pultmode, const char *mapname, int pickedchar, boo
 // called at: map cmd execution, doloadgame, doplaydemo
 void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer, boolean skipprecutscene)
 {
-	int i;
+	INT32 i;
 
 	if (paused)
 	{
@@ -2929,7 +2924,7 @@ void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer, boole
 
 	if (netgame)
 	{
-		const int actnum = mapheaderinfo[gamemap-1].actnum;
+		const INT32 actnum = mapheaderinfo[gamemap-1].actnum;
 		CONS_Printf(text[MAPISNOW], G_BuildMapName(gamemap));
 		if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
 		{
@@ -2958,7 +2953,21 @@ void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer, boole
 
 static ticcmd_t oldcmd[MAXPLAYERS];
 
-static void G_ReadDemoTiccmd(ticcmd_t *cmd, int playernum)
+ticcmd_t *G_CopyTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n)
+{
+	size_t i;
+	for (i = 0; i < n; i++)
+	{
+		dest[i].forwardmove = src[i].forwardmove;
+		dest[i].sidemove = src[i].sidemove;
+		dest[i].angleturn = SHORT(src[i].angleturn);
+		dest[i].aiming = (signed short)SHORT(src[i].aiming);
+		dest[i].buttons = (unsigned short)SHORT(src[i].buttons);
+	}
+	return dest;
+}
+
+static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 {
 	byte ziptic;
 
@@ -2981,7 +2990,7 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, int playernum)
 	else
 		ReadLmpExtraData(0, playernum);
 
-	M_Memcpy(cmd, &(oldcmd[playernum]), sizeof (ticcmd_t));
+	G_CopyTiccmd(cmd, &(oldcmd[playernum]), 1);
 
 	if (*demo_p == DEMOMARKER)
 	{
@@ -2991,7 +3000,7 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, int playernum)
 	}
 }
 
-static void G_WriteDemoTiccmd(ticcmd_t *cmd, int playernum)
+static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 {
 	char ziptic = 0;
 	byte *ziptic_p;
@@ -3054,7 +3063,7 @@ static void G_WriteDemoTiccmd(ticcmd_t *cmd, int playernum)
 //
 void G_RecordDemo(const char *name)
 {
-	int maxsize;
+	INT32 maxsize;
 
 	strcpy(demoname, name);
 	strcat(demoname, ".lmp");
@@ -3071,7 +3080,7 @@ void G_RecordDemo(const char *name)
 
 void G_BeginRecording(void)
 {
-	int i;
+	INT32 i;
 
 	demo_p = demobuffer;
 
@@ -3111,7 +3120,7 @@ void G_DeferedPlayDemo(const char *name)
 //
 void G_DoPlayDemo(char *defdemoname)
 {
-	int i, map;
+	INT32 i, map;
 	lumpnum_t l;
 
 	// load demo file / resource
@@ -3172,7 +3181,7 @@ void G_DoPlayDemo(char *defdemoname)
 // G_TimeDemo
 // NOTE: name is a full filename for external demos
 //
-static int restorecv_vidwait;
+static INT32 restorecv_vidwait;
 
 void G_TimeDemo(const char *name)
 {
@@ -3251,7 +3260,7 @@ boolean G_CheckDemoStatus(void)
 	boolean saved;
 	if (timingdemo)
 	{
-		int demotime;
+		INT32 demotime;
 		double f1, f2;
 		demotime = I_GetTime() - demostarttime;
 		if (!demotime)
@@ -3260,7 +3269,7 @@ boolean G_CheckDemoStatus(void)
 		timingdemo = false;
 		f1 = (double)demotime;
 		f2 = (double)framecount*TICRATE;
-		CONS_Printf("timed %lu gametics in %d realtics\n"
+		CONS_Printf("timed %d gametics in %d realtics\n"
 			"%f seconds, %f avg fps\n",
 			leveltime,demotime,f1/TICRATE,f2/f1);
 		if (restorecv_vidwait != cv_vidwait.value)
@@ -3339,12 +3348,12 @@ boolean G_GetExitGameFlag(void)
 }
 
 // Time utility functions
-int G_TicsToHours(tic_t tics)
+INT32 G_TicsToHours(tic_t tics)
 {
 	return tics/(3600*TICRATE);
 }
 
-int G_TicsToMinutes(tic_t tics, boolean full)
+INT32 G_TicsToMinutes(tic_t tics, boolean full)
 {
 	if (full)
 		return tics/(60*TICRATE);
@@ -3352,18 +3361,18 @@ int G_TicsToMinutes(tic_t tics, boolean full)
 		return tics/(60*TICRATE)%60;
 }
 
-int G_TicsToSeconds(tic_t tics)
+INT32 G_TicsToSeconds(tic_t tics)
 {
 	return (tics/TICRATE)%60;
 }
 
-int G_TicsToCentiseconds(tic_t tics)
+INT32 G_TicsToCentiseconds(tic_t tics)
 {
-	return (int)((tics%TICRATE) * (100.00f/TICRATE));
+	return (INT32)((tics%TICRATE) * (100.00f/TICRATE));
 }
 
-int G_TicsToMilliseconds(tic_t tics)
+INT32 G_TicsToMilliseconds(tic_t tics)
 {
-	return (int)((tics%TICRATE) * (1000.00f/TICRATE));
+	return (INT32)((tics%TICRATE) * (1000.00f/TICRATE));
 }
 

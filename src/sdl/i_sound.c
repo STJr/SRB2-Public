@@ -73,7 +73,7 @@
 #include "hwsym_sdl.h"
 #endif
 
-#if (defined (_WIN32) && !defined (_XBOX)) || defined (HAVE_FMOD)
+#if (defined (_WIN32) && !defined (_XBOX) && !defined(NOFMOD)) || defined (HAVE_FMOD)
 #define FMODSOUND
 #endif
 
@@ -118,34 +118,34 @@ typedef struct chan_struct
 
 	// pitch
 	Uint32 realstep; // The channel step amount...
-	Uint32 step;          //static unsigned int channelstep[NUM_CHANNELS];
-	Uint32 stepremainder; //static unsigned int channelstepremainder[NUM_CHANNELS];
+	Uint32 step;          //static UINT32 channelstep[NUM_CHANNELS];
+	Uint32 stepremainder; //static UINT32 channelstepremainder[NUM_CHANNELS];
 	Uint32 samplerate; // ... and a 0.16 bit remainder of last step.
 
 	// Time/gametic that the channel started playing,
 	//  used to determine oldest, which automatically
 	//  has lowest priority.
-	tic_t starttic; //static int channelstart[NUM_CHANNELS];
+	tic_t starttic; //static INT32 channelstart[NUM_CHANNELS];
 
 	// The sound handle, determined on registration,
 	//  used to unregister/stop/modify,
-	int handle; //static int channelhandles[NUM_CHANNELS];
+	INT32 handle; //static INT32 channelhandles[NUM_CHANNELS];
 
 	// SFX id of the playing sound effect.
 	void *id; // Used to catch duplicates (like chainsaw).
-	sfxenum_t sfxid; //static int channelids[NUM_CHANNELS];
-	int vol; //the channel volume
-	int sep; //the channel pan
+	sfxenum_t sfxid; //static INT32 channelids[NUM_CHANNELS];
+	INT32 vol; //the channel volume
+	INT32 sep; //the channel pan
 
 	// Hardware left and right channel volume lookup.
-	Sint16* leftvol_lookup; //static int *channelleftvol_lookup[NUM_CHANNELS];
-	Sint16* rightvol_lookup; //static int *channelrightvol_lookup[NUM_CHANNELS];
+	Sint16* leftvol_lookup; //static INT32 *channelleftvol_lookup[NUM_CHANNELS];
+	Sint16* rightvol_lookup; //static INT32 *channelrightvol_lookup[NUM_CHANNELS];
 } chan_t;
 
 static chan_t channels[NUM_CHANNELS];
 
 // Pitch to stepping lookup
-static int steptable[256];
+static INT32 steptable[256];
 
 // Volume lookups.
 static Sint16 vol_lookup[128 * 256];
@@ -173,7 +173,7 @@ static SDL_mutex *Msc_Mutex = NULL;
 #endif
 #define MIDI_TMPFILE  "srb2music"
 #define MIDI_TMPFILE2 "srb2wav"
-static int musicvol = 62;
+static INT32 musicvol = 62;
 
 #if SDL_MIXER_VERSION_ATLEAST(1,2,2)
 #define MIXER_POS //Mix_FadeInMusicPos in 1.2.2+
@@ -190,14 +190,18 @@ static SDL_bool canlooping = SDL_TRUE;
 #endif
 #endif
 
+#if SDL_MIXER_VERSION_ATLEAST(1,2,10)
+#define MIXER_INIT
+#endif
+
 #ifdef USE_RWOPS
 static void * Smidi[2] = { NULL, NULL };
 static SDL_bool canuseRW = SDL_TRUE;
 #endif
 static const char *fmidi[2] = { MIDI_TMPFILE, MIDI_TMPFILE2};
 
-static const int MIDIfade = 500;
-static const int Digfade = 0;
+static const INT32 MIDIfade = 500;
+static const INT32 Digfade = 0;
 
 static Mix_Music *music[2] = { NULL, NULL };
 #endif
@@ -205,9 +209,9 @@ static Mix_Music *music[2] = { NULL, NULL };
 #ifdef FMODSOUND
 static FMOD_INSTANCE *fmod375 = NULL;
 static FMUSIC_MODULE *mod = NULL;
-static int fsoundchannel = -1;
-static int fsoundfreq = 0;
-static int fmodvol = 127;
+static INT32 fsoundchannel = -1;
+static INT32 fsoundfreq = 0;
+static INT32 fmodvol = 127;
 static FSOUND_STREAM *fmus = NULL;
 #endif
 static SDL_bool nofmodmusic = SDL_TRUE;
@@ -245,6 +249,11 @@ FUNCMATH static inline SDL_bool Snd_Convert(Uint16 sr)
 	return (sr > audio.freq) || (sr % 11025); // more samples then needed or odd samplerate
 }
 
+#ifdef _MSC_VER
+#pragma warning(disable :  4200)
+#pragma pack(1)
+#endif
+
 typedef struct
 {
 	Uint16 header;     // 3?
@@ -253,6 +262,11 @@ typedef struct
 	Uint16 dummmy;     // 0
 	Uint8  data[0];    // data;
 } ATTRPACK dssfx_t;
+
+#ifdef _MSC_VER
+#pragma pack()
+#pragma warning(default : 4200)
+#endif
 
 //
 // This function loads the sound data from the WAD lump,
@@ -273,9 +287,9 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 	if (Snd_Convert(sr) && SDL_BuildAudioCVT(&sfxcvt, AUDIO_U8, 1, sr, AUDIO_U8, 1, audio.freq))
 	{//Alam: Setup the AudioCVT for the SFX
 
-		sfxcvt.len = (int)size-8; //Alam: Chop off the header
+		sfxcvt.len = (INT32)size-8; //Alam: Chop off the header
 		sfxcvt.buf = malloc(sfxcvt.len * sfxcvt.len_mult); //Alam: make room
-		if (sfxcvt.buf) memcpy(sfxcvt.buf, &(sfx->data), sfxcvt.len); //Alam: copy the sfx sample
+		if (sfxcvt.buf) M_Memcpy(sfxcvt.buf, &(sfx->data), sfxcvt.len); //Alam: copy the sfx sample
 
 		if (sfxcvt.buf && SDL_ConvertAudio(&sfxcvt) == 0) //Alam: let convert it!
 		{
@@ -286,9 +300,9 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 				paddedsfx = (dssfx_t *) Z_Malloc(size, PU_SOUND, NULL);
 
 				// Now copy and pad.
-				memcpy(paddedsfx+8, sfxcvt.buf, sfxcvt.len_cvt);
+				M_Memcpy(paddedsfx+8, sfxcvt.buf, sfxcvt.len_cvt);
 				free(sfxcvt.buf);
-				memcpy(paddedsfx,sfx,8);
+				M_Memcpy(paddedsfx,sfx,8);
 				paddedsfx->samplerate = SHORT((Uint16)audio.freq); // new freq
 		}
 		else //Alam: the convert failed, not needed or i couldn't malloc the buf
@@ -297,7 +311,7 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 			*len = size - 8;
 
 			// Allocate from zone memory then copy and pad
-			paddedsfx = (dssfx_t *)memcpy(Z_Malloc(size, PU_SOUND, NULL), sfx, size);
+			paddedsfx = (dssfx_t *)M_Memcpy(Z_Malloc(size, PU_SOUND, NULL), sfx, size);
 		}
 	}
 	else
@@ -307,7 +321,7 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 		*len = size - 8;
 
 		// Allocate from zone memory then copy and pad
-		paddedsfx = (dssfx_t *)memcpy(Z_Malloc(size, PU_SOUND, NULL), sfx, size);
+		paddedsfx = (dssfx_t *)M_Memcpy(Z_Malloc(size, PU_SOUND, NULL), sfx, size);
 	}
 
 	// Remove the cached lump.
@@ -318,10 +332,10 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 }
 
 // used to (re)calculate channel params based on vol, sep, pitch
-static void I_SetChannelParams(chan_t *c, int vol, int sep, int step)
+static void I_SetChannelParams(chan_t *c, INT32 vol, INT32 sep, INT32 step)
 {
-	int leftvol;
-	int rightvol;
+	INT32 leftvol;
+	INT32 rightvol;
 	c->vol = vol;
 	c->sep = sep;
 	c->step = c->realstep = step;
@@ -361,9 +375,9 @@ static void I_SetChannelParams(chan_t *c, int vol, int sep, int step)
 	c->rightvol_lookup = &vol_lookup[rightvol*256];
 }
 
-static int FindChannel(int handle)
+static INT32 FindChannel(INT32 handle)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < NUM_CHANNELS; i++)
 		if (channels[i].handle == handle)
@@ -380,10 +394,10 @@ static int FindChannel(int handle)
 //  (eight, usually) of internal channels.
 // Returns a handle.
 //
-static int addsfx(sfxenum_t sfxid, int volume, int step, int seperation)
+static INT32 addsfx(sfxenum_t sfxid, INT32 volume, INT32 step, INT32 seperation)
 {
 	static unsigned short handlenums = 0;
-	int i, slot, oldestnum = 0;
+	INT32 i, slot, oldestnum = 0;
 	tic_t oldest = gametic;
 
 	// Play these sound effects only one at a time.
@@ -491,17 +505,17 @@ static inline void I_SetChannels(void)
 	// Init internal lookups (raw data, mixing buffer, channels).
 	// This function sets up internal lookups used during
 	//  the mixing process.
-	int i;
-	int j;
+	INT32 i;
+	INT32 j;
 
-	int *steptablemid = steptable + 128;
+	INT32 *steptablemid = steptable + 128;
 
 	if (nosound)
 		return;
 
 	// This table provides step widths for pitch parameters.
 	for (i = -128; i < 128; i++)
-		steptablemid[i] = (int)(pow(2.0, (i / 64.0)) * 65536.0);
+		steptablemid[i] = (INT32)(pow(2.0, (i / 64.0)) * 65536.0);
 
 	// Generates volume lookup tables
 	//  which also turn the unsigned samples
@@ -518,9 +532,9 @@ static inline void I_SetChannels(void)
 		}
 }
 
-void I_SetSfxVolume(int volume)
+void I_SetSfxVolume(INT32 volume)
 {
-	int i;
+	INT32 i;
 
 	(void)volume;
 	//Snd_LockAudio();
@@ -606,7 +620,7 @@ void I_FreeSfx(sfxinfo_t * sfx)
 // Pitching (that is, increased speed of playback)
 //  is set, but currently not used by mixing.
 //
-int I_StartSound(sfxenum_t id, int vol, int sep, int pitch, int priority)
+INT32 I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority)
 {
 	(void)priority;
 	(void)pitch;
@@ -623,13 +637,13 @@ int I_StartSound(sfxenum_t id, int vol, int sep, int pitch, int priority)
 	return id; // Returns a handle (not used).
 }
 
-void I_StopSound(int handle)
+void I_StopSound(INT32 handle)
 {
 	// You need the handle returned by StartSound.
 	// Would be looping all channels,
 	//  tracking down the handle,
 	//  an setting the channel to zero.
-	int i;
+	INT32 i;
 
 	i = FindChannel(handle);
 
@@ -644,9 +658,9 @@ void I_StopSound(int handle)
 
 }
 
-int I_SoundIsPlaying(int handle)
+INT32 I_SoundIsPlaying(INT32 handle)
 {
-	int isplaying = false, chan = FindChannel(handle);
+	INT32 isplaying = false, chan = FindChannel(handle);
 	if (chan != -1)
 		isplaying = (channels[chan].end != NULL);
 	return isplaying;
@@ -665,7 +679,7 @@ FUNCINLINE static ATTRINLINE void I_UpdateStream8S(Uint8 *stream, int len)
 	Sint8 *leftout = rightout + 1;// currect left
 	const Uint8 step = 2; // Step in stream, left and right, thus two.
 
-	int chan; // Mixing channel index.
+	INT32 chan; // Mixing channel index.
 
 	// Determine end of the stream
 	len /= 2; // not 8bit mono samples, 8bit stereo ones
@@ -754,7 +768,7 @@ FUNCINLINE static ATTRINLINE void I_UpdateStream8M(Uint8 *stream, int len)
 	Sint8 *monoout = (Sint8 *)stream; // currect mono
 	const Uint8 step = 1; // Step in stream, left and right, thus two.
 
-	int chan; // Mixing channel index.
+	INT32 chan; // Mixing channel index.
 
 	// Determine end of the stream
 	//len /= 1; // not 8bit mono samples, 8bit mono ones?
@@ -833,7 +847,7 @@ FUNCINLINE static ATTRINLINE void I_UpdateStream16S(Uint8 *stream, int len)
 	Sint16 *leftout = rightout + 1;// currect left
 	const Uint8 step = 2; // Step in stream, left and right, thus two.
 
-	int chan; // Mixing channel index.
+	INT32 chan; // Mixing channel index.
 
 	// Determine end of the stream
 	len /= 4; // not 8bit mono samples, 16bit stereo ones
@@ -922,7 +936,7 @@ FUNCINLINE static ATTRINLINE void I_UpdateStream16M(Uint8 *stream, int len)
 	Sint16 *monoout = (Sint16 *)(void *)stream; // currect mono
 	const Uint8 step = 1; // Step in stream, left and right, thus two.
 
-	int chan; // Mixing channel index.
+	INT32 chan; // Mixing channel index.
 
 	// Determine end of the stream
 	len /= 2; // not 8bit mono samples, 16bit mono ones
@@ -1011,13 +1025,13 @@ static void SDLCALL I_UpdateStream(void *userdata, Uint8 *stream, int len)
 		I_UpdateStream16S(stream, len);
 }
 
-void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
+void I_UpdateSoundParams(INT32 handle, INT32 vol, INT32 sep, INT32 pitch)
 {
 	// Would be using the handle to identify
 	//  on which channel the sound might be active,
 	//  and resetting the channel parameters.
 
-	int i = FindChannel(handle);
+	INT32 i = FindChannel(handle);
 	(void)pitch;
 
 	if (i != -1 && channels[i].end)
@@ -1033,7 +1047,7 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
 
 static void *soundso = NULL;
 
-static int Init3DSDriver(const char *soName)
+static INT32 Init3DSDriver(const char *soName)
 {
 	if (soName) soundso = hwOpen(soName);
 #if defined (_WIN32) && !defined (STATIC3DS)
@@ -1148,7 +1162,7 @@ void I_StartupSound(void)
 	{
 		audio.freq = atoi(M_GetNextParm());
 		if (!audio.freq) audio.freq = cv_samplerate.value;
-		audio.samples = (Uint16)(samplecount*(int)(audio.freq/22050)); //Alam: to keep it around the same XX ms
+		audio.samples = (Uint16)(samplecount*(INT32)(audio.freq/22050)); //Alam: to keep it around the same XX ms
 		CONS_Printf (" requested frequency of %d hz\n", audio.freq);
 	}
 	else
@@ -1250,11 +1264,11 @@ void I_StartupSound(void)
 	else
 	{
 		char ad[100];
-		CONS_Printf(" Starting up with audio driver : %s\n", SDL_AudioDriverName(ad, sizeof ad));
+		CONS_Printf(" Starting up with audio driver : %s\n", SDL_AudioDriverName(ad, (int)sizeof ad));
 	}
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
-	CONS_Printf(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (int) (((float)audio.samples * 1000.0) / audio.freq));
+	CONS_Printf(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0) / audio.freq));
 	// Finished initialization.
 	CONS_Printf("I_InitSound: sound module ready\n");
 	//[segabor]
@@ -1337,7 +1351,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 		if (!data)
 			return olddata != NULL; //was there old data?
 
-		SDLRW = SDL_RWFromConstMem(data, lumplength); //new RWops from Z_zone
+		SDLRW = SDL_RWFromConstMem(data, (int)lumplength); //new RWops from Z_zone
 		if (!SDLRW) //ERROR while making RWops!
 		{
 			CONS_Printf("Couldn't load music lump: %s\n", SDL_GetError());
@@ -1423,6 +1437,9 @@ void I_ShutdownMusic(void)
 	I_UnRegisterSong(0);
 	I_StopDigSong();
 	Mix_CloseAudio();
+#ifdef MIX_INIT
+	//Mix_Quit();
+#endif
 	CONS_Printf("shut down\n");
 	musicStarted = SDL_FALSE;
 	if (Msc_Mutex)
@@ -1439,7 +1456,10 @@ void I_InitMIDIMusic(void)
 static SDL_bool I_InitFMODMusic(void)
 {
 #ifdef FMODSOUND
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#ifdef _WIN64
+	char fmod375dll[] = "fmod64375.dll";
+	char fmod000dll[] = "fmod64.dll";
+#elif defined(_WIN32)
 	char fmod375dll[] = "fmod375.dll";
 	char fmod000dll[] = "fmod.dll";
 #else
@@ -1516,6 +1536,10 @@ void I_InitMusic(void)
 	char ad[100];
 	SDL_version MIXcompiled;
 	const SDL_version *MIXlinked;
+#ifdef MIXER_INIT
+	const int mixstart = MIX_INIT_OGG;
+	int mixflags;
+#endif
 #endif
 	if (I_InitFMODMusic())
 	{
@@ -1545,7 +1569,7 @@ void I_InitMusic(void)
 #if !(defined (DC) || defined (PSP) || defined(GP2X))
 	if (audio.freq < 44100 && !M_CheckParm ("-freq")) //I want atleast 44Khz
 	{
-		audio.samples = (Uint16)(audio.samples*(int)(44100/audio.freq));
+		audio.samples = (Uint16)(audio.samples*(INT32)(44100/audio.freq));
 		audio.freq = 44100; //Alam: to keep it around the same XX ms
 	}
 #endif
@@ -1562,6 +1586,27 @@ void I_InitMusic(void)
 	}
 
 	CONS_Printf("I_InitMusic:");
+
+#ifdef MIXER_INIT
+	mixflags = Mix_Init(mixstart);
+	if ((mixstart & MIX_INIT_FLAC) != (mixflags & MIX_INIT_FLAC))
+	{
+		CONS_Printf(" Unable to load FLAC support\n");
+	}
+	if ((mixstart & MIX_INIT_MOD ) != (mixflags & MIX_INIT_MOD ))
+	{
+		CONS_Printf(" Unable to load MOD support\n");
+	}
+	if ((mixstart & MIX_INIT_MP3 ) != (mixflags & MIX_INIT_MP3 ))
+	{
+		CONS_Printf(" Unable to load MP3 support\n");
+	}
+	if ((mixstart & MIX_INIT_OGG ) != (mixflags & MIX_INIT_OGG ))
+	{
+		CONS_Printf(" Unable to load OGG support\n");
+		CONS_Printf(" This is bad news for you!\n");
+	}
+#endif
 
 	if (Mix_OpenAudio(audio.freq, audio.format, audio.channels, audio.samples) < 0) //open_music(&audio)
 	{
@@ -1581,13 +1626,13 @@ void I_InitMusic(void)
 			}
 			else
 			{
-				CONS_Printf(" Restarting with audio driver : %s\n", SDL_AudioDriverName(ad, sizeof ad));
+				CONS_Printf(" Restarting with audio driver : %s\n", SDL_AudioDriverName(ad, (int)sizeof ad));
 			}
 		}
 		return;
 	}
 	else
-		CONS_Printf(" Starting up with audio driver : %s with SDL_Mixer\n", SDL_AudioDriverName(ad, sizeof ad));
+		CONS_Printf(" Starting up with audio driver : %s with SDL_Mixer\n", SDL_AudioDriverName(ad, (int)sizeof ad));
 
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
@@ -1598,7 +1643,7 @@ void I_InitMusic(void)
 		)
 		CONS_Printf(" Reconfigured SDL Audio System");
 	else CONS_Printf(" Configured SDL_Mixer System");
-	CONS_Printf(" with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (int) ((audio.samples * 1000.0f) / audio.freq));
+	CONS_Printf(" with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) ((audio.samples * 1000.0f) / audio.freq));
 	Mix_SetPostMix(audio.callback, audio.userdata);  // after mixing music, add sound effects
 	Mix_Resume(-1);
 	CONS_Printf("I_InitMusic: music initialized\n");
@@ -1607,7 +1652,7 @@ void I_InitMusic(void)
 #endif
 }
 
-boolean I_PlaySong(int handle, int looping)
+boolean I_PlaySong(INT32 handle, INT32 looping)
 {
 	(void)handle;
 #ifdef HAVE_MIXER
@@ -1655,7 +1700,7 @@ static void I_PauseFMOD(void)
 #endif
 }
 
-void I_PauseSong(int handle)
+void I_PauseSong(INT32 handle)
 {
 	(void)handle;
 	I_PauseFMOD();
@@ -1691,7 +1736,7 @@ static void I_ResumeFMOD(void)
 #endif
 }
 
-void I_ResumeSong(int handle)
+void I_ResumeSong(INT32 handle)
 {
 	(void)handle;
 	I_ResumeFMOD();
@@ -1705,7 +1750,7 @@ void I_ResumeSong(int handle)
 #endif
 }
 
-void I_StopSong(int handle)
+void I_StopSong(INT32 handle)
 {
 	(void)handle;
 #ifdef HAVE_MIXER
@@ -1715,7 +1760,7 @@ void I_StopSong(int handle)
 #endif
 }
 
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong(INT32 handle)
 {
 	handle = 0;
 #ifdef HAVE_MIXER
@@ -1734,7 +1779,7 @@ void I_UnRegisterSong(int handle)
 #endif
 }
 
-int I_RegisterSong(void *data, size_t len)
+INT32 I_RegisterSong(void *data, size_t len)
 {
 #ifdef HAVE_MIXER
 	if (nomidimusic || !musicStarted)
@@ -1754,7 +1799,7 @@ int I_RegisterSong(void *data, size_t len)
 	return false;
 }
 
-void I_SetMIDIMusicVolume(int volume)
+void I_SetMIDIMusicVolume(INT32 volume)
 {
 #ifdef HAVE_MIXER
 	if ((nomidimusic && nodigimusic) || !musicStarted)
@@ -1769,13 +1814,13 @@ void I_SetMIDIMusicVolume(int volume)
 #endif
 }
 
-static boolean I_StartFMODSong(const char *musicname, int looping)
+static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 {
 #ifdef FMODSOUND
 	char lumpname[9];
 	static void *data = NULL;
 	size_t len;
-	lumpnum_t lumpnum;
+	lumpnum_t lumpnum = LUMPERROR;
 
 	if (nofmodmusic)
 		return false;
@@ -1815,8 +1860,12 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 
 	if (lumpnum == LUMPERROR)
 	{
-		// Graue 02-29-2004: don't worry about missing music, there might still be a MIDI
-		return false; // No music found. Oh well!
+		sprintf(lumpname, "d_%s", musicname);
+
+		lumpnum = W_CheckNumForName(lumpname);
+
+		if (lumpnum == LUMPERROR) // Graue 02-29-2004: don't worry about missing music, there might still be a MIDI
+			return false; // No music found. Oh well!
 	}
 
 #ifndef FMODMEMORY
@@ -1826,7 +1875,7 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 	data = W_CacheLumpNum(lumpnum, PU_MUSIC);
 
 #ifdef FMODMEMORY
-	mod = fmod375->FMUSIC_LoadSongEx(data, 0, (int)len, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, NULL, 0);
+	mod = fmod375->FMUSIC_LoadSongEx(data, 0, (INT32)len, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, NULL, 0);
 #else
 	I_SaveMemToFile(data, len, "fmod.tmp");
 
@@ -1868,7 +1917,7 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 	else
 	{
 #ifdef FMODMEMORY
-		fmus = fmod375->FSOUND_Stream_Open(data, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, 0, (int)len);
+		fmus = fmod375->FSOUND_Stream_Open(data, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, 0, (INT32)len);
 #else
 		fmus = fmod375->FSOUND_Stream_Open("fmod.tmp", ((looping) ? (FSOUND_LOOP_NORMAL) : (0)), 0, len);
 #endif
@@ -1884,7 +1933,7 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 	{
 		const BYTE *dataum = data;
 		size_t scan;
-		unsigned int loopstart = 0;
+		UINT32 loopstart = 0;
 
 		for (scan = 0;scan < len; scan++)
 		{
@@ -1956,10 +2005,10 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 
 		if (loopstart > 0)
 		{
-			const int length = fmod375->FSOUND_Stream_GetLengthMs(fmus);
-			const int freq = 44100; //= FSOUND_GetFrequency(fsoundchannel);
-			const unsigned int loopend = (unsigned int)((freq/1000.0f)*length-(freq/1000.0f));
-			//const unsigned int loopend = (((freq/2)*length)/500)-8;
+			const INT32 length = fmod375->FSOUND_Stream_GetLengthMs(fmus);
+			const INT32 freq = 44100; //= FSOUND_GetFrequency(fsoundchannel);
+			const UINT32 loopend = (UINT32)((freq/1000.0f)*length-(freq/1000.0f));
+			//const UINT32 loopend = (((freq/2)*length)/500)-8;
 			if (!fmod375->FSOUND_Stream_SetLoopPoints(fmus, loopstart, loopend) && devparm)
 				I_OutputMsg("FMOD(Start,FSOUND_Stream_SetLoopPoints): %s\n",
 					FMOD_ErrorString(fmod375->FSOUND_GetError()));
@@ -2015,7 +2064,7 @@ static boolean I_StartFMODSong(const char *musicname, int looping)
 	return false;
 }
 
-boolean I_StartDigSong(const char *musicname, int looping)
+boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 #ifdef HAVE_MIXER
 	XBOXSTATIC char filename[9];
@@ -2061,7 +2110,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 		size_t scan;
 		const char *dataum = data;
 		XBOXSTATIC char looplength[64];
-		unsigned int loopstart = 0;
+		UINT32 loopstart = 0;
 		byte newcount = 0;
 
 		Mix_HookMusicFinished(I_FinishMusic);
@@ -2234,7 +2283,7 @@ void I_StopDigSong(void)
 }
 
 
-static void I_SetFMODMusicVolume(int volume)
+static void I_SetFMODMusicVolume(INT32 volume)
 {
 #ifdef FMODSOUND
 	if (volume != -1)
@@ -2265,7 +2314,7 @@ static void I_SetFMODMusicVolume(int volume)
 #endif
 }
 
-void I_SetDigMusicVolume(int volume)
+void I_SetDigMusicVolume(INT32 volume)
 {
 	I_SetFMODMusicVolume(volume);
 
@@ -2288,7 +2337,7 @@ boolean I_SetSongSpeed(float speed)
 
 	if (fmus && fmod375->FSOUND_IsPlaying(fsoundchannel))
 	{
-		if (!fmod375->FSOUND_SetFrequency(fsoundchannel,(int)(speed*fsoundfreq)))
+		if (!fmod375->FSOUND_SetFrequency(fsoundchannel,(INT32)(speed*fsoundfreq)))
 		{
 			if (devparm)
 				I_OutputMsg("FMOD(ChangeSpeed,FSOUND_SetFrequency): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));

@@ -65,7 +65,7 @@ void I_SetPalette(RGBA_t *palette);
 
 /**	\brief return the number of video modes
 */
-int VID_NumModes(void);
+INT32 VID_NumModes(void);
 
 /**	\brief	The VID_GetModeForSize function
 
@@ -74,7 +74,7 @@ int VID_NumModes(void);
 
 	\return	vidmode closest to w : h
 */
-int VID_GetModeForSize(int w, int h);
+INT32 VID_GetModeForSize(INT32 w, INT32 h);
 
 
 /**	\brief	The VID_SetMode function
@@ -89,7 +89,7 @@ int VID_GetModeForSize(int w, int h);
 
 	\return	currect video mode
 */
-int VID_SetMode(int modenum);
+INT32 VID_SetMode(INT32 modenum);
 
 /**	\brief	The VID_GetModeName function
 
@@ -97,7 +97,7 @@ int VID_SetMode(int modenum);
 
 	\return	name of video mode
 */
-const char *VID_GetModeName(int modenum);
+const char *VID_GetModeName(INT32 modenum);
 void VID_PrepareModeList(void); /// note hack for SDL
 
 
@@ -123,7 +123,7 @@ void I_UpdateNoVsync(void);
 
 	\return	void
 */
-void I_WaitVBL(int count);
+void I_WaitVBL(INT32 count);
 
 /**	\brief	The I_ReadScreen function
 

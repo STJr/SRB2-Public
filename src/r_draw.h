@@ -28,7 +28,7 @@
 extern byte *ylookup[MAXVIDHEIGHT*4];
 extern byte *ylookup1[MAXVIDHEIGHT*4];
 extern byte *ylookup2[MAXVIDHEIGHT*4];
-extern int columnofs[MAXVIDWIDTH*4];
+extern INT32 columnofs[MAXVIDWIDTH*4];
 extern byte *topleft;
 
 // -------------------------
@@ -36,7 +36,7 @@ extern byte *topleft;
 // -------------------------
 
 extern lighttable_t *dc_colormap;
-extern int dc_x, dc_yl, dc_yh;
+extern INT32 dc_x, dc_yl, dc_yh;
 extern fixed_t dc_iscale, dc_texturemid;
 extern byte dc_hires;
 
@@ -54,16 +54,16 @@ extern byte *bosstranslationtables;
 extern byte *dc_translation;
 
 extern struct r_lightlist_s *dc_lightlist;
-extern int dc_numlights, dc_maxlights;
+extern INT32 dc_numlights, dc_maxlights;
 
 //Fix TUTIFRUTI
-extern int dc_texheight;
+extern INT32 dc_texheight;
 
 // -----------------------
 // SPAN DRAWING CODE STUFF
 // -----------------------
 
-extern int ds_y, ds_x1, ds_x2;
+extern INT32 ds_y, ds_x1, ds_x2;
 extern lighttable_t *ds_colormap;
 extern fixed_t ds_xfrac, ds_yfrac, ds_xstep, ds_ystep;
 extern byte *ds_source; // start of a 64*64 tile image
@@ -104,10 +104,10 @@ void R_InitTranslationTables(void);
 void R_LoadSkinTable(void);
 
 // Custom player skin translation
-void R_InitSkinTranslationTables(int starttranscolor, int skinnum);
-void R_InitViewBuffer(int width, int height);
+void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum);
+void R_InitViewBuffer(INT32 width, INT32 height);
 void R_InitViewBorder(void);
-void R_VideoErase(unsigned ofs, int count);
+void R_VideoErase(unsigned ofs, INT32 count);
 
 // Rendering function.
 #if 0

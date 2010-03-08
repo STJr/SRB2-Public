@@ -73,7 +73,7 @@ void S_RegisterSoundStuff(void);
 // Initializes sound stuff, including volume
 // Sets channels, SFX and music volume, allocates channel buffer, sets S_sfx lookup.
 //
-void S_Init(int sfxVolume, int digMusicVolume, int midiMusicVolume);
+void S_Init(INT32 sfxVolume, INT32 digMusicVolume, INT32 midiMusicVolume);
 
 //
 // Per level startup code.
@@ -94,13 +94,13 @@ lumpnum_t S_GetSfxLumpNum(sfxinfo_t *sfx);
 void S_StartSound(const void *origin, sfxenum_t sound_id);
 
 // Will start a sound at a given volume.
-void S_StartSoundAtVolume(const void *origin, sfxenum_t sound_id, int volume);
+void S_StartSoundAtVolume(const void *origin, sfxenum_t sound_id, INT32 volume);
 
 // Stop sound for thing at <origin>
 void S_StopSound(void *origin);
 
 // Start music using <music_id> from sounds.h, and set whether looping
-void S_ChangeMusic(musicenum_t music_num, int looping);
+void S_ChangeMusic(musicenum_t music_num, INT32 looping);
 
 // Set Speed of Music
 boolean S_SpeedMusic(float speed);
@@ -119,13 +119,18 @@ void S_UpdateSounds(void);
 
 fixed_t S_CalculateSoundDistance(fixed_t px1, fixed_t py1, fixed_t pz1, fixed_t px2, fixed_t py2, fixed_t pz2);
 
-void S_SetDigMusicVolume(int volume);
-void S_SetMIDIMusicVolume(int volume);
-void S_SetSfxVolume(int volume);
+void S_SetDigMusicVolume(INT32 volume);
+void S_SetMIDIMusicVolume(INT32 volume);
+void S_SetSfxVolume(INT32 volume);
 
-int S_SoundPlaying(void *origin, sfxenum_t id);
+INT32 S_SoundPlaying(void *origin, sfxenum_t id);
 void S_StartSoundName(void *mo, char *soundname);
 
 void S_StopSoundByNum(sfxenum_t sfxnum);
+
+#ifndef HW3SOUND
+#define S_StartAttackSound S_StartSound
+#define S_StartScreamSound S_StartSound
+#endif
 
 #endif

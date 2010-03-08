@@ -43,7 +43,7 @@
 
 /**	\brief view info
 */
-int viewwidth, scaledviewwidth, viewheight, viewwindowx, viewwindowy;
+INT32 viewwidth, scaledviewwidth, viewheight, viewwindowx, viewwindowy;
 
 /**	\brief pointer to the start of each line of the screen,
 */
@@ -60,7 +60,7 @@ byte *ylookup2[MAXVIDHEIGHT*4];
 /**	\brief  x byte offset for columns inside the viewwindow,
 	so the first column starts at (SCRWIDTH - VIEWWIDTH)/2
 */
-int columnofs[MAXVIDWIDTH*4];
+INT32 columnofs[MAXVIDWIDTH*4];
 
 byte *topleft;
 
@@ -69,7 +69,7 @@ byte *topleft;
 // =========================================================================
 
 lighttable_t *dc_colormap;
-int dc_x = 0, dc_yl = 0, dc_yh = 0;
+INT32 dc_x = 0, dc_yl = 0, dc_yh = 0;
 
 fixed_t dc_iscale, dc_texturemid;
 byte dc_hires; // under MSVC boolean is a byte, while on other systems, it a bit,
@@ -100,13 +100,13 @@ byte *bosstranslationtables;
 byte *dc_translation;
 
 struct r_lightlist_s *dc_lightlist = NULL; /// \todo free leak
-int dc_numlights = 0, dc_maxlights, dc_texheight;
+INT32 dc_numlights = 0, dc_maxlights, dc_texheight;
 
 // =========================================================================
 //                      SPAN DRAWING CODE STUFF
 // =========================================================================
 
-int ds_y, ds_x1, ds_x2;
+INT32 ds_y, ds_x1, ds_x2;
 lighttable_t *ds_colormap;
 fixed_t ds_xfrac, ds_yfrac, ds_xstep, ds_ystep;
 
@@ -161,7 +161,7 @@ CV_PossibleValue_t Color_cons_t[] = {{0, NULL}, {1, NULL}, {2, NULL}, {3, NULL},
 
 void R_LoadSkinTable(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < MAXSKINS; i++)
 		translationtables[i] = Z_MallocAlign (256*(MAXSKINCOLORS-1), PU_STATIC, NULL, 16);
@@ -173,7 +173,7 @@ void R_LoadSkinTable(void)
 */
 void R_InitTranslationTables(void)
 {
-	int i, j;
+	INT32 i, j;
 	byte bi;
 
 	// Load here the transparency lookup tables 'TINTTAB'
@@ -290,9 +290,9 @@ void R_InitTranslationTables(void)
 
 
 */
-void R_InitSkinTranslationTables(int starttranscolor, int skinnum)
+void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum)
 {
-	int i, j;
+	INT32 i, j;
 	byte bi;
 
 	// Translate the colors specified by the skin information.
@@ -408,9 +408,9 @@ void R_InitSkinTranslationTables(int starttranscolor, int skinnum)
 
 */
 
-void R_InitViewBuffer(int width, int height)
+void R_InitViewBuffer(INT32 width, INT32 height)
 {
-	int i, bytesperpixel = vid.bpp;
+	INT32 i, bytesperpixel = vid.bpp;
 
 	if (width > MAXVIDWIDTH)
 		width = MAXVIDWIDTH;
@@ -469,7 +469,7 @@ void R_FillBackScreen(void)
 {
 	byte *src, *dest;
 	patch_t *patch;
-	int x, y, step, boff;
+	INT32 x, y, step, boff;
 
 	// quickfix, don't cache lumps in both modes
 	if (rendermode != render_soft)
@@ -545,7 +545,7 @@ void R_FillBackScreen(void)
 
 
 */
-void R_VideoErase(unsigned ofs, int count)
+void R_VideoErase(unsigned ofs, INT32 count)
 {
 	// LFB copy.
 	// This might not be a good idea if memcpy
@@ -563,7 +563,7 @@ void R_VideoErase(unsigned ofs, int count)
 */
 void R_DrawViewBorder(void)
 {
-	int top, side, ofs;
+	INT32 top, side, ofs;
 
 	if (rendermode == render_none)
 		return;

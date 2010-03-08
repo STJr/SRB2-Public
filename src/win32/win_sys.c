@@ -80,6 +80,15 @@
 // Force dinput.h to generate old DX3 headers.
 #define DXVERSION_NTCOMPATIBLE  0x0300
 #include <dinput.h>
+#ifndef IDirectInputEffect_Stop
+#define IDirectInputEffect_Stop(p) (p)->lpVtbl->Stop(p)
+#endif
+#ifndef IDirectInputEffect_SetParameters
+#define IDirectInputEffect_SetParameters(p,a,b)   (p)->lpVtbl->SetParameters(p,a,b)
+#endif
+#ifndef IDirectInputEffect_Release
+#define IDirectInputEffect_Release(p)            (p)->lpVtbl->Release(p)
+#endif
 
 #include "fabdxlib.h"
 
@@ -271,7 +280,7 @@ void I_Sleep(void)
 }
 
 // should move to i_video
-void I_WaitVBL(int count)
+void I_WaitVBL(INT32 count)
 {
 	count = 0;
 }
@@ -289,7 +298,7 @@ void I_BeginRead(void) {}
 //
 void I_EndRead(void) {}
 
-byte *I_AllocLow(int length)
+byte *I_AllocLow(INT32 length)
 {
 	byte *mem;
 
@@ -301,7 +310,7 @@ byte *I_AllocLow(int length)
 // ===========================================================================================
 //                                                                                      EVENTS
 // ===========================================================================================
-static inline BOOL I_ReadyConsole(HANDLE ci)
+static BOOL I_ReadyConsole(HANDLE ci)
 {
 	DWORD gotinput;
 	if (ci == INVALID_HANDLE_VALUE) return FALSE;
@@ -648,7 +657,9 @@ void I_Error(const char *error, ...)
 	if (!errorcount)
 	{
 		M_SaveConfig(NULL); // save game config, cvars..
+#ifndef NONET
 		D_SaveBan(); // save the ban list
+#endif
 		G_SaveGameData();
 	}
 
@@ -742,7 +753,9 @@ void I_Quit(void)
 		G_CheckDemoStatus();
 
 	M_SaveConfig(NULL); // save game config, cvars..
+#ifndef NONET
 	D_SaveBan(); // save the ban list
+#endif
 	G_SaveGameData();
 
 	// maybe it needs that the ticcount continues,
@@ -1508,7 +1521,7 @@ static HRESULT SetupAllForces(LPDIRECTINPUTDEVICE2A DJI, LPDIRECTINPUTEFFECT DJE
 	return S_OK;
 }
 
-static VOID LimitEffect(LPDIEFFECT eff, FFType EffectType)
+static inline VOID LimitEffect(LPDIEFFECT eff, FFType EffectType)
 {
 	LPDICONSTANTFORCE pCF = eff->lpvTypeSpecificParams;
 	LPDIPERIODIC pDP= eff->lpvTypeSpecificParams;
@@ -1562,7 +1575,7 @@ static HRESULT SetForceTacile(LPDIRECTINPUTEFFECT SDIE, const JoyFF_t *FF,DWORD 
 	{
 		double dMagnitude;
 		dMagnitude                  = (double)Magnitude;
-		dMagnitude                  = sqrt(dMagnitude * dMagnitude + dMagnitude * dMagnitude);
+		dMagnitude                  = hypot(dMagnitude, dMagnitude);
 		Magnitude                   = (DWORD)dMagnitude;
 		rglDirection[0]             = FF->ForceX;
 		rglDirection[1]             = FF->ForceY;
@@ -1913,7 +1926,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 
 			// Enumerate and count the axes of the joystick
 			if (FAILED(IDirectInputDevice_EnumObjects(pdev, EnumAxesCallback,
-				(VOID*)&JoyInfo.ForceAxises, DIDFT_AXIS)))
+				(LPVOID)&JoyInfo.ForceAxises, DIDFT_AXIS)))
 			{
 				JoyInfo.ForceAxises = -1;
 			}
@@ -2276,7 +2289,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 
 			// Enumerate and count the axes of the joystick
 			if (FAILED(IDirectInputDevice_EnumObjects(pdev, EnumAxesCallback,
-				(VOID*)&JoyInfo2.ForceAxises, DIDFT_AXIS)))
+				(LPVOID)&JoyInfo2.ForceAxises, DIDFT_AXIS)))
 			{
 				JoyInfo2.ForceAxises = -1;
 			}
@@ -3010,7 +3023,7 @@ static BOOL CALLBACK DIEnumJoysticksCount (LPCDIDEVICEINSTANCEA lpddi,
 	return DIENUM_CONTINUE;
 }
 
-int I_NumJoys(void)
+INT32 I_NumJoys(void)
 {
 	HRESULT hr;
 	needjoy = -1;
@@ -3023,7 +3036,7 @@ int I_NumJoys(void)
 
 }
 
-const char *I_GetJoyName(int joyindex)
+const char *I_GetJoyName(INT32 joyindex)
 {
 	HRESULT hr;
 	needjoy = joyindex;
@@ -3143,7 +3156,7 @@ static byte ASCIINames[256] =
 
 // Return a key that has been pushed, or 0 (replace getchar() at game startup)
 //
-int I_GetKey(void)
+INT32 I_GetKey(void)
 {
 	event_t *ev;
 
@@ -3393,7 +3406,7 @@ static VOID I_ShutdownDirectInput(VOID)
 // This stuff should get rid of the exception and page faults when
 // SRB2 bugs out with an error. Now it should exit cleanly.
 //
-int I_StartupSystem(void)
+INT32 I_StartupSystem(void)
 {
 	HRESULT hr;
 	HINSTANCE myInstance = GetModuleHandle(NULL);
@@ -3494,7 +3507,7 @@ void I_GetDiskFreeSpace(INT64* freespace)
 {
 	static p_GetDiskFreeSpaceExA pfnGetDiskFreeSpaceEx = NULL;
 	static boolean testwin95 = false;
-	INT64 usedbytes;
+	ULARGE_INTEGER usedbytes, lfreespace;
 
 	if (!testwin95)
 	{
@@ -3503,11 +3516,10 @@ void I_GetDiskFreeSpace(INT64* freespace)
 	}
 	if (pfnGetDiskFreeSpaceEx)
 	{
-		if (!pfnGetDiskFreeSpaceEx(NULL, (PULARGE_INTEGER)freespace,
-			(PULARGE_INTEGER)&usedbytes, NULL))
-		{
+		if (pfnGetDiskFreeSpaceEx(NULL, &lfreespace, &usedbytes, NULL))
+			*freespace = lfreespace.QuadPart;
+		else
 			*freespace = MAXINT;
-		}
 	}
 	else
 	{
@@ -3551,7 +3563,7 @@ char *I_GetUserName(void)
 	return username;
 }
 
-int I_mkdir(const char *dirname, int unixright)
+INT32 I_mkdir(const char *dirname, INT32 unixright)
 {
 	UNREFERENCED_PARAMETER(unixright); /// \todo should implement ntright under nt...
 	return CreateDirectoryA(dirname, NULL);
@@ -3562,7 +3574,7 @@ char * I_GetEnv(const char *name)
 	return getenv(name);
 }
 
-int I_PutEnv(char *variable)
+INT32 I_PutEnv(char *variable)
 {
 	return putenv(variable);
 }
@@ -3633,7 +3645,7 @@ static inline VOID GetAffinityFuncs(VOID)
 
 static void CPUAffinity_OnChange(void)
 {
-	DWORD dwProcMask, dwSysMask;
+	DWORD_PTR dwProcMask, dwSysMask;
 	HANDLE selfpid;
 
 	if (!pfnGetCurrentProcess || !pfnGetProcessAffinityMask || !pfnSetProcessAffinityMask)

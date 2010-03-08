@@ -57,7 +57,7 @@ PFNglGetString pglGetString;
 
 #define MAX_VIDEO_MODES   32
 static  vmode_t     video_modes[MAX_VIDEO_MODES];
-int     oglflags = 0;
+INT32     oglflags = 0;
 
 // **************************************************************************
 //                                                                  FUNCTIONS
@@ -162,10 +162,10 @@ boolean LoadGL(void)
 //                  : doesn't work. (ultimately for different pixel formats, we
 //                  : should close the window, and re-create it)
 // -----------------+
-int SetupPixelFormat(int WantColorBits, int WantStencilBits, int WantDepthBits)
+int SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits)
 {
 	static DWORD iLastPFD = 0;
-	int nPixelFormat;
+	INT32 nPixelFormat;
 	PIXELFORMATDESCRIPTOR pfd =
 	{
 		sizeof (PIXELFORMATDESCRIPTOR),  // size
@@ -225,9 +225,9 @@ int SetupPixelFormat(int WantColorBits, int WantStencilBits, int WantDepthBits)
 // SetRes           : Set a display mode
 // Notes            : pcurrentmode is actually not used
 // -----------------+
-static int WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
+static INT32 WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 {
-	LPCVOID renderer;
+	LPCSTR renderer;
 	BOOL WantFullScreen = !(lvid->u.windowed);  //(lvid->u.windowed ? 0 : CDS_FULLSCREEN);
 
 	pcurrentmode = NULL;
@@ -272,8 +272,8 @@ static int WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 	else
 	{
 		RECT bounds;
-		int x, y;
-		int w = lvid->width, h = lvid->height;
+		INT32 x, y;
+		INT32 w = lvid->width, h = lvid->height;
 		GetWindowRect(hWnd, &bounds);
 		bounds.right = bounds.left+w;
 		bounds.bottom = bounds.top+h;
@@ -294,7 +294,7 @@ static int WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 	}
 
 	{
-		int res;
+		INT32 res;
 
 		// Set res.
 		res = SetupPixelFormat(lvid->bpp*8, 0, 16);
@@ -324,7 +324,7 @@ static int WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 	// Get info and extensions.
 	//BP: why don't we make it earlier ?
 	//Hurdler: we cannot do that before intialising gl context
-	renderer = pglGetString(GL_RENDERER);
+	renderer = (LPCSTR)pglGetString(GL_RENDERER);
 	DBG_Printf("Vendor     : %s\n", pglGetString(GL_VENDOR));
 	DBG_Printf("Renderer   : %s\n", renderer);
 	DBG_Printf("Version    : %s\n", pglGetString(GL_VERSION));
@@ -371,7 +371,7 @@ static int WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 
 	WasFullScreen = WantFullScreen;
 
-	return 1;               // on renvoie une valeur pour dire que cela s'est bien passé
+	return 1;               // on renvoie une valeur pour dire que cela s'est bien passï¿½
 }
 
 
@@ -395,12 +395,12 @@ static void UnSetRes(void)
 // Returns          : pvidmodes   - points to list of detected OpenGL video modes
 //                  : numvidmodes - number of detected OpenGL video modes
 // -----------------+
-EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, int *numvidmodes)
+EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, INT32 *numvidmodes)
 {
-	int  i;
+	INT32  i;
 
 #if 1
-	int iMode;
+	INT32 iMode;
 /*
 	faB test code
 
@@ -430,7 +430,7 @@ EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, int *numvidmodes)
 			video_modes[iMode].windowed = 0;                    // fullscreen is the default
 			video_modes[iMode].misc = 0;
 			video_modes[iMode].name = malloc(12 * sizeof (CHAR));
-			sprintf(video_modes[iMode].name, "%dx%d", (int)Tmp.dmPelsWidth, (int)Tmp.dmPelsHeight);
+			sprintf(video_modes[iMode].name, "%dx%d", (INT32)Tmp.dmPelsWidth, (INT32)Tmp.dmPelsHeight);
 			DBG_Printf ("Mode: %s\n", video_modes[iMode].name);
 			video_modes[iMode].width = Tmp.dmPelsWidth;
 			video_modes[iMode].height = Tmp.dmPelsHeight;
@@ -446,7 +446,7 @@ EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, int *numvidmodes)
 
 	// classic video modes (fullscreen/windowed)
 	// Added some. Tails
-	int res[][2] = {
+	INT32 res[][2] = {
 					{ 320, 200},
 					{ 320, 240},
 					{ 400, 300},
@@ -465,7 +465,7 @@ EXPORT void HWRAPI(GetModeList) (vmode_t** pvidmodes, int *numvidmodes)
 };
 
 	HDC bpphdc;
-	int iBitsPerPel;
+	INT32 iBitsPerPel;
 
 	DBG_Printf ("HWRAPI GetModeList()\n");
 
@@ -529,16 +529,16 @@ EXPORT void HWRAPI(Shutdown) (void)
 // -----------------+
 // FinishUpdate     : Swap front and back buffers
 // -----------------+
-EXPORT void HWRAPI(FinishUpdate) (int waitvbl)
+EXPORT void HWRAPI(FinishUpdate) (INT32 waitvbl)
 {
 #ifdef USE_WGL_SWAP
-	static int oldwaitvbl = 0;
+	static INT32 oldwaitvbl = 0;
 #else
 	waitvbl = 0;
 #endif
 	// DBG_Printf ("FinishUpdate()\n");
 #ifdef DEBUG_TO_FILE
-	if ((++nb_frames)==2)  // on ne commence pas à la première frame
+	if ((++nb_frames)==2)  // on ne commence pas ï¿½ la premiï¿½re frame
 		my_clock = clock();
 #endif
 
@@ -559,7 +559,7 @@ EXPORT void HWRAPI(FinishUpdate) (int waitvbl)
 // -----------------+
 EXPORT void HWRAPI(SetPalette) (RGBA_t *pal, RGBA_t *gamma)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < 256; i++)
 	{
@@ -580,7 +580,7 @@ EXPORT void HWRAPI(SetPalette) (RGBA_t *pal, RGBA_t *gamma)
 		glColorTableEXT(GL_TEXTURE_2D, GL_RGB8, 256, GL_RGB, GL_UNSIGNED_BYTE, palette_tex);
 	}
 #endif
-	// on a changé de palette, il faut recharger toutes les textures
+	// on a changï¿½ de palette, il faut recharger toutes les textures
 	Flush();
 }
 

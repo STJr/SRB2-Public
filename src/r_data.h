@@ -66,7 +66,7 @@ void R_LoadTextures(void);
 void R_FlushTextureCache(void);
 
 // Retrieve column data for span blitting.
-byte *R_GetColumn(fixed_t tex, int col);
+byte *R_GetColumn(fixed_t tex, INT32 col);
 
 byte *R_GetFlat(lumpnum_t flatnum);
 
@@ -77,20 +77,20 @@ void R_PrecacheLevel(void);
 // Retrieval.
 // Floor/ceiling opaque texture tiles,
 // lookup by name. For animation?
-int R_GetFlatNumForName(const char *name);
+lumpnum_t R_GetFlatNumForName(const char *name);
 #define R_FlatNumForName(x) R_GetFlatNumForName(x)
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
-long R_TextureNumForName(const char *name, unsigned short sidenum);
-long R_CheckTextureNumForName(const char *name, unsigned short sidenum);
+INT32 R_TextureNumForName(const char *name, unsigned short sidenum);
+INT32 R_CheckTextureNumForName(const char *name, unsigned short sidenum);
 
 void R_ClearColormaps(void);
-long R_ColormapNumForName(char *name);
-long R_CreateColormap(char *p1, char *p2, char *p3);
+INT32 R_ColormapNumForName(char *name);
+INT32 R_CreateColormap(char *p1, char *p2, char *p3);
 void R_CreateColormap2(char *p1, char *p2, char *p3);
 void R_MakeColormaps(void);
-const char *R_ColormapNameForNum(int num);
+const char *R_ColormapNameForNum(INT32 num);
 
 extern size_t numtextures;
 

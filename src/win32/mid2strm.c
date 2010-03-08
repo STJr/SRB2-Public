@@ -100,7 +100,7 @@ typedef struct
 {
 	LONG               tkEvent;                // Absolute time of event
 	BYTE               abEvent[4];             // Event type and parameters if channel msg
-	LONG               dwEventLength;          // Of data which follows if meta or sysex
+	DWORD              dwEventLength;          // Of data which follows if meta or sysex
 	LPBYTE             pEvent;                 // -> Event data if applicable
 } TEMPEVENT, *LPTEMPEVENT;
 
@@ -175,7 +175,7 @@ static char gteMetaTrunc[] =            "Meta event truncated";
 
 // Prototypes
 //
-static BOOL             GetTrackVDWord(LPINTRACKSTATE pInTrack, ULONG *lpdw);
+static BOOL             GetTrackVDWord(LPINTRACKSTATE pInTrack, DWORD *lpdw);
 static BOOL             GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe);
 #ifdef DEBUGMIDISTREAM
 static VOID             ShowTrackError(LPINTRACKSTATE pInTrack, LPSTR szErr);
@@ -623,10 +623,10 @@ static BOOL WriteStreamBuffers(VOID)
 // FALSE if we hit end of track first. Sets ITS_F_ENDOFTRK
 // if we hit end of track.
 // --------------
-static BOOL GetTrackVDWord(INTRACKSTATE *pInTrack, ULONG *lpdw)
+static BOOL GetTrackVDWord(INTRACKSTATE *pInTrack, DWORD *lpdw)
 {
 	BYTE b;
-	LONG dw = 0;
+	DWORD dw = 0;
 
 	if (pInTrack->fdwTrack & ITS_F_ENDOFTRK)
 		return FALSE;
@@ -683,7 +683,7 @@ static BOOL GetTrackVDWord(INTRACKSTATE *pInTrack, ULONG *lpdw)
 static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 {
 	BYTE b;
-	LONG dwEventLength;
+	ULONG dwEventLength;
 
 	// Clear out the temporary event structure to get rid of old data...
 	ZeroMemory(pMe, sizeof (TEMPEVENT));
@@ -779,7 +779,7 @@ static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 		//  BYTE        abParms[cbParms]
 		//
 		pMe->abEvent[0] = b;
-		if (!GetTrackVDWord(pInTrack, (unsigned long *)&pMe->dwEventLength))
+		if (!GetTrackVDWord(pInTrack, &pMe->dwEventLength))
 		{
 			TRACKERR(pInTrack, gteSysExLenTrunc);
 			return FALSE;
@@ -816,7 +816,7 @@ static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 		pMe->abEvent[1] = *pInTrack->pTrackPointer++;
 		--pInTrack->iBytesLeft;
 
-		if (!GetTrackVDWord(pInTrack, (ULONG *)&pMe->dwEventLength))
+		if (!GetTrackVDWord(pInTrack, &pMe->dwEventLength))
 		{
 			TRACKERR(pInTrack, gteMetaLenTrunc);
 			return FALSE;
@@ -863,9 +863,9 @@ static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 
 	if (!(pInTrack->fdwTrack & ITS_F_ENDOFTRK))
 	{
-		LONG tkDelta;
+		DWORD tkDelta;
 
-		if (!GetTrackVDWord(pInTrack, (ULONG *)&tkDelta))
+		if (!GetTrackVDWord(pInTrack, &tkDelta))
 			return FALSE;
 
 		pInTrack->tkNextEventDue += tkDelta;

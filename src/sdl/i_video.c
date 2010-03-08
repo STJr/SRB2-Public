@@ -122,7 +122,7 @@
 
 /**	\brief
 */
-static int numVidModes = -1;
+static INT32 numVidModes = -1;
 
 /**	\brief
 */
@@ -138,7 +138,7 @@ consvar_t cv_vidwait = {"vid_wait", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NUL
 #else
 consvar_t cv_vidwait = {"vid_wait", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
-static consvar_t cv_stretch = {"stretch", "On", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+static consvar_t cv_stretch = {"stretch", "Off", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 byte graphics_started = 0; // Is used in console.c and screen.c
 
@@ -152,7 +152,7 @@ static SDL_bool disable_mouse = SDL_FALSE;
 #define MOUSEBUTTONS_MAX MOUSEBUTTONS
 
 // first entry in the modelist which is not bigger than MAXVIDWIDTHxMAXVIDHEIGHT
-static      int          firstEntry = 0;
+static      INT32          firstEntry = 0;
 
 // SDL vars
 #ifndef HWRENDER //[segabor] !!! I had problem compiling this source with gcc 3.3
@@ -174,7 +174,7 @@ static       Uint16      realheight = BASEVIDHEIGHT;
 #ifdef _WIN32_WCE
 static const Uint32      surfaceFlagsW = SDL_HWPALETTE; //Can't handle WinCE changing sides
 #else
-static const Uint32      surfaceFlagsW = SDL_HWPALETTE|SDL_RESIZABLE;
+static const Uint32      surfaceFlagsW = SDL_HWPALETTE/*|SDL_RESIZABLE*/;
 #endif
 static const Uint32      surfaceFlagsF = SDL_HWPALETTE|SDL_FULLSCREEN;
 static       SDL_bool    mousegrabok = SDL_TRUE;
@@ -188,7 +188,7 @@ static       SDL_bool    exposevideo = SDL_FALSE;
 static       SDL_bool    windownnow  = SDL_FALSE;
 
 // windowed video modes from which to choose from.
-static int windowedModes[MAXWINMODES][2] =
+static INT32 windowedModes[MAXWINMODES][2] =
 {
 #if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X))
 	{MAXVIDWIDTH /*1920*/, MAXVIDHEIGHT/*1200*/}, //1.60,6.00
@@ -209,7 +209,7 @@ static int windowedModes[MAXWINMODES][2] =
 	{320 , 200}, // 1.60,1.00
 };
 
-static void SDLSetMode(int width, int height, int bpp, Uint32 flags)
+static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 {
 	const char *SDLVD = I_GetEnv("SDL_VIDEODRIVER");
 #ifdef _WIN32_WCE
@@ -265,9 +265,9 @@ static void SDLSetMode(int width, int height, int bpp, Uint32 flags)
 //  Translates the SDL key into SRB2 key
 //
 
-static int SDLatekey(SDLKey sym)
+static INT32 SDLatekey(SDLKey sym)
 {
-	int rc = sym + 0x80;
+	INT32 rc = sym + 0x80;
 
 #ifdef _WIN32_WCE
 	if (sym == SDLK_KP8)
@@ -525,7 +525,7 @@ static void VID_Command_NumModes_f (void)
 
 static void SurfaceInfo(const SDL_Surface *infoSurface, const char *SurfaceText)
 {
-	int vfBPP;
+	INT32 vfBPP;
 	const SDL_Surface *VidSur = SDL_GetVideoSurface();
 
 	if (!infoSurface)
@@ -632,7 +632,7 @@ static void VID_Command_Info_f (void)
 static void VID_Command_ModeList_f(void)
 {
 #if !defined (DC) && !defined (_WIN32_WCE)
-	int i;
+	INT32 i;
 #ifdef HWRENDER
 	if (rendermode == render_opengl)
 		modeList = SDL_ListModes(NULL, SDL_OPENGL|SDL_FULLSCREEN);
@@ -656,7 +656,7 @@ static void VID_Command_ModeList_f(void)
 	CONS_Printf("Found %d FullScreen Video Modes:\n", numVidModes);
 	for (i=0 ; i<numVidModes; i++)
 	{ // fullscreen modes
-		int modeNum = firstEntry + i;
+		INT32 modeNum = firstEntry + i;
 		if (modeNum >= numVidModes)
 			break;
 
@@ -670,7 +670,7 @@ static void VID_Command_ModeList_f(void)
 
 static void VID_Command_Mode_f (void)
 {
-	int modenum;
+	INT32 modenum;
 
 	if (COM_Argc()!= 2)
 	{
@@ -801,7 +801,7 @@ static inline void SDLJoyRemap(event_t *event)
 #define GP2X_BUTTON_VOLDOWN         (17)
 	if ((event->type == ev_keydown || event->type == ev_keyup) && (KEY_JOY1 <= event->data1 && event->data1 <= KEY_JOY1+JOYBUTTONS))
 	{
-		int button = event->data1-KEY_JOY1;
+		INT32 button = event->data1-KEY_JOY1;
 		if (button <= 7)
 		{
 			static byte DPAD = 0;
@@ -924,7 +924,7 @@ static inline void SDLJoyRemap(event_t *event)
 #endif
 }
 
-static int SDLJoyAxis(int axis, evtype_t which)
+static INT32 SDLJoyAxis(INT32 axis, evtype_t which)
 {
 #ifdef _arch_dreamcast // -128 to 127 SDL for DC have give us a smaller range
 	axis = axis*8;
@@ -1186,9 +1186,10 @@ void I_GetEvent(void)
 			case SDL_VIDEORESIZE:
 				if (gamestate == GS_LEVEL || gamestate == GS_DEMOSCREEN || gamestate == GS_TITLESCREEN || gamestate == GS_EVALUATION)
 				    setmodeneeded = VID_GetModeForSize(inputEvent.resize.w,inputEvent.resize.h)+1;
+				if (render_soft == rendermode)
 				{
 #ifdef FILTERS
-					int filtervalue = cv_filter.value;
+					INT32 filtervalue = cv_filter.value;
 					if (blitfilter) CV_SetValue(&cv_filter,1);
 #endif
 					SDLSetMode(realwidth, realheight, vid.bpp*8, surfaceFlagsW);
@@ -1197,6 +1198,8 @@ void I_GetEvent(void)
 					CV_SetValue(&cv_filter,filtervalue);
 #endif
 				}
+				else
+					SDLSetMode(realwidth, realheight, vid.bpp*8, surfaceFlagsW);
 				if (!vidSurface)
 					I_Error("Could not reset vidmode: %s\n",SDL_GetError());
 				break;
@@ -1269,11 +1272,10 @@ void I_UpdateNoBlit(void)
 	exposevideo = SDL_FALSE;
 }
 
-#define FPSPOINTS  35
-#define SCALE      4
+#define SCALE      3
 #define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
 
-static int fpsgraph[FPSPOINTS];
+static tic_t fpsgraph[OLDTICRATE];
 
 static void displayticrate(fixed_t value)
 {
@@ -1282,18 +1284,18 @@ static void displayticrate(fixed_t value)
 	tic_t tics,t;
 
 	t = I_GetTime();
-	tics = t - lasttic;
+	tics = (t - lasttic)/NEWTICRATERATIO;
 	lasttic = t;
-	if (tics > 20) tics = 20;
+	if (tics > OLDTICRATE) tics = OLDTICRATE;
 
-	for (i=0;i<FPSPOINTS-1;i++)
+	for (i=0;i<OLDTICRATE-1;i++)
 		fpsgraph[i]=fpsgraph[i+1];
-	fpsgraph[FPSPOINTS-1]=20-tics;
+	fpsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
 
 	if (value == 1 || value == 3)
 	{
 		char s[11];
-		sprintf(s, "FPS: %lu/%u", 20-tics, 20);
+		sprintf(s, "FPS: %d/%u", OLDTICRATE-tics+1, OLDTICRATE);
 		V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT+24, V_YELLOWMAP, s);
 	}
 	if (value == 1)
@@ -1303,15 +1305,15 @@ static void displayticrate(fixed_t value)
 	{
 		int k;
 		// draw dots
-		for (j=0;j<=20*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
 		{
 			l=(vid.height-1-j)*vid.width*vid.bpp;
-			for (i=0;i<FPSPOINTS*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
 				screens[0][l+i]=0xff;
 		}
 
 		// draw the graph
-		for (i=0;i<FPSPOINTS;i++)
+		for (i=0;i<OLDTICRATE;i++)
 			for (k=0;k<SCALE*vid.dupx;k++)
 				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
 	}
@@ -1319,10 +1321,10 @@ static void displayticrate(fixed_t value)
 	else
 	{
 		fline_t p;
-		for (j=0;j<=20*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
 		{
 			l=(vid.height-1-j);
-			for (i=0;i<FPSPOINTS*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
 			{
 				p.a.x = i;
 				p.a.y = l;
@@ -1332,7 +1334,7 @@ static void displayticrate(fixed_t value)
 			}
 		}
 
-		for (i=1;i<FPSPOINTS;i++)
+		for (i=1;i<OLDTICRATE;i++)
 		{
 			p.a.x = SCALE * (i-1);
 			p.a.y = vid.height-1-fpsgraph[i-1]*SCALE*vid.dupy;
@@ -1343,6 +1345,8 @@ static void displayticrate(fixed_t value)
 	}
 #endif
 }
+#undef SCALE
+#undef PUTDOT
 
 // I_SkipFrame
 //
@@ -1380,7 +1384,7 @@ static inline boolean I_SkipFrame(void)
 static inline SDL_bool SDLmatchVideoformat(void)
 {
 	const SDL_PixelFormat *vidformat = vidSurface->format;
-	const int vfBPP = vidformat?vidformat->BitsPerPixel:0;
+	const INT32 vfBPP = vidformat?vidformat->BitsPerPixel:0;
 	return (((vfBPP == 8 && vid.bpp == 1 &&
 	 !vidformat->Rmask && !vidformat->Gmask && !vidformat->Bmask) ||
 	 (vfBPP == 15 && vid.bpp == 2 && vidformat->Rmask == 0x7C00 &&
@@ -1404,8 +1408,17 @@ void I_FinishUpdate(void)
 
 	if (render_soft == rendermode && screens[0])
 	{
+		SDL_Rect *dstrect = NULL;
+		SDL_Rect rect = {0, 0, 0, 0};
 		SDL_PixelFormat *vidformat = vidSurface->format;
-		int lockedsf = 0, blited = 0;
+		INT32 lockedsf = 0, blited = 0;
+
+		if (vidSurface->h > vid.height)
+		{
+			rect.y = (Sint16)((vidSurface->h-vid.height)/2);
+			dstrect = &rect;
+		}
+
 
 		if (!bufSurface && !vid.direct) //Double-Check
 		{
@@ -1432,6 +1445,18 @@ void I_FinishUpdate(void)
 			if (SDL_MUSTLOCK(vidSurface)) lockedsf = SDL_LockSurface(vidSurface);
 			if (lockedsf == 0)
 			{
+				if (vidSurface->pixels > vid.height)
+				{
+					BYTE *ptr = vidSurface->pixels;
+					size_t half_excess = vidSurface->pitch*(vidSurface->height-vid.height)/2;
+					memset(ptr, 0x1F, half_excess);
+					ptr += half_excess;
+					VID_BlitLinearScreen(screens[0], ptr, vid.width*vid.bpp, vid.height,
+					                     vid.rowbytes, vidSurface->pitch);
+					ptr += vid.height*vidSurface->pitch;
+					memset(ptr, 0x1F, half_excess);
+				}
+				else
 				VID_BlitLinearScreen(screens[0], vidSurface->pixels, vid.width*vid.bpp,
 				                     vid.height, vid.rowbytes, vidSurface->pitch );
 				if (SDL_MUSTLOCK(vidSurface)) SDL_UnlockSurface(vidSurface);
@@ -1441,12 +1466,6 @@ void I_FinishUpdate(void)
 #endif
 		if (bufSurface) //Alam: New Way to send video data
 		{
-			SDL_Rect *dstrect = NULL;
-#if defined(DC) || defined(HAVE_GP2XSDL)
-			SDL_Rect rect = {0,20,0,0};
-			dstrect = &rect;
-#endif
-			//CONS_Printf("SDL Copy Code\n");
 			blited = SDL_BlitSurface(bufSurface,NULL,vidSurface,dstrect);
 		}
 		else if (vid.bpp == 1 && !vid.direct)
@@ -1460,6 +1479,8 @@ void I_FinishUpdate(void)
 			if (SDL_MUSTLOCK(vidSurface)) lockedsf = SDL_LockSurface(vidSurface);
 			vP = (Uint8 *)vidSurface->pixels;
 			vW = (Uint16)(vidSurface->pitch - vidSurface->w*vidformat->BytesPerPixel);
+			if (vidSurface->h > vid.height)
+				vP += vidSurface->pitch*(vidSurface->h-vid.height)/2;
 			if (lockedsf == 0 && vidSurface->pixels)
 			{
 				if (vidformat->BytesPerPixel == 2)
@@ -1527,7 +1548,7 @@ void I_FinishUpdate(void)
 		if (lockedsf == 0 && blited == 0 && vidSurface->flags&SDL_DOUBLEBUF)
 			SDL_Flip(vidSurface);
 		else if (blited != -2 && lockedsf == 0) //Alam: -2 for Win32 Direct, yea, i know
-			SDL_UpdateRect(vidSurface, 0, 0, 0, 0); //Alam: almost always
+			SDL_UpdateRect(vidSurface, 0, rect.y, 0, 0); //Alam: almost always
 		else if (devparm)
 			I_OutputMsg("%s\n",SDL_GetError());
 	}
@@ -1545,7 +1566,7 @@ void I_FinishUpdate(void)
 //
 void I_UpdateNoVsync(void)
 {
-	int real_vidwait = cv_vidwait.value;
+	INT32 real_vidwait = cv_vidwait.value;
 	cv_vidwait.value = 0;
 	I_FinishUpdate();
 	cv_vidwait.value = real_vidwait;
@@ -1581,7 +1602,7 @@ void I_SetPalette(RGBA_t *palette)
 }
 
 // return number of fullscreen + X11 modes
-int VID_NumModes(void)
+INT32 VID_NumModes(void)
 {
 	if (USE_FULLSCREEN && numVidModes != -1)
 		return numVidModes - firstEntry;
@@ -1589,7 +1610,7 @@ int VID_NumModes(void)
 		return MAXWINMODES;
 }
 
-const char *VID_GetModeName(int modeNum)
+const char *VID_GetModeName(INT32 modeNum)
 {
 	if (USE_FULLSCREEN && numVidModes != -1) // fullscreen modes
 	{
@@ -1613,9 +1634,9 @@ const char *VID_GetModeName(int modeNum)
 	return &vidModeName[modeNum][0];
 }
 
-int VID_GetModeForSize(int w, int h)
+INT32 VID_GetModeForSize(INT32 w, INT32 h)
 {
-	int matchMode = -1, i;
+	INT32 matchMode = -1, i;
 	if (USE_FULLSCREEN && numVidModes != -1)
 	{
 		for (i=firstEntry; i<numVidModes; i++)
@@ -1678,7 +1699,7 @@ int VID_GetModeForSize(int w, int h)
 
 void VID_PrepareModeList(void)
 {
-	int i;
+	INT32 i;
 
 	firstEntry = 0;
 	if (disable_fullscreen?0:cv_fullscreen.value) // only fullscreen needs preparation
@@ -1702,7 +1723,7 @@ void VID_PrepareModeList(void)
 static inline void SDLESSet(void)
 {
 #ifdef HAVE_DCSDL
-	int j;
+	INT32 j;
 	SDL_DC_SetVideoDriver(SDL_DC_DIRECT_VIDEO); //SDL_DC_DMA_VIDEO
 	for (j=0;j<4;j++)
 	{
@@ -1731,7 +1752,7 @@ static inline void SDLESSet(void)
 #endif
 }
 
-static inline void SDLWMSet(void)
+static void SDLWMSet(void)
 {
 #ifdef RPC_NO_WINDOWS_H
 	SDL_SysWMinfo SDLWM;
@@ -1747,14 +1768,15 @@ static inline void SDLWMSet(void)
 		ShowWindow(vid.WndParent, SW_SHOW);
 	}
 #ifndef _WIN32_WCE
-	SDL_EventState(SDL_SYSWMEVENT,SDL_ENABLE);
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 #endif
 #endif
+	SDL_EventState(SDL_VIDEORESIZE, SDL_IGNORE);
 }
 
 static void* SDLGetDirect(void)
 {
-#ifndef __MACH__ // Do not directly access the MacOSX's OpenGL memory
+#if 0 //#ifndef __MACH__ // Do not directly access the MacOSX's OpenGL memory
 	if (!SDL_MUSTLOCK(vidSurface) && SDLmatchVideoformat())
 	{
 		vid.rowbytes = vidSurface->pitch;
@@ -1764,7 +1786,7 @@ static void* SDLGetDirect(void)
 	return NULL;
 }
 
-int VID_SetMode(int modeNum)
+INT32 VID_SetMode(INT32 modeNum)
 {
 #ifndef _WIN32_WCE
 	SDLdoUngrabMouse();
@@ -1863,7 +1885,7 @@ int VID_SetMode(int modeNum)
 	}
 
 	if (!cv_stretch.value && (float)vid.width/vid.height != ((float)BASEVIDWIDTH/BASEVIDHEIGHT))
-		vid.height = (int)(vid.width * ((float)BASEVIDHEIGHT/BASEVIDWIDTH));// Adjust the height to match
+		vid.height = (INT32)(vid.width * ((float)BASEVIDHEIGHT/BASEVIDWIDTH));// Adjust the height to match
 #endif
 	I_StartupMouse();
 

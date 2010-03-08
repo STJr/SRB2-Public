@@ -30,11 +30,13 @@
 #include "r_things.h"
 #include "dstrings.h"
 
+#ifdef HW3SOUND
 #include "hardware/hw3sound.h"
+#endif
 
 player_t *stplyr;
-int var1;
-int var2;
+INT32 var1;
+INT32 var2;
 
 typedef enum
 {
@@ -586,7 +588,7 @@ static void P_NewChaseDir(mobj_t *actor)
   */
 boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed_t dist)
 {
-	int c = 0, stop;
+	INT32 c = 0, stop;
 	player_t *player;
 	sector_t *sector;
 	angle_t an;
@@ -637,7 +639,7 @@ boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed
 		if (!allaround)
 		{
 			an = R_PointToAngle2(actor->x, actor->y, player->mo->x, player->mo->y) - actor->angle;
-			if (an > ANG90 && an < ANG270)
+			if (an > ANGLE_90 && an < ANGLE_270)
 			{
 				dist = P_AproxDistance(player->mo->x - actor->x, player->mo->y - actor->y);
 				// if real close, react anyway
@@ -665,7 +667,7 @@ boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed
   */
 static boolean P_LookForShield(mobj_t *actor)
 {
-	int c = 0, stop;
+	INT32 c = 0, stop;
 	player_t *player;
 	sector_t *sector;
 
@@ -727,8 +729,8 @@ static boolean P_LookForShield(mobj_t *actor)
 //
 void A_Look(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!P_LookForPlayers(actor, locvar1 & 65535, false , (locvar1 >> 16)*FRACUNIT))
 		return;
@@ -757,8 +759,8 @@ void A_Look(mobj_t *actor)
 //
 void A_Chase(mobj_t *actor)
 {
-	int delta;
-	int locvar1 = var1;
+	INT32 delta;
+	INT32 locvar1 = var1;
 
 	if (actor->reactiontime)
 		actor->reactiontime--;
@@ -779,9 +781,9 @@ void A_Chase(mobj_t *actor)
 		delta = actor->angle - (actor->movedir << 29);
 
 		if (delta > 0)
-			actor->angle -= ANG90/2;
+			actor->angle -= ANGLE_45;
 		else if (delta < 0)
-			actor->angle += ANG90/2;
+			actor->angle += ANGLE_45;
 	}
 
 	if (!actor->target || !(actor->target->flags & MF_SHOOTABLE))
@@ -851,7 +853,7 @@ void A_JetJawRoam(mobj_t *actor)
 	else
 	{
 		actor->reactiontime = actor->info->reactiontime;
-		actor->angle += ANG180;
+		actor->angle += ANGLE_180;
 	}
 
 	if (P_LookForPlayers(actor, false, false, actor->radius * 16))
@@ -867,7 +869,7 @@ void A_JetJawRoam(mobj_t *actor)
 //
 void A_JetJawChomp(mobj_t *actor)
 {
-	int delta;
+	INT32 delta;
 
 	// turn towards movement direction if not there yet
 	if (actor->movedir < NUMDIRS)
@@ -876,9 +878,9 @@ void A_JetJawChomp(mobj_t *actor)
 		delta = actor->angle - (actor->movedir << 29);
 
 		if (delta > 0)
-			actor->angle -= ANG90/2;
+			actor->angle -= ANGLE_45;
 		else if (delta < 0)
-			actor->angle += ANG90/2;
+			actor->angle += ANGLE_45;
 	}
 
 	// Stop chomping if target's dead or you can't see it
@@ -903,7 +905,7 @@ void A_JetJawChomp(mobj_t *actor)
 //
 void A_PointyThink(mobj_t *actor)
 {
-	int i;
+	INT32 i;
 	player_t *player = NULL;
 	mobj_t *ball;
 	TVector v;
@@ -911,7 +913,7 @@ void A_PointyThink(mobj_t *actor)
 	angle_t fa;
 	fixed_t radius = actor->info->radius*actor->info->reactiontime;
 	boolean firsttime = true;
-	int sign;
+	INT32 sign;
 
 	actor->momx = actor->momy = actor->momz = 0;
 
@@ -981,7 +983,7 @@ void A_PointyThink(mobj_t *actor)
 
 		res = VectorMatrixMultiply(v, *RotateXMatrix(FixedAngle(actor->lastlook+i)));
 		M_Memcpy(&v, res, sizeof (v));
-		res = VectorMatrixMultiply(v, *RotateZMatrix(actor->angle+ANG180));
+		res = VectorMatrixMultiply(v, *RotateZMatrix(actor->angle+ANGLE_180));
 		M_Memcpy(&v, res, sizeof (v));
 
 		P_UnsetThingPosition(ball);
@@ -991,7 +993,7 @@ void A_PointyThink(mobj_t *actor)
 		P_SetThingPosition(ball);
 
 		ball = ball->tracer;
-		i += ANG90 >> ANGLETOFINESHIFT;
+		i += ANGLE_90 >> ANGLETOFINESHIFT;
 	}
 }
 
@@ -1006,7 +1008,7 @@ void A_PointyThink(mobj_t *actor)
 //
 void A_CheckBuddy(mobj_t *actor)
 {
-	int locvar1 = var1;
+	INT32 locvar1 = var1;
 
 	if (locvar1 && (!actor->tracer || actor->tracer->health <= 0))
 		P_SetMobjState(actor, S_DISS);
@@ -1099,9 +1101,9 @@ void A_ArrowCheck(mobj_t *actor)
 
 	angle = R_PointToAngle2(0, 0, dist, z);
 
-	if (angle > ANGLE_10*2 && angle <= ANG180)
+	if (angle > ANG20 && angle <= ANGLE_180)
 		P_SetMobjStateNF(actor, actor->info->raisestate);
-	else if (angle < ANGLE_MAX-(ANGLE_10*2) && angle > ANG180)
+	else if (angle < ANGLE_MAX-ANG20 && angle > ANGLE_180)
 		P_SetMobjStateNF(actor, actor->info->xdeathstate);
 	else
 		P_SetMobjStateNF(actor, actor->info->spawnstate);
@@ -1159,7 +1161,7 @@ void A_SharpChase(mobj_t *actor)
 
 	if (actor->reactiontime)
 	{
-		int delta;
+		INT32 delta;
 
 		actor->reactiontime--;
 
@@ -1170,9 +1172,9 @@ void A_SharpChase(mobj_t *actor)
 			delta = actor->angle - (actor->movedir << 29);
 
 			if (delta > 0)
-				actor->angle -= ANG90/2;
+				actor->angle -= ANGLE_45;
 			else if (delta < 0)
-				actor->angle += ANG90/2;
+				actor->angle += ANGLE_45;
 		}
 
 		if (!actor->target || !(actor->target->flags & MF_SHOOTABLE))
@@ -1214,7 +1216,7 @@ void A_SharpSpin(mobj_t *actor)
 
 	if (actor->threshold && actor->target)
 	{
-		actor->angle += ANG45/2;
+		actor->angle += ANGLE_22h;
 		P_Thrust(actor, R_PointToAngle2(actor->x, actor->y, actor->target->x, actor->target->y), actor->info->speed*FRACUNIT);
 		actor->threshold--;
 	}
@@ -1276,7 +1278,7 @@ void A_VultureCheck(mobj_t *actor)
 
 	if (actor->z <= actor->floorz)
 	{
-		actor->angle -= ANG180; // turn around
+		actor->angle -= ANGLE_180; // turn around
 		P_SetMobjState(actor, actor->info->spawnstate);
 	}
 }
@@ -1290,7 +1292,7 @@ void A_VultureCheck(mobj_t *actor)
 //
 void A_SkimChase(mobj_t *actor)
 {
-	int delta;
+	INT32 delta;
 
 	if (actor->reactiontime)
 		actor->reactiontime--;
@@ -1311,9 +1313,9 @@ void A_SkimChase(mobj_t *actor)
 		delta = actor->angle - (actor->movedir << 29);
 
 		if (delta > 0)
-			actor->angle -= ANG90/2;
+			actor->angle -= ANGLE_45;
 		else if (delta < 0)
-			actor->angle += ANG90/2;
+			actor->angle += ANGLE_45;
 	}
 
 	if (!actor->target || !(actor->target->flags & MF_SHOOTABLE))
@@ -1394,8 +1396,8 @@ void A_FaceTarget(mobj_t *actor)
 //
 void A_LobShot(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2 >> 16;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2 >> 16;
 	mobj_t *shot, *hitspot;
 	angle_t an;
 	fixed_t dist;
@@ -1486,8 +1488,8 @@ void A_CannonLook(mobj_t *actor)
 void A_FireShot(mobj_t *actor)
 {
 	fixed_t z;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!actor->target)
 		return;
@@ -1518,8 +1520,8 @@ void A_SuperFireShot(mobj_t *actor)
 {
 	fixed_t z;
 	mobj_t *mo;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!actor->target)
 		return;
@@ -1558,8 +1560,8 @@ void A_SuperFireShot(mobj_t *actor)
 void A_BossFireShot(mobj_t *actor)
 {
 	fixed_t x, y, z;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!actor->target)
 		return;
@@ -1569,33 +1571,33 @@ void A_BossFireShot(mobj_t *actor)
 	switch (locvar2)
 	{
 		case 0:
-			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANG90, 43*FRACUNIT);
-			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANG90, 43*FRACUNIT);
+			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANGLE_90, 43*FRACUNIT);
+			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANGLE_90, 43*FRACUNIT);
 			z = actor->z + 48*FRACUNIT;
 			break;
 		case 1:
-			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANG90, 43*FRACUNIT);
-			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANG90, 43*FRACUNIT);
+			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANGLE_90, 43*FRACUNIT);
+			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANGLE_90, 43*FRACUNIT);
 			z = actor->z + 48*FRACUNIT;
 			break;
 		case 2:
-			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANG90, 56*FRACUNIT);
-			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANG90, 56*FRACUNIT);
+			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANGLE_90, 56*FRACUNIT);
+			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANGLE_90, 56*FRACUNIT);
 			z = actor->z + 42*FRACUNIT;
 			break;
 		case 3:
-			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANG90, 58*FRACUNIT);
-			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANG90, 58*FRACUNIT);
+			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANGLE_90, 58*FRACUNIT);
+			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANGLE_90, 58*FRACUNIT);
 			z = actor->z + 30*FRACUNIT;
 			break;
 		case 4:
-			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANG90, 56*FRACUNIT);
-			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANG90, 56*FRACUNIT);
+			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANGLE_90, 56*FRACUNIT);
+			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANGLE_90, 56*FRACUNIT);
 			z = actor->z + 42*FRACUNIT;
 			break;
 		case 5:
-			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANG90, 58*FRACUNIT);
-			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANG90, 58*FRACUNIT);
+			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANGLE_90, 58*FRACUNIT);
+			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANGLE_90, 58*FRACUNIT);
 			z = actor->z + 30*FRACUNIT;
 			break;
 		default:
@@ -1624,10 +1626,10 @@ void A_SkullAttack(mobj_t *actor)
 {
 	mobj_t *dest;
 	angle_t an;
-	int dist;
-	int speed;
-	int locvar1 = var1;
-	//int locvar2 = var2;
+	INT32 dist;
+	INT32 speed;
+	INT32 locvar1 = var1;
+	//INT32 locvar2 = var2;
 
 	if (!actor->target)
 		return;
@@ -1641,13 +1643,13 @@ void A_SkullAttack(mobj_t *actor)
 	A_FaceTarget(actor);
 
 	if (locvar1 == 1)
-		actor->angle += ANG180;
+		actor->angle += ANGLE_180;
 	else if (locvar1 == 2)
 	{
 		if (P_Random() & 1)
-			actor->angle += ANG90;
+			actor->angle += ANGLE_90;
 		else
-			actor->angle -= ANG90;
+			actor->angle -= ANGLE_90;
 	}
 
 	an = actor->angle >> ANGLETOFINESHIFT;
@@ -1677,7 +1679,7 @@ void A_BossZoom(mobj_t *actor)
 {
 	mobj_t *dest;
 	angle_t an;
-	int dist;
+	INT32 dist;
 
 	if (!actor->target)
 		return;
@@ -1787,10 +1789,10 @@ void A_1upThinker(mobj_t *actor)
 	}
 	else
 	{
-		int i;
+		INT32 i;
 		fixed_t dist = MAXINT;
 		fixed_t temp;
-		int closestplayer = 0;
+		INT32 closestplayer = 0;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -1813,10 +1815,10 @@ void A_1upThinker(mobj_t *actor)
 		actor->skin = &skins[players[closestplayer].skin];
 	}
 	#else
-	int i;
+	INT32 i;
 	fixed_t dist = MAXINT;
 	fixed_t temp;
-	int closestplayer = 0;
+	INT32 closestplayer = 0;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -1851,7 +1853,7 @@ void A_MonitorPop(mobj_t *actor)
 {
 	mobj_t *remains;
 	mobjtype_t item = 0;
-	int prandom;
+	INT32 prandom;
 	mobjtype_t newbox;
 
 	// de-solidify
@@ -1885,9 +1887,9 @@ void A_MonitorPop(mobj_t *actor)
 		case MT_QUESTIONBOX: // Random!
 		{
 			mobjtype_t spawnchance[48];
-			int i = 0;
-			int oldi = 0;
-			int numchoices = 0;
+			INT32 i = 0;
+			INT32 oldi = 0;
+			INT32 numchoices = 0;
 
 			prandom = P_Random(); // Gotta love those random numbers!
 
@@ -2075,7 +2077,7 @@ void A_BossDeath(mobj_t *mo)
 	thinker_t *th;
 	mobj_t *mo2;
 	line_t junk;
-	int i;
+	INT32 i;
 
 	if (mo->type == MT_EGGMOBILE || mo->type == MT_EGGMOBILE2)
 	{
@@ -2168,18 +2170,18 @@ void A_BossDeath(mobj_t *mo)
 
 		if (mo->type == MT_EGGMOBILE2)
 		{
-			mo2 = P_SpawnMobj(mo->x + P_ReturnThrustX(mo, mo->angle - ANG90, 32*FRACUNIT),
-				mo->y + P_ReturnThrustY(mo, mo->angle-ANG90, 24*FRACUNIT),
+			mo2 = P_SpawnMobj(mo->x + P_ReturnThrustX(mo, mo->angle - ANGLE_90, 32*FRACUNIT),
+				mo->y + P_ReturnThrustY(mo, mo->angle-ANGLE_90, 24*FRACUNIT),
 				mo->z + mo->height/2 - 8*FRACUNIT, MT_BOSSTANK1); // Right tank
 			mo2->angle = mo->angle;
-			P_InstaThrust(mo2, mo2->angle - ANG90, 4*FRACUNIT);
+			P_InstaThrust(mo2, mo2->angle - ANGLE_90, 4*FRACUNIT);
 			mo2->momz = 4*FRACUNIT;
 
-			mo2 = P_SpawnMobj(mo->x + P_ReturnThrustX(mo, mo->angle + ANG90, 32*FRACUNIT),
-				mo->y + P_ReturnThrustY(mo, mo->angle-ANG90, 24*FRACUNIT),
+			mo2 = P_SpawnMobj(mo->x + P_ReturnThrustX(mo, mo->angle + ANGLE_90, 32*FRACUNIT),
+				mo->y + P_ReturnThrustY(mo, mo->angle-ANGLE_90, 24*FRACUNIT),
 				mo->z + mo->height/2 - 8*FRACUNIT, MT_BOSSTANK2); // Left tank
 			mo2->angle = mo->angle;
-			P_InstaThrust(mo2, mo2->angle + ANG90, 4*FRACUNIT);
+			P_InstaThrust(mo2, mo2->angle + ANGLE_90, 4*FRACUNIT);
 			mo2->momz = 4*FRACUNIT;
 
 			P_SpawnMobj(mo->x, mo->y, mo->z + mo->height + 32*FRACUNIT, MT_BOSSSPIGOT)->momz = 4*FRACUNIT;
@@ -2204,8 +2206,8 @@ void A_BossDeath(mobj_t *mo)
 void A_CustomPower(mobj_t *actor)
 {
 	player_t *player;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 	boolean spawnshield = false;
 
 	if (!actor->target || !actor->target->player)
@@ -2246,7 +2248,7 @@ void A_CustomPower(mobj_t *actor)
 void A_GiveWeapon(mobj_t *actor)
 {
 	player_t *player;
-	int locvar1 = var1;
+	INT32 locvar1 = var1;
 
 	if (!actor->target || !actor->target->player)
 	{
@@ -2644,8 +2646,8 @@ void A_ParticleSpawn(mobj_t *actor)
 //
 void A_BunnyHop(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (actor->z <= actor->floorz)
 	{
@@ -2665,6 +2667,7 @@ void A_BunnyHop(mobj_t *actor)
 void A_BubbleSpawn(mobj_t *actor)
 {
 	byte prandom;
+	mobj_t *bubble = NULL;
 	if (!(actor->eflags & MFE_UNDERWATER))
 	{
 		// Don't draw or spawn bubbles above water
@@ -2676,11 +2679,11 @@ void A_BubbleSpawn(mobj_t *actor)
 	prandom = P_Random();
 
 	if (leveltime % (3*TICRATE) < 8)
-		P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_EXTRALARGEBUBBLE);
+		bubble = P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_EXTRALARGEBUBBLE);
 	else if (prandom > 128)
-		P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_SMALLBUBBLE);
+		bubble = P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_SMALLBUBBLE);
 	else if (prandom < 128 && prandom > 96)
-		P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_MEDIUMBUBBLE);
+		bubble = P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_MEDIUMBUBBLE);
 }
 
 // Function: A_BubbleRise
@@ -2694,8 +2697,8 @@ void A_BubbleSpawn(mobj_t *actor)
 //
 void A_BubbleRise(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (actor->type == MT_EXTRALARGEBUBBLE)
 	{
@@ -2711,12 +2714,12 @@ void A_BubbleRise(mobj_t *actor)
 		{
 			if (P_Random() < 32)
 			{
-				P_InstaThrust(actor, P_Random() & 1 ? actor->angle + ANG90 : actor->angle,
+				P_InstaThrust(actor, P_Random() & 1 ? actor->angle + ANGLE_90 : actor->angle,
 					P_Random() & 1? FRACUNIT/2 : -FRACUNIT/2);
 			}
 			else if (P_Random() < 32)
 			{
-				P_InstaThrust(actor, P_Random() & 1 ? actor->angle - ANG90 : actor->angle - ANG180,
+				P_InstaThrust(actor, P_Random() & 1 ? actor->angle - ANGLE_90 : actor->angle - ANGLE_180,
 					P_Random() & 1? FRACUNIT/2 : -FRACUNIT/2);
 			}
 		}
@@ -2807,8 +2810,8 @@ void A_AttractChase(mobj_t *actor)
 //
 void A_DropMine(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar2 & 65535)
 	{
@@ -2845,7 +2848,7 @@ void A_DropMine(mobj_t *actor)
 //
 void A_FishJump(mobj_t *actor)
 {
-	int locvar1 = var1;
+	INT32 locvar1 = var1;
 
 	if ((actor->z <= actor->floorz) || (actor->z <= actor->watertop - (64 << FRACBITS)))
 	{
@@ -2854,7 +2857,7 @@ void A_FishJump(mobj_t *actor)
 		if (locvar1)
 			jumpval = var1;
 		else
-			jumpval = (actor->angle/(ANG45/45))*(FRACUNIT/4);
+			jumpval = (actor->angle/(ANGLE_45/45))*(FRACUNIT/4);
 
 		if (!jumpval) jumpval = 44*(FRACUNIT/4);
 		actor->momz = jumpval;
@@ -2875,8 +2878,8 @@ void A_FishJump(mobj_t *actor)
 //
 void A_ThrownRing(mobj_t *actor)
 {
-	int c = 0;
-	int stop;
+	INT32 c = 0;
+	INT32 stop;
 	player_t *player;
 
 	if (leveltime % (TICRATE/7) == 0)
@@ -2935,7 +2938,7 @@ void A_ThrownRing(mobj_t *actor)
 		if (actor->tracer && (actor->tracer->health)
 			&& (actor->tracer->player->powers[pw_ringshield]))// Already found someone to follow.
 		{
-			const long temp = actor->threshold;
+			const INT32 temp = actor->threshold;
 			actor->threshold = 32000;
 			P_HomingAttack(actor, actor->tracer);
 			actor->threshold = temp;
@@ -3065,7 +3068,7 @@ static inline boolean PIT_GrenadeRing(mobj_t *thing)
 //
 void A_GrenadeRing(mobj_t *actor)
 {
-	int bx, by, xl, xh, yl, yh;
+	INT32 bx, by, xl, xh, yl, yh;
 	const fixed_t explodedist = actor->info->painchance;
 
 	if (leveltime % 35 == 0)
@@ -3532,9 +3535,9 @@ void A_MouseThink(mobj_t *actor)
 	if (actor->z == actor->floorz && !actor->reactiontime)
 	{
 		if (P_Random() & 1)
-			actor->angle += ANG90;
+			actor->angle += ANGLE_90;
 		else
-			actor->angle -= ANG90;
+			actor->angle -= ANGLE_90;
 
 		P_InstaThrust(actor, actor->angle, actor->info->speed);
 		actor->reactiontime = TICRATE/5;
@@ -3581,16 +3584,16 @@ void A_DetonChase(mobj_t *actor)
 	actor->angle = exact;
 	if (exact != actor->angle)
 	{
-		if (exact - actor->angle > ANG180)
+		if (exact - actor->angle > ANGLE_180)
 		{
 			actor->angle -= actor->info->raisestate;
-			if (exact - actor->angle < ANG180)
+			if (exact - actor->angle < ANGLE_180)
 				actor->angle = exact;
 		}
 		else
 		{
 			actor->angle += actor->info->raisestate;
-			if (exact - actor->angle > ANG180)
+			if (exact - actor->angle > ANGLE_180)
 				actor->angle = exact;
 		}
 	}
@@ -3600,16 +3603,16 @@ void A_DetonChase(mobj_t *actor)
 	actor->movedir = exact;
 	if (exact != actor->movedir)
 	{
-		if (exact - actor->movedir > ANG180)
+		if (exact - actor->movedir > ANGLE_180)
 		{
 			actor->movedir -= actor->info->raisestate;
-			if (exact - actor->movedir < ANG180)
+			if (exact - actor->movedir < ANGLE_180)
 				actor->movedir = exact;
 		}
 		else
 		{
 			actor->movedir += actor->info->raisestate;
-			if (exact - actor->movedir > ANG180)
+			if (exact - actor->movedir > ANGLE_180)
 				actor->movedir = exact;
 		}
 	}
@@ -3697,8 +3700,8 @@ void A_CapeChase(mobj_t *actor)
 {
 	mobj_t *chaser;
 	fixed_t foffsetx, foffsety, boffsetx, boffsety;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (cv_debug)
 		CONS_Printf("A_CapeChase called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
@@ -3723,8 +3726,8 @@ void A_CapeChase(mobj_t *actor)
 	foffsetx = P_ReturnThrustX(chaser, chaser->angle, (locvar2 >> 16)*FRACUNIT);
 	foffsety = P_ReturnThrustY(chaser, chaser->angle, (locvar2 >> 16)*FRACUNIT);
 
-	boffsetx = P_ReturnThrustX(chaser, chaser->angle-ANG90, (locvar2 & 65535)*FRACUNIT);
-	boffsety = P_ReturnThrustY(chaser, chaser->angle-ANG90, (locvar2 & 65535)*FRACUNIT);
+	boffsetx = P_ReturnThrustX(chaser, chaser->angle-ANGLE_90, (locvar2 & 65535)*FRACUNIT);
+	boffsety = P_ReturnThrustY(chaser, chaser->angle-ANGLE_90, (locvar2 & 65535)*FRACUNIT);
 
 	P_UnsetThingPosition(actor);
 	actor->x = chaser->x + foffsetx + boffsetx;
@@ -3783,14 +3786,14 @@ void A_RockSpawn(mobj_t *actor)
 {
 	mobj_t *mo;
 	mobjtype_t type;
-	int i = P_FindSpecialLineFromTag(12, (short)actor->threshold, -1);
+	INT32 i = P_FindSpecialLineFromTag(12, (short)actor->threshold, -1);
 	line_t *line;
 	fixed_t dist;
 	fixed_t randomoomph;
 
 	if (i == -1)
 	{
-		CONS_Printf("A_RockSpawn: Unable to find parameter line 12 (tag %ld)!\n", actor->threshold);
+		CONS_Printf("A_RockSpawn: Unable to find parameter line 12 (tag %d)!\n", actor->threshold);
 		return;
 	}
 
@@ -3798,7 +3801,7 @@ void A_RockSpawn(mobj_t *actor)
 
 	if (!(sides[line->sidenum[0]].textureoffset >> FRACBITS))
 	{
-		CONS_Printf("A_RockSpawn: No X-offset detected! (tag %ld)!\n", actor->threshold);
+		CONS_Printf("A_RockSpawn: No X-offset detected! (tag %d)!\n", actor->threshold);
 		return;
 	}
 
@@ -3925,8 +3928,8 @@ movedir - current angle holder
 //
 void A_SnowBall(mobj_t *actor)
 {
-	int locvar1 = var1;
-	//int locvar2 = var2;
+	INT32 locvar1 = var1;
+	//INT32 locvar2 = var2;
 
 	P_InstaThrust(actor, actor->angle, actor->info->speed);
 	if (!actor->fuse)
@@ -3945,8 +3948,8 @@ void A_CrawlaCommanderThink(mobj_t *actor)
 	fixed_t dist;
 	sector_t *nextsector;
 	fixed_t thefloor;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (actor->z >= actor->waterbottom && actor->watertop > actor->floorz
 		&& actor->z > actor->watertop - 256*FRACUNIT)
@@ -4000,7 +4003,7 @@ void A_CrawlaCommanderThink(mobj_t *actor)
 			// Auugh! He's trying to kill you! Strafe! STRAAAAFFEEE!!
 			if (actor->target->momx || actor->target->momy)
 			{
-				P_InstaThrust(actor, actor->angle - ANG180, 20*FRACUNIT);
+				P_InstaThrust(actor, actor->angle - ANGLE_180, 20*FRACUNIT);
 			}
 			return;
 		}
@@ -4085,10 +4088,10 @@ void A_RingExplode(mobj_t *actor)
 {
 	mobj_t *mo2;
 	thinker_t *th;
-	int d;
+	INT32 d;
 
 	for (d = 0; d < 16; d++)
-		P_SpawnParaloop(actor->x, actor->y, actor->z + actor->height, actor->info->painchance, 16, MT_NIGHTSPARKLE, d*(ANGLE_45/2), true, false);
+		P_SpawnParaloop(actor->x, actor->y, actor->z + actor->height, actor->info->painchance, 16, MT_NIGHTSPARKLE, d*(ANGLE_22h), true, false);
 
 	S_StartSound(actor, sfx_prloop);
 
@@ -4147,8 +4150,8 @@ void A_OldRingExplode(mobj_t *actor) {
 	byte i;
 	mobj_t *mo;
 	const fixed_t ns = 20 * FRACUNIT;
-	int locvar1 = var1;
-	//int locvar2 = var2;
+	INT32 locvar1 = var1;
+	//INT32 locvar2 = var2;
 	boolean changecolor = (actor->target && actor->target->player);
 
 	for (i = 0; i < 32; i++)
@@ -4222,7 +4225,7 @@ void A_OldRingExplode(mobj_t *actor) {
 void A_MixUp(mobj_t *actor)
 {
 	boolean teleported[MAXPLAYERS];
-	int i, numplayers = 0, prandom = 0;
+	INT32 i, numplayers = 0, prandom = 0;
 
 	actor = NULL;
 	if (!multiplayer)
@@ -4254,7 +4257,7 @@ void A_MixUp(mobj_t *actor)
 	{
 		fixed_t x, y, z;
 		angle_t angle;
-		int one = -1, two = 0; // default value 0 to make the compiler shut up
+		INT32 one = -1, two = 0; // default value 0 to make the compiler shut up
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i] && players[i].mo && players[i].mo->health > 0 && players[i].playerstate == PST_LIVE
 				&& !players[i].exiting)
@@ -4288,7 +4291,7 @@ void A_MixUp(mobj_t *actor)
 	{
 		fixed_t position[MAXPLAYERS][3];
 		angle_t anglepos[MAXPLAYERS];
-		int pindex[MAXPLAYERS], counter = 0, teleportfrom = 0;
+		INT32 pindex[MAXPLAYERS], counter = 0, teleportfrom = 0;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -4386,7 +4389,7 @@ void A_MixUp(mobj_t *actor)
 //
 void A_RecyclePowers(mobj_t *actor)
 {
-	int i, numplayers = 0;
+	INT32 i, numplayers = 0;
 
 	actor = NULL;
 	if (!multiplayer)
@@ -4405,11 +4408,11 @@ void A_RecyclePowers(mobj_t *actor)
 
 	else if (numplayers == 2) //simple swap is all that's needed
 	{
-		long temp[NUMPOWERS];
-		long weapons;
-		long weaponheld;
+		INT32 temp[NUMPOWERS];
+		INT32 weapons;
+		INT32 weaponheld;
 
-		int one = -1, two = 0; // default value 0 to make the compiler shut up
+		INT32 one = -1, two = 0; // default value 0 to make the compiler shut up
 
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i] && players[i].mo && players[i].mo->health > 0 && players[i].playerstate == PST_LIVE
@@ -4446,10 +4449,10 @@ void A_RecyclePowers(mobj_t *actor)
 	else
 	{
 		//well, the cake is a LIE!
-		long temp[MAXPLAYERS][NUMPOWERS];
-		long weapons[MAXPLAYERS];
-		long weaponheld[MAXPLAYERS];
-		int pindex[MAXPLAYERS], counter = 0, j = 0, prandom = 0, recyclefrom = 0;
+		INT32 temp[MAXPLAYERS][NUMPOWERS];
+		INT32 weapons[MAXPLAYERS];
+		INT32 weaponheld[MAXPLAYERS];
+		INT32 pindex[MAXPLAYERS], counter = 0, j = 0, prandom = 0, recyclefrom = 0;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -4525,7 +4528,7 @@ void A_RecyclePowers(mobj_t *actor)
 //
 void A_Boss1Chase(mobj_t *actor)
 {
-	int delta;
+	INT32 delta;
 
 	if (actor->reactiontime)
 		actor->reactiontime--;
@@ -4540,9 +4543,9 @@ void A_Boss1Chase(mobj_t *actor)
 		delta = actor->angle - (actor->movedir << 29);
 
 		if (delta > 0)
-			actor->angle -= ANG90/2;
+			actor->angle -= ANGLE_45;
 		else if (delta < 0)
-			actor->angle += ANG90/2;
+			actor->angle += ANGLE_45;
 	}
 
 	// do not attack twice in a row
@@ -4601,7 +4604,7 @@ void A_Boss2Chase(mobj_t *actor)
 {
 	fixed_t radius;
 	boolean reverse = false;
-	int speedvar;
+	INT32 speedvar;
 
 	if (actor->health <= 0)
 		return;
@@ -4708,7 +4711,7 @@ void A_Boss2Pogo(mobj_t *actor)
 		mobj_t *goop;
 		fixed_t fz = actor->z+actor->height+56*FRACUNIT;
 		angle_t fa;
-		int i;
+		INT32 i;
 		// spray in all 8 directions!
 		for (i = 0; i < 8; i++)
 		{
@@ -4790,8 +4793,8 @@ void A_GoopSplat(mobj_t *actor)
 //
 void A_Boss2PogoSFX(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!actor->target || !(actor->target->flags & MF_SHOOTABLE))
 	{
@@ -4848,10 +4851,10 @@ void A_EggmanBox(mobj_t *actor)
 //
 void A_TurretFire(mobj_t *actor)
 {
-	int count = 0;
+	INT32 count = 0;
 	fixed_t dist;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar2)
 		dist = locvar2*FRACUNIT;
@@ -4884,10 +4887,10 @@ void A_TurretFire(mobj_t *actor)
 //
 void A_SuperTurretFire(mobj_t *actor)
 {
-	int count = 0;
+	INT32 count = 0;
 	fixed_t dist;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar2)
 		dist = locvar2*FRACUNIT;
@@ -4921,7 +4924,7 @@ void A_SuperTurretFire(mobj_t *actor)
 //
 void A_TurretStop(mobj_t *actor)
 {
-	int locvar1 = var1;
+	INT32 locvar1 = var1;
 
 	actor->flags2 &= ~MF2_FIRING;
 	actor->flags2 &= ~MF2_SUPERFIRE;
@@ -5020,7 +5023,7 @@ void A_BuzzFly(mobj_t *actor)
 
 	// chase towards player
 	{
-		int dist, realspeed;
+		INT32 dist, realspeed;
 		const fixed_t mf = 5*(FRACUNIT/4);
 
 		if (ultimatemode)
@@ -5056,7 +5059,7 @@ void A_BuzzFly(mobj_t *actor)
 //
 void A_GuardChase(mobj_t *actor)
 {
-	int delta;
+	INT32 delta;
 
 	if (actor->reactiontime)
 		actor->reactiontime--;
@@ -5076,9 +5079,9 @@ void A_GuardChase(mobj_t *actor)
 		delta = actor->angle - (actor->movedir << 29);
 
 		if (delta > 0)
-			actor->angle -= ANG90/2;
+			actor->angle -= ANGLE_45;
 		else if (delta < 0)
-			actor->angle += ANG90/2;
+			actor->angle += ANGLE_45;
 	}
 
 	if (!actor->target || !(actor->target->flags & MF_SHOOTABLE))
@@ -5105,7 +5108,7 @@ void A_GuardChase(mobj_t *actor)
 
 	if (actor->tracer && actor->tracer->type == MT_EGGSHIELD)
 	{
-		int i;
+		INT32 i;
 		player_t *player;
 		fixed_t blockdist;
 		fixed_t newx, newy;
@@ -5151,7 +5154,7 @@ void A_GuardChase(mobj_t *actor)
 
 			angle = R_PointToAngle2(actor->tracer->x, actor->tracer->y, player->mo->x, player->mo->y) - actor->tracer->angle;
 
-			if (angle > ANG90 && angle < ANG270)
+			if (angle > ANGLE_90 && angle < ANGLE_270)
 				continue;
 
 			// Blocked by the shield
@@ -5201,16 +5204,16 @@ void A_Boss3TakeDamage(mobj_t *actor)
 //
 void A_LinedefExecute(mobj_t *actor)
 {
-	long tagnum;
-	int locvar1 = var1;
+	INT32 tagnum;
+	INT32 locvar1 = var1;
 
 	if (locvar1 > 0)
 		tagnum = locvar1;
 	else
-		tagnum = (long)(1000 + (size_t)(actor->state - states));
+		tagnum = (INT32)(1000 + (size_t)(actor->state - states));
 
 	if (cv_debug)
-		CONS_Printf("A_LinedefExecute: Running mobjtype %d's sector with tag %ld\n", actor->type, tagnum);
+		CONS_Printf("A_LinedefExecute: Running mobjtype %d's sector with tag %d\n", actor->type, tagnum);
 
 	P_LinedefExecute(tagnum, actor, actor->subsector->sector);
 }
@@ -5264,7 +5267,7 @@ void A_PlayActiveSound(mobj_t *actor)
 void A_SmokeTrailer(mobj_t *actor)
 {
 	mobj_t *th;
-	int locvar1 = var1;
+	INT32 locvar1 = var1;
 
 	if (gametic % (4*NEWTICRATERATIO))
 		return;
@@ -5293,15 +5296,16 @@ void A_SpawnObjectAbsolute(mobj_t *actor)
 {
 	signed short x, y, z; // Want to be sure we can use negative values
 	mobjtype_t type;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	mobj_t *mo;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	x = (signed short)(locvar1>>16);
 	y = (signed short)(locvar1&65535);
 	z = (signed short)(locvar2>>16);
 	type = (mobjtype_t)(locvar2&65535);
 
-	P_SpawnMobj(x<<FRACBITS, y<<FRACBITS, z<<FRACBITS, type);
+	mo = P_SpawnMobj(x<<FRACBITS, y<<FRACBITS, z<<FRACBITS, type);
 	actor = NULL;
 }
 
@@ -5320,8 +5324,9 @@ void A_SpawnObjectRelative(mobj_t *actor)
 {
 	signed short x, y, z; // Want to be sure we can use negative values
 	mobjtype_t type;
-	int locvar1 = var1;
-	int locvar2 = var2;
+	mobj_t *mo;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (cv_debug)
 		CONS_Printf("A_SpawnObjectRelative called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
@@ -5331,7 +5336,7 @@ void A_SpawnObjectRelative(mobj_t *actor)
 	z = (signed short)(locvar2>>16);
 	type = (mobjtype_t)(locvar2&65535);
 
-	P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), actor->z + (z<<FRACBITS), type);
+	mo = P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), actor->z + (z<<FRACBITS), type);
 }
 
 // Function: A_ChangeAngleRelative
@@ -5343,8 +5348,8 @@ void A_SpawnObjectRelative(mobj_t *actor)
 //
 void A_ChangeAngleRelative(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 	angle_t angle = P_Random()+1;
 	const angle_t amin = FixedAngle(locvar1*FRACUNIT);
 	const angle_t amax = FixedAngle(locvar2*FRACUNIT);
@@ -5374,8 +5379,8 @@ void A_ChangeAngleRelative(mobj_t *actor)
 //
 void A_ChangeAngleAbsolute(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 	angle_t angle = P_Random()+1;
 	const angle_t amin = FixedAngle(locvar1*FRACUNIT);
 	const angle_t amax = FixedAngle(locvar2*FRACUNIT);
@@ -5407,8 +5412,8 @@ void A_ChangeAngleAbsolute(mobj_t *actor)
 //
 void A_PlaySound(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	S_StartSound(locvar2 ? actor : NULL, locvar1);
 }
@@ -5422,8 +5427,8 @@ void A_PlaySound(mobj_t *actor)
 //
 void A_FindTarget(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 	mobj_t *targetedmobj = NULL;
 	thinker_t *th;
 	mobj_t *mo2;
@@ -5482,8 +5487,8 @@ void A_FindTarget(mobj_t *actor)
 //
 void A_FindTracer(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 	mobj_t *targetedmobj = NULL;
 	thinker_t *th;
 	mobj_t *mo2;
@@ -5542,8 +5547,8 @@ void A_FindTracer(mobj_t *actor)
 //
 void A_SetTics(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar1)
 		actor->tics = locvar1;
@@ -5560,8 +5565,8 @@ void A_SetTics(mobj_t *actor)
 //
 void A_SetRandomTics(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	actor->tics = locvar1 + (P_Random() % locvar2);
 }
@@ -5575,8 +5580,8 @@ void A_SetRandomTics(mobj_t *actor)
 //
 void A_ChangeColorRelative(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar1)
 	{
@@ -5597,8 +5602,8 @@ void A_ChangeColorRelative(mobj_t *actor)
 //
 void A_ChangeColorAbsolute(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar1)
 	{
@@ -5618,10 +5623,10 @@ void A_ChangeColorAbsolute(mobj_t *actor)
 //
 void A_MoveRelative(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
-	P_Thrust(actor, actor->angle+(locvar1*(ANG45/45)), locvar2*FRACUNIT);
+	P_Thrust(actor, actor->angle+(locvar1*(ANGLE_45/45)), locvar2*FRACUNIT);
 }
 
 // Function: A_MoveAbsolute
@@ -5633,10 +5638,10 @@ void A_MoveRelative(mobj_t *actor)
 //
 void A_MoveAbsolute(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
-	P_InstaThrust(actor, (locvar1*(ANG45/45)), locvar2*FRACUNIT);
+	P_InstaThrust(actor, (locvar1*(ANGLE_45/45)), locvar2*FRACUNIT);
 }
 
 // Function: A_Thrust
@@ -5648,8 +5653,8 @@ void A_MoveAbsolute(mobj_t *actor)
 //
 void A_Thrust(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!locvar1)
 		CONS_Printf("A_Thrust: Var1 not specified!\n");
@@ -5671,8 +5676,8 @@ void A_Thrust(mobj_t *actor)
 //
 void A_ZThrust(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (!locvar1)
 		CONS_Printf("A_ZThrust: Var1 not specified!\n");
@@ -5740,8 +5745,8 @@ void A_SetTargetsTarget(mobj_t *actor)
 //
 void A_SetObjectFlags(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	P_UnsetThingPosition(actor);
 	if (sector_list)
@@ -5772,8 +5777,8 @@ void A_SetObjectFlags(mobj_t *actor)
 //
 void A_SetObjectFlags2(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (locvar2 == 2)
 		actor->flags2 |= locvar1;
@@ -5795,7 +5800,7 @@ void A_SetObjectFlags2(mobj_t *actor)
 void A_BossJetFume(mobj_t *actor)
 {
 	mobj_t *filler;
-	int locvar1 = var1;
+	INT32 locvar1 = var1;
 
 	if (locvar1 == 0) // Boss1 jet fumes
 	{
@@ -5808,11 +5813,11 @@ void A_BossJetFume(mobj_t *actor)
 		P_SetTarget(&filler->target, actor);
 		filler->fuse = 56;
 
-		filler = P_SpawnMobj(jetx + P_ReturnThrustX(actor, actor->angle-ANG90, 24*FRACUNIT), jety + P_ReturnThrustY(actor, actor->angle-ANG90, 24*FRACUNIT), actor->z + 12*FRACUNIT, MT_JETFUME1);
+		filler = P_SpawnMobj(jetx + P_ReturnThrustX(actor, actor->angle-ANGLE_90, 24*FRACUNIT), jety + P_ReturnThrustY(actor, actor->angle-ANGLE_90, 24*FRACUNIT), actor->z + 12*FRACUNIT, MT_JETFUME1);
 		P_SetTarget(&filler->target, actor);
 		filler->fuse = 57;
 
-		filler = P_SpawnMobj(jetx + P_ReturnThrustX(actor, actor->angle+ANG90, 24*FRACUNIT), jety + P_ReturnThrustY(actor, actor->angle+ANG90, 24*FRACUNIT), actor->z + 12*FRACUNIT, MT_JETFUME1);
+		filler = P_SpawnMobj(jetx + P_ReturnThrustX(actor, actor->angle+ANGLE_90, 24*FRACUNIT), jety + P_ReturnThrustY(actor, actor->angle+ANGLE_90, 24*FRACUNIT), actor->z + 12*FRACUNIT, MT_JETFUME1);
 		P_SetTarget(&filler->target, actor);
 		filler->fuse = 58;
 
@@ -5827,7 +5832,7 @@ void A_BossJetFume(mobj_t *actor)
 
 		filler = P_SpawnMobj(jetx, jety, actor->z + 17*FRACUNIT, MT_PROPELLER);
 		P_SetTarget(&filler->target, actor);
-		filler->angle = actor->angle - ANG180;
+		filler->angle = actor->angle - ANGLE_180;
 
 		P_SetTarget(&actor->tracer, filler);
 	}
@@ -5842,8 +5847,8 @@ void A_BossJetFume(mobj_t *actor)
 //
 void A_RandomState(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	P_SetMobjState(actor, P_Random()&1 ? locvar1 : locvar2);
 }
@@ -5857,10 +5862,10 @@ void A_RandomState(mobj_t *actor)
 //
 void A_RandomStateRange(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
-	int statenum;
-	int difference = locvar2 - locvar1;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
+	INT32 statenum;
+	INT32 difference = locvar2 - locvar1;
 
 	// Scale P_Random() to the difference.
 	statenum = P_Random();
@@ -5880,8 +5885,8 @@ void A_RandomStateRange(mobj_t *actor)
 //
 void A_DualAction(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 
 	if (cv_debug)
 		CONS_Printf("A_DualAction called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
@@ -5910,8 +5915,8 @@ void A_DualAction(mobj_t *actor)
 //
 void A_RemoteAction(mobj_t *actor)
 {
-	int locvar1 = var1;
-	int locvar2 = var2;
+	INT32 locvar1 = var1;
+	INT32 locvar2 = var2;
 	mobj_t *originaltarget = actor->target; // Hold on to the target for later.
 
 	// If >=0, find the closest target.

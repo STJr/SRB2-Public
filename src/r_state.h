@@ -56,7 +56,7 @@ extern size_t num_extra_colormaps;
 extern extracolormap_t extra_colormaps[MAXCOLORMAPS];
 
 // for global animation
-extern long *texturetranslation;
+extern INT32 *texturetranslation;
 
 // Sprites
 extern size_t numspritelumps;
@@ -102,7 +102,7 @@ extern consvar_t cv_allowmlook;
 extern angle_t clipangle;
 extern angle_t doubleclipangle;
 
-extern int viewangletox[FINEANGLES/2];
+extern INT32 viewangletox[FINEANGLES/2];
 extern angle_t xtoviewangle[MAXVIDWIDTH+1];
 
 extern fixed_t rw_distance;

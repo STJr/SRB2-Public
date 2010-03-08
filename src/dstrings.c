@@ -224,7 +224,7 @@ const char *text[NUMTEXT] =
 	"If you want to change the sky interactively on a map, use the linedef executor feature instead.\n", //CHANGESKY_HELP
 	"skynum <sky#>: change the sky\n", //SKYNUM_HELP
 	"Previewing sky %s...\n",          //SKYNUM_PREVIEW
-	"Tunes <slot> <speed>: play a slot at speed(100%%)\n", //TUNES_HELP
+	"Tunes <slot#/default> <speed>: play a slot or the default stage tune at the specified speed(100%%)\n", //TUNES_HELP
 	"The current tune is: %d\n",                           //TUNES_CURRENT
 	"Valid slots are 1 to %d, or 0 to stop music\n",       //TUNES_VALIDSLOTS
 	"modifiedgame is true, but you can save emblem and time data in this mod.\n", //GAMEMODIFIEDHELP1
@@ -331,7 +331,7 @@ const char *text[NUMTEXT] =
 	"%s%s%s was %s by %s%s%s's %sscatter ring.\n",    //PHURT_S
 	"%s%s%s was %s by %s%s%s's %sgrenade ring.\n",    //PHURT_G
 	"%s%s%s was %s by %s%s%s's %sring.\n",            //PHURT_RING
-	"%s%s%s was %s by %s%s%s\n",                    //PHURT_MATCHDEFAULT
+	"%s%s%s was %s by %s%s%s.\n",                   //PHURT_MATCHDEFAULT
 	"%s%s%s drowned.\n",                            //PDEAD_DROWNED
 	"%s%s%s was crushed.\n",                        //PDEAD_CRUSHED
 	"%s%s%s was %s by a blue crawla!\n",            //PHURT_BCRAWLA
@@ -347,7 +347,7 @@ const char *text[NUMTEXT] =
 	"%s%s%s was electrocuted!\n",                   //PDEAD_ELEC
 	"%s%s%s was impaled by spikes!\n",              //PDEAD_SPIK
 	"%s%s%s asphyxiated in space!\n",               //PDEAD_SPAC
-	"%s%s%s was %s by %s%s%s\n",                    //PHURT_HIT
+	"%s%s%s was %s by %s%s%s.\n",                   //PHURT_HIT
 	"%s caused a world of pain.\n",                 //WORLD_OF_PAIN
 	"%s got a game over.\n",                        //PLAYERGAMEOVER
 	"%s has %d lives remaining.\n",                 //PLAYERLIVESREMAINING

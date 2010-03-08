@@ -96,7 +96,7 @@ void I_Quit(void) FUNCNORETURN;
 	\param	length	how much memory
 	\return	memory from low memory under dos
 */
-byte *I_AllocLow(int length) FUNCDEAD;
+byte *I_AllocLow(INT32 length) FUNCDEAD;
 
 typedef enum
 {
@@ -117,20 +117,20 @@ typedef enum
 
 typedef struct JoyFF_s
 {
-	long ForceX; ///< The X of the Force's Vel
-	long ForceY; ///< The Y of the Force's Vel
+	INT32 ForceX; ///< The X of the Force's Vel
+	INT32 ForceY; ///< The Y of the Force's Vel
 	//All
-	unsigned long Duration; ///< The total duration of the effect, in microseconds
-	long Gain; //< /The gain to be applied to the effect, in the range from 0 through 10,000.
+	UINT32 Duration; ///< The total duration of the effect, in microseconds
+	INT32 Gain; //< /The gain to be applied to the effect, in the range from 0 through 10,000.
 	//All, CONSTANTFORCE -10,000 to 10,000
-	long Magnitude; ///< Magnitude of the effect, in the range from 0 through 10,000.
+	INT32 Magnitude; ///< Magnitude of the effect, in the range from 0 through 10,000.
 	//RAMPFORCE
-	long Start; ///< Magnitude at the start of the effect, in the range from -10,000 through 10,000.
-	long End; ///< Magnitude at the end of the effect, in the range from -10,000 through 10,000.
+	INT32 Start; ///< Magnitude at the start of the effect, in the range from -10,000 through 10,000.
+	INT32 End; ///< Magnitude at the end of the effect, in the range from -10,000 through 10,000.
 	//PERIODIC
-	long Offset; ///< Offset of the effect.
-	unsigned long Phase; ///< Position in the cycle of the periodic effect at which playback begins, in the range from 0 through 35,999
-	unsigned long Period; ///< Period of the effect, in microseconds.
+	INT32 Offset; ///< Offset of the effect.
+	UINT32 Phase; ///< Position in the cycle of the periodic effect at which playback begins, in the range from 0 through 35,999
+	UINT32 Period; ///< Period of the effect, in microseconds.
 } JoyFF_t;
 
 /**	\brief	Forcefeedback for the first joystick
@@ -172,7 +172,7 @@ void I_InitJoystick2(void);
 
 /**	\brief return the number of joystick on the system
 */
-int I_NumJoys(void);
+INT32 I_NumJoys(void);
 
 /**	\brief	The *I_GetJoyName function
 
@@ -180,7 +180,7 @@ int I_NumJoys(void);
 
 	\return	joystick name
 */
-const char *I_GetJoyName(int joyindex);
+const char *I_GetJoyName(INT32 joyindex);
 
 typedef struct  MumblePos_s {
 	fixed_t fPosition[3];
@@ -243,7 +243,7 @@ void I_RemoveExitFunc(void (*func)());
 
 /**	\brief Setup signal handler, plus stuff for trapping errors and cleanly exit.
 */
-int I_StartupSystem(void);
+INT32 I_StartupSystem(void);
 
 /**	\brief Shutdown systems
 */
@@ -268,7 +268,7 @@ char *I_GetUserName(void);
 
 	\return status of new folder
 */
-int I_mkdir(const char *dirname, int unixright);
+INT32 I_mkdir(const char *dirname, INT32 unixright);
 
 typedef struct {
 	int FPU        : 1; ///< FPU availabile
@@ -323,7 +323,7 @@ void I_GetMouseEvents(void);
 
 char *I_GetEnv(const char *name);
 
-int I_PutEnv(char *variable);
+INT32 I_PutEnv(char *variable);
 
 void I_RegisterSysCommands(void);
 

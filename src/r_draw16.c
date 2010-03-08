@@ -30,7 +30,7 @@
 */
 void R_DrawColumn_16(void)
 {
-	int count;
+	INT32 count;
 	short *dest;
 	fixed_t frac, fracstep;
 
@@ -73,7 +73,7 @@ void R_DrawColumn_16(void)
 */
 void R_DrawWallColumn_16(void)
 {
-	int count;
+	INT32 count;
 	short *dest;
 	fixed_t frac, fracstep;
 
@@ -108,7 +108,7 @@ void R_DrawWallColumn_16(void)
 */
 void R_DrawTranslucentColumn_16(void)
 {
-	int count;
+	INT32 count;
 	short *dest;
 	fixed_t frac, fracstep;
 
@@ -148,7 +148,7 @@ void R_DrawTranslucentColumn_16(void)
 */
 void R_DrawTranslatedColumn_16(void)
 {
-	int count;
+	INT32 count;
 	short *dest;
 	fixed_t frac, fracstep;
 
@@ -188,7 +188,7 @@ void R_DrawSpan_16(void)
 {
 	fixed_t xfrac, yfrac;
 	short *dest;
-	int count, spot;
+	INT32 count, spot;
 
 #ifdef RANGECHECK
 	if (ds_x2 < ds_x1 || ds_x1 < 0 || ds_x2 >= vid.width || ds_y > vid.height)

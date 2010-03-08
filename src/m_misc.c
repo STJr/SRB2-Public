@@ -127,12 +127,12 @@ boolean moviemode = false; // disable screenshot message in Movie mode
   * \return The map number, or 0 if no map corresponds to these characters.
   * \sa G_BuildMapName
   */
-int M_MapNumber(char first, char second)
+INT32 M_MapNumber(char first, char second)
 {
 	if (isdigit(first))
 	{
 		if (isdigit(second))
-			return ((int)first - '0') * 10 + ((int)second - '0');
+			return ((INT32)first - '0') * 10 + ((INT32)second - '0');
 		return 0;
 	}
 
@@ -141,8 +141,8 @@ int M_MapNumber(char first, char second)
 	if (!isalnum(second))
 		return 0;
 
-	return 100 + ((int)tolower(first) - 'a') * 36 + (isdigit(second) ? ((int)second - '0') :
-		((int)tolower(second) - 'a') + 10);
+	return 100 + ((INT32)tolower(first) - 'a') * 36 + (isdigit(second) ? ((INT32)second - '0') :
+		((INT32)tolower(second) - 'a') + 10);
 }
 
 // ==========================================================================
@@ -1579,7 +1579,7 @@ static FUNCTARGET("mmx") void *mmx1_cpy(void *dest, const void *src, size_t n) /
 
 static /*FUNCTARGET("mmx")*/ void *mmx_cpy(void *dest, const void *src, size_t n)
 {
-#if defined (_MSC_VER) && !defined (_WIN32_WCE)
+#if defined (_MSC_VER) && defined (_X86_)
 	_asm
 	{
 		mov ecx, [n]
@@ -1689,6 +1689,19 @@ static /*FUNCTARGET("mmx")*/ void *mmx_cpy(void *dest, const void *src, size_t n
 // Alam: why? memcpy may be __cdecl/_System and our code may be not the same type
 static void *cpu_cpy(void *dest, const void *src, size_t n)
 {
+	if(src == 0)
+	{
+		I_OutputMsg("Memcpy from 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
+		return dest;
+	}
+
+	if(dest == 0)
+	{
+		I_OutputMsg("Memcpy to 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
+		return dest;
+	}
+
+	//  char *dp = dest;  const char *sp = src;  for (;n>0;n--) *dp++ = *sp++;
 	return memcpy(dest, src, n);
 }
 

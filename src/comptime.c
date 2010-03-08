@@ -1,5 +1,10 @@
 /*
- * Compile date and time.
+ * Compiles date and time.
+ *
+ * Kalaron: Can't this be somewhere else instead of in an extra c file?
+ * Alam: Code::Block, XCode and the Makefile touch this file to update
+ *  the timestamp
+ *
  */
 
 const char *compdate = __DATE__;

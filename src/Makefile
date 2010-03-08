@@ -84,6 +84,17 @@
 #
 #############################################################################
 
+# SRB2 data files
+D_DIR?=../bin/Resources
+D_FILES=$(D_DIR)/srb2.srb \
+	$(D_DIR)/sonic.plr \
+	$(D_DIR)/tails.plr \
+	$(D_DIR)/knux.plr \
+	$(D_DIR)/rings.wpn \
+	$(D_DIR)/drill.dta \
+	$(D_DIR)/soar.dta \
+	$(D_DIR)/music.dta \
+
 include Makefile.cfg
 
 ifdef DUMMY
@@ -151,6 +162,10 @@ ifndef ECHO
 	CXX:=@$(CXX)
 	WINDRES:=@$(WINDRES)
 	DLLWRAP:=@$(DLLWRAP)
+	CP:=@$(CP)
+	MKDIR:=$(MKDIR)
+	MKISOFS:=$(MKISOFS)
+	DD:=$(DD)
 endif
 
 ifdef NONET
@@ -256,7 +271,7 @@ ifdef DEBUGMODE
 
 	# build with debugging information
 	WINDRESFLAGS = -D_DEBUG
-	CFLAGS+=-g -O0 $(OPTS) $(M5) -DPARANOIA -DRANGECHECK $(WINDRESFLAGS)
+	CFLAGS+=-g -O0 $(OPTS) $(M5) -Wall -DPARANOIA -DRANGECHECK $(WINDRESFLAGS)
 else
 
 
@@ -420,8 +435,11 @@ $(OBJDIR):
 	-@mkdir -p $(OBJDIR)
 
 ifndef SDL
-#dll
+ifdef NOHW
+dll :
+else
 dll : opengl_dll
+endif
 ifdef MINGW
 all_dll: opengl_dll minigl_dll ds3d_dll fmod_dll openal_dll
 opengl_dll : $(OBJDIR)/r_opengl.o $(OBJDIR)/ogl_win.o hardware/r_mingw.def
@@ -539,6 +557,38 @@ $(OBJDIR)/dchelp.o: $(INTERFACE)/SRB2DC/dchelp.c
 
 $(OBJDIR)/i_udp.o: $(INTERFACE)/SRB2DC/i_udp.c
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
+
+$(BIN)/IP.BIN: $(INTERFACE)/SRB2DC/IP.BIN
+	$(CP) $< $@
+
+$(BIN)/SRB2DC.cdi.pass1: $(INTERFACE)/SRB2DC/SELFBOOT.BIN
+	$(CP) $< $@
+
+$(BIN)/$(BINNAME): $(BIN)/$(EXENAME)
+	$(KOS_OBJCOPY) -R .stack -O binary $< $@
+
+$(BIN)/1ST_READ.BIN: $(BIN)/$(BINNAME) $(BIN)/scramble
+	$(BIN)/scramble $< $@
+
+$(BIN)/scramble: $(INTERFACE)/SRB2DC/scramble.c
+	$(HOSTCC) $< -o $@
+
+iso: $(BIN)/SRB2DC.iso
+cdi: $(BIN)/SRB2DC.cdi
+
+$(BIN)/SRB2DC.iso.pass1: $(BIN)/1ST_READ.BIN $(BIN)/IP.BIN
+	$(MKDIR) $(BIN)/cdrom
+	$(CP) $(BIN)/1ST_READ.BIN $(D_FILES) $(BIN)/cdrom
+	$(MKISOFS) -l -r -o $@ $(BIN)/cdrom
+
+$(BIN)/SRB2DC.iso.pass2: $(BIN)/SRB2DC.iso.pass1
+	$(DD) if=$< of=$@ bs=2048 skip=16 status=noxfer
+
+$(BIN)/SRB2DC.iso: $(BIN)/SRB2DC.iso.pass2 $(BIN)/IP.BIN
+	@cat $(BIN)/IP.BIN $(BIN)/SRB2DC.iso.pass2 > $@
+
+$(BIN)/SRB2DC.cdi: $(BIN)/SRB2DC.iso.pass2 $(BIN)/SRB2DC.cdi.pass1 $(BIN)/IP.BIN
+	@cat $(BIN)/SRB2DC.cdi.pass1 $(BIN)/IP.BIN $(BIN)/SRB2DC.iso.pass2 > $@
 endif
 
 ifdef XBOX

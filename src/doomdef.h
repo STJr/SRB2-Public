@@ -39,6 +39,9 @@
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4127 4152 4213 4514)
+#ifdef _WIN64
+#pragma warning(disable : 4306)
+#endif
 #endif
 // warning level 4
 // warning C4127: conditional expression is constant
@@ -116,7 +119,7 @@ extern FILE *logstream;
 #define TICRATE (OLDTICRATE*NEWTICRATERATIO)
 
 #define RING_DIST 512*FRACUNIT // how close you need to be to a ring to attract it
-#define NIGHTS_DRAW_DIST 1536*FRACUNIT
+#define LIMIT_DRAW_DIST (2048*FRACUNIT)
 
 #define PUSHACCEL (2*FRACUNIT) // Acceleration for MF2_SLIDEPUSH items.
 
@@ -149,6 +152,7 @@ void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
 #include "m_swap.h"
 
 // m_misc.h
+extern void *(*M_Memcpy)(void* dest, const void* src, size_t n) FUNCNONNULL;
 char *va(const char *format, ...) FUNCPRINTF;
 
 // d_main.c
@@ -162,7 +166,7 @@ extern boolean devparm; // development mode (-debug)
 #define ZZ_Alloc(x) Z_Malloc(x, PU_STATIC, NULL)
 
 // i_system.c, replace getchar() once the keyboard has been appropriated
-int I_GetKey(void);
+INT32 I_GetKey(void);
 
 #ifndef min // Double-Check with WATTCP-32's cdefs.h
 #define min(x, y) (((x) < (y)) ? (x) : (y))
@@ -199,5 +203,9 @@ extern const char *compdate, *comptime;
 //#define CHAOSISNOTDEADYET // Pre-1.08 Chaos gametype code
 //#define POLYOBJECTS_PLANES // Polyobject fake flat code
 //#define BLUE_SPHERES // Blue spheres for future use.
+
+#ifdef SHUFFLE
+#define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.
+#endif
 
 #endif // __DOOMDEF__

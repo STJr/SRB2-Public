@@ -29,12 +29,12 @@
 #include "st_stuff.h"
 #include "hu_stuff.h"
 
-void P_ForceFeed(const player_t *player, int attack, int fade, tic_t duration, int period)
+void P_ForceFeed(const player_t *player, INT32 attack, INT32 fade, tic_t duration, INT32 period)
 {
 	BasicFF_t Basicfeed;
 	if (!player)
 		return;
-	Basicfeed.Duration = (unsigned long)(duration * (100L/TICRATE));
+	Basicfeed.Duration = (UINT32)(duration * (100L/TICRATE));
 	Basicfeed.ForceX = Basicfeed.ForceY = 1;
 	Basicfeed.Gain = 25000;
 	Basicfeed.Magnitude = period*10;
@@ -58,7 +58,7 @@ void P_ForceConstant(const BasicFF_t *FFInfo)
 	else if (splitscreen && FFInfo->player == &players[secondarydisplayplayer])
 		I_Tactile2(ConstantForce, &ConstantQuake);
 }
-void P_RampConstant(const BasicFF_t *FFInfo, int Start, int End)
+void P_RampConstant(const BasicFF_t *FFInfo, INT32 Start, INT32 End)
 {
 	JoyFF_t RampQuake;
 	if (!FFInfo || !FFInfo->player)
@@ -89,7 +89,7 @@ void P_RampConstant(const BasicFF_t *FFInfo, int Start, int End)
   * \param player  The player who touched a starpost.
   * \param postnum The number of the starpost just touched.
   */
-void P_ClearStarPost(player_t *player, int postnum)
+void P_ClearStarPost(player_t *player, INT32 postnum)
 {
 	thinker_t *th;
 	mobj_t *mo2;
@@ -189,7 +189,7 @@ static void P_DoNightsScore(player_t *player)
 void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 {
 	player_t *player;
-	int i, pemercount = 0;
+	INT32 i, pemercount = 0;
 	sfxenum_t sound = sfx_None;
 	mobj_t *temp;
 
@@ -376,7 +376,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				touchspeed = P_AproxDistance(toucher->momx, toucher->momy);
 
 				// Blocked by the shield?
-				if (!(angle > ANG90 && angle < ANG270))
+				if (!(angle > ANGLE_90 && angle < ANGLE_270))
 				{
 					toucher->momx = P_ReturnThrustX(special, special->angle, touchspeed);
 					toucher->momy = P_ReturnThrustY(special, special->angle, touchspeed);
@@ -408,7 +408,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			return;
 		case MT_EMBLEM: // Secret emblem thingy
 			{
-				int emblemcount = 0;
+				INT32 emblemcount = 0;
 
 				if (timeattacking || demoplayback)
 					return;
@@ -515,7 +515,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					if (special->threshold > 0)
 						fa = FINEANGLE_C((special->threshold*30)-1);
 					else
-						fa = FINEANGLE_C(0);
+						fa = 0;
 
 					xspeed = FixedMul(FINECOSINE(fa),speed);
 					yspeed = FixedMul(FINESINE(fa),speed);
@@ -628,7 +628,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			{
 				thinker_t *th;
 				mobj_t *mo2;
-				int count;
+				INT32 count;
 				fixed_t x,y,z, gatherradius;
 				angle_t d;
 
@@ -682,7 +682,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					return;
 
 				for (d = 0; d < 16; d++)
-					P_SpawnParaloop(x, y, z, gatherradius, 16, MT_NIGHTSPARKLE, d*(ANGLE_45/2), false, false);
+					P_SpawnParaloop(x, y, z, gatherradius, 16, MT_NIGHTSPARKLE, d*ANGLE_22h, false, false);
 
 				S_StartSound(toucher, sfx_prloop);
 
@@ -998,7 +998,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 			//Toned-down paraloop effect for the sake of not bringing the player's CPU to its knees.
 			for (i = 0; i < 8; i++)
-				P_SpawnParaloop(special->x, special->y, special->z + special->height, 192*FRACUNIT, 8, MT_BLUEBALLSPARK, i*(ANGLE_45/2), true, true);
+				P_SpawnParaloop(special->x, special->y, special->z + special->height, 192*FRACUNIT, 8, MT_BLUEBALLSPARK, i*(ANGLE_22h), true, true);
 
 			P_SetMobjState(special, S_DISS);
 
@@ -1782,7 +1782,7 @@ static void P_HitMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
   */
 void P_CheckPointLimit(void)
 {
-	int i;
+	INT32 i;
 
 	if (!cv_pointlimit.value)
 		return;
@@ -1822,10 +1822,10 @@ void P_CheckPointLimit(void)
  *Also serves as error checking if the only IT player leaves.*/
 void P_CheckSurvivors(void)
 {
-	int i;
-	int survivors = 0;
-	int taggers = 0;
-	int spectators = 0;
+	INT32 i;
+	INT32 survivors = 0;
+	INT32 taggers = 0;
+	INT32 spectators = 0;
 
 	if (!D_NumPlayers()) //no players in the game, no check performed.
 		return;
@@ -1893,7 +1893,7 @@ void P_CheckSurvivors(void)
 // Checks whether or not to end a race netgame.
 boolean P_CheckRacers(void)
 {
-	int i;
+	INT32 i;
 
 	// Check if all the players in the race have finished. If so, end the level.
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -1976,7 +1976,7 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 
 		// Award Score Tails
 		{
-			int score = 0;
+			INT32 score = 0;
 
 #ifdef CHAOSISNOTDEADYET
 			if (gametype == GT_CHAOS)
@@ -2155,7 +2155,7 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 			item = MT_SEED;
 		else
 		{
-			int prandom;
+			INT32 prandom;
 
 			switch (target->type)
 			{
@@ -2214,7 +2214,7 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
   */
 void P_PlayRinglossSound(mobj_t *source)
 {
-	int prandom;
+	INT32 prandom;
 
 	prandom = P_Random();
 
@@ -2239,7 +2239,7 @@ void P_PlayRinglossSound(mobj_t *source)
   */
 void P_PlayDeathSound(mobj_t *source)
 {
-	int prandom;
+	INT32 prandom;
 
 	prandom = P_Random();
 
@@ -2264,7 +2264,7 @@ void P_PlayDeathSound(mobj_t *source)
   */
 void P_PlayVictorySound(mobj_t *source)
 {
-	int prandom;
+	INT32 prandom;
 
 	prandom = P_Random();
 
@@ -2289,7 +2289,7 @@ void P_PlayVictorySound(mobj_t *source)
   */
 void P_PlayTauntSound(mobj_t *source)
 {
-	int prandom;
+	INT32 prandom;
 
 	prandom = P_Random();
 
@@ -2358,7 +2358,7 @@ static inline void P_NiGHTSDamage(mobj_t *target, mobj_t *source)
 	}
 }
 
-static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage)
+static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 damage)
 {
 	player_t *player = target->player;
 	(void)damage; //unused parm
@@ -2401,7 +2401,6 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 		{
 			target->player->pflags |= PF_TAGGED; //in hide and seek, the player is tagged and stays stationary.
 			CONS_Printf("%s was found!\n", player_names[target->player-players]); // Tell everyone who is it!
-
 		}
 
 		//checks if tagger has tagged all players, if so, end round early.
@@ -2448,7 +2447,7 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 	return true;
 }
 
-static inline boolean P_PlayerHitsPlayer(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage)
+static inline boolean P_PlayerHitsPlayer(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 damage)
 {
 	player_t *player = target->player;
 
@@ -2486,7 +2485,7 @@ static inline boolean P_PlayerHitsPlayer(mobj_t *target, mobj_t *inflictor, mobj
 	return true;
 }
 
-static void P_KillPlayer(player_t *player, mobj_t *source, int damage)
+static void P_KillPlayer(player_t *player, mobj_t *source, INT32 damage)
 {
 	// Burst weapons and emeralds in Match/CTF only
 	if (source && (gametype == GT_MATCH || gametype == GT_CTF))
@@ -2557,7 +2556,7 @@ static void P_KillPlayer(player_t *player, mobj_t *source, int damage)
 	}
 }
 
-static inline void P_SuperDamage(player_t *player, mobj_t *inflictor, mobj_t *source, int damage)
+static inline void P_SuperDamage(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 damage)
 {
 	fixed_t fallbackspeed;
 	angle_t ang;
@@ -2608,7 +2607,7 @@ static inline void P_SuperDamage(player_t *player, mobj_t *inflictor, mobj_t *so
 	P_ResetPlayer(player);
 }
 
-static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *source, int damage)
+static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 damage)
 {
 	boolean reflected = false;
 	player->powers[pw_jumpshield] = false; // Get rid of shield
@@ -2673,7 +2672,7 @@ static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *s
 		P_AddPlayerScore(source->player, cv_match_scoring.value == 1 ? 25 : 50);
 }
 
-static void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *source, int damage)
+static void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *source, INT32 damage)
 {
 	if (!(inflictor && ((inflictor->flags & MF_MISSILE) || inflictor->player) && player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds])))
 	{
@@ -2740,7 +2739,7 @@ static void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *source, in
   * \todo Get rid of the magic number 10000.
   * \sa P_KillMobj
   */
-boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int damage)
+boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 damage)
 {
 	player_t *player;
 
@@ -2840,7 +2839,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int dama
 
 		target->momx = target->momy = target->momz = 0;
 
-		P_InstaThrust(target, target->angle-ANG180, 5*FRACUNIT);
+		P_InstaThrust(target, target->angle-ANGLE_180, 5*FRACUNIT);
 	}
 	else if (target->flags & MF_BOSS)
 	{
@@ -2976,7 +2975,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int dama
 			}
 			else
 			{
-				player->health -= (10 * (1 << (int)(player->powers[pw_super] / 10500)));
+				player->health -= (10 * (1 << (INT32)(player->powers[pw_super] / 10500)));
 				if (player->health < 2)
 					player->health = 2;
 			}
@@ -3009,7 +3008,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int dama
 	// do the damage
 	if (player && player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds]) && inflictor && ((inflictor->flags & MF_MISSILE) || inflictor->player))
 	{
-		target->health -= (10 * (1 << (int)(player->powers[pw_super] / 10500)));
+		target->health -= (10 * (1 << (INT32)(player->powers[pw_super] / 10500)));
 		if (target->health < 2)
 			target->health = 2;
 	}
@@ -3067,14 +3066,14 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, int dama
   *       up.
   * \sa P_PlayerFlagBurst
   */
-void P_PlayerRingBurst(player_t *player, int num_rings)
+void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 {
-	int i;
+	INT32 i;
 	mobj_t *mo;
 	byte randomangle;
 	angle_t fa;
 	fixed_t ns;
-	int amt;
+	INT32 amt;
 
 	// Better safe than sorry.
 	if (!player)
@@ -3100,8 +3099,8 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 	// Spill weapons first
 	if (player->ringweapons)
 	{
-		int num_weapons = 0;
-		int ammoamt = 0;
+		INT32 num_weapons = 0;
+		INT32 ammoamt = 0;
 
 		if (player->ringweapons & 1)
 			num_weapons++;
@@ -3369,8 +3368,8 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 		else
 			break; // All done!
 
-		randomangle = P_Random();
 
+		randomangle = P_Random();
 		fa = (randomangle+(i*amt)*FINEANGLES/16) & FINEMASK;
 
 		// Make rings spill out around the player in 16 directions like SA, but spill like Sonic 2.
@@ -3454,8 +3453,8 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 			P_SetTarget(&mo->target, player->mo);
 		}
 
-		randomangle = P_Random();
 
+		randomangle = P_Random();
 		fa = (randomangle+i*FINEANGLES/16) & FINEMASK;
 
 		// Make rings spill out around the player in 16 directions like SA, but spill like Sonic 2.
@@ -3528,10 +3527,10 @@ void P_PlayerRingBurst(player_t *player, int num_rings)
 //
 void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 {
-	int i;
+	INT32 i;
 	angle_t fa;
 	fixed_t ns;
-	int amt;
+	INT32 amt;
 	fixed_t z = 0, momx = 0, momy = 0;
 
 	// Better safe than sorry.
@@ -3541,7 +3540,7 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 	// Spill power stones
 	if (player->powers[pw_emeralds])
 	{
-		int num_stones = 0;
+		INT32 num_stones = 0;
 
 		if (player->powers[pw_emeralds] & EMERALD1)
 			num_stones++;
@@ -3565,7 +3564,7 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 
 		for (i = 0; i < num_stones; i++)
 		{
-			int stoneflag = 0;
+			INT32 stoneflag = 0;
 			statenum_t statenum = S_CEMG1;
 			mobj_t *mo;
 

@@ -36,14 +36,14 @@ typedef struct {
 	fixed_t bbox[4];
 } los_t;
 
-static int sightcounts[2];
+static INT32 sightcounts[2];
 
 //
 // P_DivlineSide
 //
 // Returns side 0 (front), 1 (back), or 2 (on).
 //
-static int P_DivlineSide(fixed_t x, fixed_t y, divline_t *node)
+static INT32 P_DivlineSide(fixed_t x, fixed_t y, divline_t *node)
 {
 	fixed_t dx, dy, left, right;
 
@@ -161,14 +161,14 @@ static boolean P_CrossSubsecPolyObj(polyobj_t *po, register los_t *los)
 static boolean P_CrossSubsector(size_t num, register los_t *los)
 {
 	seg_t *seg;
-	int count;
+	INT32 count;
 #ifdef POLYOBJECTS
 	polyobj_t *po; // haleyjd 02/23/06
 #endif
 
 #ifdef RANGECHECK
 	if (num >= numsubsectors)
-		I_Error("P_CrossSubsector: ss %i with numss = %i", num, numsubsectors);
+		I_Error("P_CrossSubsector: ss %"PRIdS" with numss = %"PRIdS"\n", num, numsubsectors);
 #endif
 
 	// haleyjd 02/23/06: this assignment should be after the above check
@@ -284,12 +284,12 @@ static boolean P_CrossSubsector(size_t num, register los_t *los)
 //
 // killough 4/20/98: rewritten to remove tail recursion, clean up, and optimize
 
-static boolean P_CrossBSPNode(int bspnum, register los_t *los)
+static boolean P_CrossBSPNode(INT32 bspnum, register los_t *los)
 {
 	while (!(bspnum & NF_SUBSECTOR))
 	{
 		register node_t *bsp = nodes + bspnum;
-		int side = P_DivlineSide(los->strace.x,los->strace.y,(divline_t *)bsp)&1;
+		INT32 side = P_DivlineSide(los->strace.x,los->strace.y,(divline_t *)bsp)&1;
 		if (side == P_DivlineSide(los->t2x, los->t2y, (divline_t *) bsp))
 			bspnum = bsp->children[side]; // doesn't touch the other side
 		else         // the partition plane is crossed here
@@ -314,7 +314,7 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 {
 	const sector_t *s1 = t1->subsector->sector;
 	const sector_t *s2 = t2->subsector->sector;
-	int pnum = (s1-sectors)*numsectors + (s2-sectors);
+	size_t pnum = (s1-sectors)*numsectors + (s2-sectors);
 	los_t los;
 
 	// First check for trivial rejection.
@@ -419,5 +419,5 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 	}
 
 	// the head node is the last node output
-	return P_CrossBSPNode((int)numnodes - 1, &los);
+	return P_CrossBSPNode((INT32)numnodes - 1, &los);
 }

@@ -39,7 +39,7 @@ int MacShowAlert(const char *title, const char *message, const char *button1, co
 	 button3 != NULL ? CFStringCreateWithCString(NULL, button3, kCFStringEncodingASCII) : NULL,
 	 &results);
 
-	return results;
+	return (int)results;
 }
 
 #endif

@@ -52,7 +52,9 @@
 #define SURROUND // comment out this to disable the SurroundSound code
 #endif
 
+#if (defined (_WIN32) && !defined (_XBOX) && !defined(NOFMOD)) || defined (HAVE_FMOD)
 #define FMODSOUND // comment out this to disable MOD/IT/MP3/OGG music playback
+#endif
 
 #ifdef FMODSOUND
 #ifdef __MINGW32__
@@ -170,11 +172,12 @@ static boolean CopySoundData (LPDIRECTSOUNDBUFFER dsbuffer, LPBYTE data, DWORD l
 #ifdef SURROUND
 // judgecutor:
 // Hmmm... May be this function is not too good...
-ATTRNOINLINE static /*FUNCNOINLINE*/ VOID CopyAndInvertMemory(LPVOID dest, LPVOID src, DWORD bytes)
+ATTRNOINLINE static /*FUNCNOINLINE*/ VOID CopyAndInvertMemory(LPBYTE dest, LPBYTE src, DWORD bytes)
 {
+#ifdef _X86_
 #ifdef __GNUC__
 	__asm__("1:;lodsb;neg %%al;stosb;loop 1b;"::"c"(bytes),"D"(dest),"S"(src): "memory","cc");
-#else
+#elif defined (_MSC_VER)
 	_asm
 	{
 		push esi
@@ -191,6 +194,13 @@ a:
 		pop ecx
 		pop edi
 		pop esi
+	}
+#endif
+#else
+	while (bytes)
+	{
+		*dest = 0xFF - *src;
+		bytes--;
 	}
 #endif
 }
@@ -398,7 +408,7 @@ void I_FreeSfx (sfxinfo_t *sfx)
 // --------------------------------------------------------------------------
 // Set the global volume for sound effects
 // --------------------------------------------------------------------------
-void I_SetSfxVolume(int volume)
+void I_SetSfxVolume(INT32 volume)
 {
 	LONG    vol;
 	HRESULT hr;
@@ -520,11 +530,11 @@ static float recalc_pitch(int doom_pitch)
 // --------------------------------------------------------------------------
 // Start the given S_sfx[id] sound with given properties (panning, volume..)
 // --------------------------------------------------------------------------
-int I_StartSound (sfxenum_t      id,
-                  int            vol,
-                  int            sep,
-                  int            pitch,
-                  int            priority)
+INT32 I_StartSound (sfxenum_t      id,
+                  INT32            vol,
+                  INT32            sep,
+                  INT32            pitch,
+                  INT32            priority)
 {
 	HRESULT     hr;
 	LPDIRECTSOUNDBUFFER     dsbuffer;
@@ -691,7 +701,7 @@ int I_StartSound (sfxenum_t      id,
 // Stop a sound if it is playing,
 // free the corresponding 'playing sound slot' in StackSounds[]
 // --------------------------------------------------------------------------
-void I_StopSound (int handle)
+void I_StopSound (INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 	HRESULT hr;
@@ -727,7 +737,7 @@ void I_StopSound (int handle)
 // --------------------------------------------------------------------------
 // Returns whether the sound is currently playing or not
 // --------------------------------------------------------------------------
-int I_SoundIsPlaying(int handle)
+INT32 I_SoundIsPlaying(INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 	DWORD   dwStatus;
@@ -750,10 +760,10 @@ int I_SoundIsPlaying(int handle)
 // --------------------------------------------------------------------------
 // Update properties of a sound currently playing
 // --------------------------------------------------------------------------
-void I_UpdateSoundParams(int    handle,
-                         int        vol,
-                         int        sep,
-                         int        pitch)
+void I_UpdateSoundParams(INT32    handle,
+                         INT32    vol,
+                         INT32    sep,
+                         INT32    pitch)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 #ifdef SURROUND
@@ -1180,8 +1190,13 @@ void I_InitDigMusic(void)
 #ifdef FMODSOUND
 	if (!nodigimusic)
 	{
+#ifdef _WIN64
+		char fmod375dll[] = "fmod64375.dll";
+		char fmod000dll[] = "fmod64.dll";
+#else
 		char fmod375dll[] = "fmod375.dll";
 		char fmod000dll[] = "fmod.dll";
+#endif
 		fmod375 = FMOD_CreateInstance(fmod375dll);
 
 		if(!fmod375)
@@ -1326,7 +1341,7 @@ void I_InitMIDIMusic(void)
 
 	if ((mmrRetVal = midiStreamOpen(&hStream,
 	                                &uMIDIDeviceID,
-	                                (DWORD)1, (DWORD)(size_t)MidiStreamCallback/*NULL*/,
+	                                (DWORD)1, (DWORD_PTR)MidiStreamCallback/*NULL*/,
 	                                (DWORD)0,
 	                                CALLBACK_FUNCTION /*CALLBACK_NULL*/)) != MMSYSERR_NOERROR)
 	{
@@ -1466,7 +1481,7 @@ void I_ShutdownMusic(void)
 // Given a percent in tenths of a percent, sets volume on all channels to
 // reflect the new value.
 // --------------------
-static VOID SetAllChannelVolumes(DWORD dwVolumePercent)
+static VOID SetAllChannelVolumes(DWORD pdwVolumePercent)
 {
 	DWORD       dwEvent, dwStatus, dwVol, idx;
 	MMRESULT    mmrRetVal;
@@ -1476,7 +1491,7 @@ static VOID SetAllChannelVolumes(DWORD dwVolumePercent)
 
 	for (idx = 0, dwStatus = MIDI_CTRLCHANGE; idx < MAX_MIDI_IN_TRACKS; idx++, dwStatus++)
 	{
-		dwVol = (dwVolCache[idx] * dwVolumePercent) / 1000;
+		dwVol = (dwVolCache[idx] * pdwVolumePercent) / 1000;
 		//CONS_Printf("channel %d vol %d\n", idx, dwVol);
 		dwEvent = dwStatus | ((DWORD)MIDICTRL_VOLUME << 8)
 			| ((DWORD)dwVol << 16);
@@ -1494,7 +1509,7 @@ static VOID SetAllChannelVolumes(DWORD dwVolumePercent)
 // I_SetMusicVolume
 // Set the midi output volume
 // ----------------
-void I_SetMIDIMusicVolume(int volume)
+void I_SetMIDIMusicVolume(INT32 volume)
 {
 	MMRESULT    mmrRetVal;
 	int         iVolume;
@@ -1521,7 +1536,7 @@ void I_SetMIDIMusicVolume(int volume)
 	}
 }
 
-void I_SetDigMusicVolume(int volume)
+void I_SetDigMusicVolume(INT32 volume)
 {
 #ifdef FMODSOUND
 	if (volume != -1)
@@ -1558,7 +1573,7 @@ void I_SetDigMusicVolume(int volume)
 // Note: doesn't use the handle, would be useful to switch between mid's after
 //       some trigger (would do several RegisterSong, then PlaySong the chosen one)
 // ----------
-boolean I_PlaySong(int handle, int bLooping)
+boolean I_PlaySong(INT32 handle, INT32 bLooping)
 {
 	MMRESULT        mmrRetVal;
 
@@ -1585,7 +1600,7 @@ boolean I_PlaySong(int handle, int bLooping)
 		midiStreamClose(hStream);
 		//I_Error("I_PlaySong: midiStreamRestart error");
 		midiStreamOpen(&hStream, &uMIDIDeviceID, (DWORD)1,
-		               (DWORD)(size_t)MidiStreamCallback/*NULL*/,
+		               (DWORD_PTR)MidiStreamCallback/*NULL*/,
 		               (DWORD)0, CALLBACK_FUNCTION /*CALLBACK_NULL*/);
 	}
 	else bMidiPlaying = TRUE;
@@ -1598,7 +1613,7 @@ boolean I_PlaySong(int handle, int bLooping)
 // I_PauseSong
 // calls midiStreamPause() to pause the midi playback
 // -----------
-void I_PauseSong(int handle)
+void I_PauseSong(INT32 handle)
 {
 	UNREFERENCED_PARAMETER(handle);
 #ifdef FMODSOUND
@@ -1640,7 +1655,7 @@ void I_PauseSong(int handle)
 // I_ResumeSong
 // un-pause the midi song with midiStreamRestart
 // ------------
-void I_ResumeSong (int handle)
+void I_ResumeSong (INT32 handle)
 {
 	UNREFERENCED_PARAMETER(handle);
 #ifdef FMODSOUND
@@ -1683,7 +1698,7 @@ void I_ResumeSong (int handle)
 // ----------
 // faB: -1999 is a special handle here, it means we stop the midi when exiting
 //      Legacy, this will do a midiOutReset() for a more 'sure' midi off.
-void I_StopSong(int handle)
+void I_StopSong(INT32 handle)
 {
 	MMRESULT        mmrRetVal;
 
@@ -1752,7 +1767,7 @@ void I_StopSong(int handle)
 		//     a little quirk in mmsystem (see DirectX6 mstream note)
 		midiStreamClose(hStream);
 		midiStreamOpen(&hStream, &uMIDIDeviceID, (DWORD)1,
-		               (DWORD)(size_t)MidiStreamCallback/*NULL*/,
+		               (DWORD_PTR)MidiStreamCallback/*NULL*/,
 		               (DWORD)0, CALLBACK_FUNCTION /*CALLBACK_NULL*/);
 	}
 }
@@ -1788,7 +1803,7 @@ void I_StopDigSong(void)
 #endif
 }
 
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong(INT32 handle)
 {
 	UNREFERENCED_PARAMETER(handle);
 	if (nomidimusic)
@@ -1868,13 +1883,13 @@ static inline BOOL I_SaveMemToFile(const VOID *pData, const size_t iLength, LPCS
 #endif
 
 // Special FMOD support Tails 11-21-2002
-boolean I_StartDigSong(const char *musicname, int looping)
+boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 #ifdef FMODSOUND
 	char lumpname[9];
 	static void *data = NULL;
 	size_t len;
-	lumpnum_t lumpnum;
+	lumpnum_t lumpnum = LUMPERROR;
 
 	if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC &&
 	    fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM)
@@ -1911,8 +1926,12 @@ boolean I_StartDigSong(const char *musicname, int looping)
 
 	if (lumpnum == LUMPERROR)
 	{
-		// Graue 02-29-2004: don't worry about missing music, there might still be a MIDI
-		return false; // No music found. Oh well!
+		sprintf(lumpname, "d_%s", musicname);
+
+		lumpnum = W_CheckNumForName(lumpname);
+
+		if (lumpnum == LUMPERROR) // Graue 02-29-2004: don't worry about missing music, there might still be a MIDI
+			return false; // No music found. Oh well!
 	}
 
 #ifndef FMODMEMORY
@@ -2120,7 +2139,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 //   which will continually fill the buffers with new data
 // --------------
 
-int I_RegisterSong(void *data, size_t len)
+INT32 I_RegisterSong(void *data, size_t len)
 {
 	if (nomidimusic)
 		return 1;
@@ -2270,7 +2289,7 @@ static BOOL StreamBufferSetup(LPBYTE pMidiData, size_t iMidiSize)
 // Call here delayed by MIDI stream callback, to adapt the volume event of the
 // midi stream to our own set volume percentage.
 // ----------------
-VOID I_SetMidiChannelVolume(DWORD dwChannel, DWORD dwVolumePercent)
+VOID I_SetMidiChannelVolume(DWORD dwChannel, DWORD pdwVolumePercent)
 {
 	DWORD dwEvent, dwVol;
 	MMRESULT mmrRetVal;
@@ -2278,7 +2297,7 @@ VOID I_SetMidiChannelVolume(DWORD dwChannel, DWORD dwVolumePercent)
 	if (!bMidiPlaying)
 		return;
 
-	dwVol = (dwVolCache[dwChannel] * dwVolumePercent) / 1000;
+	dwVol = (dwVolCache[dwChannel] * pdwVolumePercent) / 1000;
 	dwEvent = MIDI_CTRLCHANGE|dwChannel|((DWORD)MIDICTRL_VOLUME << 8)|((DWORD)dwVol << 16);
 	if ((mmrRetVal = midiOutShortMsg((HMIDIOUT)hStream, dwEvent)) != MMSYSERR_NOERROR)
 	{

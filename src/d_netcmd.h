@@ -169,21 +169,34 @@ typedef enum
 #pragma pack(1)
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable :  4214)
+#endif
+
 //Packet composition for Command_TeamChange_f() ServerTeamChange, etc.
-typedef  struct {
-	unsigned int playernum    : 5;  // value 0 to 31
-	unsigned int newteam      : 5;  // value 0 to 31
-	unsigned int verification : 1;  // value 0 to 1
-	unsigned int autobalance  : 1;  // value 0 to 1
-	unsigned int scrambled    : 1;  // value 0 to 1
+typedef struct {
+	UINT32 playernum    : 5;  // value 0 to 31
+	UINT32 newteam      : 5;  // value 0 to 31
+	UINT32 verification : 1;  // value 0 to 1
+	UINT32 autobalance  : 1;  // value 0 to 1
+	UINT32 scrambled    : 1;  // value 0 to 1
 } ATTRPACK changeteam_packet_t;
 
+#ifdef _MSC_VER
+#pragma warning(default : 4214)
+#endif
+
+typedef struct {
+	USHORT l; // liitle endian
+	USHORT b; // big enian
+} ATTRPACK changeteam_value_t;
+
 //Since we do not want other files/modules to know about this data buffer we union it here with a Short Int.
-//Other files/modules will hand the short int back to us and we will decode it here.
+//Other files/modules will hand the short INT32 back to us and we will decode it here.
 //We don't have to use a union, but we would then send four bytes instead of two.
 typedef union {
 	changeteam_packet_t packet;
-	unsigned short value;
+	changeteam_value_t value;
 } ATTRPACK changeteam_union;
 
 // Reminder for myself if I ever need packets of odd composition. -Jazz
@@ -198,8 +211,8 @@ void D_RegisterServerCommands(void);
 void D_RegisterClientCommands(void);
 void D_SendPlayerConfig(void);
 void Command_ExitGame_f(void);
-void D_GameTypeChanged(int lastgametype); // not a real _OnChange function anymore
-void D_MapChange(int pmapnum, int pgametype, boolean pultmode, int presetplayers, int pdelay, boolean pskipprecutscene, boolean pfromlevelselect);
+void D_GameTypeChanged(INT32 lastgametype); // not a real _OnChange function anymore
+void D_MapChange(INT32 pmapnum, INT32 pgametype, boolean pultmode, INT32 presetplayers, INT32 pdelay, boolean pskipprecutscene, boolean pfromlevelselect);
 void ObjectPlace_OnChange(void);
 
 #endif

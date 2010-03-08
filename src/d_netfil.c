@@ -70,11 +70,11 @@
 // sender structure
 typedef struct filetx_s
 {
-	int ram;
+	INT32 ram;
 	char *filename; // name of the file or ptr of the data in ram
 	ULONG size;
 	char fileid;
-	int node; // destination
+	INT32 node; // destination
 	struct filetx_s *next; // a queue
 } filetx_t;
 
@@ -91,7 +91,7 @@ static filetran_t transfer[MAXNETNODES];
 // write time of file: utime
 
 // receiver structure
-int fileneedednum;
+INT32 fileneedednum;
 fileneeded_t fileneeded[MAX_WADFILES];
 char downloaddir[256] = "DOWNLOAD";
 
@@ -127,7 +127,7 @@ byte *PutFileNeeded(void)
 
 		// Don't write too far...
 		if (bytesused > sizeof(netbuffer->u.serverinfo.fileneeded))
-			I_Error("Too many wad files added to host a game. (%d, stopped on %s)\n", bytesused, wadfilename);
+			I_Error("Too many wad files added to host a game. (%"PRIdS", stopped on %s)\n", bytesused, wadfilename);
 
 		WRITEBYTE(p, filestatus);
 
@@ -143,9 +143,9 @@ byte *PutFileNeeded(void)
 }
 
 // parse the serverinfo packet and fill fileneeded table on client
-void D_ParseFileneeded(int fileneedednum_parm, byte *fileneededstr)
+void D_ParseFileneeded(INT32 fileneedednum_parm, byte *fileneededstr)
 {
-	int i;
+	INT32 i;
 	byte *p;
 	byte filestatus;
 
@@ -184,7 +184,7 @@ boolean SendRequestFile(void)
 {
 	boolean candownloadfiles = true;
 	char *p;
-	int i;
+	INT32 i;
 	INT64 totalfreespaceneeded = 0, availablefreespace;
 
 	if (M_CheckParm("-nodownload"))
@@ -209,14 +209,14 @@ boolean SendRequestFile(void)
 				size_t strl;
 
 				strl = strlen(s);
-				sprintf(&s[strl], "  \"%s\" (%luKB)", fileneeded[i].filename,
+				sprintf(&s[strl], "  \"%s\" (%dKB)", fileneeded[i].filename,
 					fileneeded[i].totalsize / 1024);
 
 				if (fileneeded[i].status == FS_NOTFOUND)
 					strcat(s, " not found");
 				else if (fileneeded[i].status == FS_MD5SUMBAD)
 				{
-					int j;
+					INT32 j;
 
 					strcat(s, " has wrong md5sum, needs: ");
 					strl = strlen(s);
@@ -262,9 +262,9 @@ boolean SendRequestFile(void)
 	WRITECHAR(p, -1);
 	I_GetDiskFreeSpace(&availablefreespace);
 	if (totalfreespaceneeded > availablefreespace)
-		I_Error("To play on this server you must download %lu KB,\n"
-			"but you have only %lu KB free space on this drive\n",
-			(long)(totalfreespaceneeded>>10), (long)(availablefreespace>>10));
+		I_Error("To play on this server you must download %d KB,\n"
+			"but you have only %d KB free space on this drive\n",
+			(INT32)(totalfreespaceneeded>>10), (INT32)(availablefreespace>>10));
 
 	// prepare to download
 	I_mkdir(downloaddir, 0755);
@@ -272,7 +272,7 @@ boolean SendRequestFile(void)
 }
 
 // get request filepak and put it on the send queue
-void Got_RequestFilePak(int node)
+void Got_RequestFilePak(INT32 node)
 {
 	char *p;
 
@@ -287,11 +287,11 @@ void Got_RequestFilePak(int node)
 }
 
 // client check if the fileneeded aren't already loaded or on the disk
-int CL_CheckFiles(void)
+INT32 CL_CheckFiles(void)
 {
-	int i, j;
+	INT32 i, j;
 	char wadfilename[MAX_WADPATH];
-	int ret = 1;
+	INT32 ret = 1;
 
 	if (M_CheckParm("-nofiles"))
 		return 1;
@@ -333,7 +333,7 @@ int CL_CheckFiles(void)
 // load it now
 void CL_LoadServerFiles(void)
 {
-	int i;
+	INT32 i;
 
 	if (M_CheckParm("-nofiles"))
 		return;
@@ -375,13 +375,13 @@ void CL_LoadServerFiles(void)
 }
 
 // little optimization to test if there is a file in the queue
-static int filetosend = 0;
+static INT32 filetosend = 0;
 
-void SendFile(int node, char *filename, char fileid)
+void SendFile(INT32 node, char *filename, char fileid)
 {
 	filetx_t **q;
 	filetx_t *p;
-	int i;
+	INT32 i;
 	char wadfilename[MAX_WADPATH];
 
 	q = &transfer[node].txlist;
@@ -445,7 +445,7 @@ void SendFile(int node, char *filename, char fileid)
 	filetosend++;
 }
 
-void SendRam(int node, byte *data, size_t size, freemethod_t freemethod, char fileid)
+void SendRam(INT32 node, byte *data, size_t size, freemethod_t freemethod, char fileid)
 {
 	filetx_t **q;
 	filetx_t *p;
@@ -464,12 +464,12 @@ void SendRam(int node, byte *data, size_t size, freemethod_t freemethod, char fi
 	p->fileid = fileid;
 	p->next = NULL; // end of list
 
-	DEBFILE(va("Sending ram %p(size:%lu) to %d (id=%d)\n",p->filename,p->size,node,fileid));
+	DEBFILE(va("Sending ram %p(size:%d) to %d (id=%d)\n",p->filename,p->size,node,fileid));
 
 	filetosend++;
 }
 
-static void EndSend(int node)
+static void EndSend(INT32 node)
 {
 	filetx_t *p = transfer[node].txlist;
 	switch (p->ram)
@@ -497,11 +497,11 @@ static void EndSend(int node)
 
 void FiletxTicker(void)
 {
-	static int currentnode = 0;
+	static INT32 currentnode = 0;
 	filetx_pak *p;
 	size_t size;
 	filetx_t *f;
-	int packetsent = PACKETPERTIC, ram, i;
+	INT32 packetsent = PACKETPERTIC, ram, i;
 
 	if (!filetosend)
 		return;
@@ -541,12 +541,12 @@ void FiletxTicker(void)
 
 				// Nobody wants to transfer a file bigger
 				// than 4GB!
+				if (filesize >= LONG_MAX)
+					I_Error("filesize of %s is too large", f->filename);
 				if (-1 == filesize)
-				{
 					I_Error("Error getting filesize of %s\n", f->filename);
-				}
 
-				f->size = filesize;
+				f->size = (ULONG)filesize;
 				fseek(transfer[i].currentfile, 0, SEEK_SET);
 			}
 			else
@@ -559,15 +559,15 @@ void FiletxTicker(void)
 		if (f->size-transfer[i].position < size)
 			size = f->size-transfer[i].position;
 		if (ram)
-			memcpy(p->data, &f->filename[transfer[i].position], size);
+			M_Memcpy(p->data, &f->filename[transfer[i].position], size);
 		else if (fread(p->data, 1, size, transfer[i].currentfile) != size)
-			I_Error("FiletxTicker: can't read %u byte on %s at %lu because %s", size,f->filename,transfer[i].position, strerror(ferror(transfer[i].currentfile)));
-		p->position = transfer[i].position;
+			I_Error("FiletxTicker: can't read %"PRIdS" byte on %s at %d because %s", size,f->filename,transfer[i].position, strerror(ferror(transfer[i].currentfile)));
+		p->position = LONG(transfer[i].position);
 		// put flag so receiver know the totalsize
 		if (transfer[i].position + size == f->size)
-			p->position |= 0x80000000;
+			p->position |= LONG(0x80000000);
 		p->fileid = f->fileid;
-		p->size = (USHORT)size;
+		p->size = SHORT((USHORT)size);
 		netbuffer->packettype = PT_FILEFRAGMENT;
 		if (!HSendPacket(i, true, 0, FILETXHEADER + size)) // reliable SEND
 		{ // not sent for some odd reason, retry at next call
@@ -587,8 +587,8 @@ void FiletxTicker(void)
 
 void Got_Filetxpak(void)
 {
-	int filenum = netbuffer->u.filetxpak.fileid;
-	static int filetime = 0;
+	INT32 filenum = netbuffer->u.filetxpak.fileid;
+	static INT32 filetime = 0;
 
 	if (filenum >= fileneedednum)
 	{
@@ -608,22 +608,24 @@ void Got_Filetxpak(void)
 
 	if (fileneeded[filenum].status == FS_DOWNLOADING)
 	{
+		ULONG pos = LONG(netbuffer->u.filetxpak.position);
+		USHORT size = SHORT(netbuffer->u.filetxpak.size);
 		// use a special tric to know when file is finished (not allways used)
 		// WARNING: filepak can arrive out of order so don't stop now !
-		if (netbuffer->u.filetxpak.position & 0x80000000)
+		if (pos & 0x80000000)
 		{
-			netbuffer->u.filetxpak.position &= ~0x80000000;
-			fileneeded[filenum].totalsize = netbuffer->u.filetxpak.position + netbuffer->u.filetxpak.size;
+			pos &= ~0x80000000;
+			fileneeded[filenum].totalsize = pos + size;
 		}
 		// we can receive packet in the wrong order, anyway all os support gaped file
-		fseek(fileneeded[filenum].phandle,netbuffer->u.filetxpak.position,SEEK_SET);
-		if (fwrite(netbuffer->u.filetxpak.data,netbuffer->u.filetxpak.size,1,fileneeded[filenum].phandle)!=1)
+		fseek(fileneeded[filenum].phandle,pos,SEEK_SET);
+		if (fwrite(netbuffer->u.filetxpak.data,size,1,fileneeded[filenum].phandle)!=1)
 			I_Error("Can't write %s: disk full ? or %s\n",fileneeded[filenum].filename, strerror(ferror(fileneeded[filenum].phandle)));
-		fileneeded[filenum].currentsize += netbuffer->u.filetxpak.size;
+		fileneeded[filenum].currentsize += size;
 		if (filetime == 0)
 		{
 			Net_GetNetStat();
-			CONS_Printf("\r%s %luK/%luK %.1fK/s\n",fileneeded[filenum].filename,
+			CONS_Printf("\r%s %dK/%dK %.1fK/s\n",fileneeded[filenum].filename,
 			                                       fileneeded[filenum].currentsize>>10,
 			                                       fileneeded[filenum].totalsize>>10,
 			                                       ((double)getbps)/1024);
@@ -634,12 +636,12 @@ void Got_Filetxpak(void)
 			V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+12, 0, va("\r%s\n",fileneeded[filenum].filename));
 			if (fileneeded[filenum].totalsize != (ULONG)-1)
 				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0,
-		         va("%luK/%luK %.1fK/s\n",fileneeded[filenum].currentsize>>10,
+		         va("%dK/%dK %.1fK/s\n",fileneeded[filenum].currentsize>>10,
 		                                  fileneeded[filenum].totalsize>>10,
 		                                  ((double)getbps)/1024));
 			else //don't show the total file size if we don't know what it IS!
 				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0,
-				 va("%luK/??K %.1fK/s\n",fileneeded[filenum].currentsize>>10,
+				 va("%dK/??K %.1fK/s\n",fileneeded[filenum].currentsize>>10,
 		                                 ((double)getbps)/1024));
 		}
 
@@ -665,7 +667,7 @@ void Got_Filetxpak(void)
 
 }
 
-void AbortSendFiles(int node)
+void AbortSendFiles(INT32 node)
 {
 	while (transfer[node].txlist)
 		EndSend(node);
@@ -673,7 +675,7 @@ void AbortSendFiles(int node)
 
 void CloseNetFile(void)
 {
-	int i;
+	INT32 i;
 	// is sending?
 	for (i = 0; i < MAXNETNODES; i++)
 		AbortSendFiles(i);
@@ -704,7 +706,7 @@ void nameonly(char *s)
 			ns = &(s[j+1]);
 			len = strlen(ns);
 			if (false)
-				memcpy(s, ns, len+1);
+				M_Memcpy(s, ns, len+1);
 			else
 				memmove(s, ns, len+1);
 			return;

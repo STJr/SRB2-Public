@@ -134,9 +134,9 @@ void DEH_WriteUndoline(const char *value, const char *data, undotype_f flags)
 	unsocdata[unsocwad] = newdata;
 }
 
-char *myfgets(char *buf, int bufsize, MYFILE *f)
+char *myfgets(char *buf, size_t bufsize, MYFILE *f)
 {
-	int i = 0;
+	size_t i = 0;
 	if (myfeof(f))
 		return NULL;
 	// we need one byte for a null terminated string
@@ -175,7 +175,7 @@ static char *myhashfgets(char *buf, size_t bufsize, MYFILE *f)
 	return buf;
 }
 
-static int deh_num_warning = 0;
+static INT32 deh_num_warning = 0;
 
 FUNCPRINTF static void deh_warning(const char *first, ...)
 {
@@ -196,32 +196,32 @@ FUNCPRINTF static void deh_warning(const char *first, ...)
 /* ======================================================================== */
 /* a sample to see
                    Thing 1 (Player)       {           // MT_PLAYER
-int doomednum;     ID # = 3232              -1,             // doomednum
-int spawnstate;    Initial frame = 32       S_PLAY,         // spawnstate
-int spawnhealth;   Hit points = 3232        100,            // spawnhealth
-int seestate;      First moving frame = 32  S_PLAY_RUN1,    // seestate
-int seesound;      Alert sound = 32         sfx_None,       // seesound
-int reactiontime;  Reaction time = 3232     0,              // reactiontime
-int attacksound;   Attack sound = 32        sfx_None,       // attacksound
-int painstate;     Injury frame = 32        S_PLAY_PAIN,    // painstate
-int painchance;    Pain chance = 3232       255,            // painchance
-int painsound;     Pain sound = 32          sfx_plpain,     // painsound
-int meleestate;    Close attack frame = 32  S_NULL,         // meleestate
-int missilestate;  Far attack frame = 32    S_PLAY_ATK1,    // missilestate
-int deathstate;    Death frame = 32         S_PLAY_DIE1,    // deathstate
-int xdeathstate;   Exploding frame = 32     S_PLAY_XDIE1,   // xdeathstate
-int deathsound;    Death sound = 32         sfx_pldeth,     // deathsound
-int speed;         Speed = 3232             0,              // speed
-int radius;        Width = 211812352        16*FRACUNIT,    // radius
-int height;        Height = 211812352       56*FRACUNIT,    // height
-int mass;          Mass = 3232              100,            // mass
-int damage;        Missile damage = 3232    0,              // damage
-int activesound;   Action sound = 32        sfx_None,       // activesound
-int flags;         Bits = 3232              MF_SOLID|MF_SHOOTABLE|MF_DROPOFF|MF_PICKUP|MF_NOTDMATCH,
-int raisestate;    Respawn frame = 32       S_NULL          // raisestate
+INT32 doomednum;     ID # = 3232              -1,             // doomednum
+INT32 spawnstate;    Initial frame = 32       S_PLAY,         // spawnstate
+INT32 spawnhealth;   Hit points = 3232        100,            // spawnhealth
+INT32 seestate;      First moving frame = 32  S_PLAY_RUN1,    // seestate
+INT32 seesound;      Alert sound = 32         sfx_None,       // seesound
+INT32 reactiontime;  Reaction time = 3232     0,              // reactiontime
+INT32 attacksound;   Attack sound = 32        sfx_None,       // attacksound
+INT32 painstate;     Injury frame = 32        S_PLAY_PAIN,    // painstate
+INT32 painchance;    Pain chance = 3232       255,            // painchance
+INT32 painsound;     Pain sound = 32          sfx_plpain,     // painsound
+INT32 meleestate;    Close attack frame = 32  S_NULL,         // meleestate
+INT32 missilestate;  Far attack frame = 32    S_PLAY_ATK1,    // missilestate
+INT32 deathstate;    Death frame = 32         S_PLAY_DIE1,    // deathstate
+INT32 xdeathstate;   Exploding frame = 32     S_PLAY_XDIE1,   // xdeathstate
+INT32 deathsound;    Death sound = 32         sfx_pldeth,     // deathsound
+INT32 speed;         Speed = 3232             0,              // speed
+INT32 radius;        Width = 211812352        16*FRACUNIT,    // radius
+INT32 height;        Height = 211812352       56*FRACUNIT,    // height
+INT32 mass;          Mass = 3232              100,            // mass
+INT32 damage;        Missile damage = 3232    0,              // damage
+INT32 activesound;   Action sound = 32        sfx_None,       // activesound
+INT32 flags;         Bits = 3232              MF_SOLID|MF_SHOOTABLE|MF_DROPOFF|MF_PICKUP|MF_NOTDMATCH,
+INT32 raisestate;    Respawn frame = 32       S_NULL          // raisestate
                                          }, */
 
-static int searchvalue(const char *s)
+static INT32 searchvalue(const char *s)
 {
 	while (s[0] != '=' && s[0])
 		s++;
@@ -252,12 +252,12 @@ static float searchfvalue(const char *s)
 /*
 // Edits an animated texture slot on the array
 // Tails 12-27-2003
-static void readAnimTex(MYFILE *f, int num)
+static void readAnimTex(MYFILE *f, INT32 num)
 {
 	char s[MAXLINELEN];
 	char *word;
 	char *word2;
-	int i;
+	INT32 i;
 
 	do {
 		if (myfgets(s, sizeof s, f) != NULL)
@@ -298,7 +298,7 @@ static void readAnimTex(MYFILE *f, int num)
 }
 */
 
-static boolean findFreeSlot(int *num)
+static boolean findFreeSlot(INT32 *num)
 {
 	// Send the character select entry to a free slot.
 	while (*num < 15 && PlayerMenu[*num].status != IT_DISABLED)
@@ -314,12 +314,12 @@ static boolean findFreeSlot(int *num)
 
 // Reads a player.
 // For modifying the character select screen
-static void readPlayer(MYFILE *f, int num)
+static void readPlayer(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *word2;
-	int i;
+	INT32 i;
 	boolean slotfound = false;
 
 	DEH_WriteUndoline("PLAYERTEXT", description[num].info, UNDO_ENDTEXT);
@@ -363,7 +363,7 @@ static void readPlayer(MYFILE *f, int num)
 				// For some reason, cutting the string did not work above. Most likely due to strcpy or strcat...
 				// It works down here, though.
 				{
-					int numlines = 0;
+					INT32 numlines = 0;
 					for (i = 0; i < MAXLINELEN-1; i++)
 					{
 						if (numlines < 7 && description[num].info[i] == '\n')
@@ -447,12 +447,12 @@ static void readPlayer(MYFILE *f, int num)
 		DEH_WriteUndoline("MENUPOSITION", va("%d", num), UNDO_NONE);
 }
 
-static void readthing(MYFILE *f, int num)
+static void readthing(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *tmp;
-	int value;
+	INT32 value;
 
 	do
 	{
@@ -594,13 +594,13 @@ static void readthing(MYFILE *f, int num)
 	} while (!myfeof(f)); // finish when the line is empty
 }
 
-static void readlevelheader(MYFILE *f, int num)
+static void readlevelheader(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
-	int i;
+	INT32 i;
 
 	do
 	{
@@ -771,12 +771,12 @@ static void readlevelheader(MYFILE *f, int num)
 	} while (!myfeof(f)); // finish when the line is empty
 }
 
-static void readcutscenescene(MYFILE *f, int num, int scenenum)
+static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 {
 	XBOXSTATIC char s[MAXLINELEN] = "";
 	char *word;
 	char *word2;
-	int i;
+	INT32 i;
 	unsigned short usi;
 
 	DEH_WriteUndoline("SCENETEXT", cutscenes[num].scene[scenenum].text, UNDO_ENDTEXT);
@@ -1080,14 +1080,14 @@ static void readcutscenescene(MYFILE *f, int num, int scenenum)
 	} while (!myfeof(f)); // finish when the line is empty
 }
 
-static void readcutscene(MYFILE *f, int num)
+static void readcutscene(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *word2;
 	char *tmp;
-	int value;
-	const int oldnumscenes = cutscenes[num].numscenes;
+	INT32 value;
+	const INT32 oldnumscenes = cutscenes[num].numscenes;
 
 	do
 	{
@@ -1137,13 +1137,13 @@ static void readcutscene(MYFILE *f, int num)
 	} while (!myfeof(f)); // finish when the line is empty
 }
 
-static void readunlockable(MYFILE *f, int num)
+static void readunlockable(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
-	int i;
+	INT32 i;
 
 	DEH_WriteUndoline("NEEDEDEMBLEMS", va("%d", customsecretinfo[num].neededemblems), UNDO_NONE);
 	DEH_WriteUndoline("NEEDEDTIME", va("%d", customsecretinfo[num].neededtime), UNDO_NONE);
@@ -1231,13 +1231,13 @@ static void readunlockable(MYFILE *f, int num)
 	} while (!myfeof(f)); // finish when the line is empty
 }
 
-static void readhuditem(MYFILE *f, int num)
+static void readhuditem(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
-	int i;
+	INT32 i;
 
 	do
 	{
@@ -1427,13 +1427,13 @@ static actionpointer_t actionpointers[] =
 	{{NULL},                   NULL},
 };
 
-static void readframe(MYFILE *f, int num)
+static void readframe(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word1;
 	char *word2 = NULL;
 	char *tmp;
-	int i, j;
+	INT32 i, j;
 
 	do
 	{
@@ -1478,12 +1478,12 @@ static void readframe(MYFILE *f, int num)
 			}
 			else if (!strcmp(word1, "SPRITESUBNUMBER"))
 			{
-				DEH_WriteUndoline(word1, va("%lu", states[num].frame), UNDO_NONE);
+				DEH_WriteUndoline(word1, va("%d", states[num].frame), UNDO_NONE);
 				states[num].frame = i;
 			}
 			else if (!strcmp(word1, "DURATION"))
 			{
-				DEH_WriteUndoline(word1, va("%lu", states[num].tics), UNDO_NONE);
+				DEH_WriteUndoline(word1, va("%d", states[num].tics), UNDO_NONE);
 				states[num].tics = i;
 			}
 			else if (!strcmp(word1, "NEXT"))
@@ -1551,12 +1551,12 @@ static void readframe(MYFILE *f, int num)
 	} while (!myfeof(f));
 }
 
-static void readsound(MYFILE *f, int num, const char *savesfxnames[])
+static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *tmp;
-	int value;
+	INT32 value;
 
 	do
 	{
@@ -1652,7 +1652,7 @@ static void readmaincfg(MYFILE *f)
 	char *word = s;
 	char *word2;
 	char *tmp;
-	int value;
+	INT32 value;
 	boolean reload = false;
 
 	do
@@ -1750,12 +1750,12 @@ static void readmaincfg(MYFILE *f)
 			}
 			else if (!strcmp(word, "INVULNTICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", invulntics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", invulntics), UNDO_NONE);
 				invulntics = value;
 			}
 			else if (!strcmp(word, "SNEAKERTICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", sneakertics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", sneakertics), UNDO_NONE);
 				sneakertics = value;
 			}
 			else if (!strcmp(word, "FLASHINGTICS"))
@@ -1765,7 +1765,7 @@ static void readmaincfg(MYFILE *f)
 			}
 			else if (!strcmp(word, "TAILSFLYTICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", tailsflytics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", tailsflytics), UNDO_NONE);
 				tailsflytics = value;
 			}
 			else if (!strcmp(word, "UNDERWATERTICS"))
@@ -1775,27 +1775,27 @@ static void readmaincfg(MYFILE *f)
 			}
 			else if (!strcmp(word, "SPACETIMETICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", spacetimetics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", spacetimetics), UNDO_NONE);
 				spacetimetics = value;
 			}
 			else if (!strcmp(word, "EXTRALIFETICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", extralifetics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", extralifetics), UNDO_NONE);
 				extralifetics = value;
 			}
 			else if (!strcmp(word, "GRAVBOOTSTICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", gravbootstics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", gravbootstics), UNDO_NONE);
 				gravbootstics = value;
 			}
 			else if (!strcmp(word, "PARALOOPTICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", paralooptics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", paralooptics), UNDO_NONE);
 				paralooptics = value;
 			}
 			else if (!strcmp(word, "HELPERTICS"))
 			{
-				DEH_WriteUndoline(word, va("%lu", helpertics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", helpertics), UNDO_NONE);
 				helpertics = value;
 			}
 			else if (!strcmp(word, "GAMEOVERTICS"))
@@ -1874,13 +1874,13 @@ static void readmaincfg(MYFILE *f)
 		G_LoadGameData();
 }
 
-static void reademblemdata(MYFILE *f, int num)
+static void reademblemdata(MYFILE *f, INT32 num)
 {
 	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *word2;
 	char *tmp;
-	int value;
+	INT32 value;
 
 	do
 	{
@@ -1949,7 +1949,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	XBOXSTATIC char s[1000];
 	char *word;
 	char *word2;
-	int i;
+	INT32 i;
 	// do a copy of this for cross references probleme
 	XBOXSTATIC actionf_t saveactions[NUMSTATES];
 	XBOXSTATIC const char *savesprnames[NUMSPRITES];
@@ -1968,7 +1968,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	while (!myfeof(f))
 	{
 		XBOXSTATIC char origpos[32];
-		int size = 0;
+		INT32 size = 0;
 		char *traverse;
 
 		myfgets(s, sizeof (s), f);
@@ -2006,7 +2006,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				}
 				else if (!strcmp(word, "MODBY"))
 				{
-					const int mod = 18;
+					const INT32 mod = 18;
 					strcpy(credits[mod].fakenames[0], origpos+6);
 					strcpy(credits[mod].realnames[0], origpos+6);
 					credits[mod].numnames = 1;
@@ -2102,7 +2102,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					{
 						if (myfgets(s, sizeof (s), f))
 						{
-							int k;
+							INT32 k;
 							k = (searchvalue(s) - 151328)/8;
 							if (k >= 0 && k < NUMSPRITES)
 								sprnames[i] = savesprnames[k];
@@ -2136,7 +2136,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				}
 				else if (!strcmp(word, "SRB2"))
 				{
-					int ver = searchvalue(strtok(NULL, "\n"));
+					INT32 ver = searchvalue(strtok(NULL, "\n"));
 					if (ver != 200)
 					{
 						deh_warning(text[WRONG_VERSION_WARNING], ver);

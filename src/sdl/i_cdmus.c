@@ -45,7 +45,7 @@
 #define MAX_CD_TRACKS 256
 
 #ifdef _XBOX
-int  SDL_SYS_CDInit(void)
+INT32  SDL_SYS_CDInit(void)
 {
 	return(0);
 }
@@ -70,7 +70,7 @@ static SDL_bool playLooping = SDL_FALSE;
 static Uint8    playTrack   = 0;
 static Uint8    maxTrack    = MAX_CD_TRACKS-1;
 static Uint8    cdRemap[MAX_CD_TRACKS];
-static int      cdvolume    = -1;
+static INT32      cdvolume    = -1;
 static SDL_CD  *cdrom       = NULL;
 static CDstatus cdStatus    = CD_ERROR;
 
@@ -82,7 +82,7 @@ static CDstatus cdStatus    = CD_ERROR;
  * set number of tracks if CD is available
  *
  **************************************************************************/
-static int CDAudio_GetAudioDiskInfo(void)
+static INT32 CDAudio_GetAudioDiskInfo(void)
 {
 	cdValid = SDL_FALSE;
 	maxTrack = 0;
@@ -171,7 +171,7 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(command, "select", 6))
 	{
-		int newcddrive;
+		INT32 newcddrive;
 		newcddrive = atoi(COM_Argv(2));
 		command = SDL_CDName(newcddrive);
 		I_StopCD();
@@ -196,7 +196,7 @@ static void Command_Cd_f (void)
 			for (n = 1; n < MAX_CD_TRACKS; n++)
 			{
 				if (cdRemap[n] != n)
-					CONS_Printf("  %zu -> %u\n", n, cdRemap[n]);
+					CONS_Printf("  %"PRIdS" -> %u\n", n, cdRemap[n]);
 			}
 			return;
 		}
@@ -396,7 +396,7 @@ void I_ShutdownCD (void)
 void I_InitCD (void)
 {
 #ifndef NOSDLCD
-	int i;
+	INT32 i;
 
 	// Has been checked in d_main.c, but doesn't hurt here
 	if (M_CheckParm ("-nocd"))
@@ -503,7 +503,7 @@ void I_UpdateCD (void)
  *
  **************************************************************************/
 
-void I_PlayCD (int track, boolean looping)
+void I_PlayCD (INT32 track, boolean looping)
 {
 #ifdef NOSDLCD
 	(void)track;
@@ -568,7 +568,7 @@ void I_PlayCD (int track, boolean looping)
  *
  **************************************************************************/
 
-boolean I_SetVolumeCD (int volume)
+boolean I_SetVolumeCD (INT32 volume)
 {
 #ifdef NOSDLCD
 	(void)volume;

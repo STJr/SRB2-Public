@@ -49,15 +49,15 @@ extern intercept_t *intercept_p;
 typedef boolean (*traverser_t)(intercept_t *in);
 
 boolean P_PathTraverse(fixed_t px1, fixed_t py1, fixed_t px2, fixed_t py2,
-	int pflags, traverser_t ptrav);
+	INT32 pflags, traverser_t ptrav);
 
 FUNCMATH fixed_t P_AproxDistance(fixed_t dx, fixed_t dy);
 void P_ClosestPointOnLine(fixed_t x, fixed_t y, line_t *line, vertex_t *result);
-int P_PointOnLineSide(fixed_t x, fixed_t y, line_t *line);
+INT32 P_PointOnLineSide(fixed_t x, fixed_t y, line_t *line);
 void P_MakeDivline(line_t *li, divline_t *dl);
 void P_CameraLineOpening(line_t *plinedef);
 fixed_t P_InterceptVector(divline_t *v2, divline_t *v1);
-int P_BoxOnLineSide(fixed_t *tmbox, line_t *ld);
+INT32 P_BoxOnLineSide(fixed_t *tmbox, line_t *ld);
 void P_UnsetPrecipThingPosition(precipmobj_t *thing);
 void P_SetPrecipitationThingPosition(precipmobj_t *thing);
 void P_CreatePrecipSecNodeList(precipmobj_t *thing, fixed_t x,fixed_t y);
@@ -67,8 +67,8 @@ extern fixed_t opentop, openbottom, openrange, lowfloor;
 
 void P_LineOpening(line_t *plinedef);
 
-boolean P_BlockLinesIterator(int x, int y, boolean(*func)(line_t *));
-boolean P_BlockThingsIterator(int x, int y, boolean(*func)(mobj_t *));
+boolean P_BlockLinesIterator(INT32 x, INT32 y, boolean(*func)(line_t *));
+boolean P_BlockThingsIterator(INT32 x, INT32 y, boolean(*func)(mobj_t *));
 
 #define PT_ADDLINES     1
 #define PT_ADDTHINGS    2

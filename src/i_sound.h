@@ -70,7 +70,7 @@ void I_ShutdownSound(void);
 
 	\return	sfx handle
 */
-int I_StartSound(sfxenum_t id, int vol, int sep, int pitch, int priority);
+INT32 I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority);
 
 /**	\brief	Stops a sound channel.
 
@@ -78,7 +78,7 @@ int I_StartSound(sfxenum_t id, int vol, int sep, int pitch, int priority);
 
 	\return	void
 */
-void I_StopSound(int handle);
+void I_StopSound(INT32 handle);
 
 /**	\brief	Called by S_*() functions to see if a channel is still playing.
 
@@ -86,7 +86,7 @@ void I_StopSound(int handle);
 
 	\return	0 if no longer playing, 1 if playing.
 */
-int I_SoundIsPlaying(int handle);
+INT32 I_SoundIsPlaying(INT32 handle);
 
 /**	\brief	Updates the sfx handle
 
@@ -97,7 +97,7 @@ int I_SoundIsPlaying(int handle);
 
 	\return	void
 */
-void I_UpdateSoundParams(int handle, int vol, int sep, int pitch);
+void I_UpdateSoundParams(INT32 handle, INT32 vol, INT32 sep, INT32 pitch);
 
 /**	\brief	The I_SetSfxVolume function
 
@@ -105,7 +105,7 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch);
 
 	\return	void
 */
-void I_SetSfxVolume(int volume);
+void I_SetSfxVolume(INT32 volume);
 
 //
 //  MUSIC I/O
@@ -128,7 +128,7 @@ void I_ShutdownMusic(void);
 
 	\return	void
 */
-void I_PauseSong(int handle);
+void I_PauseSong(INT32 handle);
 
 /**	\brief	RESUME game handling
 
@@ -136,7 +136,7 @@ void I_PauseSong(int handle);
 
 	\return	void
 */
-void I_ResumeSong(int handle);
+void I_ResumeSong(INT32 handle);
 
 //
 //  MIDI I/O
@@ -160,7 +160,7 @@ void I_ShutdownMIDIMusic(void);
 
 	\return	void
 */
-void I_SetMIDIMusicVolume(int volume);
+void I_SetMIDIMusicVolume(INT32 volume);
 
 /**	\brief	Registers a song handle to song data.
 
@@ -171,7 +171,7 @@ void I_SetMIDIMusicVolume(int volume);
 
 	\todo Remove this
 */
-int I_RegisterSong(void *data, size_t len);
+INT32 I_RegisterSong(void *data, size_t len);
 
 /**	\brief	Called by anything that wishes to start music
 
@@ -182,7 +182,7 @@ int I_RegisterSong(void *data, size_t len);
 
 	\todo pass music name, not handle
 */
-boolean I_PlaySong(int handle, int looping);
+boolean I_PlaySong(INT32 handle, INT32 looping);
 
 /**	\brief	Stops a song over 3 seconds
 
@@ -191,7 +191,7 @@ boolean I_PlaySong(int handle, int looping);
 
 	/todo drop handle
 */
-void I_StopSong(int handle);
+void I_StopSong(INT32 handle);
 
 /**	\brief	See ::I_RegisterSong, then think backwards
 
@@ -200,7 +200,7 @@ void I_StopSong(int handle);
 	\sa I_RegisterSong
 	\todo remove midi handle
 */
-void I_UnRegisterSong(int handle);
+void I_UnRegisterSong(INT32 handle);
 
 //
 //  DIGMUSIC I/O
@@ -228,7 +228,7 @@ boolean I_SetSongSpeed(float speed);
 
 	\return	if true, song playing
 */
-boolean I_StartDigSong(const char *musicname, int looping);
+boolean I_StartDigSong(const char *musicname, INT32 looping);
 
 /**	\brief stop non-MIDI song
 */
@@ -240,7 +240,7 @@ void I_StopDigSong(void);
 
 	\return	void
 */
-void I_SetDigMusicVolume(int volume);
+void I_SetDigMusicVolume(INT32 volume);
 
 //
 // CD MUSIC I/O
@@ -282,7 +282,7 @@ void I_UpdateCD(void);
 
 	\return	void
 */
-void I_PlayCD(int track, boolean looping);
+void I_PlayCD(INT32 track, boolean looping);
 
 /**	\brief	The I_SetVolumeCD function
 
@@ -290,6 +290,6 @@ void I_PlayCD(int track, boolean looping);
 
 	\return	return 0 on failure
 */
-boolean I_SetVolumeCD(int volume);
+boolean I_SetVolumeCD(INT32 volume);
 
 #endif

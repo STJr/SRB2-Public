@@ -2635,10 +2635,10 @@ typedef struct
 {
 	spritenum_t sprite;
 	ULONG frame; // we use the upper 16 bits for translucency and other shade effects
-	long tics;
+	INT32 tics;
 	actionf_t action;
-	int var1;
-	int var2;
+	INT32 var1;
+	INT32 var2;
 	statenum_t nextstate;
 } state_t;
 
@@ -3041,15 +3041,15 @@ typedef enum
 
 typedef struct
 {
-	int doomednum;
+	INT32 doomednum;
 	statenum_t spawnstate;
-	int spawnhealth;
+	INT32 spawnhealth;
 	statenum_t seestate;
 	sfxenum_t seesound;
-	int reactiontime;
+	INT32 reactiontime;
 	sfxenum_t attacksound;
 	statenum_t painstate;
-	int painchance;
+	INT32 painchance;
 	sfxenum_t painsound;
 	statenum_t meleestate;
 	statenum_t missilestate;
@@ -3059,10 +3059,10 @@ typedef struct
 	fixed_t speed;
 	fixed_t radius;
 	fixed_t height;
-	int mass;
-	int damage;
+	INT32 mass;
+	INT32 damage;
 	sfxenum_t activesound;
-	int flags;
+	INT32 flags;
 	statenum_t raisestate;
 } mobjinfo_t;
 
@@ -3072,6 +3072,6 @@ void P_PatchInfoTables(void);
 
 void P_BackupTables(void);
 
-void P_ResetData(int flags);
+void P_ResetData(INT32 flags);
 
 #endif

@@ -1297,7 +1297,7 @@ void I_InitMIDIMusic(void)
 
 	if ((mmrRetVal = midiStreamOpen(&hStream,
 	                                &uMIDIDeviceID,
-	                                (DWORD)1, (DWORD)(size_t)MidiStreamCallback/*NULL*/,
+	                                (DWORD)1, (DWORD_PTR)MidiStreamCallback/*NULL*/,
 	                                (DWORD)0,
 	                                CALLBACK_FUNCTION /*CALLBACK_NULL*/)) != MMSYSERR_NOERROR)
 	{
@@ -1551,7 +1551,7 @@ boolean I_PlaySong(int handle, int bLooping)
 		midiStreamClose(hStream);
 		//I_Error("I_PlaySong: midiStreamRestart error");
 		midiStreamOpen(&hStream, &uMIDIDeviceID, (DWORD)1,
-		               (DWORD)(size_t)MidiStreamCallback/*NULL*/,
+		               (DWORD_PTR)MidiStreamCallback/*NULL*/,
 		               (DWORD)0, CALLBACK_FUNCTION /*CALLBACK_NULL*/);
 	}
 	else bMidiPlaying = TRUE;
@@ -1718,7 +1718,7 @@ void I_StopSong(int handle)
 		//     a little quirk in mmsystem (see DirectX6 mstream note)
 		midiStreamClose(hStream);
 		midiStreamOpen(&hStream, &uMIDIDeviceID, (DWORD)1,
-		               (DWORD)(size_t)MidiStreamCallback/*NULL*/,
+		               (DWORD_PTR)MidiStreamCallback/*NULL*/,
 		               (DWORD)0, CALLBACK_FUNCTION /*CALLBACK_NULL*/);
 	}
 }

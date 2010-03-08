@@ -33,18 +33,18 @@
 | \
 (((unsigned short)(x) & (unsigned short)0xff00U) >> 8))) \
 
-#define LONG(x) ((int)(\
-(((unsigned int)(x) & (unsigned int)0x000000ffUL) << 24) \
+#define LONG(x) ((INT32)(\
+(((UINT32)(x) & (UINT32)0x000000ffUL) << 24) \
 | \
-(((unsigned int)(x) & (unsigned int)0x0000ff00UL) <<  8) \
+(((UINT32)(x) & (UINT32)0x0000ff00UL) <<  8) \
 | \
-(((unsigned int)(x) & (unsigned int)0x00ff0000UL) >>  8) \
+(((UINT32)(x) & (UINT32)0x00ff0000UL) >>  8) \
 | \
-(((unsigned int)(x) & (unsigned int)0xff000000UL) >> 24)))
+(((UINT32)(x) & (UINT32)0xff000000UL) >> 24)))
 
 #else
 #define SHORT(x) ((short)(x))
-#define LONG(x)	((int)(x))
+#define LONG(x)	((INT32)(x))
 #endif
 
 #endif

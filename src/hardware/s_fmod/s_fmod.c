@@ -89,7 +89,7 @@ static I_Error_t I_ErrorFMOD = NULL;
 static FSOUND_SAMPLE *blankfmsample = NULL;
 
 // Calculate sound pitching
-static float recalc_pitch(int doom_pitch)
+static float recalc_pitch(INT32 doom_pitch)
 {
 #ifdef MORESTUFF
 	return (float)1;
@@ -141,7 +141,7 @@ FUNCPRINTF void DBG_Printf(const char *lpFmt, ...)
 typedef struct rellistener_s
 {
 	float pos[3];
-	int active;
+	INT32 active;
 	float vel[3];
 
 } rellistener_s_t; //Easy
@@ -150,9 +150,9 @@ static rellistener_s_t rellistener[2]; //The 2 listeners
 
 typedef struct relarray_s
 {
-	int             handle;             // handle number
-	int             chan;               // real channel
-	int             listener;           // for which listener
+	INT32             handle;             // handle number
+	INT32             chan;               // real channel
+	INT32             listener;           // for which listener
 	rellistener_s_t pos;                // source position in 3D
 } relarray_s_t;
 
@@ -160,9 +160,9 @@ static relarray_s_t relarray[STATIC_SOURCES_NUM+1]; // array of chans
 
 
 //set listener
-static void relset(int which)
+static void relset(INT32 which)
 {
-	int i;
+	INT32 i;
 
 	if (which == -2 || which == -1)
 	{
@@ -211,7 +211,7 @@ static void relset(int which)
 //setup system
 static void relsetup()
 {
-	int i;
+	INT32 i;
 
 	// Setup the rel array for use
 	for (i = 0; i <= STATIC_SOURCES_NUM; i++)
@@ -228,9 +228,9 @@ static void relsetup()
 
 
 //checkup for stack
-static int relstack(int chan)
+static INT32 relstack(INT32 chan)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i <= STATIC_SOURCES_NUM; i++)
 	{
@@ -241,9 +241,9 @@ static int relstack(int chan)
 }
 
 //checkup for fake rel chan
-static int relcheckup(int chan)
+static INT32 relcheckup(INT32 chan)
 {
-	int i = relstack(chan);
+	INT32 i = relstack(chan);
 
 	if (i == -1)
 		return chan;
@@ -252,10 +252,10 @@ static int relcheckup(int chan)
 }
 
 	//Update place rel chan's vol
-static void relvol(int chan)
+static void relvol(INT32 chan)
 {
-	int vol = FSOUND_GetVolume(chan);
-	int error = FSOUND_GetError();
+	INT32 vol = FSOUND_GetVolume(chan);
+	INT32 error = FSOUND_GetError();
 
 	if (chan == relcheckup(chan))
 		return;
@@ -267,10 +267,10 @@ static void relvol(int chan)
 }
 
 //Copy rel chan
-static int relcopy(int handle)
+static INT32 relcopy(INT32 handle)
 {
 	FSOUND_SAMPLE *fmsample = NULL;
-	int chan = -1;
+	INT32 chan = -1;
 	float pos[3];
 	float vel[3];
 
@@ -325,11 +325,11 @@ static int relcopy(int handle)
 }
 
 //update the rel chans
-static void relupdate(int handle)
+static void relupdate(INT32 handle)
 {
 	if (handle == FSOUND_FREE)
 	{
-		int stack;
+		INT32 stack;
 
 		for (stack = 0; stack <= STATIC_SOURCES_NUM;stack++)
 		{
@@ -351,9 +351,9 @@ static void relupdate(int handle)
 	else
 	{
 		float pos[3], vel[3];
-		int stack = relstack(handle);
-		int chan = relcheckup(handle);
-		int which = relarray[stack].listener;
+		INT32 stack = relstack(handle);
+		INT32 chan = relcheckup(handle);
+		INT32 which = relarray[stack].listener;
 
 		pos[0] = relarray[stack].pos.pos[0] + rellistener[which].pos[0];
 		pos[1] = relarray[stack].pos.pos[1] + rellistener[which].pos[1];
@@ -369,7 +369,7 @@ static void relupdate(int handle)
 }
 
 	//Update place rel chan's pos
-static void relplace(int chan)
+static void relplace(INT32 chan)
 {
 	float pos[3], vel[3]; // Temp bin
 
@@ -382,7 +382,7 @@ static void relplace(int chan)
 	}
 	else
 	{
-		int stack = relstack(chan);
+		INT32 stack = relstack(chan);
 
 		if (stack == -1)
 			return;
@@ -394,13 +394,13 @@ static void relplace(int chan)
 }
 
 //New rel chan
-static void reladd(int chan)
+static void reladd(INT32 chan)
 {
 	if (chan != relcheckup(chan))
 		return;
 	else
 	{
-		int stack = STATIC_SOURCES_NUM;
+		INT32 stack = STATIC_SOURCES_NUM;
 		{
 			if (relarray[0].handle == FSOUND_FREE)
 				stack = 0;
@@ -439,10 +439,10 @@ static void reladd(int chan)
  * Initialise driver and listener
  *
  *****************************************************************************/
-EXPORT int HWRAPI(Startup) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
+EXPORT INT32 HWRAPI(Startup) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 {
 	boolean inited = false;
-	int i = 0;
+	INT32 i = 0;
 
 	I_ErrorFMOD = FatalErrorFunction;
 
@@ -462,7 +462,7 @@ EXPORT int HWRAPI(Startup) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 	for (i = 0; i < FSOUND_GetNumDrivers(); i++)
 	{
-		unsigned int caps = 0;
+		UINT32 caps = 0;
 		DBG_Printf("Driver Caps, if any\n");
 
 		if (FSOUND_GetDriverCaps(i, &caps))
@@ -502,7 +502,7 @@ EXPORT int HWRAPI(Startup) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 #ifdef OLDFMOD
 		DBG_Printf("   Maximum hardware mixing buffers %d\n", FSOUND_GetNumHardwareChannels());
 #else
-		int num2DC, num3DC, numDC;
+		INT32 num2DC, num3DC, numDC;
 
 		if (FSOUND_GetNumHWChannels(&num2DC,&num3DC,&numDC))
 		{
@@ -601,10 +601,10 @@ EXPORT void HWRAPI(Shutdown) (void)
  *
  ******************************************************************************/
 
-EXPORT int HWRAPI (Add3DSource) (source3D_data_t *src, sfx_data_t *sfx)
+EXPORT INT32 HWRAPI (Add3DSource) (source3D_data_t *src, sfx_data_t *sfx)
 {
 	FSOUND_SAMPLE *fmsample = NULL;
-	int chan = -1;
+	INT32 chan = -1;
 	float pos[3];
 	float vel[3];
 #ifdef MORESTUFF
@@ -626,7 +626,7 @@ EXPORT int HWRAPI (Add3DSource) (source3D_data_t *src, sfx_data_t *sfx)
 	if (fmsample)
 	{
 		if (sfx && !FSOUND_Sample_SetDefaults(fmsample,
-				(int)((*((unsigned short *)sfx->data+1))*recalc_pitch(sfx->pitch)),
+				(INT32)((*((unsigned short *)sfx->data+1))*recalc_pitch(sfx->pitch)),
 				(sfx->volume == -1 ? 255 : sfx->volume),
 				(sfx->sep == NORMAL_SEP ? FSOUND_STEREOPAN : sfx->sep),
 				(sfx->priority)
@@ -685,10 +685,10 @@ EXPORT int HWRAPI (Add3DSource) (source3D_data_t *src, sfx_data_t *sfx)
  * Creates 2D (stereo) source
  *
  ******************************************************************************/
-EXPORT int HWRAPI (Add2DSource) (sfx_data_t *sfx)
+EXPORT INT32 HWRAPI (Add2DSource) (sfx_data_t *sfx)
 {
 	FSOUND_SAMPLE *fmsample = NULL;
-	int chan = -1;
+	INT32 chan = -1;
 
 	if (!sfx)
 		return chan;
@@ -698,7 +698,7 @@ EXPORT int HWRAPI (Add2DSource) (sfx_data_t *sfx)
 	if (fmsample)
 	{
 		if (!FSOUND_Sample_SetDefaults(fmsample,
-		 (int)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
+		 (INT32)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
 		 sfx->volume == -1 ? 255 : sfx->volume,
 		 sfx->sep == NORMAL_SEP ? FSOUND_STEREOPAN : sfx->sep,
 		 sfx->priority))
@@ -733,7 +733,7 @@ EXPORT int HWRAPI (Add2DSource) (sfx_data_t *sfx)
 	return chan;
 }
 
-EXPORT int HWRAPI (StartSource) (int chan)
+EXPORT INT32 HWRAPI (StartSource) (INT32 chan)
 {
 	FSOUND_SAMPLE *fmsample;
 	if (chan < 0)
@@ -770,7 +770,7 @@ EXPORT int HWRAPI (StartSource) (int chan)
 	return chan;
 }
 
-EXPORT void HWRAPI (StopSource) (int chan)
+EXPORT void HWRAPI (StopSource) (INT32 chan)
 {
 	FSOUND_SAMPLE *fmsample;
 
@@ -799,7 +799,7 @@ EXPORT void HWRAPI (StopSource) (int chan)
 #endif
 }
 
-EXPORT int HWRAPI (GetHW3DSVersion) (void)
+EXPORT INT32 HWRAPI (GetHW3DSVersion) (void)
 {
 	return VERSION;
 }
@@ -814,7 +814,7 @@ EXPORT void HWRAPI (EndFrameUpdate) (void)
 	relupdate(FSOUND_FREE);
 }
 
-EXPORT int HWRAPI (IsPlaying) (int chan)
+EXPORT INT32 HWRAPI (IsPlaying) (INT32 chan)
 {
 	if (chan < 0)
 		return false;
@@ -885,7 +885,7 @@ EXPORT void HWRAPI (UpdateListener2) (listener_data_t *data)
 	}
 }
 
-EXPORT void HWRAPI (UpdateSourceVolume) (int chan, int vol)
+EXPORT void HWRAPI (UpdateSourceVolume) (INT32 chan, INT32 vol)
 {
 	if (chan < 0)
 		return;
@@ -909,7 +909,7 @@ EXPORT void HWRAPI (UpdateSourceVolume) (int chan, int vol)
  * Update volume and separation (panning) of 2D source
  *
  *****************************************************************************/
-EXPORT void HWRAPI (Update2DSoundParms) (int chan, int vol, int sep)
+EXPORT void HWRAPI (Update2DSoundParms) (INT32 chan, INT32 vol, INT32 sep)
 {
 	FSOUND_SAMPLE *fmsample;
 
@@ -945,9 +945,9 @@ EXPORT void HWRAPI (Update2DSoundParms) (int chan, int vol, int sep)
 // --------------------------------------------------------------------------
 // Set the global volume for sound effects
 // --------------------------------------------------------------------------
-EXPORT void HWRAPI (SetGlobalSfxVolume) (int vol)
+EXPORT void HWRAPI (SetGlobalSfxVolume) (INT32 vol)
 {
-	int realvol = (vol<<3)+(vol>>2);
+	INT32 realvol = (vol<<3)+(vol>>2);
 
 	FSOUND_SetSFXMasterVolume(realvol);
 #ifdef MORESTUFF
@@ -956,7 +956,7 @@ EXPORT void HWRAPI (SetGlobalSfxVolume) (int vol)
 }
 
 //Alam_GBC: Not Used?
-EXPORT int HWRAPI (SetCone) (int chan, cone_def_t *cone_def)
+EXPORT INT32 HWRAPI (SetCone) (INT32 chan, cone_def_t *cone_def)
 {
 	FSOUND_SAMPLE *fmsample;
 
@@ -985,7 +985,7 @@ EXPORT int HWRAPI (SetCone) (int chan, cone_def_t *cone_def)
 
 }
 
-EXPORT void HWRAPI (Update3DSource) (int chan, source3D_pos_t *sfx)
+EXPORT void HWRAPI (Update3DSource) (INT32 chan, source3D_pos_t *sfx)
 {
 	float pos[3];
 	float vel[3];
@@ -1027,11 +1027,11 @@ EXPORT void HWRAPI (Update3DSource) (int chan, source3D_pos_t *sfx)
 //-------------------------------------------------------------
 // Load new sound data into source
 //-------------------------------------------------------------
-EXPORT int HWRAPI (Reload3DSource) (int handle, sfx_data_t *sfx)
+EXPORT INT32 HWRAPI (Reload3DSource) (INT32 handle, sfx_data_t *sfx)
 {
 	source3D_data_t src;
 	float pos[3], vel[3];
-	int chan = relcheckup(handle);
+	INT32 chan = relcheckup(handle);
 	FSOUND_SAMPLE *fmsample;
 
 	if (handle < 0 || !sfx)
@@ -1081,7 +1081,7 @@ EXPORT int HWRAPI (Reload3DSource) (int handle, sfx_data_t *sfx)
 	if (fmsample)
 	{
 		if (!FSOUND_Sample_SetDefaults(fmsample,
-		 (int)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
+		 (INT32)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
 		 sfx->volume == -1 ? 255 : sfx->volume,
 		 sfx->sep == NORMAL_SEP ? FSOUND_STEREOPAN : sfx->sep,
 		 sfx->priority))
@@ -1124,10 +1124,10 @@ EXPORT int HWRAPI (Reload3DSource) (int handle, sfx_data_t *sfx)
  * Otherwise put source into cache
  *
  *****************************************************************************/
-EXPORT void HWRAPI (KillSource) (int chan)
+EXPORT void HWRAPI (KillSource) (INT32 chan)
 {
 	FSOUND_SAMPLE *fmsample;
-	int relchan;
+	INT32 relchan;
 
 	if (chan < 0)
 		return;

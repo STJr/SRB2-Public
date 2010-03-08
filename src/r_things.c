@@ -46,9 +46,9 @@ static void R_InitSkins(void);
 
 typedef struct
 {
-	int x1, x2;
-	int column;
-	int topclip, bottomclip;
+	INT32 x1, x2;
+	INT32 column;
+	INT32 topclip, bottomclip;
 } maskdraw_t;
 
 //
@@ -94,7 +94,7 @@ static void R_InstallSpriteLump(USHORT wad,            // graphics patch
                                 byte rotation,
                                 byte flipped)
 {
-	int r;
+	INT32 r;
 	lumpnum_t lumppat = wad;
 	lumppat <<= 16;
 	lumppat += lump;
@@ -418,7 +418,7 @@ void R_AddSpriteDefs(USHORT wadnum)
 		}
 	}
 
-	CONS_Printf("%u sprites added from file %s\n", addsprites, wadfiles[wadnum]->filename);
+	CONS_Printf("%"PRIdS" sprites added from file %s\n", addsprites, wadfiles[wadnum]->filename);
 }
 
 void R_DelSpriteDefs(USHORT wadnum)
@@ -466,7 +466,7 @@ void R_DelSpriteDefs(USHORT wadnum)
 		}
 	}
 
-	CONS_Printf("%u sprites removed from file %s\n", delsprites, wadfiles[wadnum]->filename);
+	CONS_Printf("%"PRIdS" sprites removed from file %s\n", delsprites, wadfiles[wadnum]->filename);
 }
 
 //
@@ -560,8 +560,8 @@ fixed_t windowtop = 0, windowbottom = 0;
 
 void R_DrawMaskedColumn(column_t *column)
 {
-	int topscreen;
-	int bottomscreen;
+	INT32 topscreen;
+	INT32 bottomscreen;
 	fixed_t basetexturemid;
 
 	basetexturemid = dc_texturemid;
@@ -612,7 +612,7 @@ void R_DrawMaskedColumn(column_t *column)
 #endif
 			)
 			{
-				static int first = 1;
+				static INT32 first = 1;
 				if (first)
 				{
 					CONS_Printf("WARNING: avoiding a crash in %s %d\n", __FILE__, __LINE__);
@@ -634,7 +634,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 {
 	column_t *column;
 #ifdef RANGECHECK
-	int texturecolumn;
+	INT32 texturecolumn;
 #endif
 	fixed_t frac;
 	patch_t *patch;
@@ -642,7 +642,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	// flip it in memory here
 	if (vis->vflip)
 	{
-		int x, count;
+		INT32 x, count;
 		byte *source, *dest;
 		column_t *destcol;
 		patch_t *oldpatch;
@@ -693,6 +693,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 			return;
 	}
 
+	colfunc = basecolfunc; // hack: this isn't resetting properly somewhere.
 	dc_colormap = vis->colormap;
 	if ((vis->mobjflags & MF_TRANSLATION) && vis->transmap) // Color mapping
 	{
@@ -719,7 +720,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 					((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
 			else
 			{
-				static int firsttime = 1;
+				static INT32 firsttime = 1;
 				colfunc = basecolfunc; // Graue 04-08-2004
 				if (firsttime)
 				{
@@ -821,7 +822,7 @@ static void R_DrawPrecipitationVisSprite(vissprite_t *vis)
 {
 	column_t *column;
 #ifdef RANGECHECK
-	int texturecolumn;
+	INT32 texturecolumn;
 #endif
 	fixed_t frac;
 	patch_t *patch;
@@ -877,7 +878,7 @@ static void R_DrawPrecipitationVisSprite(vissprite_t *vis)
 // runs through a sector's lightlist and
 static void R_SplitSprite(vissprite_t *sprite, mobj_t *thing)
 {
-	int i, lightnum, lindex;
+	INT32 i, lightnum, lindex;
 	short cutfrac;
 	sector_t *sector;
 	vissprite_t *newsprite;
@@ -966,7 +967,7 @@ static void R_ProjectSprite(mobj_t *thing)
 	fixed_t tx, tz;
 	fixed_t xscale, yscale; //added : 02-02-98 : aaargll..if I were a math-guy!!!
 
-	int x1, x2;
+	INT32 x1, x2;
 
 	spritedef_t *sprdef;
 	spriteframe_t *sprframe;
@@ -975,7 +976,7 @@ static void R_ProjectSprite(mobj_t *thing)
 	unsigned rot;
 	byte flip;
 
-	int lindex;
+	INT32 lindex;
 
 	vissprite_t *vis;
 
@@ -984,8 +985,8 @@ static void R_ProjectSprite(mobj_t *thing)
 
 	//SoM: 3/17/2000
 	fixed_t gz, gzt;
-	long heightsec;
-	int light = 0;
+	INT32 heightsec;
+	INT32 light = 0;
 
 	// transform the origin point
 	tr_x = thing->x - viewx;
@@ -1039,11 +1040,11 @@ static void R_ProjectSprite(mobj_t *thing)
 
 	if ((byte)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
 #ifdef RANGECHECK
-		I_Error("R_ProjectSprite: invalid sprite frame %u : %lu for %s",
+		I_Error("R_ProjectSprite: invalid sprite frame %u : %d for %s",
 		 thing->sprite, thing->frame, sprnames[thing->sprite]);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %d with invalid sprite data (%ld) detected and removed.\n", thing->type, (thing->frame&FF_FRAMEMASK));
+		CONS_Printf("Warning: Mobj of type %d with invalid sprite data (%d) detected and removed.\n", thing->type, (thing->frame&FF_FRAMEMASK));
 		if (thing->player)
 		{
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
@@ -1069,7 +1070,7 @@ static void R_ProjectSprite(mobj_t *thing)
 	{
 		// choose a different rotation based on player view
 		ang = R_PointToAngle (thing->x, thing->y);
-		rot = (ang-thing->angle+(angle_t)(ANG45/2)*9)>>29;
+		rot = (ang-thing->angle+ANGLE_202h)>>29;
 		//Fab: lumpid is the index for spritewidth,spriteoffset... tables
 		lump = sprframe->lumpid[rot];
 		flip = sprframe->flip[rot];
@@ -1197,7 +1198,7 @@ static void R_ProjectSprite(mobj_t *thing)
 
 	if (thing->subsector->sector->numlights)
 	{
-		int lightnum;
+		INT32 lightnum;
 		light = R_GetPlaneLight(thing->subsector->sector, gzt, false);
 		lightnum = (*thing->subsector->sector->lightlist[light].lightlevel >> LIGHTSEGSHIFT);
 
@@ -1213,7 +1214,7 @@ static void R_ProjectSprite(mobj_t *thing)
 
 	if (heightsec != -1)   // only clip things which are in special sectors
 	{
-		long phs = viewplayer->mo->subsector->sector->heightsec;
+		INT32 phs = viewplayer->mo->subsector->sector->heightsec;
 		if (phs != -1 && viewz < sectors[phs].floorheight ?
 		    thing->z >= sectors[heightsec].floorheight :
 		    gzt < sectors[heightsec].floorheight)
@@ -1319,7 +1320,7 @@ static void R_ProjectPrecipitationSprite(precipmobj_t *thing)
 	fixed_t tx, tz;
 	fixed_t xscale, yscale; //added : 02-02-98 : aaargll..if I were a math-guy!!!
 
-	int x1, x2;
+	INT32 x1, x2;
 
 	spritedef_t *sprdef;
 	spriteframe_t *sprframe;
@@ -1483,11 +1484,11 @@ static void R_ProjectPrecipitationSprite(precipmobj_t *thing)
 // R_AddSprites
 // During BSP traversal, this adds sprites by sector.
 //
-void R_AddSprites(sector_t *sec, int lightlevel)
+void R_AddSprites(sector_t *sec, INT32 lightlevel)
 {
 	mobj_t *thing;
 	precipmobj_t *precipthing; // Tails 08-25-2002
-	int lightnum;
+	INT32 lightnum;
 	fixed_t adx, ady, approx_dist;
 
 	if (rendermode != render_soft)
@@ -1536,7 +1537,7 @@ void R_AddSprites(sector_t *sec, int lightlevel)
 				// From _GG1_ p.428. Approx. eucledian distance fast.
 				approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
 
-				if (approx_dist < NIGHTS_DRAW_DIST)
+				if (approx_dist < LIMIT_DRAW_DIST)
 					R_ProjectSprite(thing);
 				else if (splitscreen && players[secondarydisplayplayer].mo)
 				{
@@ -1546,7 +1547,7 @@ void R_AddSprites(sector_t *sec, int lightlevel)
 					// From _GG1_ p.428. Approx. eucledian distance fast.
 					approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
 
-					if (approx_dist < NIGHTS_DRAW_DIST)
+					if (approx_dist < LIMIT_DRAW_DIST)
 						R_ProjectSprite (thing);
 				}
 			}
@@ -1671,12 +1672,12 @@ static void R_CreateDrawNodes(void)
 {
 	drawnode_t *entry;
 	drawseg_t *ds;
-	int i, p, best, x1, x2;
+	INT32 i, p, best, x1, x2;
 	fixed_t bestdelta, delta;
 	vissprite_t *rover;
 	drawnode_t *r2;
 	visplane_t *plane;
-	int sintersect;
+	INT32 sintersect;
 	fixed_t gzm;
 	fixed_t scale = 0;
 
@@ -1920,12 +1921,12 @@ static void R_DrawSprite(vissprite_t *spr)
 	drawseg_t *ds;
 	short      clipbot[MAXVIDWIDTH];
 	short      cliptop[MAXVIDWIDTH];
-	int        x;
-	int        r1;
-	int        r2;
+	INT32        x;
+	INT32        r1;
+	INT32        r2;
 	fixed_t    scale;
 	fixed_t    lowscale;
-	int        silhouette;
+	INT32        silhouette;
 
 	memset(clipbot,0x00,sizeof (clipbot));
 	memset(cliptop,0x00,sizeof (cliptop));
@@ -2016,7 +2017,7 @@ static void R_DrawSprite(vissprite_t *spr)
 	if (spr->heightsec != -1)  // only things in specially marked sectors
 	{
 		fixed_t mh, h;
-		long phs = viewplayer->mo->subsector->sector->heightsec;
+		INT32 phs = viewplayer->mo->subsector->sector->heightsec;
 		if ((mh = sectors[spr->heightsec].floorheight) > spr->gz &&
 		    (h = centeryfrac - FixedMul(mh -= viewz, spr->scale)) >= 0 &&
 		    (h >>= FRACBITS) < viewheight)
@@ -2105,12 +2106,12 @@ static void R_DrawPrecipitationSprite(vissprite_t *spr)
 	drawseg_t *ds;
 	short      clipbot[MAXVIDWIDTH];
 	short      cliptop[MAXVIDWIDTH];
-	int        x;
-	int        r1;
-	int        r2;
+	INT32        x;
+	INT32        r1;
+	INT32        r2;
 	fixed_t    scale;
 	fixed_t    lowscale;
-	int        silhouette;
+	INT32        silhouette;
 
 	memset(clipbot,0x00,sizeof (clipbot));
 	memset(cliptop,0x00,sizeof (cliptop));
@@ -2267,7 +2268,7 @@ void R_DrawMasked(void)
 //
 // ==========================================================================
 
-int numskins = 0;
+INT32 numskins = 0;
 skin_t skins[MAXSKINS+1];
 // FIXTHIS: don't work because it must be inistilised before the config load
 //#define SKINVALUES
@@ -2277,7 +2278,7 @@ CV_PossibleValue_t skin_cons_t[MAXSKINS+1];
 
 static void Sk_SetDefaultValue(skin_t *skin)
 {
-	int i;
+	INT32 i;
 	//
 	// setup Sonic as default skin
 	//
@@ -2322,7 +2323,7 @@ static void Sk_SetDefaultValue(skin_t *skin)
 void R_InitSkins(void)
 {
 #ifdef SKINVALUES
-	int i;
+	INT32 i;
 
 	for (i = 0; i <= MAXSKINS; i++)
 	{
@@ -2350,7 +2351,7 @@ void R_InitSkins(void)
 
 static void R_DoSkinTranslationInit(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i <= numskins && numskins < MAXSKINS; i++)
 		R_InitSkinTranslationTables(atoi(skins[i].starttranscolor), i);
@@ -2358,9 +2359,9 @@ static void R_DoSkinTranslationInit(void)
 
 // returns true if the skin name is found (loaded from pwad)
 // warning return -1 if not found
-int R_SkinAvailable(const char *name)
+INT32 R_SkinAvailable(const char *name)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < numskins; i++)
 	{
@@ -2371,10 +2372,10 @@ int R_SkinAvailable(const char *name)
 }
 
 // network code calls this when a 'skin change' is received
-void SetPlayerSkin(int playernum, const char *skinname)
+void SetPlayerSkin(INT32 playernum, const char *skinname)
 {
-	int i;
-	player_t *player;
+	INT32 i;
+	player_t *player = &players[playernum];
 
 	for (i = 0; i < numskins; i++)
 	{
@@ -2386,8 +2387,6 @@ void SetPlayerSkin(int playernum, const char *skinname)
 		}
 	}
 
-	player = &players[playernum];
-
 	if (P_IsLocalPlayer(player))
 		CONS_Printf("Skin %s not found\n", skinname);
 
@@ -2396,7 +2395,7 @@ void SetPlayerSkin(int playernum, const char *skinname)
 
 // Same as SetPlayerSkin, but uses the skin #.
 // network code calls this when a 'skin change' is received
-void SetPlayerSkinByNum(int playernum, int skinnum)
+void SetPlayerSkinByNum(INT32 playernum, INT32 skinnum)
 {
 	player_t *player;
 
@@ -2492,11 +2491,11 @@ static void SetSkinValues(consvar_t *var, char *valstr, size_t valstrspace)
 {
 	if (var->PossibleValue)
 	{
-		int v = atoi(valstr);
+		INT32 v = atoi(valstr);
 
 		if (!stricmp(var->PossibleValue[0].strvalue, "MIN"))
 		{   // bounded cvar
-			int i;
+			INT32 i;
 			// search for maximum
 			for (i = 1; var->PossibleValue[i].strvalue != NULL; i++)
 				if (!stricmp(var->PossibleValue[i].strvalue, "MAX"))
@@ -2518,7 +2517,7 @@ static void SetSkinValues(consvar_t *var, char *valstr, size_t valstrspace)
 		else
 		{
 			// waw spaghetti programming ! :)
-			int i;
+			INT32 i;
 
 			// check first strings
 			for (i = 0; var->PossibleValue[i].strvalue != NULL; i++)
@@ -2527,7 +2526,7 @@ static void SetSkinValues(consvar_t *var, char *valstr, size_t valstrspace)
 			if (!v)
 				if (strcmp(valstr, "0"))
 					goto error;
-			// check int now
+			// check INT32 now
 			for (i = 0; var->PossibleValue[i].strvalue != NULL; i++)
 				if (v == var->PossibleValue[i].value)
 					goto found;
@@ -2558,12 +2557,12 @@ finish:
 }
 
 // For loading from saved games
-void SetSavedSkin(int playernum, int skinnum, int skincolor)
+void SetSavedSkin(INT32 playernum, INT32 skinnum, INT32 skincolor)
 {
 	char val[32];
 
 	players[playernum].skincolor = skincolor % MAXSKINCOLORS;
-	snprintf(val, sizeof val, "%li", players[playernum].skincolor);
+	snprintf(val, sizeof val, "%d", players[playernum].skincolor);
 	val[sizeof val - 1] = '\0';
 
 	SetSkinValues(&cv_skin, skins[skinnum].name,
@@ -2741,7 +2740,7 @@ void R_AddSkins(USHORT wadnum)
 			GETSKINATTRIB_(sprite)
 			else
 			{
-				int found = false;
+				INT32 found = false;
 				sfxenum_t i;
 				// copy name of sounds that are remapped
 				// for this skin

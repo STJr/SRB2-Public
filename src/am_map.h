@@ -24,7 +24,7 @@
 
 typedef struct
 {
-	int x, y;
+	INT32 x, y;
 } fpoint_t;
 
 typedef struct

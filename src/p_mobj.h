@@ -267,9 +267,9 @@ typedef struct mobj_s
 	fixed_t momx, momy, momz;
 	fixed_t pmomz; // If you're on a moving floor, its "momz" would be here
 
-	long tics; // state tic counter
+	INT32 tics; // state tic counter
 	state_t *state;
-	long flags; // flags from mobjinfo tables
+	INT32 flags; // flags from mobjinfo tables
 
 	void *skin; // overrides 'sprite' when non-NULL (for player bodies to 'remember' the skin)
 
@@ -286,35 +286,35 @@ typedef struct mobj_s
 	const mobjinfo_t *info; // &mobjinfo[mobj->type]
 
 	ULONG eflags; // extra flags
-	long flags2; // MF2_ flags
-	long health; // for player this is rings + 1
+	INT32 flags2; // MF2_ flags
+	INT32 health; // for player this is rings + 1
 
 	// Movement direction, movement generation (zig-zagging).
 	angle_t movedir; // 0-7; also used by Deton for up/down angle
-	long movecount; // when 0, select a new dir
+	INT32 movecount; // when 0, select a new dir
 
 	struct mobj_s *target; // Thing being chased/attacked (or NULL), and originator for missiles.
 
-	long reactiontime; // If not 0, don't attack yet.
+	INT32 reactiontime; // If not 0, don't attack yet.
 
-	long threshold; // If >0, the target will be chased no matter what.
+	INT32 threshold; // If >0, the target will be chased no matter what.
 
 	// Additional info record for player avatars only.
 	// Only valid if type == MT_PLAYER
 	struct player_s *player;
 
-	long lastlook; // Player number last looked for.
+	INT32 lastlook; // Player number last looked for.
 
 	mapthing_t *spawnpoint; // Used for CTF flags, objectplace, and a handful other applications.
 
 	struct mobj_s *tracer; // Thing being chased/attacked for tracers.
 
-	long friction;
-	long movefactor;
+	INT32 friction;
+	INT32 movefactor;
 
-	long fuse; // Does something in P_MobjThinker on reaching 0.
-	long watertop; // top of the water FOF the mobj is in
-	long waterbottom; // bottom of the water FOF the mobj is in
+	INT32 fuse; // Does something in P_MobjThinker on reaching 0.
+	INT32 watertop; // top of the water FOF the mobj is in
+	INT32 waterbottom; // bottom of the water FOF the mobj is in
 
 	ULONG mobjnum; // A unique number for this mobj. Used for restoring pointers on save games.
 
@@ -347,7 +347,7 @@ typedef struct precipmobj_s
 	// More drawing info: to determine current sprite.
 	angle_t angle;  // orientation
 	spritenum_t sprite; // used to find patch_t and flip value
-	int frame; // frame number, plus bits see p_pspr.h
+	INT32 frame; // frame number, plus bits see p_pspr.h
 
 	struct mprecipsecnode_s *touching_sectorlist; // a linked list of sectors where this object appears
 
@@ -365,9 +365,9 @@ typedef struct precipmobj_s
 	fixed_t momx, momy, momz;
 	fixed_t invisible; // fixed_t so it uses the same spot as "pmomz."
 
-	int tics; // state tic counter
+	INT32 tics; // state tic counter
 	state_t *state;
-	int flags; // flags from mobjinfo tables
+	INT32 flags; // flags from mobjinfo tables
 } precipmobj_t;
 
 typedef struct actioncache_s
@@ -375,25 +375,25 @@ typedef struct actioncache_s
 	struct actioncache_s *next;
 	struct actioncache_s *prev;
 	struct mobj_s *mobj;
-	int statenum;
+	INT32 statenum;
 } actioncache_t;
 
 extern actioncache_t actioncachehead;
 
 void P_InitCachedActions(void);
 void P_RunCachedActions(void);
-void P_AddCachedAction(mobj_t *mobj, int statenum);
+void P_AddCachedAction(mobj_t *mobj, INT32 statenum);
 
 // check mobj against water content, before movement code
 void P_MobjCheckWater(mobj_t *mobj);
 
 void P_SpawnMapThing(mapthing_t *mthing);
-void P_SpawnPlayer(mapthing_t *mthing, int playernum);
-void P_SpawnStarpostPlayer(mobj_t *mobj, int playernum);
+void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum);
+void P_SpawnStarpostPlayer(mobj_t *mobj, INT32 playernum);
 void P_SpawnHoopsAndRings(mapthing_t *mthing);
-void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int number, mobjtype_t type, angle_t rotangle);
+void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 number, mobjtype_t type, angle_t rotangle);
 void P_SpawnPrecipitation(void);
-void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int number, mobjtype_t type, angle_t rotangle, boolean spawncenter, boolean ghostit);
+void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 number, mobjtype_t type, angle_t rotangle, boolean spawncenter, boolean ghostit);
 boolean P_SupermanLook4Players(mobj_t *actor);
 void P_DestroyRobots(void);
 void P_SnowThinker(precipmobj_t *mobj);
@@ -406,7 +406,7 @@ void P_EmeraldManager(void);
 
 #define MAXHUNTEMERALDS 64
 extern mapthing_t *huntemeralds[MAXHUNTEMERALDS];
-extern int numhuntemeralds;
+extern INT32 numhuntemeralds;
 extern boolean runemeraldmanager;
-extern int numstarposts;
+extern INT32 numstarposts;
 #endif

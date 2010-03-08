@@ -123,18 +123,18 @@ typedef enum
 // mouse values are used once
 extern consvar_t cv_mousesens, cv_mlooksens, cv_allowautoaim;
 
-extern int mousex, mousey;
-extern int mlooky; //mousey with mlookSensitivity
-extern int mouse2x, mouse2y, mlook2y;
+extern INT32 mousex, mousey;
+extern INT32 mlooky; //mousey with mlookSensitivity
+extern INT32 mouse2x, mouse2y, mlook2y;
 
-extern int joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
+extern INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
 // current state of the keys: true if pushed
 extern byte gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
-extern int gamecontrol[num_gamecontrols][2];
-extern int gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
+extern INT32 gamecontrol[num_gamecontrols][2];
+extern INT32 gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
 
 // peace to my little coder fingers!
 // check a gamecontrol being active or not
@@ -143,15 +143,15 @@ extern int gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
 void G_MapEventsToControls(event_t *ev);
 
 // returns the name of a key
-const char *G_KeynumToString(int keynum);
-int G_KeyStringtoNum(const char *keystr);
+const char *G_KeynumToString(INT32 keynum);
+INT32 G_KeyStringtoNum(const char *keystr);
 
 // detach any keys associated to the given game control
-void G_ClearControlKeys(int (*setupcontrols)[2], int control);
+void G_ClearControlKeys(INT32 (*setupcontrols)[2], INT32 control);
 void Command_Setcontrol_f(void);
 void Command_Setcontrol2_f(void);
 void G_Controldefault(void);
 void G_SaveKeySetting(FILE *f);
-void G_CheckDoubleUsage(int keynum);
+void G_CheckDoubleUsage(INT32 keynum);
 
 #endif

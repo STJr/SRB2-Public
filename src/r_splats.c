@@ -26,7 +26,7 @@
 
 #ifdef WALLSPLATS
 static wallsplat_t wallsplats[MAXLEVELSPLATS]; // WALL splats
-static int freewallsplat;
+static INT32 freewallsplat;
 #endif
 
 #ifdef USEASM
@@ -36,7 +36,7 @@ struct rastery_s *prastertab;
 
 #ifdef FLOORSPLATS
 static floorsplat_t floorsplats[1]; // FLOOR splats
-static int freefloorsplat;
+static INT32 freefloorsplat;
 
 struct rastery_s
 {
@@ -117,12 +117,11 @@ static wallsplat_t *R_AllocWallSplat(void)
 // wallfrac: frac along the linedef vector (0 to FRACUNIT)
 // splatpatchname: name of patch to draw
 void R_AddWallSplat(line_t *wallline, short sectorside, const char *patchname, fixed_t top,
-	fixed_t wallfrac, int flags)
+	fixed_t wallfrac, INT32 flags)
 {
 	fixed_t fracsplat, linelength;
 	wallsplat_t *splat = NULL;
 	wallsplat_t *p_splat;
-	float flinelength;
 	patch_t *patch;
 	sector_t *backsector = NULL;
 
@@ -157,8 +156,7 @@ void R_AddWallSplat(line_t *wallline, short sectorside, const char *patchname, f
 	patch = W_CachePatchNum(splat->patch, PU_CACHE);
 
 	// offset needed by draw code for texture mapping
-	flinelength = P_SegLength((seg_t *)wallline);
-	linelength = (fixed_t)flinelength;
+	linelength = P_SegLength((seg_t *)wallline);
 	splat->offset = FixedMul(wallfrac, linelength) - (SHORT(patch->width)<<(FRACBITS-1));
 	fracsplat = FixedDiv(((SHORT(patch->width)<<FRACBITS)>>1), linelength);
 
@@ -240,11 +238,11 @@ static floorsplat_t *R_AllocFloorSplat(void)
 // Add a floor splat to the subsector
 // --------------------------------------------------------------------------
 void R_AddFloorSplat(subsector_t *subsec, mobj_t *mobj, const char *picname, fixed_t x, fixed_t y, fixed_t z,
-	int flags)
+	INT32 flags)
 {
 	floorsplat_t *splat = NULL;
 	floorsplat_t *p_splat;
-	int size;
+	INT32 size;
 
 	if (W_CheckNumForName(picname) != LUMPERROR)
 		splat = R_AllocFloorSplat();
@@ -349,8 +347,8 @@ void R_AddVisibleFloorSplats(subsector_t *subsec)
 
 #ifdef USEASM
 // tv1, tv2 = x/y qui varie dans la texture, tc = x/y qui est constant.
-void ASMCALL rasterize_segment_tex(int x1, int y1, int x2, int y2, int tv1, int tv2,
-	int tc, int dir);
+void ASMCALL rasterize_segment_tex(INT32 x1, INT32 y1, INT32 x2, INT32 y2, INT32 tv1, INT32 tv2,
+	INT32 tc, INT32 dir);
 #endif
 
 // current test with floor tile
@@ -364,12 +362,12 @@ void ASMCALL rasterize_segment_tex(int x1, int y1, int x2, int y2, int tv1, int 
 static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex)
 {
 	// rasterizing
-	int miny = vid.height + 1, maxy = 0, y, x1, ry1, x2, y2;
+	INT32 miny = vid.height + 1, maxy = 0, y, x1, ry1, x2, y2;
 	fixed_t offsetx, offsety;
 
 #ifdef FLOORSPLATSOLIDCOLOR
 	byte *pDest;
-	int tdx, tdy, ty, tx, x;
+	INT32 tdx, tdy, ty, tx, x;
 #else
 	lighttable_t **planezlight;
 	fixed_t planeheight;
@@ -377,7 +375,7 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 	fixed_t distance;
 	fixed_t length;
 	unsigned indexr;
-	int light;
+	INT32 light;
 #endif
 	(void)pTex;
 
@@ -567,7 +565,7 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 void R_DrawVisibleFloorSplats(void)
 {
 	floorsplat_t *pSplat;
-	int iCount = 0, i;
+	INT32 iCount = 0, i;
 	fixed_t tr_x, tr_y, rot_x, rot_y, rot_z, xscale, yscale;
 	vertex_t *v3d;
 	vertex_t v2d[4];
@@ -615,7 +613,7 @@ skipit:
 
 static void prepare_rastertab(void)
 {
-	int iLine;
+	INT32 iLine;
 	for (iLine = 0; iLine < vid.height; iLine++)
 	{
 		rastertab[iLine].minx = MAXINT;

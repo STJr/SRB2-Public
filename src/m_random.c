@@ -78,23 +78,23 @@ byte P_Random(void)
   * \return A random number, -255 to 255.
   * \sa P_Random
   */
-int P_SignedRandom(void)
+INT32 P_SignedRandom(void)
 {
-	int r = P_Random();
+	INT32 r = P_Random();
 	return r - P_Random();
 }
 
 #else
 
-byte P_Random2(char *a, int b)
+byte P_Random2(char *a, INT32 b)
 {
 	CONS_Printf("P_Random at: %sp %d\n", a, b);
 	return rndtable[++prndindex];
 }
 
-int P_SignedRandom2(char *a, int b)
+INT32 P_SignedRandom2(char *a, INT32 b)
 {
-	int r;
+	INT32 r;
 	CONS_Printf("P_SignedRandom at: %sp %d\n",a,b);
 	r = rndtable[++prndindex];
 	return r - rndtable[++prndindex];

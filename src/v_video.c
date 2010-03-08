@@ -56,11 +56,13 @@ static void CV_Gammaxxx_ONChange(void);
 // Saved hardware mode variables
 // - You can change them in software,
 // but they won't do anything.
+static CV_PossibleValue_t grrenderquality_cons_t[] = {{1, "Speed"}, {2, "Quality"}, {3, "Full Quality"}, {0, NULL}};
 static CV_PossibleValue_t grgamma_cons_t[] = {{1, "MIN"}, {255, "MAX"}, {0, NULL}};
 
+consvar_t cv_grrenderquality = {"gr_renderdetail", "Quality", CV_SAVE, grrenderquality_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grfovchange = {"gr_fovchange", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_grfog = {"gr_fog", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_grfogcolor = {"gr_fogcolor", "000000", CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_grfog = {"gr_fog", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_grfogcolor = {"gr_fogcolor", "AAAAAA", CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grgammared = {"gr_gammared", "127", CV_SAVE|CV_CALL, grgamma_cons_t,
                            CV_Gammaxxx_ONChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grgammagreen = {"gr_gammagreen", "127", CV_SAVE|CV_CALL, grgamma_cons_t,
@@ -182,7 +184,7 @@ static void LoadPalette(const char *lumpname)
 // V_SetPalette : Set the current palette to use for palettized graphics
 //              :
 // -------------+
-void V_SetPalette(int palettenum)
+void V_SetPalette(INT32 palettenum)
 {
 	if (!pLocalPalette)
 		LoadPalette("PLAYPAL");
@@ -233,8 +235,8 @@ static void CV_Gammaxxx_ONChange(void)
 // --------------------------------------------------------------------------
 // Copy a rectangular area from one bitmap to another (8bpp)
 // --------------------------------------------------------------------------
-void VID_BlitLinearScreen(const byte *srcptr, byte *destptr, int width, int height, int srcrowbytes,
-	int destrowbytes)
+void VID_BlitLinearScreen(const byte *srcptr, byte *destptr, INT32 width, INT32 height, INT32 srcrowbytes,
+	INT32 destrowbytes)
 {
 	if (srcrowbytes == destrowbytes)
 		M_Memcpy(destptr, srcptr, srcrowbytes * height);
@@ -254,10 +256,10 @@ void VID_BlitLinearScreen(const byte *srcptr, byte *destptr, int width, int heig
 //
 // V_DrawTranslucentMappedPatch: like V_DrawMappedPatch, but with translucency.
 //
-static void V_DrawTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap)
+static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap)
 {
 	size_t count;
-	int col, w, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, w, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest;
 	const byte *source, *translevel, *deststop;
@@ -359,10 +361,10 @@ static void V_DrawTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch,
 //
 // V_DrawMappedPatch: like V_DrawScaledPatch, but with a colormap.
 //
-void V_DrawMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap)
+void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap)
 {
 	size_t count;
-	int col, w, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, w, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest;
 	const byte *source, *deststop;
@@ -462,10 +464,10 @@ void V_DrawMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *color
 // Like V_DrawPatch, but scaled 2, 3, 4 times the original size and position.
 // This is used for menu and title screens, with high resolutions.
 //
-void V_DrawScaledPatch(int x, int y, int scrn, patch_t *patch)
+void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
 	size_t count;
-	int col, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest, *destend;
 	const byte *source, *deststop;
@@ -534,7 +536,7 @@ void V_DrawScaledPatch(int x, int y, int scrn, patch_t *patch)
 
 	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
-		register int heightmask;
+		register INT32 heightmask;
 
 		column = (const column_t *)((const byte *)(patch) + LONG(patch->columnofs[col>>FRACBITS]));
 
@@ -604,10 +606,10 @@ donedrawing:
   * \sa V_DrawScaledPatch
   * \author Graue <graue@oceanbase.org>
   */
-static void V_DrawClippedScaledPatch(int x, int y, int scrn, patch_t *patch)
+static void V_DrawClippedScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
 	size_t count;
-	int col, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest, *destend;
 	const byte *source, *deststop;
@@ -656,7 +658,7 @@ static void V_DrawClippedScaledPatch(int x, int y, int scrn, patch_t *patch)
 
 	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
-		register int heightmask;
+		register INT32 heightmask;
 
 		column = (const column_t *)((const byte *)patch + LONG(patch->columnofs[col>>FRACBITS]));
 
@@ -719,15 +721,15 @@ doneclipping:
 }
 
 // Draws a patch 2x as small.
-void V_DrawSmallScaledPatch(int x, int y, int scrn, patch_t *patch)
+void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
 	size_t count;
-	int col, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest, *destend;
 	const byte *source, *deststop;
 	boolean skippixels = false;
-	int skiprowcnt;
+	INT32 skiprowcnt;
 
 #ifdef HWRENDER
 	// draw a hardware converted patch
@@ -735,8 +737,8 @@ void V_DrawSmallScaledPatch(int x, int y, int scrn, patch_t *patch)
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = (int)(vid.fdupx*x);
-			y = (int)(vid.fdupy*y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
@@ -809,7 +811,7 @@ void V_DrawSmallScaledPatch(int x, int y, int scrn, patch_t *patch)
 
 	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
-		register int heightmask;
+		register INT32 heightmask;
 
 		column = (const column_t *)((const byte *)(patch) + LONG(patch->columnofs[col>>FRACBITS]));
 
@@ -876,15 +878,15 @@ donesmalling:
 }
 
 // Draws a patch 2x as small, translucent, and colormapped.
-void V_DrawSmallTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap)
+void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap)
 {
 	size_t count;
-	int col, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest, *destend;
 	const byte *source, *deststop;
 	boolean skippixels = false;
-	int skiprowcnt;
+	INT32 skiprowcnt;
 	byte *translevel;
 
 	if (scrn & V_8020TRANS)
@@ -898,8 +900,8 @@ void V_DrawSmallTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch, c
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = (int)(vid.fdupx*x);
-			y = (int)(vid.fdupy*y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
@@ -972,7 +974,7 @@ void V_DrawSmallTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch, c
 
 	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
-		register int heightmask;
+		register INT32 heightmask;
 
 		column = (const column_t *)((const byte *)(patch) + LONG(patch->columnofs[col>>FRACBITS]));
 
@@ -1039,16 +1041,16 @@ donesmallmapping:
 }
 
 // Draws a patch 2x as small, and translucent.
-void V_DrawSmallTranslucentPatch(int x, int y, int scrn, patch_t *patch)
+void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
 	size_t count;
-	int col, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest, *destend;
 	const byte *source, *deststop;
 	byte *translevel;
 	boolean skippixels = false;
-	int skiprowcnt;
+	INT32 skiprowcnt;
 
 #ifdef HWRENDER
 	// draw a hardware converted patch
@@ -1056,8 +1058,8 @@ void V_DrawSmallTranslucentPatch(int x, int y, int scrn, patch_t *patch)
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = (int)(vid.fdupx*x);
-			y = (int)(vid.fdupy*y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
@@ -1135,7 +1137,7 @@ void V_DrawSmallTranslucentPatch(int x, int y, int scrn, patch_t *patch)
 
 	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
-		register int heightmask;
+		register INT32 heightmask;
 
 		column = (const column_t *)((const byte *)(patch) + LONG(patch->columnofs[col>>FRACBITS]));
 
@@ -1202,15 +1204,15 @@ donesmallmapping:
 }
 
 // Draws a patch 2x as small, and colormapped.
-void V_DrawSmallMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap)
+void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap)
 {
 	size_t count;
-	int col, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest, *destend;
 	const byte *source, *deststop;
 	boolean skippixels = false;
-	int skiprowcnt;
+	INT32 skiprowcnt;
 
 #ifdef HWRENDER
 	// draw a hardware converted patch
@@ -1218,8 +1220,8 @@ void V_DrawSmallMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = (int)(vid.fdupx*x);
-			y = (int)(vid.fdupy*y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
@@ -1292,7 +1294,7 @@ void V_DrawSmallMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *
 
 	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
-		register int heightmask;
+		register INT32 heightmask;
 
 		column = (const column_t *)((const byte *)(patch) + LONG(patch->columnofs[col>>FRACBITS]));
 
@@ -1363,10 +1365,10 @@ donesmallmapping:
 // SCALE THE STARTING COORDS!
 // Used for crosshair.
 //
-void V_DrawTranslucentPatch(int x, int y, int scrn, patch_t *patch)
+void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
 	size_t count;
-	int col, w, dupx, dupy, ofs, colfrac, rowfrac;
+	INT32 col, w, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
 	byte *desttop, *dest;
 	const byte *source, *translevel, *deststop;
@@ -1477,10 +1479,10 @@ void V_DrawTranslucentPatch(int x, int y, int scrn, patch_t *patch)
 // V_DrawPatch
 // Masks a column based masked pic to the screen. NO SCALING!
 //
-void V_DrawPatch(int x, int y, int scrn, patch_t *patch)
+void V_DrawPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
 	size_t count;
-	int col, w;
+	INT32 col, w;
 	const column_t *column;
 	byte *desttop, *dest;
 	const byte *source, *deststop;
@@ -1539,7 +1541,7 @@ void V_DrawPatch(int x, int y, int scrn, patch_t *patch)
 // V_DrawBlock
 // Draw a linear block of pixels into the view buffer.
 //
-void V_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src)
+void V_DrawBlock(INT32 x, INT32 y, INT32 scrn, INT32 width, INT32 height, const byte *src)
 {
 	byte *dest;
 	const byte *deststop;
@@ -1554,7 +1556,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src)
 
 	while (height--)
 	{
-		memcpy(dest, src, width);
+		M_Memcpy(dest, src, width);
 
 		src += width;
 		dest += vid.width;
@@ -1563,10 +1565,10 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src)
 	}
 }
 
-static void V_BlitScaledPic(int px1, int py1, int scrn, pic_t *pic);
+static void V_BlitScaledPic(INT32 px1, INT32 py1, INT32 scrn, pic_t *pic);
 //  Draw a linear pic, scaled, TOTALLY CRAP CODE!!! OPTIMISE AND ASM!!
 //
-void V_DrawScaledPic(int rx1, int ry1, int scrn, int lumpnum)
+void V_DrawScaledPic(INT32 rx1, INT32 ry1, INT32 scrn, INT32 lumpnum)
 {
 #ifdef HWRENDER
 	if (rendermode != render_soft)
@@ -1579,12 +1581,12 @@ void V_DrawScaledPic(int rx1, int ry1, int scrn, int lumpnum)
 	V_BlitScaledPic(rx1, ry1, scrn, W_CacheLumpNum(lumpnum, PU_CACHE));
 }
 
-static void V_BlitScaledPic(int rx1, int ry1, int scrn, pic_t * pic)
+static void V_BlitScaledPic(INT32 rx1, INT32 ry1, INT32 scrn, pic_t * pic)
 {
-	int dupx, dupy;
-	int x, y;
+	INT32 dupx, dupy;
+	INT32 x, y;
 	byte *src, *dest;
-	int width, height;
+	INT32 width, height;
 
 	width = SHORT(pic->width);
 	height = SHORT(pic->height);
@@ -1621,11 +1623,11 @@ static void V_BlitScaledPic(int rx1, int ry1, int scrn, pic_t * pic)
 //
 // Fills a box of pixels with a single color, NOTE: scaled to screen size
 //
-void V_DrawFill(int x, int y, int w, int h, int c)
+void V_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 c)
 {
 	byte *dest;
 	const byte *deststop;
-	int u, v, dupx, dupy;
+	INT32 u, v, dupx, dupy;
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
@@ -1683,9 +1685,9 @@ void V_DrawFill(int x, int y, int w, int h, int c)
 //
 // Fills a box of pixels using a flat texture as a pattern, scaled to screen size.
 //
-void V_DrawFlatFill(int x, int y, int w, int h, lumpnum_t flatnum)
+void V_DrawFlatFill(INT32 x, INT32 y, INT32 w, INT32 h, lumpnum_t flatnum)
 {
-	int u, v, dupx, dupy;
+	INT32 u, v, dupx, dupy;
 	fixed_t dx, dy, xfrac, yfrac;
 	const byte *src, *deststop;
 	byte *flat, *dest;
@@ -1781,7 +1783,7 @@ void V_DrawFlatFill(int x, int y, int w, int h, lumpnum_t flatnum)
 //
 void V_DrawPatchFill(patch_t *pat)
 {
-	int x, y, pw = SHORT(pat->width) * vid.dupx, ph = SHORT(pat->height) * vid.dupy;
+	INT32 x, y, pw = SHORT(pat->width) * vid.dupx, ph = SHORT(pat->height) * vid.dupy;
 
 	for (x = 0; x < vid.width; x += pw)
 	{
@@ -1801,9 +1803,9 @@ void V_DrawPatchFill(patch_t *pat)
 //
 void V_DrawFadeScreen(void)
 {
-	int x, y, w;
+	INT32 x, y, w;
 	long *buf;
-	unsigned int quad;
+	UINT32 quad;
 	byte p1, p2, p3, p4;
 	const byte *fadetable = (byte *)colormaps + 16*256, *deststop = screens[0] + vid.width * vid.height * vid.bpp;
 
@@ -1823,24 +1825,24 @@ void V_DrawFadeScreen(void)
 		{
 			if (buf+ x > (const long *)(const void *)deststop)
 				return;
-			memcpy(&quad,buf+x,sizeof (quad)); //quad = buf[x];
+			M_Memcpy(&quad,buf+x,sizeof (quad)); //quad = buf[x];
 			p1 = fadetable[quad&255];
 			p2 = fadetable[(quad>>8)&255];
 			p3 = fadetable[(quad>>16)&255];
 			p4 = fadetable[quad>>24];
 			quad = (p4<<24) | (p3<<16) | (p2<<8) | p1;//buf[x] = (p4<<24) | (p3<<16) | (p2<<8) | p1;
-			memcpy(buf+x,&quad,sizeof (quad));
+			M_Memcpy(buf+x,&quad,sizeof (quad));
 		}
 	}
 }
 
 // Simple translucency with one color. Coords are resolution dependent.
 //
-void V_DrawFadeConsBack(int px1, int py1, int px2, int py2, int color)
+void V_DrawFadeConsBack(INT32 px1, INT32 py1, INT32 px2, INT32 py2, INT32 color)
 {
-	int x, y, w;
+	INT32 x, y, w;
 	long *buf;
-	unsigned int quad;
+	UINT32 quad;
 	byte p1, p2, p3, p4;
 	short *wput;
 	const byte *deststop = screens[0] + vid.width * vid.height * vid.bpp;
@@ -1849,7 +1851,7 @@ void V_DrawFadeConsBack(int px1, int py1, int px2, int py2, int color)
 #ifdef HWRENDER // not win32 only 19990829 by Kin
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		unsigned int hwcolor;
+		UINT32 hwcolor;
 
 		switch (color)
 		{
@@ -1876,7 +1878,7 @@ void V_DrawFadeConsBack(int px1, int py1, int px2, int py2, int color)
 				break;
 		}
 
-		HWR_FadeScreenMenuBack(hwcolor, py2);
+		HWR_DrawConsoleBack(hwcolor, py2);
 		return;
 	}
 #endif
@@ -1917,13 +1919,13 @@ void V_DrawFadeConsBack(int px1, int py1, int px2, int py2, int color)
 			{
 				if (&buf[x] > (const long *)(const void *)deststop)
 					return;
-				memcpy(&quad,buf+x,sizeof (quad)); //quad = buf[x];
+				M_Memcpy(&quad,buf+x,sizeof (quad)); //quad = buf[x];
 				p1 = colormap[quad&255];
 				p2 = colormap[(quad>>8)&255];
 				p3 = colormap[(quad>>16)&255];
 				p4 = colormap[quad>>24];
 				quad = (p4<<24) | (p3<<16) | (p2<<8) | p1;//buf[x] = (p4<<24) | (p3<<16) | (p2<<8) | p1;
-				memcpy(buf+x, &quad, sizeof (quad));
+				M_Memcpy(buf+x, &quad, sizeof (quad));
 			}
 		}
 	}
@@ -1946,9 +1948,9 @@ void V_DrawFadeConsBack(int px1, int py1, int px2, int py2, int color)
 
 // Writes a single character (draw WHITE if bit 7 set)
 //
-void V_DrawCharacter(int x, int y, int c, boolean lowercaseallowed)
+void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed)
 {
-	int w, flags;
+	INT32 w, flags;
 	const byte *colormap = NULL;
 
 	switch (c & 0xff00)
@@ -1999,9 +2001,9 @@ void V_DrawCharacter(int x, int y, int c, boolean lowercaseallowed)
 // Write a string using the hu_font
 // NOTE: the text is centered for screens larger than the base width
 //
-void V_DrawString(int x, int y, int option, const char *string)
+void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 {
-	int r, w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
+	INT32 r, w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
 	const char *ch = string, *q;
 
 	if (option & V_NOSCALESTART)
@@ -2084,13 +2086,13 @@ void V_DrawString(int x, int y, int option, const char *string)
 	}
 }
 
-void V_DrawCenteredString(int x, int y, int option, const char *string)
+void V_DrawCenteredString(INT32 x, INT32 y, INT32 option, const char *string)
 {
 	x -= V_StringWidth(string)/2;
 	V_DrawString(x, y, option, string);
 }
 
-void V_DrawRightAlignedString(int x, int y, int option, const char *string)
+void V_DrawRightAlignedString(INT32 x, INT32 y, INT32 option, const char *string)
 {
 	x -= V_StringWidth(string);
 	V_DrawString(x, y, option, string);
@@ -2099,9 +2101,9 @@ void V_DrawRightAlignedString(int x, int y, int option, const char *string)
 // Write a string using the credit font
 // NOTE: the text is centered for screens larger than the base width
 //
-void V_DrawCreditString(int x, int y, int option, const char *string)
+void V_DrawCreditString(INT32 x, INT32 y, INT32 option, const char *string)
 {
-	int w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
+	INT32 w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
 	const char *ch = string;
 
 	if (option & V_NOSCALESTART)
@@ -2143,9 +2145,9 @@ void V_DrawCreditString(int x, int y, int option, const char *string)
 
 // Find string width from cred_font chars
 //
-int V_CreditStringWidth(const char *string)
+INT32 V_CreditStringWidth(const char *string)
 {
-	int c, w = 0;
+	INT32 c, w = 0;
 	size_t i;
 
 	for (i = 0; i < strlen(string); i++)
@@ -2163,9 +2165,9 @@ int V_CreditStringWidth(const char *string)
 // Write a string using the level title font
 // NOTE: the text is centered for screens larger than the base width
 //
-void V_DrawLevelTitle(int x, int y, int option, const char *string)
+void V_DrawLevelTitle(INT32 x, INT32 y, INT32 option, const char *string)
 {
-	int w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
+	INT32 w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
 	const char *ch = string;
 
 	if (option & V_NOSCALESTART)
@@ -2209,9 +2211,9 @@ void V_DrawLevelTitle(int x, int y, int option, const char *string)
 
 // Find string width from lt_font chars
 //
-int V_LevelNameWidth(const char *string)
+INT32 V_LevelNameWidth(const char *string)
 {
-	int c, w = 0;
+	INT32 c, w = 0;
 	size_t i;
 
 	for (i = 0; i < strlen(string); i++)
@@ -2228,9 +2230,9 @@ int V_LevelNameWidth(const char *string)
 
 // Find max height of the string
 //
-int V_LevelNameHeight(const char *string)
+INT32 V_LevelNameHeight(const char *string)
 {
-	int c, w = 0;
+	INT32 c, w = 0;
 	size_t i;
 
 	for (i = 0; i < strlen(string); i++)
@@ -2250,9 +2252,9 @@ int V_LevelNameHeight(const char *string)
 //
 // Find string width from hu_font chars
 //
-int V_StringWidth(const char *string)
+INT32 V_StringWidth(const char *string)
 {
-	int c, w = 0;
+	INT32 c, w = 0;
 	size_t i;
 
 	for (i = 0; i < strlen(string); i++)
@@ -2271,8 +2273,8 @@ int V_StringWidth(const char *string)
 }
 
 boolean *heatshifter = NULL;
-int lastheight = 0;
-int heatindex = 0;
+INT32 lastheight = 0;
+INT32 heatindex = 0;
 
 //
 // V_DoPostProcessor
@@ -2299,11 +2301,11 @@ void V_DoPostProcessor(postimg_t type)
 	{
 			byte *tmpscr = screens[4];
 			byte *srcscr = screens[0];
-			int y;
+			INT32 y;
 			static angle_t disStart = 0; // in 0 to FINEANGLE
-			int newpix;
-			int sine;
-			int westart = disStart;
+			INT32 newpix;
+			INT32 sine;
+			INT32 westart = disStart;
 			//byte *transme = ((tr_trans50)<<FF_TRANSSHIFT) + transtables;
 
 			for (y = 0; y < vid.height; y++)
@@ -2360,7 +2362,7 @@ Unoptimized version
 	{
 		byte *tmpscr = screens[4];
 		byte *srcscr = screens[0];
-		int x, y;
+		INT32 x, y;
 
 		// TODO: Add a postimg_param so that we can pick the translucency level...
 		byte *transme = ((postimgparam)<<FF_TRANSSHIFT) - 0x10000 + transtables;
@@ -2379,7 +2381,7 @@ Unoptimized version
 	{
 		byte *tmpscr = screens[4];
 		byte *srcscr = screens[0];
-		int y, y2;
+		INT32 y, y2;
 
 		for (y = 0, y2 = vid.height - 1; y < vid.height; y++, y2--)
 			M_Memcpy(&tmpscr[y2*vid.width], &srcscr[y*vid.width], vid.width);
@@ -2390,7 +2392,7 @@ Unoptimized version
 	{
 		byte *tmpscr = screens[4];
 		byte *srcscr = screens[0];
-		int y;
+		INT32 y;
 
 		// Make sure table is built
 		if (heatshifter == NULL || lastheight != vid.height)
@@ -2437,9 +2439,9 @@ Unoptimized version
 // WARNING: called at runtime (don't init cvar here)
 void V_Init(void)
 {
-	int i;
+	INT32 i;
 	byte *base = vid.buffer;
-	const int screensize = vid.width * vid.height * vid.bpp;
+	const INT32 screensize = vid.width * vid.height * vid.bpp;
 
 	LoadPalette("PLAYPAL");
 	// hardware modes do not use screens[] pointers

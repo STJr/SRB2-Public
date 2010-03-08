@@ -81,7 +81,7 @@ node_t *nodes;
 line_t *lines;
 side_t *sides;
 mapthing_t *mapthings;
-int numstarposts;
+INT32 numstarposts;
 boolean levelloading;
 
 // BLOCKMAP
@@ -92,11 +92,11 @@ boolean levelloading;
 // by spatial subdivision in 2D.
 //
 // Blockmap size.
-int bmapwidth, bmapheight; // size in mapblocks
+INT32 bmapwidth, bmapheight; // size in mapblocks
 
-long *blockmap; // int for large maps
+INT32 *blockmap; // INT32 for large maps
 // offsets in blockmap are from here
-long *blockmaplump; // Big blockmap
+INT32 *blockmaplump; // Big blockmap
 
 // origin of block map
 fixed_t bmaporgx, bmaporgy;
@@ -111,7 +111,7 @@ mobj_t **blocklinks;
 byte *rejectmatrix;
 
 // Maintain single and multi player starting spots.
-int numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
+INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
 
 mapthing_t *deathmatchstarts[MAX_DM_STARTS];
 mapthing_t *playerstarts[MAXPLAYERS];
@@ -227,7 +227,7 @@ void P_InitMapHeaders(void)
 {
 	char mapheader[7];
 	lumpnum_t lumpnum;
-	int moremapnumbers, mapnum;
+	INT32 moremapnumbers, mapnum;
 
 	for (mapnum = 1; mapnum <= NUMMAPS; mapnum++)
 	{
@@ -319,7 +319,19 @@ static inline void P_LoadVertexes(lumpnum_t lumpnum)
   * \param seg Seg to compute length for.
   * \return Length in fracunits.
   */
-float P_SegLength(seg_t *seg)
+fixed_t P_SegLength(seg_t *seg)
+{
+	fixed_t dx, dy;
+
+	// make a vector (start at origin)
+	dx = seg->v2->x - seg->v1->x;
+	dy = seg->v2->y - seg->v1->y;
+
+	return FixedHypot(dx, dy);
+}
+
+#ifdef HWRENDER
+static inline float P_SegLengthf(seg_t *seg)
 {
 	float dx, dy;
 
@@ -327,8 +339,9 @@ float P_SegLength(seg_t *seg)
 	dx = FIXED_TO_FLOAT(seg->v2->x - seg->v1->x);
 	dy = FIXED_TO_FLOAT(seg->v2->y - seg->v1->y);
 
-	return (float)sqrt(dx*dx + dy*dy)*FRACUNIT;
+	return (float)hypot(dx, dy);
 }
+#endif
 
 /** Loads the SEGS resource from a level.
   *
@@ -339,7 +352,7 @@ static void P_LoadSegs(lumpnum_t lumpnum)
 {
 	byte *data;
 	size_t i;
-	int linedef, side;
+	INT32 linedef, side;
 	mapseg_t *ml;
 	seg_t *li;
 	line_t *ldef;
@@ -361,7 +374,7 @@ static void P_LoadSegs(lumpnum_t lumpnum)
 		// used for the hardware render
 		if (rendermode != render_soft && rendermode != render_none)
 		{
-			li->length = P_SegLength(li);
+			li->flength = P_SegLengthf(li);
 			//Hurdler: 04/12/2000: for now, only used in hardware mode
 			li->lightmaps = NULL; // list of static lightmap for this seg
 		}
@@ -453,7 +466,7 @@ size_t P_PrecacheLevelFlats(void)
 // help function for P_LoadSectors, find a flat in the active wad files,
 // allocate an id for it, and set the levelflat (to speedup search)
 //
-long P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
+INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 {
 	size_t i;
 
@@ -475,7 +488,7 @@ long P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 		levelflat->lumpnum = R_GetFlatNumForName(flatname);
 
 		if (devparm)
-			I_OutputMsg("flat #%03u: %s\n", numlevelflats, levelflat->name);
+			I_OutputMsg("flat #%03"PRIdS": %s\n", numlevelflats, levelflat->name);
 
 		numlevelflats++;
 
@@ -484,7 +497,7 @@ long P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 	}
 
 	// level flat id
-	return (long)i;
+	return (INT32)i;
 }
 
 static void P_LoadSectors(lumpnum_t lumpnum)
@@ -578,18 +591,20 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 		ss->stackList = NULL;
 		ss->lineoutLength = -1.0;
 #endif // ----- end special tricks -----
-
-		// Keep players out of secret levels!
-		if (ss->tag == 4240 && !(grade & 2)) // Mario
-			I_Error("You need to unlock this level first!\n");
-		else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
-			I_Error("You need to unlock this level first!\n");
-		else if (ss->tag == 4260 && (modifiedgame || netgame || multiplayer) && !(grade & 2048)) // NAGZ
+		if (!dedicated) // to prevent dedicated server error.
 		{
-			if (netgame || multiplayer)
-				I_Error("You need to unlock this level in single player first!\n");
-			else
+			// Keep players out of secret levels!
+			if (ss->tag == 4240 && !(grade & 2)) // Mario
 				I_Error("You need to unlock this level first!\n");
+			else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
+				I_Error("You need to unlock this level first!\n");
+			else if (ss->tag == 4260 && (modifiedgame || netgame || multiplayer) && !(grade & 2048)) // NAGZ
+			{
+				if (netgame || multiplayer)
+					I_Error("You need to unlock this level in single player first!\n");
+				else
+					I_Error("You need to unlock this level first!\n");
+			}
 		}
 	}
 
@@ -709,15 +724,16 @@ static void P_LoadThings(lumpnum_t lumpnum)
 	// random emeralds for hunt
 	if (numhuntemeralds)
 	{
-		int emer1, emer2, emer3;
-		int timeout = 0; // keeps from getting stuck
+		INT32 emer1, emer2, emer3;
+		INT32 timeout = 0; // keeps from getting stuck
 
 		emer1 = emer2 = emer3 = 0;
 
-		emer1 = P_Random() % numhuntemeralds;
+		//increment spawn numbers because zero is valid.
+		emer1 = (P_Random() % numhuntemeralds) + 1;
 		while (timeout++ < 100)
 		{
-			emer2 = P_Random() % numhuntemeralds;
+			emer2 = (P_Random() % numhuntemeralds) + 1;
 
 			if (emer2 != emer1)
 				break;
@@ -726,26 +742,27 @@ static void P_LoadThings(lumpnum_t lumpnum)
 		timeout = 0;
 		while (timeout++ < 100)
 		{
-			emer3 = P_Random() % numhuntemeralds;
+			emer3 = (P_Random() % numhuntemeralds) + 1;
 
 			if (emer3 != emer2 && emer3 != emer1)
 				break;
 		}
 
+		//decrement spawn values to the actual number because zero is valid.
 		if (emer1)
-			P_SpawnMobj(huntemeralds[emer1]->x<<FRACBITS,
-				huntemeralds[emer1]->y<<FRACBITS,
-				huntemeralds[emer1]->z<<FRACBITS, MT_EMERHUNT);
+			P_SpawnMobj(huntemeralds[emer1 - 1]->x<<FRACBITS,
+				huntemeralds[emer1 - 1]->y<<FRACBITS,
+				huntemeralds[emer1 - 1]->z<<FRACBITS, MT_EMERHUNT);
 
 		if (emer2)
-			P_SpawnMobj(huntemeralds[emer2]->x<<FRACBITS,
-				huntemeralds[emer2]->y<<FRACBITS,
-				huntemeralds[emer2]->z<<FRACBITS, MT_EMERHUNT);
+			P_SpawnMobj(huntemeralds[emer2 - 1]->x<<FRACBITS,
+				huntemeralds[emer2 - 1]->y<<FRACBITS,
+				huntemeralds[emer2 - 1]->z<<FRACBITS, MT_EMERHUNT);
 
 		if (emer3)
-			P_SpawnMobj(huntemeralds[emer3]->x<<FRACBITS,
-				huntemeralds[emer3]->y<<FRACBITS,
-				huntemeralds[emer3]->z<<FRACBITS, MT_EMERHUNT);
+			P_SpawnMobj(huntemeralds[emer3 - 1]->x<<FRACBITS,
+				huntemeralds[emer3 - 1]->y<<FRACBITS,
+				huntemeralds[emer3 - 1]->z<<FRACBITS, MT_EMERHUNT);
 	}
 
 	// Run through the list of mapthings again to spawn hoops and rings
@@ -786,7 +803,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 
 static void P_SpawnEmblems(void)
 {
-	int i;
+	INT32 i;
 	mobj_t *emblemmobj;
 
 	for (i = 0; i < numemblems - 2; i++)
@@ -833,7 +850,7 @@ void P_SpawnSecretItems(boolean loademblems)
 		P_SpawnEmblems();
 
 	if(gamemap == 11)
-		P_SpawnMobj(04220000000*-1, 0554000000*-1, ONFLOORZ, MT_PXVI)->angle = ANG270;
+		P_SpawnMobj(04220000000*-1, 0554000000*-1, ONFLOORZ, MT_PXVI)->angle = ANGLE_270;
 }
 
 // Experimental groovy write function!
@@ -956,7 +973,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (unsigned short)numsides)
 				{
 					ld->sidenum[j] = 0xffff;
-					CONS_Printf("P_LoadLineDefs: linedef %u has out-of-range sidedef number\n",numlines-i-1);
+					CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has out-of-range sidedef number\n",numlines-i-1);
 				}
 			}
 		}
@@ -970,14 +987,14 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 		{
 			ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
 			// cph - print a warning about the bug
-			CONS_Printf("P_LoadLineDefs: linedef %u missing first sidedef\n",numlines-i-1);
+			CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" missing first sidedef\n",numlines-i-1);
 		}
 
 		if ((ld->sidenum[1] == 0xffff) && (ld->flags & ML_TWOSIDED))
 		{
 			ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 			// cph - print a warning about the bug
-			CONS_Printf("P_LoadLineDefs: linedef %u has two-sided flag set, but no second sidedef\n",numlines-i-1);
+			CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has two-sided flag set, but no second sidedef\n",numlines-i-1);
 		}
 
 		if (ld->sidenum[0] != 0xffff && ld->special)
@@ -1061,10 +1078,10 @@ static void P_LoadLineDefs2(void)
 		for (i = 0, z = 0; i < numsides; i++)
 		{
 			if (sides[i].sector != NULL)
-				memcpy(&newsides[z++], &sides[i], sizeof(side_t));
+				M_Memcpy(&newsides[z++], &sides[i], sizeof(side_t));
 		}
 
-		CONS_Printf("Old sides is %d, new sides is %d\n", numsides, numnewsides);
+		CONS_Printf("Old sides is %"PRIdS", new sides is %"PRIdS"\n", numsides, numnewsides);
 
 		Z_Free(sides);
 		sides = newsides;
@@ -1089,7 +1106,7 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 {
 	byte *data = W_CacheLumpNum(lumpnum, PU_STATIC);
 	unsigned short i;
-	long num;
+	INT32 num;
 
 	for (i = 0; i < numsides; i++)
 	{
@@ -1355,8 +1372,8 @@ static void P_CreateBlockMap(void)
 	{
 		typedef struct
 		{
-			int n, nalloc;
-			int *list;
+			INT32 n, nalloc;
+			INT32 *list;
 		} bmap_t; // blocklist structure
 
 		size_t tot = bmapwidth * bmapheight; // size of blockmap
@@ -1366,9 +1383,9 @@ static void P_CreateBlockMap(void)
 		for (i = 0; i < numlines; i++)
 		{
 			// starting coordinates
-			int x = (lines[i].v1->x>>FRACBITS) - minx;
-			int y = (lines[i].v1->y>>FRACBITS) - miny;
-			int bxstart, bxend, bystart, byend, v2x, v2y, curblockx, curblocky;
+			INT32 x = (lines[i].v1->x>>FRACBITS) - minx;
+			INT32 y = (lines[i].v1->y>>FRACBITS) - miny;
+			INT32 bxstart, bxend, bystart, byend, v2x, v2y, curblockx, curblocky;
 
 			v2x = lines[i].v2->x>>FRACBITS;
 			v2y = lines[i].v2->y>>FRACBITS;
@@ -1385,14 +1402,14 @@ static void P_CreateBlockMap(void)
 
 			if (bxend < bxstart)
 			{
-				int temp = bxstart;
+				INT32 temp = bxstart;
 				bxstart = bxend;
 				bxend = temp;
 			}
 
 			if (byend < bystart)
 			{
-				int temp = bystart;
+				INT32 temp = bystart;
 				bystart = byend;
 				byend = temp;
 			}
@@ -1448,7 +1465,7 @@ static void P_CreateBlockMap(void)
 				}
 
 				// Add linedef to end of list
-				bmap[b].list[bmap[b].n++] = (int)i;
+				bmap[b].list[bmap[b].n++] = (INT32)i;
 			}
 		}
 
@@ -1480,7 +1497,7 @@ static void P_CreateBlockMap(void)
 			for (i = 4; i < tot; i++, bp++)
 				if (bp->n) // Non-empty blocklist
 				{
-					blockmaplump[blockmaplump[i] = (long)(ndx++)] = 0; // Store index & header
+					blockmaplump[blockmaplump[i] = (INT32)(ndx++)] = 0; // Store index & header
 					do
 						blockmaplump[ndx++] = bp->list[--bp->n]; // Copy linedef list
 					while (bp->n);
@@ -1488,7 +1505,7 @@ static void P_CreateBlockMap(void)
 					free(bp->list); // Free linedef list
 				}
 				else // Empty blocklist: point to reserved empty blocklist
-					blockmaplump[i] = (long)tot;
+					blockmaplump[i] = (INT32)tot;
 
 			free(bmap); // Free uncompressed blockmap
 		}
@@ -1548,13 +1565,13 @@ static boolean P_LoadBlockMap(lumpnum_t lumpnum)
 
 		blockmaplump[0] = SHORT(wadblockmaplump[0]);
 		blockmaplump[1] = SHORT(wadblockmaplump[1]);
-		blockmaplump[2] = (long)(SHORT(wadblockmaplump[2])) & 0xffff;
-		blockmaplump[3] = (long)(SHORT(wadblockmaplump[3])) & 0xffff;
+		blockmaplump[2] = (INT32)(SHORT(wadblockmaplump[2])) & 0xffff;
+		blockmaplump[3] = (INT32)(SHORT(wadblockmaplump[3])) & 0xffff;
 
 		for (i = 4; i < count; i++)
 		{
 			short t = SHORT(wadblockmaplump[i]);          // killough 3/1/98
-			blockmaplump[i] = t == -1 ? -1l : (long) t & 0xffff;
+			blockmaplump[i] = t == -1 ? (INT32)-1 : (INT32) t & 0xffff;
 		}
 
 		free(wadblockmaplump);
@@ -1610,6 +1627,7 @@ static void P_GroupLines(void)
 	line_t *li = lines;
 	sector_t *sector = sectors;
 	subsector_t *ss = subsectors;
+	size_t sidei;
 	seg_t *seg;
 	fixed_t bbox[4];
 
@@ -1618,20 +1636,21 @@ static void P_GroupLines(void)
 	{
 		if (ss->firstline >= numsegs)
 			CorruptMapError(va("P_GroupLines: ss->firstline invalid "
-				"(subsector %d, firstline refers to %d of %u)", ss - subsectors, ss->firstline,
+				"(subsector %"PRIdS", firstline refers to %d of %"PRIdS")", i, ss->firstline,
 				numsegs));
 		seg = &segs[ss->firstline];
+		sidei = (size_t)(seg->sidedef - sides);
 		if (!seg->sidedef)
 			CorruptMapError(va("P_GroupLines: seg->sidedef is NULL "
-				"(subsector %d, firstline is %d)", ss - subsectors, ss->firstline));
+				"(subsector %"PRIdS", firstline is %d)", i, ss->firstline));
 		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (unsigned short)numsides)
-			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %d of %u "
-				"(subsector %d, firstline is %d)", seg->sidedef - sides, numsides,
-				ss - subsectors, ss->firstline));
+			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %"PRIdS" of %"PRIdS" "
+				"(subsector %"PRIdS", firstline is %d)", sidei, numsides,
+				i, ss->firstline));
 		if (!seg->sidedef->sector)
 			CorruptMapError(va("P_GroupLines: seg->sidedef->sector is NULL "
-				"(subsector %d, firstline is %d, sidedef is %d)", ss - subsectors, ss->firstline,
-				seg->sidedef - sides));
+				"(subsector %"PRIdS", firstline is %d, sidedef is %"PRIdS")", i, ss->firstline,
+				sidei));
 		ss->sector = seg->sidedef->sector;
 	}
 
@@ -1714,7 +1733,7 @@ static inline boolean P_CheckLevel(lumpnum_t lumpnum)
 /** Sets up a sky texture to use for the level.
   * The sky texture is used instead of F_SKY1.
   */
-void P_SetupLevelSky(int skynum)
+void P_SetupLevelSky(INT32 skynum)
 {
 	char skytexname[12];
 
@@ -1736,7 +1755,7 @@ lumpnum_t lastloadedmaplumpnum; // for comparative savegame
 //
 static void P_LevelInitStuff(void)
 {
-	int i, j;
+	INT32 i, j;
 
 	circuitmap = false;
 	numstarposts = 0;
@@ -1800,7 +1819,7 @@ void P_RehitStarposts(void)
 	// Search through all the thinkers.
 	mobj_t *mo;
 	thinker_t *think;
-	int i;
+	INT32 i;
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
@@ -1858,10 +1877,10 @@ void P_LoadThingsOnly(void)
   * \param skipprecip If true, don't spawn precipitation.
   * \todo Clean up, refactor, split up; get rid of the bloat.
   */
-boolean P_SetupLevel(int map, boolean skipprecip)
+boolean P_SetupLevel(INT32 map, boolean skipprecip)
 {
-	int i, loadprecip = 1;
-	int loademblems = 1;
+	INT32 i, loadprecip = 1;
+	INT32 loademblems = 1;
 	boolean loadedbm = false;
 	sector_t *ss;
 
@@ -1870,7 +1889,7 @@ boolean P_SetupLevel(int map, boolean skipprecip)
 	// This is needed. Don't touch.
 	maptol = mapheaderinfo[gamemap-1].typeoflevel;
 
-	if (!(grade & 2) && (maptol & TOL_SRB1))
+	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated)
 		I_Error("You have to unlock this level first!");
 
 	HU_clearChatChars();
@@ -2095,7 +2114,7 @@ noscript:
 	{
 		// Correct missing sidedefs & deep water trick
 		HWR_CorrectSWTricks();
-		HWR_CreatePlanePolygons((int)numnodes - 1);
+		HWR_CreatePlanePolygons((INT32)numnodes - 1);
 	}
 #endif
 
@@ -2129,8 +2148,8 @@ noscript:
 
 	if (gametype == GT_TAG)
 	{
-		int realnumplayers = 0;
-		int playersactive[MAXPLAYERS];
+		INT32 realnumplayers = 0;
+		INT32 playersactive[MAXPLAYERS];
 
 		//I just realized how problematic this code can be.
 		//D_NumPlayers() will not always cover the scope of the netgame.
@@ -2263,7 +2282,7 @@ noscript:
 		&& (!modifiedgame || savemoddata) && cursaveslot != -1 && !ultimatemode
 		&& !mapheaderinfo[gamemap-1].hideinmenu
 		&& (!G_IsSpecialStage(gamemap)) && gamemap != lastmapsaved && (mapheaderinfo[gamemap-1].actnum < 2 || gamecomplete))
-		G_SaveGame((unsigned int)cursaveslot);
+		G_SaveGame((UINT32)cursaveslot);
 
 	if (savedata.lives > 0)
 	{
@@ -2360,9 +2379,9 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 			texturechange = true;
 	}
 	if (!devparm && sreplaces)
-		CONS_Printf("%u sounds replaced\n", sreplaces);
+		CONS_Printf("%"PRIdS" sounds replaced\n", sreplaces);
 	if (!devparm && mreplaces)
-		CONS_Printf("%u musics replaced\n", mreplaces);
+		CONS_Printf("%"PRIdS" musics replaced\n", mreplaces);
 
 	//
 	// search for sprite replacements
@@ -2439,7 +2458,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 
 boolean P_DelWadFile(void)
 {
-	size_t i;
+	sfxenum_t i;
 	const USHORT wadnum = (USHORT)(numwadfiles - 1);
 	const lumpnum_t lumpnum = numwadfiles<<16;
 	//lumpinfo_t *lumpinfo = wadfiles[wadnum]->lumpinfo;

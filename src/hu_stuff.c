@@ -95,7 +95,7 @@ static patch_t *emblemicon;
 //-------------------------------------------
 
 // crosshair 0 = off, 1 = cross, 2 = angle, 3 = point, see m_menu.c
-static patch_t *crosshair[3]; // 3 precached crosshair graphics
+static patch_t *crosshair[HU_CROSSHAIRS]; // 3 precached crosshair graphics
 
 // -------
 // protos.
@@ -153,23 +153,25 @@ char english_shiftxform[] =
 static char cechotext[1024];
 static tic_t cechotimer = 0;
 static tic_t cechoduration = 5*TICRATE;
-static int cechoflags = 0;
+static INT32 cechoflags = 0;
 
 //======================================================================
 //                          HEADS UP INIT
 //======================================================================
 
+#ifndef NONET
 // just after
 static void Command_Say_f(void);
 static void Command_Sayto_f(void);
 static void Command_Sayteam_f(void);
 static void Command_CSay_f(void);
-static void Got_Saycmd(byte **p, int playernum);
+static void Got_Saycmd(byte **p, INT32 playernum);
+#endif
 
 void HU_LoadGraphics(void)
 {
 	char buffer[9];
-	int i, j;
+	INT32 i, j;
 
 	if (dedicated)
 		return;
@@ -247,11 +249,13 @@ void HU_LoadGraphics(void)
 //
 void HU_Init(void)
 {
+#ifndef NONET
 	COM_AddCommand("say", Command_Say_f);
 	COM_AddCommand("sayto", Command_Sayto_f);
 	COM_AddCommand("sayteam", Command_Sayteam_f);
 	COM_AddCommand("csay", Command_CSay_f);
 	RegisterNetXCmd(XD_SAY, Got_Saycmd);
+#endif
 
 	// set shift translation table
 	shiftxform = english_shiftxform;
@@ -283,7 +287,7 @@ void HU_Start(void)
 
 void MatchType_OnChange(void)
 {
-	int i;
+	INT32 i;
 
 	// Do not execute the below code unless absolutely necessary.
 	if (cv_matchtype.value == matchtype)
@@ -301,7 +305,8 @@ void MatchType_OnChange(void)
 				if (server)
 				{
 					changeteam_union NetPacket;
-					NetPacket.value = 0;
+					USHORT usvalue;
+					NetPacket.value.l = NetPacket.value.b = 0;
 
 					NetPacket.packet.playernum = i;
 					NetPacket.packet.verification = true;
@@ -313,7 +318,8 @@ void MatchType_OnChange(void)
 					else //swap to spectator
 						NetPacket.packet.newteam = 0;
 
-					SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+					usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
+					SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 				}
 			}
 		}
@@ -330,6 +336,7 @@ void MatchType_OnChange(void)
 	matchtype = cv_matchtype.value;
 }
 
+#ifndef NONET
 /** Runs a say command, sending an ::XD_SAY message.
   * A say command consists of a signed 8-bit integer for the target, an
   * unsigned 8-bit flag variable, and then the message itself.
@@ -353,7 +360,7 @@ static void DoSayCommand(signed char target, size_t usedargs, char flags)
 	XBOXSTATIC char buf[254];
 	size_t numwords, ix;
 	char *msg = &buf[2];
-	const int msgspace = sizeof buf - 2;
+	const size_t msgspace = sizeof buf - 2;
 
 	numwords = COM_Argc() - usedargs;
 	I_Assert(numwords > 0);
@@ -408,7 +415,7 @@ static void Command_Say_f(void)
   */
 static void Command_Sayto_f(void)
 {
-	int target;
+	INT32 target;
 
 	if (COM_Argc() < 3)
 	{
@@ -472,7 +479,7 @@ static void Command_CSay_f(void)
   * \sa DoSayCommand
   * \author Graue <graue@oceanbase.org>
   */
-static void Got_Saycmd(byte **p, int playernum)
+static void Got_Saycmd(byte **p, INT32 playernum)
 {
 	signed char target;
 	byte flags;
@@ -606,6 +613,7 @@ static void Got_Saycmd(byte **p, int playernum)
 			free(tempchar);
 	}
 }
+#endif
 
 // Handles key input and string input
 //
@@ -669,7 +677,7 @@ void HU_Ticker(void)
 
 static boolean teamtalk = false;
 static char chatchars[QUEUESIZE];
-static int head = 0, tail = 0;
+static INT32 head = 0, tail = 0;
 
 //
 // HU_dequeueChatChar
@@ -817,7 +825,7 @@ boolean HU_Responder(event_t *ev)
 //
 static void HU_DrawChat(void)
 {
-	int t = 0, c = 0, y = HU_INPUTY;
+	INT32 t = 0, c = 0, y = HU_INPUTY;
 	size_t i = 0;
 	const char *ntalk = "Say: ", *ttalk = "Say-Team: ";
 	const char *talk = ntalk;
@@ -864,18 +872,18 @@ static void HU_DrawChat(void)
 
 static inline void HU_DrawCrosshair(void)
 {
-	int i, y;
+	INT32 i, y;
 
 	i = cv_crosshair.value & 3;
 	if (!i)
 		return;
 
-	if (netgame && players[consoleplayer].spectator)
+	if (netgame && players[displayplayer].spectator)
 		return;
 
 #ifdef HWRENDER
 	if (rendermode != render_soft)
-		y = (int)gr_basewindowcentery;
+		y = (INT32)gr_basewindowcentery;
 	else
 #endif
 		y = viewwindowy + (viewheight>>1);
@@ -885,7 +893,7 @@ static inline void HU_DrawCrosshair(void)
 
 static inline void HU_DrawCrosshair2(void)
 {
-	int i, y;
+	INT32 i, y;
 
 	i = cv_crosshair2.value & 3;
 	if (!i)
@@ -896,7 +904,7 @@ static inline void HU_DrawCrosshair2(void)
 
 #ifdef HWRENDER
 	if (rendermode != render_soft)
-		y = (int)gr_basewindowcentery;
+		y = (INT32)gr_basewindowcentery;
 	else
 #endif
 		y = viewwindowy + (viewheight>>1);
@@ -905,7 +913,7 @@ static inline void HU_DrawCrosshair2(void)
 	{
 #ifdef HWRENDER
 		if (rendermode != render_soft)
-			y += (int)gr_viewheight;
+			y += (INT32)gr_viewheight;
 		else
 #endif
 			y += viewheight;
@@ -916,7 +924,7 @@ static inline void HU_DrawCrosshair2(void)
 
 static void HU_drawGametype(void)
 {
-	int i = 0;
+	INT32 i = 0;
 
 	if (gametype == GT_COOP)
 		i = 0;
@@ -988,9 +996,9 @@ void HU_Drawer(void)
 
 	if (cechotimer)
 	{
-		int i = 0;
-		int y = (BASEVIDHEIGHT/2)-4;
-		int pnumlines = 0;
+		INT32 i = 0;
+		INT32 y = (BASEVIDHEIGHT/2)-4;
+		INT32 pnumlines = 0;
 		char *line;
 		char *echoptr;
 		char temp[1024];
@@ -1039,16 +1047,16 @@ void HU_Drawer(void)
 // startline: y coord to start clear,
 // clearlines: how many lines to clear.
 //
-static int oldclearlines;
+static INT32 oldclearlines;
 
 void HU_Erase(void)
 {
-	int topline, bottomline;
-	int y, yoffset;
+	INT32 topline, bottomline;
+	INT32 y, yoffset;
 
 	// clear hud msgs on double buffer (OpenGL mode)
 	boolean secondframe;
-	static int secondframelines;
+	static INT32 secondframelines;
 
 	if (con_clearlines == oldclearlines && !con_hudupdate && !chat_on)
 		return;
@@ -1102,9 +1110,9 @@ void HU_Erase(void)
 //
 // HU_DrawTabRankings
 //
-void HU_DrawTabRankings(int x, int y, playersort_t *tab, int scorelines, int whiteplayer)
+void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer)
 {
-	int i;
+	INT32 i;
 	byte *colormap;
 
 	//this function is designed for 10 or less score lines only
@@ -1177,13 +1185,13 @@ void HU_DrawTabRankings(int x, int y, playersort_t *tab, int scorelines, int whi
 				if (players[tab[i].num].exiting)
 					V_DrawRightAlignedString(x+240, y, 0, va("%i:%02i.%02i", G_TicsToMinutes(players[tab[i].num].realtime,true), G_TicsToSeconds(players[tab[i].num].realtime), G_TicsToCentiseconds(players[tab[i].num].realtime)));
 				else
-					V_DrawRightAlignedString(x+240, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%lu", tab[i].count));
+					V_DrawRightAlignedString(x+240, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%d", tab[i].count));
 			}
 			else
 				V_DrawRightAlignedString(x+240, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%i:%02i.%02i", G_TicsToMinutes(tab[i].count,true), G_TicsToSeconds(tab[i].count), G_TicsToCentiseconds(tab[i].count)));
 		}
 		else
-			V_DrawRightAlignedString(x+240, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%lu", tab[i].count));
+			V_DrawRightAlignedString(x+240, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%d", tab[i].count));
 
 		y += 16;
 	}
@@ -1192,10 +1200,10 @@ void HU_DrawTabRankings(int x, int y, playersort_t *tab, int scorelines, int whi
 //
 // HU_DrawTeamTabRankings
 //
-void HU_DrawTeamTabRankings(playersort_t *tab, int whiteplayer)
+void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 {
-	int i,x,y;
-	int redplayers = 0, blueplayers = 0;
+	INT32 i,x,y;
+	INT32 redplayers = 0, blueplayers = 0;
 	byte *colormap;
 	char name[MAXPLAYERNAME+1];
 
@@ -1266,16 +1274,16 @@ void HU_DrawTeamTabRankings(playersort_t *tab, int whiteplayer)
 			else
 				V_DrawSmallMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 		}
-		V_DrawRightAlignedString(x+120, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%lu", tab[i].count));
+		V_DrawRightAlignedString(x+120, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%d", tab[i].count));
 	}
 }
 
 //
 // HU_DrawDualTabRankings
 //
-void HU_DrawDualTabRankings(int x, int y, playersort_t *tab, int scorelines, int whiteplayer)
+void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer)
 {
-	int i;
+	INT32 i;
 	byte *colormap;
 	char name[MAXPLAYERNAME+1];
 
@@ -1351,13 +1359,13 @@ void HU_DrawDualTabRankings(int x, int y, playersort_t *tab, int scorelines, int
 				if (players[tab[i].num].exiting)
 					V_DrawRightAlignedString(x+156, y, 0, va("%i:%02i.%02i", G_TicsToMinutes(players[tab[i].num].realtime,true), G_TicsToSeconds(players[tab[i].num].realtime), G_TicsToCentiseconds(players[tab[i].num].realtime)));
 				else
-					V_DrawRightAlignedString(x+156, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%lu", tab[i].count));
+					V_DrawRightAlignedString(x+156, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%d", tab[i].count));
 			}
 			else
 				V_DrawRightAlignedString(x+156, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%i:%02i.%02i", G_TicsToMinutes(tab[i].count,true), G_TicsToSeconds(tab[i].count), G_TicsToCentiseconds(tab[i].count)));
 		}
 		else
-			V_DrawRightAlignedString(x+120, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%lu", tab[i].count));
+			V_DrawRightAlignedString(x+120, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%d", tab[i].count));
 
 		y += 16;
 		if (y > 176)
@@ -1371,7 +1379,7 @@ void HU_DrawDualTabRankings(int x, int y, playersort_t *tab, int scorelines, int
 //
 // HU_DrawEmeralds
 //
-void HU_DrawEmeralds(int x, int y, int pemeralds)
+void HU_DrawEmeralds(INT32 x, INT32 y, INT32 pemeralds)
 {
 	//Draw the emeralds, in the CORRECT order, using tiny emerald sprites.
 	if (pemeralds & EMERALD1)
@@ -1403,7 +1411,7 @@ static void HU_DrawRankings(void)
 {
 	patch_t *p;
 	playersort_t tab[MAXPLAYERS];
-	int i, j, scorelines;
+	INT32 i, j, scorelines;
 	boolean completed[MAXPLAYERS];
 	ULONG whiteplayer;
 
@@ -1425,7 +1433,7 @@ static void HU_DrawRankings(void)
 			p = bmatcico;
 
 		V_DrawSmallScaledPatch(128 - SHORT(p->width)/4, 4, 0, p);
-		V_DrawCenteredString(128, 16, 0, va("%lu", bluescore));
+		V_DrawCenteredString(128, 16, 0, va("%d", bluescore));
 
 		if (gametype == GT_CTF)
 			p = rflagico;
@@ -1433,14 +1441,14 @@ static void HU_DrawRankings(void)
 			p = rmatcico;
 
 		V_DrawSmallScaledPatch(192 - SHORT(p->width)/4, 4, 0, p);
-		V_DrawCenteredString(192, 16, 0, va("%lu", redscore));
+		V_DrawCenteredString(192, 16, 0, va("%d", redscore));
 	}
 
 	if (gametype != GT_RACE && gametype != GT_COOP)
 	{
 		if (cv_timelimit.value && timelimitintics > 0)
 		{
-			int timeval = (timelimitintics+1-leveltime)/TICRATE;
+			INT32 timeval = (timelimitintics+1-leveltime)/TICRATE;
 
 			if (leveltime <= timelimitintics)
 			{
@@ -1464,7 +1472,7 @@ static void HU_DrawRankings(void)
 	}
 	else if (gametype == GT_COOP)
 	{
-		int totalscore = 0;
+		INT32 totalscore = 0;
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i])
@@ -1577,8 +1585,8 @@ static void HU_DrawCoopOverlay(void)
 	if (!netgame && (!modifiedgame || savemoddata))
 	{
 		char emblemsfound[20];
-		int found = 0;
-		int i;
+		INT32 found = 0;
+		INT32 i;
 
 		for (i = 0; i < MAXEMBLEMS; i++)
 		{
@@ -1615,12 +1623,12 @@ void HU_ClearCEcho(void)
 	cechotimer = 0;
 }
 
-void HU_SetCEchoDuration(int seconds)
+void HU_SetCEchoDuration(INT32 seconds)
 {
 	cechoduration = seconds * TICRATE;
 }
 
-void HU_SetCEchoFlags(int flags)
+void HU_SetCEchoFlags(INT32 flags)
 {
 	cechoflags = flags;
 }

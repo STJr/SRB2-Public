@@ -51,7 +51,7 @@ void R_SortVisSprites(void);
 void R_AddSpriteDefs(USHORT wadnum);
 void R_DelSpriteDefs(USHORT wadnum);
 //SoM: 6/5/2000: Light sprites correctly!
-void R_AddSprites(sector_t *sec, int lightlevel);
+void R_AddSprites(sector_t *sec, INT32 lightlevel);
 void R_InitSprites(void);
 void R_ClearSprites(void);
 void R_DrawMasked(void);
@@ -128,7 +128,7 @@ typedef struct vissprite_s
 
 	mobj_t *mobj; // for easy access
 
-	int x1, x2;
+	INT32 x1, x2;
 
 	fixed_t gx, gy; // for line side calculation
 	fixed_t gz, gzt; // global bottom/top for silhouette clipping
@@ -179,17 +179,17 @@ typedef struct drawnode_s
 	struct drawnode_s *prev;
 } drawnode_t;
 
-extern int numskins;
+extern INT32 numskins;
 extern skin_t skins[MAXSKINS + 1];
 
-void SetPlayerSkin(int playernum,const char *skinname);
-void SetPlayerSkinByNum(int playernum,int skinnum); // Tails 03-16-2002
-int R_SkinAvailable(const char *name);
+void SetPlayerSkin(INT32 playernum,const char *skinname);
+void SetPlayerSkinByNum(INT32 playernum,INT32 skinnum); // Tails 03-16-2002
+INT32 R_SkinAvailable(const char *name);
 void R_AddSkins(USHORT wadnum);
 void R_DelSkins(USHORT wadnum);
 void R_InitDrawNodes(void);
-void SetSavedSkin(int playernum, int skinnum, int skincolor);
+void SetSavedSkin(INT32 playernum, INT32 skinnum, INT32 skincolor);
 
-char *GetPlayerFacePic(int skinnum);
+char *GetPlayerFacePic(INT32 skinnum);
 
 #endif //__R_THINGS__

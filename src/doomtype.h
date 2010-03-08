@@ -29,17 +29,45 @@
 #include <windows.h>
 #endif
 
-#define USHORT unsigned short
-#define ULONG unsigned long
+#ifdef _MSC_VER
+#define USHORT unsigned __int16
+#define ULONG unsigned __int32
 
-#if defined (__GNUC__) || defined (__MWERKS__) || defined (__SUNPRO_C) || defined (__DECC)
-#define INT64  long long
-#define UINT64 unsigned long long
-#elif defined (_MSC_VER)
+#define UINT16 unsigned __int16
+#define INT16 __int16
+
+#define INT32 __int32
+#define UINT32 unsigned __int32
+
+typedef long ssize_t;
 #define INT64  __int64
 #define UINT64 unsigned __int64
+#elif defined (_arch_dreamcast) // KOS Dreamcast
+#include <arch/types.h>
+
+#define USHORT uint16
+#define ULONG unsigned long
+
+#define UINT16 uint16
+#define INT16 int16
+
+#define INT32 int
+#define UINT32 unsigned int
+#define INT64  int64
+#define UINT64 uint64
 #else
-"Warning, need 64 bit type for this compiler"
+#include <stdint.h>
+
+#define USHORT uint16_t
+#define ULONG uint32_t
+
+#define UINT16 uint16_t
+#define INT16 int16_t
+
+#define INT32 int32_t
+#define UINT32 uint32_t
+#define INT64  int64_t
+#define UINT64 uint64_t
 #endif
 
 #ifdef __APPLE_CC__
@@ -99,7 +127,7 @@
 
 	#define __BYTEBOOL__
 	typedef unsigned char byte;
-	#define boolean int
+	#define boolean INT32
 
 	#ifndef O_BINARY
 	#define O_BINARY 0
@@ -182,12 +210,12 @@ typedef ULONG tic_t;
 
 #define MAXCHAR  ((char)0x7f)
 #define MAXSHORT ((short)0x7fff)
-#define MAXINT   ((int)0x7fffffff)
-#define MAXLONG  ((long)0x7fffffff)
+#define MAXINT   ((INT32)0x7fffffff)
+#define MAXLONG  ((INT32)0x7fffffff)
 #define MINCHAR  ((char)0x80)
 #define MINSHORT ((short)-0x8000)
-#define MININT   ((int)0x80000000)
-#define MINLONG  ((long)0x80000000)
+#define MININT   ((INT32)0x80000000)
+#define MINLONG  ((INT32)0x80000000)
 
 union FColorRGBA
 {
@@ -217,16 +245,29 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #ifdef __BIG_ENDIAN__
 #define UINT2RGBA(a) a
 #else
-#define UINT2RGBA(a) ((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((ULONG)a&0xff000000)>>24)
+#define UINT2RGBA(a) (ULONG)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((ULONG)a&0xff000000)>>24)
 #endif
 
 #ifdef __GNUC__ // __attribute__ ((X))
 #define FUNCNORETURN __attribute__ ((noreturn))
-#if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
+#if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) && defined (__MINGW32__)
+#ifdef __USE_MINGW_ANSI_STDIO
+#define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
+#define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
+#define PRIdS "zu" // Mingw
+#else // !__USE_MINGW_ANSI_STDIO
+#define FUNCPRINTF __attribute__ ((format(ms_printf, 1, 2)))
+#define FUNCIERROR __attribute__ ((format(ms_printf, 1, 2),noreturn))
+#define PRIdS "Id" // MSVCRT
+#endif
+#elif defined (__MINGW32__)
+#define PRIdS "d" // MSVCRT
+#else
 #define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(printf, 1, 2),noreturn))
-#else
-#define FUNCIERROR FUNCNORETURN
+#endif
+#ifndef FUNCIERROR
+#define FUNCIERROR __attribute__ ((noreturn))
 #endif
 #define FUNCMATH __attribute__((const))
 #if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
@@ -246,6 +287,7 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define XBOXSTATIC static
 #endif
 #elif defined (_MSC_VER)
+#define PRIdS "d"
 #define ATTRNORETURN __declspec(noreturn)
 #define ATTRINLINE __forceinline
 #if _MSC_VER > 1200
@@ -261,6 +303,9 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #endif
 #ifndef FUNCIERROR
 #define FUNCIERROR
+#endif
+#ifndef PRIdS
+#define PRIdS "zu"
 #endif
 #ifndef FUNCMATH
 #define FUNCMATH

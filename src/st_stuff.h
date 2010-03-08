@@ -49,10 +49,10 @@ void ST_LoadGraphics(void);
 void ST_ReloadSkinFaceGraphics(void);
 
 // face load graphics, called when skin changes
-void ST_LoadFaceGraphics(char *facestr, char *superstr, int playernum);
-void ST_UnLoadFaceGraphics(int skinnum);
-void ST_LoadFaceNameGraphics(char *facestr, int playernum);
-void ST_UnLoadFaceNameGraphics(int skinnum);
+void ST_LoadFaceGraphics(char *facestr, char *superstr, INT32 playernum);
+void ST_UnLoadFaceGraphics(INT32 skinnum);
+void ST_LoadFaceNameGraphics(char *facestr, INT32 playernum);
+void ST_UnLoadFaceNameGraphics(INT32 skinnum);
 void ST_doPaletteStuff(void);
 
 // return if player a is in the same team as player b
@@ -64,7 +64,7 @@ boolean ST_SameTeam(player_t *a, player_t *b);
 
 // Draw a number, scaled, over the view
 // Always draw the number completely since it's overlay
-void ST_DrawOverlayNum(int x /* right border */, int y, int num,
+void ST_DrawOverlayNum(INT32 x /* right border */, INT32 y, INT32 num,
 	patch_t **numpat);
 
 extern boolean st_overlay; // sb overlay on or off when fullscreen
@@ -83,7 +83,7 @@ extern patch_t *facenameprefix[MAXSKINS]; // face background
   */
 typedef struct
 {
-	int x, y;
+	INT32 x, y;
 } hudinfo_t;
 
 typedef enum

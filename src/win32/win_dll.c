@@ -37,7 +37,7 @@ typedef struct loadfunc_s {
 // --------------------------------------------------------------------------
 // Load a DLL, returns the HMODULE handle or NULL
 // --------------------------------------------------------------------------
-static inline HMODULE LoadDLL (LPCSTR dllName, loadfunc_t *funcTable)
+static HMODULE LoadDLL (LPCSTR dllName, loadfunc_t *funcTable)
 {
 	LPVOID      funcPtr;
 	loadfunc_t *loadfunc;
@@ -73,7 +73,7 @@ static inline HMODULE LoadDLL (LPCSTR dllName, loadfunc_t *funcTable)
 // --------------------------------------------------------------------------
 // Unload the DLL
 // --------------------------------------------------------------------------
-static inline VOID UnloadDLL (HMODULE* pModule)
+static VOID UnloadDLL (HMODULE* pModule)
 {
 	if (FreeLibrary(*pModule))
 		*pModule = NULL;
@@ -106,7 +106,7 @@ static loadfunc_t hwdFuncTable[] = {
 	{"_GClipRect@20",        &hwdriver.pfnGClipRect},
 	{"_ClearMipMapCache@0",  &hwdriver.pfnClearMipMapCache},
 	{"_SetSpecialState@8",   &hwdriver.pfnSetSpecialState},
-	{"_DrawMD2@16",          &hwdriver.pfnDrawMD2},
+	{"_DrawMD2@36",          &hwdriver.pfnDrawMD2},
 	{"_SetTransform@4",      &hwdriver.pfnSetTransform},
 	{"_GetTextureUsed@0",    &hwdriver.pfnGetTextureUsed},
 	{"_GetRenderVersion@0",  &hwdriver.pfnGetRenderVersion},

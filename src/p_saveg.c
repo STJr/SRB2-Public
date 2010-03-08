@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 /// \file
 /// \brief Archiving: SaveGame I/O
-/// \todo remove M_Memcpy
+/// \todo remove usage of M_Memcpy
 
 #include "doomdef.h"
 #include "byteptr.h"
@@ -85,7 +85,7 @@ static void P_UnArchivePlayer(void)
 //
 static void P_NetArchivePlayers(void)
 {
-	int i, j, flags;
+	INT32 i, j, flags;
 	size_t q;
 
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -276,7 +276,7 @@ static void P_NetArchivePlayers(void)
 //
 static void P_NetUnArchivePlayers(void)
 {
-	int i, j, flags;
+	INT32 i, j, flags;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -456,7 +456,7 @@ static void P_NetUnArchivePlayers(void)
 static void P_NetArchiveWorld(void)
 {
 	size_t i;
-	int statsec = 0, statline = 0;
+	INT32 statsec = 0, statline = 0;
 	line_t *li = lines;
 	side_t *si;
 	byte *put = save_p;
@@ -657,7 +657,7 @@ static void P_NetUnArchiveWorld(void)
 			break;
 
 		if (i > numsectors)
-			I_Error("Invalid sector number %lu from server", i);
+			I_Error("Invalid sector number %d from server (expected end at %"PRIdS")", i, numsectors);
 
 		diff = READBYTE(get);
 		if (diff & SD_DIFF2)
@@ -713,7 +713,7 @@ static void P_NetUnArchiveWorld(void)
 		if (i == 0xffff)
 			break;
 		if (i > numlines)
-			I_Error("Invalid line number %lu from server", i);
+			I_Error("Invalid line number %d from server", i);
 
 		diff = READBYTE(get);
 		li = &lines[i];
@@ -884,7 +884,7 @@ static void P_NetArchiveThinkers(void)
 				{
 					if ((mobj->x != mobj->spawnpoint->x << FRACBITS) ||
 						(mobj->y != mobj->spawnpoint->y << FRACBITS) ||
-						(mobj->angle != (angle_t)(ANG45 * (mobj->spawnpoint->angle/45))))
+						(mobj->angle != (angle_t)(ANGLE_45 * (mobj->spawnpoint->angle/45))))
 						diff |= MD_POS;
 
 					if (mobj->info->doomednum != mobj->spawnpoint->type)
@@ -1329,7 +1329,7 @@ static mobj_t *FindNewPosition(ULONG oldposition)
 //		2 - Ceiling Only
 //		3 - Both
 //
-static void LoadSpecialLevelThinker(int floorOrCeiling, actionf_p1 thinker)
+static void LoadSpecialLevelThinker(INT32 floorOrCeiling, actionf_p1 thinker)
 {
 	levelspecthink_t *specthinker = M_Memcpy(Z_Malloc(sizeof (*specthinker), PU_LEVEL, NULL), save_p, sizeof (levelspecthink_t));
 	save_p += sizeof (levelspecthink_t);
@@ -1356,7 +1356,7 @@ static void P_NetUnArchiveThinkers(void)
 	thinker_t *next;
 	mobj_t *mobj;
 	ULONG diff;
-	int i;
+	INT32 i;
 	byte tclass;
 	boolean restoreNum = false;
 	fixed_t z, floorz, ceilingz;
@@ -1445,7 +1445,7 @@ static void P_NetUnArchiveThinkers(void)
 				{
 					mobj->x = mobj->spawnpoint->x << FRACBITS;
 					mobj->y = mobj->spawnpoint->y << FRACBITS;
-					mobj->angle = ANG45 * (mobj->spawnpoint->angle/45); /// \bug unknown
+					mobj->angle = ANGLE_45 * (mobj->spawnpoint->angle/45); /// \bug unknown
 				}
 				if (diff & MD_MOM)
 				{
@@ -1877,20 +1877,20 @@ static void P_NetUnArchiveThinkers(void)
 #ifdef POLYOBJECTS
 static inline void P_ArchivePolyObj(polyobj_t *po)
 {
-	memcpy(save_p, &po->id, sizeof(po->id));
+	M_Memcpy(save_p, &po->id, sizeof(po->id));
 	save_p += sizeof(po->id);
 
-	memcpy(save_p, &po->angle, sizeof(po->angle));
+	M_Memcpy(save_p, &po->angle, sizeof(po->angle));
 	save_p += sizeof(po->angle);
 
-	memcpy(save_p, &po->spawnSpot, sizeof(po->spawnSpot));
+	M_Memcpy(save_p, &po->spawnSpot, sizeof(po->spawnSpot));
 	save_p += sizeof(po->spawnSpot);
 }
 
 static inline void P_UnArchivePolyObj(polyobj_t *po)
 {
-	int id;
-	unsigned int angle;
+	INT32 id;
+	UINT32 angle;
 	degenmobj_t spawnSpot;
 
 	// nullify all polyobject thinker pointers;
@@ -1898,13 +1898,13 @@ static inline void P_UnArchivePolyObj(polyobj_t *po)
 	// when they first start to run.
 	po->thinker = NULL;
 
-	memcpy(&id, save_p, sizeof(id));
+	M_Memcpy(&id, save_p, sizeof(id));
 	save_p += sizeof(id);
 
-	memcpy(&angle, save_p, sizeof(angle));
+	M_Memcpy(&angle, save_p, sizeof(angle));
 	save_p += sizeof(angle);
 
-	memcpy(&spawnSpot, save_p, sizeof(spawnSpot));
+	M_Memcpy(&spawnSpot, save_p, sizeof(spawnSpot));
 	save_p += sizeof(spawnSpot);
 
 	// if the object is bad or isn't in the id hash, we can do nothing more
@@ -1918,10 +1918,10 @@ static inline void P_UnArchivePolyObj(polyobj_t *po)
 
 static void P_ArchivePolyObjects(void)
 {
-	int i;
+	INT32 i;
 
 	// save number of polyobjects
-	memcpy(save_p, &numPolyObjects, sizeof(numPolyObjects));
+	M_Memcpy(save_p, &numPolyObjects, sizeof(numPolyObjects));
 	save_p += sizeof(numPolyObjects);
 
 	for (i = 0; i < numPolyObjects; ++i)
@@ -1930,9 +1930,9 @@ static void P_ArchivePolyObjects(void)
 
 static inline void P_UnArchivePolyObjects(void)
 {
-	int i, numSavedPolys;
+	INT32 i, numSavedPolys;
 
-	memcpy(&numSavedPolys, save_p, sizeof(numSavedPolys));
+	M_Memcpy(&numSavedPolys, save_p, sizeof(numSavedPolys));
 	save_p += sizeof(numSavedPolys);
 
 	if (numSavedPolys != numPolyObjects)
@@ -2064,7 +2064,7 @@ static void P_NetArchiveSpecials(void)
 static void P_NetUnArchiveSpecials(void)
 {
 	size_t i;
-	int j;
+	INT32 j;
 
 	// BP: added save itemrespawn queue for deathmatch
 	iquetail = iquehead = 0;
@@ -2158,7 +2158,7 @@ static boolean P_UnArchiveSPGame(short mapoverride)
 static void P_NetArchiveMisc(void)
 {
 	ULONG pig = 0;
-	int i, j;
+	INT32 i, j;
 
 	WRITESHORT(save_p, gamemap);
 	WRITESHORT(save_p, gamestate);
@@ -2224,7 +2224,7 @@ static void P_NetArchiveMisc(void)
 static boolean P_NetUnArchiveMisc(void)
 {
 	ULONG pig;
-	int i, j;
+	INT32 i, j;
 
 	gamemap = READSHORT(save_p);
 	G_SetGamestate(READSHORT(save_p));
@@ -2307,7 +2307,7 @@ void P_SaveNetGame(void)
 {
 	thinker_t *th;
 	mobj_t *mobj;
-	int i = 0;
+	INT32 i = 0;
 
 	CV_SaveNetVars(&save_p);
 	P_NetArchiveMisc();

@@ -89,13 +89,15 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "win32/win_main.h" // I_DoStartupMouse
 #endif
 
+#ifdef HW3SOUND
 #include "hardware/hw3sound.h"
+#endif
 
 //
 // DEMO LOOP
 //
-//static int demosequence;
-static int pagetic = 0;
+//static INT32 demosequence;
+static INT32 pagetic = 0;
 static const char *pagename = "MAP1PIC";
 static char *startupwadfiles[MAX_WADFILES];
 
@@ -105,7 +107,7 @@ boolean singletics = false; // timedemo
 boolean lastdraw = false;
 
 postimg_t postimgtype = postimg_none;
-int postimgparam;
+INT32 postimgparam;
 
 #ifdef _XBOX
 boolean nomidimusic = true, nosound = true;
@@ -124,7 +126,7 @@ boolean digital_disabled = false;
 
 boolean advancedemo;
 #ifdef DEBUGFILE
-int debugload = 0;
+INT32 debugload = 0;
 #endif
 
 #ifdef _arch_dreamcast
@@ -145,7 +147,7 @@ const char *pandf = "%s" PATHSEP "%s";
 // referenced from i_system.c for I_GetKey()
 
 event_t events[MAXEVENTS];
-int eventhead, eventtail;
+INT32 eventhead, eventtail;
 
 boolean dedicated = false;
 
@@ -425,7 +427,7 @@ static void D_Display(void)
 	// draw pause pic
 	if (paused && (!menuactive || netgame))
 	{
-		int py;
+		INT32 py;
 		patch_t *patch;
 		if (automapactive)
 			py = 4;
@@ -624,7 +626,7 @@ void D_PageDrawer(const char *lumpname)
 {
 	byte *src;
 	byte *dest;
-	int x, y;
+	INT32 x, y;
 
 	// software mode which uses generally lower resolutions doesn't look
 	// good when the pic is scaled, so it fills space aorund with a pattern,
@@ -839,7 +841,7 @@ static void IdentifyVersion(void)
 
 #if !defined (SDL) || defined (HAVE_MIXER)
 	{
-#ifdef DC
+#if defined (DC) && 0
 		const char *musicfile = "music_dc.dta";
 #else
 		const char *musicfile = text[MUSICWAD];
@@ -884,7 +886,7 @@ static inline void D_MakeTitleString(char *s)
 	char temp[82];
 	char *t;
 	const char *u;
-	int i;
+	INT32 i;
 
 	for (i = 0, t = temp; i < 82; i++)
 		*t++=' ';
@@ -905,7 +907,7 @@ static inline void D_MakeTitleString(char *s)
 
 static inline void D_InitCutsceneInfo(void)
 {
-	int i,j;
+	INT32 i,j;
 
 	for (i = 0; i < 128; i++)
 		for (j = 0; j < 128; j++)
@@ -917,11 +919,11 @@ static inline void D_InitCutsceneInfo(void)
 //
 void D_SRB2Main(void)
 {
-	int p;
+	INT32 p;
 	char srb2[82]; // srb2 title banner
 	char title[82];
 
-	int pstartmap = 1;
+	INT32 pstartmap = 1;
 	boolean autostart = false;
 
 	// keep error messages until the final flush(stderr)
@@ -988,11 +990,11 @@ void D_SRB2Main(void)
 		{
 #if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
 			I_Error("Please set $HOME to your home directory\n");
-//#elif defined (_WIN32_WCE)
-//			if (dedicated)
-//				snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/d"CONFIGFILENAME);
-//			else
-//				snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/"CONFIGFILENAME);
+#elif defined (_WIN32_WCE) && 0
+			if (dedicated)
+				snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/d"CONFIGFILENAME);
+			else
+				snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/"CONFIGFILENAME);
 #else
 			if (dedicated)
 				snprintf(configfile, sizeof configfile, "d"CONFIGFILENAME);
@@ -1048,7 +1050,7 @@ void D_SRB2Main(void)
 	}
 	else
 	{
-		int z;
+		size_t z;
 		srand((unsigned int)time(NULL));
 		for (z = 0; z < 8; z++)
 			adminpassword[z] = (char)(rand() & 127);
@@ -1127,7 +1129,7 @@ void D_SRB2Main(void)
 	// ...except it does if they slip maps in there, and that's what W_VerifyNMUSlumps is for.
 
 
-	mainwads = 7; // there 12 wads not to unloads
+	mainwads = 7; // there 7 wads not to unload
 
 	// Check and print which version is executed.
 	CONS_Printf("%s",text[COMERCIAL]);
@@ -1288,7 +1290,7 @@ void D_SRB2Main(void)
 		if (M_CheckParm("-gametype") && M_IsNextParm())
 		{
 			// from Command_Map_f
-			int j, newgametype = -1;
+			INT32 j, newgametype = -1;
 			char *sgametype = M_GetNextParm();
 
 			for (j = 0; gametype_cons_t[j].strvalue; j++)
@@ -1352,6 +1354,9 @@ const char *D_Home(void)
 {
 	char *userhome = NULL;
 
+#ifdef ANDROID
+	return "/data/data/org.srb2/";
+#endif
 #ifdef _arch_dreamcast
 	char VMUHOME[] = "HOME=/vmu/a1";
 	putenv(VMUHOME); //don't use I_PutEnv

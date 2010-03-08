@@ -36,12 +36,12 @@
 #define STATLENGTH (TICRATE*2)
 
 // stat of net
-extern int ticruned, ticmiss;
-extern int getbps, sendbps;
+extern INT32 ticruned, ticmiss;
+extern INT32 getbps, sendbps;
 extern float lostpercent, duppercent, gamelostpercent;
-extern int packetheaderlength;
+extern INT32 packetheaderlength;
 boolean Net_GetNetStat(void);
-extern int getbytes;
+extern INT32 getbytes;
 extern INT64 sendbytes; // realtime updated
 
 extern signed char nodetoplayer[MAXNETNODES];
@@ -53,16 +53,18 @@ void Net_AckTicker(void);
 boolean Net_AllAckReceived(void);
 
 // if reliable return true if packet sent, 0 else
-boolean HSendPacket(int node, boolean reliable, byte acknum,
+boolean HSendPacket(INT32 node, boolean reliable, byte acknum,
 	size_t packetlength);
 boolean HGetPacket(void);
 void D_SetDoomcom(void);
+#ifndef NONET
 void D_SaveBan(void);
+#endif
 boolean D_CheckNetGame(void);
 void D_CloseConnection(void);
-void Net_UnAcknowledgPacket(int node);
-void Net_CloseConnection(int node);
+void Net_UnAcknowledgPacket(INT32 node);
+void Net_CloseConnection(INT32 node);
 void Net_AbortPacketType(char packettype);
-void Net_SendAcks(int node);
+void Net_SendAcks(INT32 node);
 void Net_WaitAllAckReceived(ULONG timeout);
 #endif

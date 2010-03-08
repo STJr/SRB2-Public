@@ -208,7 +208,7 @@ typedef struct
 //
 typedef struct
 {
-	unsigned checksum;
+	ULONG checksum;
 	byte ack; // if not null the node asks for acknowledgement, the receiver must resend the ack
 	byte ackreturn; // the return of the ack number
 
@@ -242,8 +242,8 @@ typedef struct
 } serverelem_t;
 
 extern serverelem_t serverlist[MAXSERVERLIST];
-extern unsigned int serverlistcount;
-extern int mapchangepending;
+extern UINT32 serverlistcount;
+extern INT32 mapchangepending;
 
 // points inside doomcom
 extern doomdata_t *netbuffer;
@@ -272,11 +272,11 @@ extern tic_t connectiontimeout;
 extern consvar_t cv_joinnextround, cv_allownewplayer, cv_maxplayers, cv_consfailprotect, cv_blamecfail, cv_maxsend;
 
 // used in d_net, the only dependence
-tic_t ExpandTics(int low);
+tic_t ExpandTics(INT32 low);
 void D_ClientServerInit(void);
 
 // initialise the other field
-void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(byte **p, int playernum));
+void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(byte **p, INT32 playernum));
 void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam);
 void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam); // splitsreen player
 
@@ -285,13 +285,13 @@ void NetUpdate(void);
 
 void SV_StartSinglePlayerServer(void);
 boolean SV_SpawnServer(void);
-void SV_SpawnPlayer(int playernum, int x, int y, angle_t angle);
+void SV_SpawnPlayer(INT32 playernum, INT32 x, INT32 y, angle_t angle);
 void SV_StopServer(void);
 void SV_ResetServer(void);
 void CL_AddSplitscreenPlayer(void);
 void CL_RemoveSplitscreenPlayer(void);
 void CL_Reset(void);
-void CL_ClearPlayer(int playernum);
+void CL_ClearPlayer(INT32 playernum);
 void CL_UpdateServerList(boolean internetsearch);
 // is there a game running
 boolean Playing(void);
@@ -304,21 +304,23 @@ void D_QuitNetGame(void);
 void TryRunTics(tic_t realtic);
 
 // extra data for lmps
-boolean AddLmpExtradata(byte **demo_p, int playernum);
-void ReadLmpExtraData(byte **demo_pointer, int playernum);
+boolean AddLmpExtradata(byte **demo_p, INT32 playernum);
+void ReadLmpExtraData(byte **demo_pointer, INT32 playernum);
 
+#ifndef NONET
 // translate a playername in a player number return -1 if not found and
 // print a error message in the console
 char nametonum(const char *name);
+#endif
 
 extern char adminpassword[9], motd[256];
 extern byte playernode[MAXPLAYERS];
 extern byte consfailcount[MAXPLAYERS];
 
-int D_NumPlayers(void);
+INT32 D_NumPlayers(void);
 void D_ResetTiccmds(void);
 
-tic_t GetLag(int node);
+tic_t GetLag(INT32 node);
 byte GetFreeXCmdSize(void);
 
 #endif

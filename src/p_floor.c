@@ -34,7 +34,7 @@
 // Move a plane (floor or ceiling) and check for crushing
 //
 result_e T_MovePlane(sector_t *sector, fixed_t speed, fixed_t dest, boolean crush,
-	int floorOrCeiling, int direction)
+	INT32 floorOrCeiling, INT32 direction)
 {
 	boolean flag;
 	fixed_t lastpos;
@@ -709,7 +709,7 @@ void T_BounceCheese(levelspecthink_t *bouncer)
 	fixed_t waterheight;
 	fixed_t floorheight;
 	sector_t *actionsector;
-	int i;
+	INT32 i;
 
 	if (bouncer->sector->crumblestate == 4 || bouncer->sector->crumblestate == 1
 		|| bouncer->sector->crumblestate == 2) // Oops! Crumbler says to remove yourself!
@@ -865,7 +865,7 @@ void T_StartCrumble(elevator_t *elevator)
 {
 	ffloor_t *rover;
 	sector_t *sector;
-	long i;
+	INT32 i;
 
 	// Once done, the no-return thinker just sits there,
 	// constantly 'returning'... kind of an oxymoron, isn't it?
@@ -1037,7 +1037,7 @@ void T_StartCrumble(elevator_t *elevator)
 //
 void T_MarioBlock(levelspecthink_t *block)
 {
-	int i;
+	INT32 i;
 
 #define speed vars[1]
 #define direction vars[2]
@@ -1165,7 +1165,7 @@ void T_FloatSector(levelspecthink_t *floater)
 {
 	fixed_t cheeseheight;
 	sector_t *actionsector;
-	int secnum;
+	INT32 secnum;
 
 	cheeseheight = floater->sector->floorheight + (floater->sector->ceilingheight - floater->sector->floorheight)/2;
 
@@ -1226,7 +1226,7 @@ void T_BridgeThinker(levelspecthink_t *bridge)
 	mobj_t *thing;
 	sector_t *sector;
 	sector_t *controlsec = NULL;
-	long i, k;
+	INT32 i, k;
 
 	short j;
 	boolean playeronme = false;
@@ -1295,7 +1295,7 @@ wegotit:
 
 	if (playeronme && controlsec)
 	{
-		int dist;
+		INT32 dist;
 
 		bridge->sector = controlsec;
 		CURSPEED = BASESPEED;
@@ -1312,9 +1312,9 @@ wegotit:
 			from 1 to get [0, 1] with higher number = closer
 			to midpoint. multiply this by max sag amount*/
 
-			int midpoint = STARTCONTROLTAG + ((ENDCONTROLTAG-STARTCONTROLTAG) + 1)/2;
-//			int tagstart = STARTTAG - midpoint;
-//			int tagend = ENDTAG - midpoint;
+			INT32 midpoint = STARTCONTROLTAG + ((ENDCONTROLTAG-STARTCONTROLTAG) + 1)/2;
+//			INT32 tagstart = STARTTAG - midpoint;
+//			INT32 tagend = ENDTAG - midpoint;
 
 //			CONS_Printf("tagstart is %d, tagend is %d\n", tagstart, tagend);
 
@@ -1396,10 +1396,10 @@ wegotit:
 		{
 			sector_t *sourcesec = bridge->sector;
 
-			int divisor = sourcesec->tag - ENDTAG + 1;
+			INT32 divisor = sourcesec->tag - ENDTAG + 1;
 			fixed_t heightdiff = ORIGCEILINGHEIGHT - sourcesec->ceilingheight;
 			fixed_t interval;
-			int plusplusme = 0;
+			INT32 plusplusme = 0;
 
 			if (divisor > 0)
 			{
@@ -1723,7 +1723,7 @@ void T_ThwompSector(levelspecthink_t *thwomp)
 #define ceilingwasheight vars[5]
 	fixed_t thwompx, thwompy;
 	sector_t *actionsector;
-	int secnum;
+	INT32 secnum;
 
 	// If you just crashed down, wait a second before coming back up.
 	if (--thwomp->distance > 0)
@@ -1880,7 +1880,7 @@ void T_NoEnemiesSector(levelspecthink_t *nobaddies)
 {
 	size_t i;
 	fixed_t upperbound, lowerbound;
-	long s;
+	INT32 s;
 	sector_t *checksector;
 	msecnode_t *node;
 	mobj_t *thing;
@@ -1922,7 +1922,7 @@ foundenemy:
 	s = P_AproxDistance(nobaddies->sourceline->dx, nobaddies->sourceline->dy)>>FRACBITS;
 
 	if (cv_debug)
-		CONS_Printf("Running no-more-enemies exec with tag of %ld\n", s);
+		CONS_Printf("Running no-more-enemies exec with tag of %d\n", s);
 
 	// Otherwise, run the linedef exec and terminate this thinker
 	P_LinedefExecute(s, NULL, NULL);
@@ -1934,12 +1934,12 @@ foundenemy:
 //
 // Helper function for T_EachTimeThinker
 //
-static int P_HavePlayersEnteredArea(int *curPlayers, int *oldPlayers, boolean inAndOut)
+static INT32 P_HavePlayersEnteredArea(INT32 *curPlayers, INT32 *oldPlayers, boolean inAndOut)
 {
-	int i;
+	INT32 i;
 
 	// Easy check... nothing has changed
-	if (!memcmp(curPlayers, oldPlayers, sizeof(int)*MAXPLAYERS))
+	if (!memcmp(curPlayers, oldPlayers, sizeof(INT32)*MAXPLAYERS))
 		return -1;
 
 	// Otherwise, we have to check if any new players have entered
@@ -1967,10 +1967,10 @@ void T_EachTimeThinker(levelspecthink_t *eachtime)
 {
 	size_t i, j;
 	sector_t *sec = NULL;
-	int oldPlayersInArea[MAXPLAYERS];
-	int playersInArea[MAXPLAYERS];
-	long secnum = -1;
-	int affectPlayer = 0;
+	INT32 oldPlayersInArea[MAXPLAYERS];
+	INT32 playersInArea[MAXPLAYERS];
+	INT32 secnum = -1;
+	INT32 affectPlayer = 0;
 	boolean FOFsector = false;
 	sector_t *targetsec = NULL;
 
@@ -1994,7 +1994,7 @@ void T_EachTimeThinker(levelspecthink_t *eachtime)
 		// Check the lines of this sector, to see if it is a FOF control sector.
 		for (i = 0; i < sec->linecount; i++)
 		{
-			long targetsecnum = -1;
+			INT32 targetsecnum = -1;
 
 			if (sec->lines[i]->special < 100 || sec->lines[i]->special >= 300)
 				continue;
@@ -2091,7 +2091,7 @@ void T_RaiseSector(levelspecthink_t *raise)
 	msecnode_t *node;
 	mobj_t *thing;
 	sector_t *sector;
-	long i;
+	INT32 i;
 	boolean playeronme = false;
 	fixed_t ceilingdestination, floordestination;
 	result_e res = 0;
@@ -2267,8 +2267,8 @@ void T_CameraScanner(elevator_t *elevator)
 				t_cam_height = cv_cam_height.value;
 			if (t_cam_rotate == -42)
 				t_cam_rotate = cv_cam_rotate.value;
-			CV_SetValue(&cv_cam_height, FixedMul(elevator->sector->floorheight,1));
-			CV_SetValue(&cv_cam_dist, FixedMul(elevator->sector->ceilingheight,1));
+			CV_SetValue(&cv_cam_height, FixedInt(elevator->sector->floorheight));
+			CV_SetValue(&cv_cam_dist, FixedInt(elevator->sector->ceilingheight));
 			CV_SetValue(&cv_cam_rotate, elevator->distance);
 			camerascanned = true;
 		}
@@ -2295,8 +2295,8 @@ void T_CameraScanner(elevator_t *elevator)
 				t_cam2_height = cv_cam2_height.value;
 			if (t_cam2_rotate == -42)
 				t_cam2_rotate = cv_cam2_rotate.value;
-			CV_SetValue(&cv_cam2_height, FixedMul(elevator->sector->floorheight,1));
-			CV_SetValue(&cv_cam2_dist, FixedMul(elevator->sector->ceilingheight,1));
+			CV_SetValue(&cv_cam2_height, FixedInt(elevator->sector->floorheight));
+			CV_SetValue(&cv_cam2_dist, FixedInt(elevator->sector->ceilingheight));
 			CV_SetValue(&cv_cam2_rotate, elevator->distance);
 			camerascanned2 = true;
 		}
@@ -2323,10 +2323,10 @@ void T_CameraScanner(elevator_t *elevator)
 // (egg capsule button), P_PlayerInSpecialSector (buttons),
 // and P_SpawnSpecials (continuous floor movers and instant lower).
 //
-int EV_DoFloor(line_t *line, floor_e floortype)
+INT32 EV_DoFloor(line_t *line, floor_e floortype)
 {
-	int rtn = 0, firstone = 1;
-	long secnum = -1;
+	INT32 rtn = 0, firstone = 1;
+	INT32 secnum = -1;
 	sector_t *sec;
 	floormove_t *dofloor;
 
@@ -2440,7 +2440,7 @@ int EV_DoFloor(line_t *line, floor_e floortype)
 				dofloor->speed = FixedDiv(abs(line->dx),8*FRACUNIT);
 				dofloor->floordestheight = sec->floorheight - abs(line->dy);
 				if (dofloor->floordestheight > sec->floorheight) // wrapped around
-					I_Error("Can't lower sector %d\n", sec - sectors);
+					I_Error("Can't lower sector %d\n", secnum);
 				break;
 
 			// Linedef executor command, linetype 109.
@@ -2450,7 +2450,7 @@ int EV_DoFloor(line_t *line, floor_e floortype)
 				dofloor->speed = FixedDiv(abs(line->dx),8*FRACUNIT);
 				dofloor->floordestheight = sec->floorheight + abs(line->dy);
 				if (dofloor->floordestheight < sec->floorheight) // wrapped around
-					I_Error("Can't raise sector %d\n", sec - sectors);
+					I_Error("Can't raise sector %d\n", secnum);
 				break;
 
 			// Linetypes 2/3.
@@ -2531,10 +2531,10 @@ int EV_DoFloor(line_t *line, floor_e floortype)
 //
 // jff 2/22/98 new type to move floor and ceiling in parallel
 //
-int EV_DoElevator(line_t *line, elevator_e elevtype, boolean customspeed)
+INT32 EV_DoElevator(line_t *line, elevator_e elevtype, boolean customspeed)
 {
-	long secnum = -1;
-	int rtn = 0;
+	INT32 secnum = -1;
+	INT32 rtn = 0;
 	sector_t *sec;
 	elevator_t *elevator;
 
@@ -2735,7 +2735,7 @@ void EV_CrumbleChain(sector_t *sec, ffloor_t *rover)
 }
 
 // Used for bobbing platforms on the water
-int EV_BounceSector(sector_t *sec, fixed_t momz, line_t *sourceline)
+INT32 EV_BounceSector(sector_t *sec, fixed_t momz, line_t *sourceline)
 {
 #define speed vars[0]
 #define distance vars[1]
@@ -2765,7 +2765,7 @@ int EV_BounceSector(sector_t *sec, fixed_t momz, line_t *sourceline)
 }
 
 // For T_ContinuousFalling special
-int EV_DoContinuousFall(sector_t *sec, sector_t *backsector, fixed_t spd, boolean backwards)
+INT32 EV_DoContinuousFall(sector_t *sec, sector_t *backsector, fixed_t spd, boolean backwards)
 {
 #define speed vars[0]
 #define direction vars[1]
@@ -2814,12 +2814,12 @@ int EV_DoContinuousFall(sector_t *sec, sector_t *backsector, fixed_t spd, boolea
 }
 
 // Some other 3dfloor special things Tails 03-11-2002 (Search p_mobj.c for description)
-int EV_StartCrumble(sector_t *sec, ffloor_t *rover, boolean floating,
+INT32 EV_StartCrumble(sector_t *sec, ffloor_t *rover, boolean floating,
 	player_t *player, fixed_t origalpha, boolean crumblereturn)
 {
 	elevator_t *elevator;
 	sector_t *foundsec;
-	long i;
+	INT32 i;
 
 	// If floor is already activated, skip it
 	if (sec->floordata)
@@ -2882,7 +2882,7 @@ int EV_StartCrumble(sector_t *sec, ffloor_t *rover, boolean floating,
 	return 1;
 }
 
-int EV_MarioBlock(sector_t *sec, sector_t *roversector, fixed_t topheight, mobj_t *puncher)
+INT32 EV_MarioBlock(sector_t *sec, sector_t *roversector, fixed_t topheight, mobj_t *puncher)
 {
 	levelspecthink_t *block;
 	mobj_t *thing;

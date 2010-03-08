@@ -87,7 +87,7 @@ void cht_Init(void)
 	short pi = 0;
 	for (; i < 256; i++, pi++)
 	{
-		const int cc = SCRAMBLE(pi);
+		const INT32 cc = SCRAMBLE(pi);
 		cheat_xlate_table[i] = (byte)cc;
 	}
 }
@@ -96,9 +96,9 @@ void cht_Init(void)
 // Called in st_stuff module, which handles the input.
 // Returns a 1 if the cheat was successful, 0 if failed.
 //
-static int cht_CheckCheat(cheatseq_t *cht, char key)
+static INT32 cht_CheckCheat(cheatseq_t *cht, char key)
 {
-	int rc = 0;
+	INT32 rc = 0;
 
 	if (!cht->p)
 		cht->p = cht->sequence; // initialize if first time
@@ -307,7 +307,7 @@ void Command_CheatGod_f(void)
 
 void Command_Scale_f(void)
 {
-	int scale = atoi(COM_Argv(1));
+	INT32 scale = atoi(COM_Argv(1));
 
 	if (!cv_debug)
 	{
@@ -444,7 +444,7 @@ void Command_Savecheckpoint_f(void)
 	players[consoleplayer].starpostz = players[consoleplayer].mo->floorz>>FRACBITS;
 	players[consoleplayer].starpostangle = players[consoleplayer].mo->angle;
 
-	CONS_Printf("Temporary checkpoint created at %ld, %ld, %ld\n", players[consoleplayer].starpostx, players[consoleplayer].starposty, players[consoleplayer].starpostz);
+	CONS_Printf("Temporary checkpoint created at %d, %d, %d\n", players[consoleplayer].starpostx, players[consoleplayer].starposty, players[consoleplayer].starpostz);
 }
 
 void Command_Resetemeralds_f(void)

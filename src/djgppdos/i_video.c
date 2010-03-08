@@ -77,19 +77,18 @@ void I_UpdateNoBlit (void)
 //#define TIMING      //uncomment this to enable profiling
 #ifdef TIMING
 #include "../p5prof.h"
-static   long long mycount;
-static   long long mytotal = 0;
+static   INT64 mycount;
+static   INT64 mytotal = 0;
 static   unsigned long  nombre = TICRATE*10;
 //static   char runtest[10][80];
 #endif
 //profile stuff ---------------------------------------------------------
 
 
-#define FPSPOINTS  35
-#define SCALE      4
+#define SCALE      3
 #define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
 
-static int fpsgraph[FPSPOINTS];
+static tic_t fpsgraph[OLDTICRATE];
 
 static void displayticrate(fixed_t value)
 {
@@ -99,36 +98,38 @@ static void displayticrate(fixed_t value)
 	int k;
 
 	t = I_GetTime();
-	tics = t - lasttic;
+	tics = (t - lasttic)/NEWTICRATERATIO;
 	lasttic = t;
-	if (tics > 20) tics = 20;
+	if (tics > OLDTICRATE) tics = OLDTICRATE;
 
-	for (i=0;i<FPSPOINTS-1;i++)
+	for (i=0;i<OLDTICRATE-1;i++)
 		fpsgraph[i]=fpsgraph[i+1];
-	fpsgraph[FPSPOINTS-1]=20-tics;
+	fpsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
 
 	if (value == 1 || value == 3)
 	{
 		char s[11];
-		sprintf(s, "FPS: %lu/%u", 20-tics, 20);
+		sprintf(s, "FPS: %d/%u", OLDTICRATE-tics+1, OLDTICRATE);
 		V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT+24, V_YELLOWMAP, s);
 	}
 	if (value == 1)
 		return;
 
 	// draw dots
-	for (j=0;j<=20*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+	for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
 	{
 		l=(vid.height-1-j)*vid.width*vid.bpp;
-		for (i=0;i<FPSPOINTS*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+		for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
 			screens[0][l+i]=0xff;
 	}
 
 	// draw the graph
-	for (i=0;i<FPSPOINTS;i++)
+	for (i=0;i<OLDTICRATE;i++)
 		for (k=0;k<SCALE*vid.dupx;k++)
 			PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
 }
+#undef SCALE
+#undef PUTDOT
 
 //
 // I_FinishUpdate
@@ -244,7 +245,7 @@ static void I_BlitScreenVesa1(void)
 		r.x.dx = i;
 		__dpmi_int(0x10,&r);      //set bank
 
-		memcpy((byte *)dascreen,p_src,(virtualsize < VIDBANKSIZE) ? virtualsize : VIDBANKSIZE );
+		M_Memcpy((byte *)dascreen,p_src,(virtualsize < VIDBANKSIZE) ? virtualsize : VIDBANKSIZE );
 
 		p_src += VIDBANKSIZE;
 		virtualsize -= VIDBANKSIZE;

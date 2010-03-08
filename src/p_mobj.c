@@ -49,7 +49,7 @@ consvar_t cv_viewheight = {"viewheight", VIEWHEIGHTS, 0, viewheight_cons_t, NULL
 
 consvar_t cv_splats = {"splats", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-long playerstatetics[MAXPLAYERS][S_PLAY_SUPERTRANS9+1];
+INT32 playerstatetics[MAXPLAYERS][S_PLAY_SUPERTRANS9+1];
 
 actioncache_t actioncachehead;
 
@@ -73,7 +73,7 @@ void P_RunCachedActions(void)
 	}
 }
 
-void P_AddCachedAction(mobj_t *mobj, int statenum)
+void P_AddCachedAction(mobj_t *mobj, INT32 statenum)
 {
 	actioncache_t *newaction = Z_Calloc(sizeof(actioncache_t), PU_LEVEL, NULL);
 	newaction->mobj = mobj;
@@ -115,7 +115,7 @@ boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	// remember states seen, to detect cycles:
 	static statenum_t seenstate_tab[NUMSTATES]; // fast transition table
 	statenum_t *seenstate = seenstate_tab; // pointer to table
-	static int recursion; // detects recursion
+	static INT32 recursion; // detects recursion
 	statenum_t i; // initial state
 	boolean ret = true; // return value
 	statenum_t tempstate[NUMSTATES]; // for use with recursion
@@ -216,7 +216,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 	// remember states seen, to detect cycles:
 	static statenum_t seenstate_tab[NUMSTATES]; // fast transition table
 	statenum_t *seenstate = seenstate_tab; // pointer to table
-	static int recursion; // detects recursion
+	static INT32 recursion; // detects recursion
 	statenum_t i = state; // initial state
 	boolean ret = true; // return value
 	statenum_t tempstate[NUMSTATES]; // for use with recursion
@@ -321,16 +321,16 @@ void P_EmeraldManager(void)
 {
 	thinker_t *think;
 	mobj_t *mo;
-	int i,j;
-	int numtospawn;
-	int emeraldsspawned = 0;
+	INT32 i,j;
+	INT32 numtospawn;
+	INT32 emeraldsspawned = 0;
 
 	boolean hasemerald[MAXHUNTEMERALDS];
-	int numwithemerald = 0;
+	INT32 numwithemerald = 0;
 
 	// record empty spawn points
 	mobj_t *spawnpoints[MAXHUNTEMERALDS];
-	int numspawnpoints = 0;
+	INT32 numspawnpoints = 0;
 
 	for (i = 0; i < MAXHUNTEMERALDS; i++)
 	{
@@ -423,7 +423,7 @@ void P_EmeraldManager(void)
 
 	for (i = 0, j = 0; i < numtospawn; i++)
 	{
-		int tries = 0;
+		INT32 tries = 0;
 		while (true)
 		{
 			tries++;
@@ -796,7 +796,7 @@ static void P_XYFriction(mobj_t *mo, fixed_t oldx, fixed_t oldy)
 
 			if (mo->momx || mo->momy)
 			{
-				int direction = P_GetPlayerControlDirection(player);
+				INT32 direction = P_GetPlayerControlDirection(player);
 
 				if (direction == 2)
 				{
@@ -1278,7 +1278,7 @@ static void P_RingZMovement(mobj_t *mo)
 	{
 		ffloor_t *rover;
 		fixed_t delta1, delta2;
-		int thingtop = mo->z + mo->height;
+		INT32 thingtop = mo->z + mo->height;
 
 		for (rover = mo->subsector->sector->ffloors; rover; rover = rover->next)
 		{
@@ -1775,7 +1775,7 @@ static void P_PlayerZMovement(mobj_t *mo)
 	{
 		ffloor_t *rover;
 		fixed_t delta1, delta2;
-		int thingtop = mo->z + mo->height;
+		INT32 thingtop = mo->z + mo->height;
 
 		for (rover = mo->subsector->sector->ffloors; rover; rover = rover->next)
 		{
@@ -2108,7 +2108,7 @@ static void P_SceneryZMovement(mobj_t *mo)
 	{
 		ffloor_t *rover;
 		fixed_t delta1, delta2;
-		int thingtop = mo->z + mo->height;
+		INT32 thingtop = mo->z + mo->height;
 
 		for (rover = mo->subsector->sector->ffloors; rover; rover = rover->next)
 		{
@@ -2331,7 +2331,7 @@ void P_MobjCheckWater(mobj_t *mobj)
 		(mobj->info->flags & MF_PUSHABLE && mobj->fuse))
 		&& ((mobj->eflags & MFE_UNDERWATER) != wasinwater))
 	{
-		int i, bubblecount;
+		INT32 i, bubblecount;
 		byte prandom[6];
 
 		// Check to make sure you didn't just cross into a sector to jump out of
@@ -2396,42 +2396,42 @@ void P_MobjCheckWater(mobj_t *mobj)
 		if (!(mobj->type == MT_PLAYER && mobj->player->spectator))
 			S_StartSound(mobj, sfx_splish); // And make a sound!
 
-		bubblecount = abs(mobj->momz)>>FRACBITS;
-		// Create tons of bubbles
-		for (i = 0; i < bubblecount; i++)
-		{
-			mobj_t *bubble;
-			// P_Random()s are called individually
-			// to allow consistency across various
-			// compilers, since the order of function
-			// calls in C is not part of the ANSI
-			// specification.
-			prandom[0] = P_Random();
-			prandom[1] = P_Random();
-			prandom[2] = P_Random();
-			prandom[3] = P_Random();
-			prandom[4] = P_Random();
-			prandom[5] = P_Random();
-
-			if (prandom[0] < 32)
-				bubble =
-				P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
-					mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
-					mobj->z + (prandom[5]<<(FRACBITS-2)), MT_MEDIUMBUBBLE);
-			else
-				bubble =
-				P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
-					mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
-					mobj->z + (prandom[5]<<(FRACBITS-2)), MT_SMALLBUBBLE);
-
-			if (bubble)
+			bubblecount = abs(mobj->momz)>>FRACBITS;
+			// Create tons of bubbles
+			for (i = 0; i < bubblecount; i++)
 			{
-				if ((mobj->eflags & MFE_VERTICALFLIP && mobj->momz > 0)
-					|| (!(mobj->eflags & MFE_VERTICALFLIP) && mobj->momz < 0))
-					bubble->momz = mobj->momz >> 4;
+				mobj_t *bubble;
+				// P_Random()s are called individually
+				// to allow consistency across various
+				// compilers, since the order of function
+				// calls in C is not part of the ANSI
+				// specification.
+				prandom[0] = P_Random();
+				prandom[1] = P_Random();
+				prandom[2] = P_Random();
+				prandom[3] = P_Random();
+				prandom[4] = P_Random();
+				prandom[5] = P_Random();
+
+				if (prandom[0] < 32)
+					bubble =
+					P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
+						mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
+						mobj->z + (prandom[5]<<(FRACBITS-2)), MT_MEDIUMBUBBLE);
 				else
-					bubble->momz = 0;
-			}
+					bubble =
+					P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
+						mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
+						mobj->z + (prandom[5]<<(FRACBITS-2)), MT_SMALLBUBBLE);
+
+				if (bubble)
+				{
+					if ((mobj->eflags & MFE_VERTICALFLIP && mobj->momz > 0)
+					    || (!(mobj->eflags & MFE_VERTICALFLIP) && mobj->momz < 0))
+						bubble->momz = mobj->momz >> 4;
+					else
+						bubble->momz = 0;
+				}
 		}
 	}
 }
@@ -2542,7 +2542,7 @@ static boolean P_CameraCheckWater(camera_t *thiscam)
 void P_DestroyRobots(void)
 {
 	// Search through all the thinkers for enemies.
-	int count;
+	INT32 count;
 	mobj_t *mo;
 	thinker_t *think;
 
@@ -3000,7 +3000,7 @@ static void P_RingThinker(mobj_t *mobj)
 //
 static boolean P_Look4Players(mobj_t *actor, boolean allaround)
 {
-	int stop, c = 0;
+	INT32 stop, c = 0;
 	player_t *player;
 	sector_t *sector;
 	angle_t an;
@@ -3043,7 +3043,7 @@ static boolean P_Look4Players(mobj_t *actor, boolean allaround)
 		{
 			an = R_PointToAngle2(actor->x, actor->y, player->mo->x, player->mo->y) - actor->angle;
 
-			if (an > ANG90 && an < ANG270)
+			if (an > ANGLE_90 && an < ANGLE_270)
 			{
 				dist = P_AproxDistance(player->mo->x - actor->x, player->mo->y - actor->y);
 				// if real close, react anyway
@@ -3062,7 +3062,7 @@ static boolean P_Look4Players(mobj_t *actor, boolean allaround)
 // Finds the player no matter what they're hiding behind (even lead!)
 boolean P_SupermanLook4Players(mobj_t *actor)
 {
-	int c, stop = 0;
+	INT32 c, stop = 0;
 	player_t *playersinthegame[MAXPLAYERS];
 
 	for (c = 0; c < MAXPLAYERS; c++)
@@ -3282,7 +3282,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 
 	if (mobj->reactiontime && mobj->health > mobj->info->damage) // Shock mode
 	{
-		unsigned int i;
+		UINT32 i;
 
 		if (mobj->state != &states[mobj->info->spawnstate])
 			P_SetMobjState(mobj, mobj->info->spawnstate);
@@ -3351,7 +3351,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 	}
 	else if (mobj->movecount) // Firing mode
 	{
-		unsigned int i;
+		UINT32 i;
 
 		// look for a new target
 		P_Look4Players(mobj, true);
@@ -3417,7 +3417,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 
 		if (!mobj->target) // Should NEVER happen
 		{
-			CONS_Printf("Error: Boss 3 was unable to find specified waypoint: %ld\n", mobj->threshold);
+			CONS_Printf("Error: Boss 3 was unable to find specified waypoint: %d\n", mobj->threshold);
 			return;
 		}
 
@@ -3741,7 +3741,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 	}
 	else if (mobj->state == &states[S_BLACKEGG_DIE4] && mobj->tics == mobj->state->tics)
 	{
-		int i;
+		INT32 i;
 		thinker_t *th;
 		mobj_t *mo2;
 
@@ -3782,8 +3782,8 @@ static void P_Boss7Thinker(mobj_t *mobj)
 		&& mobj->state <= &states[S_BLACKEGG_WALK6])
 	{
 		// Chase
-		int delta;
-		int i;
+		INT32 delta;
+		INT32 i;
 
 		if (mobj->z != mobj->floorz)
 			return;
@@ -3810,9 +3810,9 @@ static void P_Boss7Thinker(mobj_t *mobj)
 			delta = mobj->angle - (mobj->movedir << 29);
 
 			if (delta > 0)
-				mobj->angle -= ANG90/2;
+				mobj->angle -= ANGLE_45;
 			else if (delta < 0)
-				mobj->angle += ANG90/2;
+				mobj->angle += ANGLE_45;
 		}
 
 		// Is a player on top of us?
@@ -3917,23 +3917,23 @@ RetryAttack:
 		A_FaceTarget(mobj);
 
 		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
-			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANG90, mobj->radius/3*2+(4*FRACUNIT)),
-			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANG90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
 			mobj->z + mobj->height/3*2);
 
 		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
-			mobj->x + P_ReturnThrustX(mobj, mobj->angle+ANG90, mobj->radius/3*2+(4*FRACUNIT)),
-			mobj->y + P_ReturnThrustY(mobj, mobj->angle+ANG90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->x + P_ReturnThrustX(mobj, mobj->angle+ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->y + P_ReturnThrustY(mobj, mobj->angle+ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
 			mobj->z + mobj->height/3*2);
 
 		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
-			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANG90, mobj->radius/3*2+(4*FRACUNIT)),
-			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANG90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
 			mobj->z + mobj->height/2);
 
 		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
-			mobj->x + P_ReturnThrustX(mobj, mobj->angle+ANG90, mobj->radius/3*2+(4*FRACUNIT)),
-			mobj->y + P_ReturnThrustY(mobj, mobj->angle+ANG90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->x + P_ReturnThrustX(mobj, mobj->angle+ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->y + P_ReturnThrustY(mobj, mobj->angle+ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
 			mobj->z + mobj->height/2);
 	}
 	else if (mobj->state == &states[S_BLACKEGG_PAIN1] && mobj->tics == mobj->state->tics)
@@ -3945,7 +3945,7 @@ RetryAttack:
 
 		if (mobj->health <= 0)
 		{
-			int i;
+			INT32 i;
 
 			P_KillMobj(mobj, NULL, NULL);
 
@@ -3974,7 +3974,7 @@ RetryAttack:
 		// If a player is on top of him, the player gets hurt.
 		// But, if the player has managed to escape,
 		// Black Eggman gets hurt!
-		int i;
+		INT32 i;
 		mobj->state->nextstate = mobj->info->painstate; // Reset
 
 		S_StartSound(0, sfx_bedeen);
@@ -4038,8 +4038,8 @@ RetryAttack:
 		A_FaceTarget(mobj);
 
 		missile = P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_GOOPFIRE,
-			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANG90, mobj->radius/3*2+(4*FRACUNIT)),
-			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANG90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
+			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANGLE_90, mobj->radius/3*2+(4*FRACUNIT)),
 			mobj->z + mobj->height/3*2);
 
 		S_StopSound(missile);
@@ -4054,11 +4054,11 @@ RetryAttack:
 		fixed_t dist, closestdist;
 		fixed_t vertical, horizontal;
 		fixed_t airtime = 5*TICRATE;
-		int waypointNum = 0;
+		INT32 waypointNum = 0;
 		thinker_t *th;
-		int i;
+		INT32 i;
 		boolean foundgoop = false;
-		int closestNum;
+		INT32 closestNum;
 
 		// Looks for players in goop. If you find one, try to jump on him.
 		for (i = 0; i < MAXPLAYERS; i++)
@@ -4171,7 +4171,7 @@ RetryAttack:
 	else if (mobj->state == &states[S_BLACKEGG_JUMP2] && mobj->z <= mobj->floorz)
 	{
 		// BANG! onto the ground
-		int i,j;
+		INT32 i,j;
 		fixed_t ns;
 		fixed_t x,y,z;
 		mobj_t *mo2;
@@ -4382,10 +4382,10 @@ static void P_MoveHoop(mobj_t *mobj)
 	mobj->z = finalz - mobj->height/2;
 }
 
-void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int number, mobjtype_t type, angle_t rotangle)
+void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 number, mobjtype_t type, angle_t rotangle)
 {
 	mobj_t *mobj;
-	int i;
+	INT32 i;
 	TVector v;
 	TVector *res;
 	fixed_t finalx, finaly, finalz;
@@ -4448,11 +4448,11 @@ void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int
 	}
 }
 
-void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, int number, mobjtype_t type, angle_t rotangle, boolean spawncenter, boolean ghostit)
+void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 number, mobjtype_t type, angle_t rotangle, boolean spawncenter, boolean ghostit)
 {
 	mobj_t *mobj;
 	mobj_t *ghost = NULL;
-	int i;
+	INT32 i;
 	TVector v;
 	TVector *res;
 	fixed_t finalx, finaly, finalz, dist;
@@ -4719,11 +4719,11 @@ static boolean P_ShieldLook(mobj_t *thing, powertype_t power)
 }
 
 mobj_t *shields[MAXPLAYERS*2];
-int numshields = 0;
+INT32 numshields = 0;
 
 void P_RunShields(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < numshields; i++)
 	{
@@ -4866,8 +4866,8 @@ void P_MobjThinker(mobj_t *mobj)
 	// Slowly scale up/down to reach your destscale.
 	if (mobj->scale != mobj->destscale)
 	{
-		const unsigned int abspeed = abs(mobj->scale - mobj->destscale);
-		unsigned int speed = (abspeed>>8);
+		const UINT32 abspeed = abs(mobj->scale - mobj->destscale);
+		UINT32 speed = (abspeed>>8);
 
 		if (speed > 1)
 			speed *= mobj->scalespeed;
@@ -5191,7 +5191,7 @@ void P_MobjThinker(mobj_t *mobj)
 			if (mobj->fuse > 0 && mobj->fuse < 2*TICRATE-(TICRATE/7)
 				&& (mobj->fuse & 3))
 			{
-				int i,j;
+				INT32 i,j;
 				fixed_t x,y,z;
 				fixed_t ns;
 				mobj_t *mo2;
@@ -5347,8 +5347,8 @@ void P_MobjThinker(mobj_t *mobj)
 				else if (mobj->fuse == 57)
 				{
 					P_UnsetThingPosition(mobj);
-					mobj->x = jetx + P_ReturnThrustX(mobj->target, mobj->target->angle-ANG90, 24*FRACUNIT);
-					mobj->y = jety + P_ReturnThrustY(mobj->target, mobj->target->angle-ANG90, 24*FRACUNIT);
+					mobj->x = jetx + P_ReturnThrustX(mobj->target, mobj->target->angle-ANGLE_90, 24*FRACUNIT);
+					mobj->y = jety + P_ReturnThrustY(mobj->target, mobj->target->angle-ANGLE_90, 24*FRACUNIT);
 					mobj->z = mobj->target->z + 12*FRACUNIT;
 					mobj->floorz = mobj->z;
 					mobj->ceilingz = mobj->z+mobj->height;
@@ -5357,8 +5357,8 @@ void P_MobjThinker(mobj_t *mobj)
 				else if (mobj->fuse == 58)
 				{
 					P_UnsetThingPosition(mobj);
-					mobj->x = jetx + P_ReturnThrustX(mobj->target, mobj->target->angle+ANG90, 24*FRACUNIT);
-					mobj->y = jety + P_ReturnThrustY(mobj->target, mobj->target->angle+ANG90, 24*FRACUNIT);
+					mobj->x = jetx + P_ReturnThrustX(mobj->target, mobj->target->angle+ANGLE_90, 24*FRACUNIT);
+					mobj->y = jety + P_ReturnThrustY(mobj->target, mobj->target->angle+ANGLE_90, 24*FRACUNIT);
 					mobj->z = mobj->target->z + 12*FRACUNIT;
 					mobj->floorz = mobj->z;
 					mobj->ceilingz = mobj->z+mobj->height;
@@ -5389,7 +5389,7 @@ void P_MobjThinker(mobj_t *mobj)
 				mobj->x = jetx;
 				mobj->y = jety;
 				mobj->z = mobj->target->z + 17*FRACUNIT;
-				mobj->angle = mobj->target->angle - ANG180;
+				mobj->angle = mobj->target->angle - ANGLE_180;
 				mobj->floorz = mobj->z;
 				mobj->ceilingz = mobj->z+mobj->height;
 				P_SetThingPosition(mobj);
@@ -5401,7 +5401,7 @@ void P_MobjThinker(mobj_t *mobj)
 		case MT_NIGHTSDRONE:
 			if (mobj->tracer && mobj->tracer->player && !(mobj->tracer->player->pflags & PF_NIGHTSMODE))
 				mobj->flags2 &= ~MF2_DONTDRAW;
-			mobj->angle += ANGLE_10;
+			mobj->angle += ANG10;
 			if (mobj->z <= mobj->floorz)
 				mobj->momz = 5*FRACUNIT;
 			break;
@@ -5414,10 +5414,12 @@ void P_MobjThinker(mobj_t *mobj)
 			if (mobj->eflags & MFE_UNDERWATER)
 			{
 				fixed_t hz = mobj->z + (4*mobj->height)/5;
+				mobj_t *bubble = NULL;
+
 				if (!(P_Random() % 16))
-					P_SpawnMobj(mobj->x, mobj->y, hz, MT_SMALLBUBBLE);
+					bubble = P_SpawnMobj(mobj->x, mobj->y, hz, MT_SMALLBUBBLE);
 				else if (!(P_Random() % 96))
-					P_SpawnMobj(mobj->x, mobj->y, hz, MT_MEDIUMBUBBLE);
+					bubble = P_SpawnMobj(mobj->x, mobj->y, hz, MT_MEDIUMBUBBLE);
 			}
 			break;
 		case MT_SKIM:
@@ -5483,7 +5485,7 @@ void P_MobjThinker(mobj_t *mobj)
 			}
 			else if (mobj->health > 0 && mobj->z + mobj->height > mobj->ceilingz) // Crushed
 			{
-				int i,j;
+				INT32 i,j;
 				fixed_t ns;
 				fixed_t x,y,z;
 				mobj_t *mo2;
@@ -5657,10 +5659,10 @@ void P_MobjThinker(mobj_t *mobj)
 					if ((mobj->flags & MF_AMBUSH) || (mobj->flags2 & MF2_STRONGBOX))
 					{
 						mobjtype_t spawnchance[64];
-						int i = 0;
-						int oldi = 0;
-						int increment = 0;
-						int numchoices = 0;
+						INT32 i = 0;
+						INT32 oldi = 0;
+						INT32 increment = 0;
+						INT32 numchoices = 0;
 
 						prandom = P_Random(); // Gotta love those random numbers!
 
@@ -5867,7 +5869,7 @@ void P_MobjThinker(mobj_t *mobj)
 
 					mobjtype_t spawnchance[8*3], enemy;
 					mobj_t *spawnedmo;
-					int i = 0, numchoices = 0, stop;
+					INT32 i = 0, numchoices = 0, stop;
 					fixed_t sfloorz, space, airspace, spawnz[8*3];
 
 					sfloorz = mobj->floorz;
@@ -6056,7 +6058,7 @@ void P_MobjThinker(mobj_t *mobj)
 		case MT_GRENADEPICKUP:
 			if (mobj->health == 0) // Fading tile
 			{
-				int value = mobj->info->damage/10;
+				INT32 value = mobj->info->damage/10;
 				value = mobj->fuse/value;
 				value = 10-value;
 				value--;
@@ -6071,7 +6073,7 @@ void P_MobjThinker(mobj_t *mobj)
 		case MT_GHOST: // fade out...
 			if ((mobj->fuse % mobj->info->painchance) == 0)
 			{
-				int value = mobj->frame >> FF_TRANSSHIFT;
+				INT32 value = mobj->frame >> FF_TRANSSHIFT;
 
 				value++;
 
@@ -6652,8 +6654,8 @@ static boolean P_ObjectInWater(sector_t *sector, fixed_t z)
 
 void P_SpawnPrecipitation(void)
 {
-	const int preloop = 1048576*12;
-	int i;
+	const INT32 preloop = 1048576*12;
+	INT32 i;
 	fixed_t x = 0, y = 0, height;
 	subsector_t *precipsector = NULL;
 
@@ -6661,7 +6663,7 @@ void P_SpawnPrecipitation(void)
 
 	if (curWeather == PRECIP_SNOW)
 	{
-		const int snowloop = preloop / cv_precipdensity.value;
+		const INT32 snowloop = preloop / cv_precipdensity.value;
 		byte z = 0;
 
 		for (i = 0; i < snowloop; i++)
@@ -6700,7 +6702,7 @@ void P_SpawnPrecipitation(void)
 	else if (curWeather == PRECIP_STORM || curWeather == PRECIP_RAIN || curWeather == PRECIP_BLANK
 		|| curWeather == PRECIP_STORM_NORAIN || curWeather == PRECIP_STORM_NOSTRIKES)
 	{
-		const int rainloop = preloop / cv_precipdensity.value;
+		const INT32 rainloop = preloop / cv_precipdensity.value;
 
 		for (i = 0; i < rainloop; i++)
 		{
@@ -6747,14 +6749,14 @@ void P_RespawnSpecials(void)
 	fixed_t x, y, z;
 	mobj_t *mo = NULL;
 	mapthing_t *mthing = NULL;
-	size_t i;
 
 	// Rain spawning
 	if (curWeather == PRECIP_STORM || curWeather == PRECIP_RAIN || curWeather == PRECIP_STORM_NORAIN
 		|| curWeather == PRECIP_STORM_NOSTRIKES)
 	{
 		boolean spawnlightning = false;
-		int volume;
+		INT32 volume;
+		size_t i;
 
 		// This code can be reached before the player has entered the game.
 		// This gives rise to two problems: it calls P_Random, so it has to run;
@@ -6880,6 +6882,7 @@ void P_RespawnSpecials(void)
 
 	if (mthing)
 	{
+		mobjtype_t i;
 		x = mthing->x << FRACBITS;
 		y = mthing->y << FRACBITS;
 
@@ -6899,7 +6902,7 @@ void P_RespawnSpecials(void)
 
 		mo = P_SpawnMobj(x, y, z, i);
 		mo->spawnpoint = mthing;
-		mo->angle = ANG45 * (mthing->angle/45);
+		mo->angle = ANGLE_45 * (mthing->angle/45);
 
 		// Clunky. :(
 		// One more reason why this junk needs to be cleaned up. -Jazz
@@ -6943,7 +6946,7 @@ void P_RespawnSpecials(void)
 // Most of the player structure stays unchanged between levels.
 //
 // spawn it at a playerspawn mapthing
-void P_SpawnPlayer(mapthing_t *mthing, int playernum)
+void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 {
 	player_t *p;
 	fixed_t x, y, z;
@@ -7042,12 +7045,12 @@ void P_SpawnPlayer(mapthing_t *mthing, int playernum)
 	P_SetScale(mobj, 100);
 }
 
-void P_SpawnStarpostPlayer(mobj_t *mobj, int playernum)
+void P_SpawnStarpostPlayer(mobj_t *mobj, INT32 playernum)
 {
 	player_t *p;
 	fixed_t x, y, z;
 	angle_t angle;
-	int starposttime;
+	INT32 starposttime;
 
 	// not playing?
 	if (!playeringame[playernum])
@@ -7128,7 +7131,7 @@ void P_SpawnStarpostPlayer(mobj_t *mobj, int playernum)
 
 #define MAXHUNTEMERALDS 64
 mapthing_t *huntemeralds[MAXHUNTEMERALDS];
-int numhuntemeralds;
+INT32 numhuntemeralds;
 
 //
 // P_SpawnMapThing
@@ -7470,7 +7473,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	}
 	else if (mobj->type == MT_POINTY)
 	{
-		int q;
+		INT32 q;
 		mobj_t *ball, *lastball = mobj;
 
 		for (q = 0; q < mobj->info->painchance; q++)
@@ -7495,6 +7498,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		boolean firsttime;
 		mobj_t *spawnee;
 		size_t line;
+		const size_t mthingi = (size_t)(mthing - mapthings);
 
 		// Why does P_FindSpecialLineFromTag not work here?!?
 		for (line = 0; line < numlines; line++)
@@ -7505,7 +7509,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 
 		if (line == numlines)
 		{
-			CONS_Printf("Mace chain (mapthing #%d) needs tagged to a #9 parameter line (trying to find tag %d).\n", mthing-mapthings, mthing->angle);
+			CONS_Printf("Mace chain (mapthing #%"PRIdS") needs tagged to a #9 parameter line (trying to find tag %d).\n", mthingi, mthing->angle);
 			return;
 		}
 /*
@@ -7527,7 +7531,7 @@ ML_NOCLIMB : Direction not controllable
 
 		if (cv_debug)
 		{
-			CONS_Printf("Mace Chain (mapthing #%d):\n", mthing-mapthings);
+			CONS_Printf("Mace Chain (mapthing #%"PRIdS"):\n", mthingi);
 			CONS_Printf("Length is %d\n", mlength);
 			CONS_Printf("Speed is %d\n", mspeed);
 			CONS_Printf("Xspeed is %d\n", mxspeed);
@@ -7695,13 +7699,13 @@ ML_NOCLIMB : Direction not controllable
 		spikemobj->angle = 0;
 		spikemobj = P_SpawnMobj(x, y, z, MT_SPIKEBALL);
 		P_SetTarget(&spikemobj->target, mobj);
-		spikemobj->angle = ANG90;
+		spikemobj->angle = ANGLE_90;
 		spikemobj = P_SpawnMobj(x, y, z, MT_SPIKEBALL);
 		P_SetTarget(&spikemobj->target, mobj);
-		spikemobj->angle = ANG180;
+		spikemobj->angle = ANGLE_180;
 		spikemobj = P_SpawnMobj(x, y, z, MT_SPIKEBALL);
 		P_SetTarget(&spikemobj->target, mobj);
-		spikemobj->angle = ANG270;
+		spikemobj->angle = ANGLE_270;
 	}
 	else if (i == MT_STARPOST)
 	{
@@ -7797,7 +7801,7 @@ ML_NOCLIMB : Direction not controllable
 				case MT_YELLOWDIAGDOWN:
 				case MT_REDDIAG:
 				case MT_REDDIAGDOWN:
-					mobj->angle += ANG45/2;
+					mobj->angle += ANGLE_22h;
 					break;
 				default:
 					break;
@@ -7851,7 +7855,7 @@ ML_NOCLIMB : Direction not controllable
 void P_SpawnHoopsAndRings(mapthing_t *mthing)
 {
 	mobj_t *mobj = NULL;
-	int r, i;
+	INT32 r, i;
 	fixed_t x, y, z, finalx, finaly, finalz, mthingx, mthingy, mthingz;
 	TVector v, *res;
 	angle_t closestangle, fa;
@@ -7889,9 +7893,9 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 		closestangle = FixedAngle(FixedMul((mthing->angle>>8)*FRACUNIT,
 			360*(FRACUNIT/256)));
 
-		hoopcenter->movedir = FixedMul(FixedMul((mthing->angle&255)*FRACUNIT,
-			360*(FRACUNIT/256)),1);
-		hoopcenter->movecount = FixedMul(AngleFixed(closestangle),1);
+		hoopcenter->movedir = FixedInt(FixedMul((mthing->angle&255)*FRACUNIT,
+			360*(FRACUNIT/256)));
+		hoopcenter->movecount = FixedInt(AngleFixed(closestangle));
 
 		spewangle = (short)hoopcenter->movedir;
 
@@ -8193,7 +8197,7 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 		}
 		else if (mthing->type == 602) // Diagonal rings (5)
 		{
-			angle_t angle = ANG45 * (mthing->angle/45);
+			angle_t angle = ANGLE_45 * (mthing->angle/45);
 			angle >>= ANGLETOFINESHIFT;
 
 			for (r = 1; r <= 5; r++)
@@ -8222,7 +8226,7 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 		}
 		else if (mthing->type == 603) // Diagonal rings (10)
 		{
-			angle_t angle = ANG45 * (mthing->angle/45);
+			angle_t angle = ANGLE_45 * (mthing->angle/45);
 			angle >>= ANGLETOFINESHIFT;
 
 			for (r = 1; r <= 10; r++)
@@ -8460,8 +8464,8 @@ mobj_t *P_SpawnXYZMissile(mobj_t *source, mobj_t *dest, mobjtype_t type,
 {
 	mobj_t *th;
 	angle_t an;
-	int dist;
-	int speed;
+	INT32 dist;
+	fixed_t speed;
 
 	I_Assert(source != NULL);
 	I_Assert(dest != NULL);
@@ -8510,7 +8514,7 @@ mobj_t *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type)
 {
 	mobj_t *th;
 	angle_t an;
-	int dist;
+	INT32 dist;
 	fixed_t z;
 	const fixed_t gsf = (fixed_t)6;
 	fixed_t speed;
@@ -8599,7 +8603,7 @@ void P_ColorTeamMissile(mobj_t *missile, player_t *source)
 // P_SPMAngle
 // Tries to aim at a nearby monster
 //
-mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaiming, int flags2, boolean reflected)
+mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaiming, INT32 flags2, boolean reflected)
 {
 	mobj_t *th;
 	angle_t an;

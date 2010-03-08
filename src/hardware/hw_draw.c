@@ -82,10 +82,10 @@ typedef unsigned char GLRGB[3];
 // Notes            : x,y : positions relative to the original Doom resolution
 //                  : textes(console+score) + menus + status bar
 // -----------------+
-void HWR_DrawPatch(GLPatch_t *gpatch, int x, int y, int option)
+void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 {
 	FOutVector v[4];
-	int flags;
+	INT32 flags;
 
 //  3--2
 //  | /|
@@ -136,7 +136,7 @@ void HWR_DrawPatch(GLPatch_t *gpatch, int x, int y, int option)
 		HWD.pfnDrawPolygon(NULL, v, 4, flags);
 }
 
-void HWR_DrawClippedPatch (GLPatch_t *gpatch, int x, int y, int option)
+void HWR_DrawClippedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 {
 	// hardware clips the patch quite nicely anyway :)
 	HWR_DrawPatch(gpatch, x, y, option); /// \todo do real cliping
@@ -145,10 +145,10 @@ void HWR_DrawClippedPatch (GLPatch_t *gpatch, int x, int y, int option)
 // Only supports one kind of translucent for now. Tails 06-12-2003
 // Boked
 // Alam_GBC: Why? you could not get a FSurfaceInfo to set the alpha channel?
-void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, int x, int y, int option)
+void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 {
 	FOutVector      v[4];
-	int flags;
+	INT32 flags;
 
 //  3--2
 //  | /|
@@ -200,10 +200,10 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, int x, int y, int option)
 }
 
 // Draws a patch 2x as small SSNTails 06-10-2003
-void HWR_DrawSmallPatch (GLPatch_t *gpatch, int x, int y, int option, const byte *colormap)
+void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const byte *colormap)
 {
 	FOutVector      v[4];
-	int flags;
+	INT32 flags;
 
 	float sdupx = vid.fdupx;
 	float sdupy = vid.fdupy;
@@ -253,10 +253,10 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, int x, int y, int option, const byte
 //
 // HWR_DrawMappedPatch(): Like HWR_DrawPatch but with translated color
 //
-void HWR_DrawMappedPatch (GLPatch_t *gpatch, int x, int y, int option, const byte *colormap)
+void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const byte *colormap)
 {
 	FOutVector      v[4];
-	int flags;
+	INT32 flags;
 
 	float sdupx = vid.fdupx*2;
 	float sdupy = vid.fdupy*2;
@@ -303,7 +303,7 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, int x, int y, int option, const byt
 		HWD.pfnDrawPolygon(NULL, v, 4, flags);
 }
 
-void HWR_DrawPic(int x, int y, lumpnum_t lumpnum)
+void HWR_DrawPic(INT32 x, INT32 y, lumpnum_t lumpnum)
 {
 	FOutVector      v[4];
 	const GLPatch_t    *patch;
@@ -354,11 +354,11 @@ void HWR_DrawPic(int x, int y, lumpnum_t lumpnum)
 // --------------------------------------------------------------------------
 // Fills a box of pixels using a flat texture as a pattern
 // --------------------------------------------------------------------------
-void HWR_DrawFlatFill (int x, int y, int w, int h, lumpnum_t flatlumpnum)
+void HWR_DrawFlatFill (INT32 x, INT32 y, INT32 w, INT32 h, lumpnum_t flatlumpnum)
 {
 	FOutVector  v[4];
 	double dflatsize;
-	int flatflag;
+	INT32 flatflag;
 	const size_t len = W_LumpLength(flatlumpnum);
 
 	switch (len)
@@ -430,7 +430,7 @@ void HWR_DrawFlatFill (int x, int y, int w, int h, lumpnum_t flatlumpnum)
 //  | /|
 //  |/ |
 //  0--1
-void HWR_FadeScreenMenuBack(unsigned long color, int height)
+void HWR_FadeScreenMenuBack(ULONG color, INT32 height)
 {
 	FOutVector  v[4];
 	FSurfaceInfo Surf;
@@ -455,6 +455,33 @@ void HWR_FadeScreenMenuBack(unsigned long color, int height)
 	HWD.pfnDrawPolygon(&Surf, v, 4, PF_NoTexture|PF_Modulated|PF_Translucent|PF_NoDepthTest);
 }
 
+// Draw the console background with translucency support
+void HWR_DrawConsoleBack(ULONG color, INT32 height)
+{
+	FOutVector  v[4];
+	FSurfaceInfo Surf;
+
+	// setup some neat-o translucency effect
+	if (!height) //cool hack 0 height is full height
+		height = vid.height;
+
+	v[0].x = v[3].x = -1.0f;
+	v[2].x = v[1].x =  1.0f;
+	v[0].y = v[1].y =  1.0f-((height<<1)/(float)vid.height);
+	v[2].y = v[3].y =  1.0f;
+	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
+
+	v[0].sow = v[3].sow = 0.0f;
+	v[2].sow = v[1].sow = 1.0f;
+	v[0].tow = v[1].tow = 1.0f;
+	v[2].tow = v[3].tow = 0.0f;
+
+	Surf.FlatColor.rgba = UINT2RGBA(color);
+	Surf.FlatColor.s.alpha = (byte)cv_grtranslucenthud.value;
+
+	HWD.pfnDrawPolygon(&Surf, v, 4, PF_NoTexture|PF_Modulated|PF_Translucent|PF_NoDepthTest);
+}
+
 
 // ==========================================================================
 //                                                             R_DRAW.C STUFF
@@ -467,12 +494,12 @@ void HWR_FadeScreenMenuBack(unsigned long color, int height)
 // 'clearlines' is useful to clear the heads up messages, when the view
 // window is reduced, it doesn't refresh all the view borders.
 // ------------------
-void HWR_DrawViewBorder(int clearlines)
+void HWR_DrawViewBorder(INT32 clearlines)
 {
-	int x, y;
-	int top, side;
-	int baseviewwidth, baseviewheight;
-	int basewindowx, basewindowy;
+	INT32 x, y;
+	INT32 top, side;
+	INT32 baseviewwidth, baseviewheight;
+	INT32 basewindowx, basewindowy;
 	GLPatch_t *patch;
 
 //    if (gr_viewwidth == vid.width)
@@ -482,10 +509,10 @@ void HWR_DrawViewBorder(int clearlines)
 		clearlines = BASEVIDHEIGHT; // refresh all
 
 	// calc view size based on original game resolution
-	baseviewwidth = (int)(gr_viewwidth/vid.fdupx); //(cv_viewsize.value * BASEVIDWIDTH/10)&~7;
-	baseviewheight = (int)(gr_viewheight/vid.fdupy);
-	top = (int)(gr_baseviewwindowy/vid.fdupy);
-	side = (int)(gr_viewwindowx/vid.fdupx);
+	baseviewwidth = (INT32)(gr_viewwidth/vid.fdupx); //(cv_viewsize.value * BASEVIDWIDTH/10)&~7;
+	baseviewheight = (INT32)(gr_viewheight/vid.fdupy);
+	top = (INT32)(gr_baseviewwindowy/vid.fdupy);
+	side = (INT32)(gr_viewwindowx/vid.fdupx);
 
 	// top
 	HWR_DrawFlatFill(0, 0,
@@ -594,13 +621,12 @@ void HWR_clearAutomap(void)
 {
 	FRGBAFloat fColor = {0, 0, 0, 1};
 
-	/// \note faB - optimize by clearing only colors ?
-	//HWD.pfnSetBlend(PF_NoOcclude);
-
 	// minx,miny,maxx,maxy
 	HWD.pfnGClipRect(0, 0, vid.width, vid.height, NZCLIP_PLANE);
 	HWD.pfnClearBuffer(true, true, &fColor);
+#ifndef HARDWAREFIX
 	HWD.pfnGClipRect(0, 0, vid.width, vid.height, NZCLIP_PLANE);
+#endif
 }
 
 
@@ -608,7 +634,7 @@ void HWR_clearAutomap(void)
 // HWR_drawAMline   : draw a line of the automap (the clipping is already done in automap code)
 // Arg              : color is a RGB 888 value
 // -----------------+
-void HWR_drawAMline(const fline_t *fl, int color)
+void HWR_drawAMline(const fline_t *fl, INT32 color)
 {
 	F2DCoord v1, v2;
 	RGBA_t color_rgba;
@@ -628,7 +654,7 @@ void HWR_drawAMline(const fline_t *fl, int color)
 // -----------------+
 // HWR_DrawFill     : draw flat coloured rectangle, with no texture
 // -----------------+
-void HWR_DrawFill(int x, int y, int w, int h, int color)
+void HWR_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 color)
 {
 	FOutVector v[4];
 	FSurfaceInfo Surf;
@@ -669,11 +695,11 @@ void HWR_DrawFill(int x, int y, int w, int h, int color)
 // save screenshots with TGA format
 // --------------------------------------------------------------------------
 static inline boolean saveTGA(const char *file_name, void *buffer,
-	int width, int height)
+	INT32 width, INT32 height)
 {
-	int fd;
+	INT32 fd;
 	TGAHeader tga_hdr;
-	int i;
+	INT32 i;
 	byte *buf8 = buffer;
 
 	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);

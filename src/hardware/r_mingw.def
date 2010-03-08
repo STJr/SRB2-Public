@@ -2,7 +2,7 @@ EXPORTS
 _ClearBuffer@12       = ClearBuffer@12
 _ClearMipMapCache@0   = ClearMipMapCache@0
 _Draw2DLine@12        = Draw2DLine@12
-_DrawMD2@16           = DrawMD2@16
+_DrawMD2@36           = DrawMD2@36
 _DrawPolygon@16       = DrawPolygon@16
 _FinishUpdate@4       = FinishUpdate@4
 _GClipRect@20         = GClipRect@20

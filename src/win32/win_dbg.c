@@ -117,7 +117,7 @@ BOOL IsBugTrapLoaded(void)
 // --------------------------------------------------------------------------
 // return a description for an ExceptionCode
 // --------------------------------------------------------------------------
-static LPCSTR GetExceptionDescription(DWORD ExceptionCode)
+static inline LPCSTR GetExceptionDescription(DWORD ExceptionCode)
 {
 	unsigned int i;
 
@@ -389,7 +389,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	MEMORY_BASIC_INFORMATION    MemInfo;
 	static BOOL         BeenHere = FALSE;
 	HANDLE              fileHandle;
-	LPBYTE              code;
+	LPBYTE              code = NULL;
 	int                 codebyte,i;
 
 	if (data)
@@ -403,6 +403,12 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	if (BeenHere)       // Going recursive! That must mean this routine crashed!
 		return EXCEPTION_CONTINUE_SEARCH;
 	BeenHere = TRUE;
+
+#ifdef _X86_
+	code = (LPBYTE)(size_t)Context->Eip;
+#elif defined (_AMD64_)
+	code = (LPBYTE)(size_t)Context->Rip;
+#endif // || defined (_IA64_)
 
 	// Create a filename to record the error information to.
 	// Store it in the executable directory.
@@ -438,7 +444,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	// VirtualQuery can be used to get the allocation base associated with a
 	// code address, which is the same as the ModuleHandle. This can be used
 	// to get the filename of the module that the crash happened in.
-	if (VirtualQuery((LPVOID)(size_t)Context->Eip, &MemInfo, sizeof(MemInfo)) &&
+	if (code && VirtualQuery(code, &MemInfo, sizeof(MemInfo)) &&
 		GetModuleFileName((HMODULE)MemInfo.AllocationBase,
 		                   CrashModulePathName,
 		                   sizeof(CrashModulePathName)) > 0)
@@ -446,9 +452,19 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 
 	// Print out the beginning of the error log in a Win95 error window
 	// compatible format.
-	FPrintf(fileHandle, "%s caused an %s in module %s at %04x:%08x.\r\n",
+#ifdef _X86_
+	FPrintf(fileHandle, "%s caused %s in module %s at %04x:%08x.\r\n",
 		FileName, GetExceptionDescription(Exception->ExceptionCode),
 		CrashModuleFileName, Context->SegCs, Context->Eip);
+#elif defined (_AMD64_)
+	FPrintf(fileHandle, "%s caused %s in module %s at %08x:%016x.\r\n",
+		FileName, GetExceptionDescription(Exception->ExceptionCode),
+		CrashModuleFileName, Context->SegCs, Context->Rip);
+#else //defined (_IA64_)
+	FPrintf(fileHandle, "%s caused %s in module %s at ????.\r\n",
+		FileName, GetExceptionDescription(Exception->ExceptionCode),
+		CrashModuleFileName);
+#endif
 	//if (&Message = Null)
 		FPrintf(fileHandle, "Exception handler called in %s.\r\n", "main thread");
 	//else
@@ -481,6 +497,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	if ((Context->ContextFlags & CONTEXT_FULL) == CONTEXT_FULL)
 	{
 		FPrintf(fileHandle, "Registers:\r\n");
+#ifdef _X86_
 		FPrintf(fileHandle, "EAX=%.8lx CS=%.4x EIP=%.8lx EFLGS=%.8lx\r\n",
 			Context->Eax,Context->SegCs,Context->Eip,Context->EFlags);
 		FPrintf(fileHandle, "EBX=%.8lx SS=%.4x ESP=%.8lx EBP=%.8lx\r\n",
@@ -489,6 +506,18 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 			Context->Ecx,Context->SegDs,Context->Esi,Context->SegFs);
 		FPrintf(fileHandle, "EDX=%.8lx ES=%.4x EDI=%.8lx GS=%.4x\r\n",
 			Context->Edx,Context->SegEs,Context->Edi,Context->SegGs);
+#elif defined (_AMD64_)
+		FPrintf(fileHandle, "RAX=%.16lx CS=%.8x RIP=%.16lx EFLGS=%.16lx\r\n",
+			Context->Rax,Context->SegCs,Context->Rip,Context->EFlags);
+		FPrintf(fileHandle, "RBX=%.16lx SS=%.8x RSP=%.16lx EBP=%.16lx\r\n",
+			Context->Rbx,Context->SegSs,Context->Rsp,Context->Rbp);
+		FPrintf(fileHandle, "RCX=%.16lx DS=%.8x RSI=%.16lx FS=%.8x\r\n",
+			Context->Rcx,Context->SegDs,Context->Rsi,Context->SegFs);
+		FPrintf(fileHandle, "RDX=%.16lx ES=%.8x RDI=%.16lx GS=%.8x\r\n",
+			Context->Rdx,Context->SegEs,Context->Rdi,Context->SegGs);
+#else //defined (_IA64_)
+		FPrintf(fileHandle, "Unknown CPU type\r\n");
+#endif
 	}
 
 	// moved down because it was causing the printout to stop
@@ -503,7 +532,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	// this code needs to be wrapped in an exception handler, in case there
 	// is no memory to read. If the dereferencing of code[] fails, the
 	// exception handler will print '??'.
-	code =(LPBYTE)(size_t)Context->Eip;
+	if (code)
 	for(codebyte = 0; codebyte < NumCodeBytes; codebyte++)
 	{
 #ifdef NO_SEH_MINGW
@@ -536,7 +565,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	{
 		// Esp contains the bottom of the stack, or at least the bottom of
 		// the currently used area.
-		LPDWORD   pStack = (LPDWORD)(size_t)Context->Esp;
+		LPDWORD   pStack = NULL;
 		LPDWORD   pStackTop = NULL;
 		size_t    Count = 0;
 		TCHAR     buffer[1000] = TEXT("");
@@ -545,17 +574,38 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 		LPTSTR    output = buffer;
 		LPCVOID   Suffix;
 
+#ifdef _X86_
+		pStack = (LPDWORD)(size_t)Context->Esp;
+#elif defined (_AMD64_)
+		pStack = (LPDWORD)(size_t)Context->Rsp;
+#endif // defined (_IA64_)
+
+
 		// Load the top (highest address) of the stack from the
 		// thread information block. It will be found there in
 		// Win9x and Windows NT.
+#ifdef _X86_
 #ifdef __GNUC__
 		__asm__("movl %%fs : 4, %%eax": "=a"(pStackTop));
-#else
+#elif defined (_MSC_VER)
 		__asm
 		{
 			mov eax, fs:[4]
 			mov pStackTop, eax
 		}
+#endif
+#elif defined (_AMD64_)
+#ifdef __GNUC__
+		__asm__("mov %%gs : 4, %%rax": "=a"(pStackTop));
+#elif defined (_MSC_VER)
+/*
+		__asm
+		{
+			mov rax, fs:[4]
+			mov pStackTop, rax
+		}
+*/
+#endif
 #endif
 		if (pStackTop == NULL)
 			goto StackSkip;

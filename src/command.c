@@ -68,7 +68,7 @@ CV_PossibleValue_t CV_Natural[] = {{1, "MIN"}, {999999999, "MAX"}, {0, NULL}};
 
 #define COM_BUF_SIZE 8192 // command buffer size
 
-static int com_wait; // one command per frame (for cmd sequences)
+static INT32 com_wait; // one command per frame (for cmd sequences)
 
 // command aliases
 //
@@ -120,7 +120,7 @@ void COM_BufInsertText(const char *ptext)
 	templen = com_text.cursize;
 	if (templen)
 	{
-		temp = memcpy(ZZ_Alloc(templen), com_text.data, templen);
+		temp = M_Memcpy(ZZ_Alloc(templen), com_text.data, templen);
 		VS_Clear(&com_text);
 	}
 
@@ -143,7 +143,7 @@ void COM_BufExecute(void)
 	size_t i;
 	char *ptext;
 	char line[1024] = "";
-	int quotes;
+	INT32 quotes;
 
 	if (com_wait)
 	{
@@ -169,7 +169,7 @@ void COM_BufExecute(void)
 				break;
 		}
 
-		memcpy(line, ptext, i);
+		M_Memcpy(line, ptext, i);
 		line[i] = 0;
 
 		// flush the command text from the command buffer, _BEFORE_
@@ -219,7 +219,7 @@ static char *com_argv[MAX_ARGS];
 static const char *com_null_string = "";
 static char *com_args = NULL; // current command args or NULL
 
-static void Got_NetVar(byte **p, int playernum);
+static void Got_NetVar(byte **p, INT32 playernum);
 
 /** Initializes command buffer and adds basic commands.
   */
@@ -372,7 +372,7 @@ static boolean COM_Exists(const char *com_name)
 	xcommand_t *cmd;
 
 	for (cmd = com_commands; cmd; cmd = cmd->next)
-		if (!strcmp(com_name, cmd->name))
+		if (!stricmp(com_name, cmd->name))
 			return true;
 
 	return false;
@@ -385,7 +385,7 @@ static boolean COM_Exists(const char *com_name)
   * \return The complete command name, or NULL.
   * \sa CV_CompleteVar
   */
-const char *COM_CompleteCommand(const char *partial, int skips)
+const char *COM_CompleteCommand(const char *partial, INT32 skips)
 {
 	xcommand_t *cmd;
 	size_t len;
@@ -580,7 +580,7 @@ static void COM_Help_f(void)
 {
 	xcommand_t *cmd;
 	consvar_t *cvar;
-	int i = 0;
+	INT32 i = 0;
 
 	if (COM_Argc() > 1)
 	{
@@ -754,7 +754,7 @@ void *VS_GetSpace(vsbuf_t *buf, size_t length)
 			I_Error("overflow 111");
 
 		if (length > buf->maxsize)
-			I_Error("overflow l%u 112", length);
+			I_Error("overflow l%"PRIdS" 112", length);
 
 		buf->overflowed = true;
 		CONS_Printf("VS buffer overflow");
@@ -776,7 +776,7 @@ void *VS_GetSpace(vsbuf_t *buf, size_t length)
   */
 void VS_Write(vsbuf_t *buf, const void *data, size_t length)
 {
-	memcpy(VS_GetSpace(buf, length), data, length);
+	M_Memcpy(VS_GetSpace(buf, length), data, length);
 }
 
 /** Prints text in a variable buffer. Like VS_Write() plus a
@@ -793,9 +793,9 @@ void VS_Print(vsbuf_t *buf, const char *data)
 	len = strlen(data) + 1;
 
 	if (buf->data[buf->cursize-1])
-		memcpy((byte *)VS_GetSpace(buf, len), data, len); // no trailing 0
+		M_Memcpy((byte *)VS_GetSpace(buf, len), data, len); // no trailing 0
 	else
-		memcpy((byte *)VS_GetSpace(buf, len-1) - 1, data, len); // write over trailing 0
+		M_Memcpy((byte *)VS_GetSpace(buf, len-1) - 1, data, len); // write over trailing 0
 }
 
 // =========================================================================
@@ -949,7 +949,7 @@ static const char *CV_StringValue(const char *var_name)
   * \return The complete variable name, or NULL.
   * \sa COM_CompleteCommand
   */
-const char *CV_CompleteVar(char *partial, int skips)
+const char *CV_CompleteVar(char *partial, INT32 skips)
 {
 	consvar_t *cvar;
 	size_t len;
@@ -976,15 +976,15 @@ const char *CV_CompleteVar(char *partial, int skips)
 static void Setvalue(consvar_t *var, const char *valstr)
 {
 	boolean override = false;
-	int overrideval = 0;
+	INT32 overrideval = 0;
 
 	if (var->PossibleValue)
 	{
-		int v = atoi(valstr);
+		INT32 v = atoi(valstr);
 
 		if (var->PossibleValue[0].strvalue && !stricmp(var->PossibleValue[0].strvalue, "MIN")) // bounded cvar
 		{
-			int i;
+			INT32 i;
 			// search for maximum
 			for (i = 1; var->PossibleValue[i].strvalue; i++)
 				if (!stricmp(var->PossibleValue[i].strvalue, "MAX"))
@@ -1010,7 +1010,7 @@ static void Setvalue(consvar_t *var, const char *valstr)
 		}
 		else
 		{
-			int i;
+			INT32 i;
 
 			// check first strings
 			for (i = 0; var->PossibleValue[i].strvalue; i++)
@@ -1019,7 +1019,7 @@ static void Setvalue(consvar_t *var, const char *valstr)
 			if (!v)
 				if (strcmp(valstr, "0"))
 					goto error;
-			// check int now
+			// check INT32 now
 			for (i = 0; var->PossibleValue[i].strvalue; i++)
 				if (v == var->PossibleValue[i].value)
 					goto found;
@@ -1031,7 +1031,7 @@ error:
 			if (var->PossibleValue == CV_OnOff
 				|| var->PossibleValue == CV_YesNo)
 			{
-				int hopevalue = -1;
+				INT32 hopevalue = -1;
 
 				if (!stricmp(valstr, "on"))
 					hopevalue = 1;
@@ -1073,7 +1073,7 @@ found:
 	if (var->flags & CV_FLOAT)
 	{
 		double d = atof(var->string);
-		var->value = (int)(d * FRACUNIT);
+		var->value = (INT32)(d * FRACUNIT);
 	}
 	else if (override)
 		var->value = overrideval;
@@ -1101,7 +1101,7 @@ finish:
 
 static boolean serverloading = false;
 
-static void Got_NetVar(byte **p, int playernum)
+static void Got_NetVar(byte **p, INT32 playernum)
 {
 	consvar_t *cvar;
 	unsigned short netid;
@@ -1122,7 +1122,6 @@ static void Got_NetVar(byte **p, int playernum)
 		}
 		return;
 	}
-
 	netid = READUSHORT(*p);
 	cvar = CV_FindNetVar(netid);
 	svalue = (char *)*p;
@@ -1252,9 +1251,9 @@ void CV_Set(consvar_t *var, const char *value)
   * \param value The numeric value, converted to a string before setting.
   * \sa CV_SetValue, CV_StealthSet
   */
-void CV_StealthSetValue(consvar_t *var, int value)
+void CV_StealthSetValue(consvar_t *var, INT32 value)
 {
-	int oldflags;
+	INT32 oldflags;
 
 	oldflags = var->flags;
 	var->flags &= ~CV_CALL;
@@ -1269,7 +1268,7 @@ void CV_StealthSetValue(consvar_t *var, int value)
   * \param value The numeric value, converted to a string before setting.
   * \sa CV_Set, CV_StealthSetValue
   */
-void CV_SetValue(consvar_t *var, int value)
+void CV_SetValue(consvar_t *var, INT32 value)
 {
 	char val[32];
 
@@ -1287,9 +1286,9 @@ void CV_SetValue(consvar_t *var, int value)
   *                  decrement.
   * \sa CV_SetValue
   */
-void CV_AddValue(consvar_t *var, int increment)
+void CV_AddValue(consvar_t *var, INT32 increment)
 {
-	int newvalue, max;
+	INT32 newvalue, max;
 
 	// count pointlimit better
 	if (var == &cv_pointlimit && (gametype == GT_MATCH
@@ -1320,7 +1319,7 @@ void CV_AddValue(consvar_t *var, int increment)
 		}
 		else
 		{
-			int currentindice = -1, newindice;
+			INT32 currentindice = -1, newindice;
 
 			// this code do not support more than same value for differant PossibleValue
 			for (max = 0; var->PossibleValue[max].strvalue; max++)
@@ -1332,7 +1331,7 @@ void CV_AddValue(consvar_t *var, int increment)
 			if (var == &cv_nextmap)
 			{
 				// Special case for the nextmap variable, used only directly from the menu
-				int oldvalue = var->value - 1, gt;
+				INT32 oldvalue = var->value - 1, gt;
 				gt = cv_newgametype.value;
 				if (increment > 0) // Going up!
 				{

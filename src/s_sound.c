@@ -24,7 +24,7 @@ struct musmsg
 	long msg_type;
 	char msg_text[12];
 };
-extern int msg_id;
+extern INT32 msg_id;
 #endif
 
 #include "doomdef.h"
@@ -43,8 +43,12 @@ extern int msg_id;
 #include "r_sky.h" // skyflatnum
 #include "p_local.h" // camera info
 
+#ifdef HW3SOUND
 // 3D Sound Interface
 #include "hardware/hw3sound.h"
+#else
+static int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, int *vol, int *sep, int *pitch, sfxinfo_t *sfxinfo);
+#endif
 
 CV_PossibleValue_t soundvolume_cons_t[] = {{0, "MIN"}, {31, "MAX"}, {0, NULL}};
 static void SetChannelsNum(void);
@@ -133,13 +137,13 @@ typedef struct
 	const void *origin;
 
 	// handle of the sound being played
-	int handle;
+	INT32 handle;
 
 } channel_t;
 
 // the set of channels available
 static channel_t *channels = NULL;
-static int numofchannels = 0;
+static INT32 numofchannels = 0;
 
 // whether songs are mus_paused
 static boolean mus_paused = 0;
@@ -147,22 +151,22 @@ static boolean mus_paused = 0;
 // music currently being played
 musicinfo_t *mus_playing = 0;
 
-static int nextcleanup;
+static INT32 nextcleanup;
 
 //
 // Internals.
 //
-static void S_StopChannel(int cnum);
+static void S_StopChannel(INT32 cnum);
 
 //
 // S_getChannel
 //
 // If none available, return -1. Otherwise channel #.
 //
-static int S_getChannel(const void *origin, sfxinfo_t *sfxinfo)
+static INT32 S_getChannel(const void *origin, sfxinfo_t *sfxinfo)
 {
 	// channel number to use
-	int cnum;
+	INT32 cnum;
 
 	channel_t *c;
 
@@ -255,7 +259,7 @@ void S_RegisterSoundStuff(void)
 
 #if defined (macintosh) && !defined (SDL) // mp3 playlist stuff
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < PLAYLIST_LENGTH; i++)
 		{
 			user_songs[i].name = malloc(7);
@@ -277,7 +281,7 @@ void S_RegisterSoundStuff(void)
 
 static void SetChannelsNum(void)
 {
-	int i;
+	INT32 i;
 
 	// Allocating the internal channels for mixing
 	// (the maximum number of sounds rendered
@@ -313,9 +317,9 @@ static void SetChannelsNum(void)
 // Sets channels, SFX and music volume,
 //  allocates channel buffer, sets S_sfx lookup.
 //
-void S_Init(int sfxVolume, int digMusicVolume, int midiMusicVolume)
+void S_Init(INT32 sfxVolume, INT32 digMusicVolume, INT32 midiMusicVolume)
 {
-	int i;
+	INT32 i;
 
 	if (dedicated)
 		return;
@@ -381,7 +385,7 @@ lumpnum_t S_GetSfxLumpNum(sfxinfo_t *sfx)
 // Stop all sounds, load level info, THEN start sounds.
 void S_StopSounds(void)
 {
-	int cnum;
+	INT32 cnum;
 
 #ifdef HW3SOUND
 	if (hws_mode != HWS_DEFAULT_MODE)
@@ -399,7 +403,7 @@ void S_StopSounds(void)
 
 void S_StopSoundByNum(sfxenum_t sfxnum)
 {
-	int cnum;
+	INT32 cnum;
 
 #ifdef HW3SOUND
 	if (hws_mode != HWS_DEFAULT_MODE)
@@ -435,9 +439,9 @@ typedef struct
 	angle_t angle;
 } listener_t;
 
-void S_StartSoundAtVolume(const void *origin_p, sfxenum_t sfx_id, int volume)
+void S_StartSoundAtVolume(const void *origin_p, sfxenum_t sfx_id, INT32 volume)
 {
-	int sep, pitch, priority, cnum;
+	INT32 sep, pitch, priority, cnum;
 	sfxinfo_t *sfx;
 
 	const mobj_t *origin = (const mobj_t *)origin_p;
@@ -532,7 +536,7 @@ void S_StartSoundAtVolume(const void *origin_p, sfxenum_t sfx_id, int volume)
 		// Check to see if it is audible, and if not, modify the params
 		if (origin && origin != listenmobj2)
 		{
-			int rc;
+			INT32 rc;
 			rc = S_AdjustSoundParams(listenmobj2, origin, &volume, &sep, &pitch, sfx);
 
 			if (!rc)
@@ -582,7 +586,7 @@ dontplay:
 	// Check to see if it is audible, and if not, modify the params
 	if (origin && origin != listenmobj)
 	{
-		int rc;
+		INT32 rc;
 		rc = S_AdjustSoundParams(listenmobj, origin, &volume, &sep, &pitch, sfx);
 
 		if (!rc)
@@ -683,7 +687,7 @@ void S_StartSound(const void *origin, sfxenum_t sfx_id)
 
 void S_StopSound(void *origin)
 {
-	int cnum;
+	INT32 cnum;
 
 	// Sounds without origin can have multiple sources, they shouldn't
 	// be stopped by new sounds.
@@ -747,13 +751,13 @@ void S_ResumeSound(void)
 //
 // Updates music & sounds
 //
-static int actualsfxvolume; // check for change through console
-static int actualdigmusicvolume;
-static int actualmidimusicvolume;
+static INT32 actualsfxvolume; // check for change through console
+static INT32 actualdigmusicvolume;
+static INT32 actualmidimusicvolume;
 
 void S_UpdateSounds(void)
 {
-	int audible, cnum, volume, sep, pitch;
+	INT32 audible, cnum, volume, sep, pitch;
 	sfxinfo_t *sfx;
 	channel_t *c;
 	MumblePos_t MPos;
@@ -800,7 +804,7 @@ void S_UpdateSounds(void)
 	MPos.fPosition[1] = listener.y;
 	MPos.fPosition[2] = listener.z;
 	if (listener.angle == 0)
-		MPos.fFront = (((double)listener.angle*45.0)/(double)ANG45);
+		MPos.fFront = (((double)listener.angle*45.0)/(double)ANGLE_45);
 	else
 		MPos.fFront = 0.0;
 	MPos.fTop = 0.0;
@@ -930,7 +934,7 @@ void S_UpdateSounds(void)
 	}
 }
 
-void S_SetDigMusicVolume(int volume)
+void S_SetDigMusicVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
 		CONS_Printf("musicvolume should be between 0-31\n");
@@ -946,7 +950,7 @@ void S_SetDigMusicVolume(int volume)
 		I_SetDigMusicVolume(volume&31);
 }
 
-void S_SetMIDIMusicVolume(int volume)
+void S_SetMIDIMusicVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
 		CONS_Printf("musicvolume should be between 0-31\n");
@@ -961,7 +965,7 @@ void S_SetMIDIMusicVolume(int volume)
 	I_SetMIDIMusicVolume(volume&31);
 }
 
-void S_SetSfxVolume(int volume)
+void S_SetSfxVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
 		CONS_Printf("sfxvolume should be between 0-31\n");
@@ -977,7 +981,7 @@ void S_SetSfxVolume(int volume)
 #endif
 }
 
-static boolean S_MIDIMusic(musicinfo_t *music, int looping)
+static boolean S_MIDIMusic(musicinfo_t *music, INT32 looping)
 {
 	if (nomidimusic)
 		return false;
@@ -1021,7 +1025,7 @@ static boolean S_MIDIMusic(musicinfo_t *music, int looping)
 	return true;
 }
 
-static boolean S_DigMusic(musicinfo_t *music, int looping)
+static boolean S_DigMusic(musicinfo_t *music, INT32 looping)
 {
 	if (nodigimusic)
 		return false;
@@ -1036,7 +1040,7 @@ static boolean S_DigMusic(musicinfo_t *music, int looping)
 	return true;
 }
 
-void S_ChangeMusic(musicenum_t music_num, int looping)
+void S_ChangeMusic(musicenum_t music_num, INT32 looping)
 {
 	musicinfo_t *music;
 
@@ -1113,9 +1117,9 @@ void S_ClearSfx(void)
 #endif
 }
 
-static void S_StopChannel(int cnum)
+static void S_StopChannel(INT32 cnum)
 {
-	int i;
+	INT32 i;
 	channel_t *c = &channels[cnum];
 
 	if (c->sfxinfo)
@@ -1171,7 +1175,7 @@ fixed_t S_CalculateSoundDistance(fixed_t sx1, fixed_t sy1, fixed_t sz1, fixed_t 
 // If the sound is not audible, returns a 0.
 // Otherwise, modifies parameters and returns 1.
 //
-int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, int *vol, int *sep, int *pitch,
+INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *vol, INT32 *sep, INT32 *pitch,
 	sfxinfo_t *sfxinfo)
 {
 	fixed_t approx_dist;
@@ -1264,11 +1268,11 @@ int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, int *vol, 
 	if (angle > listensource.angle)
 		angle = angle - listensource.angle;
 	else
-		angle = angle + (ANGLE_MAX - listensource.angle);
+		angle = angle + (ANGLE_MAX - listensource.angle + 1);
 
 #ifdef SURROUND
 	// Produce a surround sound for angle from 105 till 255
-	if (surround.value == 1 && (angle > (ANG90 + (ANG45/3)) && angle < (ANG270 - (ANG45/3))))
+	if (surround.value == 1 && (angle > ANG105 && angle < ANG255 ))
 		*sep = SURROUND_SEP;
 	else
 #endif
@@ -1297,9 +1301,9 @@ int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, int *vol, 
 // Searches through the channels and checks for origin or id.
 // returns 0 of not found, returns 1 if found.
 // if id == NUMSFX, then don't check it...
-int S_SoundPlaying(void *origin, sfxenum_t id)
+INT32 S_SoundPlaying(void *origin, sfxenum_t id)
 {
-	int cnum;
+	INT32 cnum;
 
 #ifdef HW3SOUND
 	if (hws_mode != HWS_DEFAULT_MODE)
@@ -1324,7 +1328,7 @@ static sfxenum_t newsounds[MAXNEWSOUNDS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 void S_StartSoundName(void *mo, char *soundname)
 {
-	int i, soundnum = 0;
+	INT32 i, soundnum = 0;
 	// Search existing sounds...
 	for (i = sfx_None + 1; i < NUMSFX; i++)
 	{

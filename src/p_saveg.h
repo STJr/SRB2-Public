@@ -36,9 +36,9 @@ typedef struct
 {
 	byte skincolor;
 	byte skin;
-	int score;
-	int lives;
-	int continues;
+	INT32 score;
+	INT32 lives;
+	INT32 continues;
 	unsigned short emeralds;
 } savedata_t;
 

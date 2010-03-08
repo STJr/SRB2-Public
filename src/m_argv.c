@@ -25,7 +25,7 @@
 
 /**	\brief number of arg
 */
-int myargc;
+INT32 myargc;
 
 /**	\brief string table
 */
@@ -33,7 +33,7 @@ char **myargv;
 
 /**	\brief founded the parm
 */
-static int found;
+static INT32 found;
 
 
 /**	\brief	The M_CheckParm function
@@ -44,9 +44,9 @@ static int found;
 
 
 */
-int M_CheckParm(const char *check)
+INT32 M_CheckParm(const char *check)
 {
-	int i;
+	INT32 i;
 
 	for (i = 1; i < myargc; i++)
 	{
@@ -92,7 +92,7 @@ char *M_GetNextParm(void)
 */
 void M_PushSpecialParameters(void)
 {
-	int i;
+	INT32 i;
 	char s[256];
 	boolean onetime = false;
 
@@ -141,13 +141,14 @@ void M_PushSpecialParameters(void)
 */
 void M_FindResponseFile(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 1; i < myargc; i++)
 		if (myargv[i][0] == '@')
 		{
 			FILE *handle;
-			int size, k, pindex, indexinfile;
+			INT32 k, pindex, indexinfile;
+			long size;
 			boolean inquote = false;
 			byte *infile;
 			char *file;

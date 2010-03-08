@@ -59,7 +59,7 @@ void (*transtransfunc)(void); // translucent translated column drawer
 // global video state
 // ------------------
 viddef_t vid;
-int setmodeneeded; //video mode change needed if > 0 (the mode number to set + 1)
+INT32 setmodeneeded; //video mode change needed if > 0 (the mode number to set + 1)
 
 static CV_PossibleValue_t scr_depth_cons_t[] = {{8, "8 bits"}, {16, "16 bits"}, {24, "24 bits"}, {32, "32 bits"}, {0, NULL}};
 
@@ -74,15 +74,15 @@ consvar_t cv_fullscreen = {"fullscreen", "No", CV_SAVE|CV_CALL, CV_YesNo, SCR_Ch
 //                           SCREEN VARIABLES
 // =========================================================================
 
-int scr_bpp; // current video mode bytes per pixel
+INT32 scr_bpp; // current video mode bytes per pixel
 byte *scr_borderpatch; // flat used to fill the reduced view borders set at ST_Init()
 
 // =========================================================================
 
 #ifdef RUSEASM
 // tell asm code the new rowbytes value.
-void ASMCALL ASM_PatchRowBytes(int rowbytes);
-void ASMCALL MMX_PatchRowBytes(int rowbytes);
+void ASMCALL ASM_PatchRowBytes(INT32 rowbytes);
+void ASMCALL MMX_PatchRowBytes(INT32 rowbytes);
 #endif
 
 //  Short and Tall sky drawer, for the current color mode
@@ -241,8 +241,8 @@ void SCR_Startup(void)
 
 	vid.fdupx = (float)vid.width/BASEVIDWIDTH;
 	vid.fdupy = (float)vid.height/BASEVIDHEIGHT;
-	vid.dupx = (int)vid.fdupx;
-	vid.dupy = (int)vid.fdupy;
+	vid.dupx = (INT32)vid.fdupx;
+	vid.dupy = (INT32)vid.fdupy;
 
 	vid.baseratio = FRACUNIT;
 
@@ -317,7 +317,7 @@ void SCR_Recalc(void)
 
 void SCR_CheckDefaultMode(void)
 {
-	int scr_forcex, scr_forcey; // resolution asked from the cmd-line
+	INT32 scr_forcex, scr_forcey; // resolution asked from the cmd-line
 
 	if (dedicated)
 		return;

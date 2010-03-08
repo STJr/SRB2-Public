@@ -38,20 +38,22 @@
 #include "p_polyobj.h"
 #include "hu_stuff.h"
 
+#ifdef HW3SOUND
 #include "hardware/hw3sound.h"
+#endif
 
 static void P_SpawnScrollers(void);
 static void P_SpawnFriction(void);
 static void P_SpawnPushers(void);
-static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *source, long affectee, long referrer, int exclusive, int slider); //SoM: 3/9/2000
-static void Add_MasterDisappearer(tic_t appeartime, tic_t disappeartime, tic_t offset, int line, int sourceline);
+static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *source, INT32 affectee, INT32 referrer, INT32 exclusive, INT32 slider); //SoM: 3/9/2000
+static void Add_MasterDisappearer(tic_t appeartime, tic_t disappeartime, tic_t offset, INT32 line, INT32 sourceline);
 static void P_AddBlockThinker(sector_t *sec, line_t *sourceline);
-static void P_AddFloatThinker(sector_t *sec, int tag, line_t *sourceline);
+static void P_AddFloatThinker(sector_t *sec, INT32 tag, line_t *sourceline);
 static void P_AddBridgeThinker(line_t *sourceline, sector_t *sec);
 static void P_AddFakeFloorsByLine(size_t line, ffloortype_e ffloorflags);
 static void P_ProcessLineSpecial(line_t *line, mobj_t *mo);
-static void Add_Friction(long friction, long movefactor, long affectee, long referrer);
-static void P_AddSpikeThinker(sector_t *sec, int referrer);
+static void Add_Friction(INT32 friction, INT32 movefactor, INT32 affectee, INT32 referrer);
+static void P_AddSpikeThinker(sector_t *sec, INT32 referrer);
 
 // Amount (dx, dy) vector linedef is shifted right to get scroll amount
 #define SCROLL_SHIFT 5
@@ -67,9 +69,9 @@ static void P_AddSpikeThinker(sector_t *sec, int referrer);
 typedef struct
 {
 	boolean istexture; ///< ::true for a texture, ::false for a flat
-	long picnum;       ///< The end flat number
-	long basepic;      ///< The start flat number
-	long numpics;      ///< Number of frames in the animation
+	INT32 picnum;       ///< The end flat number
+	INT32 basepic;      ///< The start flat number
+	INT32 numpics;      ///< Number of frames in the animation
 	tic_t speed;       ///< Number of tics for which each frame is shown
 } anim_t;
 
@@ -91,7 +93,7 @@ typedef struct
 	char istexture; ///< True for a texture, false for a flat.
 	char endname[9]; ///< Name of the last frame, null-terminated.
 	char startname[9]; ///< Name of the first frame, null-terminated.
-	int speed ; ///< Number of tics for which each frame is shown.
+	INT32 speed ; ///< Number of tics for which each frame is shown.
 } ATTRPACK animdef_t;
 
 #if defined(_MSC_VER)
@@ -237,7 +239,7 @@ static animdef_t *animdefs;
 void P_InitPicAnims(void)
 {
 	// Init animation
-	int i;
+	INT32 i;
 
 	if (W_CheckNumForName("ANIMATED") != LUMPERROR)
 		animdefs = (animdef_t *)W_CacheLumpName("ANIMATED", PU_STATIC);
@@ -298,7 +300,7 @@ void P_InitPicAnims(void)
   * \param animnum Index into ::anims to find flats for.
   * \sa P_SetupLevelFlatAnims
   */
-static inline void P_FindAnimatedFlat(int animnum)
+static inline void P_FindAnimatedFlat(INT32 animnum)
 {
 	size_t i;
 	lumpnum_t startflatnum, endflatnum;
@@ -327,7 +329,7 @@ static inline void P_FindAnimatedFlat(int animnum)
 			foundflats->speed = anims[animnum].speed;
 
 			if (devparm)
-				I_OutputMsg("animflat: #%03u name:%.8s animseq:%d numpics:%d speed:%d\n",
+				I_OutputMsg("animflat: #%03"PRIdS" name:%.8s animseq:%d numpics:%d speed:%d\n",
 					i, foundflats->name, foundflats->animseq,
 					foundflats->numpics,foundflats->speed);
 		}
@@ -340,7 +342,7 @@ static inline void P_FindAnimatedFlat(int animnum)
   */
 void P_SetupLevelFlatAnims(void)
 {
-	int i;
+	INT32 i;
 
 	// the original game flat anim sequences
 	for (i = 0; anims[i].istexture != (boolean)-1; i++)
@@ -362,7 +364,7 @@ void P_SetupLevelFlatAnims(void)
   * \return Pointer to the side_t of the side you want.
   * \sa getSector, twoSided, getNextSector
   */
-static inline side_t *getSide(int currentSector, int line, int side)
+static inline side_t *getSide(INT32 currentSector, INT32 line, INT32 side)
 {
 	return &sides[(sectors[currentSector].lines[line])->sidenum[side]];
 }
@@ -375,7 +377,7 @@ static inline side_t *getSide(int currentSector, int line, int side)
   * \return Pointer to the ::sector_t of the sector on that side.
   * \sa getSide, twoSided, getNextSector
   */
-static inline sector_t *getSector(int currentSector, int line, int side)
+static inline sector_t *getSector(INT32 currentSector, INT32 line, INT32 side)
 {
 	return sides[(sectors[currentSector].lines[line])->sidenum[side]].sector;
 }
@@ -389,7 +391,7 @@ static inline sector_t *getSector(int currentSector, int line, int side)
   * \return 1 if the sector is two-sided, 0 otherwise.
   * \sa getSide, getSector, getNextSector
   */
-static inline boolean twoSided(int sector, int line)
+static inline boolean twoSided(INT32 sector, INT32 line)
 {
 	return (sectors[sector].lines[line])->sidenum[1] != 0xffff;
 }
@@ -458,7 +460,7 @@ fixed_t P_FindHighestFloorSurrounding(sector_t *sec)
 	line_t *check;
 	sector_t *other;
 	fixed_t floorh = -500*FRACUNIT;
-	int foundsector = 0;
+	INT32 foundsector = 0;
 
 	for (i = 0; i < sec->linecount; i++)
 	{
@@ -641,7 +643,7 @@ fixed_t P_FindLowestCeilingSurrounding(sector_t *sec)
 	line_t *check;
 	sector_t *other;
 	fixed_t height = 32000*FRACUNIT; //SoM: 3/7/2000: Remove ovf
-	int foundsector = 0;
+	INT32 foundsector = 0;
 
 	for (i = 0; i < sec->linecount; i++)
 	{
@@ -673,7 +675,7 @@ fixed_t P_FindHighestCeilingSurrounding(sector_t *sec)
 	line_t *check;
 	sector_t *other;
 	fixed_t height = 0;
-	int foundsector = 0;
+	INT32 foundsector = 0;
 
 	for (i = 0; i < sec->linecount; i++)
 	{
@@ -701,7 +703,7 @@ fixed_t P_FindHighestCeilingSurrounding(sector_t *sec)
 // linedef bounding the sector.
 //
 //
-static fixed_t P_FindShortestTextureAround(int secnum)
+static fixed_t P_FindShortestTextureAround(INT32 secnum)
 {
 	fixed_t minsize = 32000<<FRACBITS;
 	side_t *side;
@@ -733,7 +735,7 @@ static fixed_t P_FindShortestTextureAround(int secnum)
 // linedef bounding the sector.
 //
 //
-static fixed_t P_FindShortestUpperAround(int secnum)
+static fixed_t P_FindShortestUpperAround(INT32 secnum)
 {
 	fixed_t minsize = 32000<<FRACBITS;
 	side_t *side;
@@ -768,7 +770,7 @@ static fixed_t P_FindShortestUpperAround(int secnum)
 // Note: If no sector at that height bounds the sector passed, return NULL
 //
 //
-static sector_t *P_FindModelFloorSector(fixed_t floordestheight, int secnum)
+static sector_t *P_FindModelFloorSector(fixed_t floordestheight, INT32 secnum)
 {
 	size_t i;
 	sector_t *sec = &sectors[secnum];
@@ -798,7 +800,7 @@ static sector_t *P_FindModelFloorSector(fixed_t floordestheight, int secnum)
 //
 // Note: If no sector at that height bounds the sector passed, return NULL
 //
-static sector_t *P_FindModelCeilingSector(fixed_t ceildestheight, int secnum)
+static sector_t *P_FindModelCeilingSector(fixed_t ceildestheight, INT32 secnum)
 {
 	size_t i;
 	sector_t *sec = &sectors[secnum];
@@ -828,13 +830,13 @@ static sector_t *P_FindModelCeilingSector(fixed_t ceildestheight, int secnum)
   * \return Number of the next tagged sector found.
   * \sa P_FindSectorFromTag, P_FindLineFromLineTag
   */
-long P_FindSectorFromLineTag(line_t *line, long start)
+INT32 P_FindSectorFromLineTag(line_t *line, INT32 start)
 {
 	if (line->tag == -1)
 	{
 		start++;
 
-		if (start >= (long)numsectors)
+		if (start >= (INT32)numsectors)
 			return -1;
 
 		return start;
@@ -857,13 +859,13 @@ long P_FindSectorFromLineTag(line_t *line, long start)
   * \return Number of the next tagged sector found.
   * \sa P_FindSectorFromLineTag
   */
-long P_FindSectorFromTag(short tag, long start)
+INT32 P_FindSectorFromTag(short tag, INT32 start)
 {
 	if (tag == -1)
 	{
 		start++;
 
-		if (start >= (long)numsectors)
+		if (start >= (INT32)numsectors)
 			return -1;
 
 		return start;
@@ -886,13 +888,13 @@ long P_FindSectorFromTag(short tag, long start)
   * \return Number of the next tagged line found.
   * \sa P_FindSectorFromLineTag
   */
-static long P_FindLineFromLineTag(const line_t *line, long start)
+static INT32 P_FindLineFromLineTag(const line_t *line, INT32 start)
 {
 	if (line->tag == -1)
 	{
 		start++;
 
-		if (start >= (long)numlines)
+		if (start >= (INT32)numlines)
 			return -1;
 
 		return start;
@@ -916,7 +918,7 @@ static long P_FindLineFromLineTag(const line_t *line, long start)
   * \sa P_FindLineFromLineTag
   * \author Graue <graue@oceanbase.org>
   */
-static long P_FindLineFromTag(long tag, long start)
+static INT32 P_FindLineFromTag(INT32 tag, INT32 start)
 {
 	if (tag == -1)
 	{
@@ -940,7 +942,7 @@ static long P_FindLineFromTag(long tag, long start)
 //
 // P_FindSpecialLineFromTag
 //
-long P_FindSpecialLineFromTag(short special, short tag, long start)
+INT32 P_FindSpecialLineFromTag(short special, short tag, INT32 start)
 {
 	if (tag == -1)
 	{
@@ -949,7 +951,7 @@ long P_FindSpecialLineFromTag(short special, short tag, long start)
 		while (lines[start].special != special)
 			start++;
 
-		if (start >= (long)numlines)
+		if (start >= (INT32)numlines)
 			return -1;
 
 		return start;
@@ -1035,7 +1037,7 @@ static boolean PolyMove(line_t *line)
 //
 static void PolyInvisible(line_t *line)
 {
-	int polyObjNum = line->tag;
+	INT32 polyObjNum = line->tag;
 	polyobj_t *po;
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
@@ -1064,7 +1066,7 @@ static void PolyInvisible(line_t *line)
 //
 static void PolyVisible(line_t *line)
 {
-	int polyObjNum = line->tag;
+	INT32 polyObjNum = line->tag;
 	polyobj_t *po;
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
@@ -1093,7 +1095,7 @@ static void PolyVisible(line_t *line)
 //
 static void PolyTranslucency(line_t *line)
 {
-	int polyObjNum = line->tag;
+	INT32 polyObjNum = line->tag;
 	polyobj_t *po;
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
@@ -1165,7 +1167,7 @@ static boolean PolyRotate(line_t *line)
 void P_ChangeSectorTag(ULONG sector, short newtag)
 {
 	short oldtag;
-	long i;
+	INT32 i;
 
 	I_Assert(sector < numsectors);
 
@@ -1176,7 +1178,7 @@ void P_ChangeSectorTag(ULONG sector, short newtag)
 	i = sectors[(unsigned)oldtag % numsectors].firsttag;
 
 	if (i == -1) // shouldn't happen
-		I_Error("Corrupt tag list for sector %lu\n", sector);
+		I_Error("Corrupt tag list for sector %d\n", sector);
 	else if ((ULONG)i == sector)
 		sectors[(unsigned)oldtag % numsectors].firsttag = sectors[sector].nexttag;
 	else
@@ -1228,14 +1230,14 @@ static inline void P_InitTagLists(void)
 	{
 		size_t j = (unsigned)sectors[i].tag % numsectors;
 		sectors[i].nexttag = sectors[j].firsttag;
-		sectors[j].firsttag = (long)i;
+		sectors[j].firsttag = (INT32)i;
 	}
 
 	for (i = numlines - 1; i != (size_t)-1; i--)
 	{
 		size_t j = (unsigned)lines[i].tag % numlines;
 		lines[i].nexttag = lines[j].firsttag;
-		lines[j].firsttag = (long)i;
+		lines[j].firsttag = (INT32)i;
 	}
 }
 
@@ -1246,10 +1248,10 @@ static inline void P_InitTagLists(void)
   * \return Minimum light value from an adjacent sector, or max if the minimum
   *         light value is greater than max.
   */
-int P_FindMinSurroundingLight(sector_t *sector, int max)
+INT32 P_FindMinSurroundingLight(sector_t *sector, INT32 max)
 {
 	size_t i;
-	int min = max;
+	INT32 min = max;
 	line_t *line;
 	sector_t *check;
 
@@ -1307,11 +1309,11 @@ static sector_t *triplinecaller;
   * \sa P_ProcessLineSpecial
   * \author Graue <graue@oceanbase.org>
   */
-void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
+void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 {
 	sector_t *ctlsector;
 	fixed_t dist;
-	size_t masterline, i, linecnt;
+	size_t masterline, i, linecnt, sectori;
 	short specialtype;
 
 	for (masterline = 0; masterline < numlines; masterline++)
@@ -1417,8 +1419,8 @@ void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
 			{
 				msecnode_t *node;
 				mobj_t *mo;
-				int numpush = 0;
-				int numneeded = P_AproxDistance(lines[masterline].dx, lines[masterline].dy)>>FRACBITS;
+				INT32 numpush = 0;
+				INT32 numneeded = P_AproxDistance(lines[masterline].dx, lines[masterline].dy)>>FRACBITS;
 
 				// Count the pushables in this sector
 				node = caller->touching_thinglist; // things touching this sector
@@ -1472,6 +1474,7 @@ void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
 
 		triplinecaller = caller;
 		ctlsector = lines[masterline].frontsector;
+		sectori = (size_t)(ctlsector - sectors);
 		linecnt = ctlsector->linecount;
 
 		if (lines[masterline].flags & ML_EFFECT5) // disregard order for efficiency
@@ -1500,7 +1503,10 @@ void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
 
 #ifdef PARANOIA
 			if (masterlineindex == (size_t)-1)
-				I_Error("Line %d isn't linked into its front sector", ctlsector->lines[i] - lines);
+			{
+				const size_t li = (size_t)(ctlsector->lines[i] - lines);
+				I_Error("Line %"PRIdS" isn't linked into its front sector", li);
+			}
 #endif
 
 			// i == masterlineindex
@@ -1526,8 +1532,9 @@ void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
 					}
 					if (j == linecnt)
 					{
-						CONS_Printf("Warning: Sector %i is not closed at vertex %d (%d, %d)\n",
-							ctlsector - sectors, ctlsector->lines[i]->v1 - vertexes,
+						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
+						CONS_Printf("Warning: Sector %"PRIdS" is not closed at vertex %"PRIdS" (%d, %d)\n",
+							sectori, vertexei,
 							ctlsector->lines[i]->v1->x, ctlsector->lines[i]->v1->y);
 						return; // abort
 					}
@@ -1552,8 +1559,9 @@ void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
 					}
 					if (j == linecnt)
 					{
-						CONS_Printf("Warning: Sector %i is not closed at vertex %d (%d, %d)\n",
-							ctlsector - sectors, ctlsector->lines[i]->v2 - vertexes,
+						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
+						CONS_Printf("Warning: Sector %"PRIdS" is not closed at vertex %"PRIdS" (%d, %d)\n",
+							sectori, vertexei,
 							ctlsector->lines[i]->v2->x, ctlsector->lines[i]->v2->y);
 						return; // abort
 					}
@@ -1593,10 +1601,10 @@ void P_LinedefExecute(long tag, mobj_t *actor, sector_t *caller)
 //
 // Switches the weather!
 //
-void P_SwitchWeather(int weathernum)
+void P_SwitchWeather(INT32 weathernum)
 {
 	boolean purge = false;
-	int swap = 0;
+	INT32 swap = 0;
 
 	switch (weathernum)
 	{
@@ -1689,7 +1697,7 @@ void P_SwitchWeather(int weathernum)
 			}
 			else if (swap == PRECIP_SNOW) // Rain To Snow
 			{
-				int z;
+				INT32 z;
 
 				if (!(think->function.acp1 == (actionf_p1)P_RainThinker
 					|| think->function.acp1 == (actionf_p1)P_NullPrecipThinker))
@@ -1843,7 +1851,7 @@ static mobj_t *P_GetObjectTypeInSectorNum(mobjtype_t type, size_t s)
   */
 static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 {
-	long secnum = -1;
+	INT32 secnum = -1;
 
 	// note: only commands with linedef types >= 400 && < 500 can be used
 	switch (line->special)
@@ -1859,7 +1867,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 		case 402: // Set tagged sector's light level
 			{
 				short newlightlevel;
-				long newfloorlightsec, newceilinglightsec;
+				INT32 newfloorlightsec, newceilinglightsec;
 
 				newlightlevel = line->frontsector->lightlevel;
 				newfloorlightsec = line->frontsector->floorlightsec;
@@ -2115,7 +2123,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 		case 415: // Run a script
 			if (cv_runscripts.value)
 			{
-				int scrnum;
+				INT32 scrnum;
 				lumpnum_t lumpnum;
 				char newname[9];
 
@@ -2315,14 +2323,14 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 				if (line->flags & ML_NOCLIMB) // lets you specify a vertical angle
 				{
-					int aim;
+					INT32 aim;
 
 					aim = sides[line->sidenum[0]].textureoffset>>FRACBITS;
 					while (aim < 0)
 						aim += 360;
 					while (aim >= 360)
 						aim -= 360;
-					aim *= (ANG90>>8);
+					aim *= (ANGLE_90>>8);
 					aim /= 90;
 					aim <<= 8;
 					mo->player->awayviewaiming = (angle_t)aim;
@@ -2470,7 +2478,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					if (!sec->ffloors)
 					{
-						CONS_Printf("Line type 436 Executor: Target sector #%ld has no FOFs.\n", secnum);
+						CONS_Printf("Line type 436 Executor: Target sector #%d has no FOFs.\n", secnum);
 						return;
 					}
 
@@ -2592,7 +2600,7 @@ static boolean P_IsFlagAtBase(mobjtype_t flag)
 {
 	thinker_t *think;
 	mobj_t *mo;
-	int specialnum = 0;
+	INT32 specialnum = 0;
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
@@ -2643,7 +2651,7 @@ static boolean P_IsFlagAtBase(mobjtype_t flag)
 // the particular type that it finds.
 // Returns NULL if it doesn't find it.
 //
-sector_t *P_PlayerTouchingSectorSpecial(player_t *player, int section, int number)
+sector_t *P_PlayerTouchingSectorSpecial(player_t *player, INT32 section, INT32 number)
 {
 	msecnode_t *node;
 	ffloor_t *rover;
@@ -2771,9 +2779,9 @@ sector_t *P_PlayerTouchingSectorSpecial(player_t *player, int section, int numbe
   */
 void P_ProcessSpecialSector(player_t *player, sector_t *sector, sector_t *roversector)
 {
-	int i = 0;
-	int section1, section2, section3, section4;
-	int special;
+	INT32 i = 0;
+	INT32 section1, section2, section3, section4;
+	INT32 special;
 
 	section1 = GETSECSPECIAL(sector->special, 1);
 	section2 = GETSECSPECIAL(sector->special, 2);
@@ -2856,7 +2864,7 @@ void P_ProcessSpecialSector(player_t *player, sector_t *sector, sector_t *rovers
 				else
 					player->mo->momz = FixedDiv(69*FRACUNIT,10*FRACUNIT);
 
-				P_InstaThrust(player->mo, player->mo->angle-ANG180, 4*FRACUNIT);
+				P_InstaThrust(player->mo, player->mo->angle-ANGLE_180, 4*FRACUNIT);
 
 				P_SetPlayerMobjState(player->mo, player->mo->info->painstate);
 				player->powers[pw_flashing] = flashingtics;
@@ -2888,7 +2896,7 @@ void P_ProcessSpecialSector(player_t *player, sector_t *sector, sector_t *rovers
 					player->mo->momz = FixedDiv(10511*FRACUNIT,2600*FRACUNIT);
 				else
 					player->mo->momz = FixedDiv(69*FRACUNIT,10*FRACUNIT);
-				P_InstaThrust (player->mo, player->mo->angle - ANG180, 4*FRACUNIT);
+				P_InstaThrust (player->mo, player->mo->angle - ANGLE_180, 4*FRACUNIT);
 				P_ResetPlayer(player);
 				P_SetPlayerMobjState(player->mo, player->mo->info->painstate);
 			}
@@ -3075,7 +3083,7 @@ DoneSection2:
 
 			// Exit (for FOF exits; others are handled in P_PlayerThink in p_user.c)
 			{
-				int lineindex;
+				INT32 lineindex;
 
 				P_DoPlayerExit(player);
 
@@ -3100,7 +3108,7 @@ DoneSection2:
 					// ...but not in single player!
 					if (multiplayer && lines[lineindex].flags & ML_EFFECT4)
 					{
-						int xofs = sides[lines[lineindex].sidenum[0]].textureoffset;
+						INT32 xofs = sides[lines[lineindex].sidenum[0]].textureoffset;
 						if (xofs >= 0 && xofs < NUMGAMETYPES)
 							nextmapgametype = xofs;
 					}
@@ -3324,9 +3332,9 @@ DoneSection2:
 
 		case 8: // Zoom Tube Start
 			{
-				int sequence;
+				INT32 sequence;
 				fixed_t speed;
-				int lineindex;
+				INT32 lineindex;
 				thinker_t *th;
 				mobj_t *waypoint = NULL;
 				mobj_t *mo2;
@@ -3371,14 +3379,14 @@ DoneSection2:
 					break;
 				}
 				else if (cv_debug)
-					CONS_Printf("Waypoint %ld found in sequence %d - speed = %d\n",
+					CONS_Printf("Waypoint %d found in sequence %d - speed = %d\n",
 																waypoint->health,
 																sequence,
 																speed);
 
 				an = R_PointToAngle2(player->mo->x, player->mo->y, waypoint->x, waypoint->y) - player->mo->angle;
 
-				if (an > ANG90 && an < ANG270 && !(lines[lineindex].flags & ML_EFFECT4))
+				if (an > ANGLE_90 && an < ANGLE_270 && !(lines[lineindex].flags & ML_EFFECT4))
 					break; // behind back
 
 				P_SetTarget(&player->mo->tracer, waypoint);
@@ -3399,9 +3407,9 @@ DoneSection2:
 
 		case 9: // Zoom Tube End
 			{
-				int sequence;
+				INT32 sequence;
 				fixed_t speed;
-				int lineindex;
+				INT32 lineindex;
 				thinker_t *th;
 				mobj_t *waypoint = NULL;
 				mobj_t *mo2;
@@ -3447,14 +3455,14 @@ DoneSection2:
 					break;
 				}
 				else if (cv_debug)
-					CONS_Printf("Waypoint %ld found in sequence %d - speed = %d\n",
+					CONS_Printf("Waypoint %d found in sequence %d - speed = %d\n",
 																waypoint->health,
 																sequence,
 																speed);
 
 				an = R_PointToAngle2(player->mo->x, player->mo->y, waypoint->x, waypoint->y) - player->mo->angle;
 
-				if (an > ANG90 && an < ANG270 && !(lines[lineindex].flags & ML_EFFECT4))
+				if (an > ANGLE_90 && an < ANGLE_270 && !(lines[lineindex].flags & ML_EFFECT4))
 					break; // behind back
 
 				P_SetTarget(&player->mo->tracer, waypoint);
@@ -3520,9 +3528,9 @@ DoneSection2:
 
 		case 11: // Rope hang
 			{
-				int sequence;
+				INT32 sequence;
 				fixed_t speed;
-				int lineindex;
+				INT32 lineindex;
 				thinker_t *th;
 				mobj_t *waypointmid = NULL;
 				mobj_t *waypointhigh = NULL;
@@ -3667,7 +3675,7 @@ DoneSection2:
 				}
 
 				if (cv_debug)
-					CONS_Printf("WaypointMid: %ld; WaypointLow: %ld; WaypointHigh: %ld\n", waypointmid->health, waypointlow ? waypointlow->health : -1, waypointhigh ? waypointhigh->health : -1);
+					CONS_Printf("WaypointMid: %d; WaypointLow: %d; WaypointHigh: %d\n", waypointmid->health, waypointlow ? waypointlow->health : -1, waypointhigh ? waypointhigh->health : -1);
 
 				// Now we have three waypoints... the closest one we're near, and the one that comes before, and after.
 				// Next, we need to find the closest point on the line between each set, and determine which one we're
@@ -4152,8 +4160,8 @@ void P_PlayerInSpecialSector(player_t *player)
 void P_UpdateSpecials(void)
 {
 	anim_t *anim;
-	int i, k;
-	long pic;
+	INT32 i, k;
+	INT32 pic;
 	size_t j;
 
 	levelflat_t *foundflats; // for flat animation
@@ -4189,10 +4197,10 @@ void P_UpdateSpecials(void)
 		//Optional tie-breaker for Match/CTF
 		if ((gametype == GT_MATCH || gametype == GT_CTF) && cv_overtime.value)
 		{
-			int playerarray[MAXPLAYERS];
-			int tempplayer = 0;
-			int spectators = 0;
-			int playercount = 0;
+			INT32 playerarray[MAXPLAYERS];
+			INT32 tempplayer = 0;
+			INT32 spectators = 0;
+			INT32 playercount = 0;
 
 			//Figure out if we have enough participating players to care.
 			for (i = 0; i < MAXPLAYERS; i++)
@@ -4400,7 +4408,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 		lst = (levelspecthink_t *)th;
 
 		if (lst->sector == sec2)
-			P_AddSpikeThinker(sec, sec2-sectors);
+			P_AddSpikeThinker(sec, (INT32)(sec2-sectors));
 	}
 
 	// scan the thinkers
@@ -4413,7 +4421,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 		f = (friction_t *)th;
 
 		if (&sectors[f->affectee] == sec2)
-			Add_Friction(f->friction, f->movefactor, (long)(sec-sectors), f->affectee);
+			Add_Friction(f->friction, f->movefactor, (INT32)(sec-sectors), f->affectee);
 	}
 
 	// scan the thinkers
@@ -4426,7 +4434,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 		p = (pusher_t *)th;
 
 		if (&sectors[p->affectee] == sec2)
-			Add_Pusher(p->type, p->x_mag<<FRACBITS, p->y_mag<<FRACBITS, p->source, (long)(sec-sectors), p->affectee, p->exclusive, p->slider);
+			Add_Pusher(p->type, p->x_mag<<FRACBITS, p->y_mag<<FRACBITS, p->source, (INT32)(sec-sectors), p->affectee, p->exclusive, p->slider);
 	}
 
 	if (flags & FF_TRANSLUCENT)
@@ -4477,7 +4485,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
   * \sa P_SpawnSpecials, T_SpikeSector
   * \author SSNTails <http://www.ssntails.org>
   */
-static void P_AddSpikeThinker(sector_t *sec, int referrer)
+static void P_AddSpikeThinker(sector_t *sec, INT32 referrer)
 {
 	levelspecthink_t *spikes;
 
@@ -4499,7 +4507,7 @@ static void P_AddSpikeThinker(sector_t *sec, int referrer)
   * \sa P_SpawnSpecials, T_FloatSector
   * \author SSNTails <http://www.ssntails.org>
   */
-static void P_AddFloatThinker(sector_t *sec, int tag, line_t *sourceline)
+static void P_AddFloatThinker(sector_t *sec, INT32 tag, line_t *sourceline)
 {
 	levelspecthink_t *floater;
 
@@ -4780,7 +4788,7 @@ static inline void P_AddCameraScanner(sector_t *sourcesec, sector_t *actionsecto
 	// set up the fields according to the type of elevator action
 	elevator->sector = sourcesec;
 	elevator->actionsector = actionsector;
-	elevator->distance = FixedMul(AngleFixed(angle),1);
+	elevator->distance = FixedInt(AngleFixed(angle));
 }
 
 /** Flashes a laser block.
@@ -4858,13 +4866,13 @@ static inline void EV_AddLaserThinker(ffloor_t *ffloor, sector_t *sector)
 //
 // This probably shouldn't be here, but in the utility files...?
 //
-static int axtoi(char *hexStg)
+static INT32 axtoi(char *hexStg)
 {
-	int n = 0;
-	int m = 0;
-	int count;
-	int intValue = 0;
-	int digit[8];
+	INT32 n = 0;
+	INT32 m = 0;
+	INT32 count;
+	INT32 intValue = 0;
+	INT32 digit[8];
 	while (n < 8)
 	{
 		if (hexStg[n] == '\0')
@@ -4919,7 +4927,7 @@ void P_SpawnSpecials(void)
 {
 	sector_t *sector;
 	size_t i;
-	long j;
+	INT32 j;
 
 	// Set the default gravity. Custom gravity overrides this setting.
 	gravity = FRACUNIT/2;
@@ -4941,7 +4949,7 @@ void P_SpawnSpecials(void)
 		switch(GETSECSPECIAL(sector->special, 1))
 		{
 			case 5: // Spikes
-				P_AddSpikeThinker(sector, sector-sectors);
+				P_AddSpikeThinker(sector, (INT32)(sector-sectors));
 				break;
 
 			case 15: // Bouncy sector
@@ -5037,7 +5045,7 @@ void P_SpawnSpecials(void)
 
 		switch (lines[i].special)
 		{
-			long s;
+			INT32 s;
 			size_t sec;
 			ffloortype_e ffloorflags;
 
@@ -5191,7 +5199,7 @@ void P_SpawnSpecials(void)
 			case 63: // support for drawn heights coming from different sector
 				sec = sides[*lines[i].sidenum].sector-sectors;
 				for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
-					sectors[s].heightsec = (long)sec;
+					sectors[s].heightsec = (INT32)sec;
 				break;
 
 			case 64: // Appearing/Disappearing FOF option
@@ -5201,7 +5209,7 @@ void P_SpawnSpecials(void)
 						continue;
 
 					if (sides[lines[s].sidenum[0]].sector->tag == sides[lines[i].sidenum[0]].sector->tag)
-						Add_MasterDisappearer(abs(lines[i].dx>>FRACBITS), abs(lines[i].dy>>FRACBITS), abs(sides[lines[i].sidenum[0]].sector->floorheight>>FRACBITS), s, i);
+						Add_MasterDisappearer(abs(lines[i].dx>>FRACBITS), abs(lines[i].dy>>FRACBITS), abs(sides[lines[i].sidenum[0]].sector->floorheight>>FRACBITS), s, (INT32)i);
 				}
 				break;
 
@@ -5543,7 +5551,7 @@ void P_SpawnSpecials(void)
 				{
 					size_t counting;
 
-					sectors[s].floorangle = ANG45;
+					sectors[s].floorangle = ANGLE_45;
 					for (counting = 0; counting < sectors[s].linecount/2; counting++)
 					{
 						sectors[s].lines[counting]->v1->z = sectors[sec].floorheight;
@@ -5812,13 +5820,13 @@ void P_SpawnSpecials(void)
 			case 600: // floor lighting independently (e.g. lava)
 				sec = sides[*lines[i].sidenum].sector-sectors;
 				for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
-					sectors[s].floorlightsec = sec;
+					sectors[s].floorlightsec = (INT32)sec;
 				break;
 
 			case 601: // ceiling lighting independently
 				sec = sides[*lines[i].sidenum].sector-sectors;
 				for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
-					sectors[s].ceilinglightsec = sec;
+					sectors[s].ceilinglightsec = (INT32)sec;
 				break;
 
 			case 602: // Adjustable pulsating light
@@ -5886,7 +5894,7 @@ void P_SpawnSpecials(void)
   */
 static void P_AddFakeFloorsByLine(size_t line, ffloortype_e ffloorflags)
 {
-	long s;
+	INT32 s;
 	size_t sec = sides[*lines[line].sidenum].sector-sectors;
 
 	for (s = -1; (s = P_FindSectorFromLineTag(lines+line, s)) >= 0 ;)
@@ -5959,7 +5967,7 @@ void T_Scroll(scroll_t *s)
 		mobj_t *thing;
 		line_t *line;
 		size_t i;
-		long sect;
+		INT32 sect;
 
 		case sc_side: // scroll wall texture
 			side = sides + s->affectee;
@@ -6187,7 +6195,7 @@ void T_Scroll(scroll_t *s)
   * \param accel    Nonzero for an accelerative effect.
   * \sa Add_WallScroller, P_SpawnScrollers, T_Scroll
   */
-static void Add_Scroller(int type, fixed_t dx, fixed_t dy, int control, int affectee, int accel, int exclusive)
+static void Add_Scroller(INT32 type, fixed_t dx, fixed_t dy, INT32 control, INT32 affectee, INT32 accel, INT32 exclusive)
 {
 	scroll_t *s = Z_Calloc(sizeof *s, PU_LEVSPEC, NULL);
 	s->thinker.function.acp1 = (actionf_p1)T_Scroll;
@@ -6217,12 +6225,12 @@ static void Add_Scroller(int type, fixed_t dx, fixed_t dy, int control, int affe
   * \param accel   Nonzero for an accelerative effect.
   * \sa Add_Scroller, P_SpawnScrollers
   */
-static void Add_WallScroller(fixed_t dx, fixed_t dy, const line_t *l, int control, int accel)
+static void Add_WallScroller(fixed_t dx, fixed_t dy, const line_t *l, INT32 control, INT32 accel)
 {
 	fixed_t x = abs(l->dx), y = abs(l->dy), d;
 	if (y > x)
 		d = x, x = y, y = d;
-	d = FixedDiv(x, FINESINE((tantoangle[FixedDiv(y, x) >> DBITS] + ANG90) >> ANGLETOFINESHIFT));
+	d = FixedDiv(x, FINESINE((tantoangle[FixedDiv(y, x) >> DBITS] + ANGLE_90) >> ANGLETOFINESHIFT));
 	x = -FixedDiv(FixedMul(dy, l->dy) + FixedMul(dx, l->dx), d);
 	y = -FixedDiv(FixedMul(dx, l->dy) - FixedMul(dy, l->dx), d);
 	Add_Scroller(sc_side, x, y, control, *l->sidenum, accel, 0);
@@ -6242,8 +6250,8 @@ static void P_SpawnScrollers(void)
 	{
 		fixed_t dx = l->dx >> SCROLL_SHIFT; // direction and speed of scrolling
 		fixed_t dy = l->dy >> SCROLL_SHIFT;
-		int control = -1, accel = 0; // no control sector or acceleration
-		int special = l->special;
+		INT32 control = -1, accel = 0; // no control sector or acceleration
+		INT32 special = l->special;
 
 		// These types are same as the ones they get set to except that the
 		// first side's sector's heights cause scrolling when they change, and
@@ -6253,29 +6261,29 @@ static void P_SpawnScrollers(void)
 		if (special == 515 || special == 512 || special == 522 || special == 532 || special == 504) // displacement scrollers
 		{
 			special -= 2;
-			control = (int)(sides[*l->sidenum].sector - sectors);
+			control = (INT32)(sides[*l->sidenum].sector - sectors);
 		}
 		else if (special == 514 || special == 511 || special == 521 || special == 531 || special == 504) // accelerative scrollers
 		{
 			special--;
 			accel = 1;
-			control = (int)(sides[*l->sidenum].sector - sectors);
+			control = (INT32)(sides[*l->sidenum].sector - sectors);
 		}
 		else if (special == 535 || special == 525) // displacement scrollers
 		{
 			special -= 2;
-			control = (int)(sides[*l->sidenum].sector - sectors);
+			control = (INT32)(sides[*l->sidenum].sector - sectors);
 		}
 		else if (special == 534 || special == 524) // accelerative scrollers
 		{
 			accel = 1;
 			special--;
-			control = (int)(sides[*l->sidenum].sector - sectors);
+			control = (INT32)(sides[*l->sidenum].sector - sectors);
 		}
 
 		switch (special)
 		{
-			register long s;
+			register INT32 s;
 
 			case 513: // scroll effect ceiling
 			case 533: // scroll and carry objects on ceiling
@@ -6309,7 +6317,7 @@ static void P_SpawnScrollers(void)
 			// (same direction and speed as scrolling floors)
 			case 502:
 				for (s = -1; (s = P_FindLineFromLineTag(l, s)) >= 0 ;)
-					if (s != (int)i)
+					if (s != (INT32)i)
 						Add_WallScroller(dx, dy, lines+s, control, accel);
 				break;
 
@@ -6324,7 +6332,7 @@ static void P_SpawnScrollers(void)
 				if (s != 0xffff)
 					Add_Scroller(sc_side, -sides[s].textureoffset, sides[s].rowoffset, -1, lines[i].sidenum[0], accel, 0);
 				else
-					CONS_Printf("Line special 506 (line #%d) missing 2nd side!\n", i);
+					CONS_Printf("Line special 506 (line #%"PRIdS") missing 2nd side!\n", i);
 				break;
 
 			case 500: // scroll first side
@@ -6344,7 +6352,7 @@ static void P_SpawnScrollers(void)
   * \param disappeartime	tics to be nonexistent
   * \param sector			pointer to control sector
   */
-static void Add_MasterDisappearer(tic_t appeartime, tic_t disappeartime, tic_t offset, int line, int sourceline)
+static void Add_MasterDisappearer(tic_t appeartime, tic_t disappeartime, tic_t offset, INT32 line, INT32 sourceline)
 {
 	disappear_t *d = Z_Malloc(sizeof *d, PU_LEVSPEC, NULL);
 
@@ -6376,7 +6384,7 @@ void T_Disappear(disappear_t *d)
 	if (--d->timer <= 0)
 	{
 		ffloor_t *rover;
-		register int s;
+		register INT32 s;
 
 		for (s = -1; (s = P_FindSectorFromLineTag(&lines[d->affectee], s)) >= 0 ;)
 		{
@@ -6429,7 +6437,7 @@ void T_Disappear(disappear_t *d)
   * \param roverfriction FOF or not
   * \sa T_Friction, P_SpawnFriction
   */
-static void Add_Friction(long friction, long movefactor, long affectee, long referrer)
+static void Add_Friction(INT32 friction, INT32 movefactor, INT32 affectee, INT32 referrer)
 {
 	friction_t *f = Z_Calloc(sizeof *f, PU_LEVSPEC, NULL);
 
@@ -6531,10 +6539,10 @@ static void P_SpawnFriction(void)
 {
 	size_t i;
 	line_t *l = lines;
-	register long s;
+	register INT32 s;
 	fixed_t length; // line length controls magnitude
 	fixed_t friction; // friction value to be applied during movement
-	int movefactor; // applied to each player move to simulate inertia
+	INT32 movefactor; // applied to each player move to simulate inertia
 
 	for (i = 0; i < numlines; i++, l++)
 		if (l->special == 540)
@@ -6586,7 +6594,7 @@ static void P_SpawnFriction(void)
   * \param referrer What sector set it
   * \sa T_Pusher, P_GetPushThing, P_SpawnPushers
   */
-static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *source, long affectee, long referrer, int exclusive, int slider)
+static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *source, INT32 affectee, INT32 referrer, INT32 exclusive, INT32 slider)
 {
 	pusher_t *p = Z_Calloc(sizeof *p, PU_LEVSPEC, NULL);
 
@@ -6616,7 +6624,7 @@ static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *
 	{
 		// where force goes to zero
 		if (type == p_push)
-			p->radius = (source->angle / (ANG45 / 90))<<(FRACBITS+1);
+			p->radius = (source->angle / (ANGLE_45 / 90))<<(FRACBITS+1);
 		else
 			p->radius = (p->magnitude)<<(FRACBITS+1);
 
@@ -6652,9 +6660,9 @@ static inline boolean PIT_PushThing(mobj_t *thing)
 	// Allow this to affect pushable objects at some point?
 	if (thing->player && (!(thing->flags & (MF_NOGRAVITY | MF_NOCLIP)) || thing->player->pflags & PF_NIGHTSMODE))
 	{
-		int dist;
-		int speed;
-		int sx, sy, sz;
+		INT32 dist;
+		INT32 speed;
+		INT32 sx, sy, sz;
 
 		sx = tmpusher->x;
 		sy = tmpusher->y;
@@ -6716,7 +6724,7 @@ static inline boolean PIT_PushThing(mobj_t *thing)
 
 					pushangle = R_PointToAngle2(thing->x, thing->y, sx, sy);
 					if (tmpusher->source->type == MT_PUSH)
-						pushangle += ANG180; // away
+						pushangle += ANGLE_180; // away
 					pushangle >>= ANGLETOFINESHIFT;
 					thing->momx += FixedMul(speed, FINECOSINE(pushangle));
 					thing->momy += FixedMul(speed, FINESINE(pushangle));
@@ -6789,10 +6797,10 @@ void T_Pusher(pusher_t *p)
 	sector_t *sec;
 	mobj_t *thing;
 	msecnode_t *node;
-	int xspeed = 0,yspeed = 0;
-	int xl, xh, yl, yh, bx, by;
-	int radius;
-	//int ht = 0;
+	INT32 xspeed = 0,yspeed = 0;
+	INT32 xl, xh, yl, yh, bx, by;
+	INT32 radius;
+	//INT32 ht = 0;
 	boolean inFOF;
 	boolean touching;
 	boolean foundfloor = false;
@@ -6893,7 +6901,7 @@ void T_Pusher(pusher_t *p)
 		if (p->roverpusher)
 		{
 			sector_t *referrer = &sectors[p->referrer];
-			int special;
+			INT32 special;
 
 			special = GETSECSPECIAL(referrer->special, 3);
 
@@ -7075,7 +7083,7 @@ static void P_SpawnPushers(void)
 {
 	size_t i;
 	line_t *l = lines;
-	register long s;
+	register INT32 s;
 	mobj_t *thing;
 
 	for (i = 0; i < numlines; i++, l++)

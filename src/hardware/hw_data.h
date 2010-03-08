@@ -48,7 +48,7 @@ struct GLMipmap_s
 	FxU32           flags;
 	unsigned short  height;
 	unsigned short  width;
-	unsigned int    downloaded;     // the dll driver have it in there cache ?
+	UINT32    downloaded;     // the dll driver have it in there cache ?
 
 	struct GLMipmap_s    *nextcolormap;
 	const byte              *colormap;

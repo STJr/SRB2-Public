@@ -51,7 +51,7 @@ void F_GameEvaluationTicker(void);
 void F_CreditTicker(void);
 void F_CreditDrawer(void);
 
-void F_StartCustomCutscene(int cutscenenum, boolean precutscene, boolean resetplayer);
+void F_StartCustomCutscene(INT32 cutscenenum, boolean precutscene, boolean resetplayer);
 void F_CutsceneDrawer(void);
 void F_EndCutScene(void);
 
@@ -75,7 +75,7 @@ typedef struct
 */
 extern credit_t credits[19];
 
-extern int titlescrollspeed;
+extern INT32 titlescrollspeed;
 
 //
 // WIPE
@@ -83,8 +83,8 @@ extern int titlescrollspeed;
 extern boolean WipeInAction;
 
 void F_WipeStartScreen(void);
-void F_WipeEndScreen(int x, int y, int width, int height);
-int F_ScreenWipe(int x, int y, int width, int height, tic_t ticks);
+void F_WipeEndScreen(INT32 x, INT32 y, INT32 width, INT32 height);
+INT32 F_ScreenWipe(INT32 x, INT32 y, INT32 width, INT32 height, tic_t ticks);
 void F_RunWipe(tic_t duration, boolean drawMenu);
 
 #endif

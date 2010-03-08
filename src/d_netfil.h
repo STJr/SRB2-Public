@@ -52,31 +52,31 @@ typedef struct
 	filestatus_t status; // the value returned by recsearch
 } fileneeded_t;
 
-extern int fileneedednum;
+extern INT32 fileneedednum;
 extern fileneeded_t fileneeded[MAX_WADFILES];
 extern char downloaddir[256];
 
 byte *PutFileNeeded(void);
-void D_ParseFileneeded(int fileneedednum_parm, byte *fileneededstr);
+void D_ParseFileneeded(INT32 fileneedednum_parm, byte *fileneededstr);
 void CL_PrepareDownloadSaveGame(const char *tmpsave);
 
 // check file list in wadfiles return 0 when a file is not found
 //                                    1 if all file are found
 //                                    2 if you cannot connect (different wad version or
 //                                                   no enought space to download files)
-int CL_CheckFiles(void);
+INT32 CL_CheckFiles(void);
 void CL_LoadServerFiles(void);
-void SendFile(int node, char *filename, char fileid);
-void SendRam(int node, byte *data, size_t size, freemethod_t freemethod,
+void SendFile(INT32 node, char *filename, char fileid);
+void SendRam(INT32 node, byte *data, size_t size, freemethod_t freemethod,
 	char fileid);
 
 void FiletxTicker(void);
 void Got_Filetxpak(void);
 
 boolean SendRequestFile(void);
-void Got_RequestFilePak(int node);
+void Got_RequestFilePak(INT32 node);
 
-void AbortSendFiles(int node);
+void AbortSendFiles(INT32 node);
 void CloseNetFile(void);
 
 boolean fileexist(char *filename, time_t ptime);

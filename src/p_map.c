@@ -36,7 +36,7 @@
 
 fixed_t tmbbox[4];
 mobj_t *tmthing;
-static int tmflags;
+static INT32 tmflags;
 static fixed_t tmx;
 static fixed_t tmy;
 
@@ -44,7 +44,7 @@ static precipmobj_t *tmprecipthing;
 static fixed_t preciptmx;
 static fixed_t preciptmy;
 static fixed_t preciptmbbox[4];
-static int preciptmflags;
+static INT32 preciptmflags;
 
 // If "floatok" true, move would be ok
 // if within "tmfloorz - tmceilingz".
@@ -962,7 +962,7 @@ static boolean PIT_CheckLine(line_t *ld)
 //
 boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
 {
-	int xl, xh, yl, yh, bx, by;
+	INT32 xl, xh, yl, yh, bx, by;
 	subsector_t *newsubsec;
 	boolean blockval = true;
 
@@ -992,7 +992,7 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
 	{
 		ffloor_t *rover;
 		fixed_t delta1, delta2;
-		int thingtop = thing->z + thing->height;
+		INT32 thingtop = thing->z + thing->height;
 
 		for (rover = newsubsec->sector->ffloors; rover; rover = rover->next)
 		{
@@ -1058,7 +1058,7 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
 		for (by = yl; by <= yh; by++)
 			for (bx = xl; bx <= xh; bx++)
 			{
-				int offset;
+				INT32 offset;
 				polymaplink_t *plink; // haleyjd 02/22/06
 
 				if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
@@ -1168,7 +1168,7 @@ static const fixed_t hoophalfheight = (56*FRACUNIT)/2;
 // P_CheckPosition optimized for the MT_HOOPCOLLIDE object. This needs to be as fast as possible!
 void P_CheckHoopPosition(mobj_t *hoopthing, fixed_t x, fixed_t y, fixed_t z, fixed_t radius)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -1194,7 +1194,7 @@ void P_CheckHoopPosition(mobj_t *hoopthing, fixed_t x, fixed_t y, fixed_t z, fix
 //
 boolean P_CheckCameraPosition(fixed_t x, fixed_t y, camera_t *thiscam)
 {
-	int xl, xh, yl, yh, bx, by;
+	INT32 xl, xh, yl, yh, bx, by;
 	subsector_t *newsubsec;
 
 	tmx = x;
@@ -1228,7 +1228,7 @@ boolean P_CheckCameraPosition(fixed_t x, fixed_t y, camera_t *thiscam)
 	{
 		ffloor_t *rover;
 		fixed_t delta1, delta2;
-		int thingtop = thiscam->z + thiscam->height;
+		INT32 thingtop = thiscam->z + thiscam->height;
 
 		for (rover = newsubsec->sector->ffloors; rover; rover = rover->next)
 		{
@@ -1263,7 +1263,7 @@ boolean P_CheckCameraPosition(fixed_t x, fixed_t y, camera_t *thiscam)
 		for (by = yl; by <= yh; by++)
 			for (bx = xl; bx <= xh; bx++)
 			{
-				int offset;
+				INT32 offset;
 				polymaplink_t *plink; // haleyjd 02/22/06
 
 				if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
@@ -1364,11 +1364,11 @@ static void CheckMissileImpact(mobj_t *mobj)
 //
 // Return 1 if the move succeeded and no sliding should be done.
 //
-int P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
+INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 {
 	fixed_t oldx, oldy;
 	subsector_t *s = R_PointInSubsector(x, y);
-	int retval = 1;
+	INT32 retval = 1;
 	boolean itsatwodlevel = false;
 
 	floatok = false;
@@ -1654,7 +1654,7 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 	// standing on top and move it, too.
 	if (thing->flags & MF_PUSHABLE)
 	{
-		int bx, by, xl, xh, yl, yh;
+		INT32 bx, by, xl, xh, yl, yh;
 
 		yh = (unsigned)(thing->y + MAXRADIUS - bmaporgy)>>MAPBLOCKSHIFT;
 		yl = (unsigned)(thing->y - MAXRADIUS - bmaporgy)>>MAPBLOCKSHIFT;
@@ -1822,7 +1822,7 @@ static fixed_t tmxmove, tmymove;
 //
 static void P_HitCameraSlideLine(line_t *ld, camera_t *thiscam)
 {
-	int side;
+	INT32 side;
 	angle_t lineangle, moveangle, deltaangle;
 	fixed_t movelen, newlen;
 
@@ -1842,13 +1842,13 @@ static void P_HitCameraSlideLine(line_t *ld, camera_t *thiscam)
 	lineangle = R_PointToAngle2(0, 0, ld->dx, ld->dy);
 
 	if (side == 1)
-		lineangle += ANG180;
+		lineangle += ANGLE_180;
 
 	moveangle = R_PointToAngle2(0, 0, tmxmove, tmymove);
 	deltaangle = moveangle-lineangle;
 
-	if (deltaangle > ANG180)
-		deltaangle += ANG180;
+	if (deltaangle > ANGLE_180)
+		deltaangle += ANGLE_180;
 
 	lineangle >>= ANGLETOFINESHIFT;
 	deltaangle >>= ANGLETOFINESHIFT;
@@ -1867,7 +1867,7 @@ static void P_HitCameraSlideLine(line_t *ld, camera_t *thiscam)
 //
 static void P_HitSlideLine(line_t *ld)
 {
-	int side;
+	INT32 side;
 	angle_t lineangle, moveangle, deltaangle;
 	fixed_t movelen, newlen;
 
@@ -1888,13 +1888,13 @@ static void P_HitSlideLine(line_t *ld)
 	lineangle = R_PointToAngle2(0, 0, ld->dx, ld->dy);
 
 	if (side == 1)
-		lineangle += ANG180;
+		lineangle += ANGLE_180;
 
 	moveangle = R_PointToAngle2(0, 0, tmxmove, tmymove);
 	deltaangle = moveangle-lineangle;
 
-	if (deltaangle > ANG180)
-		deltaangle += ANG180;
+	if (deltaangle > ANGLE_180)
+		deltaangle += ANGLE_180;
 
 	lineangle >>= ANGLETOFINESHIFT;
 	deltaangle >>= ANGLETOFINESHIFT;
@@ -1913,7 +1913,7 @@ static void P_HitSlideLine(line_t *ld)
 //
 static void P_HitBounceLine(line_t *ld)
 {
-	int side;
+	INT32 side;
 	angle_t lineangle, moveangle, deltaangle;
 	fixed_t movelen;
 
@@ -1933,8 +1933,8 @@ static void P_HitBounceLine(line_t *ld)
 
 	lineangle = R_PointToAngle2(0, 0, ld->dx, ld->dy);
 
-	if (lineangle >= ANG180)
-		lineangle -= ANG180;
+	if (lineangle >= ANGLE_180)
+		lineangle -= ANGLE_180;
 
 	moveangle = R_PointToAngle2(0, 0, tmxmove, tmymove);
 	deltaangle = moveangle + 2*(lineangle - moveangle);
@@ -2132,7 +2132,7 @@ isblocking:
 		sector_t *checksector;
 		ffloor_t *rover;
 		boolean fofline = false;
-		int side = P_PointOnLineSide(slidemo->x, slidemo->y, li);
+		INT32 side = P_PointOnLineSide(slidemo->x, slidemo->y, li);
 
 		if (!side && li->backsector)
 			checksector = li->backsector;
@@ -2155,7 +2155,7 @@ isblocking:
 				// Got this far, so I guess it's climbable.
 				if (rover->master->flags & ML_TFERLINE)
 				{
-					int linenum = li-checksector->lines[0];
+					size_t linenum = li-checksector->lines[0];
 					checkline = rover->master->frontsector->lines[0] + linenum;
 					fofline = true;
 				}
@@ -2168,20 +2168,20 @@ isblocking:
 		if (!(checkline->flags & ML_NOCLIMB))
 		{
 			angle_t climbangle, climbline = R_PointToAngle2(li->v1->x, li->v1->y, li->v2->x, li->v2->y);
-			int whichside = P_PointOnLineSide(slidemo->x, slidemo->y, li);
+			INT32 whichside = P_PointOnLineSide(slidemo->x, slidemo->y, li);
 
 			if (whichside) // on second side?
-				climbline += ANG180;
+				climbline += ANGLE_180;
 
 			if (((!slidemo->player->climbing
-				&& abs(slidemo->angle - ANG90 - climbline) < ANG45) ||
+				&& abs(slidemo->angle - ANGLE_90 - climbline) < ANGLE_45) ||
 
 				(slidemo->player->climbing == 1
-				&& abs(slidemo->angle - climbline) < ANG90+ANG45))
+				&& abs(slidemo->angle - climbline) < ANGLE_135))
 
 				&& P_IsClimbingValid(slidemo->player, climbangle =
 				R_PointToAngle2(li->v1->x, li->v1->y, li->v2->x, li->v2->y)
-				+ (ANG90 * (whichside ? -1 : 1))))
+				+ (ANGLE_90 * (whichside ? -1 : 1))))
 			{
 				slidemo->angle = climbangle;
 				if (slidemo->player == &players[consoleplayer])
@@ -2238,8 +2238,8 @@ isblocking:
 void P_SlideCameraMove(camera_t *thiscam)
 {
 	fixed_t leadx, leady, trailx, traily, newx, newy;
-	int hitcount = 0;
-	int retval = 0;
+	INT32 hitcount = 0;
+	INT32 retval = 0;
 
 	bestslideline = NULL;
 
@@ -2451,7 +2451,7 @@ void P_BounceMove(mobj_t *mo)
 	fixed_t leadx, leady;
 	fixed_t trailx, traily;
 	fixed_t newx, newy;
-	int hitcount;
+	INT32 hitcount;
 	fixed_t mmomx = 0, mmomy = 0;
 
 	slidemo = mo;
@@ -2587,7 +2587,7 @@ static fixed_t shootz;
 static fixed_t lastz; // The last z height of the bullet when it crossed a line
 
 // More intelligent autoaiming
-static int aim_nofriends; // stores (CTF team #) or (skincolor #+1) or (skinnum #+1)
+static INT32 aim_nofriends; // stores (CTF team #) or (skincolor #+1) or (skinnum #+1)
 
 fixed_t attackrange;
 static fixed_t aimslope;
@@ -2610,7 +2610,7 @@ static boolean PTR_AimTraverse(intercept_t *in)
 	line_t *li;
 	mobj_t *th;
 	fixed_t slope, thingtopslope, thingbottomslope, dist;
-	int dir;
+	INT32 dir;
 
 	if (in->isaline)
 	{
@@ -2649,7 +2649,7 @@ static boolean PTR_AimTraverse(intercept_t *in)
 
 		if (li->frontsector->ffloors || li->backsector->ffloors)
 		{
-			int frontflag = P_PointOnLineSide(shootthing->x, shootthing->y, li);
+			INT32 frontflag = P_PointOnLineSide(shootthing->x, shootthing->y, li);
 
 			dir = aimslope > 0 ? 1 : aimslope < 0 ? -1 : 0;
 
@@ -2825,7 +2825,7 @@ fixed_t P_AimLineAttack(mobj_t *t1, angle_t angle, fixed_t distance)
 //
 // RADIUS ATTACK
 //
-static int bombdamage;
+static INT32 bombdamage;
 static mobj_t *bombsource;
 static mobj_t *bombspot;
 
@@ -2878,8 +2878,8 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
 
 	if (P_CheckSight(thing, bombspot))
 	{
-		int damage = bombdamage - dist;
-		int momx = 0, momy = 0;
+		INT32 damage = bombdamage - dist;
+		INT32 momx = 0, momy = 0;
 		if (dist)
 		{
 			momx = (thing->x - bombspot->x)/dist;
@@ -2896,10 +2896,10 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
 // P_RadiusAttack
 // Source is the creature that caused the explosion at spot.
 //
-void P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage)
+void P_RadiusAttack(mobj_t *spot, mobj_t *source, INT32 damage)
 {
-	int x, y;
-	int xl, xh, yl, yh;
+	INT32 x, y;
+	INT32 xl, xh, yl, yh;
 	fixed_t dist;
 
 	dist = (damage + MAXRADIUS)<<FRACBITS;
@@ -2958,7 +2958,7 @@ static boolean PIT_ChangeSector(mobj_t *thing, boolean realcrush)
 		{
 			ffloor_t *rover;
 			fixed_t delta1, delta2;
-			int thingtop = thing->z + thing->height;
+			INT32 thingtop = thing->z + thing->height;
 
 			for (rover = thing->subsector->sector->ffloors; rover; rover = rover->next)
 			{
@@ -3476,7 +3476,7 @@ static inline boolean PIT_GetPrecipSectors(line_t *ld)
 
 void P_CreateSecNodeList(mobj_t *thing, fixed_t x, fixed_t y)
 {
-	int xl, xh, yl, yh, bx, by;
+	INT32 xl, xh, yl, yh, bx, by;
 	msecnode_t *node = sector_list;
 	mobj_t *saved_tmthing = tmthing; /* cph - see comment at func end */
 	fixed_t saved_tmx = tmx, saved_tmy = tmy; /* ditto */
@@ -3558,7 +3558,7 @@ void P_CreateSecNodeList(mobj_t *thing, fixed_t x, fixed_t y)
 // More crazy crap Tails 08-25-2002
 void P_CreatePrecipSecNodeList(precipmobj_t *thing,fixed_t x,fixed_t y)
 {
-	int xl, xh, yl, yh, bx, by;
+	INT32 xl, xh, yl, yh, bx, by;
 	mprecipsecnode_t *node = precipsector_list;
 	precipmobj_t *saved_tmthing = tmprecipthing; /* cph - see comment at func end */
 

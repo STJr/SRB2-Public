@@ -34,9 +34,9 @@
 void ShowEndTxt(void)
 {
 #if !(defined (_WIN32_WCE) || defined (_XBOX) || defined (_arch_dreamcast))
-	int i;
+	INT32 i;
 	unsigned short j, att = 0;
-	int nlflag = 1;
+	INT32 nlflag = 1;
 #ifdef _WIN32
 	HANDLE co = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD mode, bytesWritten;

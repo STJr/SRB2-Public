@@ -61,18 +61,18 @@ static tic_t con_tick; // console ticker for anim or blinking prompt cursor
 static boolean consoletoggle; // true when console key pushed, ticker will handle
 static boolean consoleready;  // console prompt is ready
 
-       int con_destlines; // vid lines used by console at final position
-static int con_curlines;  // vid lines currently used by console
+       INT32 con_destlines; // vid lines used by console at final position
+static INT32 con_curlines;  // vid lines currently used by console
 
-       int con_clipviewtop; // clip value for planes & sprites, so that the
+       INT32 con_clipviewtop; // clip value for planes & sprites, so that the
                             // part of the view covered by the console is not
                             // drawn when not needed, this must be -1 when
                             // console is off
 
-static int con_hudlines;        // number of console heads up message lines
-static int con_hudtime[MAXHUDLINES];      // remaining time of display for hud msg lines
+static INT32 con_hudlines;        // number of console heads up message lines
+static INT32 con_hudtime[MAXHUDLINES];      // remaining time of display for hud msg lines
 
-       int con_clearlines;      // top screen lines to refresh when view reduced
+       INT32 con_clearlines;      // top screen lines to refresh when view reduced
        boolean con_hudupdate;   // when messages scroll, we need a backgrnd refresh
 
 // console text output
@@ -93,8 +93,8 @@ static size_t con_scrollup;        // how many rows of text to scroll up (pgup/p
 
 static char inputlines[32][CON_MAXPROMPTCHARS]; // hold last 32 prompt lines
 
-static int inputline;    // current input line number
-static int inputhist;    // line number of history input line to restore
+static INT32 inputline;    // current input line number
+static INT32 inputhist;    // line number of history input line to restore
 static size_t input_cx;  // position in current input line
 
 static patch_t *con_backpic; // console background picture, loaded static
@@ -105,8 +105,8 @@ static void CON_RecalcSize(void);
 
 static void CONS_hudlines_Change(void);
 static void CONS_speed_Change(void);
-static void CON_DrawBackpic(patch_t *pic, int startx, int destwidth);
-//static void CON_DrawBackpic2(pic_t *pic, int startx, int destwidth);
+static void CON_DrawBackpic(patch_t *pic, INT32 startx, INT32 destwidth);
+//static void CON_DrawBackpic2(pic_t *pic, INT32 startx, INT32 destwidth);
 
 //======================================================================
 //                   CONSOLE VARS AND COMMANDS
@@ -149,7 +149,7 @@ static void CON_Print(char *msg);
 //
 static void CONS_hudlines_Change(void)
 {
-	int i;
+	INT32 i;
 
 	// Clear the currently displayed lines
 	for (i = 0; i < con_hudlines; i++)
@@ -198,7 +198,7 @@ static char *bindtable[NUMINPUTS];
 static void CONS_Bind_f(void)
 {
 	size_t na;
-	int key;
+	INT32 key;
 
 	na = COM_Argc();
 
@@ -255,7 +255,7 @@ byte *cgraymap;
 byte *credmap;
 static void CON_SetupBackColormap(void)
 {
-	int i, j, k;
+	INT32 i, j, k;
 	byte *pal;
 
 	cwhitemap   = (byte *)Z_Malloc(256, PU_STATIC, NULL);
@@ -323,7 +323,7 @@ static void CON_SetupBackColormap(void)
 //
 void CON_Init(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < NUMINPUTS; i++)
 		bindtable[i] = NULL;
@@ -381,7 +381,7 @@ void CON_Init(void)
 //
 static void CON_InputInit(void)
 {
-	int i;
+	INT32 i;
 
 	// prepare the first prompt line
 	memset(inputlines, 0, sizeof (inputlines));
@@ -421,7 +421,7 @@ static void CON_RecalcSize(void)
 	oldcon_width = con_width;
 	oldnumlines = con_totallines;
 	oldcon_cy = con_cy;
-	memcpy(tmp_buffer, con_buffer, CON_BUFFERSIZE);
+	M_Memcpy(tmp_buffer, con_buffer, CON_BUFFERSIZE);
 
 	if (conw < 1)
 		con_width = (BASEVIDWIDTH>>3) - 2;
@@ -445,7 +445,7 @@ static void CON_RecalcSize(void)
 		{
 			if (tmp_buffer[(i%oldnumlines)*oldcon_width])
 			{
-				memcpy(string, &tmp_buffer[(i%oldnumlines)*oldcon_width], oldcon_width);
+				M_Memcpy(string, &tmp_buffer[(i%oldnumlines)*oldcon_width], oldcon_width);
 				conw = oldcon_width - 1;
 				while (string[conw] == ' ' && conw)
 					conw--;
@@ -464,13 +464,13 @@ static void CON_MoveConsole(void)
 	// up/down move to dest
 	if (con_curlines < con_destlines)
 	{
-		con_curlines += (int)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
+		con_curlines += (INT32)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
 		if (con_curlines > con_destlines)
 			con_curlines = con_destlines;
 	}
 	else if (con_curlines > con_destlines)
 	{
-		con_curlines -= (int)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
+		con_curlines -= (INT32)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
 		if (con_curlines < con_destlines)
 			con_curlines = con_destlines;
 	}
@@ -480,7 +480,7 @@ static void CON_MoveConsole(void)
 //
 void CON_ClearHUD(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < con_hudlines; i++)
 		con_hudtime[i] = 0;
@@ -504,7 +504,7 @@ void CON_ToggleOff(void)
 //
 void CON_Ticker(void)
 {
-	int i;
+	INT32 i;
 
 	// cursor blinking
 	con_tick++;
@@ -573,10 +573,10 @@ boolean CON_Responder(event_t *ev)
 
 	// sequential completions a la 4dos
 	static char completion[80];
-	static int comskips, varskips;
+	static INT32 comskips, varskips;
 
 	const char *cmd = "";
-	int key;
+	INT32 key;
 
 	if (chat_on)
 		return false;
@@ -782,7 +782,7 @@ boolean CON_Responder(event_t *ev)
 		if (inputhist == inputline)
 			inputhist = (inputline + 1) & 31;
 
-		memcpy(inputlines[inputline], inputlines[inputhist], CON_MAXPROMPTCHARS);
+		M_Memcpy(inputlines[inputline], inputlines[inputhist], CON_MAXPROMPTCHARS);
 		input_cx = strlen(inputlines[inputline]);
 
 		return true;
@@ -869,7 +869,7 @@ static void CON_Linefeed(void)
 static void CON_Print(char *msg)
 {
 	size_t l;
-	int controlchars = 0; // for color changing
+	INT32 controlchars = 0; // for color changing
 
 	if (*msg == '\3') // chat text, makes ding sound
 		S_StartSound(NULL, sfx_radio);
@@ -1070,7 +1070,7 @@ static void CON_DrawInput(void)
 {
 	char *p;
 	size_t x;
-	int y;
+	INT32 y;
 
 	// input line scrolls left if it gets too long
 	p = inputlines[inputline];
@@ -1080,13 +1080,13 @@ static void CON_DrawInput(void)
 	y = con_curlines - 12;
 
 	for (x = 0; x < con_width-11; x++)
-		V_DrawCharacter((int)(x+1)<<3, y, p[x]|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		V_DrawCharacter((INT32)(x+1)<<3, y, p[x]|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 
 	// draw the blinking cursor
 	//
 	x = (input_cx >= con_width-11) ? (con_width-11) - 1 : input_cx;
 	if (con_tick < 4)
-		V_DrawCharacter((int)(x+1)<<3, y, '_'|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		V_DrawCharacter((INT32)(x+1)<<3, y, '_'|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 }
 
 // draw the last lines of console text to the top of the screen
@@ -1094,8 +1094,8 @@ static void CON_DrawHudlines(void)
 {
 	byte *p;
 	size_t i, x;
-	int y;
-	int charflags = 0;
+	INT32 y;
+	INT32 charflags = 0;
 
 	if (con_hudlines <= 0)
 		return;
@@ -1121,10 +1121,10 @@ static void CON_DrawHudlines(void)
 				charflags = (*p & 0x7f) << 8;
 				p++;
 			}
-			V_DrawCharacter((int)(x)<<3, y, (int)(*p) | charflags | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+			V_DrawCharacter((INT32)(x)<<3, y, (INT32)(*p) | charflags | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 		}
 
-		V_DrawCharacter((int)(x)<<3, y, (p[x]&0xff)|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		V_DrawCharacter((INT32)(x)<<3, y, (p[x]&0xff)|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 		y += 8;
 	}
 
@@ -1136,20 +1136,20 @@ static void CON_DrawHudlines(void)
 //   startx, destwidth is resolution dependent
 // Used to draw console borders, console background.
 // The pic must be sized BASEVIDHEIGHT height.
-static void CON_DrawBackpic(patch_t *pic, int startx, int destwidth)
+static void CON_DrawBackpic(patch_t *pic, INT32 startx, INT32 destwidth)
 {
 	startx = destwidth = 0;
 	V_DrawScaledPatch(0, 0, 0, pic);
 }
 
 #if 0
-static inline void CON_DrawBackpic2(pic_t *pic, int startx, int destwidth)
+static inline void CON_DrawBackpic2(pic_t *pic, INT32 startx, INT32 destwidth)
 {
-	int x, y;
-	int v;
+	INT32 x, y;
+	INT32 v;
 	byte *src, *dest;
 	const byte *deststop;
-	int frac, fracstep;
+	INT32 frac, fracstep;
 
 	dest = screens[0]+startx;
 	deststop = screens[0] + vid.width * vid.height * vid.bpp;
@@ -1163,7 +1163,7 @@ static inline void CON_DrawBackpic2(pic_t *pic, int startx, int destwidth)
 
 		// in case of the console backpic, simplify
 		if (SHORT(pic->width) == destwidth)
-			memcpy(dest, src, destwidth);
+			M_Memcpy(dest, src, destwidth);
 		else
 		{
 			// scale pic to screen width
@@ -1195,9 +1195,9 @@ static void CON_DrawConsole(void)
 {
 	byte *p;
 	size_t i, x;
-	int y;
-	int w = 0, x2 = 0;
-	int charflags = 0;
+	INT32 y;
+	INT32 w = 0, x2 = 0;
+	INT32 charflags = 0;
 
 	if (con_curlines <= 0)
 		return;
@@ -1246,7 +1246,7 @@ static void CON_DrawConsole(void)
 				charflags = (*p & 0x7f) << 8;
 				p++;
 			}
-			V_DrawCharacter((int)(x+1)<<3, y, (int)(*p)|charflags|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+			V_DrawCharacter((INT32)(x+1)<<3, y, (INT32)(*p)|charflags|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 		}
 	}
 

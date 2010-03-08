@@ -101,7 +101,7 @@ typedef struct
 	FLOAT       anglex,angley;   // aimingangle / viewangle
 	FLOAT       scalex,scaley,scalez;
 	FLOAT       fovxangle, fovyangle;
-	int			splitscreen;
+	INT32			splitscreen;
 } FTransform;
 
 // Transformed vector, as passed to HWR API

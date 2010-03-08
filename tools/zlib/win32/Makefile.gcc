@@ -44,6 +44,8 @@ ARFLAGS = rcs
 
 RC = windres
 RCFLAGS = --define GCC_WINDRES
+DLLWRAP = dllwrap
+STRIP = strip
 
 CP = cp -fp
 # If GNU install is available, replace $(CP) with install.
@@ -79,9 +81,9 @@ $(STATICLIB): $(OBJS) $(OBJA)
 $(IMPLIB): $(SHAREDLIB)
 
 $(SHAREDLIB): win32/zlib.def $(OBJS) $(OBJA) zlibrc.o
-	dllwrap --driver-name $(CC) --def win32/zlib.def \
+	$(DLLWRAP) --driver-name $(CC) --def win32/zlib.def \
 	  --implib $(IMPLIB) -o $@ $(OBJS) $(OBJA) zlibrc.o
-	strip $@
+	$(STRIP) $@
 
 example: example.o $(STATICLIB)
 	$(LD) $(LDFLAGS) -o $@ example.o $(STATICLIB)

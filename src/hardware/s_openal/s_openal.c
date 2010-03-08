@@ -288,7 +288,7 @@ static ALsizei find_handle(void)
 	return free_sfx;
 }
 
-static ALvoid ALSetPan(ALuint source,int sep)
+static ALvoid ALSetPan(ALuint source,INT32 sep)
 {
 	ALfloat facing[3] ={0.0f,0.0f,0.0f}; //Alam: bad?
 	if (sep)
@@ -306,7 +306,7 @@ static ALvoid ALSetPan(ALuint source,int sep)
  * Initialise driver and listener
  *
  *****************************************************************************/
-EXPORT int HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
+EXPORT INT32 HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 {
 	ALCboolean      inited     = ALC_FALSE;
 	ALCint          AlSetup[8] = {ALC_FREQUENCY,22050,ALC_REFRESH,35,ALC_SYNC,AL_FALSE,ALC_INVALID,ALC_INVALID};
@@ -485,7 +485,7 @@ static ALsizei makechan(ALuint sfxhandle, ALboolean perm)
  * Creates ?D source
  *
  ******************************************************************************/
-EXPORT int HWRAPI ( AddSource ) (source3D_data_t *src, u_int sfxhandle)
+EXPORT INT32 HWRAPI ( AddSource ) (source3D_data_t *src, u_int sfxhandle)
 {
 	ALsizei chan = makechan(sfxhandle, (ALboolean)(src?src->permanent:AL_FALSE));
 
@@ -540,7 +540,7 @@ EXPORT int HWRAPI ( AddSource ) (source3D_data_t *src, u_int sfxhandle)
 	return chan;
 }
 
-EXPORT int HWRAPI (StartSource) (int chan)
+EXPORT INT32 HWRAPI (StartSource) (INT32 chan)
 {
 	ALint playing = AL_FALSE;
 
@@ -564,7 +564,7 @@ EXPORT int HWRAPI (StartSource) (int chan)
 	return playing;
 }
 
-EXPORT void HWRAPI ( StopSource) (int chan)
+EXPORT void HWRAPI ( StopSource) (INT32 chan)
 {
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
 		return;
@@ -578,7 +578,7 @@ EXPORT void HWRAPI ( StopSource) (int chan)
 	}
 }
 
-EXPORT int HWRAPI ( GetHW3DSVersion) (void)
+EXPORT INT32 HWRAPI ( GetHW3DSVersion) (void)
 {
 	return VERSION;
 }
@@ -601,7 +601,7 @@ EXPORT void HWRAPI (EndFrameUpdate) (void)
 	}
 }
 
-EXPORT int HWRAPI (IsPlaying) (int chan)
+EXPORT INT32 HWRAPI (IsPlaying) (INT32 chan)
 {
 	ALint playing = AL_FALSE;
 
@@ -627,7 +627,7 @@ EXPORT int HWRAPI (IsPlaying) (int chan)
  * - orientation
  * - velocity
  *****************************************************************************/
-EXPORT void HWRAPI (UpdateListener) (listener_data_t *data, int num)
+EXPORT void HWRAPI (UpdateListener) (listener_data_t *data, INT32 num)
 {
 	if (num != 1) return;
 
@@ -672,7 +672,7 @@ EXPORT void HWRAPI (UpdateListener) (listener_data_t *data, int num)
  * Update volume for #D source and separation (panning) of 2D source
  *
  *****************************************************************************/
-EXPORT void HWRAPI (UpdateSourceParms) (int chan, int vol, int sep)
+EXPORT void HWRAPI (UpdateSourceParms) (INT32 chan, INT32 vol, INT32 sep)
 {
 	if (chan > AL_INVALID && alIsSource(ALstack[chan].ALsource))
 	{
@@ -699,7 +699,7 @@ EXPORT void HWRAPI (UpdateSourceParms) (int chan, int vol, int sep)
 // --------------------------------------------------------------------------
 // Set the global volume for sound effects
 // --------------------------------------------------------------------------
-EXPORT void HWRAPI (SetGlobalSfxVolume) (int vol)
+EXPORT void HWRAPI (SetGlobalSfxVolume) (INT32 vol)
 {
 	alListenerf(AL_GAIN,Alvol(vol,32));
 	if (ALo_GetError() != AL_NO_ERROR)
@@ -709,7 +709,7 @@ EXPORT void HWRAPI (SetGlobalSfxVolume) (int vol)
 }
 
 //Alam: Not Used?
-EXPORT int HWRAPI (SetCone) (int chan, cone_def_t *cone_def)
+EXPORT INT32 HWRAPI (SetCone) (INT32 chan, cone_def_t *cone_def)
 {
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
 		return AL_FALSE;
@@ -743,7 +743,7 @@ EXPORT int HWRAPI (SetCone) (int chan, cone_def_t *cone_def)
 	}
 }
 
-EXPORT void HWRAPI (Update3DSource) (int chan, source3D_pos_t *sfx)
+EXPORT void HWRAPI (Update3DSource) (INT32 chan, source3D_pos_t *sfx)
 {
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
 		return;
@@ -765,7 +765,7 @@ EXPORT void HWRAPI (Update3DSource) (int chan, source3D_pos_t *sfx)
 //-------------------------------------------------------------
 // Load new sound data into source
 //-------------------------------------------------------------
-EXPORT int HWRAPI (ReloadSource) (int chan, u_int sfxhandle)
+EXPORT INT32 HWRAPI (ReloadSource) (INT32 chan, u_int sfxhandle)
 {
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource) || !alIsBuffer(sfxhandle))
 		return AL_INVALID;
@@ -785,7 +785,7 @@ EXPORT int HWRAPI (ReloadSource) (int chan, u_int sfxhandle)
  * Otherwise put source into cache
  *
  *****************************************************************************/
-EXPORT void HWRAPI (KillSource) (int chan)
+EXPORT void HWRAPI (KillSource) (INT32 chan)
 {
 	if (chan > AL_INVALID && (ALsizei)chan <= allocated_sounds)
 		kill_sound(ALstack + chan);

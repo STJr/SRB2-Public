@@ -47,13 +47,13 @@ void M_Init(void);
 void M_StartControlPanel(void);
 
 // Draws a box with a texture inside as background for messages
-void M_DrawTextBox(int x, int y, int width, int boxlines);
+void M_DrawTextBox(INT32 x, INT32 y, INT32 width, INT32 boxlines);
 // show or hide the setup for player 2 (called at splitscreen change)
 void M_SwitchSplitscreen(void);
 
 // the function to show a message box typing with the string inside
 // string must be static (not in the stack)
-// routine is a function taking a int in parameter
+// routine is a function taking a INT32 in parameter
 typedef enum
 {
 	MM_NOTHING = 0, // is just displayed until the user do someting
@@ -64,7 +64,7 @@ typedef enum
 void M_StartMessage(const char *string, void *routine, menumessagetype_t itemtype);
 
 // Called by linux_x/i_video_xshm.c
-void M_QuitResponse(int ch);
+void M_QuitResponse(INT32 ch);
 
 
 // flags for items in the menu
@@ -109,7 +109,7 @@ typedef union
 {
 	struct menu_s *submenu;      // IT_SUBMENU
 	consvar_t *cvar;             // IT_CVAR
-	void (*routine)(int choice); // IT_CALL, IT_KEYHANDLER, IT_ARROWS
+	void (*routine)(INT32 choice); // IT_CALL, IT_KEYHANDLER, IT_ARROWS
 } itemaction_t;
 
 //
@@ -147,8 +147,8 @@ typedef struct menu_s
 
 void M_SetupNextMenu(menu_t *menudef);
 void M_ClearMenus(boolean callexitmenufunc);
-void M_ExitGameResponse(int ch);
-void M_EndGame(int choice);
+void M_ExitGameResponse(INT32 ch);
+void M_EndGame(INT32 choice);
 void M_DrawGenericMenu(void);
 
 extern menu_t *currentMenu;
@@ -163,7 +163,10 @@ extern menu_t StatsDef, Stats2Def, Stats3Def, Stats4Def, PlayerDef;
 extern menu_t CoopOptionsDef, RaceOptionsDef, MatchOptionsDef, TagOptionsDef, CTFOptionsDef;
 
 #ifdef HWRENDER
-extern menu_t OGL_LightingDef, OGL_FogDef, OGL_ColorDef, OGL_DevDef;
+extern menu_t OGL_LightingDef, OGL_FogDef, OGL_ColorDef;
+#ifndef HARDWAREFIX
+extern menu_t OGL_DevDef;
+#endif
 #endif
 
 // Stuff for customizing the player select screen
@@ -180,19 +183,19 @@ typedef struct
 {
 	char name[64];
 	char objective[64];
-	int neededgrade;
-	int neededemblems; // # of emblems
-	int neededtime; // in seconds
-	int type;
-	int variable;
+	INT32 neededgrade;
+	INT32 neededemblems; // # of emblems
+	INT32 neededtime; // in seconds
+	INT32 type;
+	INT32 variable;
 } customsecrets_t;
 
 extern customsecrets_t customsecretinfo[15];
 
-extern int inlevelselect;
+extern INT32 inlevelselect;
 
-boolean M_GotLowEnoughTime(int ptime);
-boolean M_GotEnoughEmblems(int number);
+boolean M_GotLowEnoughTime(INT32 ptime);
+boolean M_GotEnoughEmblems(INT32 number);
 
 extern description_t description[15];
 
@@ -200,7 +203,7 @@ extern consvar_t cv_newgametype, cv_nextmap, cv_chooseskin, cv_serversort;
 extern CV_PossibleValue_t gametype_cons_t[];
 
 extern short startmap;
-extern int ultmode;
+extern INT32 ultmode;
 
 extern boolean StartSplitScreenGame;
 #endif

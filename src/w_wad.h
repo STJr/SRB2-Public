@@ -45,11 +45,11 @@ typedef struct
 //  a memory entry of the wad directory
 typedef struct
 {
-	ULONG position; // filelump_t filepos
-	ULONG disksize; // filelump_t size
+	unsigned long position; // filelump_t filepos
+	unsigned long disksize; // filelump_t size
 	char name[9]; // filelump_t name[]
 	size_t size; // real (uncompressed) size
-	int compressed; // i
+	INT32 compressed; // i
 } lumpinfo_t;
 
 // =========================================================================
@@ -92,7 +92,7 @@ void W_UnloadWadFile(USHORT num);
 
 // W_InitMultipleFiles returns 1 if all is okay, 0 otherwise,
 // so that it stops with a message if a file was not found, but not if all is okay.
-int W_InitMultipleFiles(char **filenames);
+INT32 W_InitMultipleFiles(char **filenames);
 
 const char *W_CheckNameForNumPwad(USHORT wad, USHORT lump);
 const char *W_CheckNameForNum(lumpnum_t lumpnum);
@@ -109,18 +109,18 @@ size_t W_ReadLumpHeader(lumpnum_t lump, void *dest, size_t size, size_t offest);
 void W_ReadLumpPwad(USHORT wad, USHORT lump, void *dest);
 void W_ReadLump(lumpnum_t lump, void *dest);
 
-void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, int tag);
-void *W_CacheLumpNum(lumpnum_t lump, int tag);
-void *W_CacheLumpNumForce(lumpnum_t lumpnum, int tag);
+void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, INT32 tag);
+void *W_CacheLumpNum(lumpnum_t lump, INT32 tag);
+void *W_CacheLumpNumForce(lumpnum_t lumpnum, INT32 tag);
 
 boolean W_IsLumpCached(lumpnum_t lump, void *ptr);
 
-void *W_CacheLumpName(const char *name, int tag);
-void *W_CachePatchName(const char *name, int tag);
+void *W_CacheLumpName(const char *name, INT32 tag);
+void *W_CachePatchName(const char *name, INT32 tag);
 
 #ifdef HWRENDER
-//void *W_CachePatchNumPwad(USHORT wad, USHORT lump, int tag); // return a patch_t
-void *W_CachePatchNum(lumpnum_t lumpnum, int tag); // return a patch_t
+//void *W_CachePatchNumPwad(USHORT wad, USHORT lump, INT32 tag); // return a patch_t
+void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag); // return a patch_t
 #else
 //#define W_CachePatchNumPwad(wad, lump, tag) W_CacheLumpNumPwad(wad, lump, tag)
 #define W_CachePatchNum(lumpnum, tag) W_CacheLumpNum(lumpnum, tag)

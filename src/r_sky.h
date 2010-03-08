@@ -32,12 +32,12 @@
 /// \brief The sky map is 256*128*4 maps.
 #define ANGLETOSKYSHIFT 22
 
-extern long skytexture, skytexturemid;
+extern INT32 skytexture, skytexturemid;
 extern fixed_t skyscale;
 
-extern long skyflatnum;
-extern int levelskynum;
-extern int globallevelskynum;
+extern INT32 skyflatnum;
+extern INT32 levelskynum;
+extern INT32 globallevelskynum;
 
 // call after skytexture is set to adapt for old/new skies
 void R_SetupSkyDraw(void);

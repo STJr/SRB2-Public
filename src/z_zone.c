@@ -42,7 +42,7 @@ struct memblock_s;
 typedef struct
 {
 	struct memblock_s *block; // Describing this memory
-	unsigned int id; // Should be ZONEID
+	UINT32 id; // Should be ZONEID
 } ATTRPACK memhdr_t;
 
 // Some code might want aligned memory. Assume it wants memory n bytes
@@ -57,13 +57,13 @@ typedef struct memblock_s
 	memhdr_t *hdr;
 
 	void **user;
-	int tag; // purgelevel
+	INT32 tag; // purgelevel
 
 	size_t size; // including the header and blocks
 
 #ifdef ZDEBUG
 	const char *ownerfile;
-	int ownerline;
+	INT32 ownerline;
 #endif
 
 	struct memblock_s *next, *prev;
@@ -80,14 +80,14 @@ void Z_Init(void)
 	head.next = head.prev = &head;
 
 	memfree = I_GetFreeMem(&total)>>20;
-	CONS_Printf("system memory %luMB free %luMB\n", total>>20, memfree);
+	CONS_Printf("system memory %dMB free %dMB\n", total>>20, memfree);
 
 	// Note: This allocates memory. Watch out.
 	COM_AddCommand("memfree", Command_Memfree_f);
 }
 
 #ifdef ZDEBUG
-void Z_Free2(void *ptr, const char *file, int line)
+void Z_Free2(void *ptr, const char *file, INT32 line)
 #else
 void Z_Free(void *ptr)
 #endif
@@ -137,8 +137,8 @@ static void *xm(size_t size)
 {
 	void *p = malloc(size);
 	if (p == NULL)
-		I_Error("Out of memory allocating %lu bytes",
-			(unsigned long)size);
+		I_Error("Out of memory allocating %"PRIdS" bytes",
+			size);
 	return p;
 }
 
@@ -146,13 +146,11 @@ static void *xm(size_t size)
 // You can pass Z_Malloc() a NULL user if the tag is less than
 // PU_PURGELEVEL.
 
-typedef unsigned long u_intptr_t; // Integer long enough to hold pointer
-
 #ifdef ZDEBUG
-void *Z_Malloc2(size_t size, int tag, void *user, int alignbits,
-	const char *file, int line)
+void *Z_Malloc2(size_t size, INT32 tag, void *user, INT32 alignbits,
+	const char *file, INT32 line)
 #else
-void *Z_MallocAlign(size_t size, int tag, void *user, int alignbits)
+void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 #endif
 {
 	size_t extrabytes = (1<<alignbits) - 1;
@@ -170,7 +168,7 @@ void *Z_MallocAlign(size_t size, int tag, void *user, int alignbits)
 
 	// This horrible calculation makes sure that "given" is aligned
 	// properly.
-	given = (void *)((u_intptr_t)((byte *)ptr + extrabytes + sizeof *hdr)
+	given = (void *)((size_t)((byte *)ptr + extrabytes + sizeof *hdr)
 		& ~extrabytes);
 
 	// The mem header lives 'sizeof (memhdr_t)' bytes before given.
@@ -200,15 +198,15 @@ void *Z_MallocAlign(size_t size, int tag, void *user, int alignbits)
 	}
 	else if (tag >= PU_PURGELEVEL)
 		I_Error("Z_Malloc: attempted to allocate purgable block "
-			"(size %lu) with no user", (unsigned long)size);
+			"(size %"PRIdS") with no user", size);
 
 	return given;
 }
 
 #ifdef ZDEBUG
-void *Z_Calloc2(size_t size, int tag, void *user, int alignbits, const char *file, int line)
+void *Z_Calloc2(size_t size, INT32 tag, void *user, INT32 alignbits, const char *file, INT32 line)
 #else
-void *Z_CallocAlign(size_t size, int tag, void *user, int alignbits)
+void *Z_CallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 #endif
 {
 #ifdef ZDEBUG
@@ -219,9 +217,9 @@ void *Z_CallocAlign(size_t size, int tag, void *user, int alignbits)
 }
 
 #ifdef ZDEBUG
-void *Z_Realloc2(void *ptr, size_t size, int tag, void *user, int alignbits, const char *file, int line)
+void *Z_Realloc2(void *ptr, size_t size, INT32 tag, void *user, INT32 alignbits, const char *file, INT32 line)
 #else
-void *Z_ReallocAlign(void *ptr, size_t size,int tag, void *user,  int alignbits)
+void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignbits)
 #endif
 {
 	void *rez;
@@ -275,7 +273,7 @@ void *Z_ReallocAlign(void *ptr, size_t size,int tag, void *user,  int alignbits)
 	return rez;
 }
 
-void Z_FreeTags(int lowtag, int hightag)
+void Z_FreeTags(INT32 lowtag, INT32 hightag)
 {
 	memblock_t *block, *next;
 
@@ -303,7 +301,7 @@ void Z_FreeTags(int lowtag, int hightag)
 
 #define CLEANUPCOUNT 2000
 
-static int nextcleanup = CLEANUPCOUNT;
+static INT32 nextcleanup = CLEANUPCOUNT;
 
 void Z_CheckMemCleanup(void)
 {
@@ -320,10 +318,10 @@ void Z_CheckMemCleanup(void)
   * \param i Identifies from where in the code Z_CheckHeap was called.
   * \author Graue <graue@oceanbase.org>
   */
-void Z_CheckHeap(int i)
+void Z_CheckHeap(INT32 i)
 {
 	memblock_t *block;
-	unsigned int blocknumon = 0;
+	UINT32 blocknumon = 0;
 	void *given;
 
 	for (block = head.next; block != &head; block = block->next)
@@ -364,9 +362,9 @@ void Z_CheckHeap(int i)
 }
 
 #ifdef PARANOIA
-void Z_ChangeTag2(void *ptr, int tag, const char *file, int line)
+void Z_ChangeTag2(void *ptr, INT32 tag, const char *file, INT32 line)
 #else
-void Z_ChangeTag2(void *ptr, int tag)
+void Z_ChangeTag2(void *ptr, INT32 tag)
 #endif
 {
 	memblock_t *block;
@@ -397,7 +395,7 @@ void Z_ChangeTag2(void *ptr, int tag)
   *         given tags.
   * \sa Z_TagUsage
   */
-static size_t Z_TagsUsage(int lowtag, int hightag)
+static size_t Z_TagsUsage(INT32 lowtag, INT32 hightag)
 {
 	size_t cnt = 0;
 	memblock_t *rover;
@@ -412,7 +410,7 @@ static size_t Z_TagsUsage(int lowtag, int hightag)
 	return cnt;
 }
 
-size_t Z_TagUsage(int tagnum)
+size_t Z_TagUsage(INT32 tagnum)
 {
 	return Z_TagsUsage(tagnum, tagnum);
 }
@@ -423,25 +421,25 @@ void Command_Memfree_f(void)
 
 	Z_CheckHeap(-1);
 	CONS_Printf("\2Memory Info\n");
-	CONS_Printf("Total heap used   : %7d KB\n", Z_TagsUsage(0, MAXINT)>>10);
-	CONS_Printf("Static            : %7d KB\n", Z_TagUsage(PU_STATIC)>>10);
-	CONS_Printf("Static (sound)    : %7d KB\n", Z_TagUsage(PU_SOUND)>>10);
-	CONS_Printf("Static (music)    : %7d KB\n", Z_TagUsage(PU_MUSIC)>>10);
-	CONS_Printf("Level             : %7d KB\n", Z_TagUsage(PU_LEVEL)>>10);
-	CONS_Printf("Special thinker   : %7d KB\n", Z_TagUsage(PU_LEVSPEC)>>10);
-	CONS_Printf("All purgable      : %7d KB\n",
+	CONS_Printf("Total heap used   : %7"PRIdS" KB\n", Z_TagsUsage(0, MAXINT)>>10);
+	CONS_Printf("Static            : %7"PRIdS" KB\n", Z_TagUsage(PU_STATIC)>>10);
+	CONS_Printf("Static (sound)    : %7"PRIdS" KB\n", Z_TagUsage(PU_SOUND)>>10);
+	CONS_Printf("Static (music)    : %7"PRIdS" KB\n", Z_TagUsage(PU_MUSIC)>>10);
+	CONS_Printf("Level             : %7"PRIdS" KB\n", Z_TagUsage(PU_LEVEL)>>10);
+	CONS_Printf("Special thinker   : %7"PRIdS" KB\n", Z_TagUsage(PU_LEVSPEC)>>10);
+	CONS_Printf("All purgable      : %7"PRIdS" KB\n",
 		Z_TagsUsage(PU_PURGELEVEL, MAXINT)>>10);
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		CONS_Printf("Patch info headers: %7d KB\n",
+		CONS_Printf("Patch info headers: %7"PRIdS" KB\n",
 			Z_TagUsage(PU_HWRPATCHINFO)>>10);
-		CONS_Printf("Mipmap patches    : %7d KB\n",
+		CONS_Printf("Mipmap patches    : %7"PRIdS" KB\n",
 			Z_TagUsage(PU_HWRPATCHCOLMIPMAP)>>10);
-		CONS_Printf("HW Texture cache  : %7d KB\n",
+		CONS_Printf("HW Texture cache  : %7"PRIdS" KB\n",
 			Z_TagUsage(PU_HWRCACHE)>>10);
-		CONS_Printf("Plane polygons    : %7d KB\n",
+		CONS_Printf("Plane polygons    : %7"PRIdS" KB\n",
 			Z_TagUsage(PU_HWRPLANE)>>10);
 		CONS_Printf("HW Texture used   : %7d KB\n",
 			HWR_GetTextureUsed()>>10);
@@ -450,8 +448,8 @@ void Command_Memfree_f(void)
 
 	CONS_Printf("\2System Memory Info\n");
 	freebytes = I_GetFreeMem(&totalbytes);
-	CONS_Printf("    Total physical memory: %7lu KB\n", totalbytes>>10);
-	CONS_Printf("Available physical memory: %7lu KB\n", freebytes>>10);
+	CONS_Printf("    Total physical memory: %7d KB\n", totalbytes>>10);
+	CONS_Printf("Available physical memory: %7d KB\n", freebytes>>10);
 }
 
 // Creates a copy of a string.

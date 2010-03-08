@@ -37,7 +37,7 @@ char *COM_Args(void);
 size_t COM_CheckParm(const char *check); // like M_CheckParm :)
 
 // match existing command or NULL
-const char *COM_CompleteCommand(const char *partial, int skips);
+const char *COM_CompleteCommand(const char *partial, INT32 skips);
 
 // insert at queu (at end of other command)
 void COM_BufAddText(const char *btext);
@@ -103,7 +103,7 @@ typedef enum
 
 typedef struct CV_PossibleValue_s
 {
-	int value;
+	INT32 value;
 	const char *strvalue;
 } CV_PossibleValue_t;
 
@@ -111,10 +111,10 @@ typedef struct consvar_s //NULL, NULL, 0, NULL, NULL |, 0, NULL, NULL, 0, 0, NUL
 {
 	const char *name;
 	const char *defaultvalue;
-	int flags;            // flags see cvflags_t above
+	INT32 flags;            // flags see cvflags_t above
 	CV_PossibleValue_t *PossibleValue; // table of possible values
 	void (*func)(void);   // called on change, if CV_CALL set
-	int value;            // for int and fixed_t
+	INT32 value;            // for INT32 and fixed_t
 	const char *string;   // value in string
 	char *zstring;        // Either NULL or same as string.
 	                      // If non-NULL, must be Z_Free'd later.
@@ -135,20 +135,20 @@ void CV_RegisterVar(consvar_t *variable);
 void CV_ClearChangedFlags(void);
 
 // returns the name of the nearest console variable name found
-const char *CV_CompleteVar(char *partial, int skips);
+const char *CV_CompleteVar(char *partial, INT32 skips);
 
 // equivalent to "<varname> <value>" typed at the console
 void CV_Set(consvar_t *var, const char *value);
 
 // expands value to a string and calls CV_Set
-void CV_SetValue(consvar_t *var, int value);
+void CV_SetValue(consvar_t *var, INT32 value);
 
 // avoids calling the function if it is CV_CALL
-void CV_StealthSetValue(consvar_t *var, int value);
+void CV_StealthSetValue(consvar_t *var, INT32 value);
 void CV_StealthSet(consvar_t *var, const char *value);
 
 // it a setvalue but with a modulo at the maximum
-void CV_AddValue(consvar_t *var, int increment);
+void CV_AddValue(consvar_t *var, INT32 increment);
 
 // write all CV_SAVE variables to config file
 void CV_SaveVariables(FILE *f);

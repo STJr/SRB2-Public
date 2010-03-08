@@ -43,7 +43,9 @@
 #include "dstrings.h"
 #include "hu_stuff.h"
 
+#ifdef HW3SOUND
 #include "hardware/hw3sound.h"
+#endif
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -120,13 +122,13 @@ static inline void P_VectorInstaThrust(fixed_t xa, fixed_t xb, fixed_t xc, fixed
 	c2 = zb - zc;
 /*
 	// Convert to unit vectors...
-	a1 = FixedDiv(a1,sqrt(FixedMul(a1,a1) + FixedMul(b1,b1) + FixedMul(c1,c1)));
-	b1 = FixedDiv(b1,sqrt(FixedMul(a1,a1) + FixedMul(b1,b1) + FixedMul(c1,c1)));
-	c1 = FixedDiv(c1,sqrt(FixedMul(c1,c1) + FixedMul(c1,c1) + FixedMul(c1,c1)));
+	a1 = FixedDiv(a1,FixedSqrt(FixedMul(a1,a1) + FixedMul(b1,b1) + FixedMul(c1,c1)));
+	b1 = FixedDiv(b1,FixedSqrt(FixedMul(a1,a1) + FixedMul(b1,b1) + FixedMul(c1,c1)));
+	c1 = FixedDiv(c1,FixedSqrt(FixedMul(c1,c1) + FixedMul(c1,c1) + FixedMul(c1,c1)));
 
-	a2 = FixedDiv(a2,sqrt(FixedMul(a2,a2) + FixedMul(c2,c2) + FixedMul(c2,c2)));
-	b2 = FixedDiv(b2,sqrt(FixedMul(a2,a2) + FixedMul(c2,c2) + FixedMul(c2,c2)));
-	c2 = FixedDiv(c2,sqrt(FixedMul(a2,a2) + FixedMul(c2,c2) + FixedMul(c2,c2)));
+	a2 = FixedDiv(a2,FixedSqrt(FixedMul(a2,a2) + FixedMul(c2,c2) + FixedMul(c2,c2)));
+	b2 = FixedDiv(b2,FixedSqrt(FixedMul(a2,a2) + FixedMul(c2,c2) + FixedMul(c2,c2)));
+	c2 = FixedDiv(c2,FixedSqrt(FixedMul(a2,a2) + FixedMul(c2,c2) + FixedMul(c2,c2)));
 */
 	// Calculate the momx, momy, and momz
 	i = FixedMul(momentum, FixedMul(b1, c2) - FixedMul(c1, b2));
@@ -194,7 +196,7 @@ boolean P_FreezeObjectplace(void)
 //
 void P_CalcHeight(player_t *player)
 {
-	int angle;
+	INT32 angle;
 	fixed_t bob;
 	fixed_t pviewheight;
 	mobj_t *mo = player->mo;
@@ -278,7 +280,7 @@ static fixed_t P_GridSnap(fixed_t value)
   * \return True if the player is considered to be moving.
   * \author Graue <graue@oceanbase.org>
   */
-boolean P_PlayerMoving(int pnum)
+boolean P_PlayerMoving(INT32 pnum)
 {
 	player_t *p = &players[pnum];
 
@@ -307,7 +309,7 @@ boolean P_PlayerMoving(int pnum)
 //
 void P_GiveEmerald(void)
 {
-	int i;
+	INT32 i;
 
 	S_StartSound(NULL, sfx_cgot); // Got the emerald!
 
@@ -430,7 +432,7 @@ boolean P_TransferToNextMare(player_t *player)
 	thinker_t *th;
 	mobj_t *mo2;
 	mobj_t *closestaxis = NULL;
-	int lowestaxisnum = -1;
+	INT32 lowestaxisnum = -1;
 	byte mare = P_FindLowestMare();
 	fixed_t dist1, dist2 = 0;
 
@@ -488,7 +490,7 @@ boolean P_TransferToNextMare(player_t *player)
 //
 // Given a mare and axis number, returns
 // the mobj for that axis point.
-static mobj_t *P_FindAxis(int mare, int axisnum)
+static mobj_t *P_FindAxis(INT32 mare, INT32 axisnum)
 {
 	thinker_t *th;
 	mobj_t *mo2;
@@ -521,7 +523,7 @@ static mobj_t *P_FindAxis(int mare, int axisnum)
 //
 // Given a mare and axis number, returns
 // the mobj for that axis transfer point.
-static mobj_t *P_FindAxisTransfer(int mare, int axisnum, mobjtype_t type)
+static mobj_t *P_FindAxisTransfer(INT32 mare, INT32 axisnum, mobjtype_t type)
 {
 	thinker_t *th;
 	mobj_t *mo2;
@@ -553,16 +555,16 @@ static mobj_t *P_FindAxisTransfer(int mare, int axisnum, mobjtype_t type)
 // P_TransferToAxis
 //
 // Finds the CLOSEST axis with the number specified.
-void P_TransferToAxis(player_t *player, int axisnum)
+void P_TransferToAxis(player_t *player, INT32 axisnum)
 {
 	thinker_t *th;
 	mobj_t *mo2;
 	mobj_t *closestaxis;
-	int mare = player->mare;
+	INT32 mare = player->mare;
 	fixed_t dist1, dist2 = 0;
 
 	if (cv_debug)
-		CONS_Printf("Transferring to axis %d\nLeveltime: %lu...\n", axisnum,leveltime);
+		CONS_Printf("Transferring to axis %d\nLeveltime: %d...\n", axisnum,leveltime);
 
 	closestaxis = NULL;
 
@@ -601,7 +603,7 @@ void P_TransferToAxis(player_t *player, int axisnum)
 	if (!closestaxis)
 		CONS_Printf("ERROR: Specified axis point to transfer to not found!\n%d\n", axisnum);
 	else if (cv_debug)
-		CONS_Printf("Transferred to axis %ld, mare %ld\n", closestaxis->health, closestaxis->threshold);
+		CONS_Printf("Transferred to axis %d, mare %d\n", closestaxis->health, closestaxis->threshold);
 
 	P_SetTarget(&player->mo->target, closestaxis);
 }
@@ -701,9 +703,9 @@ static void P_DeNightserizePlayer(player_t *player)
 // P_NightserizePlayer
 //
 // NiGHTS Time!
-void P_NightserizePlayer(player_t *player, int nighttime)
+void P_NightserizePlayer(player_t *player, INT32 nighttime)
 {
-	int oldmare;
+	INT32 oldmare;
 
 	player->pflags &= ~PF_USEDOWN;
 	player->pflags &= ~PF_JUMPDOWN;
@@ -759,7 +761,7 @@ void P_NightserizePlayer(player_t *player, int nighttime)
 
 	if (P_TransferToNextMare(player) == false)
 	{
-		int i;
+		INT32 i;
 
 		P_SetTarget(&player->mo->target, NULL);
 
@@ -869,7 +871,7 @@ void P_ResetPlayer(player_t *player)
 // Gives rings to the player, and does any special things required.
 // Call this function when you want to increment the player's health.
 //
-void P_GivePlayerRings(player_t *player, int num_rings, boolean flingring)
+void P_GivePlayerRings(player_t *player, INT32 num_rings, boolean flingring)
 {
 #ifdef PARANOIA
 	if (!player->mo)
@@ -909,7 +911,7 @@ void P_GivePlayerRings(player_t *player, int num_rings, boolean flingring)
 // Gives the player an extra life.
 // Call this function when you want to add lives to the player.
 //
-void P_GivePlayerLives(player_t *player, int numlives)
+void P_GivePlayerLives(player_t *player, INT32 numlives)
 {
 	player->lives += numlives;
 
@@ -1143,6 +1145,7 @@ boolean P_IsLocalPlayer(player_t *player)
 //
 void P_SpawnShieldOrb(player_t *player)
 {
+	mobjtype_t orbtype;
 	mobj_t *shieldobj = NULL;
 
 #ifdef PARANOIA
@@ -1151,15 +1154,19 @@ void P_SpawnShieldOrb(player_t *player)
 #endif
 
 	if (player->powers[pw_jumpshield])
-		shieldobj = P_SpawnMobj(player->mo->x, player->mo->y, player->mo->z, MT_WHITEORB);
+		orbtype = MT_WHITEORB;
 	else if (player->powers[pw_ringshield])
-		shieldobj = P_SpawnMobj(player->mo->x, player->mo->y, player->mo->z, MT_YELLOWORB);
+		orbtype = MT_YELLOWORB;
 	else if (player->powers[pw_watershield])
-		shieldobj = P_SpawnMobj(player->mo->x, player->mo->y, player->mo->z, MT_GREENORB);
+		orbtype = MT_GREENORB;
 	else if (player->powers[pw_bombshield])
-		shieldobj = P_SpawnMobj(player->mo->x, player->mo->y, player->mo->z, MT_BLACKORB);
+		orbtype = MT_BLACKORB;
 	else if (player->powers[pw_forceshield])
-		shieldobj = P_SpawnMobj(player->mo->x, player->mo->y, player->mo->z, MT_BLUEORB);
+		orbtype = MT_BLUEORB;
+	else
+		return;
+
+	shieldobj = P_SpawnMobj(player->mo->x, player->mo->y, player->mo->z, orbtype);
 
 	if (shieldobj)
 	{
@@ -1524,7 +1531,7 @@ void P_DoJump(player_t *player, boolean soundandstate)
 		else
 			player->mo->momz = 15*(FRACUNIT/4);
 
-		player->mo->angle = player->mo->angle - ANG180; // Turn around from the wall you were climbing.
+		player->mo->angle = player->mo->angle - ANGLE_180; // Turn around from the wall you were climbing.
 
 		if (player == &players[consoleplayer])
 			localangle = player->mo->angle; // Adjust the local control angle.
@@ -1921,7 +1928,7 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 					}
 					else if ((player->pflags & PF_JUMPED) && (!(player->pflags & PF_THOKKED) || player->charability2 == CA2_MULTIABILITY))
 					{
-						//int glidespeed = player->actionspd;
+						//INT32 glidespeed = player->actionspd;
 
 						player->pflags |= PF_GLIDING;
 						player->pflags |= PF_THOKKED;
@@ -1971,7 +1978,7 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 						P_DoJump(player, true);
 
 						// Allow infinite double jumping if super.
-						if (!(player->powers[pw_super]/* && ALL7EMERALDS(player->powers[pw_emeralds])*/))
+						if (!player->powers[pw_super])
 							player->secondjump = 1;
 					}
 					else if (player->powers[pw_jumpshield] && !player->powers[pw_super])
@@ -2050,7 +2057,7 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 // 1 = pressing in the direction of movement
 // 2 = pressing in the opposite direction of movement
 //
-int P_GetPlayerControlDirection(player_t *player)
+INT32 P_GetPlayerControlDirection(player_t *player)
 {
 	ticcmd_t *cmd = &player->cmd;
 	angle_t controldirection, controllerdirection, controlplayerdirection;
@@ -2077,7 +2084,7 @@ int P_GetPlayerControlDirection(player_t *player)
 		tempx += FixedMul(cmd->forwardmove,FINECOSINE(tempangle));
 		tempy += FixedMul(cmd->forwardmove,FINESINE(tempangle));
 
-		tempangle = thiscam->angle-ANG90;
+		tempangle = thiscam->angle-ANGLE_90;
 		tempangle >>= ANGLETOFINESHIFT;
 		tempx += FixedMul(cmd->sidemove,FINECOSINE(tempangle));
 		tempy += FixedMul(cmd->sidemove,FINESINE(tempangle));
@@ -2091,20 +2098,20 @@ int P_GetPlayerControlDirection(player_t *player)
 
 		controlplayerdirection = player->mo->angle;
 
-		if (controlplayerdirection < ANG90)
+		if (controlplayerdirection < ANGLE_90)
 		{
-			controlplayerdirection += ANG90;
-			controllerdirection += ANG90;
+			controlplayerdirection += ANGLE_90;
+			controllerdirection += ANGLE_90;
 		}
-		else if (controlplayerdirection > ANG270)
+		else if (controlplayerdirection > ANGLE_270)
 		{
-			controlplayerdirection -= ANG90;
-			controllerdirection -= ANG90;
+			controlplayerdirection -= ANGLE_90;
+			controllerdirection -= ANGLE_90;
 		}
 
 		// Controls pointing backwards from player
-		if (controllerdirection > controlplayerdirection + ANG90
-			&& controllerdirection < controlplayerdirection - ANG90)
+		if (controllerdirection > controlplayerdirection + ANGLE_90
+			&& controllerdirection < controlplayerdirection - ANGLE_90)
 		{
 			return 2;
 		}
@@ -2124,20 +2131,20 @@ int P_GetPlayerControlDirection(player_t *player)
 	controlplayerdirection = R_PointToAngle2(0, 0, player->mo->momx,
 			player->mo->momy);
 
-	if (controlplayerdirection < ANG90)
+	if (controlplayerdirection < ANGLE_90)
 	{
-		controlplayerdirection += ANG90;
-		controllerdirection += ANG90;
+		controlplayerdirection += ANGLE_90;
+		controllerdirection += ANGLE_90;
 	}
-	else if (controlplayerdirection > ANG270)
+	else if (controlplayerdirection > ANGLE_270)
 	{
-		controlplayerdirection -= ANG90;
-		controllerdirection -= ANG90;
+		controlplayerdirection -= ANGLE_90;
+		controllerdirection -= ANGLE_90;
 	}
 
 	// Controls pointing backwards from player
-	if (controllerdirection > controlplayerdirection + ANG90
-		&& controllerdirection < controlplayerdirection - ANG90)
+	if (controllerdirection > controlplayerdirection + ANGLE_90
+		&& controllerdirection < controlplayerdirection - ANGLE_90)
 	{
 		return 2;
 	}
@@ -2149,7 +2156,7 @@ int P_GetPlayerControlDirection(player_t *player)
 static void P_2dMovement(player_t *player)
 {
 	ticcmd_t *cmd;
-	int topspeed, acceleration, thrustfactor;
+	INT32 topspeed, acceleration, thrustfactor;
 	fixed_t movepushforward = 0;
 	angle_t movepushangle = 0;
 	fixed_t normalspd = player->normalspeed;
@@ -2186,20 +2193,20 @@ static void P_2dMovement(player_t *player)
 	if (player->pflags & PF_GLIDING)
 	{
 		// Angle fix.
-		if (player->mo->angle < ANG180 && player->mo->angle > ANG90)
-			player->mo->angle = ANG180;
-		else if (player->mo->angle < ANG90 && player->mo->angle > 0)
+		if (player->mo->angle < ANGLE_180 && player->mo->angle > ANGLE_90)
+			player->mo->angle = ANGLE_180;
+		else if (player->mo->angle < ANGLE_90 && player->mo->angle > 0)
 			player->mo->angle = 0;
 
-		if (cmd->sidemove > 0 && player->mo->angle != 0 && player->mo->angle >= ANG180)
+		if (cmd->sidemove > 0 && player->mo->angle != 0 && player->mo->angle >= ANGLE_180)
 			player->mo->angle += (640/NEWTICRATERATIO)<<FRACBITS;
-		else if (cmd->sidemove < 0 && player->mo->angle != ANG180 && (player->mo->angle > ANG180 || player->mo->angle == 0))
+		else if (cmd->sidemove < 0 && player->mo->angle != ANGLE_180 && (player->mo->angle > ANGLE_180 || player->mo->angle == 0))
 			player->mo->angle -= (640/NEWTICRATERATIO)<<FRACBITS;
 		else if (cmd->sidemove == 0)
 		{
-			if (player->mo->angle >= ANG270)
+			if (player->mo->angle >= ANGLE_270)
 				player->mo->angle += (640/NEWTICRATERATIO)<<FRACBITS;
-			else if (player->mo->angle < ANG270 && player->mo->angle > ANG180)
+			else if (player->mo->angle < ANGLE_270 && player->mo->angle > ANGLE_180)
 				player->mo->angle -= (640/NEWTICRATERATIO)<<FRACBITS;
 		}
 	}
@@ -2208,7 +2215,7 @@ static void P_2dMovement(player_t *player)
 		if (cmd->sidemove > 0)
 			player->mo->angle = 0;
 		else if (cmd->sidemove < 0)
-			player->mo->angle = ANG180;
+			player->mo->angle = ANGLE_180;
 	}
 
 	if (player == &players[consoleplayer])
@@ -2223,7 +2230,7 @@ static void P_2dMovement(player_t *player)
 		if (cmd->sidemove > 0)
 			movepushangle = 0;
 		else if (cmd->sidemove < 0)
-			movepushangle = ANG180;
+			movepushangle = ANGLE_180;
 		else
 			movepushangle = player->mo->angle;
 	}
@@ -2316,9 +2323,9 @@ static void P_3dMovement(player_t *player)
 {
 	ticcmd_t *cmd;
 	angle_t	movepushangle, movepushsideangle; // Analog
-	int topspeed, acceleration, thrustfactor;
+	INT32 topspeed, acceleration, thrustfactor;
 	fixed_t movepushforward = 0, movepushside = 0;
-	int mforward = 0, mbackward = 0;
+	INT32 mforward = 0, mbackward = 0;
 	camera_t *thiscam;
 	fixed_t normalspd = player->normalspeed;
 
@@ -2341,12 +2348,12 @@ static void P_3dMovement(player_t *player)
 	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value) || (splitscreen && player == &players[secondarydisplayplayer] && cv_analog2.value)))
 	{
 		movepushangle = thiscam->angle;
-		movepushsideangle = thiscam->angle-ANG90;
+		movepushsideangle = thiscam->angle-ANGLE_90;
 	}
 	else
 	{
 		movepushangle = player->mo->angle;
-		movepushsideangle = player->mo->angle-ANG90;
+		movepushsideangle = player->mo->angle-ANGLE_90;
 	}
 
 	// cmomx/cmomy stands for the conveyor belt speed.
@@ -2370,40 +2377,40 @@ static void P_3dMovement(player_t *player)
 	// This determines if the player is facing the direction they are travelling or not.
 	// Didn't your teacher say to pay attention in Geometry/Trigonometry class? ;)
 	// forward
-	if ((player->rmomx > 0 && player->rmomy > 0) && (/*player->mo->angle >= 0 &&*/ player->mo->angle < ANG90)) // Quadrant 1
+	if ((player->rmomx > 0 && player->rmomy > 0) && (/*player->mo->angle >= 0 &&*/ player->mo->angle < ANGLE_90)) // Quadrant 1
 		mforward = 1;
-	else if ((player->rmomx < 0 && player->rmomy > 0) && (player->mo->angle >= ANG90 && player->mo->angle < ANG180)) // Quadrant 2
+	else if ((player->rmomx < 0 && player->rmomy > 0) && (player->mo->angle >= ANGLE_90 && player->mo->angle < ANGLE_180)) // Quadrant 2
 		mforward = 1;
-	else if ((player->rmomx < 0 && player->rmomy < 0) && (player->mo->angle >= ANG180 && player->mo->angle < ANG270)) // Quadrant 3
+	else if ((player->rmomx < 0 && player->rmomy < 0) && (player->mo->angle >= ANGLE_180 && player->mo->angle < ANGLE_270)) // Quadrant 3
 		mforward = 1;
-	else if ((player->rmomx > 0 && player->rmomy < 0) && ((player->mo->angle >= ANG270 /*&& (player->mo->angle <= ANGLE_MAX)*/) || (/*player->mo->angle >= 0 &&*/ player->mo->angle <= ANG45))) // Quadrant 4
+	else if ((player->rmomx > 0 && player->rmomy < 0) && ((player->mo->angle >= ANGLE_270 /*&& (player->mo->angle <= ANGLE_MAX)*/) || (/*player->mo->angle >= 0 &&*/ player->mo->angle <= ANGLE_45))) // Quadrant 4
 		mforward = 1;
-	else if (player->rmomx > 0 && ((player->mo->angle >= ANG270+ANG45 /*&& player->mo->angle <= ANGLE_MAX*/)))
+	else if (player->rmomx > 0 && ((player->mo->angle >= ANGLE_315 /*&& player->mo->angle <= ANGLE_MAX*/)))
 		mforward = 1;
-	else if (player->rmomx < 0 && (player->mo->angle >= ANG90+ANG45 && player->mo->angle <= ANG180+ANG45))
+	else if (player->rmomx < 0 && (player->mo->angle >= ANGLE_135 && player->mo->angle <= ANGLE_225))
 		mforward = 1;
-	else if (player->rmomy > 0 && (player->mo->angle >= ANG45 && player->mo->angle <= ANG90+ANG45))
+	else if (player->rmomy > 0 && (player->mo->angle >= ANGLE_45 && player->mo->angle <= ANGLE_135))
 		mforward = 1;
-	else if (player->rmomy < 0 && (player->mo->angle >= ANG180+ANG45 && player->mo->angle <= ANG270+ANG45))
+	else if (player->rmomy < 0 && (player->mo->angle >= ANGLE_225 && player->mo->angle <= ANGLE_315))
 		mforward = 1;
 	else
 		mforward = 0;
 	// backward
-	if ((player->rmomx > 0 && player->rmomy > 0) && (player->mo->angle >= ANG180 && player->mo->angle < ANG270)) // Quadrant 3
+	if ((player->rmomx > 0 && player->rmomy > 0) && (player->mo->angle >= ANGLE_180 && player->mo->angle < ANGLE_270)) // Quadrant 3
 		mbackward = 1;
-	else if ((player->rmomx < 0 && player->rmomy > 0) && (player->mo->angle >= ANG270 /*&& (player->mo->angle <= ANGLE_MAX)*/)) // Quadrant 4
+	else if ((player->rmomx < 0 && player->rmomy > 0) && (player->mo->angle >= ANGLE_270 /*&& (player->mo->angle <= ANGLE_MAX)*/)) // Quadrant 4
 		mbackward = 1;
-	else if ((player->rmomx < 0 && player->rmomy < 0) && (/*player->mo->angle >= 0 &&*/ player->mo->angle < ANG90)) // Quadrant 1
+	else if ((player->rmomx < 0 && player->rmomy < 0) && (/*player->mo->angle >= 0 &&*/ player->mo->angle < ANGLE_90)) // Quadrant 1
 		mbackward = 1;
-	else if ((player->rmomx > 0 && player->rmomy < 0) && (player->mo->angle >= ANG90 && player->mo->angle < ANG180)) // Quadrant 2
+	else if ((player->rmomx > 0 && player->rmomy < 0) && (player->mo->angle >= ANGLE_90 && player->mo->angle < ANGLE_180)) // Quadrant 2
 		mbackward = 1;
-	else if (player->rmomx < 0 && ((player->mo->angle >= ANG270+ANG45 /*&& player->mo->angle <= ANGLE_MAX*/) || (/*player->mo->angle >= 0 &&*/ player->mo->angle <= ANG45)))
+	else if (player->rmomx < 0 && ((player->mo->angle >= ANGLE_315 /*&& player->mo->angle <= ANGLE_MAX*/) || (/*player->mo->angle >= 0 &&*/ player->mo->angle <= ANGLE_45)))
 		mbackward = 1;
-	else if (player->rmomx > 0 && (player->mo->angle >= ANG90+ANG45 && player->mo->angle <= ANG180+ANG45))
+	else if (player->rmomx > 0 && (player->mo->angle >= ANGLE_135 && player->mo->angle <= ANGLE_225))
 		mbackward = 1;
-	else if (player->rmomy < 0 && (player->mo->angle >= ANG45 && player->mo->angle <= ANG90+ANG45))
+	else if (player->rmomy < 0 && (player->mo->angle >= ANGLE_45 && player->mo->angle <= ANGLE_135))
 		mbackward = 1;
-	else if (player->rmomy > 0 && (player->mo->angle >= ANG180+ANG45 && player->mo->angle <= ANG270+ANG45))
+	else if (player->rmomy > 0 && (player->mo->angle >= ANGLE_225 && player->mo->angle <= ANGLE_315))
 		mbackward = 1;
 	else // Put in 'or' checks here!
 		mbackward = 0;
@@ -2527,7 +2534,7 @@ static void P_3dMovement(player_t *player)
 			tempx += FixedMul(cmd->forwardmove,FINECOSINE(tempangle));
 			tempy += FixedMul(cmd->forwardmove,FINESINE(tempangle));
 
-			tempangle = thiscam->angle-ANG90;
+			tempangle = thiscam->angle-ANGLE_90;
 			tempangle >>= ANGLETOFINESHIFT;
 			tempx += FixedMul(cmd->sidemove,FINECOSINE(tempangle));
 			tempy += FixedMul(cmd->sidemove,FINESINE(tempangle));
@@ -2541,20 +2548,20 @@ static void P_3dMovement(player_t *player)
 
 			controlplayerdirection = player->mo->angle;
 
-			if (controlplayerdirection < ANG90)
+			if (controlplayerdirection < ANGLE_90)
 			{
-				controlplayerdirection += ANG90;
-				controllerdirection += ANG90;
+				controlplayerdirection += ANGLE_90;
+				controllerdirection += ANGLE_90;
 			}
-			else if (controlplayerdirection > ANG270)
+			else if (controlplayerdirection > ANGLE_270)
 			{
-				controlplayerdirection -= ANG90;
-				controllerdirection -= ANG90;
+				controlplayerdirection -= ANGLE_90;
+				controllerdirection -= ANGLE_90;
 			}
 
 			// Controls pointing backwards from player
-			if (controllerdirection > controlplayerdirection + ANG90
-				&& controllerdirection < controlplayerdirection - ANG90)
+			if (controllerdirection > controlplayerdirection + ANGLE_90
+				&& controllerdirection < controlplayerdirection - ANGLE_90)
 			{
 				cbackward = true;
 			}
@@ -2574,7 +2581,7 @@ static void P_3dMovement(player_t *player)
 					value /= 2;
 				}
 
-				P_InstaThrust(player->mo, player->mo->angle-ANG90, FixedDiv(cmd->sidemove*FRACUNIT,value));
+				P_InstaThrust(player->mo, player->mo->angle-ANGLE_90, FixedDiv(cmd->sidemove*FRACUNIT,value));
 			}
 
 			else if (player->powers[pw_sneakers] || player->powers[pw_super]) // super sneakers?
@@ -2594,7 +2601,7 @@ static void P_3dMovement(player_t *player)
 				if ((mforward && cmd->forwardmove > 0) || (mbackward && cmd->forwardmove < 0))
 					movepushforward = 0;
 				else if (!(player->pflags & PF_STARTDASH))
-					movepushforward = FixedDiv(movepushforward,16*FRACUNIT);
+					movepushforward = FixedDiv(movepushforward, 16*FRACUNIT);
 				else
 					movepushforward = 0;
 			}
@@ -2616,58 +2623,57 @@ static void P_3dMovement(player_t *player)
 		if (player->climbing)
 		{
 			if (player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds]))
-				P_InstaThrust(player->mo, player->mo->angle-ANG90, (cmd->sidemove/5)*FRACUNIT);
+				P_InstaThrust(player->mo, player->mo->angle-ANGLE_90, (cmd->sidemove/5)*FRACUNIT);
 			else
-				P_InstaThrust(player->mo, player->mo->angle-ANG90, (cmd->sidemove/10)*FRACUNIT);
+				P_InstaThrust(player->mo, player->mo->angle-ANGLE_90, (cmd->sidemove/10)*FRACUNIT);
 
 			//todo: make P_InstaThrust use this by default, can't now since other parts of the code scale it themselves.
 			player->mo->momx = P_ScaleMomentum(player->mo->scale, player->mo->momx);
 			player->mo->momy = P_ScaleMomentum(player->mo->scale, player->mo->momy);
 		}
-
 		else if (cmd->sidemove && !(player->pflags & PF_GLIDING) && !player->exiting && !player->climbing && !(!(player->pflags & PF_SLIDING) && player->mo->state == &states[player->mo->info->painstate] && player->powers[pw_flashing]))
 		{
 			boolean mright;
 			boolean mleft;
 			angle_t sideangle;
 
-			sideangle = player->mo->angle - ANG90;
+			sideangle = player->mo->angle - ANGLE_90;
 
 			// forward
-			if ((player->rmomx > 0 && player->rmomy > 0) && (/*sideangle >= 0 &&*/ sideangle < ANG90)) // Quadrant 1
+			if ((player->rmomx > 0 && player->rmomy > 0) && (/*sideangle >= 0 &&*/ sideangle < ANGLE_90)) // Quadrant 1
 				mright = 1;
-			else if ((player->rmomx < 0 && player->rmomy > 0) && (sideangle >= ANG90 && sideangle < ANG180)) // Quadrant 2
+			else if ((player->rmomx < 0 && player->rmomy > 0) && (sideangle >= ANGLE_90 && sideangle < ANGLE_180)) // Quadrant 2
 				mright = 1;
-			else if ((player->rmomx < 0 && player->rmomy < 0) && (sideangle >= ANG180 && sideangle < ANG270)) // Quadrant 3
+			else if ((player->rmomx < 0 && player->rmomy < 0) && (sideangle >= ANGLE_180 && sideangle < ANGLE_270)) // Quadrant 3
 				mright = 1;
-			else if ((player->rmomx > 0 && player->rmomy < 0) && ((sideangle >= ANG270 /*&& (sideangle <= ANGLE_MAX)*/) || (/*sideangle >= 0 &&*/ sideangle <= ANG45))) // Quadrant 4
+			else if ((player->rmomx > 0 && player->rmomy < 0) && ((sideangle >= ANGLE_270 /*&& (sideangle <= ANGLE_MAX)*/) || (/*sideangle >= 0 &&*/ sideangle <= ANGLE_45))) // Quadrant 4
 				mright = 1;
-			else if (player->rmomx > 0 && ((sideangle >= ANG270+ANG45 /*&& sideangle <= ANGLE_MAX*/)))
+			else if (player->rmomx > 0 && ((sideangle >= ANGLE_315 /*&& sideangle <= ANGLE_MAX*/)))
 				mright = 1;
-			else if (player->rmomx < 0 && (sideangle >= ANG90+ANG45 && sideangle <= ANG180+ANG45))
+			else if (player->rmomx < 0 && (sideangle >= ANGLE_135 && sideangle <= ANGLE_225))
 				mright = 1;
-			else if (player->rmomy > 0 && (sideangle >= ANG45 && sideangle <= ANG90+ANG45))
+			else if (player->rmomy > 0 && (sideangle >= ANGLE_45 && sideangle <= ANGLE_135))
 				mright = 1;
-			else if (player->rmomy < 0 && (sideangle >= ANG180+ANG45 && sideangle <= ANG270+ANG45))
+			else if (player->rmomy < 0 && (sideangle >= ANGLE_225 && sideangle <= ANGLE_315))
 				mright = 1;
 			else
 				mright = 0;
 			// backward
-			if ((player->rmomx > 0 && player->rmomy > 0) && (sideangle >= ANG180 && sideangle < ANG270)) // Quadrant 3
+			if ((player->rmomx > 0 && player->rmomy > 0) && (sideangle >= ANGLE_180 && sideangle < ANGLE_270)) // Quadrant 3
 				mleft = 1;
-			else if ((player->rmomx < 0 && player->rmomy > 0) && (sideangle >= ANG270 /*&& (sideangle <= ANGLE_MAX)*/)) // Quadrant 4
+			else if ((player->rmomx < 0 && player->rmomy > 0) && (sideangle >= ANGLE_270 /*&& (sideangle <= ANGLE_MAX)*/)) // Quadrant 4
 				mleft = 1;
-			else if ((player->rmomx < 0 && player->rmomy < 0) && (/*sideangle >= 0 &&*/ sideangle < ANG90)) // Quadrant 1
+			else if ((player->rmomx < 0 && player->rmomy < 0) && (/*sideangle >= 0 &&*/ sideangle < ANGLE_90)) // Quadrant 1
 				mleft = 1;
-			else if ((player->rmomx > 0 && player->rmomy < 0) && (sideangle >= ANG90 && sideangle < ANG180)) // Quadrant 2
+			else if ((player->rmomx > 0 && player->rmomy < 0) && (sideangle >= ANGLE_90 && sideangle < ANGLE_180)) // Quadrant 2
 				mleft = 1;
-			else if (player->rmomx < 0 && ((sideangle >= ANG270+ANG45 /*&& sideangle <= ANGLE_MAX*/) || (/*sideangle >= 0 &&*/ sideangle <= ANG45)))
+			else if (player->rmomx < 0 && ((sideangle >= ANGLE_315 /*&& sideangle <= ANGLE_MAX*/) || (/*sideangle >= 0 &&*/ sideangle <= ANGLE_45)))
 				mleft = 1;
-			else if (player->rmomx > 0 && (sideangle >= ANG90+ANG45 && sideangle <= ANG180+ANG45))
+			else if (player->rmomx > 0 && (sideangle >= ANGLE_135 && sideangle <= ANGLE_225))
 				mleft = 1;
-			else if (player->rmomy < 0 && (sideangle >= ANG45 && sideangle <= ANG90+ANG45))
+			else if (player->rmomy < 0 && (sideangle >= ANGLE_45 && sideangle <= ANGLE_135))
 				mleft = 1;
-			else if (player->rmomy > 0 && (sideangle >= ANG180+ANG45 && sideangle <= ANG270+ANG45))
+			else if (player->rmomy > 0 && (sideangle >= ANGLE_225 && sideangle <= ANGLE_315))
 				mleft = 1;
 			else // Put in 'or' checks here!
 				mleft = 0;
@@ -2719,9 +2725,9 @@ static void P_3dMovement(player_t *player)
 static void P_ShootLine(mobj_t *source, mobj_t *dest, fixed_t height)
 {
 	mobj_t *mo;
-	int i;
+	INT32 i;
 	fixed_t temp;
-	int speed, seesound;
+	INT32 speed, seesound;
 
 	temp = dest->z;
 	dest->z = height;
@@ -2794,7 +2800,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 	}
 
 	{
-		const int sequence = player->mo->target->threshold;
+		const INT32 sequence = player->mo->target->threshold;
 		mobj_t *transfer1 = NULL;
 		mobj_t *transfer2 = NULL;
 		mobj_t *axis;
@@ -2908,8 +2914,8 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 		if (cv_debug && (leveltime % TICRATE == 0))
 		{
-			CONS_Printf("Transfer1 : %ld\n", transfer1->health);
-			CONS_Printf("Transfer2 : %ld\n", transfer2->health);
+			CONS_Printf("Transfer1 : %d\n", transfer1->health);
+			CONS_Printf("Transfer2 : %d\n", transfer2->health);
 		}
 
 		//CONS_Printf("T1 is at %d, %d\n", transfer1->x>>FRACBITS, transfer1->y>>FRACBITS);
@@ -3181,8 +3187,8 @@ static void P_NiGHTSMovement(player_t *player)
 	fixed_t newx, newy, radius;
 	angle_t movingangle;
 	ticcmd_t *cmd = &player->cmd;
-	int thrustfactor;
-	int i;
+	INT32 thrustfactor;
+	INT32 i;
 
 	player->pflags &= ~PF_DRILLING;
 
@@ -3407,7 +3413,7 @@ static void P_NiGHTSMovement(player_t *player)
 		if (gametype != GT_RACE)
 			player->mo->momz = 30*FRACUNIT;
 
-		player->mo->tracer->angle += ANG45/4;
+		player->mo->tracer->angle += ANGLE_11hh;
 
 		if (!(player->mo->tracer->state  >= &states[S_NIGHTSDRONE1]
 			&& player->mo->tracer->state <= &states[S_NIGHTSDRONE2]))
@@ -3433,8 +3439,8 @@ static void P_NiGHTSMovement(player_t *player)
 		mobj_t *secondmobj;
 		fixed_t spawndist = FIXEDSCALE(16*FRACUNIT, player->mo->scale);
 
-		firstmobj = P_SpawnMobj(player->mo->x + P_ReturnThrustX(player->mo, player->mo->angle+ANG90, spawndist), player->mo->y + P_ReturnThrustY(player->mo, player->mo->angle+ANG90, spawndist), player->mo->z + player->mo->height/2, MT_NIGHTSPARKLE);
-		secondmobj = P_SpawnMobj(player->mo->x + P_ReturnThrustX(player->mo, player->mo->angle-ANG90, spawndist), player->mo->y + P_ReturnThrustY(player->mo, player->mo->angle-ANG90, spawndist), player->mo->z + player->mo->height/2, MT_NIGHTSPARKLE);
+		firstmobj = P_SpawnMobj(player->mo->x + P_ReturnThrustX(player->mo, player->mo->angle+ANGLE_90, spawndist), player->mo->y + P_ReturnThrustY(player->mo, player->mo->angle+ANGLE_90, spawndist), player->mo->z + player->mo->height/2, MT_NIGHTSPARKLE);
+		secondmobj = P_SpawnMobj(player->mo->x + P_ReturnThrustX(player->mo, player->mo->angle-ANGLE_90, spawndist), player->mo->y + P_ReturnThrustY(player->mo, player->mo->angle-ANGLE_90, spawndist), player->mo->z + player->mo->height/2, MT_NIGHTSPARKLE);
 
 		firstmobj->fuse = leveltime;
 		P_SetTarget(&firstmobj->target, player->mo);
@@ -3526,7 +3532,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 		if (cmd->sidemove != 0)
 		{
-			newangle = (signed short)FixedMul(AngleFixed(R_PointToAngle2(0,0, cmd->sidemove*FRACUNIT, cmd->forwardmove*FRACUNIT)),1);
+			newangle = (signed short)FixedInt(AngleFixed(R_PointToAngle2(0,0, cmd->sidemove*FRACUNIT, cmd->forwardmove*FRACUNIT)));
 		}
 		else if (cmd->forwardmove > 0)
 			newangle = 90;
@@ -3618,11 +3624,17 @@ static void P_NiGHTSMovement(player_t *player)
 	// Spawn Sonic's bubbles
 	if (player->mo->eflags & MFE_UNDERWATER && !player->spectator)
 	{
-		const fixed_t zh = player->mo->z + FixedDiv(player->mo->height,5*(FRACUNIT/4));
+		const fixed_t zh = player->mo->z + FixedDiv(player->mo->height, 5*(FRACUNIT/4));
+		mobj_t *bubble = NULL;
 		if (!(P_Random() % 16))
-			P_SpawnMobj(player->mo->x, player->mo->y, zh, MT_SMALLBUBBLE)->threshold = 42;
+			bubble = P_SpawnMobj(player->mo->x, player->mo->y, zh, MT_SMALLBUBBLE);
 		else if (!(P_Random() % 96))
-			P_SpawnMobj(player->mo->x, player->mo->y, zh, MT_MEDIUMBUBBLE)->threshold = 42;
+			bubble = P_SpawnMobj(player->mo->x, player->mo->y, zh, MT_MEDIUMBUBBLE);
+
+		if (bubble)
+		{
+			bubble->threshold = 42;
+		}
 	}
 
 	if (player->mo->momx || player->mo->momy)
@@ -3637,12 +3649,12 @@ static void P_NiGHTSMovement(player_t *player)
 	{
 		// Special cases to prevent the angle from being
 		// calculated incorrectly when wrapped.
-		if (player->old_angle_pos > ANGLE_350 && player->angle_pos < ANGLE_10)
+		if (player->old_angle_pos > ANG350 && player->angle_pos < ANG10)
 		{
 			movingangle = R_PointToAngle2(0, player->mo->z, -R_PointToDist2(player->mo->momx, player->mo->momy, 0, 0), player->mo->z + player->mo->momz);
 			player->anotherflyangle = (movingangle >> ANGLETOFINESHIFT) * 360/FINEANGLES;
 		}
-		else if (player->old_angle_pos < ANGLE_10 && player->angle_pos > ANGLE_350)
+		else if (player->old_angle_pos < ANG10 && player->angle_pos > ANG350)
 		{
 			movingangle = R_PointToAngle2(0, player->mo->z, R_PointToDist2(player->mo->momx, player->mo->momy, 0, 0), player->mo->z + player->mo->momz);
 			player->anotherflyangle = (movingangle >> ANGLETOFINESHIFT) * 360/FINEANGLES;
@@ -3662,12 +3674,12 @@ static void P_NiGHTSMovement(player_t *player)
 	{
 		// Special cases to prevent the angle from being
 		// calculated incorrectly when wrapped.
-		if (player->old_angle_pos > ANGLE_350 && player->angle_pos < ANGLE_10)
+		if (player->old_angle_pos > ANG350 && player->angle_pos < ANG10)
 		{
 			movingangle = R_PointToAngle2(0, player->mo->z, R_PointToDist2(player->mo->momx, player->mo->momy, 0, 0), player->mo->z + player->mo->momz);
 			player->anotherflyangle = (movingangle >> ANGLETOFINESHIFT) * 360/FINEANGLES;
 		}
-		else if (player->old_angle_pos < ANGLE_10 && player->angle_pos > ANGLE_350)
+		else if (player->old_angle_pos < ANG10 && player->angle_pos > ANG350)
 		{
 			movingangle = R_PointToAngle2(0, player->mo->z, -R_PointToDist2(player->mo->momx, player->mo->momy, 0, 0), player->mo->z + player->mo->momz);
 			player->anotherflyangle = (movingangle >> ANGLETOFINESHIFT) * 360/FINEANGLES;
@@ -3696,7 +3708,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3722,7 +3734,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3748,7 +3760,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3774,7 +3786,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3800,7 +3812,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3826,7 +3838,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3852,7 +3864,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3878,7 +3890,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3904,7 +3916,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3930,7 +3942,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3956,7 +3968,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -3982,7 +3994,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4008,7 +4020,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4034,7 +4046,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4060,7 +4072,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4086,7 +4098,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4119,7 +4131,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4145,7 +4157,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4171,7 +4183,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4197,7 +4209,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4223,7 +4235,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4249,7 +4261,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4275,7 +4287,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4301,7 +4313,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4327,7 +4339,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4353,7 +4365,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4379,7 +4391,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4405,7 +4417,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4431,7 +4443,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4457,7 +4469,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4483,7 +4495,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4509,7 +4521,7 @@ static void P_NiGHTSMovement(player_t *player)
 					if (!(player->mo->tracer->state >= &states[S_NIGHTSFLY1A]
 						&& player->mo->tracer->state <= &states[S_NIGHTSFLY9B]))
 					{
-						int framenum;
+						INT32 framenum;
 
 						framenum = player->mo->tracer->state->frame & 3;
 
@@ -4560,11 +4572,11 @@ static void P_NiGHTSMovement(player_t *player)
 	player->mo->tracer->ceilingz = player->mo->ceilingz;
 	P_SetThingPosition(player->mo->tracer);
 
-	if (movingangle >= ANG90 && movingangle <= ANG180)
-		movingangle = movingangle - ANG180;
-	else if (movingangle >= ANG180 && movingangle <= ANG270)
-		movingangle = movingangle - ANG180;
-	else if (movingangle >= ANG270)
+	if (movingangle >= ANGLE_90 && movingangle <= ANGLE_180)
+		movingangle = movingangle - ANGLE_180;
+	else if (movingangle >= ANGLE_180 && movingangle <= ANGLE_270)
+		movingangle = movingangle - ANGLE_180;
+	else if (movingangle >= ANGLE_270)
 		movingangle = (movingangle - ANGLE_MAX);
 
 	if (player == &players[consoleplayer])
@@ -4622,10 +4634,10 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->y = (short)(player->mo->y>>FRACBITS);
 
 			// Tilt
-			mt->angle = (short)FixedMul(FixedDiv(angle*FRACUNIT,360*(FRACUNIT/256)),1); // new
+			mt->angle = (short)FixedInt(FixedDiv(angle*FRACUNIT, 360*(FRACUNIT/256)));
 
 			// Traditional 2D Angle
-			temp = (short)FixedMul(AngleFixed(player->mo->angle),1); // new
+			temp = (short)FixedInt(AngleFixed(player->mo->angle));
 
 			if (player->anotherflyangle < 90 || player->anotherflyangle > 270)
 				temp -= 90;
@@ -4678,7 +4690,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt->x = (short)(player->mo->x>>FRACBITS);
 			mt->y = (short)(player->mo->y>>FRACBITS);
-			mt->angle = (short)(FixedDiv(AngleFixed(player->mo->angle),1)%360);
+			mt->angle = (short)(FixedInt(AngleFixed(player->mo->angle)));
 
 			mt->type = (unsigned short)mobjinfo[MT_NIGHTSBUMPER].doomednum;
 
@@ -4770,7 +4782,7 @@ static void P_NiGHTSMovement(player_t *player)
 		{
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
-			int shift;
+			INT32 shift;
 			unsigned short angle;
 
 			angle = (unsigned short)((360-player->anotherflyangle) % 360);
@@ -4951,7 +4963,7 @@ static void P_ObjectplaceMovement(player_t *player)
 				{
 					if (cv_grid.value)
 					{
-						int adjust;
+						INT32 adjust;
 
 						adjust = cv_grid.value - (((player->mo->subsector->sector->ceilingheight -
 							player->mo->subsector->sector->floorheight)>>FRACBITS) % cv_grid.value);
@@ -5054,7 +5066,7 @@ static void P_ObjectplaceMovement(player_t *player)
 
 			mt->x = x;
 			mt->y = y;
-			mt->angle = (short)FixedMul(AngleFixed(player->mo->angle),1);
+			mt->angle = (short)FixedInt(AngleFixed(player->mo->angle));
 
 			if (cv_mapthingnum.value != 0)
 			{
@@ -5173,7 +5185,7 @@ static void P_ObjectplaceMovement(player_t *player)
 	}
 	if (cmd->sidemove != 0)
 	{
-		P_Thrust(player->mo, player->mo->angle-ANG90, cmd->sidemove*(FRACUNIT/4));
+		P_Thrust(player->mo, player->mo->angle-ANGLE_90, cmd->sidemove*(FRACUNIT/4));
 		P_TeleportMove(player->mo, player->mo->x+player->mo->momx, player->mo->y+player->mo->momy, player->mo->z);
 		player->mo->momx = player->mo->momy = 0;
 	}
@@ -5249,7 +5261,7 @@ static void P_PlayerDropWeapon(player_t *player)
 	if (mo)
 	{
 		player->mo->health--;
-		P_InstaThrust(mo, player->mo->angle-ANG180, 8*FRACUNIT);
+		P_InstaThrust(mo, player->mo->angle-ANGLE_180, 8*FRACUNIT);
 		P_SetObjectMomZ(mo, 4*FRACUNIT, false);
 		mo->flags2 |= MF2_DONTRESPAWN;
 		mo->flags &= ~MF_NOGRAVITY;
@@ -5267,7 +5279,7 @@ static void P_PlayerDropWeapon(player_t *player)
 static void P_MovePlayer(player_t *player)
 {
 	ticcmd_t *cmd;
-	int i;
+	INT32 i;
 
 	fixed_t tempx, tempy;
 	angle_t tempangle;
@@ -5337,9 +5349,9 @@ static void P_MovePlayer(player_t *player)
 	{
 		if (cv_allowteamchange.value)
 		{
-			int changeto;
-			int red, blue;
-			int redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
+			INT32 changeto;
+			INT32 red, blue;
+			INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
 
 			red = blue = changeto = 0;
 
@@ -6051,18 +6063,19 @@ static void P_MovePlayer(player_t *player)
 			fixed_t stirwaterx = FixedMul(FINECOSINE(fa),radius);
 			fixed_t stirwatery = FixedMul(FINESINE(fa),radius);
 			fixed_t stirwaterz;
+			mobj_t *bubble;
 
 			if (player->mo->eflags & MFE_VERTICALFLIP)
 				stirwaterz = player->mo->z + player->mo->height - FixedDiv(player->mo->height,3*FRACUNIT/2);
 			else
 				stirwaterz = player->mo->z + FixedDiv(player->mo->height,3*FRACUNIT/2);
 
-			P_SpawnMobj(
+			bubble = P_SpawnMobj(
 				player->mo->x + stirwaterx,
 				player->mo->y + stirwatery,
 				stirwaterz, MT_SMALLBUBBLE);
 
-			P_SpawnMobj(
+			bubble = P_SpawnMobj(
 				player->mo->x - stirwaterx,
 				player->mo->y - stirwatery,
 				stirwaterz, MT_SMALLBUBBLE);
@@ -6154,6 +6167,7 @@ static void P_MovePlayer(player_t *player)
 			&& (!player->powers[pw_super] || (player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds]) && !(player->skin == 0))))
 		{
 			fixed_t destx, desty;
+			mobj_t *sparkle;
 
 			if (!splitscreen && rendermode != render_soft)
 			{
@@ -6173,7 +6187,7 @@ static void P_MovePlayer(player_t *player)
 				desty = player->mo->y;
 			}
 
-			P_SpawnMobj(destx, desty, player->mo->z, MT_IVSP);
+			sparkle = P_SpawnMobj(destx, desty, player->mo->z, MT_IVSP);
 		}
 
 		if ((player->powers[pw_super]) && (cmd->forwardmove != 0 || cmd->sidemove != 0)
@@ -6246,8 +6260,8 @@ static void P_MovePlayer(player_t *player)
 
 		travelangle = R_PointToAngle2(player->mo->x, player->mo->y, player->rmomx + player->mo->x, player->rmomy + player->mo->y);
 
-		newx = player->mo->x + P_ReturnThrustX(player->mo, travelangle + ANG45 + ANG90, 24*FRACUNIT);
-		newy = player->mo->y + P_ReturnThrustY(player->mo, travelangle + ANG45 + ANG90, 24*FRACUNIT);
+		newx = player->mo->x + P_ReturnThrustX(player->mo, travelangle + ANGLE_135, 24*FRACUNIT);
+		newy = player->mo->y + P_ReturnThrustY(player->mo, travelangle + ANGLE_135, 24*FRACUNIT);
 		flame = P_SpawnMobj(newx, newy, ground, MT_SPINFIRE);
 		P_SetTarget(&flame->target, player->mo);
 		flame->angle = travelangle;
@@ -6266,8 +6280,8 @@ static void P_MovePlayer(player_t *player)
 		else if (flame->z > flame->floorz+1)
 			P_SetMobjState(flame, S_DISS);
 
-		newx = player->mo->x + P_ReturnThrustX(player->mo, travelangle - ANG45 - ANG90, 24*FRACUNIT);
-		newy = player->mo->y + P_ReturnThrustY(player->mo, travelangle - ANG45 - ANG90, 24*FRACUNIT);
+		newx = player->mo->x + P_ReturnThrustX(player->mo, travelangle - ANGLE_135, 24*FRACUNIT);
+		newy = player->mo->y + P_ReturnThrustY(player->mo, travelangle - ANGLE_135, 24*FRACUNIT);
 		flame = P_SpawnMobj(newx, newy, ground, MT_SPINFIRE);
 		P_SetTarget(&flame->target, player->mo);
 		flame->angle = travelangle;
@@ -6455,7 +6469,7 @@ if (gametype == GT_TAG)
 			tempx += FixedMul(cmd->forwardmove,FINECOSINE(tempangle));
 			tempy += FixedMul(cmd->forwardmove,FINESINE(tempangle));
 
-			tempangle = thiscam->angle-ANG90;
+			tempangle = thiscam->angle-ANGLE_90;
 			tempangle >>= ANGLETOFINESHIFT;
 			tempx += FixedMul(cmd->sidemove,FINECOSINE(tempangle));
 			tempy += FixedMul(cmd->sidemove,FINESINE(tempangle));
@@ -7386,7 +7400,7 @@ if (gametype == GT_TAG)
 #ifdef POLYOBJECTS
 		// Polyobjects
 		{
-			int bx, by, xl, xh, yl, yh;
+			INT32 bx, by, xl, xh, yl, yh;
 
 			validcount++;
 
@@ -7398,7 +7412,7 @@ if (gametype == GT_TAG)
 			for (by = yl; by <= yh; by++)
 				for (bx = xl; bx <= xh; bx++)
 				{
-					int offset;
+					INT32 offset;
 					polymaplink_t *plink; // haleyjd 02/22/06
 
 					if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
@@ -7523,13 +7537,6 @@ if (gametype == GT_TAG)
 	// check for fire
 	if (cmd->buttons & BT_ATTACK || cmd->buttons & BT_FIRENORMAL)
 	{
-#if 0 //now auto-join a team in team match/CTF
-		// Spectator respawn code
-		if (((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) && player->spectator)
-			&& !player->powers[pw_flashing] && !(player->pflags & PF_JUMPDOWN))
-			P_DamageMobj(player->mo, NULL, NULL, 42000);
-#endif
-
 		if (mariomode)
 		{
 			if (!(player->pflags & PF_ATTACKDOWN) && player->powers[pw_fireflower]
@@ -7687,12 +7694,12 @@ if (gametype == GT_TAG)
 					}
 
 					// Left
-					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle-(ANG90/45), false, true, MF2_SCATTER, false);
+					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle-(ANGLE_90/45), false, true, MF2_SCATTER, false);
 					//if (mo)
 						//P_ColorTeamMissile(mo, player);
 
 					// Right
-					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle+(ANG90/45), false, true, MF2_SCATTER, false);
+					mo = P_SPMAngle(player->mo, MT_THROWNSCATTER, shotangle+(ANGLE_90/45), false, true, MF2_SCATTER, false);
 					//if (mo)
 						//P_ColorTeamMissile(mo, player);
 
@@ -7781,10 +7788,10 @@ if (gametype == GT_TAG)
 			if (player->skin == 2) // Knuckles
 				player->weapondelay /= 2;
 
-			player->aiming += ANG45/2;
+			player->aiming += ANGLE_22h;
 
-			if (player->aiming > ANG90-1)
-				player->aiming = ANG90-1;
+			if (player->aiming > ANGLE_90-1)
+				player->aiming = ANGLE_90-1;
 
 			mo = P_SPMAngle(player->mo, MT_THROWNGRENADE, player->mo->angle, true, true, MF2_GRENADE, false);
 
@@ -7860,23 +7867,23 @@ if (gametype == GT_TAG)
 	if (rendermode != render_soft && rendermode != render_none && cv_grfovchange.value)
 	{
 		fixed_t speed;
-		const int runnyspeed = 20;
+		const fixed_t runnyspeed = 20*FRACUNIT;
 
 		speed = R_PointToDist2(player->mo->x + player->rmomx, player->mo->y + player->rmomy, player->mo->x, player->mo->y);
 
 		if (speed > (player->normalspeed-5)*FRACUNIT)
 			speed = (player->normalspeed-5)*FRACUNIT;
 
-		if (speed >= runnyspeed*FRACUNIT)
-			grfovadjust = FIXED_TO_FLOAT(speed)-runnyspeed;
+		if (speed >= runnyspeed)
+			player->fovadd = speed-runnyspeed;
 		else
-			grfovadjust = 0.0f;
+			player->fovadd = 0*FRACUNIT;
 
-		if (grfovadjust < 0.0f)
-			grfovadjust = 0.0f;
+		if (player->fovadd < 0*FRACUNIT)
+			player->fovadd = 0*FRACUNIT;
 	}
 	else
-		grfovadjust = 0.0f;
+		player->fovadd = 0*FRACUNIT;
 #endif
 
 #ifdef FLOORSPLATS
@@ -8205,7 +8212,7 @@ bouncydone:
 
 static void P_DoZoomTube(player_t *player)
 {
-	int sequence;
+	INT32 sequence;
 	fixed_t speed;
 	thinker_t *th;
 	mobj_t *mo2;
@@ -8279,7 +8286,7 @@ static void P_DoZoomTube(player_t *player)
 		if (waypoint)
 		{
 			if (cv_debug)
-				CONS_Printf("Found waypoint (sequence %ld, number %ld).\n", waypoint->threshold, waypoint->health);
+				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
 
 			// calculate MOMX/MOMY/MOMZ for next waypoint
 			// change angle
@@ -8337,7 +8344,7 @@ static void P_DoZoomTube(player_t *player)
 //
 static void P_DoRopeHang(player_t *player, boolean minecart)
 {
-	int sequence;
+	INT32 sequence;
 	fixed_t speed;
 	thinker_t *th;
 	mobj_t *mo2;
@@ -8469,7 +8476,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 		if (waypoint)
 		{
 			if (cv_debug)
-				CONS_Printf("Found waypoint (sequence %ld, number %ld).\n", waypoint->threshold, waypoint->health);
+				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
 
 			// calculate MOMX/MOMY/MOMZ for next waypoint
 			// change slope
@@ -8561,7 +8568,7 @@ void P_NukeEnemies(player_t *player)
 	mobj_t *mo;
 	angle_t fa;
 	thinker_t *think;
-	int i;
+	INT32 i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -8653,7 +8660,7 @@ boolean P_LookForEnemies(player_t *player)
 
 		an = R_PointToAngle2(player->mo->x, player->mo->y, mo->x, mo->y) - player->mo->angle;
 
-		if (an > ANG90 && an < ANG270)
+		if (an > ANGLE_90 && an < ANGLE_270)
 			continue; // behind back
 
 		player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y, mo->x, mo->y);
@@ -8850,7 +8857,7 @@ static void P_DeathThink(player_t *player)
 		// In a net/multiplayer game, and out of lives
 		if (gametype == GT_RACE)
 		{
-			int i;
+			INT32 i;
 
 			for (i = 0; i < MAXPLAYERS; i++)
 				if (playeringame[i] && !players[i].exiting && players[i].lives > 0)
@@ -8874,7 +8881,7 @@ static void P_DeathThink(player_t *player)
 		// In a coop game, and out of lives
 		if (gametype == GT_COOP)
 		{
-			int i;
+			INT32 i;
 
 			for (i = 0; i < MAXPLAYERS; i++)
 				if (playeringame[i] && (players[i].exiting || players[i].lives > 0))
@@ -9017,11 +9024,11 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 {
 	angle_t angle = 0, focusangle = 0;
 	fixed_t x, y, z, dist, checkdist, viewpointx, viewpointy, camspeed, camdist, camheight, pviewheight;
-	int camrotate;
+	INT32 camrotate;
 	boolean camstill;
 	mobj_t *mo;
 	subsector_t *newsubsec;
-	float f1, f2;
+	fixed_t f1, f2;
 
 	if (!cv_chasecam.value && thiscam == &camera)
 		return;
@@ -9086,7 +9093,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 	}
 
 	if (twodlevel || (mo->flags2 & MF2_TWOD))
-		angle = ANG90;
+		angle = ANGLE_90;
 	else if (camstill)
 		angle = thiscam->angle;
 	else if (player->pflags & PF_NIGHTSMODE) // NiGHTS Level
@@ -9094,7 +9101,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 		if ((player->pflags & PF_TRANSFERTOCLOSEST) && player->axis1 && player->axis2)
 		{
 			angle = R_PointToAngle2(player->axis1->x, player->axis1->y, player->axis2->x, player->axis2->y);
-			angle += ANG90;
+			angle += ANGLE_90;
 		}
 		else if (player->mo->target)
 		{
@@ -9248,7 +9255,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 		{
 			ffloor_t *rover;
 			fixed_t delta1, delta2;
-			int thingtop = midz + thiscam->height;
+			INT32 thingtop = midz + thiscam->height;
 
 			for (rover = newsubsec->sector->ffloors; rover; rover = rover->next)
 			{
@@ -9273,7 +9280,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 #ifdef POLYOBJECTS
 	// Check polyobjects and see if tmfloorz/tmceilingz need to be altered
 	{
-		int xl, xh, yl, yh, bx, by;
+		INT32 xl, xh, yl, yh, bx, by;
 		validcount++;
 
 		xl = (unsigned)(tmbbox[BOXLEFT] - bmaporgx)>>MAPBLOCKSHIFT;
@@ -9284,7 +9291,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 		for (by = yl; by <= yh; by++)
 			for (bx = xl; bx <= xh; bx++)
 			{
-				int offset;
+				INT32 offset;
 				polymaplink_t *plink; // haleyjd 02/22/06
 
 				if (bx < 0 || by < 0 || bx >= bmapwidth || by >= bmapheight)
@@ -9426,16 +9433,16 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 	}
 
 	// compute aming to look the viewed point
-	f1 = FIXED_TO_FLOAT(viewpointx-thiscam->x);
-	f2 = FIXED_TO_FLOAT(viewpointy-thiscam->y);
-	dist = (fixed_t)((float)sqrt(f1*f1+f2*f2)*FRACUNIT);
+	f1 = viewpointx-thiscam->x;
+	f2 = viewpointy-thiscam->y;
+	dist = FixedHypot(f1, f2);
 
 	angle = R_PointToAngle2(0, thiscam->z, dist,mo->z + (P_GetPlayerHeight(player)>>1)
 		+ FINESINE((player->aiming>>ANGLETOFINESHIFT) & FINEMASK) * 64);
 
 	if (twodlevel || (mo->flags2 & MF2_TWOD) || !camstill) // Keep the view still...
 	{
-		G_ClipAimingPitch((int *)&angle);
+		G_ClipAimingPitch((INT32 *)&angle);
 		dist = thiscam->aiming - angle;
 		thiscam->aiming -= (dist>>3);
 	}
@@ -9468,17 +9475,18 @@ boolean playerdeadview; // show match/chaos/tag/capture the flag rankings while 
 void P_PlayerThink(player_t *player)
 {
 	ticcmd_t *cmd;
+	const size_t playeri = (size_t)(player - players);
 
 #ifdef PARANOIA
 	if (!player->mo)
-		I_Error("p_playerthink: players[%d].mo == NULL", player - players);
+		I_Error("p_playerthink: players[%"PRIdS"].mo == NULL", playeri);
 #endif
 	// Possible zombie fixes.
 	// todo: Figure out what is actually causing these problems in the first place...
 	if ((player->health <= 0 || player->mo->health <= 0) && player->playerstate == PST_LIVE) //you should be DEAD!
 	{
 		if (server && (netgame || cv_debug))
-			CONS_Printf("Note: Player %d in PST_LIVE with 0 health. (Zombie bug)\n", player-players);
+			CONS_Printf("Note: Player %"PRIdS" in PST_LIVE with 0 health. (Zombie bug)\n", playeri);
 		player->playerstate = PST_DEAD;
 	}
 
@@ -9486,7 +9494,7 @@ void P_PlayerThink(player_t *player)
 	 ((player->mo->eflags & MFE_VERTICALFLIP) && player->mo->z == player->mo->ceilingz)))
 	{
 		if (server && (netgame || cv_debug))
-			CONS_Printf("Note: Player %d in S_PLAY_PAIN while touching a surface. (Zombie bug)\n", player-players);
+			CONS_Printf("Note: Player %"PRIdS" in S_PLAY_PAIN while touching a surface. (Zombie bug)\n", playeri);
 		P_SetPlayerMobjState(player->mo, S_PLAY_STND);
 	}
 
@@ -9511,7 +9519,7 @@ void P_PlayerThink(player_t *player)
 	/// \note do this in the cheat code
 	if (player->pflags & PF_NOCLIP)
 		player->mo->flags |= MF_NOCLIP;
-	else if (!cv_objectplace.value /*&& !(player->pflags & PF_NIGHTSMODE)*/) //Not sure why this is here. -Jazz
+	else if (!cv_objectplace.value)
 		player->mo->flags &= ~MF_NOCLIP;
 
 	cmd = &player->cmd;
@@ -9522,12 +9530,12 @@ void P_PlayerThink(player_t *player)
 
 #ifdef PARANOIA
 	if (player->playerstate == PST_REBORN)
-		I_Error("player %d is in PST_REBORN\n", players - player);
+		I_Error("player %"PRIdS" is in PST_REBORN\n", playeri);
 #endif
 
 	if (gametype == GT_RACE)
 	{
-		int i;
+		INT32 i;
 
 		// Check if all the players in the race have finished. If so, end the level.
 		for (i = 0; i < MAXPLAYERS; i++)
@@ -9585,9 +9593,9 @@ void P_PlayerThink(player_t *player)
 	{
 		if (cv_playersforexit.value) // Count to be sure everyone's exited
 		{
-			int i;
-			int numplayersingame = 0;
-			int numplayersexiting = 0;
+			INT32 i;
+			INT32 numplayersingame = 0;
+			INT32 numplayersexiting = 0;
 
 			for (i = 0; i < MAXPLAYERS; i++)
 			{
@@ -9878,7 +9886,7 @@ void P_PlayerThink(player_t *player)
 
 		sector_t *sector = &sectors[1];
 		line_t *line;
-		int i, j;
+		INT32 i, j;
 
 		for (i = 0; i < sector->linecount; i++)
 		{
@@ -9912,7 +9920,7 @@ void P_PlayerThink(player_t *player)
 /*
 //	Colormap verification
 	{
-		int i,j;
+		INT32 i,j;
 		sector_t *controlsec;
 		for (j=0; j<numsectors; j++)
 		{
@@ -9954,11 +9962,14 @@ void P_PlayerThink(player_t *player)
 void P_PlayerAfterThink(player_t *player)
 {
 	ticcmd_t *cmd;
-	long oldweapon = player->currentweapon;
+	INT32 oldweapon = player->currentweapon;
 
 #ifdef PARANOIA
 	if (!player->mo)
-		I_Error("p_playerafterthink: players[%d].mo == NULL", player - players);
+	{
+		const size_t playeri = (size_t)(player - players);
+		I_Error("P_PlayerAfterThink: players[%"PRIdS"].mo == NULL", playeri);
+	}
 #endif
 
 	cmd = &player->cmd;
@@ -10032,7 +10043,7 @@ void P_PlayerAfterThink(player_t *player)
 		if (cmd->buttons & BT_WEAPONMASK)
 		{
 			//Read the bits to determine individual weapon ring selection.
-			int weapon = (cmd->buttons & BT_WEAPONMASK);
+			INT32 weapon = (cmd->buttons & BT_WEAPONMASK);
 
 			switch (weapon)
 			{

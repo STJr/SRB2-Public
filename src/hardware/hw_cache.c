@@ -36,20 +36,20 @@
 boolean firetranslucent = false;
 
 // Values set after a call to HWR_ResizeBlock()
-static int blocksize, blockwidth, blockheight;
+static INT32 blocksize, blockwidth, blockheight;
 
-int patchformat = GR_TEXFMT_AP_88; // use alpha for holes
-int textureformat = GR_TEXFMT_P_8; // use chromakey for hole
+INT32 patchformat = GR_TEXFMT_AP_88; // use alpha for holes
+INT32 textureformat = GR_TEXFMT_P_8; // use chromakey for hole
 
 // sprite, use alpha and chroma key for hole
 static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
-	int pblockwidth, int pblockheight, int blockmodulo,
-	int ptexturewidth, int ptextureheight,
-	int originx, int originy, // where to draw patch in surface block
-	const patch_t *realpatch, int bpp)
+	INT32 pblockwidth, INT32 pblockheight, INT32 blockmodulo,
+	INT32 ptexturewidth, INT32 ptextureheight,
+	INT32 originx, INT32 originy, // where to draw patch in surface block
+	const patch_t *realpatch, INT32 bpp)
 {
-	int x, x1, x2;
-	int col, ncols;
+	INT32 x, x1, x2;
+	INT32 col, ncols;
 	fixed_t xfrac, xfracstep;
 	fixed_t yfrac, yfracstep, position, count;
 	fixed_t scale_y;
@@ -180,7 +180,7 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 //       blockwidth
 //       blockheight
 //note :  8bit (1 byte per pixel) palettized format
-static void HWR_ResizeBlock(int originalwidth, int originalheight,
+static void HWR_ResizeBlock(INT32 originalwidth, INT32 originalheight,
 	GrTexInfo *grInfo)
 {
 	//   Build the full textures from patches.
@@ -217,8 +217,8 @@ static void HWR_ResizeBlock(int originalwidth, int originalheight,
 		{GR_ASPECT_LOG2_1x8,  31, 255}
 	};
 
-	int     j,k;
-	int     max,min;
+	INT32     j,k;
+	INT32     max,min;
 
 	// find a power of 2 width/height
 	//size up to nearest power of 2
@@ -278,7 +278,7 @@ static void HWR_ResizeBlock(int originalwidth, int originalheight,
 }
 
 
-static const int format2bpp[16] =
+static const INT32 format2bpp[16] =
 {
 	0, //0
 	0, //1
@@ -299,9 +299,9 @@ static const int format2bpp[16] =
 
 static byte *MakeBlock(GLMipmap_t *grMipmap)
 {
-	int bpp;
+	INT32 bpp;
 	byte *block;
-	int i;
+	INT32 i;
 
 	bpp =  format2bpp[grMipmap->grInfo.format];
 	block = Z_Malloc(blocksize*bpp, PU_STATIC, &(grMipmap->grInfo.data));
@@ -325,14 +325,14 @@ static byte *MakeBlock(GLMipmap_t *grMipmap)
 // Create a composite texture from patches, adapt the texture size to a power of 2
 // height and width for the hardware texture cache.
 //
-static void HWR_GenerateTexture(int texnum, GLTexture_t *grtex)
+static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 {
 	byte *block;
 	texture_t *texture;
 	texpatch_t *patch;
 	patch_t *realpatch;
 
-	int i;
+	INT32 i;
 	boolean skyspecial = false; //poor hack for Legacy large skies..
 
 	texture = textures[texnum];
@@ -360,7 +360,7 @@ static void HWR_GenerateTexture(int texnum, GLTexture_t *grtex)
 
 	if (skyspecial) //Hurdler: not efficient, but better than holes in the sky (and it's done only at level loading)
 	{
-		int j;
+		INT32 j;
 		RGBA_t col;
 
 		col = V_GetColor(HWR_CHROMAKEY_EQUIVALENTCOLORINDEX);
@@ -415,7 +415,7 @@ static void HWR_GenerateTexture(int texnum, GLTexture_t *grtex)
 void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap)
 {
 	byte *block;
-	int newwidth, newheight;
+	INT32 newwidth, newheight;
 
 	// don't do it twice (like a cache)
 	if (grMipmap->width == 0)
@@ -485,7 +485,7 @@ void HWR_InitTextureCache(void)
 
 void HWR_FreeTextureCache(void)
 {
-	int i,j;
+	INT32 i,j;
 	// free references to the textures
 	HWD.pfnClearMipMapCache();
 
@@ -534,7 +534,11 @@ void HWR_PrepLevelCache(size_t pnumtextures)
 void HWR_SetPalette(RGBA_t *palette)
 {
 	//Hudler: 16/10/99: added for OpenGL gamma correction
+#ifdef HARDWAREFIX
+	RGBA_t gamma_correction = {0x00000000};
+#else
 	RGBA_t gamma_correction = {0x7F7F7F7F};
+#endif
 
 	//Hurdler 16/10/99: added for OpenGL gamma correction
 	gamma_correction.s.red   = (byte)cv_grgammared.value;
@@ -551,7 +555,7 @@ void HWR_SetPalette(RGBA_t *palette)
 // --------------------------------------------------------------------------
 // Make sure texture is downloaded and set it as the source
 // --------------------------------------------------------------------------
-GLTexture_t *HWR_GetTexture(int tex)
+GLTexture_t *HWR_GetTexture(INT32 tex)
 {
 	GLTexture_t *grtex;
 #ifdef PARANOIA
@@ -708,7 +712,7 @@ void HWR_GetMappedPatch(GLPatch_t *gpatch, const byte *colormap)
 	HWR_LoadMappedPatch(newmip, gpatch);
 }
 
-static const int picmode2GR[] =
+static const INT32 picmode2GR[] =
 {
 	GR_TEXFMT_P_8,                // PALETTE
 	0,                            // INTENSITY          (unsupported yet)
@@ -717,17 +721,17 @@ static const int picmode2GR[] =
 	GR_RGBA,                      // RGBA32             (opengl only)
 };
 
-static void HWR_DrawPicInCache(byte *block, int pblockwidth, int pblockheight,
-	int blockmodulo, pic_t *pic, int bpp)
+static void HWR_DrawPicInCache(byte *block, INT32 pblockwidth, INT32 pblockheight,
+	INT32 blockmodulo, pic_t *pic, INT32 bpp)
 {
-	int i,j;
+	INT32 i,j;
 	fixed_t posx, posy, stepx, stepy;
 	byte *dest, *src, texel;
-	int picbpp;
+	INT32 picbpp;
 	RGBA_t col;
 
-	stepy = ((int)SHORT(pic->height)<<FRACBITS)/pblockheight;
-	stepx = ((int)SHORT(pic->width)<<FRACBITS)/pblockwidth;
+	stepy = ((INT32)SHORT(pic->height)<<FRACBITS)/pblockheight;
+	stepx = ((INT32)SHORT(pic->width)<<FRACBITS)/pblockwidth;
 	picbpp = format2bpp[picmode2GR[pic->mode]];
 	posy = 0;
 	for (j = 0; j < pblockheight; j++)
@@ -797,7 +801,7 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 		pic_t *pic;
 		byte *block;
 		size_t len;
-		int newwidth, newheight;
+		INT32 newwidth, newheight;
 
 		pic = W_CacheLumpNum(lumpnum, PU_STATIC);
 		grpatch->width = SHORT(pic->width);
@@ -831,7 +835,7 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 			format2bpp[grpatch->mipmap.grInfo.format] == format2bpp[picmode2GR[pic->mode]])
 		{
 			// no conversion needed
-			memcpy(grpatch->mipmap.grInfo.data, pic->data,len);
+			M_Memcpy(grpatch->mipmap.grInfo.data, pic->data,len);
 		}
 		else
 			HWR_DrawPicInCache(block, newwidth, newheight,

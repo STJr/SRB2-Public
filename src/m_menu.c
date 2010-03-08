@@ -82,13 +82,13 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 boolean menuactive = false;
 boolean fromlevelselect = false;
 static boolean pandoralevelselect = false;
-static int fromloadgame = 0;
+static INT32 fromloadgame = 0;
 
 customsecrets_t customsecretinfo[15];
-int inlevelselect = 0;
+INT32 inlevelselect = 0;
 
-static int lastmapnum;
-static int oldlastmapnum;
+static INT32 lastmapnum;
+static INT32 oldlastmapnum;
 
 #define SKULLXOFF -32
 #define LINEHEIGHT 16
@@ -120,9 +120,11 @@ description_t description[15] =
 	{"             Unknown\n                 Unknown\n             None", "SONCCHAR", "", ""},
 };
 
-static int saveSlotSelected = 0;
+static INT32 saveSlotSelected = 0;
 static char joystickInfo[8][25];
-static unsigned int serverlistpage;
+#ifndef NONET
+static UINT32 serverlistpage;
+#endif
 
 typedef struct
 {
@@ -132,15 +134,17 @@ typedef struct
 	byte skincolor;
 	byte skinnum;
 	byte numemeralds;
-	int lives;
-	int continues;
-	int gamemap;
+	INT32 lives;
+	INT32 continues;
+	INT32 gamemap;
 	byte netgame;
 } saveinfo_t;
 
 static saveinfo_t savegameinfo[10]; // Extra info about the save games.
 
+#ifndef NONET
 static char setupm_ip[16];
+#endif
 short startmap; // Mario, NiGHTS, or just a plain old normal game?
 
 static short itemOn = 1; // menu item skull is on, Hack by Tails 09-18-2002
@@ -149,24 +153,26 @@ static short skullAnimCounter = 10; // skull animation counter
 //
 // PROTOTYPES
 //
-static void M_DrawSaveLoadBorder(int x,int y);
+static void M_DrawSaveLoadBorder(INT32 x,INT32 y);
 
-static void M_DrawThermo(int x,int y,consvar_t *cv);
-static void M_DrawSlider(int x, int y, const consvar_t *cv);
-static void M_CentreText(int y, const char *string); // write text centered
-static void M_CustomLevelSelect(int choice);
-static void M_StopMessage(int choice);
-static void M_GameOption(int choice);
-static void M_NetOption(int choice);
+static void M_DrawThermo(INT32 x,INT32 y,consvar_t *cv);
+static void M_DrawSlider(INT32 x, INT32 y, const consvar_t *cv);
+static void M_CentreText(INT32 y, const char *string); // write text centered
+static void M_CustomLevelSelect(INT32 choice);
+static void M_StopMessage(INT32 choice);
+static void M_GameOption(INT32 choice);
+static void M_NetOption(INT32 choice);
 
-static void M_GametypeOptions(int choice);
+static void M_GametypeOptions(INT32 choice);
 
-#ifdef HWRENDER
-static void M_OpenGLOption(int choice);
+#if defined (HWRENDER) && defined (SHUFFLE)
+static void M_OpenGLOption(INT32 choice);
 #endif
 
+#ifndef NONET
 static void M_NextServerPage(void);
 static void M_PrevServerPage(void);
+#endif
 static void M_SortServerList(void);
 
 static const char *ALREADYPLAYING = "You are already playing.\nDo you wish to end the\ncurrent game? (Y/N)\n";
@@ -183,8 +189,8 @@ static void M_DrawMenuTitle(void)
 	{
 		patch_t *p = W_CachePatchName(currentMenu->menutitlepic, PU_CACHE);
 
-		int xtitle = (BASEVIDWIDTH - SHORT(p->width))/2;
-		int ytitle = (currentMenu->y - SHORT(p->height))/2;
+		INT32 xtitle = (BASEVIDWIDTH - SHORT(p->width))/2;
+		INT32 ytitle = (currentMenu->y - SHORT(p->height))/2;
 
 		if (xtitle < 0)
 			xtitle = 0;
@@ -196,7 +202,7 @@ static void M_DrawMenuTitle(void)
 
 void M_DrawGenericMenu(void)
 {
-	int x, y, i, cursory = 0;
+	INT32 x, y, i, cursory = 0;
 
 	// DRAW MENU
 	x = currentMenu->x;
@@ -305,7 +311,7 @@ void M_DrawGenericMenu(void)
 
 static void M_DrawCenteredMenu(void)
 {
-	int x, y, i, cursory = 0;
+	INT32 x, y, i, cursory = 0;
 
 	// DRAW MENU
 	x = currentMenu->x;
@@ -432,15 +438,15 @@ static inline size_t M_StringHeight(const char *string)
 //MAIN MENU
 //===========================================================================
 
-static void M_QuitSRB2(int choice);
-static void M_OptionsMenu(int choice);
-static void M_SecretsMenu(int choice);
-static void M_CustomSecretsMenu(int choice);
-static void M_MapChange(int choice);
-static void M_TeamChange(int choice);
-static void M_ConfirmSpectate(int choice);
-static void M_TeamScramble(int choice);
-static void M_ConfirmTeamScramble(int choice);
+static void M_QuitSRB2(INT32 choice);
+static void M_OptionsMenu(INT32 choice);
+static void M_SecretsMenu(INT32 choice);
+static void M_CustomSecretsMenu(INT32 choice);
+static void M_MapChange(INT32 choice);
+static void M_TeamChange(INT32 choice);
+static void M_ConfirmSpectate(INT32 choice);
+static void M_TeamScramble(INT32 choice);
+static void M_ConfirmTeamScramble(INT32 choice);
 
 typedef enum
 {
@@ -487,9 +493,9 @@ static void M_DrawStats2(void);
 static void M_DrawStats3(void);
 static void M_DrawStats4(void);
 static void M_DrawStats5(void);
-static void M_Stats2(int choice);
-static void M_Stats3(int choice);
-static void M_Stats4(int choice);
+static void M_Stats2(INT32 choice);
+static void M_Stats3(INT32 choice);
+static void M_Stats4(INT32 choice);
 
 // Empty thingy for stats5 menu
 typedef enum
@@ -621,9 +627,9 @@ menu_t StatsDef =
 //===========================================================================
 // Menu Revamp! Tails 11-30-2000
 static void M_NewGame(void);
-static void M_LoadGame(int choice);
-static void M_Statistics(int choice);
-static void M_TimeAttack(int choice);
+static void M_LoadGame(INT32 choice);
+static void M_Statistics(INT32 choice);
+static void M_TimeAttack(INT32 choice);
 
 typedef enum
 {
@@ -659,10 +665,12 @@ menu_t SinglePlayerDef =
 // Connect Menu
 //===========================================================================
 
+#ifndef NONET
 static CV_PossibleValue_t serversearch_cons_t[] = {
 	{0,"Local Lan"},
 	{1,"Internet"},
 	{0,NULL}};
+#endif
 
 static CV_PossibleValue_t serversort_cons_t[] = {
 	{0,"Ping"},
@@ -670,12 +678,15 @@ static CV_PossibleValue_t serversort_cons_t[] = {
 	{2,"Gametype"},
 	{0,NULL}};
 
+#ifndef NONET
 static consvar_t cv_serversearch = {"serversearch", "Internet", CV_HIDEN, serversearch_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+#endif
 consvar_t cv_serversort = {"serversort", "Ping", CV_HIDEN | CV_CALL, serversort_cons_t, M_SortServerList, 0, NULL, NULL, 0, 0, NULL};
 
 #define FIRSTSERVERLINE 6
 
-static void M_Connect(int choice)
+#ifndef NONET
+static void M_Connect(INT32 choice)
 {
 	// do not call menuexitfunc
 	M_ClearMenus(false);
@@ -692,7 +703,7 @@ static void M_Connect(int choice)
 }
 
 // Tails 11-19-2002
-static void M_ConnectIP(int choice)
+static void M_ConnectIP(INT32 choice)
 {
 	(void)choice;
 	COM_BufAddText(va("connect %s\n", setupm_ip));
@@ -706,9 +717,9 @@ static void M_ConnectIP(int choice)
 		I_FinishUpdate(); // page flip or blit buffer
 }
 
-static unsigned int localservercount;
+static UINT32 localservercount;
 
-static void M_Refresh(int choice)
+static void M_Refresh(INT32 choice)
 {
 	(void)choice;
 	CL_UpdateServerList(cv_serversearch.value);
@@ -752,7 +763,7 @@ static void M_DisplayMSMOTD(void)
 
 static void M_DrawConnectMenu(void)
 {
-	unsigned int i;
+	UINT32 i;
 	char *p;
 	char cgametype;
 	char servername[21];
@@ -765,7 +776,7 @@ static void M_DrawConnectMenu(void)
 	else
 	for (i = 0; i < min(serverlistcount - serverlistpage * SERVERS_PER_PAGE, SERVERS_PER_PAGE); i++)
 	{
-		int slindex = i + serverlistpage * SERVERS_PER_PAGE;
+		INT32 slindex = i + serverlistpage * SERVERS_PER_PAGE;
 
 		strlcpy(servername, serverlist[slindex].info.servername, sizeof (servername));
 		servername[20] = '\0';
@@ -773,7 +784,7 @@ static void M_DrawConnectMenu(void)
 			V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,V_TRANSLUCENT|V_ALLOWLOWERCASE,servername);
 		else
 			V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,V_ALLOWLOWERCASE,servername);
-		p = va("%lu", serverlist[slindex].info.time);
+		p = va("%u", (unsigned)LONG(serverlist[slindex].info.time));
 		V_DrawString (currentMenu->x+200-V_StringWidth(p),currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,0,p);
 
 		switch (serverlist[slindex].info.gametype)
@@ -836,7 +847,7 @@ menu_t Connectdef =
 };
 
 // Connect using IP address Tails 11-19-2002
-static void M_HandleConnectIP(int choice);
+static void M_HandleConnectIP(INT32 choice);
 static menuitem_t  ConnectIPMenu[] =
 {
 	{IT_KEYHANDLER | IT_STRING, NULL, "  IP Address:", M_HandleConnectIP, 0},
@@ -857,7 +868,7 @@ menu_t ConnectIPdef =
 	M_CancelConnect
 };
 
-static void M_ConnectMenu(int choice)
+static void M_ConnectMenu(INT32 choice)
 {
 	(void)choice;
 	if (modifiedgame)
@@ -889,7 +900,7 @@ static void M_ConnectMenu(int choice)
 }
 
 // Connect using IP address Tails 11-19-2002
-static void M_ConnectIPMenu(int choice)
+static void M_ConnectIPMenu(INT32 choice)
 {
 	(void)choice;
 	if (modifiedgame)
@@ -906,6 +917,7 @@ static void M_ConnectIPMenu(int choice)
 
 	M_SetupNextMenu(&ConnectIPdef);
 }
+#endif
 
 //===========================================================================
 // Start Server Menu
@@ -1981,9 +1993,9 @@ CV_PossibleValue_t gametype_cons_t[] =
 // Finds the first map of a particular gametype
 // Defaults to 1 if nothing found.
 //
-static int FindFirstMap(int gtype)
+static INT32 FindFirstMap(INT32 gtype)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
@@ -2010,7 +2022,7 @@ static void Newgametype_OnChange(void)
 			((cv_newgametype.value == GT_TAG || cv_newgametype.value == GTF_HIDEANDSEEK) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_TAG)) ||
 			(cv_newgametype.value == GT_CTF && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_CTF)))
 		{
-			int value = 0;
+			INT32 value = 0;
 
 			switch (cv_newgametype.value)
 			{
@@ -2038,7 +2050,7 @@ static void Newgametype_OnChange(void)
 	}
 }
 
-static void M_ChangeLevel(int choice)
+static void M_ChangeLevel(INT32 choice)
 {
 	char mapname[6];
 	(void)choice;
@@ -2051,14 +2063,14 @@ static void M_ChangeLevel(int choice)
 	COM_BufAddText(va("map %s -gametype \"%s\"\n", mapname, cv_newgametype.string));
 }
 
-static void M_ConfirmSpectate(int choice)
+static void M_ConfirmSpectate(INT32 choice)
 {
 	(void)choice;
 	M_ClearMenus(true);
 	COM_BufAddText("changeteam spectator");
 }
 
-static void M_ConfirmTeamScramble(int choice)
+static void M_ConfirmTeamScramble(INT32 choice)
 {
 	(void)choice;
 	M_ClearMenus(true);
@@ -2074,7 +2086,7 @@ static void M_ConfirmTeamScramble(int choice)
 	}
 }
 
-static void M_ConfirmTeamChange(int choice)
+static void M_ConfirmTeamChange(INT32 choice)
 {
 	(void)choice;
 	if (!cv_allowteamchange.value && cv_dummyteam.value)
@@ -2099,7 +2111,7 @@ static void M_ConfirmTeamChange(int choice)
 	}
 }
 
-static void M_StartServer(int choice)
+static void M_StartServer(INT32 choice)
 {
 	(void)choice;
 	if (!StartSplitScreenGame)
@@ -2153,8 +2165,10 @@ static void M_DrawServerMenu(void)
 
 	M_DrawGenericMenu();
 
+#ifndef NONET
 	if (!StartSplitScreenGame)
 		M_DisplayMSMOTD();
+#endif
 
 	//  A 160x100 image of the level as entry MAPxxP
 	lumpnum = W_CheckNumForName(va("%sP", G_BuildMapName(cv_nextmap.value)));
@@ -2265,11 +2279,11 @@ menu_t TeamScrambleDef =
 // 2 = Time Attack Menu
 // 3 = SRB1 Level Select Menu
 //
-static boolean M_PatchLevelNameTable(int mode)
+static boolean M_PatchLevelNameTable(INT32 mode)
 {
 	size_t i;
-	int j;
-	int currentmap;
+	INT32 j;
+	INT32 currentmap;
 	boolean foundone = false;
 
 	for (j = 0; j < LEVELARRAYSIZE-2; j++)
@@ -2295,7 +2309,7 @@ static boolean M_PatchLevelNameTable(int mode)
 			if (mapheaderinfo[currentmap].actnum)
 			{
 				char actnum[3];
-				int g;
+				INT32 g;
 
 				lvltable[j][i++] = ' ';
 
@@ -2329,7 +2343,7 @@ static boolean M_PatchLevelNameTable(int mode)
 
 	if (mode > 0)
 	{
-		int value = 0;
+		INT32 value = 0;
 
 		switch (cv_newgametype.value)
 		{
@@ -2360,7 +2374,7 @@ static boolean M_PatchLevelNameTable(int mode)
 	return true;
 }
 
-static void M_MapChange(int choice)
+static void M_MapChange(INT32 choice)
 {
 	(void)choice;
 	if (!(netgame || multiplayer) || !Playing())
@@ -2387,7 +2401,7 @@ static void M_MapChange(int choice)
 	M_SetupNextMenu(&ChangeLevelDef);
 }
 
-static void M_TeamChange(int choice)
+static void M_TeamChange(INT32 choice)
 {
 	(void)choice;
 	if (!(netgame || multiplayer) || !Playing())
@@ -2399,7 +2413,7 @@ static void M_TeamChange(int choice)
 	M_SetupNextMenu(&ChangeTeamDef);
 }
 
-static void M_TeamScramble(int choice)
+static void M_TeamScramble(INT32 choice)
 {
 	(void)choice;
 	if (!(netgame || multiplayer) || !Playing())
@@ -2424,7 +2438,7 @@ static void M_TeamScramble(int choice)
 //
 static void M_PatchSkinNameTable(void)
 {
-	int j;
+	INT32 j;
 
 	memset(skins_cons_t, 0, sizeof (skins_cons_t));
 
@@ -2467,7 +2481,8 @@ static inline void M_StartSplitServerMenu(void)
 	M_SetupNextMenu(&Serverdef);
 }
 
-static void M_StartServerMenu(int choice)
+#ifndef NONET
+static void M_StartServerMenu(INT32 choice)
 {
 	(void)choice;
 	if (Playing())
@@ -2483,20 +2498,25 @@ static void M_StartServerMenu(int choice)
 	ServerMenu[2].status = IT_STRING|IT_CVAR|IT_CV_STRING; // Server name too.
 	M_SetupNextMenu(&Serverdef);
 }
+#endif
 
 //===========================================================================
 //                            MULTI PLAYER MENU
 //===========================================================================
-static void M_SetupMultiPlayer(int choice);
-static void M_SetupMultiPlayerBis(int choice);
-static void M_Splitscreen(int choice);
+static void M_SetupMultiPlayer(INT32 choice);
+static void M_SetupMultiPlayerBis(INT32 choice);
+static void M_Splitscreen(INT32 choice);
 
 typedef enum
 {
+#ifdef NONET
+	startsplitscreengame = 0,
+#else
 	startserver = 0,
 	connectmultiplayermenu,
 	connectip,
 	startsplitscreengame,
+#endif
 	multiplayeroptions,
 	setupplayer1,
 	setupplayer2,
@@ -2506,9 +2526,11 @@ typedef enum
 
 static menuitem_t MultiPlayerMenu[] =
 {
+#ifndef NONET
 	{IT_CALL | IT_STRING, NULL, "HOST GAME",              M_StartServerMenu,      10},
 	{IT_CALL | IT_STRING, NULL, "JOIN GAME (Search)",     M_ConnectMenu,          20},
 	{IT_CALL | IT_STRING, NULL, "JOIN GAME (Specify IP)", M_ConnectIPMenu,        30},
+#endif
 	{IT_CALL | IT_STRING, NULL, "TWO PLAYER GAME",        M_Splitscreen,          50},
 	{IT_CALL | IT_STRING, NULL, "NETWORK OPTIONS",        M_NetOption,            70},
 	{IT_CALL | IT_STRING, NULL, "SETUP PLAYER",           M_SetupMultiPlayer,     90},
@@ -2529,7 +2551,7 @@ menu_t  MultiPlayerDef =
 	NULL
 };
 
-static void M_Splitscreen(int choice)
+static void M_Splitscreen(INT32 choice)
 {
 	(void)choice;
 	M_StartSplitServerMenu();
@@ -2574,9 +2596,9 @@ menu_t SecondMouseCfgdef =
 //MULTI PLAYER SETUP MENU
 //===========================================================================
 static void M_DrawSetupMultiPlayerMenu(void);
-static void M_HandleSetupMultiPlayer(int choice);
-static void M_Setup1PControlsMenu(int choice);
-static void M_Setup2PControlsMenu(int choice);
+static void M_HandleSetupMultiPlayer(INT32 choice);
+static void M_Setup1PControlsMenu(INT32 choice);
+static void M_Setup2PControlsMenu(INT32 choice);
 static boolean M_QuitMultiPlayerMenu(void);
 
 static menuitem_t SetupMultiPlayerMenu[] =
@@ -2620,8 +2642,8 @@ menu_t SetupMultiPlayerDef =
 // Tails 03-02-2002
 static void M_DrawSetupChoosePlayerMenu(void);
 static boolean M_QuitChoosePlayerMenu(void);
-static void M_ChoosePlayer(int choice);
-int ultmode;
+static void M_ChoosePlayer(INT32 choice);
+INT32 ultmode;
 typedef enum
 {
 	Player1,
@@ -2678,7 +2700,7 @@ menu_t PlayerDef =
 #define PLBOXW    8
 #define PLBOXH    9
 
-static int       multi_tics;
+static INT32       multi_tics;
 static state_t * multi_state;
 
 // this is set before entering the MultiPlayer setup menu,
@@ -2689,7 +2711,7 @@ static consvar_t *setupm_cvskin;
 static consvar_t *setupm_cvcolor;
 static consvar_t *setupm_cvname;
 
-static void M_SetupMultiPlayer(int choice)
+static void M_SetupMultiPlayer(INT32 choice)
 {
 	(void)choice;
 	if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
@@ -2714,7 +2736,7 @@ static void M_SetupMultiPlayer(int choice)
 }
 
 // start the multiplayer setup menu, for secondary player (splitscreen mode)
-static void M_SetupMultiPlayerBis(int choice)
+static void M_SetupMultiPlayerBis(INT32 choice)
 {
 	(void)choice;
 	if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
@@ -2737,6 +2759,7 @@ static void M_SetupMultiPlayerBis(int choice)
 	M_SetupNextMenu (&SetupMultiPlayerDef);
 }
 
+#ifndef NONET
 // Draw the funky Connect IP menu. Tails 11-19-2002
 // So much work for such a little thing!
 static void M_DrawConnectIPMenu(void)
@@ -2753,6 +2776,7 @@ static void M_DrawConnectIPMenu(void)
 	    skullAnimCounter < 4)   //blink cursor
 		V_DrawCharacter(128+V_StringWidth(setupm_ip),40,'_',false);
 }
+#endif
 
 // called at splitscreen changes
 void M_SwitchSplitscreen(void)
@@ -2773,7 +2797,7 @@ void M_SwitchSplitscreen(void)
 //
 static void M_DrawSetupMultiPlayerMenu(void)
 {
-	int mx, my, st;
+	INT32 mx, my, st;
 	spritedef_t *sprdef;
 	spriteframe_t *sprframe;
 	patch_t *patch;
@@ -2842,8 +2866,9 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	}
 }
 
+#ifndef NONET
 // Tails 11-19-2002
-static void M_HandleConnectIP(int choice)
+static void M_HandleConnectIP(INT32 choice)
 {
 	size_t   l;
 	boolean  exitmenu = false;  // exit to previous menu and send name change
@@ -2898,15 +2923,16 @@ static void M_HandleConnectIP(int choice)
 			M_ClearMenus(true);
 	}
 }
+#endif
 
 //
 // Handle Setup MultiPlayer Menu
 //
-static void M_HandleSetupMultiPlayer(int choice)
+static void M_HandleSetupMultiPlayer(INT32 choice)
 {
 	size_t   l;
 	boolean  exitmenu = false;  // exit to previous menu and send name change
-	int      myskin = setupm_cvskin->value;
+	INT32      myskin = setupm_cvskin->value;
 
 	switch (choice)
 	{
@@ -3004,7 +3030,7 @@ static boolean M_QuitMultiPlayerMenu(void)
 //                   CHARACTER SELECT SCREEN                  //
 ////////////////////////////////////////////////////////////////
 
-static inline void M_SetupChoosePlayer(int choice)
+static inline void M_SetupChoosePlayer(INT32 choice)
 {
 	(void)choice;
 	if (Playing() == false)
@@ -3021,7 +3047,7 @@ static inline void M_SetupChoosePlayer(int choice)
 //
 static void M_DrawSetupChoosePlayerMenu(void)
 {
-	int      mx = PlayerDef.x, my = PlayerDef.y;
+	INT32      mx = PlayerDef.x, my = PlayerDef.y;
 	patch_t *patch;
 
 	// Black BG
@@ -3029,7 +3055,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 
 	{
 		// Compact the menu
-		int i;
+		INT32 i;
 		byte alpha = 0;
 		for (i = 0; i < currentMenu->numitems; i++)
 		{
@@ -3064,7 +3090,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 // Handle Setup Choose Player Menu
 //
 #if 0
-static void M_HandleSetupChoosePlayer(int choice)
+static void M_HandleSetupChoosePlayer(INT32 choice)
 {
 	boolean  exitmenu = false;  // exit to previous menu and send name change
 
@@ -3118,7 +3144,7 @@ static boolean M_QuitChoosePlayerMenu(void)
 //===========================================================================
 //                           NEW GAME FOR SINGLE PLAYER
 //===========================================================================
-static void M_Statistics(int choice)
+static void M_Statistics(INT32 choice)
 {
 	(void)choice;
 	if (modifiedgame && !savemoddata)
@@ -3130,21 +3156,21 @@ static void M_Statistics(int choice)
 	M_SetupNextMenu(&StatsDef);
 }
 
-static void M_Stats2(int choice)
+static void M_Stats2(INT32 choice)
 {
 	(void)choice;
 	oldlastmapnum = lastmapnum;
 	M_SetupNextMenu(&Stats2Def);
 }
 
-static void M_Stats3(int choice)
+static void M_Stats3(INT32 choice)
 {
 	(void)choice;
 	oldlastmapnum = lastmapnum;
 	M_SetupNextMenu(&Stats3Def);
 }
 
-static void M_Stats4(int choice)
+static void M_Stats4(INT32 choice)
 {
 	(void)choice;
 	oldlastmapnum = lastmapnum;
@@ -3158,9 +3184,9 @@ static void M_Stats4(int choice)
 // for that level, and exists for that player.
 // NULL if not found.
 //
-static emblem_t *M_GetLevelEmblem(int mapnum, int player)
+static emblem_t *M_GetLevelEmblem(INT32 mapnum, INT32 player)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < numemblems; i++)
 	{
@@ -3173,8 +3199,8 @@ static emblem_t *M_GetLevelEmblem(int mapnum, int player)
 
 static void M_DrawStats(void)
 {
-	int found = 0;
-	int i;
+	INT32 found = 0;
+	INT32 i;
 	char hours[4];
 	char minutes[4];
 	char seconds[4];
@@ -3241,7 +3267,7 @@ static void M_DrawStats(void)
 	}
 
 	{
-		int y = 80;
+		INT32 y = 80;
 		char names[8];
 		emblem_t *emblem;
 
@@ -3338,8 +3364,8 @@ static void M_DrawStats2(void)
 	char seconds[3];
 
 	{
-		int i;
-		int y = 16;
+		INT32 i;
+		INT32 y = 16;
 		emblem_t *emblem;
 
 		V_DrawCenteredString(BASEVIDWIDTH/2, y-16, V_YELLOWMAP, "BEST TIMES");
@@ -3428,8 +3454,8 @@ static void M_DrawStats3(void)
 	char seconds[3];
 
 	{
-		int i;
-		int y = 16;
+		INT32 i;
+		INT32 y = 16;
 		emblem_t *emblem;
 
 		V_DrawCenteredString(BASEVIDWIDTH/2, y-16, V_YELLOWMAP, "BEST TIMES");
@@ -3518,8 +3544,8 @@ static void M_DrawStats4(void)
 	char seconds[3];
 
 	{
-		int i;
-		int y = 16;
+		INT32 i;
+		INT32 y = 16;
 		emblem_t *emblem;
 
 		V_DrawCenteredString(BASEVIDWIDTH/2, y-16, V_YELLOWMAP, "BEST TIMES");
@@ -3608,8 +3634,8 @@ static void M_DrawStats5(void)
 	char seconds[3];
 
 	{
-		int i;
-		int y = 16;
+		INT32 i;
+		INT32 y = 16;
 		emblem_t *emblem;
 
 		V_DrawCenteredString(BASEVIDWIDTH/2, y-16, V_YELLOWMAP, "BEST TIMES");
@@ -3706,7 +3732,7 @@ static void M_NewGame(void)
 	StartSplitScreenGame = false;
 }
 
-static void M_SRB1Remake(int choice)
+static void M_SRB1Remake(INT32 choice)
 {
 	(void)choice;
 	if (netgame && Playing())
@@ -3723,7 +3749,7 @@ static void M_SRB1Remake(int choice)
 	StartSplitScreenGame = false;
 }
 
-static void M_NightsGame(int choice)
+static void M_NightsGame(INT32 choice)
 {
 	(void)choice;
 	if (netgame && Playing())
@@ -3740,7 +3766,7 @@ static void M_NightsGame(int choice)
 	StartSplitScreenGame = false;
 }
 
-static void M_MarioGame(int choice)
+static void M_MarioGame(INT32 choice)
 {
 	(void)choice;
 	if (netgame && Playing())
@@ -3757,7 +3783,7 @@ static void M_MarioGame(int choice)
 	StartSplitScreenGame = false;
 }
 
-static void M_NAGZGame(int choice)
+static void M_NAGZGame(INT32 choice)
 {
 	(void)choice;
 	if (netgame && Playing())
@@ -3774,7 +3800,7 @@ static void M_NAGZGame(int choice)
 	StartSplitScreenGame = false;
 }
 
-static void M_CustomWarp(int choice)
+static void M_CustomWarp(INT32 choice)
 {
 	if (netgame && Playing())
 	{
@@ -3791,9 +3817,9 @@ static void M_CustomWarp(int choice)
 }
 
 // Chose the player you want to use Tails 03-02-2002
-static void M_ChoosePlayer(int choice)
+static void M_ChoosePlayer(INT32 choice)
 {
-	int skinnum;
+	INT32 skinnum;
 
 	M_ClearMenus(true);
 
@@ -3811,9 +3837,9 @@ static void M_ChoosePlayer(int choice)
 	COM_BufAddText("dummyconsvar 1\n"); // G_DeferedInitNew doesn't do this
 }
 
-static void M_ReplayTimeAttack(int choice);
-static void M_ChooseTimeAttackNoRecord(int choice);
-static void M_ChooseTimeAttack(int choice);
+static void M_ReplayTimeAttack(INT32 choice);
+static void M_ChooseTimeAttackNoRecord(INT32 choice);
+static void M_ChooseTimeAttack(INT32 choice);
 static void M_DrawTimeAttackMenu(void);
 
 typedef enum
@@ -3864,7 +3890,7 @@ static void Nextmap_OnChange(void)
 //
 // M_TimeAttack
 //
-static void M_TimeAttack(int choice)
+static void M_TimeAttack(INT32 choice)
 {
 	(void)choice;
 
@@ -3913,7 +3939,7 @@ void M_DrawTimeAttackMenu(void)
 	char seconds[4];
 	char tics[4];
 	tic_t besttime = 0;
-	int i;
+	INT32 i;
 
 	S_ChangeMusic(mus_racent, true); // Eww, but needed for when user hits escape during demo playback
 
@@ -3963,7 +3989,7 @@ void M_DrawTimeAttackMenu(void)
 // M_ChooseTimeAttackNoRecord
 //
 // Like M_ChooseTimeAttack, but doesn't record a demo.
-static void M_ChooseTimeAttackNoRecord(int choice)
+static void M_ChooseTimeAttackNoRecord(INT32 choice)
 {
 	(void)choice;
 	emeralds = 0;
@@ -3978,7 +4004,7 @@ static void M_ChooseTimeAttackNoRecord(int choice)
 // M_ChooseTimeAttack
 //
 // Player has selected the "START" from the time attack screen
-static void M_ChooseTimeAttack(int choice)
+static void M_ChooseTimeAttack(INT32 choice)
 {
 	(void)choice;
 	emeralds = 0;
@@ -3994,7 +4020,7 @@ static void M_ChooseTimeAttack(int choice)
 // M_ReplayTimeAttack
 //
 // Player has selected the "REPLAY" from the time attack screen
-static void M_ReplayTimeAttack(int choice)
+static void M_ReplayTimeAttack(INT32 choice)
 {
 	(void)choice;
 	M_ClearMenus(true);
@@ -4003,7 +4029,7 @@ static void M_ReplayTimeAttack(int choice)
 	timeattacking = true;
 }
 
-static void M_EraseData(int choice);
+static void M_EraseData(INT32 choice);
 
 // Tails 08-11-2002
 //===========================================================================
@@ -4029,9 +4055,9 @@ menu_t DataOptionsDef =
 	NULL
 };
 
-static void M_TimeDataResponse(int ch)
+static void M_TimeDataResponse(INT32 ch)
 {
-	int i;
+	INT32 i;
 	if (ch != 'y' && ch != KEY_ENTER)
 		return;
 
@@ -4042,9 +4068,9 @@ static void M_TimeDataResponse(int ch)
 	M_SetupNextMenu(&DataOptionsDef);
 }
 
-static void M_SecretsDataResponse(int ch)
+static void M_SecretsDataResponse(INT32 ch)
 {
-	int i;
+	INT32 i;
 	if (ch != 'y' && ch != KEY_ENTER)
 		return;
 
@@ -4058,7 +4084,7 @@ static void M_SecretsDataResponse(int ch)
 	M_ClearMenus(true);
 }
 
-static void M_EraseData(int choice)
+static void M_EraseData(INT32 choice)
 {
 	if (Playing())
 	{
@@ -4072,8 +4098,8 @@ static void M_EraseData(int choice)
 		M_StartMessage("Are you sure you want to delete\nthe secrets data?\n(Y/N)\n",M_SecretsDataResponse,MM_YESNO);
 }
 
-void M_OnePControlsMenu(int choice);
-void M_TwoPControlsMenu(int choice);
+void M_OnePControlsMenu(INT32 choice);
+void M_TwoPControlsMenu(INT32 choice);
 
 static menuitem_t ControlsMenu[] =
 {
@@ -4147,13 +4173,13 @@ menu_t TwoPControlsDef =
 	NULL
 };
 
-void M_OnePControlsMenu(int choice)
+void M_OnePControlsMenu(INT32 choice)
 {
 	(void)choice;
 	M_SetupNextMenu(&OnePControlsDef);
 }
 
-void M_TwoPControlsMenu(int choice)
+void M_TwoPControlsMenu(INT32 choice)
 {
 	(void)choice;
 	M_SetupNextMenu(&TwoPControlsDef);
@@ -4191,19 +4217,19 @@ menu_t OptionsDef =
 };
 
 // Tails 08-18-2002
-static void M_OptionsMenu(int choice)
+static void M_OptionsMenu(INT32 choice)
 {
 	(void)choice;
 	M_SetupNextMenu (&OptionsDef);
 }
 
-FUNCNORETURN static ATTRNORETURN void M_UltimateCheat(int choice)
+FUNCNORETURN static ATTRNORETURN void M_UltimateCheat(INT32 choice)
 {
 	(void)choice;
 	I_Quit ();
 }
 
-static void M_GetAllEmeralds(int choice)
+static void M_GetAllEmeralds(INT32 choice)
 {
 	(void)choice;
 
@@ -4223,7 +4249,7 @@ static void M_GetAllEmeralds(int choice)
 	M_StartMessage("You now have all 7 emeralds.",NULL,MM_NOTHING);
 }
 
-static void M_DestroyRobotsResponse(int ch)
+static void M_DestroyRobotsResponse(INT32 ch)
 {
 	if (ch != 'y' && ch != KEY_ENTER)
 		return;
@@ -4234,7 +4260,7 @@ static void M_DestroyRobotsResponse(int ch)
 	M_ClearMenus(true);
 }
 
-static void M_DestroyRobots(int choice)
+static void M_DestroyRobots(INT32 choice)
 {
 	(void)choice;
 	if (!(Playing() && gamestate == GS_LEVEL))
@@ -4252,7 +4278,7 @@ static void M_DestroyRobots(int choice)
 	M_StartMessage("Do you want to destroy all\nrobots in the current level?\n(Y/N)\n",M_DestroyRobotsResponse,MM_YESNO);
 }
 
-static void M_LevelSelectWarp(int choice)
+static void M_LevelSelectWarp(INT32 choice)
 {
 	(void)choice;
 	if (netgame && Playing())
@@ -4290,7 +4316,7 @@ static void M_LevelSelectWarp(int choice)
 
 	if (fromloadgame)
 	{
-		G_LoadGame((unsigned int)fromloadgame - 1, startmap);
+		G_LoadGame((UINT32)fromloadgame - 1, startmap);
 		M_ClearMenus(true);
 	}
 }
@@ -4309,8 +4335,8 @@ static void M_DrawUnlockChecklist(void)
 {
 #define NUMCHECKLIST 9
 	checklist_t checklist[NUMCHECKLIST];
-	int i = 0;
-	int y = 8;
+	INT32 i = 0;
+	INT32 y = 8;
 
 	checklist[i].name = "Level Select";
 	checklist[i].requirement = "Find All Emblems";
@@ -4371,10 +4397,10 @@ static void M_DrawUnlockChecklist(void)
 	}
 }
 
-boolean M_GotEnoughEmblems(int number)
+boolean M_GotEnoughEmblems(INT32 number)
 {
-	int i;
-	int gottenemblems = 0;
+	INT32 i;
+	INT32 gottenemblems = 0;
 
 	for (i = 0; i < MAXEMBLEMS; i++)
 	{
@@ -4388,10 +4414,10 @@ boolean M_GotEnoughEmblems(int number)
 	return false;
 }
 
-boolean M_GotLowEnoughTime(int ptime)
+boolean M_GotLowEnoughTime(INT32 ptime)
 {
-	int seconds = 0;
-	int i;
+	INT32 seconds = 0;
+	INT32 i;
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
@@ -4414,9 +4440,9 @@ boolean M_GotLowEnoughTime(int ptime)
 
 static void M_DrawCustomChecklist(void)
 {
-	int numcustom = 0;
-	int i;
-	int totalnum = 0;
+	INT32 numcustom = 0;
+	INT32 i;
+	INT32 totalnum = 0;
 	checklist_t checklist[15];
 
 	memset(checklist, 0, sizeof (checklist));
@@ -4520,7 +4546,7 @@ menu_t CustomChecklistDef =
 	NULL
 };
 
-static void M_UnlockChecklist(int choice)
+static void M_UnlockChecklist(INT32 choice)
 {
 	(void)choice;
 	if (savemoddata)
@@ -4531,13 +4557,13 @@ static void M_UnlockChecklist(int choice)
 	M_SetupNextMenu(&UnlockChecklistDef);
 }
 
-static void M_CustomChecklist(int choice)
+static void M_CustomChecklist(INT32 choice)
 {
 	(void)choice;
 	M_SetupNextMenu(&CustomChecklistDef);
 }
 
-static void M_BetaShowcase(int choice)
+static void M_BetaShowcase(INT32 choice)
 {
 	(void)choice;
 }
@@ -4548,9 +4574,9 @@ static void M_BetaShowcase(int choice)
 //
 // M_Options
 //
-static void M_Reward(int choice);
-static void M_LevelSelect(int choice);
-static void M_SRB1LevelSelect(int choice);
+static void M_Reward(INT32 choice);
+static void M_LevelSelect(INT32 choice);
+static void M_SRB1LevelSelect(INT32 choice);
 
 typedef enum
 {
@@ -4696,7 +4722,7 @@ menu_t RewardDef =
 	NULL
 };
 
-static void M_Reward(int choice)
+static void M_Reward(INT32 choice)
 {
 	(void)choice;
 	if (grade & 2)
@@ -4775,7 +4801,7 @@ menu_t LevelSelectDef =
 	NULL
 };
 
-static void M_SRB1LevelSelect(int choice)
+static void M_SRB1LevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &SecretsDef;
@@ -4790,7 +4816,7 @@ static void M_SRB1LevelSelect(int choice)
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
-static void M_LevelSelect(int choice)
+static void M_LevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &SecretsDef;
@@ -4805,7 +4831,7 @@ static void M_LevelSelect(int choice)
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
-static void M_CustomLevelSelect(int choice)
+static void M_CustomLevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &CustomSecretsDef;
@@ -4820,9 +4846,9 @@ static void M_CustomLevelSelect(int choice)
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
-static void M_SecretsMenu(int choice)
+static void M_SecretsMenu(INT32 choice)
 {
-	int i;
+	INT32 i;
 
 	// Disable all the menu choices
 	(void)choice;
@@ -4867,9 +4893,9 @@ static void M_SecretsMenu(int choice)
 	M_SetupNextMenu(&SecretsDef);
 }
 
-static void M_CustomSecretsMenu(int choice)
+static void M_CustomSecretsMenu(INT32 choice)
 {
-	int i;
+	INT32 i;
 	boolean unlocked;
 
 	// Disable all the menu choices
@@ -4926,10 +4952,10 @@ static void M_CustomSecretsMenu(int choice)
 //
 //  A smaller 'Thermo', with range given as percents (0-100)
 //
-static void M_DrawSlider(int x, int y, const consvar_t *cv)
+static void M_DrawSlider(INT32 x, INT32 y, const consvar_t *cv)
 {
-	int i;
-	int range;
+	INT32 i;
+	INT32 range;
 	patch_t *p;
 
 	for (i = 0; cv->PossibleValue[i+1].strvalue; i++);
@@ -4970,7 +4996,7 @@ static menuitem_t VideoOptionsMenu[] =
 #if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	{IT_STRING|IT_CVAR,      NULL, "Fullscreen",          &cv_fullscreen,    10},
 #endif
-#ifdef HWRENDER
+#if defined (HWRENDER) && defined (SHUFFLE)
 	//17/10/99: added by Hurdler
 	{IT_CALL|IT_WHITESTRING, NULL, "3D Card Options...",  M_OpenGLOption,    20},
 #endif
@@ -5055,7 +5081,7 @@ menu_t GameOptionDef =
 	NULL
 };
 
-static void M_GameOption(int choice)
+static void M_GameOption(INT32 choice)
 {
 	(void)choice;
 	if (!(server || (adminplayer == consoleplayer)))
@@ -5066,7 +5092,7 @@ static void M_GameOption(int choice)
 	M_SetupNextMenu(&GameOptionDef);
 }
 
-static void M_MonitorToggles(int choice)
+static void M_MonitorToggles(INT32 choice)
 {
 	(void)choice;
 	if (!(server || (adminplayer == consoleplayer)))
@@ -5289,7 +5315,7 @@ menu_t MonitorToggleDef =
 	NULL
 };
 
-static void M_NetOption(int choice)
+static void M_NetOption(INT32 choice)
 {
 	(void)choice;
 	if (!(server || (adminplayer == consoleplayer)))
@@ -5307,7 +5333,7 @@ static void M_NetOption(int choice)
 	M_SetupNextMenu(&NetOptionDef);
 }
 
-static void M_GametypeOptions(int choice)
+static void M_GametypeOptions(INT32 choice)
 {
 	(void)choice;
 	if (!(server || (adminplayer == consoleplayer)))
@@ -5577,8 +5603,8 @@ menu_t SoundDef =
 //===========================================================================
 //                          JOYSTICK MENU
 //===========================================================================
-static void M_Setup1PJoystickMenu(int choice);
-static void M_Setup2PJoystickMenu(int choice);
+static void M_Setup1PJoystickMenu(INT32 choice);
+static void M_Setup2PJoystickMenu(INT32 choice);
 
 typedef enum
 {
@@ -5637,7 +5663,7 @@ menu_t JoystickDef =
 };
 
 static void M_DrawJoystick(void);
-static void M_AssignJoystick(int choice);
+static void M_AssignJoystick(INT32 choice);
 
 typedef enum
 {
@@ -5679,7 +5705,7 @@ static menu_t JoystickSetDef =
 //                          CONTROLS MENU
 //===========================================================================
 static void M_DrawControl(void);               // added 3-1-98
-static void M_ChangeControl(int choice);
+static void M_ChangeControl(INT32 choice);
 static void M_ControlDef2(void);
 
 //
@@ -5772,7 +5798,7 @@ menu_t ControlDef2 =
 // or the secondary splitscreen player
 //
 static  boolean setupcontrols_secondaryplayer;
-static  int   (*setupcontrols)[2];  // pointer to the gamecontrols of the player being edited
+static  INT32   (*setupcontrols)[2];  // pointer to the gamecontrols of the player being edited
 
 static void M_ControlDef2(void)
 {
@@ -5781,7 +5807,7 @@ static void M_ControlDef2(void)
 
 static void M_DrawJoystick(void)
 {
-	int i;
+	INT32 i;
 
 	M_DrawGenericMenu();
 
@@ -5797,12 +5823,12 @@ static void M_DrawJoystick(void)
 	}
 }
 
-static void M_SetupJoystickMenu(int choice)
+static void M_SetupJoystickMenu(INT32 choice)
 {
-	int i = 0;
+	INT32 i = 0;
 	const char *joyname = "None";
 	const char *joyNA = "Unavailable";
-	int n = I_NumJoys();
+	INT32 n = I_NumJoys();
 	(void)choice;
 
 	strcpy(joystickInfo[i], joyname);
@@ -5821,19 +5847,19 @@ static void M_SetupJoystickMenu(int choice)
 	M_SetupNextMenu(&JoystickSetDef);
 }
 
-static void M_Setup1PJoystickMenu(int choice)
+static void M_Setup1PJoystickMenu(INT32 choice)
 {
 	setupcontrols_secondaryplayer = false;
 	M_SetupJoystickMenu(choice);
 }
 
-static void M_Setup2PJoystickMenu(int choice)
+static void M_Setup2PJoystickMenu(INT32 choice)
 {
 	setupcontrols_secondaryplayer = true;
 	M_SetupJoystickMenu(choice);
 }
 
-static void M_AssignJoystick(int choice)
+static void M_AssignJoystick(INT32 choice)
 {
 	if (setupcontrols_secondaryplayer)
 		CV_SetValue(&cv_usejoystick2, choice);
@@ -5841,7 +5867,7 @@ static void M_AssignJoystick(int choice)
 		CV_SetValue(&cv_usejoystick, choice);
 }
 
-static void M_Setup1PControlsMenu(int choice)
+static void M_Setup1PControlsMenu(INT32 choice)
 {
 	(void)choice;
 	setupcontrols_secondaryplayer = false;
@@ -5850,7 +5876,7 @@ static void M_Setup1PControlsMenu(int choice)
 	M_SetupNextMenu(&ControlDef);
 }
 
-static void M_Setup2PControlsMenu(int choice)
+static void M_Setup2PControlsMenu(INT32 choice)
 {
 	(void)choice;
 	setupcontrols_secondaryplayer = true;
@@ -5861,7 +5887,7 @@ static void M_Setup2PControlsMenu(int choice)
 
 static void M_DrawControlsGenerics(void)
 {
-	int x, y, i, cursory = 0;
+	INT32 x, y, i, cursory = 0;
 
 	// DRAW MENU
 	x = currentMenu->x;
@@ -5983,8 +6009,8 @@ static void M_DrawControlsGenerics(void)
 static void M_DrawControl(void)
 {
 	char     tmp[50];
-	int      i;
-	int      keys[2];
+	INT32      i;
+	INT32      keys[2];
 
 	// draw title, strings and submenu
 	M_DrawControlsGenerics();
@@ -6029,13 +6055,13 @@ static void M_DrawControl(void)
 
 }
 
-static int controltochange;
+static INT32 controltochange;
 
 static void M_ChangecontrolResponse(event_t *ev)
 {
-	int        control;
-	int        found;
-	int        ch = ev->data1;
+	INT32        control;
+	INT32        found;
+	INT32        ch = ev->data1;
 
 	// ESCAPE cancels
 	if (ch != KEY_ESCAPE)
@@ -6103,7 +6129,7 @@ static void M_ChangecontrolResponse(event_t *ev)
 	M_StopMessage(0);
 }
 
-static void M_ChangeControl(int choice)
+static void M_ChangeControl(INT32 choice)
 {
 	static char tmp[55];
 
@@ -6119,7 +6145,7 @@ static void M_ChangeControl(int choice)
 //===========================================================================
 static void M_DrawVideoMode(void);             //added : 30-01-98:
 
-static void M_HandleVideoMode(int ch);
+static void M_HandleVideoMode(INT32 ch);
 
 static menuitem_t VideoModeMenu[] =
 {
@@ -6145,17 +6171,17 @@ menu_t VidModeDef =
 #define MAXMODEDESCS     (MAXCOLUMNMODES*3)
 
 // shhh... what am I doing... nooooo!
-static int vidm_testingmode = 0;
-static int vidm_previousmode;
-static int vidm_current = 0;
-static int vidm_nummodes;
-static int vidm_column_size;
+static INT32 vidm_testingmode = 0;
+static INT32 vidm_previousmode;
+static INT32 vidm_current = 0;
+static INT32 vidm_nummodes;
+static INT32 vidm_column_size;
 
 typedef struct
 {
-	int modenum; // video mode number in the vidmodes list
+	INT32 modenum; // video mode number in the vidmodes list
 	const char *desc;  // XXXxYYY
-	int iscur;   // 1 if it is the current active mode
+	INT32 iscur;   // 1 if it is the current active mode
 } modedesc_t;
 
 static modedesc_t modedescs[MAXMODEDESCS];
@@ -6165,10 +6191,10 @@ static modedesc_t modedescs[MAXMODEDESCS];
 //
 static void M_DrawVideoMode(void)
 {
-	int i, j, vdup, row, col, nummodes;
+	INT32 i, j, vdup, row, col, nummodes;
 	const char *desc;
 	char temp[80];
-	int width, height;
+	INT32 width, height;
 
 	// draw title
 	M_DrawMenuTitle();
@@ -6295,7 +6321,7 @@ static void M_DrawVideoMode(void)
 }
 
 // special menuitem key handler for video mode list
-static void M_HandleVideoMode(int ch)
+static void M_HandleVideoMode(INT32 ch)
 {
 	if (vidm_testingmode > 0)
 	{
@@ -6379,7 +6405,7 @@ static void M_HandleVideoMode(int ch)
 //===========================================================================
 static void M_DrawLoad(void);
 
-static void M_LoadSelect(int choice);
+static void M_LoadSelect(INT32 choice);
 
 typedef enum
 {
@@ -6417,7 +6443,7 @@ menu_t LoadDef =
 
 static void M_DrawGameStats(void)
 {
-	int ecks;
+	INT32 ecks;
 	saveSlotSelected = itemOn;
 
 	ecks = LoadDef.x + 24;
@@ -6430,11 +6456,11 @@ static void M_DrawGameStats(void)
 	}
 
 	if (savegameinfo[saveSlotSelected].skincolor == 0)
-		V_DrawScaledPatch ((int)((LoadDef.x+4)*vid.fdupx),(int)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
+		V_DrawScaledPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
 	else
 	{
 		byte *colormap = (byte *) translationtables[savegameinfo[saveSlotSelected].skinnum] - 256 + (savegameinfo[saveSlotSelected].skincolor<<8);
-		V_DrawMappedPatch ((int)((LoadDef.x+4)*vid.fdupx),(int)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
+		V_DrawMappedPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
 	}
 
 	V_DrawString(ecks + 16, 152, 0, savegameinfo[saveSlotSelected].playername);
@@ -6465,7 +6491,7 @@ static void M_DrawGameStats(void)
 //
 static void M_DrawLoad(void)
 {
-	int i;
+	INT32 i;
 
 	M_DrawGenericMenu();
 
@@ -6482,7 +6508,7 @@ static void M_DrawLoad(void)
 //
 // User wants to load this game
 //
-static void M_LoadSelect(int choice)
+static void M_LoadSelect(INT32 choice)
 {
 	if (Playing())
 	{
@@ -6510,7 +6536,7 @@ static void M_LoadSelect(int choice)
 	}
 	else
 	{
-		G_LoadGame((unsigned int)choice, 0);
+		G_LoadGame((UINT32)choice, 0);
 		M_ClearMenus(true);
 	}
 
@@ -6520,7 +6546,7 @@ static void M_LoadSelect(int choice)
 #define VERSIONSIZE             16
 // Reads the save file to list lives, level, player, etc.
 // Tails 05-29-2003
-static void M_ReadSavegameInfo(unsigned int slot)
+static void M_ReadSavegameInfo(UINT32 slot)
 {
 #define BADSAVE I_Error("Bad savegame in slot %u", slot);
 #define CHECKPOS if (save_p >= end_p) BADSAVE
@@ -6529,7 +6555,7 @@ static void M_ReadSavegameInfo(unsigned int slot)
 	byte *savebuffer;
 	byte *end_p; // buffer end point, don't read past here
 	byte *save_p;
-	int fake; // Dummy variable
+	INT32 fake; // Dummy variable
 	char temp[sizeof(timeattackfolder)];
 
 	sprintf(savename, savegamename, slot);
@@ -6613,7 +6639,7 @@ static void M_ReadSavegameInfo(unsigned int slot)
 static void M_ReadSaveStrings(void)
 {
 	FILE *handle;
-	unsigned int i;
+	UINT32 i;
 	char name[256];
 
 	for (i = 0; i < load_end; i++)
@@ -6634,12 +6660,12 @@ static void M_ReadSaveStrings(void)
 	}
 }
 
-static int curSaveSelected;
+static INT32 curSaveSelected;
 
 //
 // User wants to delete this game
 //
-static void M_SaveGameDeleteResponse(int ch)
+static void M_SaveGameDeleteResponse(INT32 ch)
 {
 	char name[256];
 
@@ -6656,9 +6682,9 @@ static void M_SaveGameDeleteResponse(int ch)
 }
 
 //
-// Selected from DOOM menu
+// Selected from SRB2 menu
 //
-static void M_LoadGame(int choice)
+static void M_LoadGame(INT32 choice)
 {
 	(void)choice;
 	// change can't load message to can't load in server mode
@@ -6675,9 +6701,9 @@ static void M_LoadGame(int choice)
 //
 // Draw border for the savegame description
 //
-static void M_DrawSaveLoadBorder(int x,int y)
+static void M_DrawSaveLoadBorder(INT32 x,INT32 y)
 {
-	int i;
+	INT32 i;
 
 	V_DrawScaledPatch (x-8,y+7,0,W_CachePatchName("M_LSLEFT",PU_CACHE));
 
@@ -6697,7 +6723,7 @@ static void M_DrawSaveLoadBorder(int x,int y)
 //
 // M_EndGame
 //
-static void M_EndGameResponse(int ch)
+static void M_EndGameResponse(INT32 ch)
 {
 	if (ch != 'y' && ch != KEY_ENTER)
 		return;
@@ -6708,7 +6734,7 @@ static void M_EndGameResponse(int ch)
 	G_SetExitGameFlag();
 }
 
-void M_EndGame(int choice)
+void M_EndGame(INT32 choice)
 {
 	(void)choice;
 	if (demoplayback || demorecording)
@@ -6727,7 +6753,7 @@ void M_EndGame(int choice)
 //
 // M_QuitSRB2
 //
-static int quitsounds2[8] =
+static INT32 quitsounds2[8] =
 {
 	sfx_spring, // Tails 11-09-99
 	sfx_itemup, // Tails 11-09-99
@@ -6739,7 +6765,7 @@ static int quitsounds2[8] =
 	sfx_chchng // Tails 11-09-99
 };
 
-void M_ExitGameResponse(int ch)
+void M_ExitGameResponse(INT32 ch)
 {
 	if (ch != 'y' && ch != KEY_ENTER)
 		return;
@@ -6748,7 +6774,7 @@ void M_ExitGameResponse(int ch)
 	G_SetExitGameFlag();
 }
 
-void M_QuitResponse(int ch)
+void M_QuitResponse(INT32 ch)
 {
 	tic_t ptime;
 	if (ch != 'y' && ch != KEY_ENTER)
@@ -6769,7 +6795,7 @@ void M_QuitResponse(int ch)
 	I_Quit();
 }
 
-static void M_QuitSRB2(int choice)
+static void M_QuitSRB2(INT32 choice)
 {
 	// We pick index 0 which is language sensitive, or one at random,
 	// between 1 and maximum number.
@@ -6786,9 +6812,9 @@ static void M_QuitSRB2(int choice)
 //
 // Menu Functions
 //
-static void M_DrawThermo(int x, int y, consvar_t *cv)
+static void M_DrawThermo(INT32 x, INT32 y, consvar_t *cv)
 {
-	int xx = x, i;
+	INT32 xx = x, i;
 	lumpnum_t leftlump, rightlump, centerlump[2], cursorlump;
 	patch_t *p;
 
@@ -6818,11 +6844,11 @@ static void M_DrawThermo(int x, int y, consvar_t *cv)
 //  to read the text with all the stuff in the background...
 //
 //added : 06-02-98:
-void M_DrawTextBox(int x, int y, int width, int boxlines)
+void M_DrawTextBox(INT32 x, INT32 y, INT32 width, INT32 boxlines)
 {
 	patch_t *p;
-	int cx = x, cy = y, n;
-	int step = 8, boff = 8;
+	INT32 cx = x, cy = y, n;
+	INT32 step = 8, boff = 8;
 
 	// draw left side
 	V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_TL], PU_CACHE));
@@ -6889,7 +6915,7 @@ menu_t MessageDef =
 void M_StartMessage(const char *string, void *routine,
 	menumessagetype_t itemtype)
 {
-	int max = 0, start = 0, i, strlines;
+	INT32 max = 0, start = 0, i, strlines;
 	static char *message = NULL;
 	Z_Free(message);
 	message = Z_StrDup(string);
@@ -6924,7 +6950,7 @@ void M_StartMessage(const char *string, void *routine,
 	// compute lenght max and the numbers of lines
 	for (strlines = 0; *(message+start); strlines++)
 	{
-		for (i = 0;i < (int)strlen(message+start);i++)
+		for (i = 0;i < (INT32)strlen(message+start);i++)
 		{
 			if (*(message+start+i) == '\n')
 			{
@@ -6936,7 +6962,7 @@ void M_StartMessage(const char *string, void *routine,
 			}
 		}
 
-		if (i == (int)strlen(message+start))
+		if (i == (INT32)strlen(message+start))
 			start += i;
 	}
 
@@ -6954,10 +6980,10 @@ void M_StartMessage(const char *string, void *routine,
 
 static void M_DrawMessageMenu(void)
 {
-	int y = currentMenu->y;
+	INT32 y = currentMenu->y;
 	short i,max;
 	char string[MAXMSGLINELEN];
-	int start = 0, mlines;
+	INT32 start = 0, mlines;
 	const char *msg = currentMenu->menuitems[0].text;
 
 	mlines = currentMenu->lastOn>>8;
@@ -6966,7 +6992,7 @@ static void M_DrawMessageMenu(void)
 
 	while (*(msg+start))
 	{
-		int len = (int)strlen(msg+start);
+		INT32 len = (INT32)strlen(msg+start);
 
 		for (i = 0; i < len; i++)
 		{
@@ -6990,7 +7016,7 @@ static void M_DrawMessageMenu(void)
 			}
 		}
 
-		if (i == (int)strlen(msg+start))
+		if (i == (INT32)strlen(msg+start))
 		{
 			if (i >= MAXMSGLINELEN)
 			{
@@ -7010,7 +7036,7 @@ static void M_DrawMessageMenu(void)
 }
 
 // default message handler
-static void M_StopMessage(int choice)
+static void M_StopMessage(INT32 choice)
 {
 	(void)choice;
 	M_SetupNextMenu(MessageDef.prevMenu);
@@ -7024,9 +7050,9 @@ static void M_StopMessage(int choice)
 //
 //  Write a string centered using the hu_font
 //
-static void M_CentreText(int y, const char *string)
+static void M_CentreText(INT32 y, const char *string)
 {
-	int x;
+	INT32 x;
 	//added : 02-02-98 : centre on 320, because V_DrawString centers on vid.width...
 	x = (BASEVIDWIDTH - V_StringWidth(string))>>1;
 	V_DrawString(x,y,0,string);
@@ -7037,7 +7063,7 @@ static void M_CentreText(int y, const char *string)
 // CONTROL PANEL
 //
 
-static void M_ChangeCvar(int choice)
+static void M_ChangeCvar(INT32 choice)
 {
 	consvar_t *cv = (consvar_t *)currentMenu->menuitems[itemOn].itemaction;
 
@@ -7056,7 +7082,7 @@ static void M_ChangeCvar(int choice)
 		CV_AddValue(cv,choice*2-1);
 }
 
-static boolean M_ChangeStringCvar(int choice)
+static boolean M_ChangeStringCvar(INT32 choice)
 {
 	consvar_t *cv = (consvar_t *)currentMenu->menuitems[itemOn].itemaction;
 	char buf[255];
@@ -7068,7 +7094,7 @@ static boolean M_ChangeStringCvar(int choice)
 			len = strlen(cv->string);
 			if (len > 0)
 			{
-				memcpy(buf, cv->string, len);
+				M_Memcpy(buf, cv->string, len);
 				buf[len-1] = 0;
 				CV_Set(cv, buf);
 			}
@@ -7079,7 +7105,7 @@ static boolean M_ChangeStringCvar(int choice)
 				len = strlen(cv->string);
 				if (len < MAXSTRINGLENGTH - 1)
 				{
-					memcpy(buf, cv->string, len);
+					M_Memcpy(buf, cv->string, len);
 					buf[len++] = (char)choice;
 					buf[len] = 0;
 					CV_Set(cv, buf);
@@ -7096,13 +7122,13 @@ static boolean M_ChangeStringCvar(int choice)
 //
 boolean M_Responder(event_t *ev)
 {
-	int ch = -1;
-//	int i;
+	INT32 ch = -1;
+//	INT32 i;
 	static tic_t joywait = 0, mousewait = 0;
 	static boolean shiftdown = false;
-	static int pmousex = 0, pmousey = 0;
-	static int lastx = 0, lasty = 0;
-	void (*routine)(int choice); // for some casting problem
+	static INT32 pmousex = 0, pmousey = 0;
+	static INT32 lastx = 0, lasty = 0;
+	void (*routine)(INT32 choice); // for some casting problem
 
 	if (dedicated || gamestate == GS_INTRO || gamestate == GS_INTRO2 || gamestate == GS_CUTSCENE)
 		return false;
@@ -7671,7 +7697,7 @@ void M_ClearMenus(boolean callexitmenufunc)
 //
 void M_SetupNextMenu(menu_t *menudef)
 {
-	int i;
+	INT32 i;
 
 	if (currentMenu->quitroutine)
 	{
@@ -7737,8 +7763,10 @@ void M_Init(void)
 	//  kept this hack for educational purposes.
 	ReadMenu1[0].itemaction = &MainDef;
 
+#ifndef NONET
 	CV_RegisterVar(&cv_serversearch);
 	CV_RegisterVar(&cv_serversort);
+#endif
 	//todo put this somewhere better...
 	CV_RegisterVar(&cv_allcaps);
 }
@@ -7752,7 +7780,7 @@ void M_Init(void)
 static void M_DrawOpenGLMenu(void);
 static void M_OGL_DrawFogMenu(void);
 static void M_OGL_DrawColorMenu(void);
-static void M_HandleFogColor(int choice);
+static void M_HandleFogColor(INT32 choice);
 
 static menuitem_t OpenGLOptionsMenu[] =
 {
@@ -7767,7 +7795,6 @@ static menuitem_t OpenGLOptionsMenu[] =
 	                            NULL, "Translucent HUD", &cv_grtranslucenthud, 60},
 	{IT_SUBMENU|IT_WHITESTRING, NULL, "Fog...",          &OGL_FogDef,          80},
 	{IT_SUBMENU|IT_WHITESTRING, NULL, "Gamma...",        &OGL_ColorDef,        90},
-	{IT_SUBMENU|IT_WHITESTRING, NULL, "Development...",  &OGL_DevDef,          100},
 };
 
 static menuitem_t OGL_FogMenu[] =
@@ -7782,11 +7809,6 @@ static menuitem_t OGL_ColorMenu[] =
 	{IT_STRING|IT_CVAR|IT_CV_SLIDER, NULL, "red",   &cv_grgammared,   10},
 	{IT_STRING|IT_CVAR|IT_CV_SLIDER, NULL, "green", &cv_grgammagreen, 20},
 	{IT_STRING|IT_CVAR|IT_CV_SLIDER, NULL, "blue",  &cv_grgammablue,  30},
-};
-
-static menuitem_t OGL_DevMenu[] =
-{
-	{IT_STRING | IT_CVAR, NULL, "Translucent walls", &cv_grtranswall, 20},
 };
 
 menu_t OpenGLOptionDef =
@@ -7828,26 +7850,12 @@ menu_t OGL_ColorDef =
 	0,
 	NULL
 };
-
-menu_t OGL_DevDef =
-{
-	"M_OPTTTL",
-	"OPTIONS",
-	sizeof (OGL_DevMenu)/sizeof (menuitem_t),
-	&OpenGLOptionDef,
-	OGL_DevMenu,
-	M_DrawGenericMenu,
-	60, 40,
-	0,
-	NULL
-};
-
 //======================================================================
 // M_DrawOpenGLMenu()
 //======================================================================
 static void M_DrawOpenGLMenu(void)
 {
-	int mx, my;
+	INT32 mx, my;
 
 	mx = OpenGLOptionDef.x;
 	my = OpenGLOptionDef.y;
@@ -7862,7 +7870,7 @@ static void M_DrawOpenGLMenu(void)
 //======================================================================
 static void M_OGL_DrawFogMenu(void)
 {
-	int mx, my;
+	INT32 mx, my;
 
 	mx = OGL_FogDef.x;
 	my = OGL_FogDef.y;
@@ -7880,7 +7888,7 @@ static void M_OGL_DrawFogMenu(void)
 //======================================================================
 static void M_OGL_DrawColorMenu(void)
 {
-	int mx, my;
+	INT32 mx, my;
 
 	mx = OGL_ColorDef.x;
 	my = OGL_ColorDef.y;
@@ -7892,7 +7900,8 @@ static void M_OGL_DrawColorMenu(void)
 //======================================================================
 // M_OpenGLOption()
 //======================================================================
-static void M_OpenGLOption(int choice)
+#ifdef SHUFFLE
+static void M_OpenGLOption(INT32 choice)
 {
 	(void)choice;
 	if (rendermode != render_soft)
@@ -7900,11 +7909,11 @@ static void M_OpenGLOption(int choice)
 	else
 		M_StartMessage("You are in software mode\nYou can't change the options\n", NULL, MM_NOTHING);
 }
-
+#endif
 //======================================================================
 // M_HandleFogColor()
 //======================================================================
-static void M_HandleFogColor(int choice)
+static void M_HandleFogColor(INT32 choice)
 {
 	size_t i, l;
 	char temp[8];
@@ -7960,6 +7969,7 @@ static void M_HandleFogColor(int choice)
 }
 #endif
 
+#ifndef NONET
 
 static void M_NextServerPage(void)
 {
@@ -7970,6 +7980,7 @@ static void M_PrevServerPage(void)
 {
 	if (serverlistpage > 0) serverlistpage--;
 }
+#endif
 
 // Descending order. The casts are safe as long as the caller doesn't
 // do anything stupid.

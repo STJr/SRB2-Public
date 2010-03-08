@@ -67,8 +67,8 @@ boolean LoadGL(void);
 void *GetGLFunc(const char *proc);
 boolean SetupGLfunc(void);
 void Flush(void);
-int isExtAvailable(const char *extension, const GLubyte *start);
-boolean SetupPixelFormat(int WantColorBits, int WantStencilBits, int WantDepthBits);
+INT32 isExtAvailable(const char *extension, const GLubyte *start);
+boolean SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits);
 void SetModelView(GLint w, GLint h);
 void SetStates(void);
 FUNCMATH float byteasfloat(byte fbyte);
@@ -83,7 +83,7 @@ extern GLubyte                palette_tex[256*3];
 #endif
 
 #ifdef USE_WGL_SWAP
-typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
+typedef BOOL (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
 typedef int (APIENTRY *PFNWGLEXTGETSWAPINTERVALPROC) (void);
 extern PFNWGLEXTSWAPCONTROLPROC wglSwapIntervalEXT;
 extern PFNWGLEXTGETSWAPINTERVALPROC wglGetSwapIntervalEXT;
@@ -117,7 +117,7 @@ extern GLint            maximumAnisotropy;
 
 /**	\brief OpenGL flags for video driver
 */
-extern int              oglflags;
+extern INT32              oglflags;
 extern GLint            textureformatGL;
 
 typedef enum

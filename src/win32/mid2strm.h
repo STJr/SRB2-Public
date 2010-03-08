@@ -82,7 +82,7 @@ typedef struct
 {
 	LONG               fdwTrack;               // Track status
 	LONG               iTrackLen;              // Total UBYTEs in track
-	LONG               iBytesLeft;             // Bytes left unread in track
+	ULONG              iBytesLeft;             // Bytes left unread in track
 	LPBYTE             pTrackData;             // -> start of track data
 	LPBYTE             pTrackPointer;          // -> next UBYTE to read
 	DWORD              tkNextEventDue;         // Absolute time of next event in track

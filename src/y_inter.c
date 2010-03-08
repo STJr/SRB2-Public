@@ -59,8 +59,8 @@ typedef union
 	struct
 	{
 		ULONG score; // fake score
-		int timebonus, ringbonus, perfbonus, total;
-		int min, sec, tics;
+		INT32 timebonus, ringbonus, perfbonus, total;
+		INT32 min, sec, tics;
 		boolean gotperfbonus; // true if we should show the perfect bonus line
 		patch_t *ttlnum; // act number being displayed
 		patch_t *ptimebonus; // TIME BONUS
@@ -69,15 +69,15 @@ typedef union
 		patch_t *ptotal; // TOTAL
 		char passed1[13]; // KNUCKLES GOT
 		char passed2[16]; // THROUGH THE ACT
-		int passedx1, passedx2;
-		int gotlife; // Player # that got an extra life
+		INT32 passedx1, passedx2;
+		INT32 gotlife; // Player # that got an extra life
 	} coop;
 
 	struct
 	{
 		ULONG score; // fake score
-		int ringbonus;
-		int headx;
+		INT32 ringbonus;
+		INT32 headx;
 		patch_t *cemerald; // CHAOS EMERALDS (or GOT THEM ALL!)
 		patch_t *nowsuper; // SONIC CAN NOW BE SUPER SONIC
 		patch_t *pringbonus; // RING BONUS
@@ -87,32 +87,32 @@ typedef union
 	struct
 	{
 		ULONG scores[MAXPLAYERS]; // Winner's score
-		long *color[MAXPLAYERS]; // Winner's color #
+		INT32 *color[MAXPLAYERS]; // Winner's color #
 		boolean spectator[MAXPLAYERS]; // Spectator list
-		long *character[MAXPLAYERS]; // Winner's character #
-		int num[MAXPLAYERS]; // Winner's player #
+		INT32 *character[MAXPLAYERS]; // Winner's character #
+		INT32 num[MAXPLAYERS]; // Winner's player #
 		char *name[MAXPLAYERS]; // Winner's name
 		patch_t *result; // RESULT
 		patch_t *blueflag;
 		patch_t *redflag; // int_ctf uses this struct too.
-		int numplayers; // Number of players being displayed
+		INT32 numplayers; // Number of players being displayed
 		char levelstring[40]; // holds levelnames up to 32 characters
 	} match;
 
 	struct
 	{
 		ULONG scores[4]; // player scores
-		int timemin[4]; // time (minutes)
-		int timesec[4]; // time (seconds)
-		int timetic[4]; // time (tics)
-		int rings[4]; // rings
-		int totalrings[4]; // total rings
-		int itemboxes[4]; // item boxes
-		int totalwins[4]; // how many wins each player has
-		int numplayersshown; // how many players are displayed (1-4)
-		int playersshown[4]; // the player numbers of these players
+		INT32 timemin[4]; // time (minutes)
+		INT32 timesec[4]; // time (seconds)
+		INT32 timetic[4]; // time (tics)
+		INT32 rings[4]; // rings
+		INT32 totalrings[4]; // total rings
+		INT32 itemboxes[4]; // item boxes
+		INT32 totalwins[4]; // how many wins each player has
+		INT32 numplayersshown; // how many players are displayed (1-4)
+		INT32 playersshown[4]; // the player numbers of these players
 		const char *winnerstrings[5]; // string for winner in each category
-		int winner; // the overall winner's player number
+		INT32 winner; // the overall winner's player number
 		patch_t *result; // RESULT
 		char levelstring[40]; // holds levelnames up to 32 characters
 	} race;
@@ -129,12 +129,12 @@ static patch_t *interpic = NULL;    // custom picture defined in map header
 static boolean usetile;
 static boolean usebuffer;
 static boolean useinterpic;
-static int timer;
+static INT32 timer;
 static boolean gottimebonus;
 static boolean gotemblem;
 
-static int intertic;
-static int endtic = -1;
+static INT32 intertic;
+static INT32 endtic = -1;
 
 static enum
 {
@@ -157,7 +157,7 @@ static void Y_AwardSpecialStageBonus(void);
 static void Y_CalculateRaceWinners(void);
 static void Y_CalculateTimeRaceWinners(void);
 static void Y_CalculateMatchWinners(void);
-static void Y_DrawScaledNum(int x, int y, int flags, int num);
+static void Y_DrawScaledNum(INT32 x, INT32 y, INT32 flags, INT32 num);
 #define Y_DrawNum(x,y,n) Y_DrawScaledNum(x, y, 0, n)
 static void Y_FollowIntermission(void);
 static void Y_UnloadData(void);
@@ -219,7 +219,7 @@ void Y_IntermissionDrawer(void)
 			// we should show centiseconds on the intermission screen too, if the conditions are right.
 			if (timeattacking || cv_timetic.value == 2)
 			{
-				int tics = G_TicsToCentiseconds(data.coop.tics);
+				INT32 tics = G_TicsToCentiseconds(data.coop.tics);
 				if (tics < 10)
 					Y_DrawScaledNum(hudinfo[HUD_LOWTICS].x, hudinfo[HUD_LOWTICS].y, V_SNAPTOLEFT, 0);
 				V_DrawScaledPatch(hudinfo[HUD_TIMETICCOLON].x, hudinfo[HUD_TIMETICCOLON].y, V_SNAPTOLEFT, sbocolon);
@@ -289,9 +289,9 @@ void Y_IntermissionDrawer(void)
 	}
 	else if (inttype == int_match || inttype == int_race)
 	{
-		int i = 0, j = 0;
-		int x = 4;
-		int y = 48;
+		INT32 i = 0, j = 0;
+		INT32 x = 4;
+		INT32 y = 48;
 		char name[MAXPLAYERNAME+1];
 
 		// draw the header
@@ -357,7 +357,7 @@ void Y_IntermissionDrawer(void)
 				if (data.match.numplayers > 9)
 				{
 					if (inttype == int_match)
-						V_DrawRightAlignedString(x+152, y, 0, va("%lu", data.match.scores[i]));
+						V_DrawRightAlignedString(x+152, y, 0, va("%d", data.match.scores[i]));
 					else if (inttype == int_race)
 					{
 						snprintf(strtime, sizeof strtime,
@@ -371,7 +371,7 @@ void Y_IntermissionDrawer(void)
 				else
 				{
 					if (inttype == int_match)
-						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, va("%ld", data.match.scores[i]));
+						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, va("%d", data.match.scores[i]));
 					else if (inttype == int_race)
 					{
 						if (players[data.match.num[i]].pflags & PF_TIMEOVER)
@@ -410,16 +410,16 @@ void Y_IntermissionDrawer(void)
 	}
 	else if (inttype == int_ctf || inttype == int_teammatch)
 	{
-		int i, x = 4, y = 0;
-		int redplayers = 0, blueplayers = 0;
+		INT32 i, x = 4, y = 0;
+		INT32 redplayers = 0, blueplayers = 0;
 		char name[MAXPLAYERNAME+1];
 
 		// Show the team flags and the team score at the top instead of "RESULTS"
 		V_DrawSmallScaledPatch(128 - SHORT(data.match.blueflag->width)/4, 2, 0, data.match.blueflag);
-		V_DrawCenteredString(128, 16, 0, va("%lu", bluescore));
+		V_DrawCenteredString(128, 16, 0, va("%d", bluescore));
 
 		V_DrawSmallScaledPatch(192 - SHORT(data.match.redflag->width)/4, 2, 0, data.match.redflag);
-		V_DrawCenteredString(192, 16, 0, va("%lu", redscore));
+		V_DrawCenteredString(192, 16, 0, va("%d", redscore));
 
 		// draw the level name
 		V_DrawCenteredString(BASEVIDWIDTH/2, 24, 0, data.match.levelstring);
@@ -470,14 +470,14 @@ void Y_IntermissionDrawer(void)
 
 				V_DrawString(x+36, y, V_ALLOWLOWERCASE, name);
 
-				V_DrawRightAlignedString(x+152, y, 0, va("%lu", data.match.scores[i]));
+				V_DrawRightAlignedString(x+152, y, 0, va("%d", data.match.scores[i]));
 			}
 		}
 	}
 	else if (inttype == int_classicrace)
 	{
 		char name[9] = "xxxxxxxx";
-		int i;
+		INT32 i;
 
 		// draw the header
 		V_DrawScaledPatch(112, 8, 0, data.race.result);
@@ -528,7 +528,7 @@ void Y_IntermissionDrawer(void)
 			name[sizeof name - 1] = '\0';
 
 			// draw score
-			snprintf(name, sizeof name - 1, "%lu", data.race.scores[i]);
+			snprintf(name, sizeof name - 1, "%d", data.race.scores[i]);
 			V_DrawRightAlignedString(104 + 64*i, 66, 0, name);
 
 			// draw time
@@ -625,7 +625,7 @@ void Y_Ticker(void)
 
 		if (data.coop.ringbonus || data.coop.timebonus || data.coop.perfbonus)
 		{
-			int i;
+			INT32 i;
 			boolean skip = false;
 
 			if (!(intertic & 1))
@@ -723,7 +723,7 @@ void Y_Ticker(void)
 
 		if (data.spec.ringbonus)
 		{
-			int i;
+			INT32 i;
 			boolean skip = false;
 
 			if (!(intertic & 1))
@@ -896,8 +896,8 @@ void Y_StartIntermission(void)
 
 					if (!savemoddata && !(grade & 512))
 					{
-						int emblemcount = 0;
-						int i;
+						INT32 emblemcount = 0;
+						INT32 i;
 
 						if (M_GotLowEnoughTime(23*60))
 						{
@@ -1174,8 +1174,8 @@ void Y_StartIntermission(void)
 //
 static void Y_AwardCoopBonuses(void)
 {
-	int i;
-	int sharedringtotal = 0;
+	INT32 i;
+	INT32 sharedringtotal = 0;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -1189,7 +1189,7 @@ static void Y_AwardCoopBonuses(void)
 	// with that out of the way, go back to calculating bonuses like usual
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
-		int secs, bonus, oldscore;
+		INT32 secs, bonus, oldscore;
 
 		if (!playeringame[i])
 			continue;
@@ -1252,8 +1252,8 @@ static void Y_AwardCoopBonuses(void)
 			{
 				if (!emblemlocations[MAXEMBLEMS-4].collected)
 				{
-					int j;
-					int emblemcount = 0;
+					INT32 j;
+					INT32 emblemcount = 0;
 					emblemlocations[MAXEMBLEMS-4].collected = true;
 					gotemblem = true;
 
@@ -1293,11 +1293,11 @@ static void Y_AwardCoopBonuses(void)
 // Gives a ring bonus only.
 static void Y_AwardSpecialStageBonus(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
-		int oldscore;
+		INT32 oldscore;
 
 		if (!playeringame[i])
 			continue;
@@ -1331,7 +1331,7 @@ static void Y_AwardSpecialStageBonus(void)
 //
 static void Y_CalculateMatchWinners(void)
 {
-	int i, j;
+	INT32 i, j;
 	boolean completed[MAXPLAYERS];
 
 	// Initialize variables
@@ -1385,7 +1385,7 @@ static void Y_CalculateMatchWinners(void)
 //
 static void Y_CalculateTimeRaceWinners(void)
 {
-	int i, j;
+	INT32 i, j;
 	boolean completed[MAXPLAYERS];
 
 	// Initialize variables
@@ -1429,13 +1429,13 @@ static void Y_CalculateTimeRaceWinners(void)
 //
 static void Y_CalculateRaceWinners(void)
 {
-	int winners[5], numwins[MAXPLAYERS];
-	int i = 0, n = 0, ring, totalring, itembox, wins;
-	int numplayersingame;
+	INT32 winners[5], numwins[MAXPLAYERS];
+	INT32 i = 0, n = 0, ring, totalring, itembox, wins;
+	INT32 numplayersingame;
 	ULONG score = 0, racetime;
 
 	// Everyone has zero wins.
-	memset(numwins, 0, sizeof (int)*MAXPLAYERS);
+	memset(numwins, 0, sizeof (INT32)*MAXPLAYERS);
 
 	// No one has won anything.
 	winners[0] = winners[1] = winners[2] = winners[3] = winners[4] = -1;
@@ -1570,7 +1570,7 @@ static void Y_CalculateRaceWinners(void)
 	}
 	else // This is hard!
 	{
-		int j, k;
+		INT32 j, k;
 
 		data.race.numplayersshown = 4;
 		for (i = 0, n = 0; i < MAXPLAYERS; i++)
@@ -1682,9 +1682,9 @@ static void Y_CalculateRaceWinners(void)
 // Dumb display function for positive numbers.
 // Like ST_DrawOverlayNum, but scales the start and isn't translucent.
 //
-static void Y_DrawScaledNum(int x, int y, int flags, int num)
+static void Y_DrawScaledNum(INT32 x, INT32 y, INT32 flags, INT32 num)
 {
-	int w = SHORT(tallnum[0]->width);
+	INT32 w = SHORT(tallnum[0]->width);
 
 	// special case for 0
 	if (!num)

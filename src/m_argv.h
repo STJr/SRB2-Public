@@ -23,11 +23,11 @@
 //
 // MISC
 //
-extern int myargc;
+extern INT32 myargc;
 extern char **myargv;
 
 // Returns the position of the given parameter in the arg list (0 if not found).
-int M_CheckParm(const char *check);
+INT32 M_CheckParm(const char *check);
 
 // Pushes all parameters beginning with a +, ex: +map map01
 void M_PushSpecialParameters(void);

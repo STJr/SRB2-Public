@@ -51,8 +51,8 @@ enum {NORMAL_PITCH = 128};
 
 /*typedef struct source2D_data_s
 {
-	int     volume;
-	int     sep;
+	INT32     volume;
+	INT32     sep;
 
 } source2D_data_t;*/
 
@@ -62,8 +62,8 @@ typedef struct source3D_data_s
 {
 	float           min_distance;       //
 	float           max_distance;       //
-	int             head_relative;      //
-	int             permanent;          //
+	INT32             head_relative;      //
+	INT32             permanent;          //
 	source3D_pos_t  pos;                // source position in 3D
 
 } source3D_data_t;
@@ -74,8 +74,8 @@ typedef struct sfx_data_s
 {
 	size_t  length;
 	void    *data;
-	int     priority;
-	int     sep;                    // Only when source is 2D sound
+	INT32     priority;
+	INT32     sep;                    // Only when source is 2D sound
 } sfx_data_t;
 
 
@@ -84,7 +84,7 @@ typedef struct cone_def_s
 {
 	float   inner;
 	float   outer;
-	int     outer_gain;
+	INT32     outer_gain;
 	/*float   f_angle;
 	float   h_angle;*/
 } cone_def_t;
@@ -109,13 +109,13 @@ typedef struct listener_data_s
 
 typedef struct snddev_s
 {
-	int     sample_rate;
-	int     bps;
+	INT32     sample_rate;
+	INT32     bps;
 	size_t  numsfxs;
 
 // Windows specific data
 #if (defined (_WIN32) || defined (_WIN64)) && !defined (_XBOX)
-	int     cooplevel;
+	INT32     cooplevel;
 	HWND    hWnd;
 #endif
 } snddev_t;

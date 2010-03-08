@@ -40,7 +40,7 @@ extern consvar_t cv_ticrate, cv_usegamma, cv_allcaps;
 void V_Init(void);
 
 // Set the current RGB palette lookup to use for palettized graphics
-void V_SetPalette(int palettenum);
+void V_SetPalette(INT32 palettenum);
 
 void V_SetPaletteLump(const char *pal);
 
@@ -50,7 +50,7 @@ extern RGBA_t *pLocalPalette;
 #define V_GetColor(color) (pLocalPalette[color&0xFF])
 
 // like V_DrawPatch, + using a colormap.
-void V_DrawMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap);
+void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap);
 
 // flags hacked in scrn (not supported by all functions (see src))
 #define V_NOSCALESTART       0x00010000  // don't scale x, y, start coords
@@ -73,60 +73,60 @@ void V_DrawMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *color
 #define V_SNAPTORIGHT        0x80000000 // for centering
 
 // default params: scale patch and scale start
-void V_DrawScaledPatch(int x, int y, int scrn, patch_t *patch);
+void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
 // default params: scale patch and scale start
-void V_DrawSmallScaledPatch(int x, int y, int scrn, patch_t *patch);
-void V_DrawSmallMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap);
-void V_DrawSmallTranslucentMappedPatch(int x, int y, int scrn, patch_t *patch, const byte *colormap);
-void V_DrawSmallTranslucentPatch(int x, int y, int scrn, patch_t *patch);
+void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
+void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap);
+void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap);
+void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
 // like V_DrawScaledPatch, plus translucency
-void V_DrawTranslucentPatch(int x, int y, int scrn, patch_t *patch);
+void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
-void V_DrawPatch(int x, int y, int scrn, patch_t *patch);
+void V_DrawPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
 // Draw a linear block of pixels into the view buffer.
-void V_DrawBlock(int x, int y, int scrn, int width, int height, const byte *src);
+void V_DrawBlock(INT32 x, INT32 y, INT32 scrn, INT32 width, INT32 height, const byte *src);
 
 // draw a pic_t, SCALED
-void V_DrawScaledPic (int px1, int py1, int scrn, int lumpnum);
+void V_DrawScaledPic (INT32 px1, INT32 py1, INT32 scrn, INT32 lumpnum);
 
 // fill a box with a single color
-void V_DrawFill(int x, int y, int w, int h, int c);
+void V_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 c);
 // fill a box with a flat as a pattern
-void V_DrawFlatFill(int x, int y, int w, int h, lumpnum_t flatnum);
+void V_DrawFlatFill(INT32 x, INT32 y, INT32 w, INT32 h, lumpnum_t flatnum);
 
 // fade down the screen buffer before drawing the menu over
 void V_DrawFadeScreen(void);
 
-void V_DrawFadeConsBack(int px1, int py1, int px2, int py2, int pcolor);
+void V_DrawFadeConsBack(INT32 px1, INT32 py1, INT32 px2, INT32 py2, INT32 pcolor);
 
 // draw a single character
-void V_DrawCharacter(int x, int y, int c, boolean lowercaseallowed);
+void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed);
 
-void V_DrawLevelTitle(int x, int y, int option, const char *string);
+void V_DrawLevelTitle(INT32 x, INT32 y, INT32 option, const char *string);
 
 // draw a string using the hu_font
-void V_DrawString(int x, int y, int option, const char *string);
-void V_DrawCenteredString(int x, int y, int option, const char *string);
-void V_DrawRightAlignedString(int x, int y, int option, const char *string);
+void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string);
+void V_DrawCenteredString(INT32 x, INT32 y, INT32 option, const char *string);
+void V_DrawRightAlignedString(INT32 x, INT32 y, INT32 option, const char *string);
 
 // Find string width from lt_font chars
-int V_LevelNameWidth(const char *string);
-int V_LevelNameHeight(const char *string);
+INT32 V_LevelNameWidth(const char *string);
+INT32 V_LevelNameHeight(const char *string);
 
-void V_DrawCreditString(int x, int y, int option, const char *string);
-int V_CreditStringWidth(const char *string);
+void V_DrawCreditString(INT32 x, INT32 y, INT32 option, const char *string);
+INT32 V_CreditStringWidth(const char *string);
 
 // Find string width from hu_font chars
-int V_StringWidth(const char *string);
+INT32 V_StringWidth(const char *string);
 
 void V_DoPostProcessor(postimg_t type);
 
 void V_DrawPatchFill(patch_t *pat);
 
-void VID_BlitLinearScreen(const byte *srcptr, byte *destptr, int width, int height, int srcrowbytes,
-	int destrowbytes);
+void VID_BlitLinearScreen(const byte *srcptr, byte *destptr, INT32 width, INT32 height, INT32 srcrowbytes,
+	INT32 destrowbytes);
 
 #endif

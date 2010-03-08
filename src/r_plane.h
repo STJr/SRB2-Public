@@ -36,9 +36,9 @@ typedef struct visplane_s
 	fixed_t height, viewz;
 	angle_t viewangle;
 	angle_t plangle;
-	long picnum;
-	int lightlevel;
-	int minx, maxx;
+	INT32 picnum;
+	INT32 lightlevel;
+	INT32 minx, maxx;
 
 	// colormaps per sector
 	extracolormap_t *extra_colormap;
@@ -54,14 +54,14 @@ typedef struct visplane_s
 	unsigned short bottom[MAXVIDWIDTH];
 	unsigned short pad4;
 
-	int high, low; // R_PlaneBounds should set these.
+	INT32 high, low; // R_PlaneBounds should set these.
 
 	fixed_t xoffs, yoffs; // Scrolling flats.
 
 	// SoM: frontscale should be stored in the first seg of the subsector
 	// where the planes themselves are stored. I'm doing this now because
 	// the old way caused trouble with the drawseg array was re-sized.
-	int scaleseg;
+	INT32 scaleseg;
 
 	struct ffloor_s *ffloor;
 #ifdef POLYOBJECTS_PLANES
@@ -75,7 +75,7 @@ extern visplane_t *ceilingplane;
 // Visplane related.
 extern short *lastopening, *openings;
 extern size_t maxopenings;
-typedef void (*planefunction_t)(int top, int bottom);
+typedef void (*planefunction_t)(INT32 top, INT32 bottom);
 
 extern short floorclip[MAXVIDWIDTH], ceilingclip[MAXVIDWIDTH];
 extern fixed_t frontscale[MAXVIDWIDTH], yslopetab[MAXVIDHEIGHT*4];
@@ -91,13 +91,13 @@ extern fixed_t distscale[MAXVIDWIDTH];
 void R_InitPlanes(void);
 void R_ClearPlanes(void);
 
-void R_MapPlane(int y, int x1, int x2);
-void R_MakeSpans(int x, int t1, int b1, int t2, int b2);
+void R_MapPlane(INT32 y, INT32 x1, INT32 x2);
+void R_MakeSpans(INT32 x, INT32 t1, INT32 b1, INT32 t2, INT32 b2);
 void R_DrawPlanes(void);
-visplane_t *R_FindPlane(fixed_t height, long picnum, int lightlevel, fixed_t xoff, fixed_t yoff, angle_t plangle,
+visplane_t *R_FindPlane(fixed_t height, INT32 picnum, INT32 lightlevel, fixed_t xoff, fixed_t yoff, angle_t plangle,
 	extracolormap_t *planecolormap, ffloor_t *ffloor);
-visplane_t *R_CheckPlane(visplane_t *pl, int start, int stop);
-void R_ExpandPlane(visplane_t *pl, int start, int stop);
+visplane_t *R_CheckPlane(visplane_t *pl, INT32 start, INT32 stop);
+void R_ExpandPlane(visplane_t *pl, INT32 start, INT32 stop);
 void R_PlaneBounds(visplane_t *plane);
 
 // Draws a single visplane.
@@ -122,5 +122,5 @@ typedef struct planemgr_s
 } planemgr_t;
 
 extern planemgr_t ffloor[MAXFFLOORS];
-extern int numffloors;
+extern INT32 numffloors;
 #endif

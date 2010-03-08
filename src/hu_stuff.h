@@ -57,10 +57,10 @@ extern char english_shiftxform[];
 typedef struct
 {
 	ULONG count;
-	int num;
-	int color;
+	INT32 num;
+	INT32 color;
 	boolean spectator;
-	int emeralds;
+	INT32 emeralds;
 	const char *name;
 } playersort_t;
 
@@ -106,18 +106,18 @@ void HU_Drawer(void);
 char HU_dequeueChatChar(void);
 void HU_Erase(void);
 void HU_clearChatChars(void);
-void HU_DrawTabRankings(int x, int y, playersort_t *tab, int scorelines, int whiteplayer);
-void HU_DrawTeamTabRankings(playersort_t *tab, int whiteplayer);
-void HU_DrawDualTabRankings(int x, int y, playersort_t *tab, int scorelines, int whiteplayer);
-void HU_DrawEmeralds(int x, int y, int pemeralds);
+void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer);
+void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer);
+void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer);
+void HU_DrawEmeralds(INT32 x, INT32 y, INT32 pemeralds);
 
-int HU_CreateTeamScoresTbl(playersort_t *tab, ULONG dmtotals[]);
+INT32 HU_CreateTeamScoresTbl(playersort_t *tab, ULONG dmtotals[]);
 void MatchType_OnChange(void);
 
 // CECHO interface.
 void HU_ClearCEcho(void);
-void HU_SetCEchoDuration(int seconds);
-void HU_SetCEchoFlags(int flags);
+void HU_SetCEchoDuration(INT32 seconds);
+void HU_SetCEchoFlags(INT32 flags);
 void HU_DoCEcho(const char *msg);
 
 #endif

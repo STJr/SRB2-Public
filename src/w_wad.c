@@ -64,9 +64,9 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 // Store lists of lumps for F_START/F_END etc.
 typedef struct
 {
-	int wadfile;
-	int firstlump;
-	int numlumps;
+	INT32 wadfile;
+	INT32 firstlump;
+	INT32 numlumps;
 } lumplist_t;
 
 #if defined(_MSC_VER)
@@ -157,7 +157,7 @@ static inline void W_LoadDehackedLumps(USHORT wadnum)
   * \param resblock resulting MD5 checksum
   * \return 0 if MD5 checksum was made, and is at resblock, 1 if error was found
   */
-static inline int W_MakeFileMD5(const char *filename, void *resblock)
+static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 {
 #ifdef NOMD5
 	(void)filename;
@@ -167,7 +167,7 @@ static inline int W_MakeFileMD5(const char *filename, void *resblock)
 
 	if ((fhandle = fopen(filename, "rb")) != NULL)
 	{
-		int t = I_GetTime();
+		tic_t t = I_GetTime();
 #ifndef _arch_dreamcast
 		if (devparm)
 #endif
@@ -177,7 +177,7 @@ static inline int W_MakeFileMD5(const char *filename, void *resblock)
 #ifndef _arch_dreamcast
 		if (devparm)
 #endif
-		CONS_Printf("MD5 calc for %s took %f second\n",
+		CONS_Printf("MD5 calc for %s took %f seconds\n",
 			filename, (float)(I_GetTime() - t)/TICRATE);
 		fclose(fhandle);
 		return 0;
@@ -207,7 +207,7 @@ USHORT W_LoadWadFile(const char *filename)
 #ifdef HWRENDER
 	GLPatch_t *grPatch;
 #endif
-	int compressed = 0;
+	INT32 compressed = 0;
 	size_t packetsize = 0;
 	serverinfo_pak *dummycheck = NULL;
 
@@ -372,7 +372,7 @@ USHORT W_LoadWadFile(const char *filename)
 	wadfile->numlumps = (USHORT)numlumps;
 	wadfile->lumpinfo = lumpinfo;
 	fseek(handle, 0, SEEK_END);
-	wadfile->filesize = ftell(handle);
+	wadfile->filesize = (unsigned)ftell(handle);
 
 	//
 	// generate md5sum
@@ -399,7 +399,7 @@ USHORT W_LoadWadFile(const char *filename)
 	//
 	// add the wadfile
 	//
-	CONS_Printf("Added file %s (%lu lumps)\n", filename, numlumps);
+	CONS_Printf("Added file %s (%d lumps)\n", filename, numlumps);
 	wadfiles[numwadfiles] = wadfile;
 	W_LoadDehackedLumps(numwadfiles);
 
@@ -409,11 +409,14 @@ USHORT W_LoadWadFile(const char *filename)
 
 void W_UnloadWadFile(USHORT num)
 {
-	int i;
+	INT32 i;
 	wadfile_t *delwad = wadfiles[num];
 	lumpcache_t *lumpcache;
 	if (num == 0)
+	{
 		CONS_Printf("You can't remove the IWAD %s!\n", wadfiles[0]->filename);
+		return;
+	}
 	else
 		CONS_Printf("Removing WAD %s...\n", wadfiles[num]->filename);
 
@@ -449,9 +452,9 @@ void W_UnloadWadFile(USHORT num)
   * \return 1 if all files were loaded, 0 if at least one was missing or
   *           invalid.
   */
-int W_InitMultipleFiles(char **filenames)
+INT32 W_InitMultipleFiles(char **filenames)
 {
-	int rc = 1;
+	INT32 rc = 1;
 
 	// open all the files, load headers, and count lumps
 	numwadfiles = 0;
@@ -544,7 +547,7 @@ USHORT W_CheckNumForNamePwad(const char *name, USHORT wad, USHORT startlump)
 //
 lumpnum_t W_CheckNumForName(const char *name)
 {
-	int i;
+	INT32 i;
 	lumpnum_t check = MAXSHORT;
 
 	// scan wad files backwards so patch lump files take precedence
@@ -612,7 +615,7 @@ static size_t W_RawReadLumpHeader(USHORT wad, USHORT lump, void *dest, size_t si
 
 	handle = wadfiles[wad]->handle;
 
-	fseek(handle, l->position + offset, SEEK_SET);
+	fseek(handle, (long)(l->position + offset), SEEK_SET);
 	bytesread = fread(dest, 1, size, handle);
 
 	return bytesread;
@@ -625,7 +628,7 @@ static void *W_ReadCompressedLump(USHORT wad, USHORT lump)
 #ifdef ZWAD
 	char *compressed, *data;
 	const lumpinfo_t *l = &wadfiles[wad]->lumpinfo[lump];
-	unsigned int retval;
+	size_t retval;
 
 	compressed = Z_Malloc(l->disksize, PU_STATIC, NULL);
 	data = Z_Malloc(l->size, PU_STATIC, NULL);
@@ -641,7 +644,7 @@ static void *W_ReadCompressedLump(USHORT wad, USHORT lump)
 	if (retval == 0 && errno == E2BIG)
 	{
 		I_Error("wad %d, lump %d: compressed data too big "
-			"(bigger than %d)", wad, lump, l->size);
+			"(bigger than %"PRIdS")", wad, lump, l->size);
 	}
 	else if (retval == 0 && errno == EINVAL)
 		I_Error("wad %d, lump %d: invalid compressed data", wad, lump);
@@ -650,7 +653,7 @@ static void *W_ReadCompressedLump(USHORT wad, USHORT lump)
 	if (retval != l->size)
 	{
 		I_Error("wad %d, lump %d: decompressed to wrong number of "
-			"bytes (expected %u, got %u)", wad, lump,
+			"bytes (expected %"PRIdS", got %"PRIdS")", wad, lump,
 			l->size, retval);
 	}
 	Z_Free(compressed);
@@ -694,7 +697,7 @@ size_t W_ReadLumpHeaderPwad(USHORT wad, USHORT lump, void *dest, size_t size, si
 		byte *data;
 		data = W_ReadCompressedLump(wad, lump);
 		if (!data) return 0;
-		memcpy(dest, data+offset, size);
+		M_Memcpy(dest, data+offset, size);
 		Z_Free(data);
 		return size;
 	}
@@ -727,7 +730,7 @@ void W_ReadLumpPwad(USHORT wad, USHORT lump, void *dest)
 // ==========================================================================
 // W_CacheLumpNum
 // ==========================================================================
-void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, int tag)
+void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, INT32 tag)
 {
 	lumpcache_t *lumpcache;
 
@@ -746,7 +749,7 @@ void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, int tag)
 	return lumpcache[lump];
 }
 
-void *W_CacheLumpNum(lumpnum_t lumpnum, int tag)
+void *W_CacheLumpNum(lumpnum_t lumpnum, INT32 tag)
 {
 
 	return W_CacheLumpNumPwad(WADFILENUM(lumpnum),LUMPNUM(lumpnum),tag);
@@ -757,7 +760,7 @@ void *W_CacheLumpNum(lumpnum_t lumpnum, int tag)
 //
 // Forces the lump to be loaded, even if it already is!
 //
-void *W_CacheLumpNumForce(lumpnum_t lumpnum, int tag)
+void *W_CacheLumpNumForce(lumpnum_t lumpnum, INT32 tag)
 {
 	USHORT wad, lump;
 	void *ptr;
@@ -809,7 +812,7 @@ boolean W_IsLumpCached(lumpnum_t lumpnum, void *ptr)
 // ==========================================================================
 // W_CacheLumpName
 // ==========================================================================
-void *W_CacheLumpName(const char *name, int tag)
+void *W_CacheLumpName(const char *name, INT32 tag)
 {
 	return W_CacheLumpNum(W_GetNumForName(name), tag);
 }
@@ -831,7 +834,7 @@ void *W_CacheLumpName(const char *name, int tag)
 
 // Software-only compile cache the data without conversion
 #ifdef HWRENDER
-static inline void *W_CachePatchNumPwad(USHORT wad, USHORT lump, int tag)
+static inline void *W_CachePatchNumPwad(USHORT wad, USHORT lump, INT32 tag)
 {
 	GLPatch_t *grPatch;
 
@@ -864,14 +867,14 @@ static inline void *W_CachePatchNumPwad(USHORT wad, USHORT lump, int tag)
 	return (void *)grPatch;
 }
 
-void *W_CachePatchNum(lumpnum_t lumpnum, int tag)
+void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag)
 {
 	return W_CachePatchNumPwad(WADFILENUM(lumpnum),LUMPNUM(lumpnum),tag);
 }
 
 #endif // HWRENDER
 
-void *W_CachePatchName(const char *name, int tag)
+void *W_CachePatchName(const char *name, INT32 tag)
 {
 	lumpnum_t num;
 
@@ -919,7 +922,7 @@ void W_VerifyFileMD5(USHORT wadfilenum, const char *matchmd5)
 	(void)matchmd5;
 #else
 	unsigned char realmd5[MD5_LEN];
-	int ix;
+	INT32 ix;
 
 	I_Assert(strlen(matchmd5) == 2*MD5_LEN);
 	I_Assert(wadfilenum < numwadfiles);
@@ -927,7 +930,7 @@ void W_VerifyFileMD5(USHORT wadfilenum, const char *matchmd5)
 	// into a real md5.
 	for (ix = 0; ix < 2*MD5_LEN; ix++)
 	{
-		int n, c = matchmd5[ix];
+		INT32 n, c = matchmd5[ix];
 		if (isdigit(c))
 			n = c - '0';
 		else

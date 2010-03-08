@@ -44,8 +44,8 @@
 //#define TIMING
 #ifdef TIMING
 #include "p5prof.h"
-long long mycount;
-long long mytotal = 0;
+INT64 mycount;
+INT64 mytotal = 0;
 //unsigned long  nombre = 100000;
 #endif
 //profile stuff ---------------------------------------------------------
@@ -56,7 +56,7 @@ long long mytotal = 0;
 // increment every time a check is made
 size_t validcount = 1;
 
-int centerx, centery;
+INT32 centerx, centery;
 
 fixed_t centerxfrac, centeryfrac;
 fixed_t projection;
@@ -84,7 +84,7 @@ angle_t doubleclipangle;
 // maps the visible view angles to screen X coordinates,
 // flattening the arc to a flat projection plane.
 // There will be many angles mapped to the same X.
-int viewangletox[FINEANGLES/2];
+INT32 viewangletox[FINEANGLES/2];
 
 // The xtoviewangleangle[] table maps a screen pixel
 // to the lowest viewangle that maps back to x ranges
@@ -124,6 +124,7 @@ consvar_t cv_allowmlook = {"allowmlook", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NU
 consvar_t cv_precipdist = {"precipdist", "1024", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_showhud = {"showhud", "Yes", CV_CALL,  CV_YesNo, R_SetViewSize, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grtranslucenthud = {"gr_translucenthud", "255", CV_SAVE|CV_CALL, grtranslucenthud_cons_t, R_SetViewSize, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_limitdraw = {"limitdraw", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_homremoval = {"homremoval", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 void SplitScreen_OnChange(void)
@@ -157,7 +158,7 @@ void SplitScreen_OnChange(void)
 	}
 	else
 	{
-		int i;
+		INT32 i;
 		secondarydisplayplayer = consoleplayer;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i] && i != consoleplayer)
@@ -192,7 +193,7 @@ static void ChaseCam2_OnChange(void)
 //
 // killough 5/2/98: reformatted
 //
-int R_PointOnSide(fixed_t x, fixed_t y, node_t *node)
+INT32 R_PointOnSide(fixed_t x, fixed_t y, node_t *node)
 {
 	if (!node->dx)
 		return x <= node->x ? node->dy > 0 : node->dy < 0;
@@ -210,7 +211,7 @@ int R_PointOnSide(fixed_t x, fixed_t y, node_t *node)
 }
 
 // killough 5/2/98: reformatted
-int R_PointOnSegSide(fixed_t x, fixed_t y, seg_t *line)
+INT32 R_PointOnSegSide(fixed_t x, fixed_t y, seg_t *line)
 {
 	fixed_t lx = line->v1->x;
 	fixed_t ly = line->v1->y;
@@ -250,14 +251,14 @@ angle_t R_PointToAngle(fixed_t x, fixed_t y)
 	return (y -= viewy, (x -= viewx) || y) ?
 	x >= 0 ?
 	y >= 0 ?
-		(x > y) ? tantoangle[SlopeDiv(y,x)] :						// octant 0
-			ANG90-1-tantoangle[SlopeDiv(x,y)] :						// octant 1
-		x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :				// octant 8
-			ANG270+tantoangle[SlopeDiv(x,y)] :						// octant 7
-		y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[SlopeDiv(y,x)] :// octant 3
-			ANG90 + tantoangle[SlopeDiv(x,y)] :						// octant 2
-		(x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :	// octant 4
-			ANG270-1-tantoangle[SlopeDiv(x,y)] :					// octant 5
+		(x > y) ? tantoangle[SlopeDiv(y,x)] :                          // octant 0
+		ANGLE_90-1-tantoangle[SlopeDiv(x,y)] :                         // octant 1
+		x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :                   // octant 8
+		ANGLE_270+tantoangle[SlopeDiv(x,y)] :                          // octant 7
+		y >= 0 ? (x = -x) > y ? ANGLE_180-1-tantoangle[SlopeDiv(y,x)] :// octant 3
+		ANGLE_90 + tantoangle[SlopeDiv(x,y)] :                         // octant 2
+		(x = -x) > (y = -y) ? ANGLE_180+tantoangle[ SlopeDiv(y,x)] :   // octant 4
+		ANGLE_270-1-tantoangle[SlopeDiv(x,y)] :                        // octant 5
 		0;
 }
 
@@ -266,14 +267,14 @@ angle_t R_PointToAngle2(fixed_t pviewx, fixed_t pviewy, fixed_t x, fixed_t y)
 	return (y -= pviewy, (x -= pviewx) || y) ?
 	x >= 0 ?
 	y >= 0 ?
-		(x > y) ? tantoangle[SlopeDiv(y,x)] :						// octant 0
-			ANG90-1-tantoangle[SlopeDiv(x,y)] :						// octant 1
-		x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :				// octant 8
-			ANG270+tantoangle[SlopeDiv(x,y)] :						// octant 7
-		y >= 0 ? (x = -x) > y ? ANG180-1-tantoangle[SlopeDiv(y,x)] :// octant 3
-			ANG90 + tantoangle[SlopeDiv(x,y)] :						// octant 2
-		(x = -x) > (y = -y) ? ANG180+tantoangle[ SlopeDiv(y,x)] :	// octant 4
-			ANG270-1-tantoangle[SlopeDiv(x,y)] :					// octant 5
+		(x > y) ? tantoangle[SlopeDiv(y,x)] :                          // octant 0
+		ANGLE_90-1-tantoangle[SlopeDiv(x,y)] :                         // octant 1
+		x > (y = -y) ? 0-tantoangle[SlopeDiv(y,x)] :                   // octant 8
+		ANGLE_270+tantoangle[SlopeDiv(x,y)] :                          // octant 7
+		y >= 0 ? (x = -x) > y ? ANGLE_180-1-tantoangle[SlopeDiv(y,x)] :// octant 3
+		ANGLE_90 + tantoangle[SlopeDiv(x,y)] :                         // octant 2
+		(x = -x) > (y = -y) ? ANGLE_180+tantoangle[ SlopeDiv(y,x)] :   // octant 4
+		ANGLE_270-1-tantoangle[SlopeDiv(x,y)] :                        // octant 5
 		0;
 }
 
@@ -296,7 +297,7 @@ fixed_t R_PointToDist2(fixed_t px2, fixed_t py2, fixed_t px1, fixed_t py1)
 	if (!dy)
 		return dx;
 
-	angle = (tantoangle[FixedDiv(dy, dx)>>DBITS] + ANG90) >> ANGLETOFINESHIFT;
+	angle = (tantoangle[FixedDiv(dy, dx)>>DBITS] + ANGLE_90) >> ANGLETOFINESHIFT;
 
 	// use as cosine
 	dist = FixedDiv(dx, FINESINE(angle));
@@ -384,9 +385,9 @@ fixed_t R_SecplanePointToDist2(secplane_t *secplane, fixed_t x, fixed_t y, fixed
 // note: THIS IS USED ONLY FOR WALLS!
 fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 {
-	int anglea = ANG90 + (visangle-viewangle);
-	int angleb = ANG90 + (visangle-rw_normalangle);
-	int den = FixedMul(rw_distance, FINESINE(anglea>>ANGLETOFINESHIFT));
+	INT32 anglea = ANGLE_90 + (visangle-viewangle);
+	INT32 angleb = ANGLE_90 + (visangle-rw_normalangle);
+	INT32 den = FixedMul(rw_distance, FINESINE(anglea>>ANGLETOFINESHIFT));
 	// proff 11/06/98: Changed for high-res
 	fixed_t num = FixedMul(projectiony, FINESINE(angleb>>ANGLETOFINESHIFT));
 
@@ -407,9 +408,9 @@ fixed_t R_ScaleFromGlobalAngle(angle_t visangle)
 //
 static void R_InitTextureMapping(void)
 {
-	int i;
-	int x;
-	int t;
+	INT32 i;
+	INT32 x;
+	INT32 t;
 	fixed_t focallength;
 
 	// Use tangent table to generate viewangletox:
@@ -448,7 +449,7 @@ static void R_InitTextureMapping(void)
 		i = 0;
 		while (viewangletox[i] > x)
 			i++;
-		xtoviewangle[x] = (i<<ANGLETOFINESHIFT) - ANG90;
+		xtoviewangle[x] = (i<<ANGLETOFINESHIFT) - ANGLE_90;
 	}
 
 	// Take out the fencepost cases from viewangletox.
@@ -478,11 +479,11 @@ static void R_InitTextureMapping(void)
 
 static inline void R_InitLightTables(void)
 {
-	int i;
-	int j;
-	int level;
-	int startmapl;
-	int scale;
+	INT32 i;
+	INT32 j;
+	INT32 level;
+	INT32 startmapl;
+	INT32 scale;
 
 	// Calculate the light levels to use
 	//  for each level / distance combination.
@@ -529,11 +530,11 @@ void R_ExecuteSetViewSize(void)
 {
 	fixed_t cosadj;
 	fixed_t dy;
-	int i;
-	int j;
-	int level;
-	int startmapl;
-	int aspectx;  //added : 02-02-98 : for aspect ratio calc. below...
+	INT32 i;
+	INT32 j;
+	INT32 level;
+	INT32 startmapl;
+	INT32 aspectx;  //added : 02-02-98 : for aspect ratio calc. below...
 
 	setsizeneeded = false;
 
@@ -664,7 +665,7 @@ void R_Init(void)
 //
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 {
-	int nodenum = numnodes-1;
+	size_t nodenum = numnodes-1;
 
 	while (!(nodenum & NF_SUBSECTOR))
 		nodenum = nodes[nodenum].children[R_PointOnSide(x, y, nodes+nodenum)];
@@ -678,7 +679,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 subsector_t *R_IsPointInSubsector(fixed_t x, fixed_t y)
 {
 	node_t *node;
-	int side, i;
+	INT32 side, i;
 	size_t nodenum;
 	subsector_t *ret;
 
@@ -710,11 +711,11 @@ subsector_t *R_IsPointInSubsector(fixed_t x, fixed_t y)
 static mobj_t *viewmobj;
 
 // WARNING: a should be unsigned but to add with 2048, it isn't!
-#define AIMINGTODY(a) ((FINETANGENT((2048+(((int)a)>>ANGLETOFINESHIFT)) & FINEMASK)*160)>>FRACBITS)
+#define AIMINGTODY(a) ((FINETANGENT((2048+(((INT32)a)>>ANGLETOFINESHIFT)) & FINEMASK)*160)>>FRACBITS)
 
 void R_SetupFrame(player_t *player)
 {
-	int dy = 0;
+	INT32 dy = 0;
 	camera_t *thiscam;
 
 	if (splitscreen && player == &players[secondarydisplayplayer]
@@ -785,7 +786,10 @@ void R_SetupFrame(player_t *player)
 
 	if (!viewmobj)
 #ifdef PARANOIA
-		I_Error("R_SetupFrame: viewmobj null (player %d)", player - players);
+		{
+			const size_t playeri = (size_t)(player - players);
+			I_Error("R_SetupFrame: viewmobj null (player %"PRIdS")", playeri);
+		}
 #else
 		return;
 #endif
@@ -826,7 +830,7 @@ void R_SetupFrame(player_t *player)
 	{
 		// clip it in the case we are looking a hardware 90 degrees full aiming
 		// (lmps, network and use F12...)
-		G_ClipAimingPitch((int *)&aimingangle);
+		G_ClipAimingPitch((INT32 *)&aimingangle);
 
 		if (!splitscreen)
 			dy = AIMINGTODY(aimingangle) * viewheight/BASEVIDHEIGHT;
@@ -879,12 +883,12 @@ void R_RenderPlayerView(player_t *player)
 	mytotal = 0;
 	ProfZeroTimer();
 #endif
-	R_RenderBSPNode((int)numnodes - 1);
+	R_RenderBSPNode((INT32)numnodes - 1);
 #ifdef TIMING
 	RDMSR(0x10, &mycount);
 	mytotal += mycount; // 64bit add
 
-	CONS_Printf("RenderBSPNode: 0x%d %d\n", *((int *)&mytotal + 1), (int)mytotal);
+	CONS_Printf("RenderBSPNode: 0x%d %d\n", *((INT32 *)&mytotal + 1), (INT32)mytotal);
 #endif
 //profile stuff ---------------------------------------------------------
 
@@ -950,6 +954,7 @@ void R_RegisterEngineStuff(void)
 	// Default viewheight is changeable,
 	// initialized to standard viewheight
 	CV_RegisterVar(&cv_viewheight);
+	CV_RegisterVar (&cv_limitdraw);
 	CV_RegisterVar(&cv_grtranslucenthud);
 
 #ifdef HWRENDER

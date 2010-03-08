@@ -38,8 +38,8 @@ static boolean markfloor; // False if the back side is the same plane.
 static boolean markceiling;
 
 static boolean maskedtexture;
-static long toptexture, bottomtexture, midtexture;
-static int numthicksides;
+static INT32 toptexture, bottomtexture, midtexture;
+static INT32 numthicksides;
 
 angle_t rw_normalangle;
 // angle to line origin
@@ -49,13 +49,13 @@ fixed_t rw_distance;
 //
 // regular wall
 //
-static int rw_x, rw_stopx;
+static INT32 rw_x, rw_stopx;
 static angle_t rw_centerangle;
 static fixed_t rw_offset;
 static fixed_t rw_offset2; // for splats
 static fixed_t rw_scale, rw_scalestep;
 static fixed_t rw_midtexturemid, rw_toptexturemid, rw_bottomtexturemid;
-static int worldtop, worldbottom, worldhigh, worldlow;
+static INT32 worldtop, worldbottom, worldhigh, worldlow;
 static fixed_t pixhigh, pixlow, pixhighstep, pixlowstep;
 static fixed_t topfrac, topstep;
 static fixed_t bottomfrac, bottomstep;
@@ -73,7 +73,7 @@ static short last_floorclip[MAXVIDWIDTH];
 
 static void R_DrawSplatColumn(column_t *column)
 {
-	int topscreen, bottomscreen;
+	INT32 topscreen, bottomscreen;
 	fixed_t basetexturemid;
 
 	basetexturemid = dc_texturemid;
@@ -110,7 +110,7 @@ static void R_DrawWallSplats(void)
 	wallsplat_t *splat;
 	seg_t *seg;
 	angle_t angle, angle1, angle2;
-	int x1, x2;
+	INT32 x1, x2;
 	size_t pindex;
 	column_t *col;
 	patch_t *patch;
@@ -127,8 +127,8 @@ static void R_DrawWallSplats(void)
 	{
 		angle1 = R_PointToAngle(splat->v1.x, splat->v1.y);
 		angle2 = R_PointToAngle(splat->v2.x, splat->v2.y);
-		angle1 = (angle1 - viewangle + ANG90)>>ANGLETOFINESHIFT;
-		angle2 = (angle2 - viewangle + ANG90)>>ANGLETOFINESHIFT;
+		angle1 = (angle1 - viewangle + ANGLE_90)>>ANGLETOFINESHIFT;
+		angle2 = (angle2 - viewangle + ANGLE_90)>>ANGLETOFINESHIFT;
 		// out of the viewangletox lut
 		/// \todo clip it to the screen
 		if (angle1 > FINEANGLES/2 || angle2 > FINEANGLES/2)
@@ -231,11 +231,11 @@ static void R_DrawWallSplats(void)
 //  way we don't have to store extra post_t info with each column for
 //  multi-patch textures. They are not normally needed as multi-patch
 //  textures don't have holes in it. At least not for now.
-static int column2s_length; // column->length : for multi-patch on 2sided wall = texture->height
+static INT32 column2s_length; // column->length : for multi-patch on 2sided wall = texture->height
 
 static void R_Render2sidedMultiPatchColumn(column_t *column)
 {
-	int topscreen, bottomscreen;
+	INT32 topscreen, bottomscreen;
 
 	topscreen = sprtopscreen; // + spryscale*column->topdelta;  topdelta is 0 for the wall
 	bottomscreen = topscreen + spryscale * column2s_length;
@@ -268,18 +268,18 @@ static void R_Render2sidedMultiPatchColumn(column_t *column)
 	}
 }
 
-void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
+void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 {
 	size_t pindex;
 	column_t *col;
-	int lightnum, texnum, i;
+	INT32 lightnum, texnum, i;
 	fixed_t height, realbot;
 	lightlist_t *light;
 	r_lightlist_t *rlight;
 	void (*colfunc_2s)(column_t *);
 	line_t *ldef;
 	sector_t *front, *back;
-	int times, repeats;
+	INT32 times, repeats;
 
 	// Calculate light table.
 	// Use different light tables
@@ -606,8 +606,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
 					if (numffloors)
 					{
-						int top = my_yl;
-						int bottom = my_yh;
+						INT32 top = my_yl;
+						INT32 bottom = my_yh;
 
 						for (i = 0; i < numffloors; i++)
 						{
@@ -616,7 +616,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 
 							if (ffloor[i].height < viewz)
 							{
-								int top_w = ffloor[i].plane->top[dc_x];
+								INT32 top_w = ffloor[i].plane->top[dc_x];
 
 	//							CONS_Printf("Leveltime : %d\n", leveltime);
 	//							CONS_Printf("Top is %d, top_w is %d\n", top, top_w);
@@ -629,7 +629,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 							}
 							else if (ffloor[i].height > viewz)
 							{
-								int bottom_w = ffloor[i].plane->bottom[dc_x];
+								INT32 bottom_w = ffloor[i].plane->bottom[dc_x];
 
 								if (bottom_w > bottom)
 								{
@@ -653,15 +653,15 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 //
 // R_RenderThickSideRange
 // Renders all the thick sides in the given range.
-void R_RenderThickSideRange(drawseg_t *ds, int x1, int x2, ffloor_t *pfloor)
+void R_RenderThickSideRange(drawseg_t *ds, INT32 x1, INT32 x2, ffloor_t *pfloor)
 {
 	size_t          pindex;
 	column_t *      col;
-	int             lightnum;
-	long            texnum;
+	INT32             lightnum;
+	INT32            texnum;
 	sector_t        tempsec;
-	int             templight;
-	int             i, p;
+	INT32             templight;
+	INT32             i, p;
 	fixed_t         bottombounds = viewheight << FRACBITS;
 	fixed_t         topbounds = (con_clipviewtop - 1) << FRACBITS;
 	fixed_t         offsetvalue = 0;
@@ -686,7 +686,7 @@ void R_RenderThickSideRange(drawseg_t *ds, int x1, int x2, ffloor_t *pfloor)
 
 	if (pfloor->master->flags & ML_TFERLINE)
 	{
-		int linenum = curline->linedef-backsector->lines[0];
+		size_t linenum = curline->linedef-backsector->lines[0];
 		newline = pfloor->master->frontsector->lines[0] + linenum;
 		texnum = texturetranslation[sides[newline->sidenum[0]].midtexture];
 	}
@@ -856,8 +856,8 @@ void R_RenderThickSideRange(drawseg_t *ds, int x1, int x2, ffloor_t *pfloor)
 				lighttable_t **xwalllights;
 				fixed_t height;
 				fixed_t bheight = 0;
-				int solid = 0;
-				int lighteffect = 0;
+				INT32 solid = 0;
+				INT32 lighteffect = 0;
 
 				sprtopscreen = windowtop = (centeryfrac - FixedMul((dc_texturemid - offsetvalue), spryscale));
 				sprbotscreen = windowbottom = FixedMul(*pfloor->topheight - *pfloor->bottomheight, spryscale) + sprtopscreen;
@@ -996,6 +996,15 @@ void R_RenderThickSideRange(drawseg_t *ds, int x1, int x2, ffloor_t *pfloor)
 			if (pfloor->flags & FF_FOG && pfloor->master->frontsector->extra_colormap)
 				dc_colormap = pfloor->master->frontsector->extra_colormap->colormap + (dc_colormap - colormaps);
 
+			//Handle over/underflows before they happen.  This fixes the textures part of the FOF rendering bug.
+			//...for the most part, anyway.
+			if (((signed)dc_texturemid > 0 && (spryscale>>FRACBITS > MAXINT / (signed)dc_texturemid))
+			 || ((signed)dc_texturemid < 0 && (spryscale) && (signed)(dc_texturemid)>>FRACBITS < (MININT / spryscale)))
+			{
+				spryscale += rw_scalestep;
+				continue;
+			}
+
 			sprtopscreen = windowtop = (centeryfrac - FixedMul((dc_texturemid - offsetvalue), spryscale));
 			sprbotscreen = windowbottom = FixedMul(*pfloor->topheight - *pfloor->bottomheight, spryscale) + sprtopscreen;
 			dc_iscale = 0xffffffffu / (unsigned)spryscale;
@@ -1026,9 +1035,9 @@ void R_RenderThickSideRange(drawseg_t *ds, int x1, int x2, ffloor_t *pfloor)
 //#define TIMING
 #ifdef TIMING
 #include "p5prof.h"
-long long mycount;
-long long mytotal = 0;
-unsigned long   nombre = 100000;
+INT64 mycount;
+INT64 mytotal = 0;
+unsigned INT32 nombre = 100000;
 //static   char runtest[10][80];
 #endif
 //profile stuff ---------------------------------------------------------
@@ -1038,14 +1047,14 @@ static void R_RenderSegLoop (void)
 {
 	angle_t angle;
 	size_t  pindex;
-	int     yl;
-	int     yh;
+	INT32     yl;
+	INT32     yh;
 
-	int     mid;
+	INT32     mid;
 	fixed_t texturecolumn = 0;
-	int     top;
-	int     bottom;
-	int     i;
+	INT32     top;
+	INT32     bottom;
+	INT32     i;
 
 	for (; rw_x < rw_stopx; rw_x++)
 	{
@@ -1118,8 +1127,8 @@ static void R_RenderSegLoop (void)
 
 				if (ffloor[i].height < viewz)
 				{
-					int top_w = (ffloor[i].f_frac >> HEIGHTBITS) + 1;
-					int bottom_w = ffloor[i].f_clip[rw_x];
+					INT32 top_w = (ffloor[i].f_frac >> HEIGHTBITS) + 1;
+					INT32 bottom_w = ffloor[i].f_clip[rw_x];
 
 					if (top_w < top)
 						top_w = top;
@@ -1135,8 +1144,8 @@ static void R_RenderSegLoop (void)
 				}
 				else if (ffloor[i].height > viewz)
 				{
-					int top_w = ffloor[i].c_clip[rw_x] + 1;
-					int bottom_w = (ffloor[i].f_frac >> HEIGHTBITS);
+					INT32 top_w = ffloor[i].c_clip[rw_x] + 1;
+					INT32 bottom_w = (ffloor[i].f_frac >> HEIGHTBITS);
 
 					if (top_w < top)
 						top_w = top;
@@ -1181,7 +1190,7 @@ static void R_RenderSegLoop (void)
 		lighttable_t **xwalllights;
 		for (i = 0; i < dc_numlights; i++)
 		{
-			int lightnum;
+			INT32 lightnum;
 			lightnum = (dc_lightlist[i].lightlevel >> LIGHTSEGSHIFT);
 
 			if (dc_lightlist[i].extra_colormap)
@@ -1234,8 +1243,8 @@ static void R_RenderSegLoop (void)
 		mytotal += mycount;      //64bit add
 
 		if (nombre--==0)
-			I_Error("R_DrawColumn CPU Spy reports: 0x%d %d\n", *((int *)&mytotal+1),
-				(int)mytotal);
+			I_Error("R_DrawColumn CPU Spy reports: 0x%d %d\n", *((INT32 *)&mytotal+1),
+				(INT32)mytotal);
 #endif
 		//profile stuff ---------------------------------------------------------
 
@@ -1326,7 +1335,7 @@ static void R_RenderSegLoop (void)
 
 			if (ffloor[i].mark)
 			{
-				int y_w = ffloor[i].b_frac >> HEIGHTBITS;
+				INT32 y_w = ffloor[i].b_frac >> HEIGHTBITS;
 
 				ffloor[i].f_clip[rw_x] = ffloor[i].c_clip[rw_x] = (short)y_w;
 				ffloor[i].b_frac += ffloor[i].b_step;
@@ -1346,14 +1355,14 @@ static void R_RenderSegLoop (void)
 // A wall segment will be drawn
 //  between start and stop pixels (inclusive).
 //
-void R_StoreWallRange(int start, int stop)
+void R_StoreWallRange(INT32 start, INT32 stop)
 {
 	fixed_t       hyp;
 	fixed_t       sineval;
 	angle_t       distangle, offsetangle;
 	fixed_t       vtop;
-	int           lightnum;
-	int           i, p;
+	INT32           lightnum;
+	INT32           i, p;
 	lightlist_t   *light;
 	r_lightlist_t *rlight;
 	fixed_t       lheight;
@@ -1379,13 +1388,13 @@ void R_StoreWallRange(int start, int stop)
 	linedef = curline->linedef;
 
 	// calculate rw_distance for scale calculation
-	rw_normalangle = curline->angle + ANG90;
-	offsetangle = abs((int)(rw_normalangle-rw_angle1));
+	rw_normalangle = curline->angle + ANGLE_90;
+	offsetangle = abs((INT32)(rw_normalangle-rw_angle1));
 
-	if (offsetangle > ANG90)
-		offsetangle = ANG90;
+	if (offsetangle > ANGLE_90)
+		offsetangle = ANGLE_90;
 
-	distangle = ANG90 - offsetangle;
+	distangle = ANGLE_90 - offsetangle;
 	hyp = R_PointToDist (curline->v1->x, curline->v1->y);
 	sineval = FINESINE(distangle>>ANGLETOFINESHIFT);
 	rw_distance = FixedMul (hyp, sineval);
@@ -1642,9 +1651,12 @@ void R_StoreWallRange(int start, int stop)
 			if ((linedef->flags & (ML_DONTPEGTOP) && (linedef->flags & ML_DONTPEGBOTTOM))
 				&& linedef->sidenum[1] != 0xffff)
 			{
-				// Special case... use offsets from 2nd side
+				// Special case... use offsets from 2nd side but only if it has a texture.
 				side_t *def = &sides[linedef->sidenum[1]];
 				toptexture = texturetranslation[def->toptexture];
+
+				if (!toptexture) //Second side has no texture, use the first side's instead.
+					toptexture = texturetranslation[sidedef->toptexture];
 
 				if (linedef->flags & ML_DONTPEGTOP)
 				{
@@ -1864,22 +1876,22 @@ void R_StoreWallRange(int start, int stop)
 	{
 		offsetangle = rw_normalangle-rw_angle1;
 
-		if (offsetangle > ANG180)
+		if (offsetangle > ANGLE_180)
 			offsetangle = -(signed)offsetangle;
 
-		if (offsetangle > ANG90)
-			offsetangle = ANG90;
+		if (offsetangle > ANGLE_90)
+			offsetangle = ANGLE_90;
 
 		sineval = FINESINE(offsetangle >>ANGLETOFINESHIFT);
 		rw_offset = FixedMul (hyp, sineval);
 
-		if (rw_normalangle-rw_angle1 < ANG180)
+		if (rw_normalangle-rw_angle1 < ANGLE_180)
 			rw_offset = -rw_offset;
 
 		/// don't use texture offset for splats
 		rw_offset2 = rw_offset + curline->offset;
 		rw_offset += sidedef->textureoffset + curline->offset;
-		rw_centerangle = ANG90 + viewangle - rw_normalangle;
+		rw_centerangle = ANGLE_90 + viewangle - rw_normalangle;
 
 		// calculate light table
 		//  use different light tables

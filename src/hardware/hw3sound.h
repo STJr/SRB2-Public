@@ -43,19 +43,19 @@ typedef enum
 	CT_AMBIENT,
 } channel_type_t;
 
-extern int  hws_mode;           // Current sound mode
+extern INT32  hws_mode;           // Current sound mode
 
 #if defined (HW3DS) || defined (DOXYGEN)
-int HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev);
+INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev);
 #endif
 void HW3S_Shutdown(void);
-int HW3S_GetVersion(void);
+INT32 HW3S_GetVersion(void);
 
 // Common case - start 3D or 2D source
 void HW3S_StartSound(const void *origin, sfxenum_t sfx_id);
 
 // Special cases of 3D sources
-void S_StartAmbientSound(sfxenum_t sfx_id, int volume);
+void S_StartAmbientSound(sfxenum_t sfx_id, INT32 volume);
 void S_StartAttackSound(const void *origin, sfxenum_t sfx_id);
 void S_StartScreamSound(const void *origin, sfxenum_t sfx_id);
 
@@ -68,7 +68,7 @@ void S_StartScreamSound(const void *origin, sfxenum_t sfx_id);
 // vol         - sound volume
 // pitch       - sound pitching value
 // Returns:    - sound id
-int HW3S_I_StartSound(const void *origin, source3D_data_t *source_parm, channel_type_t channel, sfxenum_t sfx_id, int vol, int pitch, int sep);
+INT32 HW3S_I_StartSound(const void *origin, source3D_data_t *source_parm, channel_type_t channel, sfxenum_t sfx_id, INT32 vol, INT32 pitch, INT32 sep);
 
 void HW3S_StopSoundByNum(sfxenum_t sfxnum);
 void HW3S_StopSound(void *origin);
@@ -79,12 +79,12 @@ void HW3S_EndFrameUpdate(void);
 
 void HW3S_UpdateSources(void);
 
-void HW3S_SetSfxVolume(int volume);
+void HW3S_SetSfxVolume(INT32 volume);
 
 // Utility functions
-int  HW3S_SoundIsPlaying(int handle);
+INT32  HW3S_SoundIsPlaying(INT32 handle);
 void HW3S_SetSourcesNum(void);
-int  HW3S_SoundPlaying(void *origin, sfxenum_t id);
+INT32  HW3S_SoundPlaying(void *origin, sfxenum_t id);
 
 void *HW3S_GetSfx(sfxinfo_t *sfx);
 void HW3S_FreeSfx(sfxinfo_t *sfx);
@@ -97,7 +97,7 @@ void HW3S_FreeSfx(sfxinfo_t *sfx);
 
 #endif // HW3SOUND
 
-int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source,
-	int *vol, int *sep, int *pitch, sfxinfo_t *sfxinfo);
+INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source,
+	INT32 *vol, INT32 *sep, INT32 *pitch, sfxinfo_t *sfxinfo);
 
 #endif // __HW3_SOUND_H__

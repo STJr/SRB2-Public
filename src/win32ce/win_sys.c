@@ -1542,7 +1542,7 @@ static HRESULT SetForceTacile(LPDIRECTINPUTEFFECT SDIE, const JoyFF_t *FF,DWORD 
 	{
 		double dMagnitude;
 		dMagnitude                  = (double)Magnitude;
-		dMagnitude                  = sqrt(dMagnitude * dMagnitude + dMagnitude * dMagnitude);
+		dMagnitude                  = hypot(dMagnitude, dMagnitude);
 		Magnitude                   = (DWORD)dMagnitude;
 		rglDirection[0]             = FF->ForceX;
 		rglDirection[1]             = FF->ForceY;
@@ -3404,7 +3404,7 @@ void I_GetDiskFreeSpace(INT64* freespace)
 {
 	static MyFunc pfnGetDiskFreeSpaceEx = NULL;
 	static boolean testwin95 = false;
-	INT64 usedbytes;
+	ULARGE_INTEGER usedbytes, lfrespace;
 
 	if (!testwin95)
 	{
@@ -3416,11 +3416,10 @@ void I_GetDiskFreeSpace(INT64* freespace)
 	}
 	if (pfnGetDiskFreeSpaceEx)
 	{
-		if (!pfnGetDiskFreeSpaceEx(NULL, (PULARGE_INTEGER)freespace,
-			(PULARGE_INTEGER)&usedbytes, NULL))
-		{
+		if (pfnGetDiskFreeSpaceEx(NULL, &lfreespace, &usedbytes, NULL))
+			*freespace = lfreespace.QuadPart;
+		else
 			*freespace = MAXINT;
-		}
 	}
 	else
 	{

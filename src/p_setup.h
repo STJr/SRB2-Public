@@ -26,7 +26,7 @@
 // Player spawn spots for deathmatch.
 #define MAX_DM_STARTS 64
 extern mapthing_t *deathmatchstarts[MAX_DM_STARTS];
-extern int numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
+extern INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
 
 extern boolean levelloading;
 
@@ -41,23 +41,23 @@ typedef struct
 
 	// for flat animation
 	lumpnum_t baselumpnum;
-	int animseq; // start pos. in the anim sequence
-	int numpics;
-	int speed;
+	INT32 animseq; // start pos. in the anim sequence
+	INT32 numpics;
+	INT32 speed;
 } levelflat_t;
 
 extern size_t numlevelflats;
 extern levelflat_t *levelflats;
-long P_AddLevelFlat(const char *flatname, levelflat_t *levelflat);
+INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat);
 
 extern size_t nummapthings;
 extern mapthing_t *mapthings;
 
-void P_SetupLevelSky(int skynum);
+void P_SetupLevelSky(INT32 skynum);
 void P_SpawnSecretItems(boolean loademblems);
 void P_LoadThingsOnly(void);
 void P_RehitStarposts(void);
-boolean P_SetupLevel(int map, boolean skipprecip);
+boolean P_SetupLevel(INT32 map, boolean skipprecip);
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname);
 boolean P_DelWadFile(void);
 boolean P_RunSOC(const char *socfilename);

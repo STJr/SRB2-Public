@@ -99,7 +99,7 @@
 // Defines
 //
 
-#define BYTEANGLEMUL     (ANG90/64)
+#define BYTEANGLEMUL     (ANGLE_11hh/8)
 
 //
 // Globals
@@ -107,7 +107,7 @@
 
 // The Polyobjects
 polyobj_t *PolyObjects;
-int numPolyObjects;
+INT32 numPolyObjects;
 
 // Polyobject Blockmap -- initialized in P_LoadBlockMap
 polymaplink_t **polyblocklinks;
@@ -249,9 +249,9 @@ boolean P_BBoxInsidePolyobj(polyobj_t *po, fixed_t *bbox)
 // Finds the 'polyobject settings' linedef that shares the same tag
 // as the polyobj linedef to get the settings for it.
 //
-void Polyobj_GetInfo(short tag, int *polyID, int *mirrorID, unsigned short *exparg)
+void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *mirrorID, unsigned short *exparg)
 {
-	int i = P_FindSpecialLineFromTag(POLYINFO_SPECIALNUM, tag, -1);
+	INT32 i = P_FindSpecialLineFromTag(POLYINFO_SPECIALNUM, tag, -1);
 
 	if (i == -1)
 		I_Error("Polyobject (tag: %d) needs line %d for information.\n", tag, POLYINFO_SPECIALNUM);
@@ -489,7 +489,7 @@ newseg:
 typedef struct segitem_s
 {
 	seg_t *seg;
-	int   num;
+	INT32   num;
 } segitem_t;
 
 //
@@ -522,7 +522,7 @@ static void Polyobj_findExplicit(polyobj_t *po)
 	// first loop: save off all segs with polyobject's id number
 	for (i = 0; i < numsegs; ++i)
 	{
-		int polyID, parentID;
+		INT32 polyID, parentID;
 
 		if (segs[i].linedef->special != POLYOBJ_EXPLICIT_LINE)
 			continue;
@@ -569,7 +569,7 @@ static void Polyobj_findExplicit(polyobj_t *po)
 //
 // Sets up a Polyobject.
 //
-static void Polyobj_spawnPolyObj(int num, mobj_t *spawnSpot, int id)
+static void Polyobj_spawnPolyObj(INT32 num, mobj_t *spawnSpot, INT32 id)
 {
 	size_t i;
 	polyobj_t *po = &PolyObjects[num];
@@ -598,7 +598,7 @@ static void Polyobj_spawnPolyObj(int num, mobj_t *spawnSpot, int id)
 	for (i = 0; i < numsegs; ++i)
 	{
 		seg_t *seg = &segs[i];
-		int polyID, parentID;
+		INT32 polyID, parentID;
 
 		if (seg->linedef->special != POLYOBJ_START_LINE)
 			continue;
@@ -638,7 +638,7 @@ static void Polyobj_spawnPolyObj(int num, mobj_t *spawnSpot, int id)
 	}
 
 	if (cv_debug)
-		CONS_Printf("PO ID: %d; Num verts: %d\n", po->id, po->numVertices);
+		CONS_Printf("PO ID: %d; Num verts: %"PRIdS"\n", po->id, po->numVertices);
 
 	// if an error occurred above, quit processing this object
 	if (po->isBad)
@@ -678,7 +678,7 @@ static void Polyobj_spawnPolyObj(int num, mobj_t *spawnSpot, int id)
 	}
 	else
 	{
-		int hashkey = po->id % numPolyObjects;
+		INT32 hashkey = po->id % numPolyObjects;
 		po->next = PolyObjects[hashkey].first;
 		PolyObjects[hashkey].first = num;
 	}
@@ -890,7 +890,7 @@ static void Polyobj_removeFromBlockmap(polyobj_t *po)
 {
 	polymaplink_t *rover;
 	fixed_t *blockbox = po->blockbox;
-	int x, y;
+	INT32 x, y;
 
 	// don't bother trying to unlink one that's not linked
 	if (!po->linked)
@@ -957,7 +957,7 @@ static void Polyobj_pushThing(polyobj_t *po, line_t *line, mobj_t *mo)
 	vertex_t closest;
 
 	// calculate angle of line and subtract 90 degrees to get normal
-	lineangle = R_PointToAngle2(0, 0, line->dx, line->dy) - ANG90;
+	lineangle = R_PointToAngle2(0, 0, line->dx, line->dy) - ANGLE_90;
 	lineangle >>= ANGLETOFINESHIFT;
 	momx = FixedMul(po->thrust, FINECOSINE(lineangle));
 	momy = FixedMul(po->thrust, FINESINE(lineangle));
@@ -989,8 +989,8 @@ static void Polyobj_pushThing(polyobj_t *po, line_t *line, mobj_t *mo)
 //
 static void Polyobj_carryThings(polyobj_t *po, fixed_t dx, fixed_t dy)
 {
-	static long pomovecount = 0;
-	int x, y;
+	static INT32 pomovecount = 0;
+	INT32 x, y;
 
 	pomovecount++;
 
@@ -1043,11 +1043,11 @@ static void Polyobj_carryThings(polyobj_t *po, fixed_t dx, fixed_t dy)
 // Checks for things that are in the way of a polyobject line move.
 // Returns true if something was hit.
 //
-static int Polyobj_clipThings(polyobj_t *po, line_t *line)
+static INT32 Polyobj_clipThings(polyobj_t *po, line_t *line)
 {
-	int hitflags = 0;
+	INT32 hitflags = 0;
 	fixed_t linebox[4];
-	int x, y;
+	INT32 x, y;
 
 	if (!(po->flags & POF_SOLID))
 		return hitflags;
@@ -1111,7 +1111,7 @@ static boolean Polyobj_moveXY(polyobj_t *po, fixed_t x, fixed_t y)
 {
 	size_t i;
 	vertex_t vec;
-	int hitflags = 0;
+	INT32 hitflags = 0;
 
 	vec.x = x;
 	vec.y = y;
@@ -1166,7 +1166,7 @@ static boolean Polyobj_moveXY(polyobj_t *po, fixed_t x, fixed_t y)
 // http://www.inversereality.org/tutorials/graphics%20programming/2dtransformations.html
 // It is, of course, just a vector-matrix multiplication.
 //
-static inline void Polyobj_rotatePoint(vertex_t *v, const vertex_t *c, int ang)
+static inline void Polyobj_rotatePoint(vertex_t *v, const vertex_t *c, angle_t ang)
 {
 	vertex_t tmp = *v;
 
@@ -1229,9 +1229,10 @@ static void Polyobj_rotateLine(line_t *ld)
 //
 static boolean Polyobj_rotate(polyobj_t *po, angle_t delta)
 {
-	size_t i, angle;
+	size_t i;
+	angle_t angle;
 	vertex_t origin;
-	int hitflags = 0;
+	INT32 hitflags = 0;
 
 	// don't move bad polyobjects
 	if (po->isBad)
@@ -1300,9 +1301,9 @@ static boolean Polyobj_rotate(polyobj_t *po, angle_t delta)
 // Retrieves a polyobject by its numeric id using hashing.
 // Returns NULL if no such polyobject exists.
 //
-polyobj_t *Polyobj_GetForNum(int id)
+polyobj_t *Polyobj_GetForNum(INT32 id)
 {
-	int curidx  = PolyObjects[id % numPolyObjects].first;
+	INT32 curidx  = PolyObjects[id % numPolyObjects].first;
 
 	while (curidx != numPolyObjects && PolyObjects[curidx].id != id)
 		curidx = PolyObjects[curidx].next;
@@ -1329,7 +1330,7 @@ static polyobj_t *Polyobj_GetParent(polyobj_t *po)
 // Iteratively retrieves the children POs of a parent,
 // sorta like P_FindSectorSpecialFromTag.
 //
-static polyobj_t *Polyobj_GetChild(polyobj_t *po, int *start)
+static polyobj_t *Polyobj_GetChild(polyobj_t *po, INT32 *start)
 {
 	for (; *start < numPolyObjects; (*start)++)
 	{
@@ -1359,7 +1360,7 @@ void Polyobj_InitLevel(void)
 	mqueue_t    spawnqueue;
 	mqueue_t    anchorqueue;
 	mobjqitem_t *qitem;
-	int i, numAnchors = 0;
+	INT32 i, numAnchors = 0;
 
 	M_QueueInit(&spawnqueue);
 	M_QueueInit(&anchorqueue);
@@ -1437,7 +1438,7 @@ void Polyobj_InitLevel(void)
 	printf("DEBUG: numPolyObjects = %d\n", numPolyObjects);
 	for (i = 0; i < numPolyObjects; ++i)
 	{
-		int j;
+		INT32 j;
 		polyobj_t *po = &PolyObjects[i];
 
 		printf("polyobj %d:\n", i);
@@ -1530,7 +1531,7 @@ void T_PolyObjRotate(polyrotate_t *th)
 	// if distance == -1, this polyobject rotates perpetually
 	if (Polyobj_rotate(po, th->speed) && th->distance != -1)
 	{
-		int avel = abs(th->speed);
+		INT32 avel = abs(th->speed);
 
 		// decrement distance by the amount it moved
 		th->distance -= avel;
@@ -1563,7 +1564,7 @@ void T_PolyObjRotate(polyrotate_t *th)
 //
 // Calculates the speed components from the desired resultant velocity.
 //
-FUNCINLINE static ATTRINLINE void Polyobj_componentSpeed(int resVel, int angle,
+FUNCINLINE static ATTRINLINE void Polyobj_componentSpeed(INT32 resVel, INT32 angle,
                                             fixed_t *xVel, fixed_t *yVel)
 {
 	*xVel = FixedMul(resVel, FINECOSINE(angle));
@@ -1601,7 +1602,7 @@ void T_PolyObjMove(polymove_t *th)
 	// move the polyobject one step along its movement angle
 	if (Polyobj_moveXY(po, th->momx, th->momy))
 	{
-		int avel = abs(th->speed);
+		INT32 avel = abs(th->speed);
 
 		// decrement distance by the amount it moved
 		th->distance -= avel;
@@ -1643,7 +1644,7 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 	thinker_t *wp;
 	fixed_t adjustx, adjusty, adjustz;
 	fixed_t momx, momy, momz, dist;
-	int start;
+	INT32 start;
 	polyobj_t *po = Polyobj_GetForNum(th->polyObjNum);
 	polyobj_t *oldpo = po;
 
@@ -1852,7 +1853,7 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 		if (waypoint)
 		{
 			if (cv_debug)
-				CONS_Printf("Found waypoint (sequence %ld, number %ld).\n", waypoint->threshold, waypoint->health);
+				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
 
 			target = waypoint;
 			th->pointnum = target->health;
@@ -1948,7 +1949,7 @@ void T_PolyDoorSlide(polyslidedoor_t *th)
 	// move the polyobject one step along its movement angle
 	if (Polyobj_moveXY(po, th->momx, th->momy))
 	{
-		int avel = abs(th->speed);
+		INT32 avel = abs(th->speed);
 
 		// decrement distance by the amount it moved
 		th->distance -= avel;
@@ -2054,7 +2055,7 @@ void T_PolyDoorSwing(polyswingdoor_t *th)
 	// if distance == -1, this polyobject rotates perpetually
 	if (Polyobj_rotate(po, th->speed) && th->distance != -1)
 	{
-		int avel = abs(th->speed);
+		INT32 avel = abs(th->speed);
 
 		// decrement distance by the amount it moved
 		th->distance -= avel;
@@ -2110,12 +2111,12 @@ void T_PolyDoorSwing(polyswingdoor_t *th)
 
 // Linedef Handlers
 
-int EV_DoPolyObjRotate(polyrotdata_t *prdata)
+INT32 EV_DoPolyObjRotate(polyrotdata_t *prdata)
 {
 	polyobj_t *po;
 	polyobj_t *oldpo;
 	polyrotate_t *th;
-	int start;
+	INT32 start;
 
 	if (!(po = Polyobj_GetForNum(prdata->polyObjNum)))
 	{
@@ -2142,14 +2143,14 @@ int EV_DoPolyObjRotate(polyrotdata_t *prdata)
 	th->polyObjNum = prdata->polyObjNum;
 
 	// use Hexen-style byte angles for speed and distance
-	th->speed = (prdata->speed * prdata->direction * (ANG45/45)) >> 3;
+	th->speed = (prdata->speed * prdata->direction * (ANGLE_45/45)) >> 3;
 
 	if (prdata->distance == 360)    // 360 means perpetual
 		th->distance = -1;
 	else if (prdata->distance == 0) // 0 means 360 degrees
 		th->distance = 0xffffffff - 1;
 	else
-		th->distance = prdata->distance * (ANG45/45);
+		th->distance = prdata->distance * (ANGLE_45/45);
 
 	// set polyobject's thrust
 	po->thrust = abs(th->speed) >> 8;
@@ -2171,12 +2172,12 @@ int EV_DoPolyObjRotate(polyrotdata_t *prdata)
 	return 1;
 }
 
-int EV_DoPolyObjMove(polymovedata_t *pmdata)
+INT32 EV_DoPolyObjMove(polymovedata_t *pmdata)
 {
 	polyobj_t *po;
 	polyobj_t *oldpo;
 	polymove_t *th;
-	int start;
+	INT32 start;
 
 	if (!(po = Polyobj_GetForNum(pmdata->polyObjNum)))
 	{
@@ -2228,7 +2229,7 @@ int EV_DoPolyObjMove(polymovedata_t *pmdata)
 	return 1;
 }
 
-int EV_DoPolyObjWaypoint(polywaypointdata_t *pwdata)
+INT32 EV_DoPolyObjWaypoint(polywaypointdata_t *pwdata)
 {
 	polyobj_t *po;
 	polywaypoint_t *th;
@@ -2392,7 +2393,7 @@ static void Polyobj_doSlideDoor(polyobj_t *po, polydoordata_t *doordata)
 	polyslidedoor_t *th;
 	polyobj_t *oldpo;
 	angle_t angtemp;
-	int start;
+	INT32 start;
 
 	// allocate and add a new slide door thinker
 	th = Z_Malloc(sizeof(polyslidedoor_t), PU_LEVSPEC, NULL);
@@ -2415,7 +2416,7 @@ static void Polyobj_doSlideDoor(polyobj_t *po, polydoordata_t *doordata)
 	angtemp       = doordata->angle;
 	th->angle     = angtemp >> ANGLETOFINESHIFT;
 	th->initAngle = th->angle;
-	th->revAngle  = (angtemp + ANG180) >> ANGLETOFINESHIFT;
+	th->revAngle  = (angtemp + ANGLE_180) >> ANGLETOFINESHIFT;
 
 	Polyobj_componentSpeed(th->speed, th->angle, &th->momx, &th->momy);
 
@@ -2440,7 +2441,7 @@ static void Polyobj_doSwingDoor(polyobj_t *po, polydoordata_t *doordata)
 {
 	polyswingdoor_t *th;
 	polyobj_t *oldpo;
-	int start;
+	INT32 start;
 
 	// allocate and add a new swing door thinker
 	th = Z_Malloc(sizeof(polyswingdoor_t), PU_LEVSPEC, NULL);
@@ -2455,8 +2456,8 @@ static void Polyobj_doSwingDoor(polyobj_t *po, polydoordata_t *doordata)
 	th->closing      = false;
 	th->delay        = doordata->delay;
 	th->delayCount   = 0;
-	th->distance     = th->initDistance = doordata->distance * (ANG45/45);
-	th->speed        = (doordata->speed * (ANG45/45)) >> 3;
+	th->distance     = th->initDistance = doordata->distance * (ANGLE_45/45);
+	th->speed        = (doordata->speed * (ANGLE_45/45)) >> 3;
 	th->initSpeed    = th->speed;
 
 	// set polyobject's thrust
@@ -2476,7 +2477,7 @@ static void Polyobj_doSwingDoor(polyobj_t *po, polydoordata_t *doordata)
 		Polyobj_doSwingDoor(po, doordata);
 }
 
-int EV_DoPolyDoor(polydoordata_t *doordata)
+INT32 EV_DoPolyDoor(polydoordata_t *doordata)
 {
 	polyobj_t *po;
 
@@ -2555,13 +2556,13 @@ void T_PolyObjFlag(polymove_t *th)
 	Polyobj_attachToSubsec(po);     // relink to subsector
 }
 
-int EV_DoPolyObjFlag(line_t *pfdata)
+INT32 EV_DoPolyObjFlag(line_t *pfdata)
 {
 	polyobj_t *po;
 	polyobj_t *oldpo;
 	polymove_t *th;
 	size_t i;
-	int start;
+	INT32 start;
 
 	if (!(po = Polyobj_GetForNum(pfdata->tag)))
 	{

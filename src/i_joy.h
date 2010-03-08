@@ -48,10 +48,10 @@ struct JoyType_s
 {
 	/*! if true, we MUST Poll() to get new joystick data,
 	that is: we NEED the DIRECTINPUTDEVICE2 ! (watchout NT compatibility) */
-	int bJoyNeedPoll;
+	INT32 bJoyNeedPoll;
 	/*! this joystick is a gamepad, read: digital axes
 	if FALSE, interpret the joystick event data as JOYAXISRANGE (see above) */
-	int bGamepadStyle;
+	INT32 bGamepadStyle;
 
 };
 typedef struct JoyType_s JoyType_t;

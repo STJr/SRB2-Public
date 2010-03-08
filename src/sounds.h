@@ -66,16 +66,16 @@ struct sfxinfo_struct
 	const char *name;
 
 	// Sfx singularity (only one at a time)
-	int singularity;
+	INT32 singularity;
 
 	// Sfx priority
-	int priority;
+	INT32 priority;
 
 	// pitch if a link
-	int pitch;
+	INT32 pitch;
 
 	// volume if a link
-	int volume;
+	INT32 volume;
 
 	// sound data
 	void *data;
@@ -85,12 +85,12 @@ struct sfxinfo_struct
 
 	// sound that can be remapped for a skin, indexes skins[].skinsounds
 	// 0 up to (NUMSKINSOUNDS-1), -1 = not skin specifc
-	int skinsound;
+	INT32 skinsound;
 
 	// this is checked every second to see if sound
 	// can be thrown out (if 0, then decrement, if -1,
 	// then throw out, if > 0, then it is in use)
-	int usefulness;
+	INT32 usefulness;
 
 	// lump number of sfx
 	lumpnum_t lumpnum;
@@ -114,7 +114,7 @@ typedef struct
 	void *data;
 
 	// music handle once registered
-	int handle;
+	INT32 handle;
 } musicinfo_t;
 
 // the complete set of sound effects
@@ -1515,7 +1515,7 @@ typedef enum
 
 
 void S_InitRuntimeSounds(void);
-sfxenum_t S_AddSoundFx(const char *name, int singularity, int pitch, boolean skinsound);
+sfxenum_t S_AddSoundFx(const char *name, INT32 singularity, INT32 pitch, boolean skinsound);
 void S_RemoveSoundFx(sfxenum_t id);
 
 #endif

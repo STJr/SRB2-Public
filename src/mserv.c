@@ -129,9 +129,9 @@
   */
 typedef struct
 {
-	long id;                  ///< Unused?
-	long type;                ///< Type of message.
-	long length;              ///< Length of the message.
+	INT32 id;                  ///< Unused?
+	INT32 type;                ///< Type of message.
+	UINT32 length;              ///< Length of the message.
 	char buffer[PACKET_SIZE]; ///< Actual contents of the message.
 } ATTRPACK msg_t;
 
@@ -177,7 +177,7 @@ typedef struct
 
 #if !defined (__APPLE_CC__)  && !defined(HAVE_LWIP) && (defined (_WIN32) || defined (_WIN32_WCE) || defined (__OS2__) || defined (SOLARIS) || defined(_arch_dreamcast)) && !defined (NONET)
 // it seems windows doesn't define that... maybe some other OS? OS/2
-static int inet_aton(const char *hostname, struct in_addr *addr)
+static INT32 inet_aton(const char *hostname, struct in_addr *addr)
 {
 	return (addr->s_addr = inet_addr(hostname)) != htonl(INADDR_NONE);
 }
@@ -187,9 +187,6 @@ static void Command_Listserv_f(void);
 static void InternetServer_OnChange(void);
 static void MasterServer_OnChange(void);
 static void ServerName_OnChange(void);
-#ifndef NONET
-static int recvfull(int s, char *buf, int len, int flags);
-#endif
 
 #define DEF_PORT "28900"
 consvar_t cv_internetserver = {"internetserver", "No", 0, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -198,7 +195,7 @@ consvar_t cv_servername = {"servername", "SRB2 server", CV_SAVE, NULL, ServerNam
 
 static enum { MSCS_NONE, MSCS_WAITING, MSCS_REGISTERED, MSCS_FAILED } con_state = MSCS_NONE;
 
-static int msnode = -1;
+static INT32 msnode = -1;
 #define current_port sock_port
 
 #if (defined (_WIN32) || defined (_WIN32_WCE) || defined (_WIN32)) && !defined (NONET)
@@ -206,9 +203,17 @@ typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
 #else
-typedef unsigned int SOCKET_TYPE;
+#if defined (__unix__) || defined (__APPLE__)
+typedef int SOCKET_TYPE;
+#else
+typedef unsigned long SOCKET_TYPE;
+#endif
 #define BADSOCKET (SOCKET_TYPE)(~0)
 #define ERRSOCKET (-1)
+#endif
+
+#if defined (WATTCP) || defined (_WIN32)
+typedef int socklen_t;
 #endif
 
 #ifndef NONET
@@ -216,6 +221,7 @@ static SOCKET_TYPE socket_fd = BADSOCKET; // WINSOCK socket
 static struct sockaddr_in addr;
 static struct timeval select_timeout;
 static fd_set wset;
+static size_t recvfull(SOCKET_TYPE s, char *buf, size_t len, int flags);
 #endif
 
 /** Adds variables and commands relating to the master server.
@@ -247,22 +253,22 @@ static void CloseConnection(void)
 //
 // MS_Write():
 //
-static int MS_Write(msg_t *msg)
+static INT32 MS_Write(msg_t *msg)
 {
 #ifdef NONET
 	msg = NULL;
 	return MS_WRITE_ERROR;
 #else
-	int len;
+	size_t len;
 
-	if (msg->length < 0)
-		msg->length = (long)strlen(msg->buffer);
+	if (msg->length == 0)
+		msg->length = (INT32)strlen(msg->buffer);
 	len = msg->length + HEADER_SIZE;
 
 	msg->type = htonl(msg->type);
 	msg->length = htonl(msg->length);
 
-	if (send(socket_fd, (char *)msg, len, 0) != len)
+	if ((size_t)send(socket_fd, (char *)msg, (int)len, 0) != len)
 		return MS_WRITE_ERROR;
 	return 0;
 #endif
@@ -271,7 +277,7 @@ static int MS_Write(msg_t *msg)
 //
 // MS_Read():
 //
-static int MS_Read(msg_t *msg)
+static INT32 MS_Read(msg_t *msg)
 {
 #ifdef NONET
 	msg = NULL;
@@ -294,10 +300,10 @@ static int MS_Read(msg_t *msg)
 
 /** Gets a list of game servers from the master server.
   */
-static int GetServersList(void)
+static INT32 GetServersList(void)
 {
 	msg_t msg;
-	int count = 0;
+	INT32 count = 0;
 
 	msg.type = GET_SERVER_MSG;
 	msg.length = 0;
@@ -321,10 +327,10 @@ static int GetServersList(void)
 
 /** Get the MOTD from the master server.
   */
-static inline int GetMSMOTD(void)
+static inline INT32 GetMSMOTD(void)
 {
 	msg_t msg;
-	int count = 0;
+	INT32 count = 0;
 
 	msg.type = GET_MOTD_MSG;
 	msg.length = 0;
@@ -350,7 +356,7 @@ static inline int GetMSMOTD(void)
 // MS_GetIP()
 //
 #ifndef NONET
-static int MS_GetIP(const char *hostname)
+static INT32 MS_GetIP(const char *hostname)
 {
 	struct hostent *host_ent;
 	if (!inet_aton(hostname, (void *)&addr.sin_addr))
@@ -359,7 +365,7 @@ static int MS_GetIP(const char *hostname)
 		host_ent = gethostbyname(hostname);
 		if (!host_ent)
 			return MS_GETHOSTBYNAME_ERROR;
-		memcpy(&addr.sin_addr, host_ent->h_addr_list[0], sizeof (struct in_addr));
+		M_Memcpy(&addr.sin_addr, host_ent->h_addr_list[0], sizeof (struct in_addr));
 	}
 	return 0;
 }
@@ -368,14 +374,15 @@ static int MS_GetIP(const char *hostname)
 //
 // MS_Connect()
 //
-static int MS_Connect(const char *ip_addr, const char *str_port, int async)
+static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 {
 #ifdef NONET
 	str_port = ip_addr = NULL;
 	async = MS_CONNECT_ERROR;
 	return async;
 #else
-	I_InitTcpNetwork();
+	socklen_t j = (socklen_t)sizeof(addr);
+//	I_InitTcpNetwork(); this is already done on startup in D_SRB2Main()
 	if (!I_InitTcpDriver()) // this is done only if not already done
 		return MS_SOCKET_ERROR;
 	memset(&addr, 0, sizeof (addr));
@@ -399,7 +406,7 @@ static int MS_Connect(const char *ip_addr, const char *str_port, int async)
 
 		ioctl(socket_fd, FIONBIO, &res);
 
-		if (connect(socket_fd, (void *)&addr, sizeof (addr)) == ERRSOCKET)
+		if (connect(socket_fd, (void *)&addr, j) == ERRSOCKET)
 		{
 #ifdef _WIN32 // humm, on win32/win64 it doesn't work with EINPROGRESS (stupid windows)
 			if (WSAGetLastError() != WSAEWOULDBLOCK)
@@ -417,7 +424,7 @@ static int MS_Connect(const char *ip_addr, const char *str_port, int async)
 		FD_SET(socket_fd, &wset);
 		select_timeout.tv_sec = 0, select_timeout.tv_usec = 0;
 	}
-	else if (connect(socket_fd, (void *)&addr, sizeof (addr)) == ERRSOCKET)
+	else if (connect(socket_fd, (void *)&addr, j) == ERRSOCKET)
 		return MS_CONNECT_ERROR;
 	return 0;
 #endif
@@ -428,7 +435,7 @@ const msg_server_t *GetShortServersList(void)
 {
 	static msg_server_t server_list[NUM_LIST_SERVER+1]; // +1 for easy test
 	msg_t msg;
-	int i;
+	INT32 i;
 
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
@@ -450,7 +457,7 @@ const msg_server_t *GetShortServersList(void)
 			CloseConnection();
 			return server_list;
 		}
-		memcpy(&server_list[i], msg.buffer, sizeof (msg_server_t));
+		M_Memcpy(&server_list[i], msg.buffer, sizeof (msg_server_t));
 		server_list[i].header.buffer[0] = 1;
 	}
 	CloseConnection();
@@ -487,9 +494,9 @@ static void Command_Listserv_f(void)
 	CloseConnection();
 }
 
-FUNCMATH static const char *int2str(int n)
+FUNCMATH static const char *int2str(INT32 n)
 {
-	int i;
+	INT32 i;
 	static char res[16];
 
 	res[15] = '\0';
@@ -501,7 +508,7 @@ FUNCMATH static const char *int2str(int n)
 }
 
 #ifndef NONET
-static int ConnectionFailed(void)
+static INT32 ConnectionFailed(void)
 {
 	con_state = MSCS_FAILED;
 	CONS_Printf("Connection to master server failed\n");
@@ -512,31 +519,27 @@ static int ConnectionFailed(void)
 
 /** Tries to register the local game server on the master server.
   */
-static int AddToMasterServer(void)
+static INT32 AddToMasterServer(void)
 {
 #ifndef NONET
-	static int retry = 0;
+	static INT32 retry = 0;
 	int i, res;
-#if defined (WATTCP) || defined (_WIN32)
-	int j;
-#else
 	socklen_t j;
-#endif
 	msg_t msg;
 	msg_server_t *info = (void *)msg.buffer;
 	fd_set tset;
 	time_t timestamp = time(NULL);
-	unsigned int signature;
+	UINT32 signature, tmp;
 	const char *insname;
 
-	memcpy(&tset, &wset, sizeof (tset));
+	M_Memcpy(&tset, &wset, sizeof (tset));
 	res = select(255, NULL, &tset, NULL, &select_timeout);
 	if (res != ERRSOCKET && !res)
 	{
 		if (retry++ > 30) // an about 30 second timeout
 		{
 			retry = 0;
-			CONS_Printf("\x81Timeout on masterserver\n");
+			CONS_Printf("Timeout on masterserver\n");
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -547,7 +550,7 @@ static int AddToMasterServer(void)
 	{
 		if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 		{
-			CONS_Printf("\x81Mastserver error on select #%d: %s\n", errno, strerror(errno));
+			CONS_Printf("Mastserver error on select #%d: %s\n", errno, strerror(errno));
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -555,19 +558,20 @@ static int AddToMasterServer(void)
 
 	// so, the socket is writable, but what does that mean, that the connection is
 	// ok, or bad... let see that!
-	j = sizeof (i);
+	j = (socklen_t)sizeof (i);
 	getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, (char *)&i, &j);
 	if (i) // it was bad
 	{
-		CONS_Printf("\x81Masterserver getsockopt error #%d: %s\n", errno, strerror(errno));
+		CONS_Printf("Masterserver getsockopt error #%d: %s\n", errno, strerror(errno));
 		MSLastPing = timestamp;
 		return ConnectionFailed();
 	}
 
 	for(signature = 0, insname = cv_servername.string; *insname; signature += *insname++);
-	signature *= signature * (unsigned int)&MSLastPing;
+	tmp = (UINT32)(signature * (size_t)&MSLastPing);
+	signature *= tmp;
 	signature &= 0xAAAAAAAA;
-	memcpy(&info->header.signature, &signature, sizeof (unsigned int));
+	M_Memcpy(&info->header.signature, &signature, sizeof (UINT32));
 
 	strcpy(info->ip, "");
 	strcpy(info->port, int2str(current_port));
@@ -576,7 +580,7 @@ static int AddToMasterServer(void)
 	strcpy(registered_server.name, cv_servername.string);
 
 	msg.type = ADD_SERVER_MSG;
-	msg.length = sizeof (msg_server_t);
+	msg.length = (UINT32)sizeof (msg_server_t);
 	if (MS_Write(&msg) < 0)
 	{
 		MSLastPing = timestamp;
@@ -584,7 +588,7 @@ static int AddToMasterServer(void)
 	}
 
 	if(con_state != MSCS_REGISTERED)
-		CONS_Printf("\x81Master Server Updated Successfully!\n");
+		CONS_Printf("Master Server Updated Successfully!\n");
 
 	MSLastPing = timestamp;
 	con_state = MSCS_REGISTERED;
@@ -593,7 +597,7 @@ static int AddToMasterServer(void)
 	return MS_NO_ERROR;
 }
 
-static int RemoveFromMasterSever(void)
+static INT32 RemoveFromMasterSever(void)
 {
 	msg_t msg;
 	msg_server_t *info = (msg_server_t *)msg.buffer;
@@ -605,7 +609,7 @@ static int RemoveFromMasterSever(void)
 	sprintf(info->version, "%d.%d.%d", VERSION/100, VERSION%100, SUBVERSION);
 
 	msg.type = REMOVE_SERVER_MSG;
-	msg.length = sizeof (msg_server_t);
+	msg.length = (UINT32)sizeof (msg_server_t);
 	if (MS_Write(&msg) < 0)
 		return MS_WRITE_ERROR;
 
@@ -667,7 +671,7 @@ void MSOpenUDPSocket(void)
 
 			sprintf(hostname, "%s:%d",
 #ifdef _arch_dreamcast
-				inet_ntoa(*(unsigned int *)&addr.sin_addr),
+				inet_ntoa(*(UINT32 *)&addr.sin_addr),
 #else
 				inet_ntoa(addr.sin_addr),
 #endif
@@ -741,7 +745,7 @@ static inline void SendPingToMasterServer(void)
 	}
 }
 
-void SendAskInfoViaMS(int node, tic_t asktime)
+void SendAskInfoViaMS(INT32 node, tic_t asktime)
 {
 	const char *address;
 	char *inip;
@@ -765,7 +769,7 @@ void SendAskInfoViaMS(int node, tic_t asktime)
 	mshpp.time = asktime;
 
 	// Send to the MS.
-	memcpy(netbuffer, &mshpp, sizeof(mshpp));
+	M_Memcpy(netbuffer, &mshpp, sizeof(mshpp));
 	doomcom->datalength = sizeof(ms_holepunch_packet_t);
 	doomcom->remotenode = (short)msnode;
 	I_NetSend();
@@ -826,18 +830,18 @@ static void MasterServer_OnChange(void)
 
 #ifndef NONET
 // Like recv, but waits until we've got enough data to fill the buffer.
-static int recvfull(int s, char *buf, int len, int flags)
+static size_t recvfull(SOCKET_TYPE s, char *buf, size_t len, int flags)
 {
 	/* Total received. */
-	int totallen = 0;
+	size_t totallen = 0;
 
 	while(totallen < len)
 	{
-		int ret = recv(s, buf + totallen, len - totallen, flags);
+		ssize_t ret = (ssize_t)recv(s, buf + totallen, (int)(len - totallen), flags);
 
 		/* Error. */
 		if(ret == -1)
-			return -1;
+			return (size_t)-1;
 
 		totallen += ret;
 	}

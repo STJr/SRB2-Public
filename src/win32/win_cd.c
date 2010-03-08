@@ -59,7 +59,7 @@ static VOID MCIErrorMessageBox (MCIERROR iErrorCode)
 	char szErrorText[128];
 	if (!mciGetErrorStringA (iErrorCode, szErrorText, sizeof (szErrorText)))
 		wsprintfA(szErrorText,"MCI CD Audio Unknow Error #%d\n", iErrorCode);
-	CONS_Printf(szErrorText);
+	CONS_Printf("%s", szErrorText);
 	/*MessageBox (GetActiveWindow(), szTemp+1, "LEGACY",
 				MB_OK | MB_ICONSTOP);*/
 }
@@ -89,7 +89,7 @@ static BOOL CD_ReadTrackInfo(VOID)
 	m_nTracksCount = 0;
 
 	m_MCIStatus.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
-	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_STATUS, MCI_STATUS_ITEM|MCI_WAIT, (DWORD)(size_t)&m_MCIStatus);
+	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_STATUS, MCI_STATUS_ITEM|MCI_WAIT, (DWORD_PTR)&m_MCIStatus);
 	if (iErr)
 	{
 		MCIErrorMessageBox (iErr);
@@ -103,7 +103,7 @@ static BOOL CD_ReadTrackInfo(VOID)
 	{
 		m_MCIStatus.dwTrack = (DWORD)(i+1);
 		m_MCIStatus.dwItem = MCI_STATUS_LENGTH;
-		iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_STATUS, MCI_TRACK|MCI_STATUS_ITEM|MCI_WAIT, (DWORD)(size_t)&m_MCIStatus);
+		iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_STATUS, MCI_TRACK|MCI_STATUS_ITEM|MCI_WAIT, (DWORD_PTR)&m_MCIStatus);
 		if (iErr)
 		{
 			MCIErrorMessageBox (iErr);
@@ -113,7 +113,7 @@ static BOOL CD_ReadTrackInfo(VOID)
 		m_nTracks[i].Length = nTrackLength;
 
 		m_MCIStatus.dwItem = MCI_CDA_STATUS_TYPE_TRACK;
-		iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_STATUS, MCI_TRACK|MCI_STATUS_ITEM|MCI_WAIT, (DWORD)(size_t)&m_MCIStatus);
+		iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_STATUS, MCI_TRACK|MCI_STATUS_ITEM|MCI_WAIT, (DWORD_PTR)&m_MCIStatus);
 		if (iErr)
 		{
 			MCIErrorMessageBox (iErr);
@@ -365,7 +365,7 @@ void I_InitCD(void)
 	cdaudio_started = FALSE;
 
 	m_MCIOpen.lpstrDeviceType = (LPCTSTR)MCI_DEVTYPE_CD_AUDIO;
-	iErr = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_TYPE_ID, (DWORD)(size_t)&m_MCIOpen);
+	iErr = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_TYPE_ID, (DWORD_PTR)&m_MCIOpen);
 	if (iErr)
 	{
 		MCIErrorMessageBox (iErr);
@@ -374,7 +374,7 @@ void I_InitCD(void)
 
 	// Set the time format to track/minute/second/frame (TMSF).
 	mciSet.dwTimeFormat = MCI_FORMAT_TMSF;
-	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(size_t)&mciSet);
+	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD_PTR)&mciSet);
 	if (iErr)
 	{
 		MCIErrorMessageBox (iErr);
@@ -421,7 +421,7 @@ void I_UpdateCD(void)
 
 
 //
-void I_PlayCD(int nTrack, boolean bLooping)
+void I_PlayCD(INT32 nTrack, boolean bLooping)
 {
 	MCI_PLAY_PARMS  mciPlay;
 	MCIERROR        iErr;
@@ -467,7 +467,7 @@ void I_PlayCD(int nTrack, boolean bLooping)
 	//faB: I don't use the notify message, I'm trying to minimize the delay
 	mciPlay.dwCallback = (DWORD)((size_t)hWndMain);
 	mciPlay.dwFrom = MCI_MAKE_TMSF(nTrack+1, 0, 0, 0);
-	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_PLAY, MCI_FROM|MCI_NOTIFY, (DWORD)(size_t)&mciPlay);
+	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_PLAY, MCI_FROM|MCI_NOTIFY, (DWORD_PTR)&mciPlay);
 	if (iErr)
 	{
 		MCIErrorMessageBox (iErr);
@@ -522,7 +522,7 @@ void I_ResumeCD(void)
 
 
 // volume : logical cd audio volume 0-31 (hardware is 0-255)
-boolean I_SetVolumeCD (int volume)
+boolean I_SetVolumeCD (INT32 volume)
 {
 	UNREFERENCED_PARAMETER(volume);
 	return false;

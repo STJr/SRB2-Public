@@ -39,12 +39,10 @@ int __cdecl RecordExceptionInfo (PEXCEPTION_POINTERS data/*, LPCSTR Message, LPS
 #ifndef TRYLEVEL_NONE
 
 #define NO_SEH_MINGW //Alam:?
-FUNCINLINE static ATTRINLINE struct _EXCEPTION_POINTERS *GetExceptionInformation(VOID)
-{
-	LPVOID SEHINFO = NULL;
-	__asm__("movl -14(%%ebp), %0": "=r"(SEHINFO)); //MOV EAX,DWORD PTR [EBP-14]
-	return SEHINFO;
-}
+#ifndef GetExceptionInformation
+void *__cdecl _exception_info(void);
+#define GetExceptionInformation (struct _EXCEPTION_POINTERS *)_exception_info
+#endif //GetExceptionInformation
 
 //Alam_GBC: use __try1(seh)
 #ifndef __try

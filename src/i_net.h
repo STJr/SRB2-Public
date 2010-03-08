@@ -28,7 +28,7 @@
 #include "command.h"
 
 /// \brief program net id
-#define DOOMCOM_ID 0x12345678l
+#define DOOMCOM_ID (INT32)0x12345678l
 
 /// \def MAXPACKETLENGTH
 /// For use in a LAN
@@ -38,7 +38,7 @@
 #define INETPACKETLENGTH 1024
 
 extern short hardware_MAXPACKETLENGTH;
-extern int net_bandwidth; // in byte/s
+extern INT32 net_bandwidth; // in byte/s
 
 #if defined(_MSC_VER)
 #pragma pack(1)
@@ -47,9 +47,9 @@ extern int net_bandwidth; // in byte/s
 typedef struct
 {
 	/// Supposed to be DOOMCOM_ID
-	long id;
+	INT32 id;
 
-	/// SRB2 executes an int to execute commands.
+	/// SRB2 executes an INT32 to execute commands.
 	short intnum;
 	/// Communication between SRB2 and the driver.
 	/// Is CMD_SEND or CMD_GET.
@@ -113,7 +113,7 @@ extern boolean (*I_NetCanSend)(void);
 
 
 */
-extern void (*I_NetFreeNodenum)(int nodenum);
+extern void (*I_NetFreeNodenum)(INT32 nodenum);
 
 /**	\brief	open a connection with sp�ified address
 
@@ -134,9 +134,9 @@ extern boolean (*I_NetOpenSocket)(void);
 extern void (*I_NetCloseSocket)(void);
 
 
-extern boolean (*I_Ban) (int node);
+extern boolean (*I_Ban) (INT32 node);
 extern void (*I_ClearBans)(void);
-extern const char *(*I_GetNodeAddress) (int node);
+extern const char *(*I_GetNodeAddress) (INT32 node);
 extern const char *(*I_GetBanAddress) (size_t ban);
 extern const char *(*I_GetBanMask) (size_t ban);
 extern boolean (*I_SetBanAddress) (const char *address,const char *mask);

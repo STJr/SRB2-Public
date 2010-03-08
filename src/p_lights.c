@@ -76,7 +76,7 @@ void T_FireFlicker(fireflicker_t *flick)
   * \param length    Four times the number of tics between flickers.
   * \sa T_FireFlicker
   */
-fireflicker_t *P_SpawnAdjustableFireFlicker(sector_t *minsector, sector_t *maxsector, int length)
+fireflicker_t *P_SpawnAdjustableFireFlicker(sector_t *minsector, sector_t *maxsector, INT32 length)
 {
 	fireflicker_t *flick;
 
@@ -92,7 +92,7 @@ fireflicker_t *P_SpawnAdjustableFireFlicker(sector_t *minsector, sector_t *maxse
 	if (flick->minlight > flick->maxlight)
 	{
 		// You mixed them up, you dummy.
-		int oops = flick->minlight;
+		INT32 oops = flick->minlight;
 		flick->minlight = flick->maxlight;
 		flick->maxlight = oops;
 	}
@@ -140,7 +140,7 @@ void T_LightningFlash(lightflash_t *flash)
   */
 void P_SpawnLightningFlash(sector_t *sector)
 {
-	int minlight;
+	INT32 minlight;
 	lightflash_t *flash;
 
 	minlight = sector->lightlevel;
@@ -214,7 +214,7 @@ void T_StrobeFlash(strobe_t *flash)
   *                   the strobe flash is random.
   * \sa T_StrobeFlash
   */
-strobe_t *P_SpawnAdjustableStrobeFlash(sector_t *minsector, sector_t *maxsector, int darktime, int brighttime, boolean inSync)
+strobe_t *P_SpawnAdjustableStrobeFlash(sector_t *minsector, sector_t *maxsector, INT32 darktime, INT32 brighttime, boolean inSync)
 {
 	strobe_t *flash;
 
@@ -233,7 +233,7 @@ strobe_t *P_SpawnAdjustableStrobeFlash(sector_t *minsector, sector_t *maxsector,
 	if (flash->minlight > flash->maxlight)
 	{
 		// You mixed them up, you dummy.
-		int oops = flash->minlight;
+		INT32 oops = flash->minlight;
 		flash->minlight = flash->maxlight;
 		flash->maxlight = oops;
 	}
@@ -292,7 +292,7 @@ void T_Glow(glow_t *g)
   * \param length    The speed of the effect.
   * \sa T_Glow
   */
-glow_t *P_SpawnAdjustableGlowingLight(sector_t *minsector, sector_t *maxsector, int length)
+glow_t *P_SpawnAdjustableGlowingLight(sector_t *minsector, sector_t *maxsector, INT32 length)
 {
 	glow_t *g;
 
@@ -307,7 +307,7 @@ glow_t *P_SpawnAdjustableGlowingLight(sector_t *minsector, sector_t *maxsector, 
 	if (g->minlight > g->maxlight)
 	{
 		// You mixed them up, you dummy.
-		int oops = g->minlight;
+		INT32 oops = g->minlight;
 		g->minlight = g->maxlight;
 		g->maxlight = oops;
 	}
@@ -344,9 +344,9 @@ glow_t *P_SpawnAdjustableGlowingLight(sector_t *minsector, sector_t *maxsector, 
   *       in this time regardless of initial values.
   * \sa T_LightFade
   */
-void P_FadeLight(short tag, int destvalue, int speed)
+void P_FadeLight(short tag, INT32 destvalue, INT32 speed)
 {
-	long i;
+	INT32 i;
 	lightlevel_t *ll;
 	sector_t *sector;
 

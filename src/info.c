@@ -2530,7 +2530,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		1,              // damage
 		0,              // activesound
 		MF_ENEMY|MF_SHOOTABLE|MF_NOGRAVITY|MF_MISSILE, // flags
-		ANG90/6         // raisestate: largest angle to turn in one tic (here, 15 degrees)
+		ANGLE_90/6      // raisestate: largest angle to turn in one tic (here, 15 degrees)
 	},
 
 	{           // MT_SKIM
@@ -10553,7 +10553,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
   */
 void P_PatchInfoTables(void)
 {
-	int i;
+	INT32 i;
 	char *tempname;
 
 #if NUMSPRITEFREESLOTS > 1000
@@ -10633,7 +10633,7 @@ void P_BackupTables(void)
 	M_Memcpy(mobjinfobackup, mobjinfo, sizeof(mobjinfo));
 }
 
-void P_ResetData(int flags)
+void P_ResetData(INT32 flags)
 {
 	if (flags & 1)
 		M_Memcpy(sprnames, sprnamesbackup, sizeof(sprnamesbackup));

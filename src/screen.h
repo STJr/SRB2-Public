@@ -65,23 +65,23 @@
 // global video state
 typedef struct viddef_s
 {
-	int modenum; // vidmode num indexes videomodes list
+	INT32 modenum; // vidmode num indexes videomodes list
 
 	byte *buffer; // invisible screens buffer
 	unsigned rowbytes; // bytes per scanline of the VIDEO mode
-	int width; // PIXELS per scanline
-	int height;
+	INT32 width; // PIXELS per scanline
+	INT32 height;
 	union { // don't need numpages for OpenGL, so we can use it for fullscreen/windowed mode
-		int numpages; // always 1, page flipping todo
-		int windowed; // windowed or fullscren mode?
+		INT32 numpages; // always 1, page flipping todo
+		INT32 windowed; // windowed or fullscren mode?
 	} u;
-	int recalc; // if true, recalc vid-based stuff
+	INT32 recalc; // if true, recalc vid-based stuff
 	byte *direct; // linear frame buffer, or vga base mem.
-	int dupx, dupy; // scale 1, 2, 3 value for menus & overlays
+	INT32 dupx, dupy; // scale 1, 2, 3 value for menus & overlays
 	float fdupx, fdupy; // same as dupx, dupy, but exact value when aspect ratio isn't 320/200
-	int bpp; // BYTES per pixel: 1 = 256color, 2 = highcolor
+	INT32 bpp; // BYTES per pixel: 1 = 256color, 2 = highcolor
 
-	int baseratio; // Used to get the correct value for lighting walls
+	INT32 baseratio; // Used to get the correct value for lighting walls
 
 	// for Win32 version
 	DNWH WndParent; // handle of the application's window
@@ -92,7 +92,7 @@ typedef struct viddef_s
 // internal additional info for vesa modes only
 typedef struct
 {
-	int vesamode; // vesa mode number plus LINEAR_MODE bit
+	INT32 vesamode; // vesa mode number plus LINEAR_MODE bit
 	void *plinearmem; // linear address of start of frame buffer
 } vesa_extra_t;
 // a video modes from the video modes list,
@@ -101,18 +101,18 @@ typedef struct vmode_s
 {
 	struct vmode_s *pnext;
 	char *name;
-	unsigned int width, height;
-	unsigned int rowbytes; // bytes per scanline
-	unsigned int bytesperpixel; // 1 for 256c, 2 for highcolor
-	int windowed; // if true this is a windowed mode
-	int numpages;
+	UINT32 width, height;
+	UINT32 rowbytes; // bytes per scanline
+	UINT32 bytesperpixel; // 1 for 256c, 2 for highcolor
+	INT32 windowed; // if true this is a windowed mode
+	INT32 numpages;
 	vesa_extra_t *pextradata; // vesa mode extra data
 #if defined (_WIN32) && !defined (_XBOX)
-	int (WINAPI *setmode)(viddef_t *lvid, struct vmode_s *pcurrentmode);
+	INT32 (WINAPI *setmode)(viddef_t *lvid, struct vmode_s *pcurrentmode);
 #else
-	int (*setmode)(viddef_t *lvid, struct vmode_s *pcurrentmode);
+	INT32 (*setmode)(viddef_t *lvid, struct vmode_s *pcurrentmode);
 #endif
-	int misc; // misc for display driver (r_opengl.dll etc)
+	INT32 misc; // misc for display driver (r_opengl.dll etc)
 } vmode_t;
 
 #define NUMSPECIALMODES  1
@@ -148,9 +148,9 @@ extern boolean R_SSE2;
 // screen variables
 // ----------------
 extern viddef_t vid;
-extern int setmodeneeded; // mode number to set if needed, or 0
+extern INT32 setmodeneeded; // mode number to set if needed, or 0
 
-extern int scr_bpp;
+extern INT32 scr_bpp;
 extern byte *scr_borderpatch; // patch used to fill the view borders
 
 extern consvar_t cv_scr_width, cv_scr_height, cv_scr_depth, cv_renderview, cv_fullscreen;

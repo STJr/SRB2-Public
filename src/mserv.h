@@ -28,7 +28,7 @@
 typedef union
 {
 	char buffer[16]; // information such as password
-	unsigned int signature;
+	ULONG signature;
 } ATTRPACK msg_header_t;
 
 // Keep this structure 8 bytes aligned (current size is 80)
@@ -55,7 +55,7 @@ const char *GetMasterServerIP(void);
 void MSOpenUDPSocket(void);
 void MSCloseUDPSocket(void);
 
-void SendAskInfoViaMS(int node, tic_t asktime);
+void SendAskInfoViaMS(INT32 node, tic_t asktime);
 
 void RegisterServer(void);
 void UnregisterServer(void);

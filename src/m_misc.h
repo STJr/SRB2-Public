@@ -38,7 +38,7 @@ extern boolean moviemode;
 #define CONFIGFILENAME "config.cfg"
 #endif
 
-int M_MapNumber(char first, char second);
+INT32 M_MapNumber(char first, char second);
 
 boolean FIL_WriteFile(char const *name, const void *source, size_t length);
 size_t FIL_ReadFile(char const *name, byte **buffer);
@@ -74,8 +74,6 @@ void M_SaveConfig(char *filename);
 // s1 = s2+s3+s1 (1024 lenghtmax)
 void strcatbf(char *s1, const char *s2, const char *s3);
 
-//void *M_Memcpy(void* dest, const void* src, size_t s);
-extern void *(*M_Memcpy)(void* dest, const void* src, size_t n) FUNCNONNULL;
 void M_SetupMemcpy(void);
 
 #endif

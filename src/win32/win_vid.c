@@ -50,7 +50,7 @@ static void OnTop_OnChange(void);
 // synchronize page flipping with screen refresh
 static CV_PossibleValue_t CV_NeverOnOff[] = {{-1, "Never"}, {0, "Off"}, {1, "On"}, {0, NULL}};
 consvar_t cv_vidwait = {"vid_wait", "On", CV_SAVE, CV_OnOff, OnTop_OnChange, 0, NULL, NULL, 0, 0, NULL};
-static consvar_t cv_stretch = {"stretch", "On", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+static consvar_t cv_stretch = {"stretch", "Off", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 static consvar_t cv_ontop = {"ontop", "Never", 0, CV_NeverOnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 boolean highcolor;
@@ -67,11 +67,11 @@ static HDC hDCMain = NULL;
 static vmode_t extra_modes[MAX_EXTRA_MODES] = {{NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL, 0}};
 static char names[MAX_EXTRA_MODES][10];
 
-static int numvidmodes; // total number of DirectDraw display modes
+static INT32 numvidmodes; // total number of DirectDraw display modes
 static vmode_t *pvidmodes; // start of videomodes list.
 static vmode_t *pcurrentmode; // the current active videomode.
 static BOOL bWinParm;
-static int WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *pcurrentmode);
+static INT32 WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *currentmode);
 
 // this holds description of the startup video mode,
 // the resolution is 320x200, windowed on the desktop
@@ -107,7 +107,7 @@ static void VID_Command_NumModes_f(void);
 static void VID_Command_ModeInfo_f(void);
 static void VID_Command_ModeList_f(void);
 static void VID_Command_Mode_f(void);
-static int WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *pcurrentmode);
+static INT32 WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *currentmode);
 static vmode_t *VID_GetModePtr(int modenum);
 static VOID VID_Init(VOID);
 static BOOL VID_FreeAndAllocVidbuffer(viddef_t *lvid);
@@ -283,11 +283,11 @@ void I_UpdateNoBlit(void)
 	// what is this?
 }
 
-#define FPSPOINTS 35
-#define SCALE 4
-#define PUTDOT(xx, yy, cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
+#define SCALE      3
+#define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
 
-static int fpsgraph[FPSPOINTS];
+static tic_t fpsgraph[OLDTICRATE];
+
 static void displayticrate(fixed_t value)
 {
 	int j,l,i;
@@ -295,36 +295,36 @@ static void displayticrate(fixed_t value)
 	tic_t tics,t;
 
 	t = I_GetTime();
-	tics = t - lasttic;
+	tics = (t - lasttic)/NEWTICRATERATIO;
 	lasttic = t;
-	if (tics > 20) tics = 20;
+	if (tics > OLDTICRATE) tics = OLDTICRATE;
 
-	for (i=0;i<FPSPOINTS-1;i++)
+	for (i=0;i<OLDTICRATE-1;i++)
 		fpsgraph[i]=fpsgraph[i+1];
-	fpsgraph[FPSPOINTS-1]=20-tics;
+	fpsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
 
 	if (value == 1 || value == 3)
 	{
 		char s[11];
-		sprintf(s, "FPS: %lu/%u", 20-tics, 20);
+		sprintf(s, "FPS: %d/%u", OLDTICRATE-tics+1, OLDTICRATE);
 		V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT+24, V_YELLOWMAP, s);
 	}
 	if (value == 1)
 		return;
 
-	if ( rendermode == render_soft )
+	if (rendermode == render_soft)
 	{
 		int k;
 		// draw dots
-		for (j=0;j<=20*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
 		{
 			l=(vid.height-1-j)*vid.width*vid.bpp;
-			for (i=0;i<FPSPOINTS*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
 				screens[0][l+i]=0xff;
 		}
 
 		// draw the graph
-		for (i=0;i<FPSPOINTS;i++)
+		for (i=0;i<OLDTICRATE;i++)
 			for (k=0;k<SCALE*vid.dupx;k++)
 				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
 	}
@@ -332,10 +332,10 @@ static void displayticrate(fixed_t value)
 	else
 	{
 		fline_t p;
-		for (j=0;j<=20*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
 		{
 			l=(vid.height-1-j);
-			for (i=0;i<FPSPOINTS*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
 			{
 				p.a.x = i;
 				p.a.y = l;
@@ -345,7 +345,7 @@ static void displayticrate(fixed_t value)
 			}
 		}
 
-		for (i=1;i<FPSPOINTS;i++)
+		for (i=1;i<OLDTICRATE;i++)
 		{
 			p.a.x = SCALE * (i-1);
 			p.a.y = vid.height-1-fpsgraph[i-1]*SCALE*vid.dupy;
@@ -356,6 +356,8 @@ static void displayticrate(fixed_t value)
 	}
 #endif
 }
+#undef SCALE
+#undef PUTDOT
 
 // I_SkipFrame
 //
@@ -441,8 +443,20 @@ void I_FinishUpdate(void)
 			/// \todo use directX blit here!!? a blit might use hardware with access
 			/// to main memory on recent hardware, and software blit of directX may be
 			/// optimized for p2 or mmx??
-			VID_BlitLinearScreen(screens[0], ScreenPtr, vid.width*vid.bpp, vid.height,
-				vid.width*vid.bpp, ScreenPitch);
+			if (ScreenHeight > vid.height)
+			{
+				BYTE *ptr = ScreenPtr;
+				long half_excess = ScreenPitch*(ScreenHeight-vid.height)/2;
+				memset(ptr, 0x1F, half_excess);
+				ptr += half_excess;
+				VID_BlitLinearScreen(screens[0], ptr, vid.width*vid.bpp, vid.height,
+					vid.width*vid.bpp, ScreenPitch);
+				ptr += vid.height*ScreenPitch;
+				memset(ptr, 0x1F, half_excess);
+			}
+			else
+				VID_BlitLinearScreen(screens[0], ScreenPtr, vid.width*vid.bpp, vid.height,
+					vid.width*vid.bpp, ScreenPitch);
 
 			UnlockScreen();
 
@@ -544,14 +558,14 @@ void I_SetPalette(RGBA_t *palette)
 //
 // return number of video modes in pvidmodes list
 //
-int VID_NumModes(void)
+INT32 VID_NumModes(void)
 {
 	return numvidmodes - NUMSPECIALMODES; //faB: dont accept the windowed mode 0
 }
 
 // return a video mode number from the dimensions
 // returns any available video mode if the mode was not found
-int VID_GetModeForSize(int w, int h)
+INT32 VID_GetModeForSize(INT32 w, INT32 h)
 {
 	vmode_t *pv;
 	int modenum;
@@ -700,8 +714,10 @@ static VOID WindowMode_Init(VOID)
 // *************************************************************************************
 static VOID VID_Init(VOID)
 {
+#ifdef _DEBUG
 	vmode_t *pv;
 	int iMode;
+#endif
 
 	// if '-win' is specified on the command line, do not add DirectDraw modes
 	bWinParm = M_CheckParm("-win");
@@ -793,10 +809,11 @@ static VOID VID_Init(VOID)
 	if (!numvidmodes)
 		I_Error("No display modes available.");
 
-	// DEBUG
+#ifdef _DEBUG // DEBUG
 	for (iMode = 0, pv = pvidmodes; pv; pv = pv->pnext, iMode++)
 		CONS_Printf("#%02d: %dx%dx%dbpp (desc: '%s')\n", iMode, pv->width, pv->height,
 			pv->bytesperpixel, pv->name);
+#endif
 
 	// set the startup screen in a window
 	VID_SetMode(0);
@@ -809,12 +826,12 @@ static VOID VID_Init(VOID)
 // - we can display error message boxes for startup errors
 // - we can set the last used resolution only once, when entering the main game loop
 // --------------------------
-static int WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *pcurrentmode)
+static INT32 WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *currentmode)
 {
 	RECT bounds;
 	int x = 0, y = 0, w = 0, h = 0;
 
-	pcurrentmode = NULL;
+	UNREFERENCED_PARAMETER(currentmode);
 #ifdef DEBUG
 	CONS_Printf("VID_SetWindowedDisplayMode()\n");
 #endif
@@ -888,7 +905,7 @@ vmode_t *VID_GetModePtr(int modenum)
 //
 // return the name of a video mode
 //
-const char *VID_GetModeName(int modenum)
+const char *VID_GetModeName(INT32 modenum)
 {
 	return (VID_GetModePtr(modenum))->name;
 }
@@ -896,9 +913,9 @@ const char *VID_GetModeName(int modenum)
 // ========================================================================
 // Sets a video mode
 // ========================================================================
-int VID_SetMode(int modenum)
+INT32 VID_SetMode(INT32 modenum)
 {
-	int stat;
+	int vstat;
 	vmode_t *pnewmode;
 	vmode_t *poldmode;
 
@@ -949,16 +966,18 @@ int VID_SetMode(int modenum)
 		}
 	}
 
-	stat = (*pcurrentmode->setmode)(&vid, pcurrentmode);
+	vstat = (*pcurrentmode->setmode)(&vid, pcurrentmode);
 
-	if (stat == -1)
+	if (vstat == -1)
 		I_Error("Not enough mem for VID_SetMode\n");
-	else if (stat == -2)
+	else if (vstat == -2)
 		I_Error("Couldn't set video mode because it failed the test\n");
-	else if (stat == -3)
+	else if (vstat == -3)
 		I_Error("Couldn't set video mode because it failed the change?\n");
-	else if (!stat)
+	else if (!vstat)
 		I_Error("Couldn't set video mode %d (%dx%d %d bits)\n", modenum, vid.width, vid.height, (vid.bpp*8));// hardware could not setup mode
+	else
+		CONS_Printf("Mode changed to %d (%s)\n", modenum, pcurrentmode->name);
 
 	vid.modenum = modenum;
 
@@ -1020,9 +1039,9 @@ static BOOL VID_FreeAndAllocVidbuffer(viddef_t *lvid)
 //              0 hardware could not set mode,
 //     -1 no mem
 // ========================================================================
-static int WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *pcurrentmode)
+static INT32 WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *currentmode)
 {
-	pcurrentmode = NULL;
+	UNREFERENCED_PARAMETER(currentmode);
 #ifdef DEBUG
 	CONS_Printf("VID_SetDirectDrawMode...\n");
 #endif
@@ -1062,10 +1081,7 @@ static int WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *pcurrentmode)
 //
 static void VID_Command_NumModes_f(void)
 {
-	int nummodes;
-
-	nummodes = VID_NumModes();
-	CONS_Printf("%d video mode(s) available(s)\n", nummodes);
+	CONS_Printf("%d video mode(s) available(s)\n", VID_NumModes());
 }
 
 // vid_modeinfo <modenum>
@@ -1099,12 +1115,12 @@ static void VID_Command_ModeInfo_f(void)
 //
 static void VID_Command_ModeList_f(void)
 {
-	int i, nummodes;
+	int i, numodes;
 	const char *pinfo;
 	vmode_t *pv;
 
-	nummodes = VID_NumModes();
-	for (i = NUMSPECIALMODES; i <= nummodes; i++)
+	numodes = VID_NumModes();
+	for (i = NUMSPECIALMODES; i <= numodes; i++)
 	{
 		pv = VID_GetModePtr(i);
 		pinfo = VID_GetModeName(i);

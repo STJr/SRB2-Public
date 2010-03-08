@@ -79,11 +79,11 @@ typedef struct polyobj_s
 {
 	mdllistitem_t link; // for subsector links; must be first
 
-	int id;    // numeric id
-	int first; // for hashing: index of first polyobject in this hash chain
-	int next;  // for hashing: next polyobject in this hash chain
+	INT32 id;    // numeric id
+	INT32 first; // for hashing: index of first polyobject in this hash chain
+	INT32 next;  // for hashing: next polyobject in this hash chain
 
-	int parent; // numeric id of parent polyobject
+	INT32 parent; // numeric id of parent polyobject
 
 	size_t segCount;        // number of segs in polyobject
 	size_t numSegsAlloc;    // number of segs allocated
@@ -108,14 +108,14 @@ typedef struct polyobj_s
 	fixed_t blockbox[4]; // bounding box for clipping
 	boolean linked;      // is linked to blockmap
 	size_t validcount;      // for clipping: prevents multiple checks
-	int damage;          // damage to inflict on stuck things
+	INT32 damage;          // damage to inflict on stuck things
 	fixed_t thrust;      // amount of thrust to put on blocking objects
-	int flags;           // Flags for this polyobject
+	INT32 flags;           // Flags for this polyobject
 
 	thinker_t *thinker;  // pointer to a thinker affecting this polyobj
 
 	boolean isBad; // a bad polyobject: should not be rendered/manipulated
-	int translucency; // index to translucency tables
+	INT32 translucency; // index to translucency tables
 } polyobj_t;
 
 //
@@ -136,32 +136,32 @@ typedef struct polyrotate_s
 {
 	thinker_t thinker; // must be first
 
-	int polyObjNum;    // numeric id of polyobject (avoid C pointers here)
-	int speed;         // speed of movement per frame
-	int distance;      // distance to move
+	INT32 polyObjNum;    // numeric id of polyobject (avoid C pointers here)
+	INT32 speed;         // speed of movement per frame
+	INT32 distance;      // distance to move
 } polyrotate_t;
 
 typedef struct polymove_s
 {
 	thinker_t thinker;  // must be first
 
-	int polyObjNum;     // numeric id of polyobject
-	int speed;          // resultant velocity
+	INT32 polyObjNum;     // numeric id of polyobject
+	INT32 speed;          // resultant velocity
 	fixed_t momx;       // x component of speed along angle
 	fixed_t momy;       // y component of speed along angle
-	int distance;       // total distance to move
-	unsigned int angle; // angle along which to move
+	INT32 distance;       // total distance to move
+	UINT32 angle; // angle along which to move
 } polymove_t;
 
 typedef struct polywaypoint_s
 {
 	thinker_t thinker; // must be first
 
-	int polyObjNum;		// numeric id of polyobject
-	int speed;          // resultant velocity
-	int sequence;		// waypoint sequence #
-	int pointnum;       // waypoint #
-	int direction;      // 1 for normal, -1 for backwards
+	INT32 polyObjNum;		// numeric id of polyobject
+	INT32 speed;          // resultant velocity
+	INT32 sequence;		// waypoint sequence #
+	INT32 pointnum;       // waypoint #
+	INT32 direction;      // 1 for normal, -1 for backwards
 	boolean comeback;   // reverses and comes back when the end is reached
 	boolean wrap;       // Wrap around waypoints
 	boolean continuous; // continuously move - used with COMEBACK or WRAP
@@ -177,16 +177,16 @@ typedef struct polyslidedoor_s
 {
 	thinker_t thinker;      // must be first
 
-	int polyObjNum;         // numeric id of affected polyobject
-	int delay;              // delay time
-	int delayCount;         // delay counter
-	int initSpeed;          // initial speed
-	int speed;              // speed of motion
-	int initDistance;       // initial distance to travel
-	int distance;           // current distance to travel
-	unsigned int initAngle; // intial angle
-	unsigned int angle;     // angle of motion
-	unsigned int revAngle;  // reversed angle to avoid roundoff error
+	INT32 polyObjNum;         // numeric id of affected polyobject
+	INT32 delay;              // delay time
+	INT32 delayCount;         // delay counter
+	INT32 initSpeed;          // initial speed
+	INT32 speed;              // speed of motion
+	INT32 initDistance;       // initial distance to travel
+	INT32 distance;           // current distance to travel
+	UINT32 initAngle; // intial angle
+	UINT32 angle;     // angle of motion
+	UINT32 revAngle;  // reversed angle to avoid roundoff error
 	fixed_t momx;           // x component of speed along angle
 	fixed_t momy;           // y component of speed along angle
 	boolean closing;        // if true, is closing
@@ -196,13 +196,13 @@ typedef struct polyswingdoor_s
 {
 	thinker_t thinker; // must be first
 
-	int polyObjNum;    // numeric id of affected polyobject
-	int delay;         // delay time
-	int delayCount;    // delay counter
-	int initSpeed;     // initial speed
-	int speed;         // speed of rotation
-	int initDistance;  // initial distance to travel
-	int distance;      // current distance to travel
+	INT32 polyObjNum;    // numeric id of affected polyobject
+	INT32 delay;         // delay time
+	INT32 delayCount;    // delay counter
+	INT32 initSpeed;     // initial speed
+	INT32 speed;         // speed of rotation
+	INT32 initDistance;  // initial distance to travel
+	INT32 distance;      // current distance to travel
 	boolean closing;   // if true, is closing
 } polyswingdoor_t;
 
@@ -212,16 +212,16 @@ typedef struct polyswingdoor_s
 
 typedef struct polyrotdata_s
 {
-	int polyObjNum;   // numeric id of polyobject to affect
-	int direction;    // direction of rotation
-	int speed;        // angular speed
-	int distance;     // distance to move
+	INT32 polyObjNum;   // numeric id of polyobject to affect
+	INT32 direction;    // direction of rotation
+	INT32 speed;        // angular speed
+	INT32 distance;     // distance to move
 	boolean overRide; // if true, will override any action on the object
 } polyrotdata_t;
 
 typedef struct polymovedata_s
 {
-	int polyObjNum;     // numeric id of polyobject to affect
+	INT32 polyObjNum;     // numeric id of polyobject to affect
 	fixed_t distance;   // distance to move
 	fixed_t speed;      // linear speed
 	angle_t angle;      // angle of movement
@@ -230,8 +230,8 @@ typedef struct polymovedata_s
 
 typedef struct polywaypointdata_s
 {
-	int polyObjNum;     // numeric id of polyobject to affect
-	int sequence;       // waypoint sequence #
+	INT32 polyObjNum;     // numeric id of polyobject to affect
+	INT32 sequence;       // waypoint sequence #
 	fixed_t speed;      // linear speed
 	boolean reverse;    // if true, will go in reverse waypoint order
 	boolean comeback;   // reverses and comes back when the end is reached
@@ -248,26 +248,26 @@ typedef enum
 
 typedef struct polydoordata_s
 {
-	int polyObjNum;     // numeric id of polyobject to affect
-	int doorType;       // polyobj door type
-	int speed;          // linear or angular speed
+	INT32 polyObjNum;     // numeric id of polyobject to affect
+	INT32 doorType;       // polyobj door type
+	INT32 speed;          // linear or angular speed
 	angle_t angle;      // for slide door only, angle of motion
-	int distance;       // distance to move
-	int delay;          // delay time after opening
+	INT32 distance;       // distance to move
+	INT32 delay;          // delay time after opening
 } polydoordata_t;
 
 //
 // Functions
 //
 
-polyobj_t *Polyobj_GetForNum(int id);
+polyobj_t *Polyobj_GetForNum(INT32 id);
 void Polyobj_InitLevel(void);
 void Polyobj_MoveOnLoad(polyobj_t *po, angle_t angle, fixed_t x, fixed_t y);
 boolean P_PointInsidePolyobj(polyobj_t *po, fixed_t x, fixed_t y);
 boolean P_MobjTouchingPolyobj(polyobj_t *po, mobj_t *mo);
 boolean P_MobjInsidePolyobj(polyobj_t *po, mobj_t *mo);
 boolean P_BBoxInsidePolyobj(polyobj_t *po, fixed_t *bbox);
-void Polyobj_GetInfo(short tag, int *polyID, int *parentID, unsigned short *exparg);
+void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *parentID, unsigned short *exparg);
 
 // thinkers (needed in p_saveg.c)
 void T_PolyObjRotate(polyrotate_t *);
@@ -277,11 +277,11 @@ void T_PolyDoorSlide(polyslidedoor_t *);
 void T_PolyDoorSwing(polyswingdoor_t *);
 void T_PolyObjFlag  (polymove_t *);
 
-int EV_DoPolyDoor(polydoordata_t *);
-int EV_DoPolyObjMove(polymovedata_t *);
-int EV_DoPolyObjWaypoint(polywaypointdata_t *);
-int EV_DoPolyObjRotate(polyrotdata_t *);
-int EV_DoPolyObjFlag(struct line_s *);
+INT32 EV_DoPolyDoor(polydoordata_t *);
+INT32 EV_DoPolyObjMove(polymovedata_t *);
+INT32 EV_DoPolyObjWaypoint(polywaypointdata_t *);
+INT32 EV_DoPolyObjRotate(polyrotdata_t *);
+INT32 EV_DoPolyObjFlag(struct line_s *);
 
 
 //
@@ -289,7 +289,7 @@ int EV_DoPolyObjFlag(struct line_s *);
 //
 
 extern polyobj_t *PolyObjects;
-extern int numPolyObjects;
+extern INT32 numPolyObjects;
 extern polymaplink_t **polyblocklinks; // polyobject blockmap
 
 #endif // ifdef POLYOBJECTS

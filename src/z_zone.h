@@ -21,6 +21,7 @@
 #define __Z_ZONE__
 
 #include <stdio.h>
+#include "doomtype.h"
 
 #ifdef __GNUC__ // __attribute__ ((X))
 #if (__GNUC__ > 4) || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 3 || (__GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 4)))
@@ -56,38 +57,38 @@
                                   // stored in hardware format and downloaded as needed
 
 void Z_Init(void);
-void Z_FreeTags(int lowtag, int hightag);
+void Z_FreeTags(INT32 lowtag, INT32 hightag);
 void Z_CheckMemCleanup(void);
-void Z_CheckHeap(int i);
+void Z_CheckHeap(INT32 i);
 #ifdef PARANOIA
-void Z_ChangeTag2(void *ptr, int tag, const char *file, int line);
+void Z_ChangeTag2(void *ptr, INT32 tag, const char *file, INT32 line);
 #else
-void Z_ChangeTag2(void *ptr, int tag);
+void Z_ChangeTag2(void *ptr, INT32 tag);
 #endif
 
 #ifdef ZDEBUG
 #define Z_Free(p) Z_Free2(p, __FILE__, __LINE__)
-void Z_Free2(void *ptr, const char *file, int line);
+void Z_Free2(void *ptr, const char *file, INT32 line);
 #define Z_Malloc(s,t,u) Z_Malloc2(s, t, u, 0, __FILE__, __LINE__)
 #define Z_MallocAlign(s,t,u,a) Z_Malloc2(s, t, u, a, __FILE__, __LINE__)
-void *Z_Malloc2(size_t size, int tag, void *user, int alignbits, const char *file, int line) FUNCALLOC(1);
+void *Z_Malloc2(size_t size, INT32 tag, void *user, INT32 alignbits, const char *file, INT32 line) FUNCALLOC(1);
 #define Z_Calloc(s,t,u) Z_Calloc2(s, t, u, 0, __FILE__, __LINE__)
 #define Z_CallocAlign(s,t,u,a) Z_Calloc2(s, t, u, a, __FILE__, __LINE__)
-void *Z_Calloc2(size_t size, int tag, void *user, int alignbits, const char *file, int line) FUNCALLOC(1);
+void *Z_Calloc2(size_t size, INT32 tag, void *user, INT32 alignbits, const char *file, INT32 line) FUNCALLOC(1);
 #define Z_Realloc(p,s,t,u) Z_Realloc2(p, s, t, u, 0, __FILE__, __LINE__)
 #define Z_ReallocAlign(p,s,t,u,a) Z_Realloc2(p,s, t, u, a, __FILE__, __LINE__)
-void *Z_Realloc2(void *ptr, size_t size, int tag, void *user, int alignbits, const char *file, int line) FUNCALLOC(2);
+void *Z_Realloc2(void *ptr, size_t size, INT32 tag, void *user, INT32 alignbits, const char *file, INT32 line) FUNCALLOC(2);
 #else
 void Z_Free(void *ptr);
-void *Z_MallocAlign(size_t size, int tag, void *user, int alignbits) FUNCALLOC(1);
+void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits) FUNCALLOC(1);
 #define Z_Malloc(s,t,u) Z_MallocAlign(s, t, u, 0)
-void *Z_CallocAlign(size_t size, int tag, void *user, int alignbits) FUNCALLOC(1);
+void *Z_CallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits) FUNCALLOC(1);
 #define Z_Calloc(s,t,u) Z_CallocAlign(s, t, u, 0)
-void *Z_ReallocAlign(void *ptr, size_t size, int tag, void *user, int alignbits) FUNCALLOC(2) ;
+void *Z_ReallocAlign(void *ptr, size_t size, INT32 tag, void *user, INT32 alignbits) FUNCALLOC(2) ;
 #define Z_Realloc(p, s,t,u) Z_ReallocAlign(p, s, t, u, 0)
 #endif
 
-size_t Z_TagUsage(int tagnum);
+size_t Z_TagUsage(INT32 tagnum);
 
 char *Z_StrDup(const char *in);
 

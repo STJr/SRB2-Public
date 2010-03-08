@@ -39,11 +39,177 @@
 #include "hw_drv.h"
 #include "hw_light.h"
 #include "hw_md2.h"
-
+#include "../r_bsp.h"
 #include "../r_main.h"
 #include "../m_misc.h"
 #include "../w_wad.h"
 #include "../z_zone.h"
+
+#define NUMVERTEXNORMALS 162
+float avertexnormals[NUMVERTEXNORMALS][3] = {
+{-0.525731f, 0.000000f, 0.850651f},
+{-0.442863f, 0.238856f, 0.864188f},
+{-0.295242f, 0.000000f, 0.955423f},
+{-0.309017f, 0.500000f, 0.809017f},
+{-0.162460f, 0.262866f, 0.951056f},
+{0.000000f, 0.000000f, 1.000000f},
+{0.000000f, 0.850651f, 0.525731f},
+{-0.147621f, 0.716567f, 0.681718f},
+{0.147621f, 0.716567f, 0.681718f},
+{0.000000f, 0.525731f, 0.850651f},
+{0.309017f, 0.500000f, 0.809017f},
+{0.525731f, 0.000000f, 0.850651f},
+{0.295242f, 0.000000f, 0.955423f},
+{0.442863f, 0.238856f, 0.864188f},
+{0.162460f, 0.262866f, 0.951056f},
+{-0.681718f, 0.147621f, 0.716567f},
+{-0.809017f, 0.309017f, 0.500000f},
+{-0.587785f, 0.425325f, 0.688191f},
+{-0.850651f, 0.525731f, 0.000000f},
+{-0.864188f, 0.442863f, 0.238856f},
+{-0.716567f, 0.681718f, 0.147621f},
+{-0.688191f, 0.587785f, 0.425325f},
+{-0.500000f, 0.809017f, 0.309017f},
+{-0.238856f, 0.864188f, 0.442863f},
+{-0.425325f, 0.688191f, 0.587785f},
+{-0.716567f, 0.681718f, -0.147621f},
+{-0.500000f, 0.809017f, -0.309017f},
+{-0.525731f, 0.850651f, 0.000000f},
+{0.000000f, 0.850651f, -0.525731f},
+{-0.238856f, 0.864188f, -0.442863f},
+{0.000000f, 0.955423f, -0.295242f},
+{-0.262866f, 0.951056f, -0.162460f},
+{0.000000f, 1.000000f, 0.000000f},
+{0.000000f, 0.955423f, 0.295242f},
+{-0.262866f, 0.951056f, 0.162460f},
+{0.238856f, 0.864188f, 0.442863f},
+{0.262866f, 0.951056f, 0.162460f},
+{0.500000f, 0.809017f, 0.309017f},
+{0.238856f, 0.864188f, -0.442863f},
+{0.262866f, 0.951056f, -0.162460f},
+{0.500000f, 0.809017f, -0.309017f},
+{0.850651f, 0.525731f, 0.000000f},
+{0.716567f, 0.681718f, 0.147621f},
+{0.716567f, 0.681718f, -0.147621f},
+{0.525731f, 0.850651f, 0.000000f},
+{0.425325f, 0.688191f, 0.587785f},
+{0.864188f, 0.442863f, 0.238856f},
+{0.688191f, 0.587785f, 0.425325f},
+{0.809017f, 0.309017f, 0.500000f},
+{0.681718f, 0.147621f, 0.716567f},
+{0.587785f, 0.425325f, 0.688191f},
+{0.955423f, 0.295242f, 0.000000f},
+{1.000000f, 0.000000f, 0.000000f},
+{0.951056f, 0.162460f, 0.262866f},
+{0.850651f, -0.525731f, 0.000000f},
+{0.955423f, -0.295242f, 0.000000f},
+{0.864188f, -0.442863f, 0.238856f},
+{0.951056f, -0.162460f, 0.262866f},
+{0.809017f, -0.309017f, 0.500000f},
+{0.681718f, -0.147621f, 0.716567f},
+{0.850651f, 0.000000f, 0.525731f},
+{0.864188f, 0.442863f, -0.238856f},
+{0.809017f, 0.309017f, -0.500000f},
+{0.951056f, 0.162460f, -0.262866f},
+{0.525731f, 0.000000f, -0.850651f},
+{0.681718f, 0.147621f, -0.716567f},
+{0.681718f, -0.147621f, -0.716567f},
+{0.850651f, 0.000000f, -0.525731f},
+{0.809017f, -0.309017f, -0.500000f},
+{0.864188f, -0.442863f, -0.238856f},
+{0.951056f, -0.162460f, -0.262866f},
+{0.147621f, 0.716567f, -0.681718f},
+{0.309017f, 0.500000f, -0.809017f},
+{0.425325f, 0.688191f, -0.587785f},
+{0.442863f, 0.238856f, -0.864188f},
+{0.587785f, 0.425325f, -0.688191f},
+{0.688191f, 0.587785f, -0.425325f},
+{-0.147621f, 0.716567f, -0.681718f},
+{-0.309017f, 0.500000f, -0.809017f},
+{0.000000f, 0.525731f, -0.850651f},
+{-0.525731f, 0.000000f, -0.850651f},
+{-0.442863f, 0.238856f, -0.864188f},
+{-0.295242f, 0.000000f, -0.955423f},
+{-0.162460f, 0.262866f, -0.951056f},
+{0.000000f, 0.000000f, -1.000000f},
+{0.295242f, 0.000000f, -0.955423f},
+{0.162460f, 0.262866f, -0.951056f},
+{-0.442863f, -0.238856f, -0.864188f},
+{-0.309017f, -0.500000f, -0.809017f},
+{-0.162460f, -0.262866f, -0.951056f},
+{0.000000f, -0.850651f, -0.525731f},
+{-0.147621f, -0.716567f, -0.681718f},
+{0.147621f, -0.716567f, -0.681718f},
+{0.000000f, -0.525731f, -0.850651f},
+{0.309017f, -0.500000f, -0.809017f},
+{0.442863f, -0.238856f, -0.864188f},
+{0.162460f, -0.262866f, -0.951056f},
+{0.238856f, -0.864188f, -0.442863f},
+{0.500000f, -0.809017f, -0.309017f},
+{0.425325f, -0.688191f, -0.587785f},
+{0.716567f, -0.681718f, -0.147621f},
+{0.688191f, -0.587785f, -0.425325f},
+{0.587785f, -0.425325f, -0.688191f},
+{0.000000f, -0.955423f, -0.295242f},
+{0.000000f, -1.000000f, 0.000000f},
+{0.262866f, -0.951056f, -0.162460f},
+{0.000000f, -0.850651f, 0.525731f},
+{0.000000f, -0.955423f, 0.295242f},
+{0.238856f, -0.864188f, 0.442863f},
+{0.262866f, -0.951056f, 0.162460f},
+{0.500000f, -0.809017f, 0.309017f},
+{0.716567f, -0.681718f, 0.147621f},
+{0.525731f, -0.850651f, 0.000000f},
+{-0.238856f, -0.864188f, -0.442863f},
+{-0.500000f, -0.809017f, -0.309017f},
+{-0.262866f, -0.951056f, -0.162460f},
+{-0.850651f, -0.525731f, 0.000000f},
+{-0.716567f, -0.681718f, -0.147621f},
+{-0.716567f, -0.681718f, 0.147621f},
+{-0.525731f, -0.850651f, 0.000000f},
+{-0.500000f, -0.809017f, 0.309017f},
+{-0.238856f, -0.864188f, 0.442863f},
+{-0.262866f, -0.951056f, 0.162460f},
+{-0.864188f, -0.442863f, 0.238856f},
+{-0.809017f, -0.309017f, 0.500000f},
+{-0.688191f, -0.587785f, 0.425325f},
+{-0.681718f, -0.147621f, 0.716567f},
+{-0.442863f, -0.238856f, 0.864188f},
+{-0.587785f, -0.425325f, 0.688191f},
+{-0.309017f, -0.500000f, 0.809017f},
+{-0.147621f, -0.716567f, 0.681718f},
+{-0.425325f, -0.688191f, 0.587785f},
+{-0.162460f, -0.262866f, 0.951056f},
+{0.442863f, -0.238856f, 0.864188f},
+{0.162460f, -0.262866f, 0.951056f},
+{0.309017f, -0.500000f, 0.809017f},
+{0.147621f, -0.716567f, 0.681718f},
+{0.000000f, -0.525731f, 0.850651f},
+{0.425325f, -0.688191f, 0.587785f},
+{0.587785f, -0.425325f, 0.688191f},
+{0.688191f, -0.587785f, 0.425325f},
+{-0.955423f, 0.295242f, 0.000000f},
+{-0.951056f, 0.162460f, 0.262866f},
+{-1.000000f, 0.000000f, 0.000000f},
+{-0.850651f, 0.000000f, 0.525731f},
+{-0.955423f, -0.295242f, 0.000000f},
+{-0.951056f, -0.162460f, 0.262866f},
+{-0.864188f, 0.442863f, -0.238856f},
+{-0.951056f, 0.162460f, -0.262866f},
+{-0.809017f, 0.309017f, -0.500000f},
+{-0.864188f, -0.442863f, -0.238856f},
+{-0.951056f, -0.162460f, -0.262866f},
+{-0.809017f, -0.309017f, -0.500000f},
+{-0.681718f, 0.147621f, -0.716567f},
+{-0.681718f, -0.147621f, -0.716567f},
+{-0.850651f, 0.000000f, -0.525731f},
+{-0.688191f, 0.587785f, -0.425325f},
+{-0.587785f, 0.425325f, -0.688191f},
+{-0.425325f, 0.688191f, -0.587785f},
+{-0.425325f, -0.688191f, -0.587785f},
+{-0.587785f, -0.425325f, -0.688191f},
+{-0.688191f, -0.587785f, -0.425325f},
+};
 
 md2_t md2_models[NUMSPRITES];
 
@@ -109,7 +275,7 @@ static md2_model_t *md2_readModel(const char *filename)
 
 	if (fread(&model->header, sizeof (model->header), 1, file) != 1
 		|| model->header.magic !=
-		(int)(('2' << 24) + ('P' << 16) + ('D' << 8) + 'I'))
+		(INT32)(('2' << 24) + ('P' << 16) + ('D' << 8) + 'I'))
 	{
 		fclose(file);
 		free(model);
@@ -188,9 +354,12 @@ static md2_model_t *md2_readModel(const char *filename)
 			strcpy(model->frames[i].name, frame->name);
 			for (j = 0; j < model->header.numVertices; j++)
 			{
-				model->frames[i].vertices[j].vertex[0] = (float) ((int) frame->alias_vertices[j].vertex[0]) * frame->scale[0] + frame->translate[0];
-				model->frames[i].vertices[j].vertex[2] = -1* ((float) ((int) frame->alias_vertices[j].vertex[1]) * frame->scale[1] + frame->translate[1]);
-				model->frames[i].vertices[j].vertex[1] = (float) ((int) frame->alias_vertices[j].vertex[2]) * frame->scale[2] + frame->translate[2];
+				model->frames[i].vertices[j].vertex[0] = (float) ((INT32) frame->alias_vertices[j].vertex[0]) * frame->scale[0] + frame->translate[0];
+				model->frames[i].vertices[j].vertex[2] = -1* ((float) ((INT32) frame->alias_vertices[j].vertex[1]) * frame->scale[1] + frame->translate[1]);
+				model->frames[i].vertices[j].vertex[1] = (float) ((INT32) frame->alias_vertices[j].vertex[2]) * frame->scale[2] + frame->translate[2];
+				model->frames[i].vertices[j].normal[0] = avertexnormals[frame->alias_vertices[j].lightNormalIndex][0];
+				model->frames[i].vertices[j].normal[1] = avertexnormals[frame->alias_vertices[j].lightNormalIndex][1];
+				model->frames[i].vertices[j].normal[2] = avertexnormals[frame->alias_vertices[j].lightNormalIndex][2];
 			}
 		}
 	}
@@ -199,9 +368,9 @@ static md2_model_t *md2_readModel(const char *filename)
 	fseek(file, model->header.offsetGlCommands, SEEK_SET);
 	if (model->header.numGlCommands)
 	{
-		model->glCommandBuffer = malloc(sizeof (int) * model->header.numGlCommands);
+		model->glCommandBuffer = malloc(sizeof (INT32) * model->header.numGlCommands);
 		if (!model->glCommandBuffer || model->header.numGlCommands !=
-			fread(model->glCommandBuffer, sizeof (int), model->header.numGlCommands, file))
+			fread(model->glCommandBuffer, sizeof (INT32), model->header.numGlCommands, file))
 		{
 			md2_freeModel (model);
 			return 0;
@@ -255,10 +424,10 @@ static inline void md2_getBoundingBox (md2_model_t *model, float *minmax)
 	minmax[5] = maxz;
 }
 
-static inline int md2_getAnimationCount(md2_model_t *model)
+static inline INT32 md2_getAnimationCount(md2_model_t *model)
 {
 	size_t i, pos;
-	int j = 0, count, lastId;
+	INT32 j = 0, count, lastId;
 	char name[16], last[16];
 
 	strcpy(last, model->frames[0].name);
@@ -298,10 +467,10 @@ static inline int md2_getAnimationCount(md2_model_t *model)
 	return count;
 }
 
-static inline const char * md2_getAnimationName (md2_model_t *model, int animation)
+static inline const char * md2_getAnimationName (md2_model_t *model, INT32 animation)
 {
 	size_t i, pos;
-	int j = 0, count, lastId;
+	INT32 j = 0, count, lastId;
 	static char last[32];
 	char name[32];
 
@@ -346,10 +515,10 @@ static inline const char * md2_getAnimationName (md2_model_t *model, int animati
 }
 
 static inline void md2_getAnimationFrames(md2_model_t *model,
-	int animation, int *startFrame, int *endFrame)
+	INT32 animation, INT32 *startFrame, INT32 *endFrame)
 {
 	size_t i, pos;
-	int j = 0, count, numFrames, frameCount, lastId;
+	INT32 j = 0, count, numFrames, frameCount, lastId;
 	char name[16], last[16];
 
 	strcpy(last, model->frames[0].name);
@@ -404,7 +573,7 @@ static inline void md2_getAnimationFrames(md2_model_t *model,
 static inline void md2_printModelInfo (md2_model_t *model)
 {
 #if 0
-	int i;
+	INT32 i;
 
 	CONS_Printf("magic:\t\t\t%c%c%c%c\n", model->header.magic>>24,
 	            (model->header.magic>>16)&0xff,
@@ -548,8 +717,8 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, NULL);
 
 	fclose(png_FILE);
-	*w = width;
-	*h = height;
+	*w = (int)width;
+	*h = (int)height;
 	return GR_RGBA;
 }
 #endif
@@ -587,7 +756,7 @@ static GrTextureFormat_t PCX_Load(const char *filename, int *w, int *h,
 	const byte *pal;
 	RGBA_t *image;
 	size_t pw, ph, size, ptr = 0;
-	int ch, rep;
+	INT32 ch, rep;
 	FILE *file;
 	char *pcxfilename = va("md2/%s", filename);
 
@@ -650,7 +819,7 @@ static GrTextureFormat_t PCX_Load(const char *filename, int *w, int *h,
 }
 
 // -----------------+
-// md2_loadTexture  : Download a pcx texture for MD2 models
+// md2_loadTexture  : Download a pcx or png texture for MD2 models
 // -----------------+
 static void md2_loadTexture(md2_t *model)
 {
@@ -761,11 +930,12 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	FSurfaceInfo Surf;
 
 	char filename[64];
-	int frame;
+	INT32 frame;
 	FTransform p;
 	md2_t *md2;
+	byte color[4];
 
-	// cache sprite graphics
+	// cache model graphics
 	//12/12/99: Hurdler:
 	//          OK, I don't change anything for MD2 support because I want to be
 	//          sure to do it the right way. So actually, we keep normal sprite
@@ -773,20 +943,48 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 
 	gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
 
-	/// \todo manage spr->flip
-
 	//12/12/99: Hurdler: same comment as above (for md2)
 	HWR_GetMappedPatch(gpatch, spr->colormap);
 
-	// sprite lighting by modulating the RGB components
-	/// \todo coloured
+	// model lighting by modulating the RGB components
+	/// \todo Handled colored lighting
 	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = spr->sectorlight;
+	// MD2 colormap fix
+	// colormap test
+	{
+		sector_t *sector = spr->mobj->subsector->sector;
+
+		if (sector->ffloors)
+		{
+			ffloor_t *caster;
+
+			caster = sector->lightlist[R_GetPlaneLight(sector, spr->mobj->z+spr->mobj->height, false)].caster;
+			sector = caster ? &sectors[caster->secnum] : sector;
+		}
+		if (sector->extra_colormap)
+		{
+			RGBA_t temp;
+			INT32 alpha;
+
+			temp.rgba = sector->extra_colormap->rgba;
+			alpha = (26 - temp.s.alpha)*spr->sectorlight;
+			Surf.FlatColor.s.red = (byte)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf.FlatColor.s.blue = (byte)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf.FlatColor.s.green = (byte)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf.FlatColor.s.alpha = 0xff;
+		}
+	}
 
 	// Look at HWR_ProjetctSprite for more
 	if (cv_grmd2.value && (md2_models[spr->mobj->sprite].scale > 0) && !spr->precip)
 	{
-		int blend = 0;
+		FBITFIELD blend = 0;
 		GLPatch_t *oldgpatch = gpatch;
+		INT32 *buff;
+		ULONG durs = spr->mobj->state->tics;
+		ULONG tics = spr->mobj->tics;
+		md2_frame_t *curr, *next = NULL;
+		const boolean flip = (spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP;
 
 		if (spr->mobj->flags2 & MF2_SHADOW)
 		{
@@ -798,10 +996,8 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		else
 		{
 			Surf.FlatColor.s.alpha = 0xFF;
-			blend = PF_Translucent|PF_Occlude;
+			blend = PF_Translucent;
 		}
-		// hack for updating the light level before drawing the md2
-		HWD.pfnDrawPolygon(&Surf, NULL, 4, blend|PF_Modulated|PF_Clip|PF_MD2);
 
 		// dont forget to enabled the depth test because we can't do this like
 		// before: polygons models are not sorted
@@ -836,18 +1032,36 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 
 		//FIXME: this is not yet correct
 		frame = spr->mobj->frame % md2->model->header.numFrames;
+		buff = md2->model->glCommandBuffer;
+		curr = &md2->model->frames[frame];
+		if (spr->mobj->state->nextstate != S_DISS && spr->mobj->state->nextstate != S_NULL)
+		{
+			const INT32 nextframe = states[spr->mobj->state->nextstate].frame % md2->model->header.numFrames;
+			next = &md2->model->frames[nextframe];
+		}
 
 		//Hurdler: it seems there is still a small problem with mobj angle
 		p.x = FIXED_TO_FLOAT(spr->mobj->x);
 		p.y = FIXED_TO_FLOAT(spr->mobj->y)+md2->offset;
-		p.z = FIXED_TO_FLOAT(spr->mobj->z);
+
+		if (spr->mobj->eflags & MFE_VERTICALFLIP)
+			p.z = FIXED_TO_FLOAT(spr->mobj->z + spr->mobj->height);
+		else
+			p.z = FIXED_TO_FLOAT(spr->mobj->z);
+
 		{
 			const fixed_t anglef = AngleFixed(spr->mobj->angle);
 			p.angley = FIXED_TO_FLOAT(anglef);
 		}
 		p.anglex = 0.0f;
 
-		HWD.pfnDrawMD2(md2->model->glCommandBuffer, &md2->model->frames[frame], &p, md2->scale);
+		color[0] = Surf.FlatColor.s.red;
+		color[1] = Surf.FlatColor.s.green;
+		color[2] = Surf.FlatColor.s.blue;
+		color[3] = Surf.FlatColor.s.alpha;
+
+		HWD.pfnDrawMD2(buff, curr, durs, tics, next, &p, md2->scale, flip, color);
+
 	}
 }
 

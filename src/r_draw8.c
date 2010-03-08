@@ -31,7 +31,7 @@
 */
 void R_DrawColumn_8(void)
 {
-	int count;
+	INT32 count;
 	register byte *dest;
 	register fixed_t frac;
 	fixed_t fracstep;
@@ -74,7 +74,7 @@ void R_DrawColumn_8(void)
 			if (frac < 0)
 				while ((frac += heightmask) <  0);
 			else
-				while (frac >= (int)heightmask)
+				while (frac >= (INT32)heightmask)
 					frac -= heightmask;
 
 			do
@@ -84,7 +84,7 @@ void R_DrawColumn_8(void)
 				// heightmask is the Tutti-Frutti fix
 				*dest = colormap[source[frac>>FRACBITS]];
 				dest += vid.width;
-				if ((frac += fracstep) >= (int)heightmask)
+				if ((frac += fracstep) >= (INT32)heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -110,7 +110,7 @@ void R_DrawColumn_8(void)
 */
 void R_DrawWallColumn_8(void)
 {
-	int count;
+	INT32 count;
 	register byte *dest;
 	register fixed_t frac;
 	fixed_t fracstep;
@@ -137,7 +137,7 @@ void R_DrawWallColumn_8(void)
 	// Determine scaling, which is the only mapping to be done.
 	fracstep = dc_iscale;
 	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
-	frac = dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep);
+	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
 
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
@@ -153,7 +153,7 @@ void R_DrawWallColumn_8(void)
 			if (frac < 0)
 				while ((frac += heightmask) <  0);
 			else
-				while (frac >= (int)heightmask)
+				while (frac >= (INT32)heightmask)
 					frac -= heightmask;
 
 			do
@@ -163,7 +163,7 @@ void R_DrawWallColumn_8(void)
 				// heightmask is the Tutti-Frutti fix
 				*dest = colormap[source[frac>>FRACBITS]];
 				dest += vid.width;
-				if ((frac += fracstep) >= (int)heightmask)
+				if ((frac += fracstep) >= (INT32)heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -188,7 +188,7 @@ void R_DrawWallColumn_8(void)
 
 void R_Draw2sMultiPatchColumn_8(void)
 {
-	int count;
+	INT32 count;
 	register byte *dest;
 	register fixed_t frac;
 	fixed_t fracstep;
@@ -215,7 +215,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 	// Determine scaling, which is the only mapping to be done.
 	fracstep = dc_iscale;
 	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
-	frac = dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep);
+	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
 
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
@@ -232,7 +232,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 			if (frac < 0)
 				while ((frac += heightmask) <  0);
 			else
-				while (frac >= (int)heightmask)
+				while (frac >= (INT32)heightmask)
 					frac -= heightmask;
 
 			do
@@ -246,7 +246,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 					*dest = colormap[val];
 
 				dest += vid.width;
-				if ((frac += fracstep) >= (int)heightmask)
+				if ((frac += fracstep) >= (INT32)heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -280,7 +280,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 */
 void R_DrawShadeColumn_8(void)
 {
-	register int count;
+	register INT32 count;
 	register byte *dest;
 	register fixed_t frac, fracstep;
 
@@ -304,12 +304,12 @@ void R_DrawShadeColumn_8(void)
 	// Looks familiar.
 	fracstep = dc_iscale;
 	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
-	frac = dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep);
+	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
 
 	// Here we do an additional index re-mapping.
 	do
 	{
-		*dest = *(colormaps + (dc_source[frac>>FRACBITS] <<8) + (*dest));
+		*dest = colormaps[(dc_source[frac>>FRACBITS] <<8) + (*dest)];
 		dest += vid.width;
 		frac += fracstep;
 	} while (count--);
@@ -322,7 +322,7 @@ void R_DrawShadeColumn_8(void)
 */
 void R_DrawTranslucentColumn_8(void)
 {
-	register int count;
+	register INT32 count;
 	register byte *dest;
 	register fixed_t frac, fracstep;
 
@@ -343,7 +343,7 @@ void R_DrawTranslucentColumn_8(void)
 	// Looks familiar.
 	fracstep = dc_iscale;
 	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
-	frac = dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep);
+	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
 
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
@@ -351,7 +351,7 @@ void R_DrawTranslucentColumn_8(void)
 		register const byte *source = dc_source;
 		register const byte *transmap = dc_transmap;
 		register const lighttable_t *colormap = dc_colormap;
-		register int heightmask = dc_texheight - 1;
+		register INT32 heightmask = dc_texheight - 1;
 		if (dc_texheight & heightmask)
 		{
 			heightmask++;
@@ -399,7 +399,7 @@ void R_DrawTranslucentColumn_8(void)
 */
 void R_DrawTranslatedTranslucentColumn_8(void)
 {
-	register int count;
+	register INT32 count;
 	register byte *dest;
 	register fixed_t frac, fracstep;
 
@@ -415,12 +415,12 @@ void R_DrawTranslatedTranslucentColumn_8(void)
 	// Looks familiar.
 	fracstep = dc_iscale;
 	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
-	frac = dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep);
+	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
 
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
 	{
-		register int heightmask = dc_texheight - 1;
+		register INT32 heightmask = dc_texheight - 1;
 		if (dc_texheight & heightmask)
 		{
 			heightmask++;
@@ -474,7 +474,7 @@ void R_DrawTranslatedTranslucentColumn_8(void)
 */
 void R_DrawTranslatedColumn_8(void)
 {
-	register int count;
+	register INT32 count;
 	register byte *dest;
 	register fixed_t frac, fracstep;
 
@@ -930,7 +930,7 @@ void R_DrawFogSpan_8(void)
 */
 void R_DrawFogColumn_8(void)
 {
-	int count;
+	INT32 count;
 	byte *dest;
 
 	count = dc_yh - dc_yl;
@@ -966,7 +966,7 @@ void R_DrawFogColumn_8(void)
 */
 void R_DrawColumnShadowed_8(void)
 {
-	int count, realyh, realyl, i, height, bheight = 0, solid = 0;
+	INT32 count, realyh, realyl, i, height, bheight = 0, solid = 0;
 
 	realyh = dc_yh;
 	realyl = dc_yl;

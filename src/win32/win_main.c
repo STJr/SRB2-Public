@@ -491,7 +491,7 @@ static  char    myCmdline[512];
 
 static VOID     GetArgcArgv (LPSTR cmdline)
 {
-	LPSTR   token;
+	LPSTR   tokenstr;
 	size_t  i = 0, len;
 	char    cSep = ' ';
 	BOOL    bCvar = FALSE, prevCvar = FALSE;
@@ -508,13 +508,13 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 			i++;
 		if (i >= len)
 			break;
-		token = myCmdline + i;
+		tokenstr = myCmdline + i;
 		if (myCmdline[i] == '"')
 		{
 			cSep = '"';
 			i++;
 			if (!prevCvar)    //cvar leave the "" in
-				token++;
+				tokenstr++;
 		}
 		else
 			cSep = ' ';
@@ -538,9 +538,9 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 
 		prevCvar = bCvar;
 
-		if (myCmdline + i > token)
+		if (myCmdline + i > tokenstr)
 		{
-			myWargv[myargc++] = token;
+			myWargv[myargc++] = tokenstr;
 		}
 
 		if (!myCmdline[i] || i >= len)
@@ -557,14 +557,31 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 
 static inline VOID MakeCodeWritable(VOID)
 {
-#ifdef USEASM
-	// Disable write-protection of code segment
+#ifdef USEASM // Disable write-protection of code segment
 	DWORD OldRights;
-	BYTE *pBaseOfImage = (BYTE *)GetModuleHandle(NULL);
-	IMAGE_OPTIONAL_HEADER *pHeader = (IMAGE_OPTIONAL_HEADER *)
-		(pBaseOfImage + ((IMAGE_DOS_HEADER*)pBaseOfImage)->e_lfanew +
-		sizeof (IMAGE_NT_SIGNATURE) + sizeof (IMAGE_FILE_HEADER));
-	if (!VirtualProtect(pBaseOfImage+pHeader->BaseOfCode,pHeader->SizeOfCode,PAGE_EXECUTE_READWRITE,&OldRights))
+	const DWORD NewRights = PAGE_EXECUTE_READWRITE;
+	PBYTE pBaseOfImage = (PBYTE)GetModuleHandle(NULL);
+	PIMAGE_DOS_HEADER dosH =(PIMAGE_DOS_HEADER)pBaseOfImage;
+	PIMAGE_NT_HEADERS ntH = (PIMAGE_NT_HEADERS)(pBaseOfImage + dosH->e_lfanew);
+	PIMAGE_OPTIONAL_HEADER oH = (PIMAGE_OPTIONAL_HEADER)
+		((PBYTE)ntH + sizeof (IMAGE_NT_SIGNATURE) + sizeof (IMAGE_FILE_HEADER));
+	LPVOID pA = pBaseOfImage+oH->BaseOfCode;
+	SIZE_T pS = oH->SizeOfCode;
+#if 1 // try to find the text section
+	PIMAGE_SECTION_HEADER ntS = IMAGE_FIRST_SECTION (ntH);
+	WORD s;
+	for (s = 0; s < ntH->FileHeader.NumberOfSections; s++)
+	{
+		if (memcmp (ntS[s].Name, ".text\0\0", 8) == 0)
+		{
+			pA = pBaseOfImage+ntS[s].VirtualAddress;
+			pS = ntS[s].Misc.VirtualSize;
+			break;
+		}
+	}
+#endif
+
+	if (!VirtualProtect(pA,pS,NewRights,&OldRights))
 		I_Error("Could not make code writable\n");
 #endif
 }

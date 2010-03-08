@@ -63,7 +63,7 @@ void P_ClosestPointOnLine(fixed_t x, fixed_t y, line_t *line, vertex_t *result)
 	fixed_t dx = line->dx;
 	fixed_t dy = line->dy;
 
-	// Determine t (the length of the vector from ‘Line[0]’ to ‘p’)
+	// Determine t (the length of the vector from ï¿½Line[0]ï¿½ to ï¿½pï¿½)
 	fixed_t cx, cy;
 	fixed_t vx, vy;
 	fixed_t magnitude;
@@ -84,7 +84,7 @@ void P_ClosestPointOnLine(fixed_t x, fixed_t y, line_t *line, vertex_t *result)
 
 	t = (FixedMul(vx, cx) + FixedMul(vy, cy));
 
-	// Return the point between ‘Line[0]’ and ‘Line[1]’
+	// Return the point between ï¿½Line[0]ï¿½ and ï¿½Line[1]ï¿½
 	vx = FixedMul(vx, t);
 	vy = FixedMul(vy, t);
 
@@ -98,7 +98,7 @@ void P_ClosestPointOnLine(fixed_t x, fixed_t y, line_t *line, vertex_t *result)
 // P_PointOnLineSide
 // Returns 0 or 1
 //
-int P_PointOnLineSide(fixed_t x, fixed_t y, line_t *line)
+INT32 P_PointOnLineSide(fixed_t x, fixed_t y, line_t *line)
 {
 	const vertex_t *v1 = line->v1;
 	fixed_t dx, dy, left, right;
@@ -134,9 +134,9 @@ int P_PointOnLineSide(fixed_t x, fixed_t y, line_t *line)
 // Considers the line to be infinite
 // Returns side 0 or 1, -1 if box crosses the line.
 //
-int P_BoxOnLineSide(fixed_t *tmbox, line_t *ld)
+INT32 P_BoxOnLineSide(fixed_t *tmbox, line_t *ld)
 {
-	int p1, p2;
+	INT32 p1, p2;
 
 	switch (ld->slopetype)
 	{
@@ -184,7 +184,7 @@ int P_BoxOnLineSide(fixed_t *tmbox, line_t *ld)
 // P_PointOnDivlineSide
 // Returns 0 or 1.
 //
-static int P_PointOnDivlineSide(fixed_t x, fixed_t y, divline_t *line)
+static INT32 P_PointOnDivlineSide(fixed_t x, fixed_t y, divline_t *line)
 {
 	fixed_t dx, dy, left, right;
 
@@ -699,8 +699,8 @@ void P_SetThingPosition(mobj_t *thing)
 	if (!(thing->flags & MF_NOBLOCKMAP))
 	{
 		// inert things don't need to be in blockmap
-		const int blockx = (unsigned)(thing->x - bmaporgx)>>MAPBLOCKSHIFT;
-		const int blocky = (unsigned)(thing->y - bmaporgy)>>MAPBLOCKSHIFT;
+		const INT32 blockx = (unsigned)(thing->x - bmaporgx)>>MAPBLOCKSHIFT;
+		const INT32 blocky = (unsigned)(thing->y - bmaporgy)>>MAPBLOCKSHIFT;
 		if (blockx >= 0 && blockx < bmapwidth
 			&& blocky >= 0 && blocky < bmapheight)
 		{
@@ -762,10 +762,10 @@ void P_SetPrecipitationThingPosition(precipmobj_t *thing)
 // to P_BlockLinesIterator, then make one or more calls
 // to it.
 //
-boolean P_BlockLinesIterator(int x, int y, boolean (*func)(line_t *))
+boolean P_BlockLinesIterator(INT32 x, INT32 y, boolean (*func)(line_t *))
 {
-	int offset;
-	const long *list; // Big blockmap
+	INT32 offset;
+	const INT32 *list; // Big blockmap
 #ifdef POLYOBJECTS
 	polymaplink_t *plink; // haleyjd 02/22/06
 #endif
@@ -824,7 +824,7 @@ boolean P_BlockLinesIterator(int x, int y, boolean (*func)(line_t *))
 //
 // P_BlockThingsIterator
 //
-boolean P_BlockThingsIterator(int x, int y, boolean (*func)(mobj_t *))
+boolean P_BlockThingsIterator(INT32 x, INT32 y, boolean (*func)(mobj_t *))
 {
 	mobj_t *mobj;
 
@@ -888,7 +888,7 @@ static void P_CheckIntercepts(void)
 //
 static boolean PIT_AddLineIntercepts(line_t *ld)
 {
-	int s1, s2;
+	INT32 s1, s2;
 	fixed_t frac;
 	divline_t dl;
 
@@ -938,7 +938,7 @@ static boolean PIT_AddLineIntercepts(line_t *ld)
 static boolean PIT_AddThingIntercepts(mobj_t *thing)
 {
 	fixed_t px1, py1, px2, py2, frac;
-	int s1, s2;
+	INT32 s1, s2;
 	boolean tracepositive;
 	divline_t dl;
 
@@ -1033,11 +1033,11 @@ static boolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
 // for all lines.
 //
 boolean P_PathTraverse(fixed_t px1, fixed_t py1, fixed_t px2, fixed_t py2,
-	int flags, traverser_t trav)
+	INT32 flags, traverser_t trav)
 {
 	fixed_t xt1, yt1, xt2, yt2;
 	fixed_t xstep, ystep, partial, xintercept, yintercept;
-	int mapx, mapy, mapxstep, mapystep, count;
+	INT32 mapx, mapy, mapxstep, mapystep, count;
 
 	earlyout = flags & PT_EARLYOUT;
 
@@ -1155,8 +1155,8 @@ boolean P_PathTraverse(fixed_t px1, fixed_t py1, fixed_t px2, fixed_t py2,
 boolean P_RadiusLinesCheck(fixed_t radius, fixed_t x, fixed_t y,
 	boolean (*func)(line_t *))
 {
-	int xl, xh, yl, yh;
-	int bx, by;
+	INT32 xl, xh, yl, yh;
+	INT32 bx, by;
 
 	tmbbox[BOXTOP] = y + radius;
 	tmbbox[BOXBOTTOM] = y - radius;

@@ -39,20 +39,20 @@ consvar_t cv_mlooksens2 = {"mlooksens2", "10", CV_SAVE, mousesens_cons_t, NULL, 
 consvar_t cv_controlperkey = {"controlperkey", "One", CV_SAVE, onecontrolperkey_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_allowautoaim = {"allowautoaim", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-int mousex, mousey;
-int mlooky; // like mousey but with a custom sensitivity for mlook
+INT32 mousex, mousey;
+INT32 mlooky; // like mousey but with a custom sensitivity for mlook
 
-int mouse2x, mouse2y, mlook2y;
+INT32 mouse2x, mouse2y, mlook2y;
 
 // joystick values are repeated
-int joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
+INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
 // current state of the keys: true if pushed
 byte gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
-int gamecontrol[num_gamecontrols][2];
-int gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
+INT32 gamecontrol[num_gamecontrols][2];
+INT32 gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
 
 typedef struct
 {
@@ -77,7 +77,7 @@ static byte G_CheckDoubleClick(byte state, dclick_t *dt);
 //
 void G_MapEventsToControls(event_t *ev)
 {
-	int i;
+	INT32 i;
 	byte flag;
 
 	switch (ev->type)
@@ -101,12 +101,12 @@ void G_MapEventsToControls(event_t *ev)
 			break;
 
 		case ev_mouse: // buttons are virtual keys
-			mousex = (int)(ev->data2*((cv_mousesens.value*cv_mousesens.value)/110.0f + 0.1f));
-			mousey = (int)(ev->data3*((cv_mousesens.value*cv_mousesens.value)/110.0f + 0.1f));
+			mousex = (INT32)(ev->data2*((cv_mousesens.value*cv_mousesens.value)/110.0f + 0.1f));
+			mousey = (INT32)(ev->data3*((cv_mousesens.value*cv_mousesens.value)/110.0f + 0.1f));
 
 			// for now I use the mlook sensitivity just for mlook,
 			// instead of having a general mouse y sensitivity.
-			mlooky = (int)(ev->data3*((cv_mlooksens.value*cv_mlooksens.value)/110.0f + 0.1f));
+			mlooky = (INT32)(ev->data3*((cv_mlooksens.value*cv_mlooksens.value)/110.0f + 0.1f));
 			break;
 
 		case ev_joystick: // buttons are virtual keys
@@ -126,12 +126,12 @@ void G_MapEventsToControls(event_t *ev)
 			break;
 
 		case ev_mouse2: // buttons are virtual keys
-			mouse2x = (int)(ev->data2*((cv_mousesens2.value*cv_mousesens2.value)/110.0f + 0.1f));
-			mouse2y = (int)(ev->data3*((cv_mousesens2.value*cv_mousesens2.value)/110.0f + 0.1f));
+			mouse2x = (INT32)(ev->data2*((cv_mousesens2.value*cv_mousesens2.value)/110.0f + 0.1f));
+			mouse2y = (INT32)(ev->data3*((cv_mousesens2.value*cv_mousesens2.value)/110.0f + 0.1f));
 
 			// for now I use the mlook sensitivity just for mlook,
 			// instead of having a general mouse y sensitivity.
-			mlook2y = (int)(ev->data3*((cv_mlooksens.value*cv_mlooksens.value)/110.0f + 0.1f));
+			mlook2y = (INT32)(ev->data3*((cv_mlooksens.value*cv_mlooksens.value)/110.0f + 0.1f));
 			break;
 
 		default:
@@ -196,7 +196,7 @@ static byte G_CheckDoubleClick(byte state, dclick_t *dt)
 
 typedef struct
 {
-	int keynum;
+	INT32 keynum;
 	const char *name;
 } keyname_t;
 
@@ -892,7 +892,7 @@ static const char *gamecontrolname[num_gamecontrols] =
 //
 // Detach any keys associated to the given game control
 // - pass the pointer to the gamecontrol table for the player being edited
-void G_ClearControlKeys(int (*setupcontrols)[2], int control)
+void G_ClearControlKeys(INT32 (*setupcontrols)[2], INT32 control)
 {
 	setupcontrols[control][0] = KEY_NULL;
 	setupcontrols[control][1] = KEY_NULL;
@@ -902,11 +902,11 @@ void G_ClearControlKeys(int (*setupcontrols)[2], int control)
 // Returns the name of a key (or virtual key for mouse and joy)
 // the input value being an keynum
 //
-const char *G_KeynumToString(int keynum)
+const char *G_KeynumToString(INT32 keynum)
 {
 	static char keynamestr[8];
 
-	unsigned int j;
+	UINT32 j;
 
 	// return a string with the ascii char if displayable
 	if (keynum > ' ' && keynum <= 'z' && keynum != KEY_CONSOLE)
@@ -926,9 +926,9 @@ const char *G_KeynumToString(int keynum)
 	return keynamestr;
 }
 
-int G_KeyStringtoNum(const char *keystr)
+INT32 G_KeyStringtoNum(const char *keystr)
 {
-	unsigned int j;
+	UINT32 j;
 
 	if (!keystr[1] && keystr[0] > ' ' && keystr[0] <= 'z')
 		return keystr[0];
@@ -1103,7 +1103,7 @@ void G_Controldefault(void)
 
 void G_SaveKeySetting(FILE *f)
 {
-	int i;
+	INT32 i;
 
 	for (i = 1; i < num_gamecontrols; i++)
 	{
@@ -1128,11 +1128,11 @@ void G_SaveKeySetting(FILE *f)
 	}
 }
 
-void G_CheckDoubleUsage(int keynum)
+void G_CheckDoubleUsage(INT32 keynum)
 {
 	if (cv_controlperkey.value == 1)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < num_gamecontrols; i++)
 		{
 			if (gamecontrol[i][0] == keynum)
@@ -1147,11 +1147,11 @@ void G_CheckDoubleUsage(int keynum)
 	}
 }
 
-static void setcontrol(int (*gc)[2], int na)
+static void setcontrol(INT32 (*gc)[2], INT32 na)
 {
-	int numctrl;
+	INT32 numctrl;
 	const char *namectrl;
-	int keynum;
+	INT32 keynum;
 
 	namectrl = COM_Argv(1);
 	for (numctrl = 0; numctrl < num_gamecontrols && stricmp(namectrl, gamecontrolname[numctrl]);
@@ -1174,9 +1174,9 @@ static void setcontrol(int (*gc)[2], int na)
 
 void Command_Setcontrol_f(void)
 {
-	int na;
+	INT32 na;
 
-	na = (int)COM_Argc();
+	na = (INT32)COM_Argc();
 
 	if (na != 3 && na != 4)
 	{
@@ -1189,9 +1189,9 @@ void Command_Setcontrol_f(void)
 
 void Command_Setcontrol2_f(void)
 {
-	int na;
+	INT32 na;
 
-	na = (int)COM_Argc();
+	na = (INT32)COM_Argc();
 
 	if (na != 3 && na != 4)
 	{

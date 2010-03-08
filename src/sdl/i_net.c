@@ -57,7 +57,7 @@ static const char *NET_AddrToStr(IPaddress* sk)
 	return s;
 }
 
-static const char *NET_GetNodeAddress(int node)
+static const char *NET_GetNodeAddress(INT32 node)
 {
 	if (!nodeconnected[node])
 		return NULL;
@@ -83,8 +83,8 @@ static boolean NET_CanGet(void)
 
 static void NET_Get(void)
 {
-	int mystatus;
-	int newnode;
+	INT32 mystatus;
+	INT32 newnode;
 	mypacket.len = MAXPACKETLENGTH;
 	if (!NET_CanGet())
 	{
@@ -105,7 +105,7 @@ static void NET_Get(void)
 		{
 			size_t i;
 			newnode++;
-			memcpy(&clientaddress[newnode], &mypacket.address, sizeof (IPaddress));
+			M_Memcpy(&clientaddress[newnode], &mypacket.address, sizeof (IPaddress));
 			DEBFILE(va("New node detected: node:%d address:%s\n", newnode,
 					NET_GetNodeAddress(newnode)));
 			doomcom->remotenode = newnode; // good packet from a game player
@@ -153,7 +153,7 @@ static void NET_Send(void)
 	}
 }
 
-static void NET_FreeNodenum(int numnode)
+static void NET_FreeNodenum(INT32 numnode)
 {
 	// can't disconnect from self :)
 	if (!numnode)
@@ -235,7 +235,7 @@ static void NET_CloseSocket(void)
 
 static signed char NET_NetMakeNode(const char *hostname)
 {
-	int newnode;
+	INT32 newnode;
 	char *portchar;
 	unsigned short portnum = sock_port;
 	IPaddress hostnameIP;
@@ -262,7 +262,7 @@ static signed char NET_NetMakeNode(const char *hostname)
 		return newnode;
 	}
 	newnode++;
-	memcpy(&clientaddress[newnode],&hostnameIP,sizeof (IPaddress));
+	M_Memcpy(&clientaddress[newnode],&hostnameIP,sizeof (IPaddress));
 	return (signed char)newnode;
 }
 
@@ -303,12 +303,12 @@ static boolean NET_OpenSocket(void)
 	return true;
 }
 
-static boolean NET_Ban(int node)
+static boolean NET_Ban(INT32 node)
 {
 	if (numbans == MAXBANS)
 		return false;
 
-	memcpy(&banned[numbans], &clientaddress[node], sizeof (IPaddress));
+	M_Memcpy(&banned[numbans], &clientaddress[node], sizeof (IPaddress));
 	banned[numbans].port = 0;
 	numbans++;
 	return true;

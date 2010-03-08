@@ -60,10 +60,10 @@ typedef struct
 typedef struct
 {
 	char name[8];
-	long masked;
+	INT32 masked;
 	short width;
 	short height;
-	long columndirectory; // FIXTHIS: OBSOLETE
+	INT32 columndirectory; // FIXTHIS: OBSOLETE
 	short patchcount;
 	mappatch_t patches[1];
 } ATTRPACK maptexture_t;
@@ -96,15 +96,15 @@ size_t numtextures = 0; // total number of textures found,
 // size of following tables
 
 texture_t **textures = NULL;
-static unsigned long **texturecolumnofs; // column offset lookup table for each texture
+static UINT32 **texturecolumnofs; // column offset lookup table for each texture
 static byte **texturecache; // graphics data for each generated full-size texture
 
 // texture width is a power of 2, so it can easily repeat along sidedefs using a simple mask
-static long *texturewidthmask;
+static INT32 *texturewidthmask;
 
 fixed_t *textureheight; // needed for texture pegging
 
-long *texturetranslation;
+INT32 *texturetranslation;
 
 // needed for pre rendering
 sprcache_t *spritecachedinfo;
@@ -183,7 +183,7 @@ static byte *R_GenerateTexture(size_t texnum)
 	int x, x1, x2, i;
 	size_t blocksize;
 	column_t *patchcol;
-	unsigned long *colofs;
+	UINT32 *colofs;
 
 	texture = textures[texnum];
 
@@ -202,7 +202,7 @@ static byte *R_GenerateTexture(size_t texnum)
 		texturememory += blocksize;
 
 		// use the patch's column lookup
-		colofs = (unsigned long *)(void *)(block + 8);
+		colofs = (UINT32 *)(void *)(block + 8);
 		texturecolumnofs[texnum] = colofs;
 		blocktex = block;
 		for (i = 0; i < texture->width; i++)
@@ -218,7 +218,7 @@ static byte *R_GenerateTexture(size_t texnum)
 	memset(block, 247, blocksize); // Transparency hack
 
 	// columns lookup table
-	colofs = (unsigned long *)(void *)block;
+	colofs = (UINT32 *)(void *)block;
 	texturecolumnofs[texnum] = colofs;
 
 	// texture data before the lookup table
@@ -262,7 +262,7 @@ done:
 //
 // R_GetColumn
 //
-byte *R_GetColumn(fixed_t tex, int col)
+byte *R_GetColumn(fixed_t tex, INT32 col)
 {
 	byte *data;
 
@@ -328,7 +328,7 @@ void R_LoadTextures(void)
 	name_p = pnames+4;
 	patchlookup = malloc(nummappatches*sizeof (*patchlookup));
 	if (!patchlookup)
-		I_Error("Could not malloc %lu bytes for patchloopup", nummappatches*sizeof (*patchlookup));
+		I_Error("Could not malloc %"PRIdS" bytes for patchloopup", nummappatches*sizeof (*patchlookup));
 
 	for (i = 0; i < nummappatches; i++)
 	{
@@ -362,10 +362,10 @@ void R_LoadTextures(void)
 
 	textures = Z_Malloc(numtextures*sizeof(*textures)*5, PU_STATIC, NULL);
 
-	texturecolumnofs = (void *)((long *)textures + numtextures);
-	texturecache = (void *)((long *)textures + numtextures*2);
-	texturewidthmask = (void *)((long *)textures + numtextures*3);
-	textureheight = (void *)((long *)textures + numtextures*4);
+	texturecolumnofs = (void *)((INT32 *)textures + numtextures);
+	texturecache = (void *)((INT32 *)textures + numtextures*2);
+	texturewidthmask = (void *)((INT32 *)textures + numtextures*3);
+	textureheight = (void *)((INT32 *)textures + numtextures*4);
 
 	for (i = 0; i < numtextures; i++, directory++)
 	{
@@ -430,7 +430,7 @@ void R_LoadTextures(void)
 	texturetranslation = Z_Malloc((numtextures+1)*sizeof(*texturetranslation), PU_STATIC, NULL);
 
 	for (i = 0; i < numtextures; i++)
-		texturetranslation[i] = (long)i;
+		texturetranslation[i] = (INT32)i;
 }
 
 static inline lumpnum_t R_CheckNumForNameList(char *name, lumplist_t *list, size_t listsize)
@@ -487,11 +487,11 @@ static void R_InitExtraColormaps(void)
 		colormaplumps[numcolormaplumps].numlumps = endnum - (startnum + 1);
 		numcolormaplumps++;
 	}
-	CONS_Printf("Number of Extra Colormaps: %lu\n", (ULONG)numcolormaplumps);
+	CONS_Printf("Number of Extra Colormaps: %d\n", (ULONG)numcolormaplumps);
 	//colormaplumps = realloc(colormaplumps, sizeof (*colormaplumps) * numcolormaplumps);
 }
 
-int R_GetFlatNumForName(const char *name)
+lumpnum_t R_GetFlatNumForName(const char *name)
 {
 	lumpnum_t lump = W_CheckNumForName(name);
 
@@ -565,12 +565,12 @@ void R_ClearColormaps(void)
 	memset(extra_colormaps, 0, sizeof (extra_colormaps));
 }
 
-long R_ColormapNumForName(char *name)
+INT32 R_ColormapNumForName(char *name)
 {
 	lumpnum_t lump, i;
 
 	if (num_extra_colormaps == MAXCOLORMAPS)
-		I_Error("R_CreateColormap: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
+		I_Error("R_ColormapNumForName: Too many colormaps! the limit is %d\n", MAXCOLORMAPS);
 
 	lump = R_CheckNumForNameList(name, colormaplumps, numcolormaplumps);
 	if (lump == LUMPERROR)
@@ -596,7 +596,7 @@ long R_ColormapNumForName(char *name)
 	extra_colormaps[num_extra_colormaps].fog = 0;
 
 	num_extra_colormaps++;
-	return (long)num_extra_colormaps - 1;
+	return (INT32)num_extra_colormaps - 1;
 }
 
 //
@@ -612,17 +612,17 @@ static double deltas[256][3], map[256][3];
 static byte NearestColor(byte r, byte g, byte b);
 static int RoundUp(double number);
 
-long R_CreateColormap(char *p1, char *p2, char *p3)
+INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 {
 	double cmaskr, cmaskg, cmaskb, cdestr, cdestg, cdestb;
 	double r, g, b, cbrightness, maskamt = 0, othermask = 0;
 	int mask, fog = 0;
 	size_t mapnum = num_extra_colormaps;
 	size_t i;
-	unsigned int cr, cg, cb, maskcolor, fadecolor;
-	unsigned int fadestart = 0, fadeend = 33, fadedist = 33;
+	UINT32 cr, cg, cb, maskcolor, fadecolor;
+	UINT32 fadestart = 0, fadeend = 33, fadedist = 33;
 
-#define HEX2INT(x) (unsigned int)(x >= '0' && x <= '9' ? x - '0' : x >= 'a' && x <= 'f' ? x - 'a' + 10 : x >= 'A' && x <= 'F' ? x - 'A' + 10 : 0)
+#define HEX2INT(x) (UINT32)(x >= '0' && x <= '9' ? x - '0' : x >= 'a' && x <= 'f' ? x - 'a' + 10 : x >= 'A' && x <= 'F' ? x - 'A' + 10 : 0)
 	if (p1[0] == '#')
 	{
 		cr = ((HEX2INT(p1[1]) * 16) + HEX2INT(p1[2]));
@@ -692,7 +692,7 @@ long R_CreateColormap(char *p1, char *p2, char *p3)
 			&& fadeend == extra_colormaps[i].fadeend
 			&& fog == extra_colormaps[i].fog)
 		{
-			return (long)i;
+			return (INT32)i;
 		}
 	}
 
@@ -742,7 +742,7 @@ long R_CreateColormap(char *p1, char *p2, char *p3)
 	extra_colormaps[mapnum].fadeend = (unsigned short)fadeend;
 	extra_colormaps[mapnum].fog = fog;
 
-	return (long)mapnum;
+	return (INT32)mapnum;
 }
 
 void R_MakeColormaps(void)
@@ -766,10 +766,10 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 	size_t mapnum = num_extra_colormaps;
 	size_t i;
 	char *colormap_p;
-	unsigned int cr, cg, cb, maskcolor, fadecolor;
-	unsigned int fadestart = 0, fadeend = 33, fadedist = 33;
+	UINT32 cr, cg, cb, maskcolor, fadecolor;
+	UINT32 fadestart = 0, fadeend = 33, fadedist = 33;
 
-#define HEX2INT(x) (unsigned int)(x >= '0' && x <= '9' ? x - '0' : x >= 'a' && x <= 'f' ? x - 'a' + 10 : x >= 'A' && x <= 'F' ? x - 'A' + 10 : 0)
+#define HEX2INT(x) (UINT32)(x >= '0' && x <= '9' ? x - '0' : x >= 'a' && x <= 'f' ? x - 'a' + 10 : x >= 'A' && x <= 'F' ? x - 'A' + 10 : 0)
 	if (p1[0] == '#')
 	{
 		cr = ((HEX2INT(p1[1]) * 16) + HEX2INT(p1[2]));
@@ -900,7 +900,7 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 					(byte)RoundUp(map[i][2]));
 				colormap_p++;
 
-				if ((unsigned int)p < fadestart)
+				if ((UINT32)p < fadestart)
 					continue;
 
 				if (ABS2(map[i][0] - cdestr) > ABS2(deltas[i][0]))
@@ -965,7 +965,7 @@ static int RoundUp(double number)
 	return (int)number;
 }
 
-const char *R_ColormapNameForNum(int num)
+const char *R_ColormapNameForNum(INT32 num)
 {
 	if (num == -1)
 		return "NONE";
@@ -1044,7 +1044,7 @@ void R_InitData(void)
 //
 // Check whether texture is available. Filter out NoTexture indicator.
 //
-long R_CheckTextureNumForName(const char *name, unsigned short sidenum)
+INT32 R_CheckTextureNumForName(const char *name, unsigned short sidenum)
 {
 	size_t i;
 
@@ -1054,7 +1054,7 @@ long R_CheckTextureNumForName(const char *name, unsigned short sidenum)
 
 	for (i = 0; i < numtextures; i++)
 		if (!strncasecmp(textures[i]->name, name, 8))
-			return (long)i;
+			return (INT32)i;
 
 	// Ignore texture errors of colormaps and others in dedicated mode.
 	if (!dedicated && name[0] != '#')
@@ -1081,14 +1081,14 @@ long R_CheckTextureNumForName(const char *name, unsigned short sidenum)
 			}
 
 			if (lines[linenum].special != 259) // Make-Your-Own FOF
-				CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%d, side %d).\nDefaulting to REDWALL.\n", name, sidenum, linenum, whichside);
+				CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%"PRIdS", side %d).\nDefaulting to REDWALL.\n", name, sidenum, linenum, whichside);
 		}
 	}
 
 	// Use a dummy texture for those not found.
 	for (i = 0; i < numtextures; i++)
 		if (!strncasecmp(textures[i]->name, "REDWALL", 8))
-			return (long)i;
+			return (INT32)i;
 
 	return -1;
 }
@@ -1098,9 +1098,9 @@ long R_CheckTextureNumForName(const char *name, unsigned short sidenum)
 //
 // Calls R_CheckTextureNumForName, aborts with error message.
 //
-long R_TextureNumForName(const char *name, unsigned short sidenum)
+INT32 R_TextureNumForName(const char *name, unsigned short sidenum)
 {
-	const long i = R_CheckTextureNumForName(name, sidenum);
+	const INT32 i = R_CheckTextureNumForName(name, sidenum);
 
 	if (i == -1)
 	{
@@ -1204,8 +1204,8 @@ void R_PrecacheLevel(void)
 	if (devparm)
 	{
 		CONS_Printf("Precache level done:\n"
-			"flatmemory:    %u k\n"
-			"texturememory: %u k\n"
-			"spritememory:  %u k\n", flatmemory>>10, texturememory>>10, spritememory>>10);
+			"flatmemory:    %"PRIdS" k\n"
+			"texturememory: %"PRIdS" k\n"
+			"spritememory:  %"PRIdS" k\n", flatmemory>>10, texturememory>>10, spritememory>>10);
 	}
 }

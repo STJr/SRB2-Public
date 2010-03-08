@@ -149,27 +149,27 @@ static const mline_t thintriangle_guy[] = {
 #undef R
 #define NUMTHINTRIANGLEGUYLINES (sizeof (thintriangle_guy)/sizeof (mline_t))
 
-static int bigstate; //added : 24-01-98 : moved here, toggle between
+static INT32 bigstate; //added : 24-01-98 : moved here, toggle between
                      // user view and large view (full map view)
 
-static int grid = 0;
+static INT32 grid = 0;
 
-static int leveljuststarted = 1; // kluge until AM_LevelInit() is called
+static INT32 leveljuststarted = 1; // kluge until AM_LevelInit() is called
 
 boolean automapactive = false;
 boolean am_recalc = false; //added : 05-02-98 : true when screen size changes
 
 // location of window on screen
-static int f_x;
-static int f_y;
+static INT32 f_x;
+static INT32 f_y;
 
 // size of window on screen
-static int f_w;
-static int f_h;
+static INT32 f_w;
+static INT32 f_h;
 
-static int lightlev; // used for funky strobing effect
+static INT32 lightlev; // used for funky strobing effect
 static byte *fb; // pseudo-frame buffer
-static int amclock;
+static INT32 amclock;
 
 static mpoint_t m_paninc; // how far the window pans each tic (map coords)
 static fixed_t mtof_zoommul; // how far the window zooms in each tic (map coords)
@@ -217,17 +217,17 @@ static player_t *plr; // the player represented by an arrow
 
 static patch_t *marknums[10];                   // numbers used for marking by the automap
 static mpoint_t markpoints[AM_NUMMARKPOINTS];   // where the points are
-static int markpointnum = 0;                    // next point to be assigned
+static INT32 markpointnum = 0;                    // next point to be assigned
 
-static int followplayer = 1; // specifies whether to follow the player around
+static INT32 followplayer = 1; // specifies whether to follow the player around
 
 static boolean stopped = true;
 
 // function for drawing lines, depends on rendermode
-typedef void (*AMDRAWFLINEFUNC) (const fline_t *fl, int color);
+typedef void (*AMDRAWFLINEFUNC) (const fline_t *fl, INT32 color);
 static AMDRAWFLINEFUNC AM_drawFline;
 
-static void AM_drawFline_soft(const fline_t *fl, int color);
+static void AM_drawFline_soft(const fline_t *fl, INT32 color);
 
 /** Calculates the slope and slope according to the x-axis of a line
   * segment in map coordinates (with the upright y-axis and all) so
@@ -238,7 +238,7 @@ static void AM_drawFline_soft(const fline_t *fl, int color);
   */
 static inline void AM_getIslope(const mline_t *ml, islope_t *is)
 {
-	int dx, dy;
+	INT32 dx, dy;
 
 	dy = ml->a.y - ml->b.y;
 	dx = ml->b.x - ml->a.x;
@@ -368,7 +368,7 @@ static void AM_changeWindowLoc(void)
 
 static void AM_initVariables(void)
 {
-	int pnum;
+	INT32 pnum;
 
 	automapactive = true;
 	fb = screens[0];
@@ -408,7 +408,7 @@ static const byte *maplump; // pointer to the raw data for the automap backgroun
   */
 static void AM_clearMarks(void)
 {
-	int i;
+	INT32 i;
 
 	for (i = 0; i < AM_NUMMARKPOINTS; i++)
 		markpoints[i].x = -1; // means empty
@@ -439,7 +439,7 @@ static void AM_LevelInit(void)
 	AM_clearMarks();
 
 	AM_findMinMaxBoundaries();
-	scale_mtof = FixedDiv(min_scale_mtof, (7*FRACUNIT)/10);
+	scale_mtof = FixedDiv(min_scale_mtof*10, 7*FRACUNIT);
 	if (scale_mtof > max_scale_mtof)
 		scale_mtof = min_scale_mtof;
 	scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
@@ -461,7 +461,7 @@ void AM_Stop(void)
   */
 static inline void AM_Start(void)
 {
-	static int lastlevel = -1;
+	static INT32 lastlevel = -1;
 
 	if (!stopped)
 		AM_Stop();
@@ -503,7 +503,7 @@ static void AM_maxOutWindowScale(void)
   */
 boolean AM_Responder(event_t *ev)
 {
-	int rc = false;
+	INT32 rc = false;
 
 	if (devparm || cv_debug) // only automap in Debug Tails 01-19-2001
 	{
@@ -675,7 +675,7 @@ void AM_Ticker(void)
   *
   * \param color Color to erase to.
   */
-static void AM_clearFB(int color)
+static void AM_clearFB(INT32 color)
 {
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
@@ -689,8 +689,8 @@ static void AM_clearFB(int color)
 		memset(fb, color, f_w*f_h*vid.bpp);
 	else
 	{
-		int dmapx, dmapy, i, y;
-		static int mapxstart, mapystart;
+		INT32 dmapx, dmapy, i, y;
+		static INT32 mapxstart, mapystart;
 		byte *dest = screens[0];
 		const byte *src;
 #define MAPLUMPHEIGHT (200 - 42)
@@ -707,10 +707,10 @@ static void AM_clearFB(int color)
 			mapxstart += dmapx>>1;
 			mapystart += dmapy>>1;
 
-			while (mapxstart >= 320)
-				mapxstart -= 320;
+			while (mapxstart >= BASEVIDWIDTH)
+				mapxstart -= BASEVIDWIDTH;
 			while (mapxstart < 0)
-				mapxstart += 320;
+				mapxstart += BASEVIDWIDTH;
 			while (mapystart >= MAPLUMPHEIGHT)
 				mapystart -= MAPLUMPHEIGHT;
 			while (mapystart < 0)
@@ -720,10 +720,10 @@ static void AM_clearFB(int color)
 		{
 			mapxstart += (MTOF(m_paninc.x)>>1);
 			mapystart -= (MTOF(m_paninc.y)>>1);
-			if (mapxstart >= 320)
-				mapxstart -= 320;
+			if (mapxstart >= BASEVIDWIDTH)
+				mapxstart -= BASEVIDWIDTH;
 			if (mapxstart < 0)
-				mapxstart += 320;
+				mapxstart += BASEVIDWIDTH;
 			if (mapystart >= MAPLUMPHEIGHT)
 				mapystart -= MAPLUMPHEIGHT;
 			if (mapystart < 0)
@@ -733,14 +733,14 @@ static void AM_clearFB(int color)
 		//blit the automap background to the screen.
 		for (y = 0; y < f_h; y++)
 		{
-			src = maplump + mapxstart + (y + mapystart)*320;
-			for (i = 0; i < 320*vid.dupx; i++)
+			src = maplump + mapxstart + (y + mapystart)*BASEVIDWIDTH;
+			for (i = 0; i < BASEVIDWIDTH*vid.dupx; i++)
 			{
-				while (src > maplump + 320*MAPLUMPHEIGHT)
-					src -= 320*MAPLUMPHEIGHT;
+				while (src > maplump + BASEVIDWIDTH*MAPLUMPHEIGHT)
+					src -= BASEVIDWIDTH*MAPLUMPHEIGHT;
 				*dest++ = *src++;
 			}
-			dest += vid.width - vid.dupx*320;
+			dest += vid.width - vid.dupx*BASEVIDWIDTH;
 		}
 	}
 }
@@ -764,9 +764,9 @@ static boolean AM_clipMline(const mline_t *ml, fline_t *fl)
 		TOP    = 8
 	};
 
-	register int outcode1 = 0, outcode2 = 0, outside;
+	register INT32 outcode1 = 0, outcode2 = 0, outside;
 	fpoint_t tmp ={0,0};
-	int dx, dy;
+	INT32 dx, dy;
 
 #define DOOUTCODE(oc, mx, my) \
 	(oc) = 0; \
@@ -875,12 +875,12 @@ static boolean AM_clipMline(const mline_t *ml, fline_t *fl)
 //
 // Classic Bresenham w/ whatever optimizations needed for speed
 //
-static void AM_drawFline_soft(const fline_t *fl, int color)
+static void AM_drawFline_soft(const fline_t *fl, INT32 color)
 {
-	register int x, y, dx, dy, sx, sy, ax, ay, d;
+	register INT32 x, y, dx, dy, sx, sy, ax, ay, d;
 
-#ifdef PARANOIA
-	static int fuck = 0;
+#ifdef _DEBUG
+	static INT32 num = 0;
 
 	// For debugging only
 	if (fl->a.x < 0 || fl->a.x >= f_w
@@ -888,7 +888,7 @@ static void AM_drawFline_soft(const fline_t *fl, int color)
 	|| fl->b.x < 0 || fl->b.x >= f_w
 	|| fl->b.y < 0 || fl->b.y >= f_h)
 	{
-		CONS_Printf("line clipping problem %d\n", fuck++);
+		CONS_Printf("line clipping problem %d\n", num++);
 		return;
 	}
 #endif
@@ -945,7 +945,7 @@ static void AM_drawFline_soft(const fline_t *fl, int color)
 //
 // Clip lines, draw visible parts of lines.
 //
-static void AM_drawMline(const mline_t *ml, int color)
+static void AM_drawMline(const mline_t *ml, INT32 color)
 {
 	static fline_t fl;
 
@@ -956,7 +956,7 @@ static void AM_drawMline(const mline_t *ml, int color)
 //
 // Draws flat (floor/ceiling tile) aligned grid lines.
 //
-static void AM_drawGrid(int color)
+static void AM_drawGrid(INT32 color)
 {
 	fixed_t x, y;
 	fixed_t start, end;
@@ -1032,10 +1032,10 @@ static void AM_rotate(fixed_t *x, fixed_t *y, angle_t a)
 	*x = tmpx;
 }
 
-static void AM_drawLineCharacter(const mline_t *lineguy, int lineguylines, fixed_t scale, angle_t angle,
-	int color, fixed_t x, fixed_t y)
+static void AM_drawLineCharacter(const mline_t *lineguy, size_t lineguylines, fixed_t scale, angle_t angle,
+	INT32 color, fixed_t x, fixed_t y)
 {
-	int i;
+	size_t i;
 	mline_t l;
 
 	for (i = 0; i < lineguylines; i++)
@@ -1076,9 +1076,9 @@ static void AM_drawLineCharacter(const mline_t *lineguy, int lineguylines, fixed
 
 static inline void AM_drawPlayers(void)
 {
-	int i;
+	INT32 i;
 	player_t *p;
-	int color;
+	INT32 color;
 
 	if (!multiplayer)
 	{
@@ -1104,7 +1104,7 @@ static inline void AM_drawPlayers(void)
 	}
 }
 
-static inline void AM_drawThings(int colors, int colorrange)
+static inline void AM_drawThings(INT32 colors, INT32 colorrange)
 {
 	size_t i;
 	mobj_t *t;
@@ -1124,7 +1124,7 @@ static inline void AM_drawThings(int colors, int colorrange)
 
 static inline void AM_drawMarks(void)
 {
-	int i, fx, fy, w, h;
+	INT32 i, fx, fy, w, h;
 
 	for (i = 0; i < AM_NUMMARKPOINTS; i++)
 	{
@@ -1146,7 +1146,7 @@ static inline void AM_drawMarks(void)
   *
   * \param color Color for the crosshair.
   */
-static inline void AM_drawCrosshair(int color)
+static inline void AM_drawCrosshair(INT32 color)
 {
 	if (rendermode != render_soft)
 		return; // BP: should be putpixel here

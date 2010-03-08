@@ -34,7 +34,7 @@
 #include "hw3dsdrv.h"
 #include "hw3sound.h"
 
-#define ANGLE2DEG(x) (((double)(x)) / ((double)ANG45/45))
+#define ANGLE2DEG(x) (((double)(x)) / ((double)ANGLE_45/45))
 #define NORM_PITCH 128
 #define NORM_PRIORITY 64
 #define NORM_SEP 128
@@ -54,7 +54,7 @@ typedef struct source_s
 {
 	sfxinfo_t       *sfxinfo;
 	const void      *origin;
-	int             handle;     // Internal source handle
+	INT32             handle;     // Internal source handle
 	channel_type_t  type;       // Sound type (attack, scream, etc)
 } source_t;
 
@@ -90,16 +90,16 @@ static ambient_sdata_t  ambient_sdata;  // Precalculated datas of an ambient sou
 
 // Stack of dynamic sources
 static source_t      *sources       = NULL;     // Much like original channels
-static int           num_sources    = 0;
+static INT32           num_sources    = 0;
 
 // Current mode of 3D sound system
 // Default is original (stereo) mode
-int                  hws_mode       = HWS_DEFAULT_MODE;
+INT32                  hws_mode       = HWS_DEFAULT_MODE;
 
 //=============================================================================
 void HW3S_SetSourcesNum(void)
 {
-	int i;
+	INT32 i;
 
 	// Allocating the internal channels for mixing
 	// (the maximum number of sounds rendered
@@ -126,7 +126,7 @@ void HW3S_SetSourcesNum(void)
 
 
 //=============================================================================
-static void HW3S_KillSource(int snum)
+static void HW3S_KillSource(INT32 snum)
 {
 	source_t *  s = &sources[snum];
 
@@ -144,7 +144,7 @@ static void HW3S_KillSource(int snum)
 
 //=============================================================================
 /*
-static void HW3S_StopSource(int snum)
+static void HW3S_StopSource(INT32 snum)
 {
 	source_t * s = &sources[snum];
 
@@ -160,7 +160,7 @@ static void HW3S_StopSource(int snum)
 //=============================================================================
 void HW3S_StopSound(void *origin)
 {
-	int snum;
+	INT32 snum;
 
 	for (snum = 0; snum < num_sources; snum++)
 	{
@@ -174,7 +174,7 @@ void HW3S_StopSound(void *origin)
 
 void HW3S_StopSoundByNum(sfxenum_t sfxnum)
 {
-	int snum;
+	INT32 snum;
 
 	for (snum = 0; snum < num_sources; snum++)
 	{
@@ -189,7 +189,7 @@ void HW3S_StopSoundByNum(sfxenum_t sfxnum)
 //=============================================================================
 void HW3S_StopSounds(void)
 {
-	int snum;
+	INT32 snum;
 
 	// kill all playing sounds at start of level
 	//  (trust me - a good idea)
@@ -208,15 +208,15 @@ void HW3S_StopSounds(void)
 
 
 //=============================================================================
-static int HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean splitsound)
+static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean splitsound)
 {
 	//
 	//   If none available, return -1.  Otherwise source #.
 	//   source number to use
 
-	int         snum;
+	INT32         snum;
 	source_t *  src;
-	int sep = NORM_SEP, pitch = NORM_PITCH, volume = 255;
+	INT32 sep = NORM_SEP, pitch = NORM_PITCH, volume = 255;
 
 	mobj_t *listenmobj;
 	listener_t listener  = {0,0,0,0};
@@ -264,7 +264,7 @@ static int HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean splits
 	// Check to see if it is audible
 	if (origin && origin != listenmobj)
 	{
-		int rc;
+		INT32 rc;
 		rc = S_AdjustSoundParams(listenmobj, origin, &volume, &sep, &pitch, sfxinfo);
 		if (!rc)
 			return -1;
@@ -336,11 +336,11 @@ static void HW3S_FillSourceParameters
 #define HEADER_SIZE 8
 //==============================================================
 /*
-static void make_outphase_sfx(void *dest, void *src, int size)
+static void make_outphase_sfx(void *dest, void *src, INT32 size)
 {
 	signed char    *s = (signed char *)src + HEADER_SIZE, *d = (signed char *)dest + HEADER_SIZE;
 
-	memcpy(dest, src, HEADER_SIZE);
+	M_Memcpy(dest, src, HEADER_SIZE);
 	size -= HEADER_SIZE;
 
 	while (size--)
@@ -348,14 +348,14 @@ static void make_outphase_sfx(void *dest, void *src, int size)
 }
 */
 
-//int HW3S_Start3DSound(const void *origin, source3D_data_t *source_parm, cone_def_t *cone_parm, channel_type_t channel, int sfx_id, int vol, int pitch);
+//INT32 HW3S_Start3DSound(const void *origin, source3D_data_t *source_parm, cone_def_t *cone_parm, channel_type_t channel, INT32 sfx_id, INT32 vol, INT32 pitch);
 //=============================================================================
-int HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, channel_type_t c_type, sfxenum_t sfx_id, int volume, int pitch, int sep)
+INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, channel_type_t c_type, sfxenum_t sfx_id, INT32 volume, INT32 pitch, INT32 sep)
 {
 	sfxinfo_t       *sfx;
 	const mobj_t    *origin = (const mobj_t *)origin_p;
 	source3D_data_t source3d_data;
-	int             s_num = 0;
+	INT32             s_num = 0;
 	source_t        *source = NULL;
 	mobj_t *listenmobj = players[displayplayer].mo;
 	mobj_t *listenmobj2 = NULL;
@@ -659,7 +659,7 @@ void S_StartScreamSound(const void *origin, sfxenum_t sfx_id)
 }
 
 #if 0 /// NOTE: not used
-void S_StartAmbientSound(sfxenum_t sfx_id, int volume)
+void S_StartAmbientSound(sfxenum_t sfx_id, INT32 volume)
 {
 	if (hws_mode != HWS_DEFAULT_MODE)
 	{
@@ -682,9 +682,9 @@ FUNCMATH static inline float AmbientPos(angle_t an)
 
 
 //=============================================================================
-int HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
+INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 {
-	int                succ;
+	INT32                succ;
 	source3D_data_t    source_data;
 
 	if (HW3DS.pfnStartup(FatalErrorFunction, snd_dev))
@@ -702,7 +702,7 @@ int HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 		p_attack_source.sfxinfo = NULL;
 
-		memcpy(&p_attack_source2, &p_attack_source, sizeof (source_t));
+		M_Memcpy(&p_attack_source2, &p_attack_source, sizeof (source_t));
 
 		p_attack_source.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
 		p_attack_source2.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
@@ -713,7 +713,7 @@ int HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 		p_scream_source.sfxinfo = NULL;
 
-		memcpy(&p_scream_source2, &p_scream_source, sizeof (source_t));
+		M_Memcpy(&p_scream_source2, &p_scream_source, sizeof (source_t));
 
 		p_scream_source.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
 		p_scream_source2.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
@@ -725,13 +725,13 @@ int HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 		memset(&ambient_sdata, 0, sizeof (ambient_sdata));
 
 		ambient_sdata.left.head_relative = 1;
-		ambient_sdata.left.pos.x = ambient_sdata.left.pos.y = AmbientPos(ANG180 + ANG90/3);
+		ambient_sdata.left.pos.x = ambient_sdata.left.pos.y = AmbientPos(ANG210);
 		ambient_sdata.left.max_distance = MAX_DISTANCE;
 		ambient_sdata.left.min_distance = MIN_DISTANCE;
 
 		ambient_sdata.left.permanent = 1;
 
-		memcpy(&ambient_sdata.right, &ambient_sdata.left, sizeof (source3D_data_t));
+		M_Memcpy(&ambient_sdata.right, &ambient_sdata.left, sizeof (source3D_data_t));
 
 		ambient_sdata.right.pos.x = -ambient_sdata.left.pos.x;
 		ambient_source.left.handle = HW3DS.pfnAddSource(&ambient_sdata.left, NUMSFX);
@@ -751,7 +751,7 @@ int HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 
 //=============================================================================
-int HW3S_GetVersion(void)
+INT32 HW3S_GetVersion(void)
 {
 	return HW3DS.pfnGetHW3DSVersion();
 }
@@ -775,14 +775,14 @@ void HW3S_EndFrameUpdate(void)
 
 
 //=============================================================================
-int HW3S_SoundIsPlaying(int handle)
+INT32 HW3S_SoundIsPlaying(INT32 handle)
 {
 	return HW3DS.pfnIsPlaying(handle);
 }
 
-int HW3S_SoundPlaying(void *origin, sfxenum_t id)
+INT32 HW3S_SoundPlaying(void *origin, sfxenum_t id)
 {
-	int         snum;
+	INT32         snum;
 
 	for (snum = 0; snum < num_sources; snum++)
 	{
@@ -871,7 +871,7 @@ static void HW3S_UpdateListener2(mobj_t *listener)
 	HW3DS.pfnUpdateListener(&data, 2);
 }
 
-void HW3S_SetSfxVolume(int volume)
+void HW3S_SetSfxVolume(INT32 volume)
 {
 	HW3DS.pfnSetGlobalSfxVolume(volume);
 }
@@ -891,7 +891,7 @@ void HW3S_UpdateSources(void)
 	mobj_t *listener = players[displayplayer].mo;
 	mobj_t *listener2 = NULL;
 	source_t    *src;
-	int audible, snum, volume, sep, pitch;
+	INT32 audible, snum, volume, sep, pitch;
 
 	if (splitscreen) listener2 = players[secondarydisplayplayer].mo;
 
@@ -915,8 +915,8 @@ void HW3S_UpdateSources(void)
 					//  or modify their params
 					if (src->origin && listener != src->origin && !(listener2 && src->origin == listener2))
 					{
-						int audible2;
-						int volume2 = volume, sep2 = sep, pitch2 = pitch;
+						INT32 audible2;
+						INT32 volume2 = volume, sep2 = sep, pitch2 = pitch;
 						audible = S_AdjustSoundParams(listener, src->origin, &volume, &sep, &pitch,
 							src->sfxinfo);
 

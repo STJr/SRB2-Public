@@ -45,7 +45,7 @@ typedef struct wallsplat_s
 	vertex_t v1, v2; // vertices along the linedef
 	fixed_t top;
 	fixed_t offset; // offset in columns<<FRACBITS from start of linedef to start of splat
-	int flags;
+	INT32 flags;
 	fixed_t *yoffset;
 	line_t *line; // the parent line of the splat seg
 	struct wallsplat_s *next;
@@ -55,8 +55,8 @@ typedef struct wallsplat_s
 typedef struct floorsplat_s
 {
 	lumpnum_t pic; // a pic_t lump id
-	int flags;
-	int size; // 64, 128, 256, etc.
+	INT32 flags;
+	INT32 size; // 64, 128, 256, etc.
 	vertex_t verts[4]; // (x,y) as viewn from above on map
 	fixed_t z; // z (height) is constant for all the floorsplats
 	subsector_t *subsector; // the parent subsector
@@ -66,18 +66,18 @@ typedef struct floorsplat_s
 } floorsplat_t;
 
 // p_setup.c
-float P_SegLength(seg_t *seg);
+fixed_t P_SegLength(seg_t *seg);
 
 // call at P_SetupLevel()
 void R_ClearLevelSplats(void);
 
 #ifdef WALLSPLATS
 void R_AddWallSplat(line_t *wallline, short sectorside, const char *patchname, fixed_t top,
-	fixed_t wallfrac, int flags);
+	fixed_t wallfrac, INT32 flags);
 #endif
 #ifdef FLOORSPLATS
 void R_AddFloorSplat(subsector_t *subsec, mobj_t *mobj, const char *picname, fixed_t x, fixed_t y, fixed_t z,
-	int flags);
+	INT32 flags);
 #endif
 
 void R_ClearVisibleFloorSplats(void);

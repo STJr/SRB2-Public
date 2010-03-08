@@ -40,9 +40,9 @@
 extern short gamemap;
 extern musicenum_t mapmusic;
 extern short maptol;
-extern int globalweather;
-extern int curWeather;
-extern int cursaveslot;
+extern INT32 globalweather;
+extern INT32 curWeather;
+extern INT32 cursaveslot;
 extern short lastmapsaved;
 extern boolean gamecomplete;
 
@@ -69,11 +69,11 @@ extern boolean addedtogame; // true after the server has added you
 // Only true if >1 player. netgame => multiplayer but not (multiplayer=>netgame)
 extern boolean multiplayer;
 
-extern int gametype;
+extern INT32 gametype;
 extern boolean splitscreen;
 extern boolean circuitmap; // Does this level have 'circuit mode'?
 extern boolean fromlevelselect;
-extern int cv_debug;
+extern INT32 cv_debug;
 
 // ========================================
 // Internal parameters for sound rendering.
@@ -98,17 +98,17 @@ extern boolean nodrawers;
 extern boolean noblit;
 extern boolean lastdraw;
 extern postimg_t postimgtype;
-extern int postimgparam;
+extern INT32 postimgparam;
 
-extern int viewwindowx, viewwindowy;
-extern int viewwidth, scaledviewwidth;
+extern INT32 viewwindowx, viewwindowy;
+extern INT32 viewwidth, scaledviewwidth;
 
 extern boolean gamedataloaded;
 
 // Player taking events, and displaying.
-extern int consoleplayer;
-extern int displayplayer;
-extern int secondarydisplayplayer; // for splitscreen
+extern INT32 consoleplayer;
+extern INT32 displayplayer;
+extern INT32 secondarydisplayplayer; // for splitscreen
 
 // Maps of special importance
 extern short spstage_start;
@@ -143,14 +143,14 @@ typedef struct
 typedef struct
 {
 	scene_t scene[128]; // 128 scenes per cutscene.
-	int numscenes; // Number of scenes in this cutscene
+	INT32 numscenes; // Number of scenes in this cutscene
 } cutscene_t;
 
 extern cutscene_t cutscenes[128];
 
 // For the Custom Exit linedef.
 extern short nextmapoverride;
-extern int nextmapgametype;
+extern INT32 nextmapgametype;
 extern boolean skipstats;
 
 extern ULONG totalrings; //  Total # of rings in a level
@@ -249,9 +249,9 @@ extern tic_t totalplaytime;
 #define ALL7EMERALDS(v) ((v & (EMERALD1|EMERALD2|EMERALD3|EMERALD4|EMERALD5|EMERALD6|EMERALD7)) == (EMERALD1|EMERALD2|EMERALD3|EMERALD4|EMERALD5|EMERALD6|EMERALD7))
 
 #define MAXEMBLEMS 512 // If you have more emblems than this in your game, you seriously need to get a life.
-extern int numemblems;
+extern INT32 numemblems;
 
-extern int nummaprings; //keep track of spawned rings/coins
+extern INT32 nummaprings; //keep track of spawned rings/coins
 
 /** Hidden emblem/egg structure.
   */
@@ -279,8 +279,8 @@ extern boolean mapvisited[NUMMAPS];
 
 extern ULONG token; ///< Number of tokens collected in a level
 extern ULONG tokenlist; ///< List of tokens collected
-extern int tokenbits; ///< Used for setting token bits
-extern long sstimer; ///< Time allotted in the special stage
+extern INT32 tokenbits; ///< Used for setting token bits
+extern INT32 sstimer; ///< Time allotted in the special stage
 extern ULONG bluescore; ///< Blue Team Scores
 extern ULONG redscore;  ///< Red Team Scores
 extern ULONG redflagloose; ///< Red's flag is on the ground.
@@ -297,9 +297,9 @@ extern boolean CheckForReverseGravity;
 // Powerup durations
 extern tic_t invulntics;
 extern tic_t sneakertics;
-extern int flashingtics;
+extern INT32 flashingtics;
 extern tic_t tailsflytics;
-extern int underwatertics;
+extern INT32 underwatertics;
 extern tic_t spacetimetics;
 extern tic_t extralifetics;
 extern tic_t gravbootstics;
@@ -319,17 +319,17 @@ extern ULONG countdown2;
 extern fixed_t gravity;
 
 //for CTF balancing
-extern int autobalance;
-extern int teamscramble;
-extern int scrambleplayers[MAXPLAYERS]; //for CTF team scramble
-extern int scrambleteams[MAXPLAYERS]; //for CTF team scramble
-extern int scrambletotal; //for CTF team scramble
-extern int scramblecount; //for CTF team scramble
+extern INT32 autobalance;
+extern INT32 teamscramble;
+extern INT32 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
+extern INT32 scrambleteams[MAXPLAYERS]; //for CTF team scramble
+extern INT32 scrambletotal; //for CTF team scramble
+extern INT32 scramblecount; //for CTF team scramble
 
-extern int cheats;
+extern INT32 cheats;
 
-extern int matchtype;
-extern int tagtype;
+extern INT32 matchtype;
+extern INT32 tagtype;
 extern tic_t hidetime;
 
 // Grading
@@ -380,7 +380,7 @@ extern FILE *debugfile;
 #endif
 
 #ifdef DEBUGFILE
-extern int debugload;
+extern INT32 debugload;
 #endif
 
 // if true, load all graphics at level load
@@ -403,7 +403,7 @@ extern consvar_t cv_timetic; // display high resolution timer
 extern consvar_t cv_forceskin; // force clients to use the server's skin
 extern consvar_t cv_downloading; // allow clients to downloading WADs.
 extern ticcmd_t netcmds[BACKUPTICS][MAXPLAYERS];
-extern int adminplayer, serverplayer;
+extern INT32 adminplayer, serverplayer;
 
 /// \note put these in d_clisrv outright?
 

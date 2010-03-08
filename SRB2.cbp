@@ -228,7 +228,7 @@ HW3SOUND for 3D hardware sound  support
 				</Linker>
 			</Target>
 			<Target title="Release Mingw/DirectX">
-				<Option output="bin/Mingw/Release/srb2win.rcr" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/Mingw/Release/srb2win.exe" prefix_auto="1" extension_auto="0" />
 				<Option working_dir="bin/Resources" />
 				<Option object_output="objs/Mingw/Release" />
 				<Option type="0" />
@@ -250,19 +250,17 @@ HW3SOUND for 3D hardware sound  support
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="SDL" />
-					<Add library="SDL_mixer" />
 					<Add library="advapi32" />
-					<Add library="kernel32" />
-					<Add library="msvcrt" />
-					<Add library="user32" />
-					<Add library="wsock32" />
-					<Add library="tools/libpng-src/projects/libpng.a" />
-					<Add library="tools/zlib/win32/libz.a" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
 					<Add library="gdi32" />
+					<Add library="kernel32" />
+					<Add library="msvcrt" />
+					<Add library="user32" />
 					<Add library="winmm" />
+					<Add library="wsock32" />
+					<Add library="tools/libpng-src/projects/libpng.a" />
+					<Add library="tools/zlib/win32/libz.a" />
 				</Linker>
 			</Target>
 			<Target title="Debug Any/Dummy">
@@ -378,7 +376,7 @@ HW3SOUND for 3D hardware sound  support
 				</Linker>
 			</Target>
 			<Target title="Release Mingw S_DS3D">
-				<Option output="bin/Mingw/Debug/s_ds3d.dll" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/Mingw/Release/s_ds3d.dll" prefix_auto="1" extension_auto="0" />
 				<Option working_dir="bin/Mingw/Release" />
 				<Option object_output="objs/Mingw/Release" />
 				<Option type="3" />
@@ -412,7 +410,7 @@ HW3SOUND for 3D hardware sound  support
 				</Linker>
 			</Target>
 			<Target title="Release Mingw S_FMOD">
-				<Option output="bin/Mingw/Debug/s_fmod.dll" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/Mingw/Release/s_fmod.dll" prefix_auto="1" extension_auto="0" />
 				<Option working_dir="bin/Mingw/Release" />
 				<Option object_output="objs/Mingw/Release" />
 				<Option type="3" />
@@ -446,7 +444,7 @@ HW3SOUND for 3D hardware sound  support
 				</Linker>
 			</Target>
 			<Target title="Release Mingw S_OpenAL">
-				<Option output="bin/Mingw/Debug/s_openal.dll" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/Mingw/Release/s_openal.dll" prefix_auto="1" extension_auto="0" />
 				<Option working_dir="bin/Mingw/Release" />
 				<Option object_output="objs/Mingw/Release" />
 				<Option type="3" />
@@ -492,6 +490,310 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="openal" />
 				</Linker>
 			</Target>
+			<Target title="Debug Mingw64/SDL">
+				<Option output="bin/Mingw/Debug/srb2sdl64.exe" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Resources" />
+				<Option object_output="objs/Mingw64/SDL/Debug" />
+				<Option type="1" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D_GNU_SOURCE=1" />
+					<Add option="-DSTDC_HEADERS" />
+					<Add option="-DUSE_WGL_SWAP" />
+					<Add option="-DDIRECTFULLSCREEN" />
+					<Add option="-DSDL" />
+					<Add option="-DHAVE_MIXER" />
+					<Add option="-DHWRENDER" />
+					<Add option="-DHW3SOUND" />
+					<Add option="-DHAVE_PNG" />
+					<Add option="-DPARANOIA" />
+					<Add option="-DRANGECHECK" />
+					<Add option="-D_DEBUG" />
+					<Add directory="tools/libpng-src" />
+					<Add directory="tools/zlib" />
+				</Compiler>
+				<Linker>
+					<Add library="SDL" />
+					<Add library="SDL_mixer" />
+					<Add library="advapi32" />
+					<Add library="kernel32" />
+					<Add library="msvcrt" />
+					<Add library="user32" />
+					<Add library="ws2_32" />
+					<Add library="tools/libpng-src/projects/libpng.a64" />
+					<Add library="tools/zlib/win32/libz.a64" />
+					<Add directory="tools/zlib/win32" />
+					<Add directory="tools/libpng-src/projects" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64/SDL">
+				<Option output="bin/Mingw/Release/srb2sdl64.exe" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Resources" />
+				<Option object_output="objs/Mingw64/SDL/Release" />
+				<Option type="1" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-D_GNU_SOURCE=1" />
+					<Add option="-DSTDC_HEADERS" />
+					<Add option="-DUSE_WGL_SWAP" />
+					<Add option="-DDIRECTFULLSCREEN" />
+					<Add option="-DSDL" />
+					<Add option="-DHAVE_MIXER" />
+					<Add option="-DHWRENDER" />
+					<Add option="-DHW3SOUND" />
+					<Add option="-DHAVE_PNG" />
+					<Add option="-DNDEBUG" />
+					<Add directory="tools/libpng-src" />
+					<Add directory="tools/zlib" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="SDL" />
+					<Add library="SDL_mixer" />
+					<Add library="advapi32" />
+					<Add library="kernel32" />
+					<Add library="msvcrt" />
+					<Add library="user32" />
+					<Add library="ws2_32" />
+					<Add library="tools/libpng-src/projects/libpng.a64" />
+					<Add library="tools/zlib/win32/libz.a64" />
+				</Linker>
+			</Target>
+			<Target title="Debug Mingw64/DirectX">
+				<Option output="bin/Mingw/Debug/srb2win64.exe" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Resources" />
+				<Option object_output="objs/Mingw64/Debug" />
+				<Option type="0" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DSTDC_HEADERS" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-DHWRENDER" />
+					<Add option="-DHW3SOUND" />
+					<Add option="-DHAVE_PNG" />
+					<Add option="-DPARANOIA" />
+					<Add option="-DRANGECHECK" />
+					<Add option="-D_DEBUG" />
+					<Add directory="tools/libpng-src" />
+					<Add directory="tools/zlib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="src/win32" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="advapi32" />
+					<Add library="dinput" />
+					<Add library="dxguid" />
+					<Add library="gdi32" />
+					<Add library="kernel32" />
+					<Add library="msvcrt" />
+					<Add library="user32" />
+					<Add library="winmm" />
+					<Add library="ws2_32" />
+					<Add library="tools/libpng-src/projects/libpng.a64" />
+					<Add library="tools/zlib/win32/libz.a64" />
+					<Add directory="tools/zlib/win32" />
+					<Add directory="tools/libpng-src/projects" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64/DirectX">
+				<Option output="bin/Mingw/Release/srb2win64.exe" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Resources" />
+				<Option object_output="objs/Mingw64/Release" />
+				<Option type="0" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-DSTDC_HEADERS" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-DHWRENDER" />
+					<Add option="-DHW3SOUND" />
+					<Add option="-DHAVE_PNG" />
+					<Add option="-DNDEBUG" />
+					<Add directory="tools/libpng-src" />
+					<Add directory="tools/zlib" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="src/win32" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="advapi32" />
+					<Add library="dinput" />
+					<Add library="dxguid" />
+					<Add library="gdi32" />
+					<Add library="kernel32" />
+					<Add library="msvcrt" />
+					<Add library="user32" />
+					<Add library="winmm" />
+					<Add library="ws2_32" />
+					<Add library="tools/libpng-src/projects/libpng.a64" />
+					<Add library="tools/zlib/win32/libz.a64" />
+				</Linker>
+			</Target>
+			<Target title="Debug Mingw64 R_OpenGL">
+				<Option output="bin/Mingw64/Debug/r_opengl.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Debug" />
+				<Option object_output="objs/Mingw64/Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/r_mingw.def" />
+					<Add library="gdi32" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64 R_OpenGL">
+				<Option output="bin/Mingw64/Release/r_opengl.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Release" />
+				<Option object_output="objs/Mingw64/Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/r_mingw.def" />
+					<Add library="gdi32" />
+				</Linker>
+			</Target>
+			<Target title="Debug Mingw64 R_MiniGL">
+				<Option output="bin/Mingw64/Debug/r_opengl.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Debug" />
+				<Option object_output="objs/Mingw64/Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/r_mingw.def" />
+					<Add library="gdi32" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64 R_MiniGL">
+				<Option output="bin/Mingw64/Release/r_opengl.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Release" />
+				<Option object_output="objs/Mingw64/Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/r_mingw.def" />
+					<Add library="gdi32" />
+				</Linker>
+			</Target>
+			<Target title="Debug Mingw64 S_DS3D">
+				<Option output="bin/Mingw64/Debug/s_ds3d.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Debug" />
+				<Option object_output="objs/Mingw64/Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/s_mingw.def" />
+					<Add library="dsound" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64 S_DS3D">
+				<Option output="bin/Mingw64/Release/s_ds3d.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Release" />
+				<Option object_output="objs/Mingw64/Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/s_mingw.def" />
+					<Add library="dsound" />
+				</Linker>
+			</Target>
+			<Target title="Debug Mingw64 S_FMOD">
+				<Option output="bin/Mingw64/Debug/s_fmod.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Debug" />
+				<Option object_output="objs/Mingw64/Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/s_mingw.def" />
+					<Add library="fmod" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64 S_FMOD">
+				<Option output="bin/Mingw64/Release/s_fmod.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Release" />
+				<Option object_output="objs/Mingw64/Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/s_mingw.def" />
+					<Add library="fmod" />
+				</Linker>
+			</Target>
+			<Target title="Debug Mingw64 S_OpenAL">
+				<Option output="bin/Mingw64/Debug/s_opneal.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Debug" />
+				<Option object_output="objs/Mingw64/Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/s_mingw.def" />
+					<Add library="openal32" />
+				</Linker>
+			</Target>
+			<Target title="Release Mingw64 S_OpenAL">
+				<Option output="bin/Mingw64/Release/s_openal.dll" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="bin/Mingw64/Release" />
+				<Option object_output="objs/Mingw64/Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-mms-bitfields" />
+					<Add option="-D_WINDOWS" />
+				</Compiler>
+				<Linker>
+					<Add option="--def src/hardware/s_mingw.def" />
+					<Add library="openal32" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-W" />
@@ -519,6 +821,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/am_map.h">
 			<Option target="Debug Native/SDL" />
@@ -531,6 +837,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/byteptr.h">
 			<Option target="Debug Native/SDL" />
@@ -543,6 +853,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/command.c">
 			<Option compilerVar="CC" />
@@ -556,6 +870,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/command.h">
 			<Option target="Debug Native/SDL" />
@@ -568,6 +886,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/comptime.c">
 			<Option compilerVar="CC" />
@@ -582,6 +904,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/console.c">
 			<Option compilerVar="CC" />
@@ -595,6 +921,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/console.h">
 			<Option target="Debug Native/SDL" />
@@ -607,6 +937,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_clisrv.c">
 			<Option compilerVar="CC" />
@@ -620,6 +954,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_clisrv.h">
 			<Option target="Debug Native/SDL" />
@@ -632,6 +970,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_englsh.h">
 			<Option target="Debug Native/SDL" />
@@ -644,6 +986,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_event.h">
 			<Option target="Debug Native/SDL" />
@@ -656,6 +1002,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_main.c">
 			<Option compilerVar="CC" />
@@ -669,6 +1019,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_main.h">
 			<Option target="Debug Native/SDL" />
@@ -681,6 +1035,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_net.c">
 			<Option compilerVar="CC" />
@@ -694,6 +1052,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_net.h">
 			<Option target="Debug Native/SDL" />
@@ -706,6 +1068,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_netcmd.c">
 			<Option compilerVar="CC" />
@@ -719,6 +1085,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_netcmd.h">
 			<Option target="Debug Native/SDL" />
@@ -731,6 +1101,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_netfil.c">
 			<Option compilerVar="CC" />
@@ -744,6 +1118,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_netfil.h">
 			<Option target="Debug Native/SDL" />
@@ -756,6 +1134,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_player.h">
 			<Option target="Debug Native/SDL" />
@@ -768,6 +1150,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_think.h">
 			<Option target="Debug Native/SDL" />
@@ -780,6 +1166,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/d_ticcmd.h">
 			<Option target="Debug Native/SDL" />
@@ -792,6 +1182,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/dehacked.c">
 			<Option compilerVar="CC" />
@@ -805,6 +1199,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/dehacked.h">
 			<Option target="Debug Native/SDL" />
@@ -817,6 +1215,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/doomdata.h">
 			<Option target="Debug Native/SDL" />
@@ -829,6 +1231,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/doomdef.h">
 			<Option target="Debug Native/SDL" />
@@ -841,6 +1247,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/doomstat.h">
 			<Option target="Debug Native/SDL" />
@@ -853,6 +1263,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/doomtype.h">
 			<Option target="Debug Native/SDL" />
@@ -865,6 +1279,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/dstrings.c">
 			<Option compilerVar="CC" />
@@ -878,6 +1296,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/dstrings.h">
 			<Option target="Debug Native/SDL" />
@@ -890,6 +1312,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/dummy/i_cdmus.c">
 			<Option compilerVar="CC" />
@@ -933,6 +1359,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/f_finale.h">
 			<Option target="Debug Native/SDL" />
@@ -945,6 +1375,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/f_wipe.c">
 			<Option compilerVar="CC" />
@@ -958,6 +1392,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/filesrch.c">
 			<Option compilerVar="CC" />
@@ -971,6 +1409,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/filesrch.h">
 			<Option target="Debug Native/SDL" />
@@ -983,6 +1425,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/g_game.c">
 			<Option compilerVar="CC" />
@@ -996,6 +1442,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/g_game.h">
 			<Option target="Debug Native/SDL" />
@@ -1008,6 +1458,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/g_input.c">
 			<Option compilerVar="CC" />
@@ -1021,6 +1475,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/g_input.h">
 			<Option target="Debug Native/SDL" />
@@ -1033,6 +1491,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/g_state.h">
 			<Option target="Debug Native/SDL" />
@@ -1045,6 +1507,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw3dsdrv.h">
 			<Option target="Debug Native/SDL" />
@@ -1057,6 +1523,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw3sound.c">
 			<Option compilerVar="CC" />
@@ -1070,6 +1540,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw3sound.h">
 			<Option target="Debug Native/SDL" />
@@ -1082,6 +1556,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_bsp.c">
 			<Option compilerVar="CC" />
@@ -1095,6 +1573,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_cache.c">
 			<Option compilerVar="CC" />
@@ -1108,6 +1590,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_data.h">
 			<Option target="Debug Native/SDL" />
@@ -1120,6 +1606,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_defs.h">
 			<Option target="Debug Native/SDL" />
@@ -1132,6 +1622,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_dll.h">
 			<Option target="Debug Native/SDL" />
@@ -1144,6 +1638,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_draw.c">
 			<Option compilerVar="CC" />
@@ -1157,6 +1655,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_drv.h">
 			<Option target="Debug Native/SDL" />
@@ -1169,6 +1671,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_glide.h">
 			<Option target="Debug Native/SDL" />
@@ -1181,6 +1687,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_glob.h">
 			<Option target="Debug Native/SDL" />
@@ -1193,6 +1703,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_light.c">
 			<Option compilerVar="CC" />
@@ -1206,6 +1720,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_light.h">
 			<Option target="Debug Native/SDL" />
@@ -1218,6 +1736,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_main.c">
 			<Option compilerVar="CC" />
@@ -1231,6 +1753,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_main.h">
 			<Option target="Debug Native/SDL" />
@@ -1243,6 +1769,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_md2.c">
 			<Option compilerVar="CC" />
@@ -1256,6 +1786,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_md2.h">
 			<Option target="Debug Native/SDL" />
@@ -1268,6 +1802,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hw_trick.c">
 			<Option compilerVar="CC" />
@@ -1281,6 +1819,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/hws_data.h">
 			<Option target="Debug Native/SDL" />
@@ -1293,24 +1835,39 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hardware/r_minigl/r_minigl.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw R_MiniGL" />
 			<Option target="Release Mingw R_MiniGL" />
+			<Option target="Debug Mingw64 R_MiniGL" />
+			<Option target="Release Mingw64 R_MiniGL" />
 		</Unit>
 		<Unit filename="src/hardware/r_opengl/ogl_win.c">
 			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="Debug Mingw R_OpenGL" />
+			<Option target="Release Mingw R_OpenGL" />
+			<Option target="Debug Mingw64 R_OpenGL" />
+			<Option target="Release Mingw64 R_OpenGL" />
 		</Unit>
 		<Unit filename="src/hardware/r_opengl/r_opengl.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Native/SDL" />
 			<Option target="Release Native/SDL" />
-			<Option target="Debug Mingw/SDL" />
-			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw/SDL" />
+			<Option target="Release Mingw/SDL" />
+			<Option target="Debug Mingw R_OpenGL" />
+			<Option target="Release Mingw R_OpenGL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64 R_OpenGL" />
+			<Option target="Release Mingw64 R_OpenGL" />
 		</Unit>
 		<Unit filename="src/hardware/r_opengl/r_opengl.h">
 			<Option target="Debug Native/SDL" />
@@ -1325,16 +1882,26 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw R_MiniGL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64 R_OpenGL" />
+			<Option target="Release Mingw64 R_OpenGL" />
+			<Option target="Debug Mingw64 R_MiniGL" />
+			<Option target="Release Mingw64 R_MiniGL" />
 		</Unit>
 		<Unit filename="src/hardware/s_ds3d/s_ds3d.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw S_DS3D" />
 			<Option target="Release Mingw S_DS3D" />
+			<Option target="Debug Mingw64 S_DS3D" />
+			<Option target="Release Mingw64 S_DS3D" />
 		</Unit>
 		<Unit filename="src/hardware/s_fmod/s_fmod.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw S_FMOD" />
 			<Option target="Release Mingw S_FMOD" />
+			<Option target="Debug Mingw64 S_FMOD" />
+			<Option target="Release Mingw64 S_FMOD" />
 		</Unit>
 		<Unit filename="src/hardware/s_openal/s_openal.c">
 			<Option compilerVar="CC" />
@@ -1342,6 +1909,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw S_OpenAL" />
 			<Option target="Debug Shared S_OpenAL" />
 			<Option target="Release Shared S_OpenAL" />
+			<Option target="Debug Mingw64 S_OpenAL" />
+			<Option target="Release Mingw64 S_OpenAL" />
 		</Unit>
 		<Unit filename="src/hu_stuff.c">
 			<Option compilerVar="CC" />
@@ -1355,6 +1924,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/hu_stuff.h">
 			<Option target="Debug Native/SDL" />
@@ -1367,6 +1940,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_joy.h">
 			<Option target="Debug Native/SDL" />
@@ -1379,6 +1956,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_net.h">
 			<Option target="Debug Native/SDL" />
@@ -1391,6 +1972,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_sound.h">
 			<Option target="Debug Native/SDL" />
@@ -1403,6 +1988,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_system.h">
 			<Option target="Debug Native/SDL" />
@@ -1415,6 +2004,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_tcp.c">
 			<Option compilerVar="CC" />
@@ -1428,6 +2021,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_tcp.h">
 			<Option target="Debug Native/SDL" />
@@ -1440,6 +2037,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/i_video.h">
 			<Option target="Debug Native/SDL" />
@@ -1452,6 +2053,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/info.c">
 			<Option compilerVar="CC" />
@@ -1465,6 +2070,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/info.h">
 			<Option target="Debug Native/SDL" />
@@ -1477,6 +2086,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/keys.h">
 			<Option target="Debug Native/SDL" />
@@ -1489,6 +2102,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/lzf.c">
 			<Option compilerVar="CC" />
@@ -1502,6 +2119,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/lzf.h">
 			<Option target="Debug Native/SDL" />
@@ -1514,6 +2135,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_argv.c">
 			<Option compilerVar="CC" />
@@ -1527,6 +2152,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_argv.h">
 			<Option target="Debug Native/SDL" />
@@ -1539,6 +2168,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_bbox.c">
 			<Option compilerVar="CC" />
@@ -1552,6 +2185,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_bbox.h">
 			<Option target="Debug Native/SDL" />
@@ -1564,6 +2201,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_cheat.c">
 			<Option compilerVar="CC" />
@@ -1577,6 +2218,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_cheat.h">
 			<Option target="Debug Native/SDL" />
@@ -1589,6 +2234,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_dllist.h">
 			<Option target="Debug Native/SDL" />
@@ -1601,6 +2250,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_fixed.c">
 			<Option compilerVar="CC" />
@@ -1614,6 +2267,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_fixed.h">
 			<Option target="Debug Native/SDL" />
@@ -1626,6 +2283,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_menu.c">
 			<Option compilerVar="CC" />
@@ -1639,6 +2300,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_menu.h">
 			<Option target="Debug Native/SDL" />
@@ -1651,6 +2316,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_misc.c">
 			<Option compilerVar="CC" />
@@ -1664,6 +2333,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_misc.h">
 			<Option target="Debug Native/SDL" />
@@ -1676,6 +2349,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_queue.c">
 			<Option compilerVar="CC" />
@@ -1689,6 +2366,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_queue.h">
 			<Option target="Debug Native/SDL" />
@@ -1701,6 +2382,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_random.c">
 			<Option compilerVar="CC" />
@@ -1714,6 +2399,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_random.h">
 			<Option target="Debug Native/SDL" />
@@ -1726,6 +2415,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/m_swap.h">
 			<Option target="Debug Native/SDL" />
@@ -1738,6 +2431,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/md5.c">
 			<Option compilerVar="CC" />
@@ -1751,6 +2448,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/md5.h">
 			<Option target="Debug Native/SDL" />
@@ -1763,6 +2464,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/mserv.c">
 			<Option compilerVar="CC" />
@@ -1776,6 +2481,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/mserv.h">
 			<Option target="Debug Native/SDL" />
@@ -1788,6 +2497,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p5prof.h">
 			<Option target="Debug Native/SDL" />
@@ -1800,6 +2513,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_ceilng.c">
 			<Option compilerVar="CC" />
@@ -1813,6 +2530,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_enemy.c">
 			<Option compilerVar="CC" />
@@ -1826,6 +2547,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_fab.c">
 			<Option compilerVar="CC" />
@@ -1839,6 +2564,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_floor.c">
 			<Option compilerVar="CC" />
@@ -1852,6 +2581,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_inter.c">
 			<Option compilerVar="CC" />
@@ -1865,6 +2598,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_lights.c">
 			<Option compilerVar="CC" />
@@ -1878,6 +2615,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_local.h">
 			<Option target="Debug Native/SDL" />
@@ -1890,6 +2631,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_map.c">
 			<Option compilerVar="CC" />
@@ -1903,6 +2648,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_maputl.c">
 			<Option compilerVar="CC" />
@@ -1916,6 +2665,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_maputl.h">
 			<Option target="Debug Native/SDL" />
@@ -1928,6 +2681,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_mobj.c">
 			<Option compilerVar="CC" />
@@ -1941,6 +2698,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_mobj.h">
 			<Option target="Debug Native/SDL" />
@@ -1953,6 +2714,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_polyobj.c">
 			<Option compilerVar="CC" />
@@ -1966,6 +2731,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_polyobj.h">
 			<Option target="Debug Native/SDL" />
@@ -1978,6 +2747,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_pspr.h">
 			<Option target="Debug Native/SDL" />
@@ -1990,6 +2763,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_saveg.c">
 			<Option compilerVar="CC" />
@@ -2003,6 +2780,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_saveg.h">
 			<Option target="Debug Native/SDL" />
@@ -2015,6 +2796,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_setup.c">
 			<Option compilerVar="CC" />
@@ -2028,6 +2813,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_setup.h">
 			<Option target="Debug Native/SDL" />
@@ -2040,6 +2829,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_sight.c">
 			<Option compilerVar="CC" />
@@ -2053,6 +2846,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_spec.c">
 			<Option compilerVar="CC" />
@@ -2066,6 +2863,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_spec.h">
 			<Option target="Debug Native/SDL" />
@@ -2078,6 +2879,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_telept.c">
 			<Option compilerVar="CC" />
@@ -2091,6 +2896,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_tick.c">
 			<Option compilerVar="CC" />
@@ -2104,6 +2913,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_tick.h">
 			<Option target="Debug Native/SDL" />
@@ -2116,6 +2929,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/p_user.c">
 			<Option compilerVar="CC" />
@@ -2129,6 +2946,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_bsp.c">
 			<Option compilerVar="CC" />
@@ -2142,6 +2963,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_bsp.h">
 			<Option target="Debug Native/SDL" />
@@ -2154,6 +2979,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_data.c">
 			<Option compilerVar="CC" />
@@ -2167,6 +2996,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_data.h">
 			<Option target="Debug Native/SDL" />
@@ -2179,6 +3012,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_defs.h">
 			<Option target="Debug Native/SDL" />
@@ -2191,6 +3028,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_draw.c">
 			<Option compilerVar="CC" />
@@ -2204,6 +3045,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_draw.h">
 			<Option target="Debug Native/SDL" />
@@ -2216,6 +3061,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_draw16.c">
 			<Option compilerVar="CC" />
@@ -2231,6 +3080,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_draw8.c">
 			<Option compilerVar="CC" />
@@ -2246,6 +3099,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_local.h">
 			<Option target="Debug Native/SDL" />
@@ -2258,6 +3115,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_main.c">
 			<Option compilerVar="CC" />
@@ -2271,6 +3132,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_main.h">
 			<Option target="Debug Native/SDL" />
@@ -2283,6 +3148,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_plane.c">
 			<Option compilerVar="CC" />
@@ -2296,6 +3165,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_plane.h">
 			<Option target="Debug Native/SDL" />
@@ -2308,6 +3181,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_segs.c">
 			<Option compilerVar="CC" />
@@ -2321,6 +3198,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_segs.h">
 			<Option target="Debug Native/SDL" />
@@ -2333,6 +3214,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_sky.c">
 			<Option compilerVar="CC" />
@@ -2346,6 +3231,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_sky.h">
 			<Option target="Debug Native/SDL" />
@@ -2358,6 +3247,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_splats.c">
 			<Option compilerVar="CC" />
@@ -2371,6 +3264,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_splats.h">
 			<Option target="Debug Native/SDL" />
@@ -2383,6 +3280,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_state.h">
 			<Option target="Debug Native/SDL" />
@@ -2395,6 +3296,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_things.c">
 			<Option compilerVar="CC" />
@@ -2408,6 +3313,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/r_things.h">
 			<Option target="Debug Native/SDL" />
@@ -2420,6 +3329,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/s_sound.c">
 			<Option compilerVar="CC" />
@@ -2433,6 +3346,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/s_sound.h">
 			<Option target="Debug Native/SDL" />
@@ -2445,6 +3362,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/screen.c">
 			<Option compilerVar="CC" />
@@ -2458,6 +3379,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/screen.h">
 			<Option target="Debug Native/SDL" />
@@ -2470,6 +3395,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/sdl/IMG_xpm.c">
 			<Option compilerVar="CC" />
@@ -2483,6 +3412,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/dosstr.c">
 			<Option compilerVar="CC" />
@@ -2492,6 +3423,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/endtxt.c">
 			<Option compilerVar="CC" />
@@ -2501,6 +3434,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/endtxt.h">
 			<Option target="Debug Native/SDL" />
@@ -2511,6 +3446,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/filters.c">
 			<Option compilerVar="CC" />
@@ -2520,6 +3457,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/filters.h">
 			<Option target="Debug Native/SDL" />
@@ -2530,6 +3469,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/hq2x.c">
 			<Option compilerVar="CC" />
@@ -2539,6 +3480,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/hq2x.h">
 			<Option target="Debug Native/SDL" />
@@ -2549,6 +3492,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/interp.h">
 			<Option target="Debug Native/SDL" />
@@ -2559,6 +3504,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/lq2x.c">
 			<Option compilerVar="CC" />
@@ -2568,6 +3515,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/lq2x.h">
 			<Option target="Debug Native/SDL" />
@@ -2578,6 +3527,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/filter/main.c">
 			<Option compilerVar="CC" />
@@ -2591,6 +3542,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/hwsym_sdl.c">
 			<Option compilerVar="CC" />
@@ -2600,6 +3553,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/hwsym_sdl.h">
 			<Option target="Debug Native/SDL" />
@@ -2610,6 +3565,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/i_cdmus.c">
 			<Option compilerVar="CC" />
@@ -2619,6 +3576,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/i_main.c">
 			<Option compilerVar="CC" />
@@ -2628,6 +3587,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/i_net.c">
 			<Option compilerVar="CC" />
@@ -2637,6 +3598,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/i_sound.c">
 			<Option compilerVar="CC" />
@@ -2646,6 +3609,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/i_system.c">
 			<Option compilerVar="CC" />
@@ -2655,6 +3620,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/i_video.c">
 			<Option compilerVar="CC" />
@@ -2664,6 +3631,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/ogl_sdl.c">
 			<Option compilerVar="CC" />
@@ -2673,6 +3642,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/ogl_sdl.h">
 			<Option target="Debug Native/SDL" />
@@ -2683,6 +3654,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sdl/sdlmain.h">
 			<Option target="Debug Native/SDL" />
@@ -2693,6 +3666,8 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
 		</Unit>
 		<Unit filename="src/sounds.c">
 			<Option compilerVar="CC" />
@@ -2706,6 +3681,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/sounds.h">
 			<Option target="Debug Native/SDL" />
@@ -2718,6 +3697,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/st_stuff.c">
 			<Option compilerVar="CC" />
@@ -2731,6 +3714,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/st_stuff.h">
 			<Option target="Debug Native/SDL" />
@@ -2743,6 +3730,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/string.c">
 			<Option compilerVar="CC" />
@@ -2756,6 +3747,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/tables.c">
 			<Option compilerVar="CC" />
@@ -2769,6 +3764,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/tables.h">
 			<Option target="Debug Native/SDL" />
@@ -2781,18 +3780,30 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/tmap.nas">
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/tmap_mmx.nas">
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/v_video.c">
 			<Option compilerVar="CC" />
@@ -2806,6 +3817,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/v_video.h">
 			<Option target="Debug Native/SDL" />
@@ -2818,6 +3833,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/vid_copy.s">
 			<Option compile="0" />
@@ -2826,6 +3845,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/w_wad.c">
 			<Option compilerVar="CC" />
@@ -2839,6 +3862,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/w_wad.h">
 			<Option target="Debug Native/SDL" />
@@ -2851,101 +3878,147 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/Srb2win.rc">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/afxres.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/dx_error.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/dx_error.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/fabdxlib.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/fabdxlib.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/mid2strm.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/mid2strm.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/midstuff.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/resource.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_cd.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_dbg.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_dbg.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_dll.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_dll.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_main.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_main.h">
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_net.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_snd.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_sys.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/win32/win_vid.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/y_inter.c">
 			<Option compilerVar="CC" />
@@ -2959,6 +4032,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/y_inter.h">
 			<Option target="Debug Native/SDL" />
@@ -2971,6 +4048,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/z_zone.c">
 			<Option compilerVar="CC" />
@@ -2984,6 +4065,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Unit filename="src/z_zone.h">
 			<Option target="Debug Native/SDL" />
@@ -2996,6 +4081,10 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Release Amy/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
+			<Option target="Debug Mingw64/SDL" />
+			<Option target="Release Mingw64/SDL" />
+			<Option target="Debug Mingw64/DirectX" />
+			<Option target="Release Mingw64/DirectX" />
 		</Unit>
 		<Extensions>
 			<envvars />

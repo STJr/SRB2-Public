@@ -43,20 +43,20 @@ credit_t credits[19];
 
 // Stage of animation:
 // 0 = text, 1 = art screen
-static int finalestage;
-static int finalecount;
-int titlescrollspeed = 80;
+static INT32 finalestage;
+static INT32 finalecount;
+INT32 titlescrollspeed = 80;
 
-static int timetonext; // Delay between screen changes
-static int finaletextcount;
+static INT32 timetonext; // Delay between screen changes
+static INT32 finaletextcount;
 static tic_t animtimer; // Used for some animation timings
-static int roidtics; // Asteroid spinning
+static INT32 roidtics; // Asteroid spinning
 
-static int deplete;
+static INT32 deplete;
 static tic_t stoptimer;
 
 // Intro
-static int scene;
+static INT32 scene;
 
 #define NUMINTROSCENES 16
 
@@ -465,11 +465,11 @@ void F_StartCredits(void)
 	i++;
 }
 
-static int scenenum, cutnum;
-static int picxpos, picypos, picnum, pictime;
-static int textxpos, textypos;
+static INT32 scenenum, cutnum;
+static INT32 picxpos, picypos, picnum, pictime;
+static INT32 textxpos, textypos;
 
-void F_StartCustomCutscene(int cutscenenum, boolean precutscene, boolean resetplayer)
+void F_StartCustomCutscene(INT32 cutscenenum, boolean precutscene, boolean resetplayer)
 {
 	G_SetGamestate(GS_CUTSCENE);
 
@@ -534,7 +534,7 @@ void F_StartIntro(void)
 // Intro
 boolean F_IntroResponder(event_t *event)
 {
-	int key = event->data1;
+	INT32 key = event->data1;
 
 	// remap virtual keys (mouse & joystick buttons)
 	switch (key)
@@ -592,7 +592,7 @@ boolean F_CutsceneResponder(event_t *event)
 
 boolean F_CreditResponder(event_t *event)
 {
-	int key = event->data1;
+	INT32 key = event->data1;
 
 	// remap virtual keys (mouse & joystick buttons)
 	switch (key)
@@ -699,7 +699,7 @@ void F_IntroTicker(void)
 
 void F_CutsceneTicker(void)
 {
-	int i;
+	INT32 i;
 
 	// advance animation
 	finalecount++;
@@ -723,9 +723,9 @@ void F_CutsceneTicker(void)
 //
 // F_WriteText
 //
-static void F_WriteText(int cx, int cy)
+static void F_WriteText(INT32 cx, INT32 cy)
 {
-	int count, c, w, originalx = cx;
+	INT32 count, c, w, originalx = cx;
 	const char *ch = finaletext; // draw some of the text onto the screen
 
 	count = (finaletextcount - 10)/2;
@@ -782,7 +782,7 @@ static void F_WriteText(int cx, int cy)
 
 static void F_WriteCutsceneText(void)
 {
-	int count, c, w, originalx = textxpos, cx = textxpos, cy = textypos;
+	INT32 count, c, w, originalx = textxpos, cx = textxpos, cy = textypos;
 	const char *ch = finaletext; // draw some of the text onto the screen
 
 	count = (finaletextcount - 10)/2;
@@ -838,7 +838,7 @@ static void F_WriteCutsceneText(void)
 static void F_IntroTextWrite(void)
 {
 	boolean nobg = false, highres = false;
-	int cx = 8, cy = 128;
+	INT32 cx = 8, cy = 128;
 
 	// DRAW A FULL PIC INSTEAD OF FLAT!
 	if (finaletext == text[INTRO01TEXT])
@@ -970,7 +970,7 @@ static void F_IntroTextWrite(void)
 				V_DrawScaledPatch(deplete, 8, 0, W_CachePatchName("RUN1", PU_CACHE));
 				V_DrawScaledPatch(deplete, 72, 0, W_CachePatchName("PEELOUT1", PU_CACHE));
 			}
-			V_DrawFill(0, 112, vid.width, (int)(vid.height - 112*vid.fdupy), 31);
+			V_DrawFill(0, 112, vid.width, (INT32)(vid.height - 112*vid.fdupy), 31);
 		}
 	}
 	else if (finaletext == text[INTRO08TEXT] && timetonext > 0 && finaletextcount >= 5*TICRATE
@@ -1099,7 +1099,7 @@ static void F_IntroTextWrite(void)
 //
 // F_DrawPatchCol
 //
-static void F_DrawPatchCol(int x, patch_t *patch, int col, int yrepeat)
+static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
 {
 	const column_t *column;
 	const byte *source;
@@ -1120,11 +1120,11 @@ static void F_DrawPatchCol(int x, patch_t *patch, int col, int yrepeat)
 
 		while (count--)
 		{
-			int dupycount = vid.dupy;
+			INT32 dupycount = vid.dupy;
 
 			while (dupycount--)
 			{
-				int dupxcount = vid.dupx;
+				INT32 dupxcount = vid.dupx;
 				while (dupxcount-- && dest <= deststop)
 					*dest++ = *source;
 
@@ -1146,11 +1146,11 @@ static void F_DrawPatchCol(int x, patch_t *patch, int col, int yrepeat)
 
 			while (count--)
 			{
-				int dupycount = vid.dupy;
+				INT32 dupycount = vid.dupy;
 
 				while (dupycount--)
 				{
-					int dupxcount = vid.dupx;
+					INT32 dupxcount = vid.dupx;
 					while (dupxcount-- && dest <= deststop)
 						*dest++ = *source;
 
@@ -1170,7 +1170,7 @@ static void F_DrawPatchCol(int x, patch_t *patch, int col, int yrepeat)
 //
 static void F_SkyScroll(void)
 {
-	int scrolled, x, mx, fakedwidth;
+	INT32 scrolled, x, mx, fakedwidth;
 	patch_t *pat;
 
 	pat = W_CachePatchName("TITLESKY", PU_CACHE);
@@ -1181,7 +1181,7 @@ static void F_SkyScroll(void)
 
 	if (rendermode == render_soft)
 	{
-		int yr = 0;
+		INT32 yr = 0;
 
 		if (vid.fdupy > vid.dupy)
 			yr = vid.height - vid.dupy*SHORT(pat->height);
@@ -1274,7 +1274,7 @@ void F_GameEndDrawer(void)
 
 void F_GameEvaluationDrawer(void)
 {
-	int x, y;
+	INT32 x, y;
 	const fixed_t radius = 48*FRACUNIT;
 	angle_t fa;
 
@@ -1289,9 +1289,9 @@ void F_GameEvaluationDrawer(void)
 	finalestage++;
 	timetonext = finalestage;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD1)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGA0", PU_CACHE));
@@ -1300,9 +1300,9 @@ void F_GameEvaluationDrawer(void)
 
 	timetonext += INTERVAL;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD2)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGB0", PU_CACHE));
@@ -1311,9 +1311,9 @@ void F_GameEvaluationDrawer(void)
 
 	timetonext += INTERVAL;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD3)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGC0", PU_CACHE));
@@ -1322,9 +1322,9 @@ void F_GameEvaluationDrawer(void)
 
 	timetonext += INTERVAL;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD4)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGD0", PU_CACHE));
@@ -1333,9 +1333,9 @@ void F_GameEvaluationDrawer(void)
 
 	timetonext += INTERVAL;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD5)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGE0", PU_CACHE));
@@ -1344,9 +1344,9 @@ void F_GameEvaluationDrawer(void)
 
 	timetonext += INTERVAL;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD6)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGF0", PU_CACHE));
@@ -1355,9 +1355,9 @@ void F_GameEvaluationDrawer(void)
 
 	timetonext += INTERVAL;
 
-	fa = FINEANGLE_C(timetonext);
-	x = 160 + FixedMul(FixedMul(FINECOSINE(fa),radius),1);
-	y = 100 + FixedMul(FixedMul(FINESINE(fa),radius),1);
+	fa = (FixedAngle(timetonext*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
+	x = 160 + FixedInt(FixedMul(FINECOSINE(fa),radius));
+	y = 100 + FixedInt(FixedMul(FINESINE(fa),radius));
 
 	if (emeralds & EMERALD7)
 		V_DrawScaledPatch(x, y, 0, W_CachePatchName("CEMGG0", PU_CACHE));
@@ -1372,8 +1372,8 @@ void F_GameEvaluationDrawer(void)
 		if ((!modifiedgame || savemoddata) && !(netgame || multiplayer) && mapheaderinfo[gamemap-1].nextlevel == 1102)
 		{
 			boolean alreadyplayed = false;
-			int bitcount = 0;
-			int i;
+			INT32 bitcount = 0;
+			INT32 i;
 
 			if (!(emblemlocations[MAXEMBLEMS-2].collected))
 			{
@@ -1430,7 +1430,7 @@ void F_GameEvaluationDrawer(void)
 				grade |= 1024;
 
 			if (cursaveslot != -1)
-				G_SaveGame((unsigned int)cursaveslot);
+				G_SaveGame((UINT32)cursaveslot);
 		}
 	}
 
@@ -1448,9 +1448,9 @@ void F_GameEvaluationDrawer(void)
 
 		if (savemoddata)
 		{
-			int i;
+			INT32 i;
 			boolean unlocked;
-			int startcoord = 32;
+			INT32 startcoord = 32;
 
 			for (i = 0; i < 15; i++)
 			{
@@ -1503,7 +1503,7 @@ void F_GameEvaluationDrawer(void)
 
 static void F_DrawCreditScreen(credit_t *creditpassed)
 {
-	int i, height, y;
+	INT32 i, height, y;
 
 	if (creditpassed->smallnames)
 		height = BASEVIDHEIGHT/((creditpassed->numnames/2)+1);
@@ -1611,7 +1611,7 @@ static void F_DrawCreditScreen(credit_t *creditpassed)
 	{
 		if (creditpassed->smallnames)
 		{
-			int x;
+			INT32 x;
 
 			if (cv_realnames.value)
 			{

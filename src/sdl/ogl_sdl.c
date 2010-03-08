@@ -58,10 +58,13 @@ PFNglClear pglClear;
 PFNglGetIntegerv pglGetIntegerv;
 PFNglGetString pglGetString;
 
+static const Uint32 WOGLFlags = SDL_OPENGL/*|SDL_RESIZABLE*/;
+static const Uint32 FOGLFlags = SDL_OPENGL|SDL_FULLSCREEN;
+
 /**	\brief SDL video display surface
 */
 SDL_Surface *vidSurface = NULL;
-int oglflags = 0;
+INT32 oglflags = 0;
 void *GLUhandle = NULL;
 
 void *GetGLFunc(const char *proc)
@@ -136,9 +139,10 @@ boolean LoadGL(void)
 
 	\return	if true, changed video mode
 */
-boolean OglSdlSurface(int w, int h, boolean isFullscreen)
+boolean OglSdlSurface(INT32 w, INT32 h, boolean isFullscreen)
 {
-	int cbpp;
+	INT32 cbpp;
+	Uint32 OGLFlags;
 	const GLvoid *glvendor = NULL, *glrenderer = NULL, *glversion = NULL;
 
 	cbpp = cv_scr_depth.value < 16 ? 16 : cv_scr_depth.value;
@@ -152,10 +156,16 @@ boolean OglSdlSurface(int w, int h, boolean isFullscreen)
 #endif
 	}
 
-	cbpp = SDL_VideoModeOK(w, h, cbpp, SDL_OPENGL|(isFullscreen?SDL_FULLSCREEN:SDL_RESIZABLE));
+	if (isFullscreen)
+		OGLFlags = FOGLFlags;
+	else
+		OGLFlags = WOGLFlags;
+
+	cbpp = SDL_VideoModeOK(w, h, cbpp, OGLFlags);
 	if (cbpp < 16)
 		return true; //Alam: Let just say we did, ok?
-	vidSurface = SDL_SetVideoMode(w, h, cbpp, SDL_OPENGL|(isFullscreen?SDL_FULLSCREEN:SDL_RESIZABLE));
+
+	vidSurface = SDL_SetVideoMode(w, h, cbpp, OGLFlags);
 	if (!vidSurface)
 		return false;
 
@@ -250,7 +260,7 @@ void OglSdlFinishUpdate(boolean waitvbl)
 
 EXPORT void HWRAPI( OglSdlSetPalette) (RGBA_t *palette, RGBA_t *pgamma)
 {
-	int i = -1;
+	INT32 i = -1;
 	byte redgamma = pgamma->s.red, greengamma = pgamma->s.green,
 		bluegamma = pgamma->s.blue;
 

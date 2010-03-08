@@ -19,14 +19,14 @@
 //      Do not try to look them up :-).
 //      In the order of appearance:
 //
-//      int finetangent[4096]   - Tangents LUT.
+//      fixed_t finetangent[4096]   - Tangents LUT.
 //       Should work with BAM fairly well (12 of 16bit, effectively, by shifting).
 //
-//      int finesine[10240]     - Sine lookup.
+//      fixed_t finesine[10240]     - Sine lookup.
 //       Guess what, serves as cosine, too.
 //       Remarkable thing is, how to use BAMs with this?
 //
-//      int tantoangle[2049]    - ArcTan LUT,
+//      fixed_t tantoangle[2049]    - ArcTan LUT,
 //        Maps tan(angle) to angle fast. Gotta search.
 //
 //-----------------------------------------------------------------------------
@@ -36,14 +36,14 @@
 ///	Do not try to look them up :-).
 ///	In the order of appearance:
 ///
-///	int finetangent[4096]   - Tangents LUT.
+///	fixed_t finetangent[4096]   - Tangents LUT.
 ///	Should work with BAM fairly well (12 of 16bit, effectively, by shifting).
 ///
-///	int finesine[10240]     - Sine lookup.
+///	fixed_t finesine[10240]     - Sine lookup.
 ///	Guess what, serves as cosine, too.
 ///	Remarkable thing is, how to use BAMs with this?
 ///
-///	int tantoangle[2049]    - ArcTan LUT,
+///	fixed_t tantoangle[2049]    - ArcTan LUT,
 ///	Maps tan(angle) to angle fast. Gotta search.
 
 #include "tables.h"
@@ -76,12 +76,6 @@ unsigned SlopeDiv(unsigned num, unsigned den)
 #define FIXED_TO_ANGLE(x) (angle_t)(((x)/45)<<(29-FRACBITS))
 
 #define FIXEDPOINTCONV
-
-#ifdef FIXEDPOINTCONV
-#ifdef _MSC_VER
-#pragma warning(disable : 4146)
-#endif
-#endif
 
 /*
 Old code that failed if FRACBITS was not 16.
@@ -131,19 +125,6 @@ fixed_t AngleFixed(angle_t af)
 #endif
 }
 
-FUNCMATH static fixed_t FixRange(fixed_t fa)
-{
-	const fixed_t rl = 360*FRACUNIT;
-	const boolean fan = fa < 0;
-	if (fan)
-		fa = -fa;
-	while (fa > rl)
-		fa -= rl;
-	if (fan)
-		fa = -fa;
-	return fa;
-}
-
 angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 {
 #ifdef FIXEDPOINTCONV
@@ -159,10 +140,12 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	else if (factor < 0)
 		wf = FixedDiv(wf, -factor);
 
-	//fa = FixRange(fa);
+	if (FixedRem(fa, wf*2) == 0) // hack for 0
+		ra = -abs(FixedMul(FixedDiv(fa, wf*2), FRACUNIT/256));
 
-	if (fan)
-		fa = -fa;
+	fa = FixedRem(fa, wf);
+
+	fa = abs(fa);
 
 	while (fa)
 	{
@@ -176,19 +159,19 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	}
 
 	if (fan)
-		return (angle_t)(-ra);
+		return ANGLE_MAX-ra+1;
 	else
 		return ra;
 #else
 	if (factor == 0)
 		return FixedAngle(fa);
 
-	//fa = FixRange(fa);
+	//fa = FixedMod(fa, 360*FRACUNIT);
 
 	if (factor > 0)
-		return (angle_t)((FIXED_TO_FLOAT(fa)/FIXED_TO_FLOAT(factor))*(ANGLE_45/45.0f));
+		return (angle_t)((FIXED_TO_FLOAT(fa)/FIXED_TO_FLOAT(factor))*(ANGLE_45/45));
 	else
-		return (angle_t)((FIXED_TO_FLOAT(fa)*FIXED_TO_FLOAT(-factor))*(ANGLE_45/45.0f));
+		return (angle_t)((FIXED_TO_FLOAT(fa)*FIXED_TO_FLOAT(-factor))*(ANGLE_45/45));
 #endif
 }
 
@@ -200,10 +183,12 @@ angle_t FixedAngle(fixed_t fa)
 	angle_t ra = 0;
 	const boolean fan = fa < 0;
 
-	fa = FixRange(fa);
+	if (FixedRem(fa, wf*2) == 0) // hack for 0
+		ra = -abs(FixedMul(FixedDiv(fa, wf*2), FRACUNIT/256));
 
-	if (fan)
-		fa = -fa;
+	fa = FixedRem(fa, 360*FRACUNIT);
+
+	fa = abs(fa);
 
 	while (fa)
 	{
@@ -216,17 +201,18 @@ angle_t FixedAngle(fixed_t fa)
 		fa = fa - wf;
 	}
 
+
 	if (fan)
-		return (angle_t)(-ra);
+		return ANGLE_MAX-ra+1;
 	else
 		return ra;
 #else
-	fa = FixRange(fa);
+	//fa = FixedMod(fa, 360*FRACUNIT);
 
 	if (fa == 0)
 		return 0;
 
-	return (angle_t)(FIXED_TO_FLOAT(fa)*(ANGLE_45/45.0f));
+	return (angle_t)(FIXED_TO_FLOAT(fa)*(ANGLE_45/45));
 #endif
 }
 

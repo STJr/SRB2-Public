@@ -96,7 +96,7 @@ typedef char md2_skin_t[64];
 typedef struct
 {
 	float s, t;
-	int vertexIndex;
+	INT32 vertexIndex;
 } ATTRPACK md2_glCommandVertex_t;
 
 typedef struct
@@ -106,7 +106,7 @@ typedef struct
 	md2_textureCoordinate_t *texCoords;
 	md2_triangle_t          *triangles;
 	md2_frame_t             *frames;
-	int                     *glCommandBuffer;
+	INT32                     *glCommandBuffer;
 } ATTRPACK md2_model_t;
 
 #if defined(_MSC_VER)

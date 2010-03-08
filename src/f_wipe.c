@@ -53,12 +53,12 @@ static byte *wipe_scr; //screens 0
 
 
 */
-static inline int F_InitWipe(int width, int height, tic_t ticks)
+static inline INT32 F_InitWipe(INT32 width, INT32 height, tic_t ticks)
 {
 	if(rendermode != render_soft)
 		return 0;
 	(void)ticks;
-	memcpy(wipe_scr, wipe_scr_start, width*height*scr_bpp);
+	M_Memcpy(wipe_scr, wipe_scr_start, width*height*scr_bpp);
 	return 0;
 }
 
@@ -72,13 +72,13 @@ static inline int F_InitWipe(int width, int height, tic_t ticks)
 
 
 */
-static int F_DoWipe(int width, int height, tic_t ticks)
+static INT32 F_DoWipe(INT32 width, INT32 height, tic_t ticks)
 {
 	boolean changed = false;
 	byte *w;
 	byte *e;
 	byte newval;
-	static int slowdown = 0;
+	static INT32 slowdown = 0;
 
 	while (ticks--)
 	{
@@ -147,7 +147,7 @@ void F_WipeStartScreen(void)
   * \param width  Width of the starting screen to restore.
   * \param height Height of the starting screen to restore.
   */
-void F_WipeEndScreen(int x, int y, int width, int height)
+void F_WipeEndScreen(INT32 x, INT32 y, INT32 width, INT32 height)
 {
 	if(rendermode != render_soft)
 	{
@@ -181,9 +181,9 @@ void F_WipeEndScreen(int x, int y, int width, int height)
 
 */
 
-int F_ScreenWipe(int x, int y, int width, int height, tic_t ticks)
+INT32 F_ScreenWipe(INT32 x, INT32 y, INT32 width, INT32 height, tic_t ticks)
 {
-	int rc = 1;
+	INT32 rc = 1;
 	// initial stuff
 	(void)x;
 	(void)y;

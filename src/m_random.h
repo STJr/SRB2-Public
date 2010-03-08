@@ -28,12 +28,12 @@ byte M_Random(void);
 #ifdef DEBUGRANDOM
 #define P_Random() P_Random2(__FILE__, __LINE__)
 #define P_SignedRandom() P_SignedRandom2(__FILE__, __LINE__)
-byte P_Random2(char *a, int b);
-int P_SignedRandom2(char *a, int b);
+byte P_Random2(char *a, INT32 b);
+INT32 P_SignedRandom2(char *a, INT32 b);
 #else
 // As M_Random, but used only by the play simulation.
 byte P_Random(void);
-int P_SignedRandom(void);
+INT32 P_SignedRandom(void);
 #endif
 
 // Fix randoms for demos.

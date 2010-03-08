@@ -40,7 +40,7 @@ drawseg_t *ds_p = NULL;
 drawseg_t *firstnewseg = NULL;
 
 // indicates doors closed wrt automap bugfix:
-int doorclosed;
+INT32 doorclosed;
 
 //
 // R_ClearDrawSegs
@@ -63,7 +63,7 @@ static cliprange_t solidsegs[MAXSEGS];
 //  e.g. single sided LineDefs (middle texture)
 //  that entirely block the view.
 //
-static void R_ClipSolidWallSegment(int first, int last)
+static void R_ClipSolidWallSegment(INT32 first, INT32 last)
 {
 	cliprange_t *next;
 	cliprange_t *start;
@@ -146,7 +146,7 @@ crunch:
 // Clips the given range of columns, but does not include it in the clip list.
 // Does handle windows, e.g. LineDefs with upper and lower texture.
 //
-static inline void R_ClipPassWallSegment(int first, int last)
+static inline void R_ClipPassWallSegment(INT32 first, INT32 last)
 {
 	cliprange_t *start;
 
@@ -207,7 +207,7 @@ void R_ClearClipSegs(void)
 //
 // It assumes that Doom has already ruled out a door being closed because
 // of front-back closure (e.g. front floor is taller than back ceiling).
-static inline int R_DoorClosed(void)
+static inline INT32 R_DoorClosed(void)
 {
 	return
 
@@ -231,10 +231,10 @@ static inline int R_DoorClosed(void)
 //
 // Similar for ceiling, only reflected.
 //
-sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec, int *floorlightlevel,
-	int *ceilinglightlevel, boolean back)
+sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec, INT32 *floorlightlevel,
+	INT32 *ceilinglightlevel, boolean back)
 {
-	int mapnum = -1;
+	INT32 mapnum = -1;
 	mobj_t *viewmobj = viewplayer->mo;
 
 	if (!viewmobj)
@@ -254,8 +254,8 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec, int *floorlightlevel,
 	else if (sec->heightsec != -1)
 	{
 		const sector_t *s = &sectors[sec->heightsec];
-		long heightsec = R_PointInSubsector(viewmobj->x, viewmobj->y)->sector->heightsec;
-		int underwater = heightsec != -1 && viewz <= sectors[heightsec].floorheight;
+		INT32 heightsec = R_PointInSubsector(viewmobj->x, viewmobj->y)->sector->heightsec;
+		INT32 underwater = heightsec != -1 && viewz <= sectors[heightsec].floorheight;
 
 		if (splitscreen && viewplayer == &players[secondarydisplayplayer]
 			&& camera2.chase)
@@ -369,7 +369,7 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec, int *floorlightlevel,
 //
 static void R_AddLine(seg_t *line)
 {
-	int x1, x2;
+	INT32 x1, x2;
 	angle_t angle1, angle2, span, tspan;
 	static sector_t tempsec; // ceiling/water hack
 
@@ -386,7 +386,7 @@ static void R_AddLine(seg_t *line)
 	span = angle1 - angle2;
 
 	// Back side? i.e. backface culling?
-	if (span >= ANG180)
+	if (span >= ANGLE_180)
 		return;
 
 	// Global angle needed by segcalc.
@@ -418,8 +418,8 @@ static void R_AddLine(seg_t *line)
 	}
 
 	// The seg is in the view range, but not necessarily visible.
-	angle1 = (angle1+ANG90)>>ANGLETOFINESHIFT;
-	angle2 = (angle2+ANG90)>>ANGLETOFINESHIFT;
+	angle1 = (angle1+ANGLE_90)>>ANGLETOFINESHIFT;
+	angle2 = (angle2+ANGLE_90)>>ANGLETOFINESHIFT;
 	x1 = viewangletox[angle1];
 	x2 = viewangletox[angle2];
 
@@ -507,7 +507,7 @@ clipsolid:
 // 0 | 0 | 1 | 2
 // 1 | 4 | 5 | 6
 // 2 | 8 | 9 | A
-int checkcoord[12][4] =
+INT32 checkcoord[12][4] =
 {
 	{3, 0, 2, 1},
 	{3, 0, 2, 0},
@@ -524,7 +524,7 @@ int checkcoord[12][4] =
 
 static boolean R_CheckBBox(fixed_t *bspcoord)
 {
-	int boxpos, sx1, sx2;
+	INT32 boxpos, sx1, sx2;
 	fixed_t px1, py1, px2, py2;
 	angle_t angle1, angle2, span, tspan;
 	cliprange_t *start;
@@ -559,7 +559,7 @@ static boolean R_CheckBBox(fixed_t *bspcoord)
 	span = angle1 - angle2;
 
 	// Sitting on a line?
-	if (span >= ANG180)
+	if (span >= ANGLE_180)
 		return true;
 
 	tspan = angle1 + clipangle;
@@ -587,8 +587,8 @@ static boolean R_CheckBBox(fixed_t *bspcoord)
 	}
 
 	// Find the first clippost that touches the source post (adjacent pixels are touching).
-	angle1 = (angle1+ANG90)>>ANGLETOFINESHIFT;
-	angle2 = (angle2+ANG90)>>ANGLETOFINESHIFT;
+	angle1 = (angle1+ANGLE_90)>>ANGLETOFINESHIFT;
+	angle2 = (angle2+ANGLE_90)>>ANGLETOFINESHIFT;
 	sx1 = viewangletox[angle1];
 	sx2 = viewangletox[angle2];
 
@@ -642,7 +642,7 @@ void R_SortPolyObjects(subsector_t *sub)
 	if (numpolys)
 	{
 		polyobj_t *po;
-		int i = 0;
+		INT32 i = 0;
 
 		// allocate twice the number needed to minimize allocations
 		if (num_po_ptrs < numpolys*2)
@@ -716,7 +716,7 @@ drawseg_t *firstseg;
 
 static void R_Subsector(size_t num)
 {
-	int count, floorlightlevel, ceilinglightlevel, light;
+	INT32 count, floorlightlevel, ceilinglightlevel, light;
 	seg_t *line;
 	subsector_t *sub;
 	static sector_t tempsec; // Deep water hack
@@ -725,7 +725,7 @@ static void R_Subsector(size_t num)
 
 #ifdef RANGECHECK
 	if (num >= numsubsectors)
-		I_Error("R_Subsector: ss %u with numss = %u", num, numsubsectors);
+		I_Error("R_Subsector: ss %"PRIdS" with numss = %"PRIdS"\n", num, numsubsectors);
 #endif
 
 	// subsectors added at run-time
@@ -987,7 +987,7 @@ void R_Prep3DFloors(sector_t *sector)
 	ffloor_t *rover;
 	ffloor_t *best;
 	fixed_t bestheight, maxheight;
-	int count, i, mapnum;
+	INT32 count, i, mapnum;
 	sector_t *sec;
 
 	count = 1;
@@ -1089,9 +1089,9 @@ void R_Prep3DFloors(sector_t *sector)
 	}
 }
 
-int R_GetPlaneLight(sector_t *sector, fixed_t planeheight, boolean underside)
+INT32 R_GetPlaneLight(sector_t *sector, fixed_t planeheight, boolean underside)
 {
-	int i;
+	INT32 i;
 
 	if (!underside)
 	{
@@ -1117,10 +1117,10 @@ int R_GetPlaneLight(sector_t *sector, fixed_t planeheight, boolean underside)
 //
 // killough 5/2/98: reformatted, removed tail recursion
 
-void R_RenderBSPNode(int bspnum)
+void R_RenderBSPNode(INT32 bspnum)
 {
 	node_t *bsp;
-	int side;
+	INT32 side;
 	while (!(bspnum & NF_SUBSECTOR))  // Found a subsector?
 	{
 		bsp = &nodes[bspnum];

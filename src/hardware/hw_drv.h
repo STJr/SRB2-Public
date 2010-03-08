@@ -41,34 +41,34 @@ EXPORT boolean HWRAPI(Init) (I_Error_t ErrorFunction);
 EXPORT void HWRAPI(Shutdown) (void);
 #endif
 #ifdef _WINDOWS
-EXPORT void HWRAPI(GetModeList) (vmode_t **pvidmodes, int *numvidmodes);
+EXPORT void HWRAPI(GetModeList) (vmode_t **pvidmodes, INT32 *numvidmodes);
 #endif
 #ifdef VID_X11
-EXPORT Window HWRAPI(HookXwin) (Display *, int, int, boolean);
+EXPORT Window HWRAPI(HookXwin) (Display *, INT32, INT32, boolean);
 #endif
 #if defined (PURESDL) || defined (macintosh)
-EXPORT void HWRAPI(SetPalette) (int *, RGBA_t *gamma);
+EXPORT void HWRAPI(SetPalette) (INT32 *, RGBA_t *gamma);
 #else
 EXPORT void HWRAPI(SetPalette) (RGBA_t *ppal, RGBA_t *pgamma);
 #endif
-EXPORT void HWRAPI(FinishUpdate) (int waitvbl);
+EXPORT void HWRAPI(FinishUpdate) (INT32 waitvbl);
 EXPORT void HWRAPI(Draw2DLine) (F2DCoord *v1, F2DCoord *v2, RGBA_t Color);
 EXPORT void HWRAPI(DrawPolygon) (FSurfaceInfo *pSurf, FOutVector *pOutVerts, FUINT iNumPts, FBITFIELD PolyFlags);
 EXPORT void HWRAPI(SetBlend) (FBITFIELD PolyFlags);
 EXPORT void HWRAPI(ClearBuffer) (FBOOLEAN ColorMask, FBOOLEAN DepthMask, FRGBAFloat *ClearColor);
 EXPORT void HWRAPI(SetTexture) (FTextureInfo *TexInfo);
-EXPORT void HWRAPI(ReadRect) (int x, int y, int width, int height, int dst_stride, unsigned short *dst_data);
-EXPORT void HWRAPI(GClipRect) (int minx, int miny, int maxx, int maxy, float nearclip);
+EXPORT void HWRAPI(ReadRect) (INT32 x, INT32 y, INT32 width, INT32 height, INT32 dst_stride, unsigned short *dst_data);
+EXPORT void HWRAPI(GClipRect) (INT32 minx, INT32 miny, INT32 maxx, INT32 maxy, float nearclip);
 EXPORT void HWRAPI(ClearMipMapCache) (void);
 
 //Hurdler: added for backward compatibility
-EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, int Value);
+EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value);
 
 //Hurdler: added for new development
-EXPORT void HWRAPI(DrawMD2) (int *gl_cmd_buffer, md2_frame_t *frame, FTransform *pos, float scale);
+EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG duration, ULONG tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color);
 EXPORT void HWRAPI(SetTransform) (FTransform *ptransform);
-EXPORT int HWRAPI(GetTextureUsed) (void);
-EXPORT int HWRAPI(GetRenderVersion) (void);
+EXPORT INT32 HWRAPI(GetTextureUsed) (void);
+EXPORT INT32 HWRAPI(GetRenderVersion) (void);
 
 #ifdef VID_X11 // ifdef to be removed as soon as windoze supports that as well
 // metzgermeister: added for Voodoo detection

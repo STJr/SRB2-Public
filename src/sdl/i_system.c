@@ -64,7 +64,7 @@ typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
 #define M_PI 3.14159265358979323846
 #endif
 #endif
-#if defined (unix) || defined (UNIXCOMMON)
+#if defined (__unix__) || defined (UNIXCOMMON)
 #include <fcntl.h>
 #endif
 
@@ -241,7 +241,7 @@ static void JoyReset(SDLJoyInfo_t *JoySet)
 
 /**	\brief First joystick up and running
 */
-static int joystick_started  = 0;
+static INT32 joystick_started  = 0;
 
 /**	\brief SDL info about joystick 1
 */
@@ -250,15 +250,15 @@ SDLJoyInfo_t JoyInfo;
 
 /**	\brief Second joystick up and running
 */
-static int joystick2_started = 0;
+static INT32 joystick2_started = 0;
 
 /**	\brief SDL inof about joystick 2
 */
 SDLJoyInfo_t JoyInfo2;
 
 #ifdef HAVE_TERMIOS
-static int fdmouse2 = -1;
-static int mouse2_started = 0;
+static INT32 fdmouse2 = -1;
+static INT32 mouse2_started = 0;
 #endif
 
 SDL_bool consolevent = SDL_FALSE;
@@ -280,7 +280,7 @@ SDL_bool framebuffer = SDL_FALSE;
 byte keyboard_started = false;
 
 #if 0
-static void signal_handler(int num)
+static void signal_handler(INT32 num)
 {
 	//static char msg[] = "oh no! back to reality!\r\n";
 	char *      sigmsg;
@@ -347,11 +347,11 @@ feild_t tty_con;
 // when printing general stuff to stdout stderr (Sys_Printf)
 //   we need to disable the tty console stuff
 // this increments so we can recursively disable
-static int ttycon_hide = 0;
+static INT32 ttycon_hide = 0;
 // some key codes that the terminal may be using
 // TTimo NOTE: I'm not sure how relevant this is
-static int tty_erase;
-static int tty_eof;
+static INT32 tty_erase;
+static INT32 tty_eof;
 
 static struct termios tty_tc;
 
@@ -544,7 +544,7 @@ void I_GetConsoleEvents(void)
 }
 
 #elif defined (_WIN32) && !(defined (_XBOX) || defined (_WIN32_WCE))
-static inline BOOL I_ReadyConsole(HANDLE ci)
+static BOOL I_ReadyConsole(HANDLE ci)
 {
 	DWORD gotinput;
 	if (ci == INVALID_HANDLE_VALUE) return FALSE;
@@ -633,7 +633,7 @@ void I_GetConsoleEvents(void)
 static void I_StartupConsole(void)
 {
 	HANDLE ci, co;
-	const int ded = M_CheckParm("-dedicated");
+	const INT32 ded = M_CheckParm("-dedicated");
 #ifdef SDLMAIN
 	BOOL gotConsole = FALSE;
 	if (M_CheckParm("-console") || ded)
@@ -850,11 +850,11 @@ void I_OutputMsg(const char *fmt, ...)
 //
 // I_GetKey
 //
-int I_GetKey (void)
+INT32 I_GetKey (void)
 {
 	// Warning: I_GetKey empties the event queue till next keypress
 	event_t *ev;
-	int rc = 0;
+	INT32 rc = 0;
 
 	// return the first keypress from the event queue
 	for (; eventtail != eventhead; eventtail = (eventtail+1)&(MAXEVENTS-1))
@@ -912,7 +912,7 @@ static INT64 lastjoyhats = 0;
 */
 static void I_ShutdownJoystick(void)
 {
-	int i;
+	INT32 i;
 	event_t event;
 	event.type=ev_keyup;
 	event.data2 = 0;
@@ -954,11 +954,11 @@ static void I_ShutdownJoystick(void)
 void I_GetJoystickEvents(void)
 {
 	static event_t event = {0,0,0,0};
-	int i = 0;
+	INT32 i = 0;
 	INT64 joyhats = 0;
 #if 0
 	INT64 joybuttons = 0;
-	int axisx, axisy;
+	INT32 axisx, axisy;
 #endif
 
 	if (!joystick_started) return;
@@ -1004,7 +1004,7 @@ void I_GetJoystickEvents(void)
 
 	for (i = JoyInfo.hats - 1; i >= 0; i--)
 	{
-		int hat = SDL_JoystickGetHat(JoyInfo.dev, i);
+		INT32 hat = SDL_JoystickGetHat(JoyInfo.dev, i);
 
 		if (hat & SDL_HAT_UP   ) joyhats|=1<<(0 + 4*i);
 		if (hat & SDL_HAT_DOWN ) joyhats|=1<<(1 + 4*i);
@@ -1096,11 +1096,11 @@ void I_GetJoystickEvents(void)
 
 
 */
-static int joy_open(const char *fname)
+static INT32 joy_open(const char *fname)
 {
-	int joyindex = atoi(fname);
-	int num_joy = 0;
-	int i;
+	INT32 joyindex = atoi(fname);
+	INT32 num_joy = 0;
+	INT32 i;
 
 	if (joystick_started == 0 && joystick2_started == 0)
 	{
@@ -1204,7 +1204,7 @@ static INT64 lastjoy2hats = 0;
 */
 static void I_ShutdownJoystick2(void)
 {
-	int i;
+	INT32 i;
 	event_t event;
 	event.type = ev_keyup;
 	event.data2 = 0;
@@ -1245,11 +1245,11 @@ static void I_ShutdownJoystick2(void)
 void I_GetJoystick2Events(void)
 {
 	static event_t event = {0,0,0,0};
-	int i = 0;
+	INT32 i = 0;
 	INT64 joyhats = 0;
 #if 0
 	INT64 joybuttons = 0;
-	int axisx, axisy;
+	INT32 axisx, axisy;
 #endif
 
 	if (!joystick2_started)
@@ -1292,7 +1292,7 @@ void I_GetJoystick2Events(void)
 
 	for (i = JoyInfo2.hats - 1; i >= 0; i--)
 	{
-		int hat = SDL_JoystickGetHat(JoyInfo2.dev, i);
+		INT32 hat = SDL_JoystickGetHat(JoyInfo2.dev, i);
 
 		if (hat & SDL_HAT_UP   ) joyhats|=1<<(0 + 4*i);
 		if (hat & SDL_HAT_DOWN ) joyhats|=1<<(1 + 4*i);
@@ -1387,11 +1387,11 @@ void I_GetJoystick2Events(void)
 
 
 */
-static int joy_open2(const char *fname)
+static INT32 joy_open2(const char *fname)
 {
-	int joyindex = atoi(fname);
-	int num_joy = 0;
-	int i;
+	INT32 joyindex = atoi(fname);
+	INT32 num_joy = 0;
+	INT32 i;
 
 	if (joystick_started == 0 && joystick2_started == 0)
 	{
@@ -1520,9 +1520,9 @@ static void I_ShutdownInput(void)
 
 }
 
-int I_NumJoys(void)
+INT32 I_NumJoys(void)
 {
-	int numjoy = 0;
+	INT32 numjoy = 0;
 	if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != -1)
@@ -1534,7 +1534,7 @@ int I_NumJoys(void)
 	return numjoy;
 }
 
-const char *I_GetJoyName(int joyindex)
+const char *I_GetJoyName(INT32 joyindex)
 {
 	const char *joyname = "NA";
 	joyindex--; //SDL's Joystick System starts at 0, not 1
@@ -1606,7 +1606,7 @@ void I_SetupMumble(void)
 
 	if (lm == MAP_FAILED)
 		lm = NULL;
-	memcpy(lm->name, GameW, sizeof(GameW));
+	M_Memcpy(lm->name, GameW, sizeof(GameW));
 #endif
 }
 
@@ -1641,10 +1641,10 @@ void I_UpdateMumble(const MumblePos_t *MPos)
 void I_GetMouseEvents(void)
 {
 	static unsigned char mdata[5];
-	static int i = 0,om2b = 0;
-	int di, j, mlp, button;
+	static INT32 i = 0,om2b = 0;
+	INT32 di, j, mlp, button;
 	event_t event;
-	const int mswap[8] = {0, 4, 1, 5, 2, 6, 3, 7};
+	const INT32 mswap[8] = {0, 4, 1, 5, 2, 6, 3, 7};
 
 	if (!mouse2_started) return;
 	for (mlp = 0; mlp < 20; mlp++)
@@ -1716,7 +1716,7 @@ static HANDLE mouse2filehandle = INVALID_HANDLE_VALUE;
 static void I_ShutdownMouse2(void)
 {
 	event_t event;
-	int i;
+	INT32 i;
 
 	if (mouse2filehandle == INVALID_HANDLE_VALUE)
 		return;
@@ -1743,7 +1743,7 @@ static void I_ShutdownMouse2(void)
 }
 
 #define MOUSECOMBUFFERSIZE 256
-static int handlermouse2x,handlermouse2y,handlermouse2buttons;
+static INT32 handlermouse2x,handlermouse2y,handlermouse2buttons;
 
 static void I_PoolMouse2(void)
 {
@@ -1753,7 +1753,7 @@ static void I_PoolMouse2(void)
 	DWORD dwLength;
 	char dx,dy;
 
-	static int bytenum;
+	static INT32 bytenum;
 	static byte combytes[4];
 	DWORD i;
 
@@ -1815,7 +1815,7 @@ void I_GetMouseEvents(void)
 	// post key event for buttons
 	if (handlermouse2buttons != lastbuttons2)
 	{
-		int i, j = 1, k;
+		INT32 i, j = 1, k;
 		k = (handlermouse2buttons ^ lastbuttons2); // only changed bit to 1
 		lastbuttons2 = (byte)handlermouse2buttons;
 
@@ -1856,7 +1856,7 @@ void I_StartupMouse2(void)
 #ifdef HAVE_TERMIOS
 	struct termios m2tio;
 	size_t i;
-	int dtr = -1, rts = -1;;
+	INT32 dtr = -1, rts = -1;;
 	I_ShutdownMouse2();
 	if (cv_usemouse2.value == 0) return;
 	if ((fdmouse2 = open(cv_mouse2port.string, O_RDONLY|O_NONBLOCK|O_NOCTTY)) == -1)
@@ -1890,7 +1890,7 @@ void I_StartupMouse2(void)
 		}
 		if (dtr != -1 || rts != -1)
 		{
-			int c;
+			INT32 c;
 			if (!ioctl(fdmouse2, TIOCMGET, &c))
 			{
 				if (!dtr)
@@ -1927,7 +1927,7 @@ void I_StartupMouse2(void)
 		                               NULL);
 		if (mouse2filehandle == INVALID_HANDLE_VALUE)
 		{
-			int e = GetLastError();
+			INT32 e = GetLastError();
 			if (e == 5)
 				CONS_Printf("\2Can't open %s: Access denied\n"
 				            "The port is probably already used by one other device (mouse, modem,...)\n", cv_mouse2port.string);
@@ -2037,7 +2037,7 @@ tic_t I_GetTime(void)
 
 		if (frequency.LowPart && QueryPerformanceCounter(&currtime))
 		{
-			newtics = (int)((currtime.QuadPart - basetime.QuadPart) * TICRATE
+			newtics = (INT32)((currtime.QuadPart - basetime.QuadPart) * TICRATE
 				/ frequency.QuadPart);
 		}
 		else if (pfntimeGetTime)
@@ -2135,7 +2135,7 @@ void I_Sleep(void)
 #endif
 }
 
-int I_StartupSystem(void)
+INT32 I_StartupSystem(void)
 {
 	SDL_version SDLcompiled;
 	const SDL_version *SDLlinked;
@@ -2189,7 +2189,9 @@ void I_Quit(void)
 	quiting = SDL_FALSE;
 	I_ShutdownConsole();
 	M_SaveConfig(NULL); //save game config, cvars..
+#ifndef NONET
 	D_SaveBan(); // save the ban list
+#endif
 	G_SaveGameData(); // Tails 12-08-2002
 	//added:16-02-98: when recording a demo, should exit using 'q' key,
 	//        but sometimes we forget and use 'F10'.. so save here too.
@@ -2221,7 +2223,7 @@ death:
 	exit(0);
 }
 
-void I_WaitVBL(int count)
+void I_WaitVBL(INT32 count)
 {
 	count = 1;
 	SDL_Delay(count);
@@ -2235,7 +2237,7 @@ void I_EndRead(void)
 {
 }
 
-byte *I_AllocLow(int length)
+byte *I_AllocLow(INT32 length)
 {
 	byte *mem;
 
@@ -2249,7 +2251,7 @@ byte *I_AllocLow(int length)
 //
 /**	\brief phuck recursive errors
 */
-static int errorcount = 0;
+static INT32 errorcount = 0;
 
 /**	\brief recursive error detecting
 */
@@ -2349,7 +2351,9 @@ void I_Error(const char *error, ...)
 		fflush(stderr);
 #endif
 	M_SaveConfig(NULL); // save game config, cvars..
+#ifndef NONET
 	D_SaveBan(); // save the ban list
+#endif
 	G_SaveGameData(); // Tails 12-08-2002
 
 	// Shutdown. Here might be other errors.
@@ -2376,7 +2380,7 @@ void I_Error(const char *error, ...)
 #endif
 	W_Shutdown();
 #if defined (PARANOIA) && defined (__CYGWIN__)
-		*(int *)2 = 4; //Alam: Debug!
+		*(INT32 *)2 = 4; //Alam: Debug!
 #endif
 #ifdef GP2X
 	chdir("/usr/gp2x");
@@ -2394,7 +2398,7 @@ static quitfuncptr quit_funcs[MAX_QUIT_FUNCS]; /* initialized to all bits 0 */
 //
 void I_AddExitFunc(void (*func)())
 {
-	int c;
+	INT32 c;
 
 	for (c = 0; c < MAX_QUIT_FUNCS; c++)
 	{
@@ -2413,7 +2417,7 @@ void I_AddExitFunc(void (*func)())
 //
 void I_RemoveExitFunc(void (*func)())
 {
-	int c;
+	INT32 c;
 
 	for (c = 0; c < MAX_QUIT_FUNCS; c++)
 	{
@@ -2439,7 +2443,7 @@ void I_RemoveExitFunc(void (*func)())
 //
 void I_ShutdownSystem(void)
 {
-	int c;
+	INT32 c;
 
 	for (c = MAX_QUIT_FUNCS-1; c >= 0; c--)
 		if (quit_funcs[c])
@@ -2471,8 +2475,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 #elif (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 	static p_GetDiskFreeSpaceExA pfnGetDiskFreeSpaceEx = NULL;
 	static boolean testwin95 = false;
-
-	INT64 usedbytes;
+	ULARGE_INTEGER usedbytes, lfreespace;
 
 	if (!testwin95)
 	{
@@ -2481,7 +2484,9 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 	}
 	if (pfnGetDiskFreeSpaceEx)
 	{
-		if (!pfnGetDiskFreeSpaceEx(NULL, (PULARGE_INTEGER)freespace, (PULARGE_INTEGER)&usedbytes, NULL))
+		if (pfnGetDiskFreeSpaceEx(NULL, &lfreespace, &usedbytes, NULL))
+			*freespace = lfreespace.QuadPart;
+		else
 			*freespace = MAXINT;
 	}
 	else
@@ -2540,7 +2545,7 @@ char *I_GetUserName(void)
 	return NULL; // dummy for platform independent version
 }
 
-int I_mkdir(const char *dirname, int unixright)
+INT32 I_mkdir(const char *dirname, INT32 unixright)
 {
 //[segabor]
 #if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) || defined (__CYGWIN__) || defined (__OS2__)
@@ -2567,7 +2572,7 @@ char *I_GetEnv(const char *name)
 #endif
 }
 
-int I_PutEnv(char *variable)
+INT32 I_PutEnv(char *variable)
 {
 #ifdef NEED_SDL_GETENV
 	return SDL_putenv(variable);
@@ -2849,8 +2854,8 @@ ULONG I_GetFreeMem(ULONG *total)
 	char *memTag;
 	ULONG freeKBytes;
 	ULONG totalKBytes;
-	int n;
-	int meminfo_fd = -1;
+	INT32 n;
+	INT32 meminfo_fd = -1;
 
 	meminfo_fd = open(MEMINFO_FILE, O_RDONLY);
 	n = read(meminfo_fd, buf, 1023);
@@ -2994,7 +2999,7 @@ static inline VOID GetAffinityFuncs(VOID)
 
 static void CPUAffinity_OnChange(void)
 {
-	DWORD dwProcMask, dwSysMask;
+	DWORD_PTR dwProcMask, dwSysMask;
 	HANDLE selfpid;
 
 	if (!pfnGetCurrentProcess || !pfnGetProcessAffinityMask || !pfnSetProcessAffinityMask)
@@ -3010,10 +3015,10 @@ static void CPUAffinity_OnChange(void)
 	if(dwSysMask & cv_cpuaffinity.value)
 	{
 		pfnSetProcessAffinityMask(selfpid, dwSysMask & cv_cpuaffinity.value);
-		CV_StealthSetValue(&cv_cpuaffinity, (int)(dwSysMask & cv_cpuaffinity.value));
+		CV_StealthSetValue(&cv_cpuaffinity, (INT32)(dwSysMask & cv_cpuaffinity.value));
 	}
 	else
-		CV_StealthSetValue(&cv_cpuaffinity, (int)dwProcMask);
+		CV_StealthSetValue(&cv_cpuaffinity, (INT32)dwProcMask);
 }
 #endif
 

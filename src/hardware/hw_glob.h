@@ -47,7 +47,7 @@ typedef struct
 // a convex 'plane' polygon, clockwise order
 typedef struct
 {
-	int numpts;
+	INT32 numpts;
 	polyvertex_t pts[0];
 } poly_t;
 
@@ -98,7 +98,7 @@ void HWR_FreeTextureCache(void);
 void HWR_FreeExtraSubsectors(void);
 
 void HWR_GetFlat(lumpnum_t flatlumpnum);
-GLTexture_t *HWR_GetTexture(int tex);
+GLTexture_t *HWR_GetTexture(INT32 tex);
 void HWR_GetPatch(GLPatch_t *gpatch);
 void HWR_GetMappedPatch(GLPatch_t *gpatch, const byte *colormap);
 GLPatch_t *HWR_GetPic(lumpnum_t lumpnum);
@@ -110,8 +110,8 @@ void HWR_SetPalette(RGBA_t *palette);
 extern float gr_patch_scalex;
 extern float gr_patch_scaley;
 
-extern int patchformat;
-extern int textureformat;
+extern INT32 patchformat;
+extern INT32 textureformat;
 extern boolean firetranslucent;
 
 #endif //_HW_GLOB_

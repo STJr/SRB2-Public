@@ -50,5 +50,5 @@ typedef struct
 	size_t size;
 } MYFILE;
 #define myfeof(a) (a->data + a->size <= a->curpos)
-char *myfgets(char *buf, int bufsize, MYFILE *f);
+char *myfgets(char *buf, size_t bufsize, MYFILE *f);
 #endif

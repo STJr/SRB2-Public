@@ -68,14 +68,14 @@ typedef struct stack_snd_s
 	DS3DBUFFER              parameters;
 
 	// Currently unused
-	int                     sfx_id;
+	INT32                     sfx_id;
 
 	// Currently unused
-	int                     LRU;
+	INT32                     LRU;
 
 	// Flag of static source
 	// Driver does not manage intrenally such sources
-	int                     permanent;
+	INT32                     permanent;
 
 } stack_t;
 
@@ -84,9 +84,9 @@ typedef struct stack_snd_s
 #define MAX_LRU                 16       // Maximum iterations to keep source in stack
 
 static stack_t  *_stack;                 // Sound stack
-static int      allocated_sounds;        // Size of stack
+static INT32      allocated_sounds;        // Size of stack
 
-static int      srate;                   // Default sample rate
+static INT32      srate;                   // Default sample rate
 
 
 // output all debugging messages to this file
@@ -281,7 +281,7 @@ static BOOL is_playing(stack_t *snd)
  *
  ***************************************************************
  */
-static LPDIRECTSOUNDBUFFER create_buffer (void *data, int length, BOOL as3d)
+static LPDIRECTSOUNDBUFFER create_buffer (void *data, INT32 length, BOOL as3d)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 	HRESULT             hr;
@@ -397,9 +397,9 @@ static LPDIRECTSOUND3DBUFFER create_3dbuffer(LPDIRECTSOUNDBUFFER dsbuffer, LPDIR
  *
  ***************************************************************
  */
-static int find_handle(int new_sfx_id, int new_is3d)
+static INT32 find_handle(INT32 new_sfx_id, INT32 new_is3d)
 {
-	int      free_sfx;
+	INT32      free_sfx;
 	stack_t *snd;
 
 	// At first do look for sound with same sfx ID and reuse it
@@ -444,7 +444,7 @@ static int find_handle(int new_sfx_id, int new_is3d)
  *
  ***************************************************************
  */
-static int recalc_volume(int base_vol, int steps)
+static INT32 recalc_volume(INT32 base_vol, INT32 steps)
 {
 	return (base_vol * ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4)) / steps
 	       + (DSBVOLUME_MAX - ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4));
@@ -457,7 +457,7 @@ static int recalc_volume(int base_vol, int steps)
  *
  ***************************************************************
  */
-static void UpdateSoundVolume (LPDIRECTSOUNDBUFFER lpSnd, int volume)
+static void UpdateSoundVolume (LPDIRECTSOUNDBUFFER lpSnd, INT32 volume)
 {
 	/*volume = (volume * ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4)) / 256 +
 	         (DSBVOLUME_MAX - ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4));
@@ -475,7 +475,7 @@ static void UpdateSoundVolume (LPDIRECTSOUNDBUFFER lpSnd, int volume)
 
 //Doom sounds pan range 0-255 (128 is centre)
 #define SEP_RANGE       256
-static void Update2DSoundPanning (LPDIRECTSOUNDBUFFER lpSnd, int sep)
+static void Update2DSoundPanning (LPDIRECTSOUNDBUFFER lpSnd, INT32 sep)
 {
 	HRESULT hr;
 	hr = IDirectSoundBuffer_SetPan (lpSnd, (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT);
@@ -646,7 +646,7 @@ EXPORT BOOL HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
  */
 EXPORT void HWRAPI( Shutdown ) (void)
 {
-	int i;
+	INT32 i;
 
 	DBG_Printf ("S_DS3D Shutdown()\n");
 
@@ -678,7 +678,7 @@ EXPORT void HWRAPI( Shutdown ) (void)
 
 
 
-EXPORT int HWRAPI (IsPlaying) (int handle)
+EXPORT INT32 HWRAPI (IsPlaying) (INT32 handle)
 {
 	if (handle < 0 || handle >= allocated_sounds)
 		return FALSE;
@@ -688,7 +688,7 @@ EXPORT int HWRAPI (IsPlaying) (int handle)
 
 
 // Calculate sound pitching
-static float recalc_pitch(int doom_pitch)
+static float recalc_pitch(INT32 doom_pitch)
 {
 	return doom_pitch < NORMAL_PITCH ?
 	 (float)(doom_pitch + NORMAL_PITCH) / (NORMAL_PITCH * 2)
@@ -696,11 +696,11 @@ static float recalc_pitch(int doom_pitch)
 }
 
 
-static stack_t *setup_source(int handle, sfx_data_t *sfx, BOOL is_3dsource)
+static stack_t *setup_source(INT32 handle, sfx_data_t *sfx, BOOL is_3dsource)
 {
 	stack_t               *snd;
-	//int                  handle;
-	int                    data_length;
+	//INT32                  handle;
+	INT32                    data_length;
 	LPDIRECTSOUNDBUFFER    dsbuffer = NULL;
 	LPDIRECTSOUND3DBUFFER  ds3dbuffer = NULL;
 
@@ -757,7 +757,7 @@ static stack_t *setup_source(int handle, sfx_data_t *sfx, BOOL is_3dsource)
  * Creates 2D (stereo) source
  *
  ******************************************************************************/
-EXPORT int HWRAPI ( Add2DSource ) (sfx_data_t *sfx)
+EXPORT INT32 HWRAPI ( Add2DSource ) (sfx_data_t *sfx)
 {
 	stack_t *snd;
 
@@ -779,7 +779,7 @@ EXPORT int HWRAPI ( Add2DSource ) (sfx_data_t *sfx)
  *
  ******************************************************************************/
 
-EXPORT int HWRAPI ( Add3DSource ) (source3D_data_t *src, sfx_data_t *sfx)
+EXPORT INT32 HWRAPI ( Add3DSource ) (source3D_data_t *src, sfx_data_t *sfx)
 {
 	stack_t *snd;
 
@@ -835,7 +835,7 @@ EXPORT int HWRAPI ( Add3DSource ) (source3D_data_t *src, sfx_data_t *sfx)
  * Otherwise put source into cache
  *
  *****************************************************************************/
-EXPORT void HWRAPI (KillSource) (int handle)
+EXPORT void HWRAPI (KillSource) (INT32 handle)
 {
 
 	if (handle < 0 || handle >= allocated_sounds)
@@ -859,7 +859,7 @@ EXPORT void HWRAPI (KillSource) (int handle)
  * Update volume and separation (panning) of 2D source
  *
  *****************************************************************************/
-EXPORT void HWRAPI (Update2DSoundParms) (int handle, int vol, int sep)
+EXPORT void HWRAPI (Update2DSoundParms) (INT32 handle, INT32 vol, INT32 sep)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 
@@ -879,9 +879,9 @@ EXPORT void HWRAPI (Update2DSoundParms) (int handle, int vol, int sep)
 // --------------------------------------------------------------------------
 // Set the global volume for sound effects
 // --------------------------------------------------------------------------
-EXPORT void HWRAPI (SetGlobalSfxVolume) (int volume)
+EXPORT void HWRAPI (SetGlobalSfxVolume) (INT32 volume)
 {
-	int     vol;
+	INT32     vol;
 	HRESULT hr;
 
 	// use the last quarter of volume range
@@ -893,7 +893,7 @@ EXPORT void HWRAPI (SetGlobalSfxVolume) (int volume)
 	hr = IDirectSoundBuffer_SetVolume (PrimaryBuffer, vol);
 }
 
-EXPORT void HWRAPI ( StopSource) (int handle)
+EXPORT void HWRAPI ( StopSource) (INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 
@@ -910,7 +910,7 @@ EXPORT void HWRAPI ( StopSource) (int handle)
 }
 
 
-EXPORT int HWRAPI ( GetHW3DSVersion) (void)
+EXPORT INT32 HWRAPI ( GetHW3DSVersion) (void)
 {
 	return VERSION;
 }
@@ -1103,7 +1103,7 @@ EXPORT void HWRAPI (UpdateListener2) (listener_data_t *data)
 	//IDirectSound3DListener_SetAllParameters(Listener, &listener_parms, update_mode);
 }
 
-EXPORT int HWRAPI (SetCone) (int handle, cone_def_t *cone_def)
+EXPORT INT32 HWRAPI (SetCone) (INT32 handle, cone_def_t *cone_def)
 {
 	stack_t     *snd;
 	//DS3DBUFFER  parms;
@@ -1132,7 +1132,7 @@ EXPORT int HWRAPI (SetCone) (int handle, cone_def_t *cone_def)
 	return -1;
 }
 
-EXPORT void HWRAPI (Update3DSource) (int handle, source3D_pos_t *data)
+EXPORT void HWRAPI (Update3DSource) (INT32 handle, source3D_pos_t *data)
 {
 	stack_t     *snd;
 
@@ -1181,7 +1181,7 @@ EXPORT void HWRAPI (Update3DSource) (int handle, source3D_pos_t *data)
 }
 
 
-EXPORT int HWRAPI (StartSource) (int handle)
+EXPORT INT32 HWRAPI (StartSource) (INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER snd;
 
@@ -1197,11 +1197,11 @@ EXPORT int HWRAPI (StartSource) (int handle)
 //-------------------------------------------------------------
 // Load new sound data into source
 //-------------------------------------------------------------
-EXPORT int HWRAPI (Reload3DSource) (int handle, sfx_data_t *data)
+EXPORT INT32 HWRAPI (Reload3DSource) (INT32 handle, sfx_data_t *data)
 {
 	DS3DBUFFER  temp;
 	stack_t    *snd;
-	int         perm;
+	INT32         perm;
 
 	// DirectX could not load new sound data into source
 	// so recreate sound buffers
@@ -1237,7 +1237,7 @@ EXPORT int HWRAPI (Reload3DSource) (int handle, sfx_data_t *data)
 	return(snd - _stack);
 }
 
-EXPORT void HWRAPI (UpdateSourceVolume) (int handle, int volume)
+EXPORT void HWRAPI (UpdateSourceVolume) (INT32 handle, INT32 volume)
 {
 	if (handle < 0 || handle >= allocated_sounds)
 		return;

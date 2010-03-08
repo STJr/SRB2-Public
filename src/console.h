@@ -32,12 +32,12 @@ extern boolean con_recalc;
 extern boolean con_startup;
 
 // top clip value for view render: do not draw part of view hidden by console
-extern int con_clipviewtop;
+extern INT32 con_clipviewtop;
 
 // 0 means console if off, or moving out
-extern int con_destlines;
+extern INT32 con_destlines;
 
-extern int con_clearlines; // lines of top of screen to refresh
+extern INT32 con_clearlines; // lines of top of screen to refresh
 extern boolean con_hudupdate; // hud messages have changed, need refresh
 
 extern consvar_t cons_backcolor;

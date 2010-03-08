@@ -234,9 +234,17 @@ typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
 #else
-typedef unsigned int SOCKET_TYPE;
+#if defined (__unix__) || defined (__APPLE__)
+typedef int SOCKET_TYPE;
+#else
+typedef unsigned long SOCKET_TYPE;
+#endif
 #define BADSOCKET (SOCKET_TYPE)(~0)
 #define ERRSOCKET (-1)
+#endif
+
+#if defined (WATTCP) || defined (_WIN32)
+typedef int socklen_t;
 #endif
 
 static SOCKET_TYPE mysocket = BADSOCKET;
@@ -317,7 +325,7 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 }
 #endif
 
-static const char *SOCK_GetNodeAddress(int node)
+static const char *SOCK_GetNodeAddress(INT32 node)
 {
 	if (node == 0)
 		return "self";
@@ -377,7 +385,7 @@ static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
 #ifndef NONET
 static boolean UDP_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
 {
-	unsigned long bitmask = INADDR_NONE;
+	UINT32 bitmask = INADDR_NONE;
 
 	if (mask && mask < 32)
 		bitmask = htonl(-1 << (32 - mask));
@@ -413,15 +421,12 @@ static signed char getfreenode(void)
 #ifndef NONET
 static void SOCK_Get(void)
 {
-	int j, c;
-#if defined (WATTCP) || defined (_WIN32)
-	int fromlen;
-#else
+	int j;
+	ssize_t c;
 	socklen_t fromlen;
-#endif
 	mysockaddr_t fromaddress;
 
-	fromlen = sizeof (fromaddress);
+	fromlen = (socklen_t)sizeof(fromaddress);
 	c = recvfrom(mysocket, (char *)&doomcom->data, MAXPACKETLENGTH, 0,
 		(void *)&fromaddress, &fromlen);
 	if (c == ERRSOCKET)
@@ -464,7 +469,7 @@ static void SOCK_Get(void)
 	if (j > 0)
 	{
 		size_t i;
-		memcpy(&clientaddress[j], &fromaddress, fromlen);
+		M_Memcpy(&clientaddress[j], &fromaddress, fromlen);
 		DEBFILE(va("New node detected: node:%d address:%s\n", j,
 				SOCK_GetNodeAddress(j)));
 		doomcom->remotenode = (short)j; // good packet from a game player
@@ -502,7 +507,7 @@ static boolean SOCK_CanSend(void)
 	fd_set          tset;
 	int wselect;
 
-	memcpy(&tset, &set, sizeof (tset));
+	M_Memcpy(&tset, &set, sizeof (tset));
 	wselect = select(255, NULL, &tset, NULL, &timeval_for_select);
 	if (wselect >= 1)
 	{
@@ -528,7 +533,7 @@ static boolean SOCK_CanGet(void)
 	fd_set          tset;
 	int rselect;
 
-	memcpy(&tset, &set, sizeof (tset));
+	M_Memcpy(&tset, &set, sizeof (tset));
 	rselect = select(255, &tset, NULL, NULL, &timeval_for_select);
 	if (rselect >= 1)
 	{
@@ -553,13 +558,14 @@ static boolean SOCK_CanGet(void)
 #ifndef NONET
 static void SOCK_Send(void)
 {
-	int c;
+	ssize_t c;
+	socklen_t d = (socklen_t)sizeof(struct sockaddr);
 
 	if (!nodeconnected[doomcom->remotenode])
 		return;
 
 	c = sendto(mysocket, (char *)&doomcom->data, doomcom->datalength, 0,
-		(struct sockaddr *)&clientaddress[doomcom->remotenode], sizeof (struct sockaddr));
+		(struct sockaddr *)&clientaddress[doomcom->remotenode], d);
 
 	if (c == ERRSOCKET && errno != ECONNREFUSED && errno != EWOULDBLOCK)
 		I_Error("SOCK_Send, error sending to node %d (%s) #%d: %s", doomcom->remotenode,
@@ -568,7 +574,7 @@ static void SOCK_Send(void)
 #endif
 
 #ifndef NONET
-static void SOCK_FreeNodenum(int numnode)
+static void SOCK_FreeNodenum(INT32 numnode)
 {
 	// can't disconnect from self :)
 	if (!numnode)
@@ -599,14 +605,10 @@ static SOCKET_TYPE UDP_Socket(void)
 #ifdef WATTCP
 	char trueval = true;
 #else
-	unsigned long trueval =true;
+	unsigned long trueval = true;
 #endif
 	int i;
-#if defined (WATTCP) || defined (_WIN32)
-	int j;
-#else
 	socklen_t j;
-#endif
 
 	// allocate a socket
 #ifdef HAVE_IP6
@@ -636,7 +638,8 @@ static SOCKET_TYPE UDP_Socket(void)
 	if (address.sin_addr.s_addr == htonl(INADDR_NONE))
 	{
 		address.sin_addr.s_addr = htonl(INADDR_ANY);
-		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, sizeof (trueval));
+		j = (socklen_t)sizeof(trueval);
+		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, j);
 	}
 
 	//Hurdler: I'd like to put a server and a client on the same computer
@@ -656,7 +659,8 @@ static SOCKET_TYPE UDP_Socket(void)
 
 	//setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, sizeof (trueval));
 
-	if (bind(s, (void *)&address, sizeof (address)) == ERRSOCKET)
+	j = (socklen_t)sizeof(address);
+	if (bind(s, (void *)&address, j) == ERRSOCKET)
 	{
 #ifdef _WIN32
 		if (errno == WSAEADDRINUSE)
@@ -690,20 +694,22 @@ static SOCKET_TYPE UDP_Socket(void)
 	}
 
 	// make it broadcastable
-	if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&trueval, sizeof (trueval)))
+	j = (socklen_t)sizeof(trueval);
+	if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&trueval, j))
 	{
 		I_Error("UDP_Socket error. Could not set socket to allow broadcast");
 	}
 
-	j = sizeof (i);
-	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an int value is written to a (char *); portability!!!!!!!
+	j = (socklen_t)sizeof(i);
+	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an INT32 value is written to a (char *); portability!!!!!!!
 	CONS_Printf("Network system buffer: %dKb\n", i>>10);
 
 	if (i < 64<<10) // 64k
 	{
 		i = 64<<10;
-		setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, sizeof (i));
-		getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an int value is written to a (char *); portability!!!!!!!
+		j = (socklen_t)sizeof(i);
+		setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, j);
+		getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an INT32 value is written to a (char *); portability!!!!!!!
 		if (i < 64<<10)
 			CONS_Printf("Can't set buffer length to 64k, file transfer will be bad\n");
 		else
@@ -739,11 +745,7 @@ static SOCKET_TYPE IPX_Socket(void)
 	unsigned long trueval = true;
 #endif
 	int i;
-#if defined (WATTCP) || defined (_WIN32)
-	int j;
-#else
 	socklen_t j;
-#endif
 
 	// allocate a socket
 	s = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
@@ -1021,7 +1023,7 @@ static signed char SOCK_NetMakeNode(const char *hostname)
 				free(localhostname);
 				return -1;
 			}
-			clientaddress[newnode].ip.sin_addr.s_addr = *((unsigned int *)hostentry->h_addr_list[0]);
+			clientaddress[newnode].ip.sin_addr.s_addr = *((UINT32 *)hostentry->h_addr_list[0]);
 
 			CONS_Printf("Resolved %s\n", SOCK_GetNodeAddress(newnode));
 		}
@@ -1036,7 +1038,7 @@ static signed char SOCK_NetMakeNode(const char *hostname)
 static boolean SOCK_OpenSocket(void)
 {
 #ifndef NONET
-	int i;
+	size_t i;
 
 	memset(clientaddress, 0, sizeof (clientaddress));
 
@@ -1076,7 +1078,7 @@ static boolean SOCK_OpenSocket(void)
 	return (boolean)(mysocket != (SOCKET_TYPE)ERRSOCKET && mysocket != BADSOCKET);
 }
 
-static boolean SOCK_Ban(int node)
+static boolean SOCK_Ban(INT32 node)
 {
 #ifdef NONET
 	(void)node;
@@ -1086,7 +1088,7 @@ static boolean SOCK_Ban(int node)
 		return false;
 
 	bannedmask[numbans] = 32;
-	memcpy(&banned[numbans], &clientaddress[node], sizeof (mysockaddr_t));
+	M_Memcpy(&banned[numbans], &clientaddress[node], sizeof (mysockaddr_t));
 	if (banned[numbans].sa_family == AF_INET)
 		banned[numbans].ip.sin_port = 0;
 	numbans++;

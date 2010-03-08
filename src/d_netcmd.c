@@ -61,22 +61,22 @@
 // protos
 // ------
 
-static void Got_NameAndColor(byte **cp, int playernum);
-static void Got_WeaponPref(byte **cp, int playernum);
-static void Got_Mapcmd(byte **cp, int playernum);
-static void Got_ExitLevelcmd(byte **cp, int playernum);
-static void Got_RequestAddfilecmd(byte **cp, int playernum);
+static void Got_NameAndColor(byte **cp, INT32 playernum);
+static void Got_WeaponPref(byte **cp, INT32 playernum);
+static void Got_Mapcmd(byte **cp, INT32 playernum);
+static void Got_ExitLevelcmd(byte **cp, INT32 playernum);
+static void Got_RequestAddfilecmd(byte **cp, INT32 playernum);
 #ifdef DELFILE
-static void Got_Delfilecmd(byte **cp, int playernum);
+static void Got_Delfilecmd(byte **cp, INT32 playernum);
 #endif
-static void Got_Addfilecmd(byte **cp, int playernum);
-static void Got_Pause(byte **cp, int playernum);
-static void Got_RandomSeed(byte **cp, int playernum);
-static void Got_PizzaOrder(byte **cp, int playernum);
-static void Got_RunSOCcmd(byte **cp, int playernum);
-static void Got_Consistency(byte **cp, int playernum);
-static void Got_Teamchange(byte **cp, int playernum);
-static void Got_Clearscores(byte **cp, int playernum);
+static void Got_Addfilecmd(byte **cp, INT32 playernum);
+static void Got_Pause(byte **cp, INT32 playernum);
+static void Got_RandomSeed(byte **cp, INT32 playernum);
+static void Got_PizzaOrder(byte **cp, INT32 playernum);
+static void Got_RunSOCcmd(byte **cp, INT32 playernum);
+static void Got_Consistency(byte **cp, INT32 playernum);
+static void Got_Teamchange(byte **cp, INT32 playernum);
+static void Got_Clearscores(byte **cp, INT32 playernum);
 
 static void PointLimit_OnChange(void);
 static void TimeLimit_OnChange(void);
@@ -156,11 +156,11 @@ static void Command_Clearscores_f(void);
 // Remote Administration
 static void Command_Changepassword_f(void);
 static void Command_Login_f(void);
-static void Got_Login(byte **cp, int playernum);
-static void Got_Verification(byte **cp, int playernum);
+static void Got_Login(byte **cp, INT32 playernum);
+static void Got_Verification(byte **cp, INT32 playernum);
 static void Command_Verify_f(void);
 static void Command_MotD_f(void);
-static void Got_MotD_f(byte **cp, int playernum);
+static void Got_MotD_f(byte **cp, INT32 playernum);
 
 static void Command_ShowScores_f(void);
 static void Command_ShowTime_f(void);
@@ -250,7 +250,7 @@ consvar_t cv_skin2 = {"skin2", "Tails", CV_CALL|CV_NOINIT, NULL, Skin2_OnChange,
 
 consvar_t cv_skipmapcheck = {"skipmapcheck", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-int cv_debug;
+INT32 cv_debug;
 
 consvar_t cv_usemouse = {"use_mouse", "On", CV_SAVE|CV_CALL,usemouse_cons_t, I_StartupMouse, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_usemouse2 = {"use_mouse2", "Off", CV_SAVE|CV_CALL,usemouse_cons_t, I_StartupMouse2, 0, NULL, NULL, 0, 0, NULL};
@@ -406,10 +406,10 @@ consvar_t cv_mute = {"mute", "Off", CV_NETVAR|CV_CALL, CV_OnOff, Mute_OnChange, 
 consvar_t cv_sleep = {"cpusleep", "-1", CV_SAVE, sleeping_cons_t, NULL, -1, NULL, NULL, 0, 0, NULL};
 
 static boolean triggerforcedskin = false;
-int gametype = GT_COOP;
+INT32 gametype = GT_COOP;
 boolean splitscreen = false;
 boolean circuitmap = false;
-int adminplayer = -1;
+INT32 adminplayer = -1;
 
 // =========================================================================
 //                           SERVER STARTUP
@@ -600,10 +600,12 @@ void D_RegisterServerCommands(void)
 void D_RegisterClientCommands(void)
 {
 	const char *username;
-	int i;
+	INT32 i;
 
 	for (i = 0; i < MAXSKINCOLORS; i++)
+	{
 		Color_cons_t[i].strvalue = Color_Names[i];
+	}
 
 	if (dedicated)
 		return;
@@ -770,7 +772,8 @@ void D_RegisterClientCommands(void)
 static void Command_DummyCommand_f(void)
 {
 	dummypacket_union NetPacket;
-	NetPacket.value = 0;
+	USHORT usvalue;
+	NetPacket.value.l = NetPacket.value.b = 0;
 
 	//   0        1         2
 	// dummy <playernum> <value>
@@ -794,15 +797,15 @@ static void Command_DummyCommand_f(void)
 	if (server)
 		NetPacket.packet.verification = true;
 
-
-	SendNetXCmd(XD_DUMMY, &(NetPacket.value), sizeof(NetPacket.value));
+	usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
+	SendNetXCmd(XD_DUMMY, &usvalue, sizeof(usvalue));
 }
 
-static void Got_DummyCommand(byte **cp, int playernum)
+static void Got_DummyCommand(byte **cp, INT32 playernum)
 {
 	dummypacket_union NetPacket;
 
-	NetPacket.value = READSHORT(*cp);
+	NetPacket.value.l = NetPacket.value.b = READSHORT(*cp);
 
 #ifdef PARANOIA
 	if (playernum < 0 || playernum > MAXPLAYERS)
@@ -837,9 +840,9 @@ static void Got_DummyCommand(byte **cp, int playernum)
   * \sa CleanupPlayerName, SetPlayerName, Got_NameAndColor
   * \author Graue <graue@oceanbase.org>
   */
-static boolean IsNameGood(char *name, int playernum)
+static boolean IsNameGood(char *name, INT32 playernum)
 {
-	int ix;
+	INT32 ix;
 
 	if (strlen(name) == 0 || strlen(name) > MAXPLAYERNAME)
 		return false; // Empty or too long.
@@ -913,12 +916,12 @@ static boolean IsNameGood(char *name, int playernum)
   *     SetPlayerName
   * \author Graue <graue@oceanbase.org>
   */
-static void CleanupPlayerName(int playernum, const char *newname)
+static void CleanupPlayerName(INT32 playernum, const char *newname)
 {
 	char *buf;
 	char *p;
 	char *tmpname = NULL;
-	int i;
+	INT32 i;
 	boolean namefailed = true;
 
 	buf = Z_StrDup(newname);
@@ -1014,7 +1017,7 @@ static void CleanupPlayerName(int playernum, const char *newname)
   * \sa CleanupPlayerName, IsNameGood
   * \author Graue <graue@oceanbase.org>
   */
-static void SetPlayerName(int playernum, char *newname)
+static void SetPlayerName(INT32 playernum, char *newname)
 {
 	if (IsNameGood(newname, playernum))
 	{
@@ -1040,7 +1043,7 @@ static void SetPlayerName(int playernum, char *newname)
 	}
 }
 
-static int snacpending = 0, snac2pending = 0, chmappending = 0;
+static INT32 snacpending = 0, snac2pending = 0, chmappending = 0;
 
 // name, color, or skin has changed
 //
@@ -1092,7 +1095,7 @@ static void SendNameAndColor(void)
 	// If you're not in a netgame, merely update the skin, color, and name.
 	if (!netgame)
 	{
-		int foundskin;
+		INT32 foundskin;
 
 		players[consoleplayer].skincolor = (cv_playercolor.value&31) % MAXSKINCOLORS;
 
@@ -1114,11 +1117,11 @@ static void SendNameAndColor(void)
 
 		if (cv_forceskin.value >= 0 && (netgame || multiplayer)) // Server wants everyone to use the same player
 		{
-			const int forcedskin = cv_forceskin.value;
+			const INT32 forcedskin = cv_forceskin.value;
 
 			if (triggerforcedskin)
 			{
-				int i;
+				INT32 i;
 
 				for (i = 0; i < MAXPLAYERS; i++)
 				{
@@ -1213,7 +1216,7 @@ static void SendNameAndColor2(void)
 {
 	XBOXSTATIC char buf[MAXPLAYERNAME+1+SKINNAMESIZE+1];
 	char *p;
-	int secondplaya;
+	INT32 secondplaya;
 	byte extrainfo = 0;
 
 	if (!splitscreen)
@@ -1258,7 +1261,7 @@ static void SendNameAndColor2(void)
 	// If you're not in a netgame, merely update the skin, color, and name.
 	if (!netgame || (server && secondplaya == consoleplayer))
 	{
-		int foundskin;
+		INT32 foundskin;
 		// don't use secondarydisplayplayer: the second player must be 1
 		players[1].skincolor = cv_playercolor2.value;
 		if (players[1].mo)
@@ -1278,7 +1281,7 @@ static void SendNameAndColor2(void)
 
 		if (cv_forceskin.value >= 0 && (netgame || multiplayer)) // Server wants everyone to use the same player
 		{
-			const int forcedskin = cv_forceskin.value;
+			const INT32 forcedskin = cv_forceskin.value;
 
 			SetPlayerSkinByNum(consoleplayer, forcedskin);
 			CV_StealthSet(&cv_skin, skins[forcedskin].name);
@@ -1351,10 +1354,10 @@ static void SendNameAndColor2(void)
 	SendNetXCmd2(XD_NAMEANDCOLOR, buf, p - buf);
 }
 
-static void Got_NameAndColor(byte **cp, int playernum)
+static void Got_NameAndColor(byte **cp, INT32 playernum)
 {
 	player_t *p = &players[playernum];
-	int i;
+	INT32 i;
 	char *str;
 	byte extrainfo;
 
@@ -1486,7 +1489,7 @@ static void Got_NameAndColor(byte **cp, int playernum)
 	// skin
 	if (cv_forceskin.value >= 0 && (netgame || multiplayer)) // Server wants everyone to use the same player
 	{
-		const int forcedskin = cv_forceskin.value;
+		const INT32 forcedskin = cv_forceskin.value;
 
 		if (triggerforcedskin)
 		{
@@ -1535,7 +1538,7 @@ static void SendWeaponPref(void)
 	}
 }
 
-static void Got_WeaponPref(byte **cp,int playernum)
+static void Got_WeaponPref(byte **cp,INT32 playernum)
 {
 	if (READCHAR(*cp))
 		players[playernum].pflags |= PF_AUTOAIM;
@@ -1562,7 +1565,7 @@ static void Command_OrderPizza_f(void)
 	SendNetXCmd(XD_ORDERPIZZA, NULL, 0);
 }
 
-static void Got_PizzaOrder(byte **cp, int playernum)
+static void Got_PizzaOrder(byte **cp, INT32 playernum)
 {
 	cp = NULL;
 	CONS_Printf(text[ORDEREDPIZZA], player_names[playernum]);
@@ -1637,7 +1640,7 @@ static void Command_RTeleport_f(void)
 	else
 		intz = 0;
 
-	CONS_Printf(text[TELEPORTINGBY], intx, inty, FixedMul((intz-p->mo->z),1));
+	CONS_Printf(text[TELEPORTINGBY], intx, inty, FixedInt((intz-p->mo->z)));
 
 	P_MapStart();
 	if (!P_TeleportMove(p->mo, p->mo->x+intx*FRACUNIT, p->mo->y+inty*FRACUNIT, intz))
@@ -1712,7 +1715,7 @@ static void Command_Teleport_f(void)
 	else
 		intz = ss->sector->floorheight;
 
-	CONS_Printf(text[TELEPORTINGTO], intx, inty, FixedMul(intz,1));
+	CONS_Printf(text[TELEPORTINGTO], intx, inty, FixedInt(intz));
 
 	P_MapStart();
 	if (!P_TeleportMove(p->mo, intx*FRACUNIT, inty*FRACUNIT, intz))
@@ -1801,7 +1804,7 @@ static void Command_StopMovie_f(void)
 	G_MovieMode(false);
 }
 
-int mapchangepending = 0;
+INT32 mapchangepending = 0;
 
 /** Runs a map change.
   * The supplied data are assumed to be good. If provided by a user, they will
@@ -1825,7 +1828,7 @@ int mapchangepending = 0;
   * \sa D_GameTypeChanged, Command_Map_f
   * \author Graue <graue@oceanbase.org>
   */
-void D_MapChange(int mapnum, int newgametype, boolean pultmode, int resetplayers, int delay, boolean skipprecutscene, boolean FLS)
+void D_MapChange(INT32 mapnum, INT32 newgametype, boolean pultmode, INT32 resetplayers, INT32 delay, boolean skipprecutscene, boolean FLS)
 {
 	static char buf[MAX_WADPATH+1+5];
 #define MAPNAME &buf[5]
@@ -1891,7 +1894,7 @@ static void Command_Map_f(void)
 {
 	const char *mapname;
 	size_t i;
-	int j, newmapnum, newgametype, newresetplayers;
+	INT32 j, newmapnum, newgametype, newresetplayers;
 
 	// max length of command: map map03 -gametype coop -noresetplayers -force
 	//                         1    2       3       4         5           6
@@ -2053,10 +2056,10 @@ static void Command_Map_f(void)
   *                  ::serverplayer or ::adminplayer.
   * \sa D_MapChange
   */
-static void Got_Mapcmd(byte **cp, int playernum)
+static void Got_Mapcmd(byte **cp, INT32 playernum)
 {
 	char mapname[MAX_WADPATH+1];
-	int resetplayer = 1, lastgametype;
+	INT32 resetplayer = 1, lastgametype;
 	boolean skipprecutscene, FLS;
 
 	if (playernum != serverplayer && playernum != adminplayer)
@@ -2193,7 +2196,7 @@ static void Command_Pause(void)
 		CONS_Printf("%s",text[SERVERPAUSE]);
 }
 
-static void Got_Pause(byte **cp, int playernum)
+static void Got_Pause(byte **cp, INT32 playernum)
 {
 	if (netgame && !cv_pause.value && playernum != serverplayer && playernum != adminplayer)
 	{
@@ -2242,7 +2245,7 @@ static void Got_Pause(byte **cp, int playernum)
   * \param playernum Player responsible for the message. Must be ::serverplayer.
   * \author Graue <graue@oceanbase.org>
   */
-static void Got_RandomSeed(byte **cp, int playernum)
+static void Got_RandomSeed(byte **cp, INT32 playernum)
 {
 	byte seed;
 
@@ -2276,9 +2279,9 @@ static void Command_Clearscores_f(void)
   * \sa XD_CLEARSCORES, Command_Clearscores_f
   * \author SSNTails <http://www.ssntails.org>
   */
-static void Got_Clearscores(byte **cp, int playernum)
+static void Got_Clearscores(byte **cp, INT32 playernum)
 {
-	int i;
+	INT32 i;
 
 	(void)cp;
 	if (playernum != serverplayer && playernum != adminplayer)
@@ -2306,7 +2309,8 @@ static void Command_Teamchange_f(void)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	NetPacket.value = 0;
+	USHORT usvalue;
+	NetPacket.value.l = NetPacket.value.b = 0;
 
 	//      0         1
 	// changeteam  <color>
@@ -2384,14 +2388,16 @@ static void Command_Teamchange_f(void)
 		return;
 	}
 
-	SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+	usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
+	SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 }
 
 static void Command_Teamchange2_f(void)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	NetPacket.value = 0;
+	USHORT usvalue;
+	NetPacket.value.l = NetPacket.value.b = 0;
 
 	//      0         1
 	// changeteam2 <color>
@@ -2469,14 +2475,16 @@ static void Command_Teamchange2_f(void)
 		return;
 	}
 
-	SendNetXCmd2(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+	usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
+	SendNetXCmd2(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 }
 
 static void Command_ServerTeamChange_f(void)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	NetPacket.value = 0;
+	USHORT usvalue;
+	NetPacket.value.l = NetPacket.value.b = 0;
 
 	if (!(server || (adminplayer == consoleplayer)))
 	{
@@ -2593,15 +2601,16 @@ static void Command_ServerTeamChange_f(void)
 
 	NetPacket.packet.verification = true; // This signals that it's a server change
 
-	SendNetXCmd(XD_TEAMCHANGE, &(NetPacket.value), sizeof(NetPacket.value));
+	usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
+	SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 }
 
 //todo: This and the other teamchange functions are getting too long and messy. Needs cleaning.
-static void Got_Teamchange(byte **cp, int playernum)
+static void Got_Teamchange(byte **cp, INT32 playernum)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	NetPacket.value = READSHORT(*cp);
+	NetPacket.value.l = NetPacket.value.b = READSHORT(*cp);
 
 	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)) //Make sure you're in the right gametype.
 	{
@@ -2857,7 +2866,7 @@ static void Command_Login_f(void)
 	SendNetXCmd(XD_LOGIN, password, 9);
 }
 
-static void Got_Login(byte **cp, int playernum)
+static void Got_Login(byte **cp, INT32 playernum)
 {
 	char compareword[9];
 
@@ -2881,7 +2890,7 @@ static void Command_Verify_f(void)
 {
 	XBOXSTATIC char buf[8]; // Should be plenty
 	char *temp;
-	int playernum;
+	INT32 playernum;
 
 	if (!server)
 	{
@@ -2907,9 +2916,9 @@ static void Command_Verify_f(void)
 		SendNetXCmd(XD_VERIFIED, buf, 1);
 }
 
-static void Got_Verification(byte **cp, int playernum)
+static void Got_Verification(byte **cp, INT32 playernum)
 {
-	int num = READBYTE(*cp);
+	INT32 num = READBYTE(*cp);
 
 	if (playernum != serverplayer) // it's not from the server (hacker or bug)
 	{
@@ -2965,10 +2974,10 @@ static void Command_MotD_f(void)
 	SendNetXCmd(XD_SETMOTD, mymotd, strlen(mymotd));
 }
 
-static void Got_MotD_f(byte **cp, int playernum)
+static void Got_MotD_f(byte **cp, INT32 playernum)
 {
 	XBOXSTATIC char mymotd[256];
-	int i;
+	INT32 i;
 	boolean kick = false;
 
 
@@ -2993,7 +3002,7 @@ static void Got_MotD_f(byte **cp, int playernum)
 		return;
 	}
 
-	strcat(motd, mymotd);
+	strcpy(motd, mymotd);
 
 	CONS_Printf("%s", text[MOTD_SET]);
 }
@@ -3037,7 +3046,7 @@ static void Command_RunSOC(void)
 	SendNetXCmd(XD_RUNSOC, buf, length);
 }
 
-static void Got_RunSOCcmd(byte **cp, int playernum)
+static void Got_RunSOCcmd(byte **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
@@ -3087,12 +3096,12 @@ static void Got_RunSOCcmd(byte **cp, int playernum)
 // If you consfailed, this tries
 // to restore your state.
 //
-static void Got_Consistency(byte **cp, int playernum)
+static void Got_Consistency(byte **cp, INT32 playernum)
 {
-//	int affectedplayer;
-	int numplayers;
+//	INT32 affectedplayer;
+	INT32 numplayers;
 	player_t *player;
-	int i, j;
+	INT32 i, j;
 	fixed_t x, y, z, momx, momy, momz;
 //	mobj_t* mo;
 //	player_t *playstruct;
@@ -3176,7 +3185,7 @@ static void Command_Addfile(void)
 	const char *fn;
 	XBOXSTATIC char buf[255];
 	size_t length;
-	int i;
+	INT32 i;
 
 	if (COM_Argc() != 2)
 	{
@@ -3240,7 +3249,7 @@ static void Command_Addfile(void)
 			return;
 		}
 #endif
-		memcpy(&buf[length+1], md5sum, sizeof (md5sum));
+		M_Memcpy(&buf[length+1], md5sum, sizeof (md5sum));
 		length += sizeof (md5sum);
 	}
 
@@ -3282,13 +3291,13 @@ static void Command_Delfile(void)
 }
 #endif
 
-static void Got_RequestAddfilecmd(byte **cp, int playernum)
+static void Got_RequestAddfilecmd(byte **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
 	unsigned char md5sum[16+1];
 	boolean kick = false;
-	int i;
+	INT32 i;
 
 	READSTRINGN(*cp, filename, 255);
 	(void)READBYTE(*cp);
@@ -3340,7 +3349,7 @@ static void Got_RequestAddfilecmd(byte **cp, int playernum)
 }
 
 #ifdef DELFILE
-static void Got_Delfilecmd(byte **cp, int playernum)
+static void Got_Delfilecmd(byte **cp, INT32 playernum)
 {
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
@@ -3365,7 +3374,7 @@ static void Got_Delfilecmd(byte **cp, int playernum)
 }
 #endif
 
-static void Got_Addfilecmd(byte **cp, int playernum)
+static void Got_Addfilecmd(byte **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
@@ -3415,7 +3424,7 @@ static void Got_Addfilecmd(byte **cp, int playernum)
 
 static void Command_ListWADS_f(void)
 {
-	int i = numwadfiles;
+	INT32 i = numwadfiles;
 	char *tempname;
 	CONS_Printf(text[NUMWADSLOADED],numwadfiles);
 	for (i--; i; i--)
@@ -3508,7 +3517,7 @@ void ObjectPlace_OnChange(void)
 #else
 	if (cv_objectplace.value)
 	{
-		int i;
+		INT32 i;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -3544,7 +3553,7 @@ void ObjectPlace_OnChange(void)
 	}
 	else if (players[0].mo)
 	{
-		int i;
+		INT32 i;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -3715,11 +3724,11 @@ static void TimeLimit_OnChange(void)
   * \author Graue <graue@oceanbase.org>
   * \todo Get rid of the hardcoded stuff, ugly stuff, etc.
   */
-void D_GameTypeChanged(int lastgametype)
+void D_GameTypeChanged(INT32 lastgametype)
 {
 	if (netgame)
 	{
-		int j;
+		INT32 j;
 		const char *oldgt = NULL, *newgt = NULL;
 		for (j = 0; gametype_cons_t[j].strvalue; j++)
 		{
@@ -3837,7 +3846,7 @@ void D_GameTypeChanged(int lastgametype)
 	// make everyone a spectator initially.
 	if (gametype == GT_CTF || gametype == GT_MATCH || gametype == GT_TAG)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i])
 			{
@@ -3849,7 +3858,7 @@ void D_GameTypeChanged(int lastgametype)
 	// don't retain teams in other modes or between changes from ctf to team match.
 	if (lastgametype == GT_CTF || lastgametype == GT_MATCH)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i])
 				players[i].ctfteam = 0;
@@ -3859,7 +3868,7 @@ void D_GameTypeChanged(int lastgametype)
 	// todo: This block is very unwieldy. Make a way for the server to force changing of color. -Jazz
 	if (gametype == GT_CTF || gametype == GT_MATCH)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].skincolor == 15)
@@ -3928,7 +3937,7 @@ static void Setrings_OnChange(void)
 
 	if (cv_setrings.value)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i] && players[i].mo)
 			{
@@ -3961,7 +3970,7 @@ static void Setlives_OnChange(void)
 
 	if (cv_setlives.value)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i])
 			{
@@ -3993,7 +4002,7 @@ static void Setcontinues_OnChange(void)
 
 	if (cv_setcontinues.value)
 	{
-		int i;
+		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i])
 				players[i].continues = cv_setcontinues.value;
@@ -4055,11 +4064,11 @@ static void AutoBalance_OnChange(void)
 
 static void TeamScramble_OnChange(void)
 {
-	int i = 0, j = 0, playercount = 0;
+	INT32 i = 0, j = 0, playercount = 0;
 	boolean repick = true;
-	int blue = 0, red = 0;
-	int maxcomposition = 0;
-	int newteam = 0;
+	INT32 blue = 0, red = 0;
+	INT32 maxcomposition = 0;
+	INT32 newteam = 0;
 
 	// Don't trigger outside level or intermission!
 	if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
@@ -4082,8 +4091,7 @@ static void TeamScramble_OnChange(void)
 	// Clear related global variables. These will get used again in p_tick.c as the teams are scrambled.
 	memset(&scrambleplayers, 0, sizeof(scrambleplayers));
 	memset(&scrambleteams, 0, sizeof(scrambleplayers));
-	scrambletotal = 0;
-	scramblecount = 0;
+	scrambletotal = scramblecount = 0;
 
 	// Put each player's node in the array.
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -4139,7 +4147,7 @@ static void TeamScramble_OnChange(void)
 		{
 			for (j = i; j < playercount; j++)
 			{
-				int tempplayer = 0;
+				INT32 tempplayer = 0;
 
 				if ((players[scrambleplayers[i-1]].score > players[scrambleplayers[j]].score))
 				{
@@ -4213,7 +4221,7 @@ static void Cheats_OnChange(void)
 
 static void Tagtype_OnChange(void)
 {
-	int i, j;
+	INT32 i, j;
 
 	// Do not execute the below code unless absolutely necessary.
 	if (cv_tagtype.value == tagtype)
@@ -4224,9 +4232,9 @@ static void Tagtype_OnChange(void)
 	// the rest become frozen as though they were tagged.
 	if (gametype == GT_TAG && cv_tagtype.value && gametype == GS_LEVEL)
 	{
-		int tempplayer;
-		int playerarray[MAXPLAYERS];
-		int playercount = 0;
+		INT32 tempplayer;
+		INT32 playerarray[MAXPLAYERS];
+		INT32 playercount = 0;
 
 		//Store the nodes of all participating players in an array.
 		for (i = 0; i < MAXPLAYERS; i++)
@@ -4329,7 +4337,7 @@ static void Command_ExitLevel_f(void)
 	SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 }
 
-static void Got_ExitLevelcmd(byte **cp, int playernum)
+static void Got_ExitLevelcmd(byte **cp, INT32 playernum)
 {
 	cp = NULL;
 
@@ -4391,7 +4399,7 @@ static void Command_Skynum_f(void)
 
 static void Command_Tunes_f(void)
 {
-	int tune;
+	INT32 tune;
 	const size_t argc = COM_Argc();
 
 	if (argc < 2) //tunes slot ...
@@ -4408,6 +4416,9 @@ static void Command_Tunes_f(void)
 		CONS_Printf(text[TUNES_VALIDSLOTS], NUMMUSIC - 1);
 		return;
 	}
+
+	if (!strcasecmp(COM_Argv(1), "default"))
+		tune = mapheaderinfo[gamemap-1].musicslot;
 
 	mapmusic = (short)(tune | 2048);
 
@@ -4429,7 +4440,7 @@ static void Command_Tunes_f(void)
   */
 void Command_ExitGame_f(void)
 {
-	int i;
+	INT32 i;
 
 	D_QuitNetGame();
 	CL_Reset();

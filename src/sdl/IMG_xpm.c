@@ -79,11 +79,11 @@ struct color_hash {
         struct hash_entry **table;
         struct hash_entry *entries; /* array of all entries */
         struct hash_entry *next_free;
-        int size;
+        size_t size;
         int maxnum;
 };
 
-static int hash_key(const char *key, int cpp, int size)
+static int hash_key(const char *key, int cpp, size_t size)
 {
         int hash;
 
@@ -91,12 +91,13 @@ static int hash_key(const char *key, int cpp, int size)
         while ( cpp-- > 0 ) {
                 hash = hash * 33 + *key++;
         }
-        return hash & (size - 1);
+        return (int)(hash & (size - 1));
 }
 
 static struct color_hash *create_colorhash(int maxnum)
 {
-        int bytes, s;
+        size_t bytes;
+		int s;
         struct color_hash *hash;
 
         /* we know how many entries we need, so we can allocate
@@ -171,6 +172,7 @@ static int string_equal(const char *a, const char *b, size_t n)
         return *a == *b;
 }
 
+#undef ARRAYSIZE
 #define ARRAYSIZE(a) (int)(sizeof (a) / sizeof ((a)[0]))
 
 /*
@@ -210,7 +212,7 @@ static int color_to_rgb(const char *spec, size_t speclen, Uint32 *rgb)
                         break;
                 }
                 buf[6] = '\0';
-                *rgb = strtol(buf, NULL, 16);
+                *rgb = (Uint32)strtol(buf, NULL, 16);
                 return 1;
         } else {
                 int i;

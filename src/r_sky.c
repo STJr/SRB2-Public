@@ -38,15 +38,15 @@
 /**	\brief Needed to store the number of the dummy sky flat.
 	Used for rendering, as well as tracking projectiles etc.
 */
-long skyflatnum;
+INT32 skyflatnum;
 
 /**	\brief the lump number of the sky texture
 */
-long skytexture;
+INT32 skytexture;
 
 /**	\brief the horizon line in a 256x128 sky texture
 */
-long skytexturemid;
+INT32 skytexturemid;
 
 /**	\brief the scale of the sky
 */
@@ -54,8 +54,8 @@ fixed_t skyscale;
 
 /** \brief used for keeping track of the current sky
 */
-int levelskynum;
-int globallevelskynum;
+INT32 levelskynum;
+INT32 globallevelskynum;
 
 /**	\brief	The R_SetupSkyDraw function
 

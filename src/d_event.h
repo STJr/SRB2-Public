@@ -39,9 +39,9 @@ typedef enum
 typedef struct
 {
 	evtype_t type;
-	int data1; // keys / mouse/joystick buttons
-	int data2; // mouse/joystick x move
-	int data3; // mouse/joystick y move
+	INT32 data1; // keys / mouse/joystick buttons
+	INT32 data2; // mouse/joystick x move
+	INT32 data3; // mouse/joystick y move
 } event_t;
 
 //
@@ -50,6 +50,6 @@ typedef struct
 #define MAXEVENTS 128
 
 extern event_t events[MAXEVENTS];
-extern int eventhead, eventtail;
+extern INT32 eventhead, eventtail;
 
 #endif

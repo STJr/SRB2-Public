@@ -29,7 +29,7 @@
 // ==========================================================================
 
 // the list of ceilings moving currently, including crushers
-int ceilmovesound = sfx_None;
+INT32 ceilmovesound = sfx_None;
 
 /** Moves a moving ceiling.
   *
@@ -400,10 +400,10 @@ void T_CrushCeiling(ceiling_t *ceiling)
   * \return 1 if at least one ceiling mover was started, 0 otherwise.
   * \sa EV_DoCrush, EV_DoFloor, EV_DoElevator, T_MoveCeiling
   */
-int EV_DoCeiling(line_t *line, ceiling_e type)
+INT32 EV_DoCeiling(line_t *line, ceiling_e type)
 {
-	int rtn = 0, firstone = 1;
-	long secnum = -1;
+	INT32 rtn = 0, firstone = 1;
+	INT32 secnum = -1;
 	sector_t *sec;
 	ceiling_t *ceiling;
 
@@ -425,7 +425,7 @@ int EV_DoCeiling(line_t *line, ceiling_e type)
 		ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
 		ceiling->sector = sec;
 		ceiling->crush = false;
-		ceiling->sourceline = line-lines;
+		ceiling->sourceline = (INT32)(line-lines);
 
 		switch (type)
 		{
@@ -604,10 +604,10 @@ int EV_DoCeiling(line_t *line, ceiling_e type)
   * \return 1 if at least one crusher was started, 0 otherwise.
   * \sa EV_DoCeiling, EV_DoFloor, EV_DoElevator, T_CrushCeiling
   */
-int EV_DoCrush(line_t *line, ceiling_e type)
+INT32 EV_DoCrush(line_t *line, ceiling_e type)
 {
-	int rtn = 0;
-	long secnum = -1;
+	INT32 rtn = 0;
+	INT32 secnum = -1;
 	sector_t *sec;
 	ceiling_t *ceiling;
 
@@ -626,7 +626,7 @@ int EV_DoCrush(line_t *line, ceiling_e type)
 		ceiling->thinker.function.acp1 = (actionf_p1)T_CrushCeiling;
 		ceiling->sector = sec;
 		ceiling->crush = true;
-		ceiling->sourceline = line-lines;
+		ceiling->sourceline = (INT32)(line-lines);
 
 		if (line->flags & ML_EFFECT4)
 			ceiling->oldspeed = FixedDiv(abs(line->dx),NEWTICRATERATIO*4*FRACUNIT);

@@ -145,7 +145,7 @@ static void KOSUDP_Get(void)
 	j = getfreenode();
 	if (j > 0)
 	{
-		memcpy(&clientaddress[j], &temp, sizeof (temp));
+		M_Memcpy(&clientaddress[j], &temp, sizeof (temp));
 		DEBFILE(va("New node detected: node:%d address:%s\n", j,
 				KOSUDP_GetNodeAddress(j)));
 		doomcom->remotenode = (short)j; // good packet from a game player
@@ -360,7 +360,7 @@ static boolean KOSUDP_Ban(int node)
 	if (numbans == MAXBANS)
 		return false;
 
-	memcpy(&banned[numbans], &clientaddress[node], sizeof (IPaddress));
+	M_Memcpy(&banned[numbans], &clientaddress[node], sizeof (IPaddress));
 	banned[numbans].port = 0'
 	numbans++;
 	return true;

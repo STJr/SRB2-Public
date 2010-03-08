@@ -39,8 +39,8 @@
 //
 typedef struct
 {
-	int first;
-	int last;
+	INT32 first;
+	INT32 last;
 } cliprange_t;
 
 // Silhouette, needed for clipping segs (mainly) and sprites representing things.
@@ -61,10 +61,10 @@ typedef struct
 	unsigned short maskcolor, fadecolor;
 	double maskamt;
 	unsigned short fadestart, fadeend;
-	int fog;
+	INT32 fog;
 
 	// rgba is used in hw mode for colored sector lighting
-	int rgba; // similar to maskcolor in sw mode
+	INT32 rgba; // similar to maskcolor in sw mode
 
 	lighttable_t *colormap;
 } extracolormap_t;
@@ -149,14 +149,14 @@ typedef enum
 typedef struct ffloor_s
 {
 	fixed_t *topheight;
-	long *toppic;
+	INT32 *toppic;
 	short *toplightlevel;
 	fixed_t *topxoffs;
 	fixed_t *topyoffs;
 	angle_t *topangle;
 
 	fixed_t *bottomheight;
-	long *bottompic;
+	INT32 *bottompic;
 	fixed_t *bottomxoffs;
 	fixed_t *bottomyoffs;
 	angle_t *bottomangle;
@@ -172,8 +172,8 @@ typedef struct ffloor_s
 	struct ffloor_s *next;
 	struct ffloor_s *prev;
 
-	int lastlight;
-	int alpha;
+	INT32 lastlight;
+	INT32 alpha;
 	tic_t norender; // for culling
 } ffloor_t;
 
@@ -186,7 +186,7 @@ typedef struct lightlist_s
 	fixed_t height;
 	short *lightlevel;
 	extracolormap_t *extra_colormap;
-	int flags;
+	INT32 flags;
 	ffloor_t *caster;
 } lightlist_t;
 
@@ -202,7 +202,7 @@ typedef struct r_lightlist_s
 	extracolormap_t *extra_colormap;
 	lighttable_t *rcolormap;
 	ffloortype_e flags;
-	int lightnum;
+	INT32 lightnum;
 } r_lightlist_t;
 
 // ----- for special tricks with HW renderer -----
@@ -244,12 +244,12 @@ typedef struct sector_s
 {
 	fixed_t floorheight;
 	fixed_t ceilingheight;
-	long floorpic;
-	long ceilingpic;
+	INT32 floorpic;
+	INT32 ceilingpic;
 	short lightlevel;
 	short special;
 	short tag;
-	long nexttag, firsttag; // for fast tag searches
+	INT32 nexttag, firsttag; // for fast tag searches
 
 	// origin for any sounds played by the sector
 	// also considered the center for e.g. Mario blocks
@@ -274,12 +274,12 @@ typedef struct sector_s
 	angle_t floorpic_angle;
 	angle_t ceilingpic_angle;
 
-	long heightsec; // other sector, or -1 if no other sector
+	INT32 heightsec; // other sector, or -1 if no other sector
 
-	long floorlightsec, ceilinglightsec;
-	int crumblestate; // used for crumbling and bobbing
+	INT32 floorlightsec, ceilinglightsec;
+	INT32 crumblestate; // used for crumbling and bobbing
 
-	long bottommap, midmap, topmap; // dynamic colormaps
+	INT32 bottommap, midmap, topmap; // dynamic colormaps
 
 	// list of mobjs that are at least partially in the sector
 	// thinglist is a subset of touching_thinglist
@@ -295,7 +295,7 @@ typedef struct sector_s
 	size_t numattached;
 	size_t maxattached;
 	lightlist_t *lightlist;
-	int numlights;
+	INT32 numlights;
 	boolean moved;
 
 	// per-sector colormaps!
@@ -377,7 +377,7 @@ typedef struct line_s
 #if 1//#ifdef WALLSPLATS
 	void *splats; // wallsplat_t list
 #endif
-	long firsttag, nexttag; // improves searches for tags.
+	INT32 firsttag, nexttag; // improves searches for tags.
 #ifdef POLYOBJECTS
 	polyobj_t *polyobj; // Belongs to a polyobject?
 #endif
@@ -397,7 +397,7 @@ typedef struct
 
 	// Texture indices.
 	// We do not maintain names here.
-	long toptexture, bottomtexture, midtexture;
+	INT32 toptexture, bottomtexture, midtexture;
 
 	// Sector the SideDef is facing.
 	sector_t *sector;
@@ -495,7 +495,7 @@ typedef struct seg_s
 	vertex_t *v1;
 	vertex_t *v2;
 
-	int side;
+	INT32 side;
 
 	fixed_t offset;
 
@@ -510,7 +510,7 @@ typedef struct seg_s
 	sector_t *backsector;
 
 #ifdef HWRENDER
-	float length; // length of the seg, used by hardware renderer
+	float flength; // length of the seg, used by hardware renderer
 
 	lightmap_t *lightmaps; // for static lightmap
 #endif
@@ -572,14 +572,14 @@ typedef post_t column_t;
 typedef struct drawseg_s
 {
 	seg_t *curline;
-	int x1;
-	int x2;
+	INT32 x1;
+	INT32 x2;
 
 	fixed_t scale1;
 	fixed_t scale2;
 	fixed_t scalestep;
 
-	int silhouette; // 0 = none, 1 = bottom, 2 = top, 3 = both
+	INT32 silhouette; // 0 = none, 1 = bottom, 2 = top, 3 = both
 
 	fixed_t bsilheight; // do not clip sprites above this
 	fixed_t tsilheight; // do not clip sprites below this
@@ -590,10 +590,10 @@ typedef struct drawseg_s
 	short *maskedtexturecol;
 
 	struct visplane_s *ffloorplanes[MAXFFLOORS];
-	int numffloorplanes;
+	INT32 numffloorplanes;
 	struct ffloor_s *thicksides[MAXFFLOORS];
 	short *thicksidecol;
-	int numthicksides;
+	INT32 numthicksides;
 	fixed_t frontscale[MAXVIDWIDTH];
 } drawseg_t;
 
@@ -622,7 +622,7 @@ typedef struct
 	short height;
 	short leftoffset;     // pixels to the left of origin
 	short topoffset;      // pixels below the origin
-	int columnofs[8];     // only [width] used
+	INT32 columnofs[8];     // only [width] used
 	// the [0] is &columnofs[width]
 } ATTRPACK patch_t;
 
