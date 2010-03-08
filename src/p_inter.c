@@ -116,7 +116,7 @@ void P_ClearStarPost(player_t *player, int postnum)
 //
 // Returns true if the player is in a state where they can pick up items.
 //
-static boolean P_CanPickupItem(player_t *player, boolean weapon)
+boolean P_CanPickupItem(player_t *player, boolean weapon)
 {
 	(void)weapon; //unused
 

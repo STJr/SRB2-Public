@@ -397,14 +397,18 @@ static boolean PIT_CheckThing(mobj_t *thing)
 	if (thing->flags & MF_SPECIAL)
 	{
 		if (tmthing->player)
+		{
 			P_TouchSpecialThing(thing, tmthing, true); // can remove thing
+		}
 		return true;
 	}
 	// check again for special pickup
 	if (tmthing->flags & MF_SPECIAL)
 	{
 		if (thing->player)
+		{
 			P_TouchSpecialThing(tmthing, thing, true); // can remove thing
+		}
 		return true;
 	}
 

@@ -1020,9 +1020,13 @@ static void R_ProjectSprite(mobj_t *thing)
 	{
 		CONS_Printf("Warning: Mobj of type %d with invalid sprite data (%d) detected and removed.\n", thing->type, thing->sprite);
 		if (thing->player)
+		{
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
+		}
 		else
+		{
 			P_SetMobjState(thing, S_DISS);
+		}
 		return;
 	}
 #endif
@@ -1041,9 +1045,13 @@ static void R_ProjectSprite(mobj_t *thing)
 	{
 		CONS_Printf("Warning: Mobj of type %d with invalid sprite data (%ld) detected and removed.\n", thing->type, (thing->frame&FF_FRAMEMASK));
 		if (thing->player)
+		{
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
+		}
 		else
+		{
 			P_SetMobjState(thing, S_DISS);
+		}
 		return;
 	}
 #endif

@@ -322,6 +322,8 @@ void P_PlayTauntSound(mobj_t *source);
 
 void P_ClearStarPost(player_t *player, int postnum);
 
+boolean P_CanPickupItem(player_t *player, boolean weapon);
+
 //
 // P_SIGHT
 //
