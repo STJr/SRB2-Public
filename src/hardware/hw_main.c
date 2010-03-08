@@ -1099,9 +1099,9 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 
 	glTex = HWR_GetTexture(texnum);
 	if (cutflag & FF_TRANSLUCENT)
-		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent, height);
+		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent, list[i].height);
 	else if (glTex->mipmap.flags & TF_TRANSPARENT)
-		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment, height);
+		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment, list[i].height);
 	else
 		HWR_ProjectWall(wallVerts, Surf, PF_Masked);
 }

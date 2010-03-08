@@ -42,6 +42,15 @@
 typedef long ssize_t;
 #define INT64  __int64
 #define UINT64 unsigned __int64
+
+/* Older Visual C++ headers don't have the Win64-compatible typedefs... */
+#if ((_MSC_VER <= 1200) && (!defined(DWORD_PTR)))
+#define DWORD_PTR DWORD
+#endif
+
+#if ((_MSC_VER <= 1200) && (!defined(PDWORD_PTR)))
+#define PDWORD_PTR PDWORD
+#endif
 #elif defined (_arch_dreamcast) // KOS Dreamcast
 #include <arch/types.h>
 
