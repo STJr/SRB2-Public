@@ -127,6 +127,19 @@ fixed_t AngleFixed(angle_t af)
 #endif
 }
 
+#ifdef FIXEDPOINTCONV
+static FUNCMATH fixed_t FixedArd(fixed_t fa, fixed_t wf)
+{
+	fixed_t ra = FixedRem(fa, wf*2);
+	if (ra > wf)
+		ra = ra - wf;
+	if (ra > FRACBITS) // not close to zero
+		return 0; // do not adjust
+	ra = -abs(FixedMul(FixedDiv(fa, wf), FRACUNIT/(FRACBITS*FRACBITS*2)));
+	return ra;
+}
+#endif
+
 angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 {
 #ifdef FIXEDPOINTCONV
@@ -135,6 +148,9 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	angle_t ra = 0;
 	const boolean fan = fa < 0;
 
+	if (fa == 0)
+		return 0;
+
 	if (factor == 0)
 		return FixedAngle(fa);
 	else if (factor > 0)
@@ -142,10 +158,7 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	else if (factor < 0)
 		wf = FixedDiv(wf, -factor);
 
-	if (FixedRem(fa, wf*2) == 0) // hack for 0
-		ra = -abs(FixedMul(FixedDiv(fa, wf*2), FRACUNIT/256));
-
-	fa = FixedRem(fa, wf);
+	ra = FixedArd(fa, wf);
 
 	fa = abs(fa);
 
@@ -158,6 +171,15 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 		}
 		ra = ra + wa;
 		fa = fa - wf;
+	}
+
+	if (ra == 0)
+	{
+		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
+		if (factor > 0)
+			ra = FixedMul(ra, factor);
+		else if (factor < 0)
+			ra = FixedDiv(ra, -factor);
 	}
 
 	if (fan)
@@ -185,10 +207,10 @@ angle_t FixedAngle(fixed_t fa)
 	angle_t ra = 0;
 	const boolean fan = fa < 0;
 
-	if (FixedRem(fa, wf*2) == 0) // hack for 0
-		ra = -abs(FixedMul(FixedDiv(fa, wf*2), FRACUNIT/256));
+	if (fa == 0)
+		return 0;
 
-	fa = FixedRem(fa, 360*FRACUNIT);
+	ra = FixedArd(fa, wf);
 
 	fa = abs(fa);
 
@@ -203,6 +225,8 @@ angle_t FixedAngle(fixed_t fa)
 		fa = fa - wf;
 	}
 
+	if (ra == 0)
+		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
 
 	if (fan)
 		return ANGLE_MAX-ra+1;

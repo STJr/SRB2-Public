@@ -28,17 +28,6 @@
 #include "../src/m_fixed.c"
 #define FIXEDPOINTCONV
 
-unsigned SlopeDiv(unsigned num, unsigned den)
-{
-	unsigned ans;
-	num <<= (FINE_FRACBITS-FRACBITS);
-	den <<= (FINE_FRACBITS-FRACBITS);
-	if (den < 512)
-		return SLOPERANGE;
-	ans = (num<<3) / (den>>8);
-	return ans <= SLOPERANGE ? ans : SLOPERANGE;
-}
-
 // With angle_t,
 // 360 deg = 2^32
 // 45 deg = 2^29
@@ -189,6 +178,17 @@ fixed_t AngleFixed205(angle_t af)
 #endif
 }
 
+static FUNCMATH fixed_t FixedArd(fixed_t fa, fixed_t wf)
+{
+	fixed_t ra = FixedRem(fa, wf*2);
+	if (ra > wf)
+		ra = ra - wf;
+	if (ra > FRACBITS) // not close to zero
+		return 0; // do not adjust
+	ra = -abs(FixedMul(FixedDiv(fa, wf), FRACUNIT/(FRACBITS*FRACBITS*2)));
+	return ra;
+}
+
 angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 {
 #ifdef FIXEDPOINTCONV
@@ -197,6 +197,9 @@ angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 	angle_t ra = 0;
 	const boolean fan = fa < 0;
 
+	if (fa == 0)
+		return 0;
+
 	if (factor == 0)
 		return FixedAngle(fa);
 	else if (factor > 0)
@@ -204,10 +207,7 @@ angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 	else if (factor < 0)
 		wf = FixedDiv(wf, -factor);
 
-	if (FixedRem(fa, wf*2) == 0) // hack for 0
-		ra = -abs(FixedMul(FixedDiv(fa, wf*2), FRACUNIT/256));
-
-	fa = FixedRem(fa, wf);
+	ra = FixedArd(fa, wf);
 
 	fa = abs(fa);
 
@@ -220,6 +220,15 @@ angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 		}
 		ra = ra + wa;
 		fa = fa - wf;
+	}
+
+	if (ra == 0)
+	{
+		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
+		if (factor > 0)
+			ra = FixedMul(ra, factor);
+		else if (factor < 0)
+			ra = FixedDiv(ra, -factor);
 	}
 
 	if (fan)
@@ -247,10 +256,10 @@ angle_t FixedAngle205(fixed_t fa)
 	angle_t ra = 0;
 	const boolean fan = fa < 0;
 
-	if (FixedRem(fa, wf*2) == 0) // hack for 0
-		ra = -abs(FixedMul(FixedDiv(fa, wf*2), FRACUNIT/256));
+	if (fa == 0)
+		return 0;
 
-	fa = FixedRem(fa, 360*FRACUNIT);
+	ra = FixedArd(fa, wf);
 
 	fa = abs(fa);
 
@@ -265,6 +274,8 @@ angle_t FixedAngle205(fixed_t fa)
 		fa = fa - wf;
 	}
 
+	if (ra == 0)
+		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
 
 	if (fan)
 		return ANGLE_MAX-ra+1;
@@ -291,14 +302,14 @@ int main(int argc, char** argv)
 	(void)argc;
 	(void)argv;
 
-	err = 1035;
+	err = 1058;
 
 	if (1)
 	for (f = FRACUNIT*-720; f < FRACUNIT*720; f += FRACUNIT/16)
 	{
 		a204 = FixedAngle(f);
 		a205 = FixedAngle205(f);
-		if (a204 != a205 && (abs(a204-a205) > err || a204 == 0 || a205 == 0)) //1037
+		if (a204 != a205 && (abs(a204-a205) > err || a204 == 0 || a205 == 0)) //1059
 		{
 			printf("Fixed: %f, %d, %d, %d\n", FIXED_TO_FLOAT(f), a204, a205, a204-a205);
 			//err = abs(a204-a205);
