@@ -75,7 +75,7 @@ unsigned SlopeDiv(unsigned num, unsigned den)
 #define ANGLE_TO_FIXED(a) (fixed_t)(((a)>>(29-FRACBITS))*45)
 #define FIXED_TO_ANGLE(x) (angle_t)(((x)/45)<<(29-FRACBITS))
 
-#ifndef _MSC_VER // for netplay with v2.0.4
+#if 0 // for netplay with v2.0.4
 #define FIXEDPOINTCONV
 #endif
 
@@ -100,9 +100,10 @@ fixed_t AngleFixed(angle_t af)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	fixed_t rf = 0*FRACUNIT;
+	//const angle_t adj = 0x2000;
 
-	if (af == 0)
-		return 0;
+	//if (af < adj) // too small to notice
+		//return rf;
 
 	while (af)
 	{
@@ -114,6 +115,7 @@ fixed_t AngleFixed(angle_t af)
 		rf += wf;
 		af -= wa;
 	}
+
 	return rf;
 #else
 	const fixed_t cfn = 180*FRACUNIT;
@@ -128,15 +130,34 @@ fixed_t AngleFixed(angle_t af)
 }
 
 #ifdef FIXEDPOINTCONV
-static FUNCMATH fixed_t FixedArd(fixed_t fa, fixed_t wf)
+static FUNCMATH angle_t AngleAdj(const fixed_t fa, const fixed_t wf,
+                                 angle_t ra)
 {
-	fixed_t ra = FixedRem(fa, wf*2);
-	if (ra > wf)
-		ra = ra - wf;
-	if (ra > FRACBITS) // not close to zero
-		return 0; // do not adjust
-	ra = -abs(FixedMul(FixedDiv(fa, wf), FRACUNIT/(FRACBITS*FRACBITS*2)));
-	return ra;
+	const angle_t adj = 0x77;
+	const boolean fan = fa < 0;
+	const fixed_t sl = FixedDiv(fa, wf*2);
+	const fixed_t lb = FixedRem(fa, wf*2);
+	const fixed_t lo = (wf*2)-lb;
+
+	if (ra == 0)
+	{
+		if (lb == 0)
+		{
+			ra = FixedMul(FRACUNIT/512, sl);
+			if (ra > FRACUNIT/64)
+				return ANGLE_MAX-ra+1;
+			return ra;
+		}
+		else if (lb > 0)
+			return ANGLE_MAX-FixedMul(lo*FRACUNIT, adj)+1;
+		else
+			return ANGLE_MAX-FixedMul(lo*FRACUNIT, adj)+1;
+	}
+
+	if (fan)
+		return ANGLE_MAX-ra+1;
+	else
+		return ra;
 }
 #endif
 
@@ -146,7 +167,8 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	angle_t ra = 0;
-	const boolean fan = fa < 0;
+	const fixed_t cfa = fa;
+	fixed_t cwf = wf;
 
 	if (fa == 0)
 		return 0;
@@ -154,11 +176,9 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	if (factor == 0)
 		return FixedAngle(fa);
 	else if (factor > 0)
-		wf = FixedMul(wf, factor);
+		cwf = wf = FixedMul(wf, factor);
 	else if (factor < 0)
-		wf = FixedDiv(wf, -factor);
-
-	ra = FixedArd(fa, wf);
+		cwf = wf = FixedDiv(wf, -factor);
 
 	fa = abs(fa);
 
@@ -173,19 +193,7 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 		fa = fa - wf;
 	}
 
-	if (ra == 0)
-	{
-		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
-		if (factor > 0)
-			ra = FixedMul(ra, factor);
-		else if (factor < 0)
-			ra = FixedDiv(ra, -factor);
-	}
-
-	if (fan)
-		return ANGLE_MAX-ra+1;
-	else
-		return ra;
+	return AngleAdj(cfa, cwf, ra);
 #else
 	if (factor == 0)
 		return FixedAngle(fa);
@@ -205,12 +213,11 @@ angle_t FixedAngle(fixed_t fa)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	angle_t ra = 0;
-	const boolean fan = fa < 0;
+	const fixed_t cfa = fa;
+	const fixed_t cwf = wf;
 
 	if (fa == 0)
 		return 0;
-
-	ra = FixedArd(fa, wf);
 
 	fa = abs(fa);
 
@@ -225,13 +232,7 @@ angle_t FixedAngle(fixed_t fa)
 		fa = fa - wf;
 	}
 
-	if (ra == 0)
-		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
-
-	if (fan)
-		return ANGLE_MAX-ra+1;
-	else
-		return ra;
+	return AngleAdj(cfa, cwf, ra);
 #else
 	//fa = FixedMod(fa, 360*FRACUNIT);
 

@@ -591,6 +591,8 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 		ss->stackList = NULL;
 		ss->lineoutLength = -1.0;
 #endif // ----- end special tricks -----
+
+		// Keep players out of secret levels!
 		if (!dedicated) // to prevent dedicated server error.
 		{
 			// Keep players out of secret levels!
@@ -1889,7 +1891,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	// This is needed. Don't touch.
 	maptol = mapheaderinfo[gamemap-1].typeoflevel;
 
-	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated)
+	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated) // to prevent dedicated server error.
 		I_Error("You have to unlock this level first!");
 
 	HU_clearChatChars();

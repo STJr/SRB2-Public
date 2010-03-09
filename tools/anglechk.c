@@ -151,9 +151,10 @@ fixed_t AngleFixed205(angle_t af)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	fixed_t rf = 0*FRACUNIT;
+	//const angle_t adj = 0x2000;
 
-	if (af == 0)
-		return 0;
+	//if (af < adj) // too small to notice
+		//return rf;
 
 	while (af)
 	{
@@ -165,6 +166,7 @@ fixed_t AngleFixed205(angle_t af)
 		rf += wf;
 		af -= wa;
 	}
+
 	return rf;
 #else
 	const fixed_t cfn = 180*FRACUNIT;
@@ -178,16 +180,37 @@ fixed_t AngleFixed205(angle_t af)
 #endif
 }
 
-static FUNCMATH fixed_t FixedArd(fixed_t fa, fixed_t wf)
+#ifdef FIXEDPOINTCONV
+static FUNCMATH angle_t AngleAdj(const fixed_t fa, const fixed_t wf,
+                                 angle_t ra)
 {
-	fixed_t ra = FixedRem(fa, wf*2);
-	if (ra > wf)
-		ra = ra - wf;
-	if (ra > FRACBITS) // not close to zero
-		return 0; // do not adjust
-	ra = -abs(FixedMul(FixedDiv(fa, wf), FRACUNIT/(FRACBITS*FRACBITS*2)));
-	return ra;
+	const angle_t adj = 0x77;
+	const boolean fan = fa < 0;
+	const fixed_t sl = FixedDiv(fa, wf*2);
+	const fixed_t lb = FixedRem(fa, wf*2);
+	const fixed_t lo = (wf*2)-lb;
+
+	if (ra == 0)
+	{
+		if (lb == 0)
+		{
+			ra = FixedMul(FRACUNIT/512, sl);
+			if (ra > FRACUNIT/64)
+				return ANGLE_MAX-ra+1;
+			return ra;
+		}
+		else if (lb > 0)
+			return ANGLE_MAX-FixedMul(lo*FRACUNIT, adj)+1;
+		else
+			return ANGLE_MAX-FixedMul(lo*FRACUNIT, adj)+1;
+	}
+
+	if (fan)
+		return ANGLE_MAX-ra+1;
+	else
+		return ra;
 }
+#endif
 
 angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 {
@@ -195,7 +218,8 @@ angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	angle_t ra = 0;
-	const boolean fan = fa < 0;
+	const fixed_t cfa = fa;
+	fixed_t cwf = wf;
 
 	if (fa == 0)
 		return 0;
@@ -203,11 +227,9 @@ angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 	if (factor == 0)
 		return FixedAngle(fa);
 	else if (factor > 0)
-		wf = FixedMul(wf, factor);
+		cwf = wf = FixedMul(wf, factor);
 	else if (factor < 0)
-		wf = FixedDiv(wf, -factor);
-
-	ra = FixedArd(fa, wf);
+		cwf = wf = FixedDiv(wf, -factor);
 
 	fa = abs(fa);
 
@@ -222,19 +244,7 @@ angle_t FixedAngleC205(fixed_t fa, fixed_t factor)
 		fa = fa - wf;
 	}
 
-	if (ra == 0)
-	{
-		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
-		if (factor > 0)
-			ra = FixedMul(ra, factor);
-		else if (factor < 0)
-			ra = FixedDiv(ra, -factor);
-	}
-
-	if (fan)
-		return ANGLE_MAX-ra+1;
-	else
-		return ra;
+	return AngleAdj(cfa, cwf, ra);
 #else
 	if (factor == 0)
 		return FixedAngle(fa);
@@ -254,12 +264,11 @@ angle_t FixedAngle205(fixed_t fa)
 	angle_t wa = ANGLE_180;
 	fixed_t wf = 180*FRACUNIT;
 	angle_t ra = 0;
-	const boolean fan = fa < 0;
+	const fixed_t cfa = fa;
+	const fixed_t cwf = wf;
 
 	if (fa == 0)
 		return 0;
-
-	ra = FixedArd(fa, wf);
 
 	fa = abs(fa);
 
@@ -274,13 +283,7 @@ angle_t FixedAngle205(fixed_t fa)
 		fa = fa - wf;
 	}
 
-	if (ra == 0)
-		ra = -(FRACBITS*FRACBITS*FRACBITS)/8;
-
-	if (fan)
-		return ANGLE_MAX-ra+1;
-	else
-		return ra;
+	return AngleAdj(cfa, cwf, ra);
 #else
 	//fa = FixedMod(fa, 360*FRACUNIT);
 
@@ -294,53 +297,54 @@ angle_t FixedAngle205(fixed_t fa)
 int main(int argc, char** argv)
 {
 	fixed_t f, f204, f205;
-	UINT64 a;
+	INT64 a;
 	angle_t a204, a205;
 	fixed_t CF = 40*FRACUNIT;
 	int err = 0;
-	const double ANG_1 = ANGLE_MAX/360.0f;
 	(void)argc;
 	(void)argv;
 
-	err = 1058;
+	err = 0x29; //41
 
 	if (1)
-	for (f = FRACUNIT*-720; f < FRACUNIT*720; f += FRACUNIT/16)
+	for (a = 0; a < ANGLE_MAX; a += 0x1)
 	{
-		a204 = FixedAngle(f);
-		a205 = FixedAngle205(f);
-		if (a204 != a205 && (abs(a204-a205) > err || a204 == 0 || a205 == 0)) //1059
+		f204 = AngleFixed204((angle_t)a);
+		f205 = AngleFixed205((angle_t)a);
+		if (f204 != f205 && (abs(f204-f205) > err || f204 == 0 || f205 == 0))
 		{
-			printf("Fixed: %f, %d, %d, %d\n", FIXED_TO_FLOAT(f), a204, a205, a204-a205);
-			//err = abs(a204-a205);
+			printf("Angle: %u, %d, %d, %d\n", (angle_t)a, f204, f205, f204-f205);
+			//err = abs(f204-f205);
 		}
 	}
 
-	err = 506;
+	//err = FixedDiv(FRACUNIT, 120*FRACUNIT); // 547
+	err = FixedDiv(FRACUNIT,  62*FRACUNIT); //1059
+
+	if (1)
+	for (f = FRACUNIT*-720; f < FRACUNIT*720; f += 1)
+	{
+		a204 = FixedAngle(f);
+		a205 = FixedAngle205(f);
+		if (a204 != a205 && (abs(a204-a205) > err || a204 == 0 || a205 == 0))
+		{
+			printf("Fixed: %f, %u, %u, %d\n", FIXED_TO_FLOAT(f), a204, a205, a204-a205);
+			err = abs(a204-a205);
+		}
+	}
+
+	//err = FixedDiv(FRACUNIT, 316*FRACUNIT); //207
+	err = FixedDiv(FRACUNIT, 125*FRACUNIT); //526
 
 	if (1)
 	for (f = FixedMul(FRACUNIT*-720, CF); f < FixedMul(FRACUNIT*720, CF); f += FRACUNIT/16)
 	{
 		a204 = FixedAngleC204(f, CF);
 		a205 = FixedAngleC205(f, CF);
-		if (a204 != a205 && (abs(a204-a205) > err || a204 == 0 || a205 == 0)) //508
+		if (a204 != a205 && (abs(a204-a205) > err || a204 == 0 || a205 == 0))
 		{
-			printf("FixedC: %f, %d, %d, %d\n", FIXED_TO_FLOAT(f), a204, a205, a204-a205);
+			printf("FixedC: %f, %u, %u, %d\n", FIXED_TO_FLOAT(f), a204, a205, a204-a205);
 			//err = abs(a204-a205);
-		}
-	}
-
-	err = 39;
-
-	if (1)
-	for (a = 0; a < ANGLE_MAX; a += 256)
-	{
-		f204 = AngleFixed204(a);
-		f205 = AngleFixed205(a);
-		if (f204 != f205 && (abs(f204-f205) > err || f204 == 0 || f205 == 0)) //41
-		{
-			printf("Angle: %f, %d, %d, %d\n", a/ANG_1, f204, f205, f204-f205);
-			err = abs(f204-f205);
 		}
 	}
 
@@ -349,5 +353,6 @@ int main(int argc, char** argv)
 
 void I_Error(const char *error, ...)
 {
+	(void)error;
 	exit(-1);
 }

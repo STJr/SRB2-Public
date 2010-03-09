@@ -2358,7 +2358,7 @@ static void ST_overlayDrawer(void)
 			V_DrawString(252, 168, 0, va("X: %d", stplyr->mo->x>>FRACBITS));
 			V_DrawString(252, 176, 0, va("Y: %d", stplyr->mo->y>>FRACBITS));
 			V_DrawString(252, 184, 0, va("Z: %d", stplyr->mo->z>>FRACBITS));
-			V_DrawString(252, 192, 0, va("A: %f", (double)FIXED_TO_FLOAT(d)));
+			V_DrawString(252, 192, 0, va("A: 2%f", (double)FIXED_TO_FLOAT(d)));
 		}
 	}
 }

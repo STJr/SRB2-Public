@@ -830,25 +830,30 @@ static void CL_ConnectToServer(boolean viams)
 						return;
 					}
 
-					D_ParseFileneeded(serverlist[i].info.fileneedednum,
-						serverlist[i].info.fileneeded);
-					CONS_Printf("%s",text[CHECKINGFILES]);
-					i = CL_CheckFiles();
-					if (i == 2) // cannot join for some reason
+					if (!server)
 					{
-						D_QuitNetGame();
-						CL_Reset();
-						D_StartTitle();
-						return;
+						D_ParseFileneeded(serverlist[i].info.fileneedednum,
+							serverlist[i].info.fileneeded);
+						CONS_Printf("%s",text[CHECKINGFILES]);
+						i = CL_CheckFiles();
+						if (i == 2) // cannot join for some reason
+						{
+							D_QuitNetGame();
+							CL_Reset();
+							D_StartTitle();
+							return;
+						}
+						else if (i == 1)
+							cl_mode = cl_askjoin;
+						else
+						{ // must download something
+							// no problem if can't send packet, we will retry later
+							if (SendRequestFile())
+								cl_mode = cl_downloadfiles;
+						}
 					}
-					else if (i == 1)
-						cl_mode = cl_askjoin;
 					else
-					{ // must download something
-						// no problem if can't send packet, we will retry later
-						if (SendRequestFile())
-							cl_mode = cl_downloadfiles;
-					}
+						cl_mode = cl_askjoin; // files need not be checked for the server.
 					break;
 				}
 				// ask the info to the server (askinfo packet)

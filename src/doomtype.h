@@ -269,8 +269,8 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define FUNCIERROR __attribute__ ((format(ms_printf, 1, 2),noreturn))
 #define PRIdS "Id" // MSVCRT
 #endif
-#elif defined (__MINGW32__)
-#define PRIdS "d" // MSVCRT
+#elif defined (__MINGW32__) || defined (_PSP) || defined (_arch_dreamcast)
+#define PRIdS "d"
 #else
 #define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(printf, 1, 2),noreturn))
