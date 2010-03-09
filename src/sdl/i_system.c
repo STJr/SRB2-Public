@@ -31,6 +31,7 @@
 #if defined (_WIN32) && !defined (_XBOX)
 #define RPC_NO_WINDOWS_H
 #include <windows.h>
+#include "../doomtype.h"
 #ifndef _WIN32_WCE
 typedef BOOL (WINAPI *p_GetDiskFreeSpaceExA)(LPCSTR, PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER);
 typedef BOOL (WINAPI *p_IsProcessorFeaturePresent) (DWORD);

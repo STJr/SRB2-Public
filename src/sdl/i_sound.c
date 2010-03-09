@@ -191,7 +191,7 @@ static SDL_bool canlooping = SDL_TRUE;
 #endif
 
 #if SDL_MIXER_VERSION_ATLEAST(1,2,10)
-#define MIXER_INIT
+//#define MIXER_INIT
 #endif
 
 #ifdef USE_RWOPS
