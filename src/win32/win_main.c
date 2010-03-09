@@ -142,6 +142,9 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				EndPaint (hWnd, &ps);
 				return 0;
 			}
+			else
+				RestoreDDPalette();
+
 			break;
 
 		case WM_QUERYNEWPALETTE:
