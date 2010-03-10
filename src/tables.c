@@ -170,8 +170,8 @@ angle_t FixedAngleC(fixed_t fa, fixed_t factor)
 	const fixed_t cfa = fa;
 	fixed_t cwf = wf;
 
-	if (fa == 0)
-		return 0;
+	//if (fa == 0)
+		//return 0;
 
 	if (factor == 0)
 		return FixedAngle(fa);
@@ -216,8 +216,8 @@ angle_t FixedAngle(fixed_t fa)
 	const fixed_t cfa = fa;
 	const fixed_t cwf = wf;
 
-	if (fa == 0)
-		return 0;
+	//if (fa == 0)
+		//return 0;
 
 	fa = abs(fa);
 
