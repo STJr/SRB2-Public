@@ -2396,42 +2396,42 @@ void P_MobjCheckWater(mobj_t *mobj)
 		if (!(mobj->type == MT_PLAYER && mobj->player->spectator))
 			S_StartSound(mobj, sfx_splish); // And make a sound!
 
-			bubblecount = abs(mobj->momz)>>FRACBITS;
-			// Create tons of bubbles
-			for (i = 0; i < bubblecount; i++)
+		bubblecount = abs(mobj->momz)>>FRACBITS;
+		// Create tons of bubbles
+		for (i = 0; i < bubblecount; i++)
+		{
+			mobj_t *bubble;
+			// P_Random()s are called individually
+			// to allow consistency across various
+			// compilers, since the order of function
+			// calls in C is not part of the ANSI
+			// specification.
+			prandom[0] = P_Random();
+			prandom[1] = P_Random();
+			prandom[2] = P_Random();
+			prandom[3] = P_Random();
+			prandom[4] = P_Random();
+			prandom[5] = P_Random();
+
+			if (prandom[0] < 32)
+				bubble =
+				P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
+					mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
+					mobj->z + (prandom[5]<<(FRACBITS-2)), MT_MEDIUMBUBBLE);
+			else
+				bubble =
+				P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
+					mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
+					mobj->z + (prandom[5]<<(FRACBITS-2)), MT_SMALLBUBBLE);
+
+			if (bubble)
 			{
-				mobj_t *bubble;
-				// P_Random()s are called individually
-				// to allow consistency across various
-				// compilers, since the order of function
-				// calls in C is not part of the ANSI
-				// specification.
-				prandom[0] = P_Random();
-				prandom[1] = P_Random();
-				prandom[2] = P_Random();
-				prandom[3] = P_Random();
-				prandom[4] = P_Random();
-				prandom[5] = P_Random();
-
-				if (prandom[0] < 32)
-					bubble =
-					P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
-						mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
-						mobj->z + (prandom[5]<<(FRACBITS-2)), MT_MEDIUMBUBBLE);
+				if ((mobj->eflags & MFE_VERTICALFLIP && mobj->momz > 0)
+				    || (!(mobj->eflags & MFE_VERTICALFLIP) && mobj->momz < 0))
+					bubble->momz = mobj->momz >> 4;
 				else
-					bubble =
-					P_SpawnMobj(mobj->x + (prandom[1]<<(FRACBITS-3)) * (prandom[2]&1 ? 1 : -1),
-						mobj->y + (prandom[3]<<(FRACBITS-3)) * (prandom[4]&1 ? 1 : -1),
-						mobj->z + (prandom[5]<<(FRACBITS-2)), MT_SMALLBUBBLE);
-
-				if (bubble)
-				{
-					if ((mobj->eflags & MFE_VERTICALFLIP && mobj->momz > 0)
-					    || (!(mobj->eflags & MFE_VERTICALFLIP) && mobj->momz < 0))
-						bubble->momz = mobj->momz >> 4;
-					else
-						bubble->momz = 0;
-				}
+					bubble->momz = 0;
+			}
 		}
 	}
 }
