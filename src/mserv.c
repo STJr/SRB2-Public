@@ -113,7 +113,7 @@
 #define GET_MOTD_MSG             208
 #define SEND_MOTD_MSG            209
 
-#define HEADER_SIZE ((long)sizeof (long)*3)
+#define HEADER_SIZE (sizeof (INT32)*3)
 
 #define HEADER_MSG_POS    0
 #define IP_MSG_POS       16

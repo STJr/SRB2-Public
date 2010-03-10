@@ -1554,7 +1554,7 @@ static void ST_drawTagHUD(void)
 	if (stplyr->tagzone)
 	{
 		char stagzone[33];
-		sprintf(stagzone, "%lu", stplyr->tagzone/TICRATE);
+		sprintf(stagzone, "%u", stplyr->tagzone/TICRATE);
 		if (splitscreen)
 		{
 			V_DrawString(201, STRINGY(168), 0, "IN NO-TAG ZONE");
@@ -1569,7 +1569,7 @@ static void ST_drawTagHUD(void)
 	else if (stplyr->taglag)
 	{
 		char staglag[33];
-		sprintf(staglag, "%lu", stplyr->taglag/TICRATE);
+		sprintf(staglag, "%u", stplyr->taglag/TICRATE);
 
 		if (splitscreen)
 		{

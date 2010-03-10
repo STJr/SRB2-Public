@@ -338,8 +338,8 @@ typedef struct player_s
 	////////////////////
 	// Tag Mode Stuff //
 	////////////////////
-	long tagzone; // Tag Zone timer
-	long taglag; // Don't go back in the tag zone too early
+	INT32 tagzone; // Tag Zone timer
+	INT32 taglag; // Don't go back in the tag zone too early
 
 	////////////////////
 	// CTF Mode Stuff //

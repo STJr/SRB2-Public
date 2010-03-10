@@ -620,9 +620,16 @@ static SOCKET_TYPE UDP_Socket(void)
 		I_Error("UDP_Socket error #%d: Can't create socket: %s", errno, strerror(errno));
 
 #ifdef _WIN32
-	{
-		unsigned long falseval = false; // Alam_GBC: disable the new UDP connection reset behavior for Win2k and up
+	{ // Alam_GBC: disable the new UDP connection reset behavior for Win2k and up
+#ifdef _WIN64
+		DWORD dwBytesReturned = 0;
+		BOOL bfalse = FALSE;
+		WSAIoctl(s, SIO_UDP_CONNRESET, &bfalse, sizeof(bfalse),
+		         NULL, 0, &dwBytesReturned, NULL, NULL);
+#else
+		unsigned long falseval = false;
 		ioctl(s, SIO_UDP_CONNRESET, &falseval);
+#endif
 	}
 #endif
 

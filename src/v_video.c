@@ -1804,7 +1804,7 @@ void V_DrawPatchFill(patch_t *pat)
 void V_DrawFadeScreen(void)
 {
 	INT32 x, y, w;
-	long *buf;
+	INT32 *buf;
 	UINT32 quad;
 	byte p1, p2, p3, p4;
 	const byte *fadetable = (byte *)colormaps + 16*256, *deststop = screens[0] + vid.width * vid.height * vid.bpp;
@@ -1820,10 +1820,10 @@ void V_DrawFadeScreen(void)
 	w = vid.width>>2;
 	for (y = 0; y < vid.height; y++)
 	{
-		buf = (long *)(void *)(screens[0] + vid.width*y);
+		buf = (INT32 *)(void *)(screens[0] + vid.width*y);
 		for (x = 0; x < w; x++)
 		{
-			if (buf+ x > (const long *)(const void *)deststop)
+			if (buf+ x > (const INT32 *)(const void *)deststop)
 				return;
 			M_Memcpy(&quad,buf+x,sizeof (quad)); //quad = buf[x];
 			p1 = fadetable[quad&255];
@@ -1841,7 +1841,7 @@ void V_DrawFadeScreen(void)
 void V_DrawFadeConsBack(INT32 px1, INT32 py1, INT32 px2, INT32 py2, INT32 color)
 {
 	INT32 x, y, w;
-	long *buf;
+	INT32 *buf;
 	UINT32 quad;
 	byte p1, p2, p3, p4;
 	short *wput;
@@ -1914,10 +1914,10 @@ void V_DrawFadeConsBack(INT32 px1, INT32 py1, INT32 px2, INT32 py2, INT32 color)
 		px2 >>=2;
 		for (y = py1; y < py2; y++)
 		{
-			buf = (long *)(void *)(screens[0] + vid.width*y);
+			buf = (INT32 *)(void *)(screens[0] + vid.width*y);
 			for (x = px1; x < px2; x++)
 			{
-				if (&buf[x] > (const long *)(const void *)deststop)
+				if (&buf[x] > (const INT32 *)(const void *)deststop)
 					return;
 				M_Memcpy(&quad,buf+x,sizeof (quad)); //quad = buf[x];
 				p1 = colormap[quad&255];

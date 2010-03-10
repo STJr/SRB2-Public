@@ -146,9 +146,9 @@ typedef struct vissprite_s
 
 	byte *transmap; // for MF2_SHADOW sprites, which translucency table to use
 
-	long mobjflags;
+	INT32 mobjflags;
 
-	long heightsec; // height sector for underwater/fake ceiling support
+	INT32 heightsec; // height sector for underwater/fake ceiling support
 
 	extracolormap_t *extra_colormap; // global colormaps
 
