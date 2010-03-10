@@ -200,6 +200,39 @@ void COM_BufExecute(void)
 	}
 }
 
+/** Executes a string immediately.  Used for skirting around WAIT commands.
+  */
+void COM_ImmedExecute(const char *ptext)
+{
+	size_t i = 0, j = 0;
+	char line[1024] = "";
+	INT32 quotes;
+
+	while (i < strlen(ptext))
+	{
+
+		quotes = 0;
+		for (j = 0; i < strlen(ptext); i++,j++)
+		{
+			if (ptext[i] == '\"' && !quotes && i > 0 && ptext[i-1] != ' ') // Malformed command
+				return;
+			if (ptext[i] == '\"')
+				quotes++;
+			// don't break if inside a quoted string
+			if ((!(quotes & 1) && ptext[i] == ';') || ptext[i] == '\n' || ptext[i] == '\r')
+				break;
+		}
+
+		memcpy(line, ptext+(i-j), j);
+		line[j] = 0;
+
+		// execute the command line
+		COM_ExecuteString(line);
+
+		i++; // move to next character
+	}
+}
+
 // =========================================================================
 //                            COMMAND EXECUTION
 // =========================================================================
