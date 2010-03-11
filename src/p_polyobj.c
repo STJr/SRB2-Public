@@ -2109,6 +2109,11 @@ void T_PolyDoorSwing(polyswingdoor_t *th)
 	}
 }
 
+static inline INT32 Polyobj_AngSpeed(INT32 speed)
+{
+	return (speed*ANG1)>>3; // no FixedAngle()
+}
+
 // Linedef Handlers
 
 INT32 EV_DoPolyObjRotate(polyrotdata_t *prdata)
@@ -2143,14 +2148,14 @@ INT32 EV_DoPolyObjRotate(polyrotdata_t *prdata)
 	th->polyObjNum = prdata->polyObjNum;
 
 	// use Hexen-style byte angles for speed and distance
-	th->speed = (prdata->speed * prdata->direction * (ANGLE_45/45)) >> 3;
+	th->speed = Polyobj_AngSpeed(prdata->speed * prdata->direction);
 
 	if (prdata->distance == 360)    // 360 means perpetual
 		th->distance = -1;
 	else if (prdata->distance == 0) // 0 means 360 degrees
 		th->distance = 0xffffffff - 1;
 	else
-		th->distance = prdata->distance * (ANGLE_45/45);
+		th->distance = prdata->distance * ANG1;
 
 	// set polyobject's thrust
 	po->thrust = abs(th->speed) >> 8;
@@ -2456,8 +2461,8 @@ static void Polyobj_doSwingDoor(polyobj_t *po, polydoordata_t *doordata)
 	th->closing      = false;
 	th->delay        = doordata->delay;
 	th->delayCount   = 0;
-	th->distance     = th->initDistance = doordata->distance * (ANGLE_45/45);
-	th->speed        = (doordata->speed * (ANGLE_45/45)) >> 3;
+	th->distance     = th->initDistance = doordata->distance * ANG1;
+	th->speed        = Polyobj_AngSpeed(doordata->speed);
 	th->initSpeed    = th->speed;
 
 	// set polyobject's thrust

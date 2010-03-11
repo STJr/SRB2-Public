@@ -637,7 +637,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fi
 		poly = extrasubsectors[bspnum&~NF_SUBSECTOR].planepoly;
 
 		for (i = 0, pt = poly->pts; i < poly->numpts; i++,pt++)
-			M_AddToBox(bbox, (fixed_t)(pt->x * FRACUNIT), (fixed_t)(pt->y * FRACUNIT));
+			M_AddToBox(bbox, FLOAT_TO_FIXED(pt->x), FLOAT_TO_FIXED(pt->y));
 
 		return;
 	}

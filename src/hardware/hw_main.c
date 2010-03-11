@@ -744,11 +744,11 @@ static void HWR_DrawSegsSplats(FSurfaceInfo * pSurf)
 
 	M_ClearBox(segbbox);
 	M_AddToBox(segbbox,
-		(fixed_t)(((polyvertex_t *)gr_curline->v1)->x*FRACUNIT),
-		(fixed_t)(((polyvertex_t *)gr_curline->v1)->y*FRACUNIT));
+		FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v1)->x),
+		FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v1)->y));
 	M_AddToBox(segbbox,
-		(fixed_t)(((polyvertex_t *)gr_curline->v2)->x*FRACUNIT),
-		(fixed_t)(((polyvertex_t *)gr_curline->v2)->y*FRACUNIT));
+		FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v2)->x),
+		FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v2)->y));
 
 	splat = (wallsplat_t *)gr_curline->linedef->splats;
 	for (; splat; splat = splat->next)
@@ -1172,14 +1172,14 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 
 		// clip texture s start/end coords with solidsegs
 		if (startfrac > 0 && startfrac < 1)
-			cliplow = texturehpeg + gr_curline->flength * startfrac * FRACUNIT;
+			cliplow = texturehpeg + (gr_curline->flength*FRACUNIT) * startfrac;
 		else
 			cliplow = (float)texturehpeg;
 
 		if (endfrac > 0 && endfrac < 1)
-			cliphigh = texturehpeg + gr_curline->flength * endfrac * FRACUNIT;
+			cliphigh = texturehpeg + (gr_curline->flength*FRACUNIT) * endfrac;
 		else
-			cliphigh = texturehpeg + gr_curline->flength * FRACUNIT;
+			cliphigh = texturehpeg + (gr_curline->flength*FRACUNIT);
 	}
 
 #ifdef HARDWAREFIX
@@ -1988,8 +1988,10 @@ static void HWR_AddLine(seg_t * line)
 	gr_curline = line;
 
 	// OPTIMIZE: quickly reject orthogonal back sides.
-	angle1 = R_PointToAngle((fixed_t)(((polyvertex_t *)gr_curline->v1)->x*FRACUNIT), (fixed_t)(((polyvertex_t *)gr_curline->v1)->y*FRACUNIT));
-	angle2 = R_PointToAngle((fixed_t)(((polyvertex_t *)gr_curline->v2)->x*FRACUNIT), (fixed_t)(((polyvertex_t *)gr_curline->v2)->y*FRACUNIT));
+	angle1 = R_PointToAngle(FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v1)->x),
+	                        FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v1)->y));
+	angle2 = R_PointToAngle(FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v2)->x),
+	                        FLOAT_TO_FIXED(((polyvertex_t *)gr_curline->v2)->y));
 
 	// Clip to view edges.
 	span = angle1 - angle2;

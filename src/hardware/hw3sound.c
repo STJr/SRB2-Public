@@ -676,7 +676,7 @@ void S_StartAmbientSound(sfxenum_t sfx_id, INT32 volume)
 
 FUNCMATH static inline float AmbientPos(angle_t an)
 {
-	const fixed_t fm = FixedMul((fixed_t)(MIN_DISTANCE * FRACUNIT), FINESINE(an>>ANGLETOFINESHIFT));
+	const fixed_t fm = FixedMul(FLOAT_TO_FIXED(MIN_DISTANCE), FINESINE(an>>ANGLETOFINESHIFT));
 	return FIXED_TO_FLOAT(fm);
 }
 
