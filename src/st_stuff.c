@@ -1787,7 +1787,7 @@ static void ST_drawTeamMatchHUD(void)
 static void ST_drawChaosHUD(void)
 {
 	char chains[33];
-	sprintf(chains, "CHAINS: %lu", stplyr->scoreadd);
+	sprintf(chains, "CHAINS: %u", stplyr->scoreadd);
 	V_DrawString(8, STRINGY(184), V_TRANSLUCENT, chains);
 }
 #endif

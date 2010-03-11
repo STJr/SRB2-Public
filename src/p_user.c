@@ -374,7 +374,7 @@ void P_ResetScore(player_t *player)
 {
 #ifdef CHAOSISNOTDEADYET
 	if (gametype == GT_CHAOS && player->scoreadd >= 5)
-		CONS_Printf("%s got a chain of %lu!\n", player_names[player-players], player->scoreadd);
+		CONS_Printf("%s got a chain of %u!\n", player_names[player-players], player->scoreadd);
 #endif
 
 	player->scoreadd = 0;
