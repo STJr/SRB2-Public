@@ -42,7 +42,6 @@
 #endif
 
 #define R_FAKEFLOORS
-//#define WALLSORTING
 //#define HWPRECIP
 #define SORTING
 //#define POLYSKY
@@ -837,8 +836,8 @@ FBITFIELD HWR_TranstableToAlpha(INT32 transtablenum, FSurfaceInfo *pSurf)
 //         clipped so that only a visible portion of the wall seg is drawn.
 // floorheight, ceilingheight : depend on wall upper/lower/middle, comes from the sectors.
 
-static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, INT32 texnum, FBITFIELD blend, fixed_t fixedheight);
-static void HWR_AddPeggedWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, INT32 texnum, FBITFIELD blend);
+static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, INT32 texnum, FBITFIELD blend);
+
 // -----------------+
 // HWR_ProjectWall  :
 // -----------------+
@@ -1038,9 +1037,9 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 
 		glTex = HWR_GetTexture(texnum);
 		if (cutflag & FF_TRANSLUCENT)
-			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent, list[i].height);
+			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent);
 		else if (glTex->mipmap.flags & TF_TRANSPARENT)
-			HWR_AddPeggedWall(wallVerts, Surf, texnum, PF_Environment);
+			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment);
 		else
 			HWR_ProjectWall(wallVerts, Surf, PF_Masked);
 
@@ -1099,9 +1098,9 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 
 	glTex = HWR_GetTexture(texnum);
 	if (cutflag & FF_TRANSLUCENT)
-		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent, list[i].height);
+		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent);
 	else if (glTex->mipmap.flags & TF_TRANSPARENT)
-		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment, list[i].height);
+		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment);
 	else
 		HWR_ProjectWall(wallVerts, Surf, PF_Masked);
 }
@@ -1300,10 +1299,7 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 			if (gr_frontsector->numlights)
 				HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[gr_sidedef->toptexture], &Surf, FF_CUTSOLIDS);
 			else if (grTex->mipmap.flags & TF_TRANSPARENT)
-				HWR_AddPeggedWall(wallVerts, &Surf, texturetranslation[gr_sidedef->toptexture], PF_Environment);
-			// SRB2CBTODO-
-			//else if (blendmode & PF_Translucent)
-			//	HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->midtexture], PF_Translucent);
+				HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->toptexture], PF_Environment);
 			else
 				HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
 		}
@@ -1342,10 +1338,7 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 			if (gr_frontsector->numlights)
 				HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[gr_sidedef->bottomtexture], &Surf, FF_CUTSOLIDS);
 			else if (grTex->mipmap.flags & TF_TRANSPARENT)
-				HWR_AddPeggedWall(wallVerts, &Surf, texturetranslation[gr_sidedef->bottomtexture], PF_Environment);
-			// SRB2CBTODO-
-			//else if (blendmode & PF_Translucent)
-			//	HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->midtexture], PF_Translucent);
+				HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->bottomtexture], PF_Environment);
 			else
 				HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
 		}
@@ -1495,10 +1488,8 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 
 			if (gr_frontsector->numlights)
 				HWR_SplitWall(gr_frontsector, wallVerts, gr_midtexture, &Surf, FF_CUTSOLIDS);
-			else if (blendmode & PF_Translucent) // SRB2CBTODO-: May not be needed
-				HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, blendmode, (worldhigh - worldlow));
-			else if (blendmode & PF_Environment)
-				HWR_AddPeggedWall(wallVerts, &Surf, gr_midtexture, blendmode);
+			else if (!(blendmode & PF_Masked))
+				HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, blendmode);
 			else
 				HWR_ProjectWall(wallVerts, &Surf, blendmode);
 
@@ -1543,10 +1534,7 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 			else
 			{
 				if (grTex->mipmap.flags & TF_TRANSPARENT)
-					HWR_AddPeggedWall(wallVerts, &Surf, gr_midtexture, PF_Environment);
-				// SRB2CBTODO-
-				//else if (blendmode & PF_Translucent)
-				//	HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, PF_Translucent);
+					HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, PF_Environment);
 				else
 					HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
 			}
@@ -1613,10 +1601,10 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 						HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, (rover->flags & FF_EXTRA ? FF_CUTEXTRA : FF_CUTSOLIDS)|(rover->flags & FF_TRANSLUCENT ? FF_TRANSLUCENT : 0));
 					else
 					{
-						if (blendmode & PF_Translucent)
-							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode, (rover->topheight - rover->bottomheight));
-						else if (blendmode & PF_Environment)
-							HWR_AddPeggedWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode);
+						if (blendmode != PF_Masked)
+							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode);
+						else
+							HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
 					}
 				}
 			}
@@ -1669,10 +1657,8 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 						HWR_SplitWall(gr_backsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, (rover->flags & FF_EXTRA ? FF_CUTEXTRA : FF_CUTSOLIDS)|(rover->flags & FF_TRANSLUCENT ? FF_TRANSLUCENT : 0));
 					else
 					{
-						if (blendmode & PF_Translucent)
-							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode, (rover->topheight - rover->bottomheight));
-						else if (blendmode & PF_Environment)
-							HWR_AddPeggedWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode);
+						if (blendmode != PF_Masked)
+							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode);
 						else
 							HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
 					}
@@ -4546,13 +4532,13 @@ static void HWR_Render3DWater(void)
 }
 #endif
 
-static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, INT32 texnum, FBITFIELD blend, fixed_t fixedheight)
+static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, INT32 texnum, FBITFIELD blend)
 {
 	if (!(numwalls % MAX_TRANSPARENTWALL))
 	{
 		wallinfo = realloc(wallinfo,
 			(numwalls + MAX_TRANSPARENTWALL) * sizeof *wallinfo);
-		if (!wallinfo) I_Error("Out of Memory in HWR_AddPeggeddWall");
+		if (!wallinfo) I_Error("Out of Memory in HWR_AddTransparentWall");
 	}
 
 	M_Memcpy(wallinfo[numwalls].wallVerts, wallVerts, sizeof (wallinfo[numwalls].wallVerts));
@@ -4561,30 +4547,6 @@ static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, I
 	wallinfo[numwalls].blend = blend;
 #ifdef SORTING
 	wallinfo[numwalls].drawcount = drawcount++;
-	(void)fixedheight;
-#else
-	wallinfo[numwalls].fixedheight = fixedheight;
-#endif
-	numwalls++;
-}
-
-static void HWR_AddPeggedWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, INT32 texnum, FBITFIELD blend)
-{
-	if (!(numwalls % MAX_TRANSPARENTWALL))
-	{
-		wallinfo = realloc(wallinfo,
-			(numwalls + MAX_TRANSPARENTWALL) * sizeof *wallinfo);
-		if (!wallinfo) I_Error("Out of Memory in HWR_AddPeggeddWall");
-	}
-
-	M_Memcpy(wallinfo[numwalls].wallVerts, wallVerts, sizeof (wallinfo[numwalls].wallVerts));
-	M_Memcpy(&wallinfo[numwalls].Surf, pSurf, sizeof (FSurfaceInfo));
-	wallinfo[numwalls].texnum = texnum;
-	wallinfo[numwalls].blend = blend;
-#ifdef SORTING
-	wallinfo[numwalls].drawcount = drawcount++;
-#else
-	wallinfo[numwalls].fixedheight = (FRACUNIT*FRACUNIT)-1;
 #endif
 	numwalls++;
 }
