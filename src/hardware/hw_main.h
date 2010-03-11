@@ -69,10 +69,6 @@ void HWR_PrepFadeToBlack(void);
 void HWR_DrawIntermissionBG(void);
 #endif
 
-#ifdef POLYOBJECTS
-void HWR_AddPolyObjects(subsector_t *sub);
-#endif
-
 extern CV_PossibleValue_t granisotropicmode_cons_t[];
 
 extern consvar_t cv_grrenderquality;

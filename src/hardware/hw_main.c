@@ -2193,6 +2193,51 @@ static boolean HWR_CheckBBox(fixed_t *bspcoord)
 	return HWR_ClipToSolidSegs(sx1, sx2 - 1);
 }
 
+#ifdef POLYOBJECTS
+
+//
+// HWR_AddPolyObjectSegs
+//
+// haleyjd 02/19/06
+// Adds all segs in all polyobjects in the given subsector.
+// Modified for SRB2 hardware rendering by Jazz 7/13/09
+//
+static inline void HWR_AddPolyObjectSegs(void)
+{
+	size_t i, j;
+	seg_t *gr_fakeline = Z_Calloc(sizeof(seg_t), PU_STATIC, NULL);
+	polyvertex_t *pv1 = Z_Calloc(sizeof(polyvertex_t), PU_STATIC, NULL);
+	polyvertex_t *pv2 = Z_Calloc(sizeof(polyvertex_t), PU_STATIC, NULL);
+
+	// Sort through all the polyobjects
+	for (i = 0; i < numpolys; ++i)
+	{
+		// Render the polyobject's lines
+		for (j = 0; j < po_ptrs[i]->segCount; ++j)
+		{
+			// Copy the info of a polyobject's seg, then convert it to OpenGL floating point
+			M_Memcpy(gr_fakeline, po_ptrs[i]->segs[j], sizeof(seg_t));
+
+			// Now convert the line to float and add it to be rendered
+			pv1->x = FIXED_TO_FLOAT(gr_fakeline->v1->x);
+			pv1->y = FIXED_TO_FLOAT(gr_fakeline->v1->y);
+			pv2->x = FIXED_TO_FLOAT(gr_fakeline->v2->x);
+			pv2->y = FIXED_TO_FLOAT(gr_fakeline->v2->y);
+
+			gr_fakeline->v1 = (vertex_t *)pv1;
+			gr_fakeline->v2 = (vertex_t *)pv2;
+
+			HWR_AddLine(gr_fakeline);
+		}
+	}
+
+	// Free temporary data no longer needed
+	Z_Free(pv2);
+	Z_Free(pv1);
+	Z_Free(gr_fakeline);
+}
+#endif
+
 // -----------------+
 // HWR_Subsector    : Determine floor/ceiling planes.
 //                  : Add sprites of things in sector.
@@ -2424,9 +2469,29 @@ static void HWR_Subsector(size_t num)
 #endif //doplanes
 
 #ifdef POLYOBJECTS
-	// Draw polyobject lines.
+	// Draw all the polyobjects in this subsector
 	if (sub->polyList)
-		HWR_AddPolyObjects(sub);
+	{
+		polyobj_t *po = sub->polyList;
+
+		numpolys = 0;
+
+		// Count all the polyobjects, reset the list, and recount them
+		while (po)
+		{
+			++numpolys;
+			po = (polyobj_t *)(po->link.next);
+		}
+
+		// Sort polyobjects
+		R_SortPolyObjects(sub);
+
+		// Draw polyobject lines.
+		HWR_AddPolyObjectSegs();
+
+		// Draw polyobject planes
+		//HWR_AddPolyObjectPlanes();
+	}
 #endif
 
 // Hurder ici se passe les choses INT32�essantes!
@@ -2731,69 +2796,6 @@ static fixed_t HWR_OpaqueFloorAtPos(fixed_t x, fixed_t y, fixed_t z, fixed_t hei
 
 	return floorz;
 }
-
-#ifdef POLYOBJECTS
-
-//
-// HWR_AddPolyObjects
-//
-// haleyjd 02/19/06
-// Adds all segs in all polyobjects in the given subsector.
-// Modified for SRB2 hardware rendering by Jazz 7/13/09
-//
-void HWR_AddPolyObjects(subsector_t *sub)
-{
-	polyobj_t *po = sub->polyList;
-	size_t i, j;
-
-	numpolys = 0;
-
-	// count polyobjects
-	while (po)
-	{
-		++numpolys;
-		po = (polyobj_t *)(po->link.next);
-	}
-
-	// sort polyobjects
-	R_SortPolyObjects(sub);
-
-	// render polyobjects
-	for (i = 0; i < numpolys; ++i)
-	{
-		// render lines
-		for (j = 0; j < po_ptrs[i]->segCount; ++j)
-		{
-			// Polyobjects segs don't move properly if they are adjusted and such
-			// for OpenGL's purposes. To compensate, we keep them in their original
-			// fixed_t form and feed a "fake" seg with the proper values into
-			// HWR_AddLine(). I don't know of any other way to do this. -Jazz
-			seg_t *gr_fakeline = Z_Calloc(sizeof(seg_t), PU_STATIC, NULL);
-			polyvertex_t *pv1 = Z_Calloc(sizeof(polyvertex_t), PU_STATIC, NULL);
-			polyvertex_t *pv2 = Z_Calloc(sizeof(polyvertex_t), PU_STATIC, NULL);
-
-			// Copy the line.
-			M_Memcpy(gr_fakeline, po_ptrs[i]->segs[j], sizeof(seg_t));
-
-			// Now we can convert and add the converted line.
-			pv1->x = FIXED_TO_FLOAT(gr_fakeline->v1->x);
-			pv1->y = FIXED_TO_FLOAT(gr_fakeline->v1->y);
-			pv2->x = FIXED_TO_FLOAT(gr_fakeline->v2->x);
-			pv2->y = FIXED_TO_FLOAT(gr_fakeline->v2->y);
-
-			gr_fakeline->v1 = (vertex_t *)pv1;
-			gr_fakeline->v2 = (vertex_t *)pv2;
-
-			HWR_AddLine(gr_fakeline);
-
-			// Rinse and repeat.
-			Z_Free(gr_fakeline);
-			Z_Free(pv1);
-			Z_Free(pv2);
-		}
-	}
-}
-#endif
 
 // -----------------+
 // HWR_DrawSprite   : Draw flat sprites
