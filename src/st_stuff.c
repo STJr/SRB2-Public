@@ -59,7 +59,7 @@ static patch_t *nightsnum[10]; // NiGHTS timer numbers
 
 patch_t *faceprefix[MAXSKINS]; // face status patches
 patch_t *superprefix[MAXSKINS]; // super face status patches
-patch_t *facenameprefix[MAXSKINS]; // face background
+static patch_t *facenameprefix[MAXSKINS]; // face background
 
 // ------------------------------------------
 //             status bar overlay
@@ -122,6 +122,8 @@ static patch_t *nhud[12];
 static patch_t *narrow[9];
 static patch_t *minicaps;
 static patch_t *minus;
+static patch_t *gotrflag;
+static patch_t *gotbflag;
 
 static boolean facefreed[MAXPLAYERS];
 static boolean prefixfreed[MAXPLAYERS];

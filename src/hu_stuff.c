@@ -78,8 +78,6 @@ patch_t *rflagico;
 patch_t *bflagico;
 patch_t *rmatcico;
 patch_t *bmatcico;
-patch_t *gotrflag;
-patch_t *gotbflag;
 patch_t *tagico;
 
 //-------------------------------------------
@@ -1167,16 +1165,8 @@ void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, I
 			}
 		}
 
-		if (gametype == GT_TAG)
-		{
-			patch_t *p;
-
-			if (players[tab[i].num].pflags & PF_TAGIT)
-			{
-				p = tagico;
-				V_DrawSmallScaledPatch(x-32, y-4, 0, p);
-			}
-		}
+		if (gametype == GT_TAG && players[tab[i].num].pflags & PF_TAGIT)
+			V_DrawSmallScaledPatch(x-32, y-4, 0, tagico);
 
 		if (gametype == GT_RACE)
 		{
@@ -1240,18 +1230,10 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 
 		if (gametype == GT_CTF)
 		{
-			patch_t *p;
-
 			if (players[tab[i].num].gotflag & MF_REDFLAG) // Red
-			{
-				p = rflagico;
-				V_DrawSmallScaledPatch(x-28, y-4, 0, p);
-			}
+				V_DrawSmallScaledPatch(x-28, y-4, 0, rflagico);
 			else if (players[tab[i].num].gotflag & MF_BLUEFLAG) // Blue
-			{
-				p = bflagico;
-				V_DrawSmallScaledPatch(x-28, y-4, 0, p);
-			}
+				V_DrawSmallScaledPatch(x-28, y-4, 0, bflagico);
 		}
 
 		// Draw emeralds
@@ -1304,16 +1286,8 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 		             | ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT)
 		             | V_ALLOWLOWERCASE, name);
 
-		if (gametype == GT_TAG)
-		{
-			patch_t *p;
-
-			if (players[tab[i].num].pflags & PF_TAGIT)
-			{
-				p = tagico;
-				V_DrawSmallScaledPatch(x-28, y-4, 0, p);
-			}
-		}
+		if (gametype == GT_TAG && players[tab[i].num].pflags & PF_TAGIT)
+			V_DrawSmallScaledPatch(x-28, y-4, 0, tagico);
 
 		// Draw emeralds
 		if (!players[tab[i].num].powers[pw_super]

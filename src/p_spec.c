@@ -285,7 +285,10 @@ void P_InitPicAnims(void)
 				animdefs[i].startname, animdefs[i].endname);
 		}
 
-		lastanim->speed = LONG(animdefs[i].speed) * NEWTICRATERATIO;
+		if (animdefs == harddefs)
+			lastanim->speed = animdefs[i].speed * NEWTICRATERATIO;
+		else
+			lastanim->speed = LONG(animdefs[i].speed) * NEWTICRATERATIO;
 		lastanim++;
 	}
 	lastanim->istexture = (boolean)-1;

@@ -77,7 +77,6 @@ extern patch_t *sbotime;
 extern patch_t *sbocolon;
 extern patch_t *faceprefix[MAXSKINS]; // face status patches
 extern patch_t *superprefix[MAXSKINS]; // super face status patches
-extern patch_t *facenameprefix[MAXSKINS]; // face background
 
 /** HUD location information (don't move this comment)
   */

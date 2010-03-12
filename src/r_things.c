@@ -232,7 +232,7 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 			if (rendermode != render_soft && rendermode != render_none // not for psprite
 			 && SHORT(patch.topoffset)>0 && SHORT(patch.topoffset)<SHORT(patch.height))
 				// perfect is patch.height but sometime it is too high
-				spritecachedinfo[numspritelumps].topoffset = min(SHORT(patch.topoffset+4),SHORT(patch.height))<<FRACBITS;
+				spritecachedinfo[numspritelumps].topoffset = min(SHORT(patch.topoffset)+4,SHORT(patch.height))<<FRACBITS;
 #endif
 
 			//----------------------------------------------------
@@ -660,7 +660,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
 			while (column->topdelta != 0xff)
 			{
-				destcol->topdelta = (byte)(oldpatch->height-column->length-column->topdelta); //flippy
+				destcol->topdelta = (byte)(SHORT(oldpatch->height)-column->length-column->topdelta); //flippy
 
 				source = (byte *)column + 3;
 				dest = (byte *)destcol + 3;

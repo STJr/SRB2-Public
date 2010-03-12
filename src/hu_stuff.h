@@ -78,8 +78,6 @@ extern patch_t *rflagico;
 extern patch_t *bflagico;
 extern patch_t *rmatcico;
 extern patch_t *bmatcico;
-extern patch_t *gotrflag;
-extern patch_t *gotbflag;
 extern patch_t *tagico;
 
 // set true when entering a chat message
