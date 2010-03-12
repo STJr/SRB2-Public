@@ -1062,7 +1062,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		color[2] = Surf.FlatColor.s.blue;
 		color[3] = Surf.FlatColor.s.alpha;
 
-		HWD.pfnDrawMD2(buff, curr, durs, tics, next, &p, md2->scale, flip, color);
+		HWD.pfnDrawMD2i(buff, curr, durs, tics, next, &p, md2->scale, flip, color);
 
 	}
 }

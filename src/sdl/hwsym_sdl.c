@@ -100,6 +100,8 @@ void *hwSym(const char *funcName,void *handle)
 		funcPointer = &GetTextureUsed;
 	else if (0 == strcmp("DrawMD2", funcName))
 		funcPointer = &DrawMD2;
+	else if (0 == strcmp("DrawMD2i", funcName))
+		funcPointer = &DrawMD2i;
 	else if (0 == strcmp("SetTransform", funcName))
 		funcPointer = &SetTransform;
 	else if (0 == strcmp("GetRenderVersion", funcName))

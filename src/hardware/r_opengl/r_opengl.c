@@ -1509,8 +1509,7 @@ EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value)
 // -----------------+
 // HWRAPI DrawMD2   : Draw an MD2 model with glcommands
 // -----------------+
-//EXPORT void HWRAPI(DrawMD2) (md2_model_t *model, INT32 frame)
-EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG duration, ULONG tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color)
+EXPORT void HWRAPI(DrawMD2i) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG duration, ULONG tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color)
 {
 	INT32     val, count, pindex;
 	GLfloat s, t;
@@ -1535,26 +1534,29 @@ EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG dur
 	if (pol < 0.0f)
 		pol = 0.0f;
 
-	ambient[0] = (color[0]/255.0f);
-	ambient[1] = (color[1]/255.0f);
-	ambient[2] = (color[2]/255.0f);
-	ambient[3] = (color[3]/255.0f);
-	diffuse[0] = (color[0]/255.0f);
-	diffuse[1] = (color[1]/255.0f);
-	diffuse[2] = (color[2]/255.0f);
-	diffuse[3] = (color[3]/255.0f);
-
-	if (ambient[0] > 0.75f)
-		ambient[0] = 0.75f;
-	if (ambient[1] > 0.75f)
-		ambient[1] = 0.75f;
-	if (ambient[2] > 0.75f)
-		ambient[2] = 0.75f;
-
-	if (color[3] < 255)
+	if (color)
 	{
-		pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		pglDepthMask(GL_FALSE);
+		ambient[0] = (color[0]/255.0f);
+		ambient[1] = (color[1]/255.0f);
+		ambient[2] = (color[2]/255.0f);
+		ambient[3] = (color[3]/255.0f);
+		diffuse[0] = (color[0]/255.0f);
+		diffuse[1] = (color[1]/255.0f);
+		diffuse[2] = (color[2]/255.0f);
+		diffuse[3] = (color[3]/255.0f);
+
+		if (ambient[0] > 0.75f)
+			ambient[0] = 0.75f;
+		if (ambient[1] > 0.75f)
+			ambient[1] = 0.75f;
+		if (ambient[2] > 0.75f)
+			ambient[2] = 0.75f;
+
+		if (color[3] < 255)
+		{
+			pglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			pglDepthMask(GL_FALSE);
+		}
 	}
 
 	pglEnable(GL_CULL_FACE);
@@ -1565,9 +1567,12 @@ EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG dur
 		pglCullFace(GL_BACK);
 
 	pglShadeModel(GL_SMOOTH);
-	pglEnable(GL_LIGHTING);
-	pglMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-	pglMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+	if (color)
+	{
+		pglEnable(GL_LIGHTING);
+		pglMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+		pglMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+	}
 
 	DrawPolygon(NULL, NULL, 0, PF_Masked|PF_Modulated|PF_Occlude|PF_Clip);
 
@@ -1643,10 +1648,16 @@ EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG dur
 		val = *gl_cmd_buffer++;
 	}
 	pglPopMatrix(); // should be the same as glLoadIdentity
-	pglDisable(GL_LIGHTING);
+	if (color)
+		pglDisable(GL_LIGHTING);
 	pglShadeModel(GL_FLAT);
 	pglDepthMask(GL_TRUE);
 	pglDisable(GL_CULL_FACE);
+}
+
+EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, FTransform *pos, float scale)
+{
+	DrawMD2i(gl_cmd_buffer, frame, 0, 0,  NULL, pos, scale, false, NULL);
 }
 
 // -----------------+

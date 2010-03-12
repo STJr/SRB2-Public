@@ -65,7 +65,8 @@ EXPORT void HWRAPI(ClearMipMapCache) (void);
 EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value);
 
 //Hurdler: added for new development
-EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG duration, ULONG tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color);
+EXPORT void HWRAPI(DrawMD2) (INT32 *gl_cmd_buffer, md2_frame_t *frame, FTransform *pos, float scale);
+EXPORT void HWRAPI(DrawMD2i) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG duration, ULONG tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color);
 EXPORT void HWRAPI(SetTransform) (FTransform *ptransform);
 EXPORT INT32 HWRAPI(GetTextureUsed) (void);
 EXPORT INT32 HWRAPI(GetRenderVersion) (void);
@@ -104,6 +105,7 @@ struct hwdriver_s
 	ClearMipMapCache    pfnClearMipMapCache;
 	SetSpecialState     pfnSetSpecialState;//Hurdler: added for backward compatibility
 	DrawMD2             pfnDrawMD2;
+	DrawMD2i            pfnDrawMD2i;
 	SetTransform        pfnSetTransform;
 	GetTextureUsed      pfnGetTextureUsed;
 	GetRenderVersion    pfnGetRenderVersion;

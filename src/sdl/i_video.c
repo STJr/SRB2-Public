@@ -1993,6 +1993,7 @@ void I_StartupGraphics(void)
 		HWD.pfnSetPalette       = hwSym("SetPalette",NULL);
 		HWD.pfnGetTextureUsed   = hwSym("GetTextureUsed",NULL);
 		HWD.pfnDrawMD2          = hwSym("DrawMD2",NULL);
+		HWD.pfnDrawMD2i         = hwSym("DrawMD2i",NULL);
 		HWD.pfnSetTransform     = hwSym("SetTransform",NULL);
 		HWD.pfnGetRenderVersion = hwSym("GetRenderVersion",NULL);
 #ifdef SHUFFLE
