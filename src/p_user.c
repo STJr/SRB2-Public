@@ -2322,7 +2322,7 @@ static void P_2dMovement(player_t *player)
 static void P_3dMovement(player_t *player)
 {
 	ticcmd_t *cmd;
-	angle_t	movepushangle, movepushsideangle; // Analog
+	angle_t movepushangle, movepushsideangle; // Analog
 	INT32 topspeed, acceleration, thrustfactor;
 	fixed_t movepushforward = 0, movepushside = 0;
 	INT32 mforward = 0, mbackward = 0;
