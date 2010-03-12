@@ -4112,19 +4112,13 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 		else
 			camview = &camera;
 
-
-		if (camview->subsector->sector)// && player->mo->subsector->sector->extra_colormap)
+		if (viewsector)// && player->mo->subsector->sector->extra_colormap)
 		{
-			sector_t *sector;
-
-			// see if we are in water
-			sector = camview->subsector->sector;
-
-			if (sector->ffloors)
+			if (viewsector->ffloors)
 			{
 				ffloor_t *rover;
 
-				for (rover = sector->ffloors; rover; rover = rover->next)
+				for (rover = viewsector->ffloors; rover; rover = rover->next)
 				{
 					if (!(rover->flags & FF_EXISTS) || !(rover->flags & FF_SWIMMABLE) || rover->flags & FF_SOLID)
 						continue;
