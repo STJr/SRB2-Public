@@ -1034,7 +1034,9 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		frame = spr->mobj->frame % md2->model->header.numFrames;
 		buff = md2->model->glCommandBuffer;
 		curr = &md2->model->frames[frame];
-		if (spr->mobj->state->nextstate != S_DISS && spr->mobj->state->nextstate != S_NULL)
+		if (cv_grmd2.value == 1
+		    && spr->mobj->state->nextstate != S_DISS
+		    && spr->mobj->state->nextstate != S_NULL)
 		{
 			const INT32 nextframe = states[spr->mobj->state->nextstate].frame % md2->model->header.numFrames;
 			next = &md2->model->frames[nextframe];

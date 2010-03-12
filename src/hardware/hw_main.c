@@ -125,8 +125,9 @@ consvar_t cv_granisotropicmode = {"gr_anisotropicmode", "1", CV_CALL, granisotro
                              CV_anisotropic_ONChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grsolvetjoin = {"gr_solvetjoin", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
+static CV_PossibleValue_t CV_MD2[] = {{0, "Off"}, {1, "On"}, {2, "Old"}, {0, NULL}};
 // console variables in development
-consvar_t cv_grmd2 = {"gr_md2", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_grmd2 = {"gr_md2", "Off", 0, CV_MD2, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 static void CV_FogDensity_ONChange(void)
 {
