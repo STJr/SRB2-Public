@@ -84,6 +84,7 @@ typedef long ssize_t;
 #define DEBUG_LOG
 #define HWRENDER
 #define NOIPX
+#define SHUFFLE
 #endif
 
 #if defined (_MSC_VER) || defined (__OS2__)
