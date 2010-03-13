@@ -117,7 +117,7 @@
 #if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
 #define MAXWINMODES (1)
 #else
-#define MAXWINMODES (15)
+#define MAXWINMODES (27)
 #endif
 
 /**	\brief
@@ -191,22 +191,34 @@ static       SDL_bool    windownnow  = SDL_FALSE;
 static INT32 windowedModes[MAXWINMODES][2] =
 {
 #if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X))
-	{MAXVIDWIDTH /*1920*/, MAXVIDHEIGHT/*1200*/}, //1.60,6.00
+	{1920,1200}, // 1.60,6.00
+	{1680,1050}, // 1.60,5.25
 	{1600,1200}, // 1.33,5.00
 	{1600,1000}, // 1.60,5.00
 	{1536,1152}, // 1.33,4.80
+	{1536, 960}, // 1.60,4.80
+	{1440, 900}, // 1.60,4.50
+	{1400,1050}, // 1.33,4.375
+	{1400, 875}, // 1.60,4.375
+	{1360, 850}, // 1.60,4.25
 	{1280, 960}, // 1.33,4.00
 	{1280, 800}, // 1.60,4.00
+	{1152, 864}, // 1.33,3.60
+	{1120, 700}, // 1.60,3.50
 	{1024, 768}, // 1.33,3.20
-	{960 , 600}, // 1.60,3.00
-	{800 , 600}, // 1.33,2.50
-	{640 , 480}, // 1.33,2.00
-	{640 , 400}, // 1.60,2.00
-	{512 , 384}, // 1.33,1.60
-	{400 , 300}, // 1.33,1.25
-	{320 , 240}, // 1.33,1.00
+	{ 960, 720}, // 1.33,3.00
+	{ 960, 600}, // 1.60,3.00
+	{ 800, 600}, // 1.33,2.50
+	{ 800, 500}, // 1.60,2.50
+	{ 640, 480}, // 1.33,2.00
+	{ 640, 400}, // 1.60,2.00
+	{ 576, 432}, // 1.33,1.80
+	{ 512, 384}, // 1.33,1.60
+	{ 416, 312}, // 1.33,1.30
+	{ 400, 300}, // 1.33,1.25
+	{ 320, 240}, // 1.33,1.00
 #endif
-	{320 , 200}, // 1.60,1.00
+	{ 320, 200}, // 1.60,1.00
 };
 
 static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
@@ -1411,13 +1423,15 @@ void I_FinishUpdate(void)
 		SDL_Rect *dstrect = NULL;
 		SDL_Rect rect = {0, 0, 0, 0};
 		SDL_PixelFormat *vidformat = vidSurface->format;
-		INT32 lockedsf = 0, blited = 0;
+		int lockedsf = 0, blited = 0;
+
+		rect.w = vid.width;
+		rect.h = vid.height;
 
 		if (vidSurface->h > vid.height)
-		{
 			rect.y = (Sint16)((vidSurface->h-vid.height)/2);
-			dstrect = &rect;
-		}
+
+		dstrect = &rect;
 
 
 		if (!bufSurface && !vid.direct) //Double-Check
@@ -1447,7 +1461,7 @@ void I_FinishUpdate(void)
 			{
 				if (vidSurface->pixels > vid.height)
 				{
-					BYTE *ptr = vidSurface->pixels;
+					byte *ptr = vidSurface->pixels;
 					size_t half_excess = vidSurface->pitch*(vidSurface->height-vid.height)/2;
 					memset(ptr, 0x1F, half_excess);
 					ptr += half_excess;
@@ -1548,7 +1562,7 @@ void I_FinishUpdate(void)
 		if (lockedsf == 0 && blited == 0 && vidSurface->flags&SDL_DOUBLEBUF)
 			SDL_Flip(vidSurface);
 		else if (blited != -2 && lockedsf == 0) //Alam: -2 for Win32 Direct, yea, i know
-			SDL_UpdateRect(vidSurface, 0, rect.y, 0, 0); //Alam: almost always
+			SDL_UpdateRect(vidSurface, rect.x, rect.y, 0, 0); //Alam: almost always
 		else if (devparm)
 			I_OutputMsg("%s\n",SDL_GetError());
 	}
@@ -1884,8 +1898,10 @@ INT32 VID_SetMode(INT32 modeNum)
 		else I_Error ("Not enough memory for video buffer\n");
 	}
 
+#if 0 // broken
 	if (!cv_stretch.value && (float)vid.width/vid.height != ((float)BASEVIDWIDTH/BASEVIDHEIGHT))
 		vid.height = (INT32)(vid.width * ((float)BASEVIDHEIGHT/BASEVIDWIDTH));// Adjust the height to match
+#endif
 #endif
 	I_StartupMouse();
 

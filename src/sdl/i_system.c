@@ -2915,7 +2915,7 @@ const CPUInfoFlags *I_CPUInfo(void)
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 	static CPUInfoFlags WIN_CPUInfo;
 	SYSTEM_INFO SI;
-	p_IsProcessorFeaturePresent pfnCPUID = pfnCPUID = (p_IsProcessorFeaturePresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsProcessorFeaturePresent");
+	p_IsProcessorFeaturePresent pfnCPUID = (p_IsProcessorFeaturePresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsProcessorFeaturePresent");
 
 	ZeroMemory(&WIN_CPUInfo,sizeof (WIN_CPUInfo));
 	if (pfnCPUID)
@@ -2936,7 +2936,7 @@ const CPUInfoFlags *I_CPUInfo(void)
 		WIN_CPUInfo.SSE3       = pfnCPUID(13); //PF_SSE3_INSTRUCTIONS_AVAILABLE
 		WIN_CPUInfo.cmpxchg16b = pfnCPUID(14); //PF_COMPARE_EXCHANGE128
 		WIN_CPUInfo.cmp8xchg16 = pfnCPUID(15); //PF_COMPARE64_EXCHANGE128
-		WIN_CPUInfo.PFC        = pfnCPUID(15); //PF_CHANNELS_ENABLED
+		WIN_CPUInfo.PFC        = pfnCPUID(16); //PF_CHANNELS_ENABLED
 	}
 #ifdef HAVE_SDLCPUINFO
 	else

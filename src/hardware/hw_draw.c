@@ -477,7 +477,7 @@ void HWR_DrawConsoleBack(ULONG color, INT32 height)
 	v[2].tow = v[3].tow = 0.0f;
 
 	Surf.FlatColor.rgba = UINT2RGBA(color);
-	Surf.FlatColor.s.alpha = (byte)cv_grtranslucenthud.value;
+	Surf.FlatColor.s.alpha = 0x80;
 
 	HWD.pfnDrawPolygon(&Surf, v, 4, PF_NoTexture|PF_Modulated|PF_Translucent|PF_NoDepthTest);
 }

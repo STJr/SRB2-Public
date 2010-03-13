@@ -445,8 +445,8 @@ void I_FinishUpdate(void)
 			/// optimized for p2 or mmx??
 			if (ScreenHeight > vid.height)
 			{
-				BYTE *ptr = ScreenPtr;
-				long half_excess = ScreenPitch*(ScreenHeight-vid.height)/2;
+				byte *ptr = ScreenPtr;
+				size_t half_excess = ScreenPitch*(ScreenHeight-vid.height)/2;
 				memset(ptr, 0x1F, half_excess);
 				ptr += half_excess;
 				VID_BlitLinearScreen(screens[0], ptr, vid.width*vid.bpp, vid.height,
