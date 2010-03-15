@@ -1289,7 +1289,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			token++;
 
 			if (ALL7EMERALDS(emeralds)) // Got all 7
+			{
 				P_GivePlayerRings(player, 50, false);
+			}
 			break;
 
 		case MT_EMERALD1:
