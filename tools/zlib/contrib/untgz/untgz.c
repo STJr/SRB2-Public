@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <errno.h>
 
 #include "zlib.h"
@@ -31,11 +32,9 @@
 #    define chmod(path,mode)    _chmod(path,mode)
 #    define strdup(str)         _strdup(str)
 #  endif
-#include <windows.h>
 #else
 #  include <utime.h>
 #endif
-#include <time.h>
 
 
 /* values used in typeflag field */

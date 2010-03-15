@@ -105,7 +105,19 @@ SOURCE=..\..\deflate.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\gzio.c
+SOURCE=..\..\gzclose.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\gzlib.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\gzread.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\gzwrite.c
 # End Source File
 # Begin Source File
 
@@ -154,6 +166,10 @@ SOURCE=..\..\deflate.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\gzguts.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\inffast.h
 # End Source File
 # Begin Source File
@@ -198,13 +214,13 @@ SOURCE=..\..\win32\zlib1.rc
 # PROP Default_Filter "asm;obj;c;cpp;cxx;h;hpp;hxx"
 # Begin Source File
 
-SOURCE=..\..\contrib\masmx86\gvmat32.asm
+SOURCE=..\..\contrib\masmx86\match686.asm
 
 !IF  "$(CFG)" == "zlib - Win32 Release"
 
 # Begin Custom Build - Assembling...
 IntDir=.\Win32_LIB_ASM_Release
-InputPath=..\..\contrib\masmx86\gvmat32.asm
+InputPath=..\..\contrib\masmx86\match686.asm
 InputName=gvmat32
 
 "$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -216,7 +232,7 @@ InputName=gvmat32
 
 # Begin Custom Build - Assembling...
 IntDir=.\Win32_LIB_ASM_Debug
-InputPath=..\..\contrib\masmx86\gvmat32.asm
+InputPath=..\..\contrib\masmx86\match686.asm
 InputName=gvmat32
 
 "$(IntDir)\$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -226,11 +242,6 @@ InputName=gvmat32
 
 !ENDIF 
 
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\contrib\masmx86\gvmat32c.c
-# ADD CPP /I "..\.."
 # End Source File
 # Begin Source File
 

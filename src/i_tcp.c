@@ -621,7 +621,7 @@ static SOCKET_TYPE UDP_Socket(void)
 
 #ifdef _WIN32
 	{ // Alam_GBC: disable the new UDP connection reset behavior for Win2k and up
-#ifdef _WIN64
+#if 0 //#ifdef _WIN64
 		DWORD dwBytesReturned = 0;
 		BOOL bfalse = FALSE;
 		WSAIoctl(s, SIO_UDP_CONNRESET, &bfalse, sizeof(bfalse),

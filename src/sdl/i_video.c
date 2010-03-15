@@ -1425,8 +1425,8 @@ void I_FinishUpdate(void)
 		SDL_PixelFormat *vidformat = vidSurface->format;
 		int lockedsf = 0, blited = 0;
 
-		rect.w = vid.width;
-		rect.h = vid.height;
+		rect.w = (Sint16)vid.width;
+		rect.h = (Sint16)vid.height;
 
 		if (vidSurface->h > vid.height)
 			rect.y = (Sint16)((vidSurface->h-vid.height)/2);
