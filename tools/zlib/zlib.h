@@ -1565,7 +1565,7 @@ ZEXTERN int ZEXPORT inflateBackInit_ OF((z_streamp strm, int windowBits,
    ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, off64_t));
 #endif
 
-#if !defined(ZLIB_INTERNAL) && _FILE_OFFSET_BITS == 64
+#if !defined(ZLIB_INTERNAL) && defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64
 #  define gzopen gzopen64
 #  define gzseek gzseek64
 #  define gztell gztell64
