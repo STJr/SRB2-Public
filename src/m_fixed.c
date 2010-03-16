@@ -41,7 +41,7 @@
 */
 fixed_t FixedMul(fixed_t a, fixed_t b)
 {
-#if defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
+#if 0 //defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
 	return (fixed_t)MulDiv(a, b, FRACUNIT);
 #elif 1 // Wine's MulDiv( INT nMultiplicand, INT nMultiplier, INT nDivisor)
 	INT64 ret;
@@ -73,7 +73,7 @@ fixed_t FixedMul(fixed_t a, fixed_t b)
 */
 fixed_t FixedDiv2(fixed_t a, fixed_t b)
 {
-#if defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
+#if 0 //defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
 	INT c = MulDiv(a, FRACUNIT, b);
 	if (c == -1)
 		I_Error("FixedDiv: divide by zero");
