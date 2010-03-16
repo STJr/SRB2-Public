@@ -406,8 +406,8 @@ static boolean SV_SendPlayerInfo(INT32 node)
 #ifdef DEBUGFILE
 		if (debugfile)
 		{
-			fprintf(debugfile, "ServerConfig Packet about to be sent, size of packet:%u to node:%d\n",
-				(UINT32)len, node);
+			fprintf(debugfile, "ServerConfig Packet about to be sent, size of packet:%"PRIdS" to node:%d\n",
+				len, node);
 		}
 #endif
 

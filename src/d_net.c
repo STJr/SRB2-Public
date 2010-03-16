@@ -654,9 +654,10 @@ static ULONG NetbufferChecksum(void)
 
 #ifdef DEBUGFILE
 
-static void fprintfstring(char *s, byte len)
+static void fprintfstring(char *s, size_t len)
 {
-	INT32 i, mode = 0;
+	INT32 mode = 0;
+	size_t i;
 
 	for (i = 0; i < len; i++)
 		if (s[i] < 32)
@@ -727,10 +728,10 @@ static void DebugPrintpacket(const char *header)
 				netbuffer->u.clientcfg.mode);
 			break;
 		case PT_SERVERTICS:
-			fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %d\n    ",
+			fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %"PRIdS"\n    ",
 				(UINT32)ExpandTics(netbuffer->u.serverpak.starttic), netbuffer->u.serverpak.numslots,
 				netbuffer->u.serverpak.numtics,
-				(INT32)(&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
+				(&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(byte)(
 				&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			break;

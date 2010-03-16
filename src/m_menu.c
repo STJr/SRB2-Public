@@ -6915,7 +6915,7 @@ menu_t MessageDef =
 void M_StartMessage(const char *string, void *routine,
 	menumessagetype_t itemtype)
 {
-	INT32 max = 0, start = 0, i, strlines;
+	size_t max = 0, start = 0, i, strlines;
 	static char *message = NULL;
 	Z_Free(message);
 	message = Z_StrDup(string);
@@ -6950,7 +6950,7 @@ void M_StartMessage(const char *string, void *routine,
 	// compute lenght max and the numbers of lines
 	for (strlines = 0; *(message+start); strlines++)
 	{
-		for (i = 0;i < (INT32)strlen(message+start);i++)
+		for (i = 0;i < strlen(message+start);i++)
 		{
 			if (*(message+start+i) == '\n')
 			{
@@ -6962,7 +6962,7 @@ void M_StartMessage(const char *string, void *routine,
 			}
 		}
 
-		if (i == (INT32)strlen(message+start))
+		if (i == strlen(message+start))
 			start += i;
 	}
 
@@ -6981,7 +6981,8 @@ void M_StartMessage(const char *string, void *routine,
 static void M_DrawMessageMenu(void)
 {
 	INT32 y = currentMenu->y;
-	short i,max;
+	size_t i;
+	short max;
 	char string[MAXMSGLINELEN];
 	INT32 start = 0, mlines;
 	const char *msg = currentMenu->menuitems[0].text;
@@ -6992,7 +6993,7 @@ static void M_DrawMessageMenu(void)
 
 	while (*(msg+start))
 	{
-		INT32 len = (INT32)strlen(msg+start);
+		size_t len = strlen(msg+start);
 
 		for (i = 0; i < len; i++)
 		{
@@ -7016,7 +7017,7 @@ static void M_DrawMessageMenu(void)
 			}
 		}
 
-		if (i == (INT32)strlen(msg+start))
+		if (i == strlen(msg+start))
 		{
 			if (i >= MAXMSGLINELEN)
 			{

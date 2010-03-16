@@ -262,9 +262,9 @@ boolean SendRequestFile(void)
 	WRITECHAR(p, -1);
 	I_GetDiskFreeSpace(&availablefreespace);
 	if (totalfreespaceneeded > availablefreespace)
-		I_Error("To play on this server you must download %d KB,\n"
-			"but you have only %d KB free space on this drive\n",
-			(INT32)(totalfreespaceneeded>>10), (INT32)(availablefreespace>>10));
+		I_Error("To play on this server you must download %"PRIdS" KB,\n"
+			"but you have only %"PRIdS" KB free space on this drive\n",
+			(size_t)(totalfreespaceneeded>>10), (size_t)(availablefreespace>>10));
 
 	// prepare to download
 	I_mkdir(downloaddir, 0755);
