@@ -362,10 +362,10 @@ void R_LoadTextures(void)
 
 	textures = Z_Malloc(numtextures*sizeof(*textures)*5, PU_STATIC, NULL);
 
-	texturecolumnofs = (void *)((INT32 *)textures + numtextures);
-	texturecache = (void *)((INT32 *)textures + numtextures*2);
-	texturewidthmask = (void *)((INT32 *)textures + numtextures*3);
-	textureheight = (void *)((INT32 *)textures + numtextures*4);
+	texturecolumnofs = (void *)((size_t *)textures + numtextures);
+	texturecache = (void *)((size_t *)textures + numtextures*2);
+	texturewidthmask = (void *)((size_t *)textures + numtextures*3);
+	textureheight = (void *)((size_t *)textures + numtextures*4);
 
 	for (i = 0; i < numtextures; i++, directory++)
 	{
