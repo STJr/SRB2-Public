@@ -624,7 +624,7 @@ EXPORT void HWRAPI(ClearMipMapCache) (void)
 // Returns          : 16bit 565 RGB pixel array stored in dst_data
 // -----------------+
 EXPORT void HWRAPI(ReadRect) (INT32 x, INT32 y, INT32 width, INT32 height,
-                                INT32 dst_stride, unsigned short * dst_data)
+                                INT32 dst_stride, USHORT * dst_data)
 {
 	INT32 i;
 	// DBG_Printf ("ReadRect()\n");
@@ -663,7 +663,7 @@ EXPORT void HWRAPI(ReadRect) (INT32 x, INT32 y, INT32 width, INT32 height,
 			for (j = 0; j < width; j++)
 			{
 				dst_data[(height-1-i)*width+j] =
-				(unsigned short)(
+				(USHORT)(
 				                 ((image[(i*width+j)*3]>>3)<<11) |
 				                 ((image[(i*width+j)*3+1]>>2)<<5) |
 				                 ((image[(i*width+j)*3+2]>>3)));

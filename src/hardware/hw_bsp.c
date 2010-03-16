@@ -596,7 +596,7 @@ static size_t ls_count = 0;
 static byte ls_percent = 0;
 
 // poly : the convex polygon that encloses all child subsectors
-static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fixed_t *bbox)
+static void WalkBSPNode(INT32 bspnum, poly_t *poly, USHORT *leafnode, fixed_t *bbox)
 {
 	node_t *bsp;
 	poly_t *backpoly, *frontpoly;
@@ -611,7 +611,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fi
 		{
 			// BP: i think this code is useless and wrong because
 			// - bspnum==-1 happens only when numsubsectors == 0
-			// - it can't happens in bsp recursive call since bspnum is a INT32 and children is unsigned short
+			// - it can't happens in bsp recursive call since bspnum is a INT32 and children is USHORT
 			// - the BSP is complet !! (there just can have subsector without segs) (i am not sure of this point)
 
 			// do we have a valid polygon ?
@@ -622,7 +622,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fi
 					I_Error("WalkBSPNode: not enough addsubsectors\n");
 				else if (addsubsector > 0x7fff)
 					I_Error("WalkBSPNode: addsubsector > 0x7fff\n");
-				*leafnode = (unsigned short)((unsigned short)addsubsector | NF_SUBSECTOR);
+				*leafnode = (USHORT)((USHORT)addsubsector | NF_SUBSECTOR);
 				extrasubsectors[addsubsector].planepoly = poly;
 				addsubsector++;
 			}

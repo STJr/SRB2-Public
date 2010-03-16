@@ -253,7 +253,7 @@ static DWORD sound_buffer_flags = DSBCAPS_CTRLPAN |
 // --------------------------------------------------------------------------
 // raw2DS : convert a raw sound data, returns a LPDIRECTSOUNDBUFFER
 // --------------------------------------------------------------------------
-//   dsdata points a 4 unsigned short header:
+//   dsdata points a 4 USHORT header:
 //    +0 : value 3 what does it mean?
 //    +2 : sample rate, either 11025 or 22050.
 //    +4 : number of samples, each sample is a single byte since it's 8bit
@@ -263,9 +263,9 @@ static DWORD sound_buffer_flags = DSBCAPS_CTRLPAN |
 // judgecutor:
 // We need an another function definition for supporting the surround sound
 // Invert just cause to copy an inverted sound data
-static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, size_t len, boolean invert)
+static LPDIRECTSOUNDBUFFER raw2DS(LPBYTE dsdata, size_t len, boolean invert)
 #else
-static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, size_t len)
+static LPDIRECTSOUNDBUFFER raw2DS(LPBYTE dsdata, size_t len)
 #endif
 {
 	HRESULT             hr;

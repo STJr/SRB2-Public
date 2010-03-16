@@ -4877,9 +4877,9 @@ void P_MobjThinker(mobj_t *mobj)
 		if (abspeed < speed)
 			P_SetScale(mobj, mobj->destscale);
 		else if (mobj->scale > mobj->destscale)
-			P_SetScale(mobj, (unsigned short)(mobj->scale - speed));
+			P_SetScale(mobj, (USHORT)(mobj->scale - speed));
 		else if (mobj->scale < mobj->destscale)
-			P_SetScale(mobj, (unsigned short)(mobj->scale + speed));
+			P_SetScale(mobj, (USHORT)(mobj->scale + speed));
 	}
 
 	// Special thinker for scenery objects

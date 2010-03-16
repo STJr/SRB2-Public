@@ -145,7 +145,7 @@ typedef const u8 *LZF_STATE[1 << (HLOG)];
 /* for unaligned accesses we need a 16 bit datatype. */
 # include <limits.h>
 # if USHRT_MAX == 65535
-    typedef unsigned short u16;
+    typedef USHORT u16;
 # elif UINT_MAX == 65535
     typedef unsigned int u16;
 # else

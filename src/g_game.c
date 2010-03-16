@@ -2962,7 +2962,7 @@ ticcmd_t *G_CopyTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n)
 		dest[i].sidemove = src[i].sidemove;
 		dest[i].angleturn = SHORT(src[i].angleturn);
 		dest[i].aiming = (signed short)SHORT(src[i].aiming);
-		dest[i].buttons = (unsigned short)SHORT(src[i].buttons);
+		dest[i].buttons = (USHORT)SHORT(src[i].buttons);
 	}
 	return dest;
 }

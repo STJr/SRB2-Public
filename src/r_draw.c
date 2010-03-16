@@ -545,7 +545,7 @@ void R_FillBackScreen(void)
 
 
 */
-void R_VideoErase(unsigned ofs, INT32 count)
+void R_VideoErase(size_t ofs, INT32 count)
 {
 	// LFB copy.
 	// This might not be a good idea if memcpy

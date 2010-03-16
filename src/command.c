@@ -869,16 +869,16 @@ static consvar_t *CV_FindVar(const char *name)
   * \return A new unique identifier.
   * \sa CV_FindNetVar
   */
-static inline unsigned short CV_ComputeNetid(const char *s)
+static inline USHORT CV_ComputeNetid(const char *s)
 {
-	unsigned short ret = 0, i = 0;
-	static unsigned short premiers[16] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53};
+	USHORT ret = 0, i = 0;
+	static USHORT premiers[16] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53};
 
 	while (*s)
 	{
-		ret = (unsigned short)(ret + (*s)*premiers[i]);
+		ret = (USHORT)(ret + (*s)*premiers[i]);
 		s++;
-		i = (unsigned short)((i+1) % 16);
+		i = (USHORT)((i+1) % 16);
 	}
 	return ret;
 }
@@ -889,7 +889,7 @@ static inline unsigned short CV_ComputeNetid(const char *s)
   * \return A pointer to the variable itself if found, or NULL.
   * \sa CV_ComputeNetid
   */
-static consvar_t *CV_FindNetVar(unsigned short netid)
+static consvar_t *CV_FindNetVar(USHORT netid)
 {
 	consvar_t *cvar;
 
@@ -1137,7 +1137,7 @@ static boolean serverloading = false;
 static void Got_NetVar(byte **p, INT32 playernum)
 {
 	consvar_t *cvar;
-	unsigned short netid;
+	USHORT netid;
 	char *svalue;
 
 	if (playernum != serverplayer && playernum != adminplayer && !serverloading)

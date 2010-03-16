@@ -735,11 +735,11 @@ INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 
 	// aligned on 8 bit for asm code
 	extra_colormaps[mapnum].colormap = NULL;
-	extra_colormaps[mapnum].maskcolor = (unsigned short)maskcolor;
-	extra_colormaps[mapnum].fadecolor = (unsigned short)fadecolor;
+	extra_colormaps[mapnum].maskcolor = (USHORT)maskcolor;
+	extra_colormaps[mapnum].fadecolor = (USHORT)fadecolor;
 	extra_colormaps[mapnum].maskamt = maskamt;
-	extra_colormaps[mapnum].fadestart = (unsigned short)fadestart;
-	extra_colormaps[mapnum].fadeend = (unsigned short)fadeend;
+	extra_colormaps[mapnum].fadestart = (USHORT)fadestart;
+	extra_colormaps[mapnum].fadeend = (USHORT)fadeend;
 	extra_colormaps[mapnum].fog = fog;
 
 	return (INT32)mapnum;
@@ -878,11 +878,11 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 
 	// aligned on 8 bit for asm code
 	extra_colormaps[mapnum].colormap = NULL;
-	extra_colormaps[mapnum].maskcolor = (unsigned short)maskcolor;
-	extra_colormaps[mapnum].fadecolor = (unsigned short)fadecolor;
+	extra_colormaps[mapnum].maskcolor = (USHORT)maskcolor;
+	extra_colormaps[mapnum].fadecolor = (USHORT)fadecolor;
 	extra_colormaps[mapnum].maskamt = maskamt;
-	extra_colormaps[mapnum].fadestart = (unsigned short)fadestart;
-	extra_colormaps[mapnum].fadeend = (unsigned short)fadeend;
+	extra_colormaps[mapnum].fadestart = (USHORT)fadestart;
+	extra_colormaps[mapnum].fadeend = (USHORT)fadeend;
 	extra_colormaps[mapnum].fog = fog;
 
 #define ABS2(x) ((x) < 0 ? -(x) : (x))
@@ -1044,7 +1044,7 @@ void R_InitData(void)
 //
 // Check whether texture is available. Filter out NoTexture indicator.
 //
-INT32 R_CheckTextureNumForName(const char *name, unsigned short sidenum)
+INT32 R_CheckTextureNumForName(const char *name, USHORT sidenum)
 {
 	size_t i;
 
@@ -1098,7 +1098,7 @@ INT32 R_CheckTextureNumForName(const char *name, unsigned short sidenum)
 //
 // Calls R_CheckTextureNumForName, aborts with error message.
 //
-INT32 R_TextureNumForName(const char *name, unsigned short sidenum)
+INT32 R_TextureNumForName(const char *name, USHORT sidenum)
 {
 	const INT32 i = R_CheckTextureNumForName(name, sidenum);
 

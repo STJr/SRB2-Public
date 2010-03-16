@@ -107,7 +107,7 @@ void R_LoadSkinTable(void);
 void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum);
 void R_InitViewBuffer(INT32 width, INT32 height);
 void R_InitViewBorder(void);
-void R_VideoErase(unsigned ofs, INT32 count);
+void R_VideoErase(size_t ofs, INT32 count);
 
 // Rendering function.
 #if 0

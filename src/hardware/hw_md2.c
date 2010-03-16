@@ -851,8 +851,8 @@ static void md2_loadTexture(md2_t *model)
 
 		grpatch->width = (short)w;
 		grpatch->height = (short)h;
-		grpatch->mipmap.width = (unsigned short)w;
-		grpatch->mipmap.height = (unsigned short)h;
+		grpatch->mipmap.width = (USHORT)w;
+		grpatch->mipmap.height = (USHORT)h;
 
 		// not correct!
 		grpatch->mipmap.grInfo.smallLodLog2 = GR_LOD_LOG2_256;

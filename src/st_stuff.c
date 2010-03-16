@@ -44,7 +44,7 @@
 #include "hardware/hw_main.h"
 #endif
 
-unsigned short objectsdrawn = 0;
+USHORT objectsdrawn = 0;
 
 //
 // STATUS BAR DATA
@@ -1589,7 +1589,7 @@ static void ST_drawTagHUD(void)
 static void ST_drawCTFHUD(void)
 {
 	INT32 i, team;
-	unsigned short whichflag;
+	USHORT whichflag;
 	team = whichflag = 0;
 
 	for (i = 0; i < MAXPLAYERS; i++)

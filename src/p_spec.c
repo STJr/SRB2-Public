@@ -1593,7 +1593,7 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 			// we have continuous executors associated with it, too?
 			/*
 			if (caller && (GETSECSPECIAL(caller->special, 2) >= 1 && GETSECSPECIAL(caller->special, 2) <= 7))
-				caller->special = (unsigned short)(caller->special-(GETSECSPECIAL(caller->special, 2) << 4)); // Only remove the relevant section
+				caller->special = (USHORT)(caller->special-(GETSECSPECIAL(caller->special, 2) << 4)); // Only remove the relevant section
 				*/
 		}
 	}
@@ -2516,7 +2516,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 		case 438: // Set player scale
 			if (mo)
 			{
-				mo->destscale = (unsigned short)(P_AproxDistance(line->dx, line->dy) >> FRACBITS);
+				mo->destscale = (USHORT)(P_AproxDistance(line->dx, line->dy) >> FRACBITS);
 
 				if (mo->player)
 				{
@@ -5681,7 +5681,7 @@ void P_SpawnSpecials(void)
 				if (lines[i].sidenum[1] != 0xffff)
 				{
 					byte *data = W_CacheLumpNum(lastloadedmaplumpnum + ML_SIDEDEFS,PU_STATIC);
-					unsigned short b;
+					USHORT b;
 
 					for (b = 0; b < (short)numsides; b++)
 					{

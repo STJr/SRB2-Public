@@ -690,7 +690,7 @@ void I_Error(const char *error, ...)
 static inline VOID ShowEndTxt(HANDLE co)
 {
 	int i;
-	unsigned short j, att = 0;
+	USHORT j, att = 0;
 	int nlflag = 1;
 	CONSOLE_SCREEN_BUFFER_INFO backupcon;
 	COORD resizewin = {80,-1};
@@ -712,7 +712,7 @@ static inline VOID ShowEndTxt(HANDLE co)
 
 	for (i = 1; i <= 80*25; i++) // print 80x25 text and deal with the attributes too
 	{
-		j = (unsigned short)(*ptext >> 8); // attribute first
+		j = (USHORT)(*ptext >> 8); // attribute first
 		let = (char)(*ptext & 0xff); // text senond
 		if (j != att) // attribute changed?
 		{

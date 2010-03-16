@@ -4613,10 +4613,10 @@ static void P_NiGHTSMovement(player_t *player)
 		{
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
-			unsigned short angle;
+			USHORT angle;
 			short temp;
 
-			angle = (unsigned short)(player->anotherflyangle % 360);
+			angle = (USHORT)(player->anotherflyangle % 360);
 
 			oldmapthings = mapthings;
 			nummapthings++;
@@ -4648,7 +4648,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt->type = 1705;
 
-			mt->options = (unsigned short)((player->mo->z -
+			mt->options = (USHORT)((player->mo->z -
 				player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			/*'Fixed' version that doesn't work
@@ -4692,9 +4692,9 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->y = (short)(player->mo->y>>FRACBITS);
 			mt->angle = (short)(FixedInt(AngleFixed(player->mo->angle)));
 
-			mt->type = (unsigned short)mobjinfo[MT_NIGHTSBUMPER].doomednum;
+			mt->type = (USHORT)mobjinfo[MT_NIGHTSBUMPER].doomednum;
 
-			mt->options = (unsigned short)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			mt->options <<= ZSHIFT;
 
@@ -4726,12 +4726,12 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->x = (short)(player->mo->x>>FRACBITS);
 			mt->y = (short)(player->mo->y>>FRACBITS);
 			mt->angle = 0;
-			mt->type = (unsigned short)mobjinfo[MT_RING].doomednum;
+			mt->type = (USHORT)mobjinfo[MT_RING].doomednum;
 
-			mt->options = (unsigned short)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 			mt->options <<= ZSHIFT;
 
-			mt->options = (unsigned short)(mt->options + (unsigned short)cv_objflags.value);
+			mt->options = (USHORT)(mt->options + (USHORT)cv_objflags.value);
 			P_SpawnHoopsAndRings(mt);
 
 			player->dbginfo = true;
@@ -4760,15 +4760,15 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->x = (short)(player->mo->x>>FRACBITS);
 			mt->y = (short)(player->mo->y>>FRACBITS);
 			mt->angle = 0;
-			mt->type = (unsigned short)mobjinfo[MT_NIGHTSWING].doomednum;
+			mt->type = (USHORT)mobjinfo[MT_NIGHTSWING].doomednum;
 
-			mt->options = (unsigned short)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			CONS_Printf("Z is %d\n", mt->options);
 
 			mt->options <<= ZSHIFT;
 
-			mt->options = (unsigned short)(mt->options + (unsigned short)cv_objflags.value);
+			mt->options = (USHORT)(mt->options + (USHORT)cv_objflags.value);
 
 			P_SpawnHoopsAndRings(mt);
 
@@ -4783,9 +4783,9 @@ static void P_NiGHTSMovement(player_t *player)
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
 			INT32 shift;
-			unsigned short angle;
+			USHORT angle;
 
-			angle = (unsigned short)((360-player->anotherflyangle) % 360);
+			angle = (USHORT)((360-player->anotherflyangle) % 360);
 			if (angle > 90 && angle < 270)
 			{
 				angle += 180;
@@ -4793,10 +4793,10 @@ static void P_NiGHTSMovement(player_t *player)
 			}
 
 			if (player->mo->target->flags & MF_AMBUSH)
-				angle = (unsigned short)player->anotherflyangle;
+				angle = (USHORT)player->anotherflyangle;
 			else
 			{
-				angle = (unsigned short)((360-player->anotherflyangle) % 360);
+				angle = (USHORT)((360-player->anotherflyangle) % 360);
 				if (angle > 90 && angle < 270)
 				{
 					angle += 180;
@@ -4832,7 +4832,7 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->angle = angle;
 			mt->type = (short)cv_mapthingnum.value;
 
-			mt->options = (unsigned short)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			if (mt->type == 200 || mt->type == 201) // Eggmobile 1 & 2
 				shift = ZSHIFT+1; // Why you would want to place these in a NiGHTS map, I have NO idea!
@@ -4846,7 +4846,7 @@ static void P_NiGHTSMovement(player_t *player)
 			else
 				mt->options = 0;
 
-			mt->options = (unsigned short)(mt->options + (unsigned short)cv_objflags.value);
+			mt->options = (USHORT)(mt->options + (USHORT)cv_objflags.value);
 
 			if (mt->type == 1705 || mt->type == 600 || mt->type == 601 || mt->type == 602
 				|| mt->type == 603 || mt->type == 604 || mt->type == 300 || mt->type == 605

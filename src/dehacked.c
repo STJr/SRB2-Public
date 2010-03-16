@@ -777,7 +777,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 	char *word;
 	char *word2;
 	INT32 i;
-	unsigned short usi;
+	USHORT usi;
 
 	DEH_WriteUndoline("SCENETEXT", cutscenes[num].scene[scenenum].text, UNDO_ENDTEXT);
 
@@ -846,7 +846,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 			word2[strlen(word2)-1] = '\0';
 			i = atoi(word2);
-			usi = (unsigned short)i;
+			usi = (USHORT)i;
 
 
 			if (!strcmp(word, "NUMBEROFPICS"))

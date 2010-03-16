@@ -41,7 +41,7 @@ savedata_t savedata;
 byte *save_p;
 
 // Note: This cannot be bigger
-// than an unsigned short
+// than an USHORT
 typedef enum
 {
 	RFLAGPOINT = 0x01,

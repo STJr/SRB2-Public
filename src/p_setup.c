@@ -972,7 +972,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 
 			for (j=0; j < 2; j++)
 			{
-				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (unsigned short)numsides)
+				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (USHORT)numsides)
 				{
 					ld->sidenum[j] = 0xffff;
 					CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has out-of-range sidedef number\n",numlines-i-1);
@@ -1045,10 +1045,10 @@ static void P_LoadLineDefs2(void)
 			for (k = numlines, ld = lines; k--; ld++)
 			{
 				if (ld->sidenum[0] == i)
-					ld->sidenum[0] = (unsigned short)numnewsides;
+					ld->sidenum[0] = (USHORT)numnewsides;
 
 				if (ld->sidenum[1] == i)
-					ld->sidenum[1] = (unsigned short)numnewsides;
+					ld->sidenum[1] = (USHORT)numnewsides;
 			}
 
 			for (j = i+1; j < numsides; j++)
@@ -1062,10 +1062,10 @@ static void P_LoadLineDefs2(void)
 					for (k = numlines, ld = lines; k--; ld++)
 					{
 						if (ld->sidenum[0] == j)
-							ld->sidenum[0] = (unsigned short)numnewsides;
+							ld->sidenum[0] = (USHORT)numnewsides;
 
 						if (ld->sidenum[1] == j)
-							ld->sidenum[1] = (unsigned short)numnewsides;
+							ld->sidenum[1] = (USHORT)numnewsides;
 					}
 					sides[j].sector = NULL; // Flag for deletion
 				}
@@ -1107,7 +1107,7 @@ static inline void P_LoadSideDefs(lumpnum_t lumpnum)
 static void P_LoadSideDefs2(lumpnum_t lumpnum)
 {
 	byte *data = W_CacheLumpNum(lumpnum, PU_STATIC);
-	unsigned short i;
+	USHORT i;
 	INT32 num;
 
 	for (i = 0; i < numsides; i++)
@@ -1120,7 +1120,7 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 		sd->rowoffset = SHORT(msd->rowoffset)<<FRACBITS;
 
 		{ /* cph 2006/09/30 - catch out-of-range sector numbers; use sector 0 instead */
-			unsigned short sector_num = SHORT(msd->sector);
+			USHORT sector_num = SHORT(msd->sector);
 
 			if (sector_num >= numsectors)
 			{
@@ -1645,7 +1645,7 @@ static void P_GroupLines(void)
 		if (!seg->sidedef)
 			CorruptMapError(va("P_GroupLines: seg->sidedef is NULL "
 				"(subsector %"PRIdS", firstline is %d)", i, ss->firstline));
-		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (unsigned short)numsides)
+		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (USHORT)numsides)
 			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %"PRIdS" of %"PRIdS" "
 				"(subsector %"PRIdS", firstline is %d)", sidei, numsides,
 				i, ss->firstline));

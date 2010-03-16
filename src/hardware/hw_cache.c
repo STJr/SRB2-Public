@@ -151,7 +151,7 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 				// Alam: SRB2 uses Mingw, HUGS
 				switch (bpp)
 				{
-					case 2 : *((unsigned short *)dest) = (unsigned short)((alpha<<8) | texel);
+					case 2 : *((USHORT *)dest) = (USHORT)((alpha<<8) | texel);
 					         break;
 					case 3 : colortemp = V_GetColor(texel);
 					         ((RGBA_t *)dest)->s.red   = colortemp.s.red;
@@ -313,7 +313,7 @@ static byte *MakeBlock(GLMipmap_t *grMipmap)
 				// fill background with chromakey, alpha = 0
 				for (i = 0; i < blocksize; i++)
 				//[segabor]
-					*((unsigned short *)block+i) = ((0x00 <<8) | HWR_CHROMAKEY_EQUIVALENTCOLORINDEX);
+					*((USHORT *)block+i) = ((0x00 <<8) | HWR_CHROMAKEY_EQUIVALENTCOLORINDEX);
 				break;
 		case 4: memset(block,0,blocksize*4); break;
 	}
@@ -352,8 +352,8 @@ static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 		grtex->mipmap.flags = TF_CHROMAKEYED | TF_WRAPXY;
 
 	HWR_ResizeBlock (texture->width, texture->height, &grtex->mipmap.grInfo);
-	grtex->mipmap.width = (unsigned short)blockwidth;
-	grtex->mipmap.height = (unsigned short)blockheight;
+	grtex->mipmap.width = (USHORT)blockwidth;
+	grtex->mipmap.height = (USHORT)blockheight;
 	grtex->mipmap.grInfo.format = textureformat;
 
 	block = MakeBlock(&grtex->mipmap);
@@ -430,8 +430,8 @@ void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipm
 
 		// find the good 3dfx size (boring spec)
 		HWR_ResizeBlock (SHORT(patch->width), SHORT(patch->height), &grMipmap->grInfo);
-		grMipmap->width = (unsigned short)blockwidth;
-		grMipmap->height = (unsigned short)blockheight;
+		grMipmap->width = (USHORT)blockwidth;
+		grMipmap->height = (USHORT)blockheight;
 
 		// no wrap around, no chroma key
 		grMipmap->flags = 0;
@@ -610,8 +610,8 @@ static void HWR_CacheFlat(GLMipmap_t *grMipmap, lumpnum_t flatlumpnum)
 			pflatsize = 64;
 			break;
 	}
-	grMipmap->width  = (unsigned short)pflatsize;
-	grMipmap->height = (unsigned short)pflatsize;
+	grMipmap->width  = (USHORT)pflatsize;
+	grMipmap->height = (USHORT)pflatsize;
 
 	// the flat raw data needn't be converted with palettized textures
 	block = Z_Malloc(W_LumpLength(flatlumpnum),
@@ -813,8 +813,8 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 
 		// find the good 3dfx size (boring spec)
 		HWR_ResizeBlock (grpatch->width, grpatch->height, &grpatch->mipmap.grInfo);
-		grpatch->mipmap.width = (unsigned short)blockwidth;
-		grpatch->mipmap.height = (unsigned short)blockheight;
+		grpatch->mipmap.width = (USHORT)blockwidth;
+		grpatch->mipmap.height = (USHORT)blockheight;
 
 		if (pic->mode == PALETTE)
 			grpatch->mipmap.grInfo.format = textureformat; // can be set by driver

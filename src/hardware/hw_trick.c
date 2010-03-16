@@ -379,7 +379,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdr->bottomtexture == 0)
 					{
 						if (sdr->midtexture == 0)
-							sdr->bottomtexture = R_TextureNumForName("REDWALL", (unsigned short)(sdr-sides)); // Tails
+							sdr->bottomtexture = R_TextureNumForName("REDWALL", (USHORT)(sdr-sides)); // Tails
 						else
 							sdr->bottomtexture = sdr->midtexture;
 					}
@@ -390,7 +390,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdl->bottomtexture == 0)
 					{
 						if (sdl->midtexture == 0)
-							sdl->bottomtexture = R_TextureNumForName("REDWALL", (unsigned short)(sdl-sides)); // Tails
+							sdl->bottomtexture = R_TextureNumForName("REDWALL", (USHORT)(sdl-sides)); // Tails
 						else
 							sdl->bottomtexture = sdl->midtexture;
 					}
@@ -405,7 +405,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdr->toptexture == 0)
 					{
 						if (sdr->midtexture == 0)
-							sdr->toptexture = R_TextureNumForName("REDWALL", (unsigned short)(sdr-sides)); // Tails
+							sdr->toptexture = R_TextureNumForName("REDWALL", (USHORT)(sdr-sides)); // Tails
 						else
 							sdr->toptexture = sdr->midtexture;
 					}
@@ -416,7 +416,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdl->toptexture == 0)
 					{
 						if (sdl->midtexture == 0)
-							sdl->toptexture = R_TextureNumForName("REDWALL", (unsigned short)(sdl-sides)); // Tails
+							sdl->toptexture = R_TextureNumForName("REDWALL", (USHORT)(sdl-sides)); // Tails
 						else
 							sdl->toptexture = sdl->midtexture;
 					}
