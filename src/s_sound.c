@@ -63,7 +63,7 @@ consvar_t sndserver_cmd = {"sndserver_cmd", "llsndserv", CV_SAVE, NULL, 0, NULL,
 consvar_t sndserver_arg = {"sndserver_arg", "-quiet", CV_SAVE, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
 
-#if defined (_WINDOWS) && !defined (SURROUND)
+#if defined (_WINDOWS) && !defined (SURROUND) //&& defined (_X86_)
 #define SURROUND
 #endif
 

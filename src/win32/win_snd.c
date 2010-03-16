@@ -48,7 +48,7 @@
 #include "win_dll.h"
 #endif
 
-#ifndef SURROUND
+#if !defined (SURROUND) //&& defined (_X86_)
 #define SURROUND // comment out this to disable the SurroundSound code
 #endif
 
@@ -58,10 +58,12 @@
 
 #ifdef FMODSOUND
 #ifdef __MINGW32__
-#include <FMOD/fmoddyn.h>
+#include <FMOD/fmod.h>
+#include "../../tools/fmoddyn.h"
 #include <FMOD/fmod_errors.h>
 #else
-#include <fmoddyn.h>
+#include <fmod.h>
+#include "../../tools/fmoddyn.h"
 #include <fmod_errors.h>
 #endif
 #define FMODMEMORY
@@ -1190,12 +1192,12 @@ void I_InitDigMusic(void)
 #ifdef FMODSOUND
 	if (!nodigimusic)
 	{
-#ifdef _WIN64
-		char fmod375dll[] = "fmod64375.dll";
-		char fmod000dll[] = "fmod64.dll";
-#else
+#ifdef _X86_
 		char fmod375dll[] = "fmod375.dll";
 		char fmod000dll[] = "fmod.dll";
+#else
+		char fmod375dll[] = "fmod64375.dll";
+		char fmod000dll[] = "fmod64.dll";
 #endif
 		fmod375 = FMOD_CreateInstance(fmod375dll);
 

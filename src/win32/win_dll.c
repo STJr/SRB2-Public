@@ -92,6 +92,7 @@ static VOID UnloadDLL (HMODULE* pModule)
 static HMODULE hwdModule = NULL;
 
 static loadfunc_t hwdFuncTable[] = {
+#ifdef _X86_
 	{"_Init@4",              &hwdriver.pfnInit},
 	{"_Shutdown@0",          &hwdriver.pfnShutdown},
 	{"_GetModeList@8",       &hwdriver.pfnGetModeList},
@@ -119,6 +120,35 @@ static loadfunc_t hwdFuncTable[] = {
 	{"_DrawIntermissionBG@0",&hwdriver.pfnDrawIntermissionBG},
 	{"_MakeScreenTexture@0", &hwdriver.pfnMakeScreenTexture},
 #endif
+#else
+	{"Init",                &hwdriver.pfnInit},
+	{"Shutdown",            &hwdriver.pfnShutdown},
+	{"GetModeList",         &hwdriver.pfnGetModeList},
+	{"SetPalette",          &hwdriver.pfnSetPalette},
+	{"FinishUpdate",        &hwdriver.pfnFinishUpdate},
+	{"Draw2DLine",          &hwdriver.pfnDraw2DLine},
+	{"DrawPolygon",         &hwdriver.pfnDrawPolygon},
+	{"SetBlend",            &hwdriver.pfnSetBlend},
+	{"ClearBuffer",         &hwdriver.pfnClearBuffer},
+	{"SetTexture",          &hwdriver.pfnSetTexture},
+	{"ReadRect",            &hwdriver.pfnReadRect},
+	{"GClipRect",           &hwdriver.pfnGClipRect},
+	{"ClearMipMapCache",    &hwdriver.pfnClearMipMapCache},
+	{"SetSpecialState",     &hwdriver.pfnSetSpecialState},
+	{"DrawMD2",             &hwdriver.pfnDrawMD2},
+	{"DrawMD2i",            &hwdriver.pfnDrawMD2i},
+	{"SetTransform",        &hwdriver.pfnSetTransform},
+	{"GetTextureUsed",      &hwdriver.pfnGetTextureUsed},
+	{"GetRenderVersion",    &hwdriver.pfnGetRenderVersion},
+#ifdef SHUFFLE
+	{"PostImgRedraw",       &hwdriver.pfnPostImgRedraw},
+	{"StartScreenWipe",     &hwdriver.pfnStartScreenWipe},
+	{"EndScreenWipe",       &hwdriver.pfnEndScreenWipe},
+	{"DoScreenWipe",        &hwdriver.pfnDoScreenWipe},
+	{"DrawIntermissionBG",  &hwdriver.pfnDrawIntermissionBG},
+	{"MakeScreenTexture",   &hwdriver.pfnMakeScreenTexture},
+#endif
+#endif
 	{NULL,NULL}
 };
 
@@ -138,6 +168,7 @@ VOID Shutdown3DDriver (VOID)
 static HMODULE hwsModule = NULL;
 
 static loadfunc_t hwsFuncTable[] = {
+#ifdef _X86_
 	{"_Startup@8",              &hw3ds_driver.pfnStartup},
 	{"_Shutdown@0",             &hw3ds_driver.pfnShutdown},
 	{"_AddSfx@4",               &hw3ds_driver.pfnAddSfx},
@@ -157,6 +188,27 @@ static loadfunc_t hwsFuncTable[] = {
 	{"_KillSource@4",           &hw3ds_driver.pfnKillSource},
 	{"_KillSfx@4",              &hw3ds_driver.pfnKillSfx},
 	{"_GetHW3DSTitle@8",        &hw3ds_driver.pfnGetHW3DSTitle},
+#else
+	{"Startup",                &hw3ds_driver.pfnStartup},
+	{"Shutdown",               &hw3ds_driver.pfnShutdown},
+	{"AddSfx",                 &hw3ds_driver.pfnAddSfx},
+	{"AddSource",              &hw3ds_driver.pfnAddSource},
+	{"StartSource",            &hw3ds_driver.pfnStartSource},
+	{"StopSource",             &hw3ds_driver.pfnStopSource},
+	{"GetHW3DSVersion",        &hw3ds_driver.pfnGetHW3DSVersion},
+	{"BeginFrameUpdate",       &hw3ds_driver.pfnBeginFrameUpdate},
+	{"EndFrameUpdate",         &hw3ds_driver.pfnEndFrameUpdate},
+	{"IsPlaying",              &hw3ds_driver.pfnIsPlaying},
+	{"UpdateListener",         &hw3ds_driver.pfnUpdateListener},
+	{"UpdateSourceParms",      &hw3ds_driver.pfnUpdateSourceParms},
+	{"SetCone",                &hw3ds_driver.pfnSetCone},
+	{"SetGlobalSfxVolume",     &hw3ds_driver.pfnSetGlobalSfxVolume},
+	{"Update3DSource",         &hw3ds_driver.pfnUpdate3DSource},
+	{"ReloadSource",           &hw3ds_driver.pfnReloadSource},
+	{"KillSource",             &hw3ds_driver.pfnKillSource},
+	{"KillSfx",                &hw3ds_driver.pfnKillSfx},
+	{"GetHW3DSTitle",          &hw3ds_driver.pfnGetHW3DSTitle},
+#endif
 	{NULL, NULL}
 };
 

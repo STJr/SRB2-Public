@@ -79,10 +79,12 @@
 
 #ifdef FMODSOUND
 #ifdef __MINGW32__
-#include <FMOD/fmoddyn.h>
+#include <FMOD/fmod.h>
+#include "../../tools/fmoddyn.h"
 #include <FMOD/fmod_errors.h>
 #else
-#include <fmoddyn.h>
+#include <fmod.h>
+#include "../../tools/fmoddyn.h"
 #include <fmod_errors.h>
 #endif
 #define FMODMEMORY
@@ -1051,6 +1053,7 @@ static INT32 Init3DSDriver(const char *soName)
 {
 	if (soName) soundso = hwOpen(soName);
 #if defined (_WIN32) && !defined (STATIC3DS)
+#ifdef _X86_
 	HW3DS.pfnStartup            = hwSym("_Startup@8",soundso);
 	HW3DS.pfnShutdown           = hwSym("_Shutdown@0",soundso);
 	HW3DS.pfnAddSfx             = hwSym("_AddSfx@4",soundso);
@@ -1070,6 +1073,27 @@ static INT32 Init3DSDriver(const char *soName)
 	HW3DS.pfnKillSource         = hwSym("_KillSource@4",soundso);
 	HW3DS.pfnKillSfx            = hwSym("_KillSfx@4",soundso);
 	HW3DS.pfnGetHW3DSTitle      = hwSym("_GetHW3DSTitle@8",soundso);
+#else
+	HW3DS.pfnStartup            = hwSym("Startup",soundso);
+	HW3DS.pfnShutdown           = hwSym("Shutdown",soundso);
+	HW3DS.pfnAddSfx             = hwSym("AddSfx",soundso);
+	HW3DS.pfnAddSource          = hwSym("AddSource",soundso);
+	HW3DS.pfnStartSource        = hwSym("StartSource",soundso);
+	HW3DS.pfnStopSource         = hwSym("StopSource",soundso);
+	HW3DS.pfnGetHW3DSVersion    = hwSym("GetHW3DSVersion",soundso);
+	HW3DS.pfnBeginFrameUpdate   = hwSym("BeginFrameUpdate",soundso);
+	HW3DS.pfnEndFrameUpdate     = hwSym("EndFrameUpdate",soundso);
+	HW3DS.pfnIsPlaying          = hwSym("IsPlaying",soundso);
+	HW3DS.pfnUpdateListener     = hwSym("UpdateListener",soundso);
+	HW3DS.pfnUpdateSourceParms  = hwSym("UpdateSourceParms",soundso);
+	HW3DS.pfnSetCone            = hwSym("SetCone",soundso);
+	HW3DS.pfnSetGlobalSfxVolume = hwSym("SetGlobalSfxVolume",soundso);
+	HW3DS.pfnUpdate3DSource     = hwSym("Update3DSource",soundso);
+	HW3DS.pfnReloadSource       = hwSym("ReloadSource",soundso);
+	HW3DS.pfnKillSource         = hwSym("KillSource",soundso);
+	HW3DS.pfnKillSfx            = hwSym("KillSfx",soundso);
+	HW3DS.pfnGetHW3DSTitle      = hwSym("GetHW3DSTitle",soundso);
+#endif
 #else
 	HW3DS.pfnStartup            = hwSym("Startup",soundso);
 	HW3DS.pfnShutdown           = hwSym("Shutdown",soundso);
@@ -1456,12 +1480,14 @@ void I_InitMIDIMusic(void)
 static SDL_bool I_InitFMODMusic(void)
 {
 #ifdef FMODSOUND
-#ifdef _WIN64
-	char fmod375dll[] = "fmod64375.dll";
-	char fmod000dll[] = "fmod64.dll";
-#elif defined(_WIN32)
+#ifdef _WIN32
+#ifdef _X86_
 	char fmod375dll[] = "fmod375.dll";
 	char fmod000dll[] = "fmod.dll";
+#else
+	char fmod375dll[] = "fmod64375.dll";
+	char fmod000dll[] = "fmod64.dll";
+#endif
 #else
 	char fmod375dll[] = "fmod375.so";
 	char fmod000dll[] = "fmod.so";
