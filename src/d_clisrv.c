@@ -2537,7 +2537,7 @@ static short Consistancy(void)
 		if (playeringame[i] && players[i].mo)
 		{
 			DEBFILE(va("p[%d].x = %f ", i, (double)FIXED_TO_FLOAT(players[i].mo->x)));
-			ret = (short)(ret + players[i].mo->x);
+			ret = (short)((ret + players[i].mo->x) & 0xFFFF);
 		}
 	DEBFILE(va("pos = %d, rnd %d\n", ret, P_GetRandIndex()));
 	ret = (short)(ret + P_GetRandIndex());
@@ -2554,8 +2554,8 @@ static void CL_SendClientCmd(void)
 
 	if (cl_packetmissed)
 		netbuffer->packettype++;
-	netbuffer->u.clientpak.resendfrom = (byte)neededtic;
-	netbuffer->u.clientpak.client_tic = (byte)gametic;
+	netbuffer->u.clientpak.resendfrom = (byte)(neededtic & 0xFF);
+	netbuffer->u.clientpak.client_tic = (byte)(gametic & 0xFF);
 
 	if (gamestate == GS_WAITINGPLAYERS)
 	{
