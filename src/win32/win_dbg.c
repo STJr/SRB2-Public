@@ -119,7 +119,7 @@ BOOL IsBugTrapLoaded(void)
 // --------------------------------------------------------------------------
 static inline LPCSTR GetExceptionDescription(DWORD ExceptionCode)
 {
-	unsigned int i;
+	size_t i;
 
 	struct ExceptionNames
 	{

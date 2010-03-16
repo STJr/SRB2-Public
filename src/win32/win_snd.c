@@ -1145,7 +1145,7 @@ static BOOL bMidiCanSetVolume;          // midi caps
 static VOID Mid2StreamFreeBuffers(VOID);
 static VOID CALLBACK MidiStreamCallback(HMIDIIN hMidi, UINT uMsg, DWORD dwInstance,
                                          DWORD dwParam1, DWORD dwParam2);
-static BOOL StreamBufferSetup(unsigned char *pMidiData, size_t iMidiSize);
+static BOOL StreamBufferSetup(LPBYTE pMidiData, size_t iMidiSize);
 
 // -------------------
 // MidiErrorMessageBox
