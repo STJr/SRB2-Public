@@ -51,7 +51,7 @@ void R_DrawColumn_8(void)
 	// Use columnofs LUT for subwindows?
 
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	count++;
 
@@ -130,7 +130,7 @@ void R_DrawWallColumn_8(void)
 	// Use columnofs LUT for subwindows?
 
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	count++;
 
@@ -208,7 +208,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 	// Use columnofs LUT for subwindows?
 
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	count++;
 
@@ -299,7 +299,7 @@ void R_DrawShadeColumn_8(void)
 
 	// FIXME. As above.
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	// Looks familiar.
 	fracstep = dc_iscale;
@@ -338,7 +338,7 @@ void R_DrawTranslucentColumn_8(void)
 
 	// FIXME. As above.
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	// Looks familiar.
 	fracstep = dc_iscale;
@@ -410,7 +410,7 @@ void R_DrawTranslatedTranslucentColumn_8(void)
 
 	// FIXME. As above.
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	// Looks familiar.
 	fracstep = dc_iscale;
@@ -489,7 +489,7 @@ void R_DrawTranslatedColumn_8(void)
 
 	// FIXME. As above.
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	// Looks familiar.
 	fracstep = dc_iscale;
@@ -903,7 +903,7 @@ void R_DrawFogSpan_8(void)
 	colormap = ds_colormap;
 	transmap = ds_transmap;
 	//dest = ylookup[ds_y] + columnofs[ds_x1];
-	dest = topleft + ds_y*vid.width + ds_x1;
+	dest = &topleft[ds_y *vid.width + ds_x1];
 
 	count = ds_x2 - ds_x1 + 1;
 
@@ -948,7 +948,7 @@ void R_DrawFogColumn_8(void)
 	// Use ylookup LUT to avoid multiply with ScreenWidth.
 	// Use columnofs LUT for subwindows?
 	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = topleft + dc_yl*vid.width + dc_x;
+	dest = &topleft[dc_yl*vid.width + dc_x];
 
 	// Determine scaling, which is the only mapping to be done.
 	do

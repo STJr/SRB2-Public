@@ -529,7 +529,7 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 			x2 = vid.width - 1;
 
 //		pDest = ylookup[y] + columnofs[x1];
-		pDest = topleft + y*vid.width + x1;
+		pDest = &topleft[y*vid.width + x1];
 
 		x = x2 - x1 + 1;
 
