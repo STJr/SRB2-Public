@@ -721,7 +721,7 @@ static void DebugPrintpacket(const char *header)
 	{
 		case PT_ASKINFO:
 		case PT_ASKINFOVIAMS:
-			fprintf(debugfile, "    time %u\n", (unsigned)LONG(netbuffer->u.askinfo.time)				);
+			fprintf(debugfile, "    time %u\n", (tic_t)LONG(netbuffer->u.askinfo.time)				);
 			break;
 		case PT_CLIENTJOIN:
 			fprintf(debugfile, "    number %d mode %d\n", netbuffer->u.clientcfg.localplayers,
@@ -753,9 +753,9 @@ static void DebugPrintpacket(const char *header)
 		case PT_SERVERCFG:
 			fprintf(debugfile, "    playermask %x playerslots %d clientnode %d serverplayer %d "
 				"gametic %u gamestate %d gametype %d modifiedgame %d\n",
-				(unsigned)LONG(netbuffer->u.servercfg.playerdetected),
+				(ULONG)LONG(netbuffer->u.servercfg.playerdetected),
 				netbuffer->u.servercfg.totalslotnum, netbuffer->u.servercfg.clientnode,
-				netbuffer->u.servercfg.serverplayer, (unsigned)LONG(netbuffer->u.servercfg.gametic),
+				netbuffer->u.servercfg.serverplayer, (ULONG)LONG(netbuffer->u.servercfg.gametic),
 				netbuffer->u.servercfg.gamestate, netbuffer->u.servercfg.gametype,
 				netbuffer->u.servercfg.modifiedgame);
 			break;
@@ -764,7 +764,7 @@ static void DebugPrintpacket(const char *header)
 				netbuffer->u.serverinfo.servername, netbuffer->u.serverinfo.numberofplayer,
 				netbuffer->u.serverinfo.maxplayer, netbuffer->u.serverinfo.mapname,
 				netbuffer->u.serverinfo.fileneedednum,
-				(unsigned)LONG(netbuffer->u.serverinfo.time));
+				(ULONG)LONG(netbuffer->u.serverinfo.time));
 			fprintfstring((char *)netbuffer->u.serverinfo.fileneeded,
 				(byte)((char *)netbuffer + doomcom->datalength
 				- (char *)netbuffer->u.serverinfo.fileneeded));
@@ -774,8 +774,8 @@ static void DebugPrintpacket(const char *header)
 			break;
 		case PT_FILEFRAGMENT:
 			fprintf(debugfile, "    fileid %d datasize %d position %u\n",
-				netbuffer->u.filetxpak.fileid, (unsigned)SHORT(netbuffer->u.filetxpak.size),
-				(unsigned)LONG(netbuffer->u.filetxpak.position));
+				netbuffer->u.filetxpak.fileid, (USHORT)SHORT(netbuffer->u.filetxpak.size),
+				(ULONG)LONG(netbuffer->u.filetxpak.position));
 			break;
 		case PT_REQUESTFILE:
 		default: // write as a raw packet

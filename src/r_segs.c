@@ -1037,7 +1037,7 @@ void R_RenderThickSideRange(drawseg_t *ds, INT32 x1, INT32 x2, ffloor_t *pfloor)
 #include "p5prof.h"
 INT64 mycount;
 INT64 mytotal = 0;
-unsigned INT32 nombre = 100000;
+UINT32 nombre = 100000;
 //static   char runtest[10][80];
 #endif
 //profile stuff ---------------------------------------------------------
