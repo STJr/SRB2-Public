@@ -222,8 +222,8 @@ void R_Draw2sMultiPatchColumn_8(void)
 	{
 		register const byte *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register unsigned heightmask = dc_texheight-1;
-		register unsigned val;
+		register UINT32 heightmask = dc_texheight-1;
+		register byte val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
 			heightmask++;
@@ -521,15 +521,15 @@ void R_DrawTranslatedColumn_8(void)
 */
 void R_DrawSpan_8 (void)
 {
-	unsigned xposition;
-	unsigned yposition;
-	unsigned xstep, ystep;
+	UINT32 xposition;
+	UINT32 yposition;
+	UINT32 xstep, ystep;
 
 	byte *source;
 	byte *colormap;
 	byte *dest;
 
-	unsigned count;
+	size_t count;
 
 	// SoM: we only need 6 bits for the integer part (0 thru 63) so the rest
 	// can be used for the fraction part. This allows calculation of the memory address in the
@@ -599,16 +599,16 @@ void R_DrawSpan_8 (void)
 */
 void R_DrawSplat_8 (void)
 {
-	unsigned xposition;
-	unsigned yposition;
-	unsigned xstep, ystep;
+	UINT32 xposition;
+	UINT32 yposition;
+	UINT32 xstep, ystep;
 
 	byte *source;
 	byte *colormap;
 	byte *dest;
 
-	unsigned count;
-	unsigned val;
+	size_t count;
+	UINT32 val;
 
 	// SoM: we only need 6 bits for the integer part (0 thru 63) so the rest
 	// can be used for the fraction part. This allows calculation of the memory address in the
@@ -716,16 +716,16 @@ void R_DrawSplat_8 (void)
 */
 void R_DrawTranslucentSplat_8 (void)
 {
-	unsigned xposition;
-	unsigned yposition;
-	unsigned xstep, ystep;
+	UINT32 xposition;
+	UINT32 yposition;
+	UINT32 xstep, ystep;
 
 	byte *source;
 	byte *colormap;
 	byte *dest;
 
-	unsigned count;
-	unsigned val;
+	size_t count;
+	byte val;
 
 	// SoM: we only need 6 bits for the integer part (0 thru 63) so the rest
 	// can be used for the fraction part. This allows calculation of the memory address in the
@@ -815,15 +815,15 @@ void R_DrawTranslucentSplat_8 (void)
 */
 void R_DrawTranslucentSpan_8 (void)
 {
-	unsigned xposition;
-	unsigned yposition;
-	unsigned xstep, ystep;
+	UINT32 xposition;
+	UINT32 yposition;
+	UINT32 xstep, ystep;
 
 	byte *source;
 	byte *colormap;
 	byte *dest;
 
-	unsigned count;
+	size_t count;
 
 	// SoM: we only need 6 bits for the integer part (0 thru 63) so the rest
 	// can be used for the fraction part. This allows calculation of the memory address in the
@@ -898,7 +898,7 @@ void R_DrawFogSpan_8(void)
 	byte *transmap;
 	byte *dest;
 
-	unsigned count;
+	size_t count;
 
 	colormap = ds_colormap;
 	transmap = ds_transmap;

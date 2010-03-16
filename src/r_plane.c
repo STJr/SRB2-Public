@@ -156,16 +156,16 @@ static boolean itswater;
 #ifndef NOWATER
 static void R_DrawTranslucentWaterSpan_8(void)
 {
-	unsigned xposition;
-	unsigned yposition;
-	unsigned xstep, ystep;
+	UINT32 xposition;
+	UINT32 yposition;
+	UINT32 xstep, ystep;
 
 	byte *source;
 	byte *colormap;
 	byte *dest;
 	byte *dsrc;
 
-	unsigned count;
+	size_t count;
 
 	// SoM: we only need 6 bits for the integer part (0 thru 63) so the rest
 	// can be used for the fraction part. This allows calculation of the memory address in the

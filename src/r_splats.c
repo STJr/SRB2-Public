@@ -374,7 +374,7 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 	angle_t angle;
 	fixed_t distance;
 	fixed_t length;
-	unsigned indexr;
+	size_t indexr;
 	INT32 light;
 #endif
 	(void)pTex;
