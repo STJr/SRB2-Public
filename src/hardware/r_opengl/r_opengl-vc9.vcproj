@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="r_opengl"
 	ProjectGUID="{51137D5C-4E81-4955-AACF-EA3092006051}"
+	RootNamespace="r_opengl"
 	TargetFrameworkVersion="0"
 	>
 	<Platforms>
@@ -19,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\..\binConf\Debug\r_opengl"
-			IntermediateDirectory=".\..\..\..\objs\VC9\Debug\r_opengl"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
+			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -54,14 +55,14 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\..\..\..\objs\VC9\Debug\r_opengl/r_opengl.pch"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\Debug\r_opengl/"
-				ObjectFile=".\..\..\..\objs\VC9\Debug\r_opengl/"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\Debug\r_opengl/"
+				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
 				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -81,10 +82,9 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\Debug\r_opengl.pdb"
+				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -99,101 +99,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\..\..\..\bin\VC9\Release\r_opengl"
-			IntermediateDirectory=".\..\..\..\objs\VC9\Release\r_opengl"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__WIN32__;__MSC__;USE_WGL_SWAP;_CRT_SECURE_NO_WARNINGS"
-				StringPooling="true"
-				RuntimeLibrary="0"
-				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\..\..\..\objs\VC9\Release\r_opengl/r_opengl.pch"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\Release\r_opengl/"
-				ObjectFile=".\..\..\..\objs\VC9\Release\r_opengl/"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\Release\r_opengl/"
-				BrowseInformation="1"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				OutputFile="C:\srb2demo2\r_opengl.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\Release\r_opengl.pdb"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.bsc"
+				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\r_opengl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -207,8 +113,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
+			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -242,14 +148,14 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				PrecompiledHeaderFile=".\..\..\..\objs\VC9\Debug\r_opengl/r_opengl.pch"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\Debug\r_opengl/"
-				ObjectFile=".\..\..\..\objs\VC9\Debug\r_opengl/"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\Debug\r_opengl/"
+				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
 				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -269,10 +175,9 @@
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\Debug\r_opengl.pdb"
+				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -287,7 +192,100 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.bsc"
+				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\r_opengl.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
+			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__WIN32__;__MSC__;USE_WGL_SWAP;_CRT_SECURE_NO_WARNINGS"
+				StringPooling="true"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="true"
+				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				BrowseInformation="1"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+				CompileAs="1"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreImportLibrary="true"
+				OutputFile="C:\srb2demo2\r_opengl.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\r_opengl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -301,8 +299,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
+			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -337,14 +335,14 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				PrecompiledHeaderFile=".\..\..\..\objs\VC9\Release\r_opengl/r_opengl.pch"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\Release\r_opengl/"
-				ObjectFile=".\..\..\..\objs\VC9\Release\r_opengl/"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\Release\r_opengl/"
+				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
+				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -363,10 +361,9 @@
 				OutputFile="C:\srb2demo2\r_opengl.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\Release\r_opengl.pdb"
+				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -381,7 +378,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.bsc"
+				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\r_opengl\r_opengl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -409,7 +406,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -417,7 +414,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -445,7 +442,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -453,7 +450,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
