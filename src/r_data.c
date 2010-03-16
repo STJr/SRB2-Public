@@ -307,7 +307,7 @@ void R_LoadTextures(void)
 	char name[9];
 	char *name_p;
 	char *pnames;
-	ULONG *maptex, *maptex2, *maptex1, *directory, nummappatches, numtextures1, numtextures2;
+	ULONG *maptex, *maptex2, *maptex1, *directory, nummappatches, numtextures1, numtextures2, offset32;
 	lumpnum_t *patchlookup;
 	size_t i, maxoff, maxoff2, offset;
 	int j;
@@ -378,8 +378,8 @@ void R_LoadTextures(void)
 		}
 
 		// offset to the current texture in TEXTURESn lump
-		M_Memcpy(&offset, directory, sizeof(ULONG));
-		offset = LONG(offset);
+		M_Memcpy(&offset32, directory, sizeof(ULONG));
+		offset = LONG(offset32);
 
 		if (offset > maxoff)
 			I_Error("R_LoadTextures: bad texture directory");
