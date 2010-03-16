@@ -65,7 +65,7 @@ void R_DrawColumn_8(void)
 	{
 		register const byte *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register unsigned heightmask = dc_texheight-1;
+		register INT32 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
 			heightmask++;
