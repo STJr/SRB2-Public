@@ -6956,8 +6956,9 @@ void M_StartMessage(const char *string, void *routine,
 			{
 				if (i > max)
 					max = i;
-				start += i+1;
-				i = -1; //added : 07-02-98 : damned!
+				start += i;
+				i = (size_t)-1; //added : 07-02-98 : damned!
+				start++;
 				break;
 			}
 		}
@@ -6981,10 +6982,10 @@ void M_StartMessage(const char *string, void *routine,
 static void M_DrawMessageMenu(void)
 {
 	INT32 y = currentMenu->y;
-	size_t i;
+	size_t i, start = 0;
 	short max;
 	char string[MAXMSGLINELEN];
-	INT32 start = 0, mlines;
+	INT32 mlines;
 	const char *msg = currentMenu->menuitems[0].text;
 
 	mlines = currentMenu->lastOn>>8;
@@ -7009,8 +7010,9 @@ static void M_DrawMessageMenu(void)
 				{
 					strncpy(string,msg+start, i);
 					string[i] = '\0';
-					start += i+1;
-					i = -1; //added : 07-02-98 : damned!
+					start += i;
+					i = (size_t)-1; //added : 07-02-98 : damned!
+					start++;
 				}
 
 				break;

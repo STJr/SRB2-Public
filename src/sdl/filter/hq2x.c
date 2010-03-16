@@ -23,7 +23,7 @@
 #endif
 
 
-#if (defined(__GNUC__) && defined(__i386__)) || (defined(_MSC_VER) && !defined(_WIN32_WCE))
+#if (defined(__GNUC__) && defined(__i386__)) || (defined(_MSC_VER) && defined(_X86_))
 #define HQ2XASM
 #endif
 
