@@ -175,7 +175,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib dinput8.lib"
+				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
 				OutputFile="C:\srb2demo2\srb2debug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -373,7 +373,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib wsock32.lib dinput8.lib"
+				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
 				OutputFile="C:\srb2demo2\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
