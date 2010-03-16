@@ -272,7 +272,7 @@ static FMOD_INSTANCE *FMOD_CreateInstance(char *dllName)
 #ifdef _X86_
     #define F_GETPROC(_x, _y)                                                                     \
     {                                                                                             \
-        *((size_t *)&instance->_x) = (size_t)GetProcAddress((HMODULE)instance->module, _y);       \
+        instance->_x = (void *)GetProcAddress((HMODULE)instance->module, _y);                     \
         if (!instance->_x)                                                                        \
         {                                                                                         \
             FreeLibrary((HMODULE)instance->module);                                               \
@@ -285,7 +285,7 @@ static FMOD_INSTANCE *FMOD_CreateInstance(char *dllName)
     {                                                                                             \
         char tmp[] = _y;                                                                          \
         *(strchr(tmp, '@')) = 0;                                                                  \
-        *((size_t *)&instance->_x) = (size_t)GetProcAddress((HMODULE)instance->module, &tmp[1]);  \
+        instance->_x = (void *)GetProcAddress((HMODULE)instance->module, &tmp[1]);                \
         if (!instance->_x)                                                                        \
         {                                                                                         \
             FreeLibrary((HMODULE)instance->module);                                               \
@@ -300,7 +300,7 @@ static FMOD_INSTANCE *FMOD_CreateInstance(char *dllName)
     {                                                                                             \
         char tmp[] = _y;                                                                          \
         *(strchr(tmp, '@')) = 0;                                                                  \
-        *((size_t *)&instance->_x) = (size_t)dlsym(instance->module, &tmp[1]);                    \
+        instance->_x = (void *)dlsym(instance->module, &tmp[1]);                                  \
         if (!instance->_x)                                                                        \
         {                                                                                         \
             dlclose(instance->module);                                                            \
