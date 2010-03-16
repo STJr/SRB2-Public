@@ -95,7 +95,7 @@ DIR *
 opendir (const CHAR *szPath)
 {
   DIR *nd;
-  unsigned int rc;
+  DWORD rc;
   CHAR szFullPath[MAX_PATH];
 
   errno = 0;
@@ -114,7 +114,7 @@ opendir (const CHAR *szPath)
 
   /* Attempt to determine if the given path really is a directory. */
   rc = GetFileAttributesA(szPath);
-  if (rc == (unsigned int)-1)
+  if (rc == (DWORD)-1)
     {
       /* call GetLastError for more error info */
       errno = ENOENT;
