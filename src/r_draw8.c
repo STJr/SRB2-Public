@@ -74,7 +74,7 @@ void R_DrawColumn_8(void)
 			if (frac < 0)
 				while ((frac += heightmask) <  0);
 			else
-				while (frac >= (INT32)heightmask)
+				while (frac >= heightmask)
 					frac -= heightmask;
 
 			do
@@ -84,7 +84,7 @@ void R_DrawColumn_8(void)
 				// heightmask is the Tutti-Frutti fix
 				*dest = colormap[source[frac>>FRACBITS]];
 				dest += vid.width;
-				if ((frac += fracstep) >= (INT32)heightmask)
+				if ((frac += fracstep) >= heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -222,7 +222,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 	{
 		register const byte *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register UINT32 heightmask = dc_texheight-1;
+		register INT32 heightmask = dc_texheight-1;
 		register byte val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
@@ -232,7 +232,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 			if (frac < 0)
 				while ((frac += heightmask) <  0);
 			else
-				while (frac >= (INT32)heightmask)
+				while (frac >= heightmask)
 					frac -= heightmask;
 
 			do
@@ -246,7 +246,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 					*dest = colormap[val];
 
 				dest += vid.width;
-				if ((frac += fracstep) >= (INT32)heightmask)
+				if ((frac += fracstep) >= heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
