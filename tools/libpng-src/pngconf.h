@@ -76,8 +76,9 @@
 #define PNG_NO_USER_MEM
 
 #define PNG_USE_GLOBAL_ARRAYS
-#define PNGAPI
+#define PNGAPI __cdecl
 #define PNG_STATIC
+#define PNG_USE_LOCAL_ARRAYS
 #endif
 
 /* PNG_CONFIGURE_LIBPNG is set by the "configure" script. */
