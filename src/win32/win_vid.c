@@ -199,13 +199,11 @@ void I_StartupGraphics(void)
 		return;
 
 #ifdef HWRENDER
-#ifdef SHUFFLE
 	else if (M_CheckParm("-opengl"))
 		rendermode = render_opengl;
 	else
 #endif
 		rendermode = render_soft;
-#endif
 
 	if (dedicated)
 		rendermode = render_none;

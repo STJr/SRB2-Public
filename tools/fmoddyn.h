@@ -269,10 +269,34 @@ static FMOD_INSTANCE *FMOD_CreateInstance(char *dllName)
     }
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
-#ifdef _X86_
+#ifdef __MINGW64__
     #define F_GETPROC(_x, _y)                                                                     \
     {                                                                                             \
-        instance->_x = (void *)GetProcAddress((HMODULE)instance->module, _y);                     \
+        char tmp[] = _y;                                                                          \
+        *(strchr(tmp, '@')) = 0;                                                                  \
+        instance->_x = (LPVOID)GetProcAddress((HMODULE)instance->module, &tmp[1]);                \
+        if (!instance->_x)                                                                        \
+        {                                                                                         \
+            FreeLibrary((HMODULE)instance->module);                                               \
+            free(instance);                                                                       \
+            return NULL;                                                                          \
+        }                                                                                         \
+    }
+#elif defined(__MINGW32__)
+    #define F_GETPROC(_x, _y)                                                                     \
+    {                                                                                             \
+        instance->_x = (LPVOID)GetProcAddress((HMODULE)instance->module, _y);                     \
+        if (!instance->_x)                                                                        \
+        {                                                                                         \
+            FreeLibrary((HMODULE)instance->module);                                               \
+            free(instance);                                                                       \
+            return NULL;                                                                          \
+        }                                                                                         \
+    }
+#elif defined (_X86_)
+    #define F_GETPROC(_x, _y)                                                                     \
+    {                                                                                             \
+        instance->_x = (LPVOID)(size_t)GetProcAddress((HMODULE)instance->module, _y);             \
         if (!instance->_x)                                                                        \
         {                                                                                         \
             FreeLibrary((HMODULE)instance->module);                                               \
@@ -285,7 +309,7 @@ static FMOD_INSTANCE *FMOD_CreateInstance(char *dllName)
     {                                                                                             \
         char tmp[] = _y;                                                                          \
         *(strchr(tmp, '@')) = 0;                                                                  \
-        instance->_x = (void *)GetProcAddress((HMODULE)instance->module, &tmp[1]);                \
+        instance->_x = (LPVOID)(size_t)GetProcAddress((HMODULE)instance->module, &tmp[1]);        \
         if (!instance->_x)                                                                        \
         {                                                                                         \
             FreeLibrary((HMODULE)instance->module);                                               \
@@ -293,7 +317,6 @@ static FMOD_INSTANCE *FMOD_CreateInstance(char *dllName)
             return NULL;                                                                          \
         }                                                                                         \
     }
-
 #endif
 #else
     #define F_GETPROC(_x, _y)                                                                     \

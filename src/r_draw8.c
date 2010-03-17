@@ -33,7 +33,7 @@ void R_DrawColumn_8(void)
 {
 	INT32 count;
 	register byte *dest;
-	register fixed_t frac;
+	register INT64 frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -65,7 +65,7 @@ void R_DrawColumn_8(void)
 	{
 		register const byte *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register INT32 heightmask = dc_texheight-1;
+		register INT64 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
 			heightmask++;
@@ -112,7 +112,7 @@ void R_DrawWallColumn_8(void)
 {
 	INT32 count;
 	register byte *dest;
-	register fixed_t frac;
+	register INT64 frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -144,7 +144,7 @@ void R_DrawWallColumn_8(void)
 	{
 		register const byte *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register unsigned heightmask = dc_texheight-1;
+		register INT64 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
 			heightmask++;
@@ -153,7 +153,7 @@ void R_DrawWallColumn_8(void)
 			if (frac < 0)
 				while ((frac += heightmask) <  0);
 			else
-				while (frac >= (INT32)heightmask)
+				while (frac >= heightmask)
 					frac -= heightmask;
 
 			do
@@ -163,7 +163,7 @@ void R_DrawWallColumn_8(void)
 				// heightmask is the Tutti-Frutti fix
 				*dest = colormap[source[frac>>FRACBITS]];
 				dest += vid.width;
-				if ((frac += fracstep) >= (INT32)heightmask)
+				if ((frac += fracstep) >= heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -190,7 +190,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 {
 	INT32 count;
 	register byte *dest;
-	register fixed_t frac;
+	register INT64 frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -222,7 +222,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 	{
 		register const byte *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register INT32 heightmask = dc_texheight-1;
+		register INT64 heightmask = dc_texheight-1;
 		register byte val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{

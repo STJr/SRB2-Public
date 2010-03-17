@@ -1337,7 +1337,7 @@ static void R_RenderSegLoop (void)
 			{
 				INT32 y_w = ffloor[i].b_frac >> HEIGHTBITS;
 
-				ffloor[i].f_clip[rw_x] = ffloor[i].c_clip[rw_x] = (short)y_w;
+				ffloor[i].f_clip[rw_x] = ffloor[i].c_clip[rw_x] = (short)(y_w & 0xFFFF);
 				ffloor[i].b_frac += ffloor[i].b_step;
 			}
 
