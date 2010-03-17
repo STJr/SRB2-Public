@@ -109,13 +109,13 @@ typedef struct listener_data_s
 
 typedef struct snddev_s
 {
-	INT32     sample_rate;
-	INT32     bps;
+	INT32   sample_rate;
+	INT32   bps;
 	size_t  numsfxs;
 
 // Windows specific data
-#if (defined (_WIN32) || defined (_WIN64)) && !defined (_XBOX)
-	INT32     cooplevel;
+#if defined (_WIN32) && !defined (_XBOX)
+	ULONG   cooplevel;
 	HWND    hWnd;
 #endif
 } snddev_t;

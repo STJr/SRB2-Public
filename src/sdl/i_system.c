@@ -256,19 +256,6 @@ static INT32 mouse2_started = 0;
 SDL_bool consolevent = SDL_FALSE;
 SDL_bool framebuffer = SDL_FALSE;
 
-/// \brief max number of joystick buttons
-#define JOYBUTTONS_MIN JOYBUTTONS
-/// \brief max number of joystick button events
-#define JOYBUTTONS_MAX JOYBUTTONS
-/// \brief max number of joystick axies
-#define JOYAXISES_MIN  JOYAXISSET
-/// \brief max number ofjoystick axis events
-#define JOYAXISES_MAX  JOYAXISSET
-/// \brief max number of joystick hats
-#define JOYHATS_MIN    JOYHATS
-/// \brief max number of joystick hat events
-#define JOYHATS_MAX    JOYHATS
-
 byte keyboard_started = false;
 
 #if 0
@@ -889,11 +876,11 @@ void I_JoyScale2(void)
 
 /**	\brief Joystick 1 buttons states
 */
-static INT64 lastjoybuttons = 0;
+static UINT64 lastjoybuttons = 0;
 
 /**	\brief Joystick 1 hats state
 */
-static INT64 lastjoyhats = 0;
+static UINT64 lastjoyhats = 0;
 
 /**	\brief	Shuts down joystick 1
 
@@ -947,10 +934,10 @@ void I_GetJoystickEvents(void)
 {
 	static event_t event = {0,0,0,0};
 	INT32 i = 0;
-	INT64 joyhats = 0;
+	UINT64 joyhats = 0;
 #if 0
-	INT64 joybuttons = 0;
-	INT32 axisx, axisy;
+	UINT64 joybuttons = 0;
+	Sint16 axisx, axisy;
 #endif
 
 	if (!joystick_started) return;
@@ -996,12 +983,12 @@ void I_GetJoystickEvents(void)
 
 	for (i = JoyInfo.hats - 1; i >= 0; i--)
 	{
-		INT32 hat = SDL_JoystickGetHat(JoyInfo.dev, i);
+		Uint8 hat = SDL_JoystickGetHat(JoyInfo.dev, i);
 
-		if (hat & SDL_HAT_UP   ) joyhats|=1<<(0 + 4*i);
-		if (hat & SDL_HAT_DOWN ) joyhats|=1<<(1 + 4*i);
-		if (hat & SDL_HAT_LEFT ) joyhats|=1<<(2 + 4*i);
-		if (hat & SDL_HAT_RIGHT) joyhats|=1<<(3 + 4*i);
+		if (hat & SDL_HAT_UP   ) joyhats|=(UINT64)0x1<<(0 + 4*i);
+		if (hat & SDL_HAT_DOWN ) joyhats|=(UINT64)0x1<<(1 + 4*i);
+		if (hat & SDL_HAT_LEFT ) joyhats|=(UINT64)0x1<<(2 + 4*i);
+		if (hat & SDL_HAT_RIGHT) joyhats|=(UINT64)0x1<<(3 + 4*i);
 	}
 
 	if (joyhats != lastjoyhats)
@@ -1088,11 +1075,11 @@ void I_GetJoystickEvents(void)
 
 
 */
-static INT32 joy_open(const char *fname)
+static int joy_open(const char *fname)
 {
-	INT32 joyindex = atoi(fname);
-	INT32 num_joy = 0;
-	INT32 i;
+	int joyindex = atoi(fname);
+	int num_joy = 0;
+	int i;
 
 	if (joystick_started == 0 && joystick2_started == 0)
 	{
@@ -1183,11 +1170,11 @@ static INT32 joy_open(const char *fname)
 
 /**	\brief Joystick 2 buttons states
 */
-static INT64 lastjoy2buttons = 0;
+static UINT64 lastjoy2buttons = 0;
 
 /**	\brief Joystick 2 hats state
 */
-static INT64 lastjoy2hats = 0;
+static UINT64 lastjoy2hats = 0;
 
 /**	\brief	Shuts down joystick 2
 
@@ -1238,7 +1225,7 @@ void I_GetJoystick2Events(void)
 {
 	static event_t event = {0,0,0,0};
 	INT32 i = 0;
-	INT64 joyhats = 0;
+	UINT64 joyhats = 0;
 #if 0
 	INT64 joybuttons = 0;
 	INT32 axisx, axisy;
@@ -1284,12 +1271,12 @@ void I_GetJoystick2Events(void)
 
 	for (i = JoyInfo2.hats - 1; i >= 0; i--)
 	{
-		INT32 hat = SDL_JoystickGetHat(JoyInfo2.dev, i);
+		Uint8 hat = SDL_JoystickGetHat(JoyInfo2.dev, i);
 
-		if (hat & SDL_HAT_UP   ) joyhats|=1<<(0 + 4*i);
-		if (hat & SDL_HAT_DOWN ) joyhats|=1<<(1 + 4*i);
-		if (hat & SDL_HAT_LEFT ) joyhats|=1<<(2 + 4*i);
-		if (hat & SDL_HAT_RIGHT) joyhats|=1<<(3 + 4*i);
+		if (hat & SDL_HAT_UP   ) joyhats|=(UINT64)0x1<<(0 + 4*i);
+		if (hat & SDL_HAT_DOWN ) joyhats|=(UINT64)0x1<<(1 + 4*i);
+		if (hat & SDL_HAT_LEFT ) joyhats|=(UINT64)0x1<<(2 + 4*i);
+		if (hat & SDL_HAT_RIGHT) joyhats|=(UINT64)0x1<<(3 + 4*i);
 	}
 
 	if (joyhats != lastjoy2hats)
@@ -1379,11 +1366,11 @@ void I_GetJoystick2Events(void)
 
 
 */
-static INT32 joy_open2(const char *fname)
+static int joy_open2(const char *fname)
 {
-	INT32 joyindex = atoi(fname);
-	INT32 num_joy = 0;
-	INT32 i;
+	int joyindex = atoi(fname);
+	int num_joy = 0;
+	int i;
 
 	if (joystick_started == 0 && joystick2_started == 0)
 	{

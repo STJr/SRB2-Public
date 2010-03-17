@@ -40,14 +40,14 @@
    #define EXPORT
   #endif
  #endif
- #if (defined (_WIN32) || defined (_WIN64)) && !defined (_XBOX)
+ #if defined (_WIN32) && !defined (_XBOX)
   #define HWRAPI(fn)  WINAPI fn
  #else
   #define HWRAPI(fn)  fn
  #endif
 #else // _CREATE_DLL_
  #define EXPORT      typedef
- #if (defined (_WIN32) || defined (_WIN64)) && !defined (_XBOX)
+ #if defined (_WIN32) && !defined (_XBOX)
   #define HWRAPI(fn)  (WINAPI *fn)
  #else
   #define HWRAPI(fn)  (*fn)

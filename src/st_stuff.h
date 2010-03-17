@@ -128,6 +128,6 @@ typedef enum
 
 extern hudinfo_t hudinfo[NUMHUDITEMS];
 
-extern unsigned short objectsdrawn;
+extern USHORT objectsdrawn;
 
 #endif

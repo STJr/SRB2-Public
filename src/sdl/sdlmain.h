@@ -31,17 +31,17 @@ typedef struct SDLJoyInfo_s
 	/// Joystick handle
 	SDL_Joystick *dev;
 	/// number of old joystick
-	INT32 oldjoy;
+	int oldjoy;
 	/// number of axies
-	INT32 axises;
+	int axises;
 	/// scale of axises
 	INT32 scale;
 	/// number of buttons
-	INT32 buttons;
+	int buttons;
 	/// number of hats
-	INT32 hats;
+	int hats;
 	/// number of balls
-	INT32 balls;
+	int balls;
 
 } SDLJoyInfo_t;
 

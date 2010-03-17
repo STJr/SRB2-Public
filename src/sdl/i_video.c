@@ -936,32 +936,32 @@ static inline void SDLJoyRemap(event_t *event)
 #endif
 }
 
-static INT32 SDLJoyAxis(INT32 axis, evtype_t which)
+static INT32 SDLJoyAxis(const Sint16 axis, evtype_t which)
 {
 #ifdef _arch_dreamcast // -128 to 127 SDL for DC have give us a smaller range
-	axis = axis*8;
+	INT32 raxis = axis*8;
 #else // -32768 to 32767
-	//if (!(0 <= axis && axis <= 256)) //XBOX Tigger?
-		axis = axis/32;
+	INT32 raxis = axis/32;
 #endif
 	if (which == ev_joystick)
 	{
 		if (Joystick.bGamepadStyle)
 		{
 			// gamepad control type, on or off, live or die
-			if (axis < -(JOYAXISRANGE/2))
-				axis = -1;
-			else if (axis > (JOYAXISRANGE/2))
-				axis = 1;
-			else axis = 0;
+			if (raxis < -(JOYAXISRANGE/2))
+				raxis = -1;
+			else if (raxis > (JOYAXISRANGE/2))
+				raxis = 1;
+			else
+				raxis = 0;
 		}
 		else
 		{
-			axis = JoyInfo.scale!=1?((axis/JoyInfo.scale)*JoyInfo.scale):axis;
+			raxis = JoyInfo.scale!=1?((raxis/JoyInfo.scale)*JoyInfo.scale):raxis;
 
 #ifdef SDL_JDEADZONE
-			if (-SDL_JDEADZONE <= axis && axis <= SDL_JDEADZONE)
-				axis = 0;
+			if (-SDL_JDEADZONE <= raxis && raxis <= SDL_JDEADZONE)
+				raxis = 0;
 #endif
 		}
 	}
@@ -970,23 +970,23 @@ static INT32 SDLJoyAxis(INT32 axis, evtype_t which)
 		if (Joystick2.bGamepadStyle)
 		{
 			// gamepad control type, on or off, live or die
-			if (axis < -(JOYAXISRANGE/2))
-				axis = -1;
-			else if (axis > (JOYAXISRANGE/2))
-				axis = 1;
-			else axis = 0;
+			if (raxis < -(JOYAXISRANGE/2))
+				raxis = -1;
+			else if (raxis > (JOYAXISRANGE/2))
+				raxis = 1;
+			else raxis = 0;
 		}
 		else
 		{
-			axis = JoyInfo2.scale!=1?((axis/JoyInfo2.scale)*JoyInfo2.scale):axis;
+			raxis = JoyInfo2.scale!=1?((raxis/JoyInfo2.scale)*JoyInfo2.scale):raxis;
 
 #ifdef SDL_JDEADZONE
-			if (-SDL_JDEADZONE <= axis && axis <= SDL_JDEADZONE)
-				axis = 0;
+			if (-SDL_JDEADZONE <= raxis && raxis <= SDL_JDEADZONE)
+				raxis = 0;
 #endif
 		}
 	}
-	return axis;
+	return raxis;
 }
 
 void I_GetEvent(void)

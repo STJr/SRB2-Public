@@ -171,7 +171,7 @@ boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	{
 		if (state == S_NULL)
 		{
-			mobj->state = (state_t *)S_NULL;
+			mobj->state = NULL;
 			P_RemoveMobj(mobj);
 			ret = false;
 			break;
@@ -233,7 +233,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 	{
 		if (state == S_NULL)
 		{
-			mobj->state = (state_t *)S_NULL;
+			mobj->state = NULL;
 			P_RemoveMobj(mobj);
 			ret = false;
 			break;
