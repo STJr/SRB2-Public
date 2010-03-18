@@ -214,6 +214,7 @@ INT32 deathsound;    Death sound = 32         sfx_pldeth,     // deathsound
 INT32 speed;         Speed = 3232             0,              // speed
 INT32 radius;        Width = 211812352        16*FRACUNIT,    // radius
 INT32 height;        Height = 211812352       56*FRACUNIT,    // height
+INT32 dispoffset;    DispOffset = 0           0,              // dispoffset
 INT32 mass;          Mass = 3232              100,            // mass
 INT32 damage;        Missile damage = 3232    0,              // damage
 INT32 activesound;   Action sound = 32        sfx_None,       // activesound
@@ -562,6 +563,11 @@ static void readthing(MYFILE *f, INT32 num)
 			{
 				DEH_WriteUndoline(word, va("%d", mobjinfo[num].height), UNDO_NONE);
 				mobjinfo[num].height = value;
+			}
+			else if (!strcmp(word, "DISPOFFSET"))
+			{
+				DEH_WriteUndoline(word, va("%d", mobjinfo[num].dispoffset), UNDO_NONE);
+				mobjinfo[num].dispoffset = value;
 			}
 			else if (!strcmp(word, "MASS"))
 			{
@@ -1864,6 +1870,11 @@ static void readmaincfg(MYFILE *f)
 			{
 				DEH_WriteUndoline(word, "0", UNDO_TODO); /// \todo
 				P_ResetData(value);
+			}
+			else if (!strcmp(word, "CUSTOMVERSION"))
+			{
+				DEH_WriteUndoline(word, customversionstring, UNDO_NONE);
+				strlcpy(customversionstring, word2, sizeof (customversionstring));
 			}
 			else
 				deh_warning("Maincfg: unknown word '%s'", word);

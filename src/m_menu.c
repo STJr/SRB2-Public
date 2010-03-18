@@ -7632,6 +7632,12 @@ void M_Drawer(void)
 
 	if (currentMenu->drawroutine)
 		currentMenu->drawroutine(); // call current menu Draw routine
+
+	// Draw version down in corner
+	if (customversionstring[0] != '\0')
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, customversionstring);
+	else
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, VERSIONSTRING);
 }
 
 //

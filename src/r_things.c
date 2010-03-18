@@ -1230,7 +1230,7 @@ static void R_ProjectSprite(mobj_t *thing)
 	vis = R_NewVisSprite();
 	vis->heightsec = heightsec; //SoM: 3/17/2000
 	vis->mobjflags = thing->flags;
-	vis->scale = yscale;           //<<detailshift;
+	vis->scale = yscale + thing->info->dispoffset;           //<<detailshift;
 	vis->gx = thing->x;
 	vis->gy = thing->y;
 	vis->gz = gz;

@@ -3059,6 +3059,7 @@ typedef struct
 	fixed_t speed;
 	fixed_t radius;
 	fixed_t height;
+	fixed_t dispoffset;
 	INT32 mass;
 	INT32 damage;
 	sfxenum_t activesound;

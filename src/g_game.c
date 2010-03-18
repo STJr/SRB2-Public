@@ -60,6 +60,7 @@ JoyType_t Joystick2;
 
 char gamedatafilename[64] = "gamedata.dat";
 char timeattackfolder[64] = "main";
+char customversionstring[32] = "\0";
 
 static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum);
 static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum);
