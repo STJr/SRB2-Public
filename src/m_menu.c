@@ -6406,6 +6406,7 @@ static void M_HandleVideoMode(INT32 ch)
 static void M_DrawLoad(void);
 
 static void M_LoadSelect(INT32 choice);
+static void M_PlayWithNoSave(void);
 
 typedef enum
 {
@@ -6414,7 +6415,7 @@ typedef enum
 	load3,
 	load4,
 	load5,
-	load6,
+	nosave,
 	load_end
 } load_e;
 
@@ -6425,7 +6426,7 @@ static menuitem_t LoadGameMenu[] =
 	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '3'},
 	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '4'},
 	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '5'},
-	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '6'},
+	{IT_CALL | IT_NOTHING, "", NULL, M_PlayWithNoSave, '6'},
 };
 
 menu_t LoadDef =
@@ -6452,6 +6453,11 @@ static void M_DrawGameStats(void)
 	if (savegameinfo[saveSlotSelected].lives == -42) // Empty
 	{
 		V_DrawString(ecks + 16, 152, 0, "EMPTY");
+		return;
+	}
+	else if (saveSlotSelected == 5) //No save option
+	{
+		V_DrawString(ecks + 16, 152, 0, "NO SAVE");
 		return;
 	}
 
@@ -6497,11 +6503,16 @@ static void M_DrawLoad(void)
 
 	V_DrawCenteredString(BASEVIDWIDTH/2, 40, 0, "Hit backspace to delete a save.");
 
-	for (i = 0;i < load_end; i++)
+	for (i = 0; i < load_end - 1; i++) //nosave is the last one.
 	{
 		M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
 		V_DrawString(LoadDef.x,LoadDef.y+LINEHEIGHT*i,0,va("Save Slot %d", i+1));
 	}
+
+	// Option to play with no save.
+	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
+	V_DrawString(LoadDef.x,LoadDef.y+LINEHEIGHT*i,0,"Play Without Saving");
+
 	M_DrawGameStats();
 }
 
@@ -6541,6 +6552,29 @@ static void M_LoadSelect(INT32 choice)
 	}
 
 	cursaveslot = choice;
+}
+
+//
+// User wants to play without saving
+//
+static void M_PlayWithNoSave(void)
+{
+	if (Playing())
+	{
+		M_StartMessage(ALREADYPLAYING,M_ExitGameResponse,MM_YESNO);
+		return;
+	}
+	else if (modifiedgame && !savemoddata)
+	{
+		M_DrawTextBox(24,64-4,32,3);
+
+		V_DrawCenteredString(160, 64+4, 0, "Note: Game must be reset to record");
+		V_DrawCenteredString(160, 64+16, 0, "statistics or unlock secrets.");
+	}
+
+	// Start a new game here.
+	M_NewGame();
+	cursaveslot = -1;
 }
 
 #define VERSIONSIZE             16
@@ -6642,7 +6676,7 @@ static void M_ReadSaveStrings(void)
 	UINT32 i;
 	char name[256];
 
-	for (i = 0; i < load_end; i++)
+	for (i = 0; i < load_end - 1; i++) //nosave is the last one.
 	{
 		snprintf(name, sizeof name, savegamename, i);
 		name[sizeof name - 1] = '\0';
@@ -7528,9 +7562,12 @@ boolean M_Responder(event_t *ev)
 			}
 			else if (currentMenu == &LoadDef)
 			{
-				curSaveSelected = itemOn; // Eww eww!
-				M_StartMessage("Are you sure you want to delete\nthis save game?\n(Y/N)\n",M_SaveGameDeleteResponse,MM_YESNO);
-				return true;
+				if (curSaveSelected != 5) //Don't delete the "No Save" option.
+				{
+					curSaveSelected = itemOn; // Eww eww!
+					M_StartMessage("Are you sure you want to delete\nthis save game?\n(Y/N)\n",M_SaveGameDeleteResponse,MM_YESNO);
+					return true;
+				}
 			}
 			else if (currentMenu == &LevelSelectDef)
 			{

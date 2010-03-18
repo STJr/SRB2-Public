@@ -91,7 +91,7 @@ static void R_DrawSplatColumn(column_t *column)
 			dc_yh = last_floorclip[dc_x] - 1;
 		if (dc_yl <= last_ceilingclip[dc_x])
 			dc_yl = last_ceilingclip[dc_x] + 1;
-		if (dc_yl <= dc_yh)
+		if (dc_yl <= dc_yh && dl_yh < vid.height && yh > 0)
 		{
 			dc_source = (byte *)column + 3;
 			dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
@@ -257,7 +257,7 @@ static void R_Render2sidedMultiPatchColumn(column_t *column)
 	if (dc_yl >= vid.height || dc_yh < 0)
 		return;
 
-	if (dc_yl <= dc_yh)
+	if (dc_yl <= dc_yh && dc_yh < vid.height && dc_yh > 0)
 	{
 		dc_source = (byte *)column + 3;
 
@@ -1224,7 +1224,7 @@ static void R_RenderSegLoop (void)
 	frontscale[rw_x] = rw_scale;
 
 	// draw the wall tiers
-	if (midtexture)
+	if (midtexture && yl <= yh && yh < vid.height && yh > 0)
 	{
 		// single sided line
 		dc_yl = yl;
@@ -1265,7 +1265,7 @@ static void R_RenderSegLoop (void)
 			if (mid >= floorclip[rw_x])
 				mid = floorclip[rw_x]-1;
 
-			if (mid >= yl)
+			if (mid >= yl && yh < vid.height && yh > 0)
 			{
 				dc_yl = yl;
 				dc_yh = mid;
@@ -1291,7 +1291,7 @@ static void R_RenderSegLoop (void)
 				if (mid <= ceilingclip[rw_x])
 					mid = ceilingclip[rw_x]+1;
 
-				if (mid <= yh)
+				if (mid <= yh && yh < vid.height && yh > 0)
 				{
 					dc_yl = mid;
 					dc_yh = yh;
