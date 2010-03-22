@@ -4816,7 +4816,7 @@ void T_LaserFlash(laserthink_t *flash)
 		flash->ffloor = ffloor = P_AddFakeFloor(sector, flash->sec, flash->sourceline, laserflags);
 #endif
 
-	if (!(ffloor->flags & FF_EXISTS))
+	if (!ffloor || !(ffloor->flags & FF_EXISTS))
 		return;
 
 	if (leveltime & 1)

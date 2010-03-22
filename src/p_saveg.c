@@ -852,12 +852,14 @@ static inline UINT32 SavePlayer(const player_t *player)
 	return 0xFFFFFFFF;
 }
 
+#ifndef REMOVE_FOR_205
 static inline UINT32 SaveFfloor(const ffloor_t *pfloor, const sector_t *sector)
 {
 	if (sector && sector->ffloors && pfloor)
 		return (UINT32)(pfloor - sector->ffloors);
 	return 0xFFFFFFFF;
 }
+#endif
 
 //
 // SaveSpecialLevelThinker
@@ -1027,6 +1029,7 @@ static void SaveElevatorThinker(const thinker_t *th, const byte type)
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
 	WRITELONG(save_p, 0);  //thinker.references dummy
+	WRITELONG(save_p, ht->type);
 	WRITEULONG(save_p, SaveSector(ht->sector));
 	WRITEULONG(save_p, SaveSector(ht->actionsector));
 	WRITELONG(save_p, ht->direction);
@@ -1088,9 +1091,9 @@ static inline void SaveFrictionThinker(const thinker_t *th, const byte type)
 	WRITELONG(save_p, ht->affectee);
 	WRITELONG(save_p, ht->referrer);
 	WRITEBYTE(save_p, ht->roverfriction);
-	WRITEBYTE(save_p, 0x00); //dummy
-	WRITEBYTE(save_p, 0x00); //dummy
-	WRITEBYTE(save_p, 0x00); //dummy
+	WRITEBYTE(save_p, 0x00); //gap dummy
+	WRITEBYTE(save_p, 0x00); //gap dummy
+	WRITEBYTE(save_p, 0x00); //gap dummy
 }
 
 //
@@ -1107,7 +1110,7 @@ static inline void SavePusherThinker(const thinker_t *th, const byte type)
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
 	WRITELONG(save_p, 0);  //thinker.references dummy
 	WRITELONG(save_p, ht->type);
-	WRITEULONG(save_p, 0); //dummy, used affectee
+	WRITEULONG(save_p, 0); //source dummy, used affectee
 	WRITELONG(save_p, ht->x_mag);
 	WRITELONG(save_p, ht->y_mag);
 	WRITELONG(save_p, ht->magnitude);
@@ -1117,9 +1120,9 @@ static inline void SavePusherThinker(const thinker_t *th, const byte type)
 	WRITELONG(save_p, ht->z);
 	WRITELONG(save_p, ht->affectee);
 	WRITEBYTE(save_p, ht->roverpusher);
-	WRITEBYTE(save_p, 0x00); //dummy
-	WRITEBYTE(save_p, 0x00); //dummy
-	WRITEBYTE(save_p, 0x00); //dummy
+	WRITEBYTE(save_p, 0x00); //gap dummy
+	WRITEBYTE(save_p, 0x00); //gap dummy
+	WRITEBYTE(save_p, 0x00); //gap dummy
 	WRITELONG(save_p, ht->referrer);
 	WRITELONG(save_p, ht->exclusive);
 	WRITELONG(save_p, ht->slider);
@@ -1138,7 +1141,9 @@ static inline void SaveLaserThinker(const thinker_t *th, const byte type)
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
 	WRITELONG(save_p, 0);  //thinker.references dummy
+#ifndef REMOVE_FOR_205
 	WRITEULONG(save_p, SaveFfloor(ht->ffloor, ht->sector)); ///< TODO: remove
+#endif
 	WRITEULONG(save_p, SaveSector(ht->sector));
 #ifdef REMOVE_FOR_205
 	WRITEULONG(save_p, SaveSector(ht->sec));
@@ -1678,6 +1683,7 @@ static void P_NetArchiveThinkers(void)
 		else if (th->function.acp1 == (actionf_p1)T_PolyObjRotate)
 		{
 			SavePolyrotatetThinker(th, tc_polyrotate);
+			continue;
 		}
 		else if (th->function.acp1 == (actionf_p1)T_PolyObjMove)
 		{
@@ -1762,12 +1768,14 @@ static inline player_t *LoadPlayer(UINT32 player)
 	return &players[player];
 }
 
+#ifndef REMOVE_FOR_205
 static inline ffloor_t *LoadFfloor(UINT32 pfloors, sector_t *sector)
 {
 	if (pfloors != 0xFFFFFFFF && sector && sector->ffloors)
 		return &sector->ffloors[pfloors];
 	return NULL;
 }
+#endif
 
 //
 // LoadSpecialLevelThinker
@@ -1964,6 +1972,7 @@ static void LoadElevatorThinker(actionf_p1 thinker, byte floorOrCeiling)
 	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
 	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
 	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->type = READLONG(save_p);
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->actionsector = LoadSector(READULONG(save_p));
 	ht->direction = READLONG(save_p);
@@ -2034,9 +2043,9 @@ static inline void LoadFrictionThinker(actionf_p1 thinker)
 	ht->affectee = READLONG(save_p);
 	ht->referrer = READLONG(save_p);
 	ht->roverfriction = READBYTE(save_p);
-	(void)READBYTE(save_p); //dummy
-	(void)READBYTE(save_p); //dummy
-	(void)READBYTE(save_p); //dummy
+	(void)READBYTE(save_p); //gap dummy
+	(void)READBYTE(save_p); //gap dummy
+	(void)READBYTE(save_p); //gap dummy
 	P_AddThinker(&ht->thinker);
 }
 
@@ -2053,7 +2062,7 @@ static inline void LoadPusherThinker(actionf_p1 thinker)
 	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
 	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
 	ht->type = READLONG(save_p);
-	(void)READULONG(save_p); //dummy, used affectee
+	(void)READULONG(save_p); //source dummy, used affectee
 	ht->x_mag = READLONG(save_p);
 	ht->y_mag = READLONG(save_p);
 	ht->magnitude = READLONG(save_p);
@@ -2063,9 +2072,9 @@ static inline void LoadPusherThinker(actionf_p1 thinker)
 	ht->z = READLONG(save_p);
 	ht->affectee = READLONG(save_p);
 	ht->roverpusher = READBYTE(save_p);
-	(void)READBYTE(save_p); //dummy
-	(void)READBYTE(save_p); //dummy
-	(void)READBYTE(save_p); //dummy
+	(void)READBYTE(save_p); //gap dummy
+	(void)READBYTE(save_p); //gap dummy
+	(void)READBYTE(save_p); //gap dummy
 	ht->referrer = READLONG(save_p);
 	ht->exclusive = READLONG(save_p);
 	ht->slider = READLONG(save_p);
@@ -2080,15 +2089,25 @@ static inline void LoadPusherThinker(actionf_p1 thinker)
 //
 static inline void LoadLaserThinker(actionf_p1 thinker)
 {
+#ifndef REMOVE_FOR_205
 	UINT32 tmp;
+#endif
 	laserthink_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
 	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
 	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
 	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->ffloor = NULL;
+#ifndef REMOVE_FOR_205
 	tmp = READULONG(save_p);
+#endif
 	ht->sector = LoadSector(READULONG(save_p));
+#ifdef REMOVE_FOR_205
+	ht->src = LoadSector(READULONG(save_p));
+	ht->sourceline = LoadLine(READULONG(save_p));
+#else
 	ht->ffloor = LoadFfloor(tmp, ht->sector);
+#endif
 	P_AddThinker(&ht->thinker);
 }
 
@@ -2369,8 +2388,11 @@ static void P_NetUnArchiveThinkers(void)
 							break;
 					if (i == NUMMOBJTYPES)
 					{
-						CONS_Printf("found mobj with unknown map thing type %d\n",
+						if (mobj->spawnpoint)
+							CONS_Printf("found mobj with unknown map thing type %d\n",
 							mobj->spawnpoint->type);
+						else
+							CONS_Printf("found mobj with unknown map thing type NULL\n");
 						I_Error("Savegame corrupted");
 					}
 					mobj->type = i;
@@ -2680,7 +2702,7 @@ static inline void P_ArchivePolyObj(polyobj_t *po)
 	WRITELONG(save_p, 0);  //thinker.references dummy
 	WRITEFIXED(save_p, po->spawnSpot.x);
 	WRITEFIXED(save_p, po->spawnSpot.y);
-	WRITEFIXED(save_p, po->spawnSpot.z); //dummy
+	WRITEFIXED(save_p, po->spawnSpot.z); //z dummy
 }
 
 static inline void P_UnArchivePolyObj(polyobj_t *po)

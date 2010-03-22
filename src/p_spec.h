@@ -202,13 +202,20 @@ typedef struct
 	fixed_t oldspeed;
 	fixed_t delay;
 	fixed_t delaytimer;
-	INT32 crush;        ///< Whether to crush things or not.
+#ifdef REMOVE_FOR_205
+	INT32 crush;          ///< Whether to crush things or not.
+#else
+	boolean crush;        ///< Whether to crush things or not.
+#endif
 	INT32 texture;        ///< The number of a flat to use when done.
 	INT32 direction;      ///< 1 = up, 0 = waiting, -1 = down.
 
 	// ID
 	INT32 tag;
 	INT32 olddirection;
+#ifndef REMOVE_FOR_205
+	struct ceilinglist *list;
+#endif
 	fixed_t origspeed;    ///< The original, "real" speed.
 	INT32 sourceline;     ///< Index of the source linedef
 } ceiling_t;
@@ -263,7 +270,11 @@ typedef struct
 {
 	thinker_t thinker;
 	floor_e type;
+#ifdef REMOVE_FOR_205
 	INT32 crush;
+#else
+	boolean crush;
+#endif
 	sector_t *sector;
 	INT32 direction;
 	INT32 texture;
@@ -307,6 +318,9 @@ typedef struct
 	thinker_t thinker;
 	levelspec_e type;
 	fixed_t vars[16];   // Misc. variables
+#ifndef REMOVE_FOR_205
+	mobj_t *activator;  // Mobj that activated this thinker
+#endif
 	line_t *sourceline; // Source line of the thinker
 	sector_t *sector;   // Sector the thinker is from
 } levelspecthink_t;
