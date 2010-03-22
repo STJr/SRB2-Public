@@ -77,8 +77,8 @@ typedef struct
 	sector_t *sector;  ///< The sector where action is taking place.
 	INT32 count;
 	INT32 resetcount;
-	INT32 maxlight;     ///< The brightest light level to use.
-	INT32 minlight;     ///< The darkest light level to use.
+	INT32 maxlight;    ///< The brightest light level to use.
+	INT32 minlight;    ///< The darkest light level to use.
 } fireflicker_t;
 
 typedef struct
@@ -96,6 +96,10 @@ typedef struct
 	thinker_t thinker; ///< Thinker structure for laser.
 	ffloor_t *ffloor;  ///< 3Dfloor that is a laser.
 	sector_t *sector;  ///< Sector in which the effect takes place.
+#ifdef REMOVE_FOR_205
+	sector_t *sec;
+	line_t *sourceline;
+#endif
 } laserthink_t;
 
 /** Strobe light action structure..
@@ -105,10 +109,10 @@ typedef struct
 	thinker_t thinker; ///< The thinker in use for the effect.
 	sector_t *sector;  ///< The sector where the action is taking place.
 	INT32 count;
-	INT32 minlight;     ///< The minimum light level to use.
-	INT32 maxlight;     ///< The maximum light level to use.
-	INT32 darktime;     ///< How INT32 to use minlight.
-	INT32 brighttime;   ///< How INT32 to use maxlight.
+	INT32 minlight;    ///< The minimum light level to use.
+	INT32 maxlight;    ///< The maximum light level to use.
+	INT32 darktime;    ///< How INT32 to use minlight.
+	INT32 brighttime;  ///< How INT32 to use maxlight.
 } strobe_t;
 
 typedef struct
@@ -127,8 +131,8 @@ typedef struct
 {
 	thinker_t thinker; ///< Thinker in use for the effect.
 	sector_t *sector;  ///< Sector where action is taking place.
-	INT32 destlevel;    ///< Light level we're fading to.
-	INT32 speed;        ///< Speed at which to change light level.
+	INT32 destlevel;   ///< Light level we're fading to.
+	INT32 speed;       ///< Speed at which to change light level.
 } lightlevel_t;
 
 #define GLOWSPEED 8
@@ -198,19 +202,15 @@ typedef struct
 	fixed_t oldspeed;
 	fixed_t delay;
 	fixed_t delaytimer;
-	boolean crush;        ///< Whether to crush things or not.
-
-	INT32 texture;         ///< The number of a flat to use when done.
-	INT32 direction;       ///< 1 = up, 0 = waiting, -1 = down.
+	INT32 crush;        ///< Whether to crush things or not.
+	INT32 texture;        ///< The number of a flat to use when done.
+	INT32 direction;      ///< 1 = up, 0 = waiting, -1 = down.
 
 	// ID
 	INT32 tag;
 	INT32 olddirection;
-
-	struct ceilinglist *list;
-
 	fixed_t origspeed;    ///< The original, "real" speed.
-	INT32 sourceline;       ///< Index of the source linedef
+	INT32 sourceline;     ///< Index of the source linedef
 } ceiling_t;
 
 #define CEILSPEED (FRACUNIT/NEWTICRATERATIO)
@@ -263,7 +263,7 @@ typedef struct
 {
 	thinker_t thinker;
 	floor_e type;
-	boolean crush;
+	INT32 crush;
 	sector_t *sector;
 	INT32 direction;
 	INT32 texture;
@@ -307,7 +307,6 @@ typedef struct
 	thinker_t thinker;
 	levelspec_e type;
 	fixed_t vars[16];   // Misc. variables
-	mobj_t *activator;  // Mobj that activated this thinker
 	line_t *sourceline; // Source line of the thinker
 	sector_t *sector;   // Sector the thinker is from
 } levelspecthink_t;
@@ -359,7 +358,7 @@ typedef struct
 	thinker_t thinker; // Thinker for linedef executor delay
 	line_t *line;      // Pointer to line that is waiting.
 	mobj_t *caller;    // Pointer to calling mobj
-	INT32 timer;        // Delay timer
+	INT32 timer;       // Delay timer
 } executor_t;
 
 void T_ExecutorDelay(executor_t *e);
@@ -370,12 +369,12 @@ typedef struct
 {
 	thinker_t thinker;   ///< Thinker structure for scrolling.
 	fixed_t dx, dy;      ///< (dx,dy) scroll speeds.
-	INT32 affectee;       ///< Number of affected sidedef or sector.
-	INT32 control;        ///< Control sector (-1 if none) used to control scrolling.
+	INT32 affectee;      ///< Number of affected sidedef or sector.
+	INT32 control;       ///< Control sector (-1 if none) used to control scrolling.
 	fixed_t last_height; ///< Last known height of control sector.
 	fixed_t vdx, vdy;    ///< Accumulated velocity if accelerative.
-	INT32 accel;          ///< Whether it's accelerative.
-	INT32 exclusive;       ///< If a conveyor, same property as in pusher_t
+	INT32 accel;         ///< Whether it's accelerative.
+	INT32 exclusive;     ///< If a conveyor, same property as in pusher_t
 	/** Types of generalized scrollers.
 	*/
 	enum
@@ -395,12 +394,12 @@ void T_LaserFlash(laserthink_t *flash);
   */
 typedef struct
 {
-	thinker_t thinker;  ///< Thinker structure for friction.
+	thinker_t thinker;   ///< Thinker structure for friction.
 	INT32 friction;      ///< Friction value, 0xe800 = normal.
 	INT32 movefactor;    ///< Inertia factor when adding to momentum.
 	INT32 affectee;      ///< Number of affected sector.
 	INT32 referrer;      ///< If roverfriction == true, then this will contain the sector # of the control sector where the effect was applied.
-	byte roverfriction; ///< flag for whether friction originated from a FOF or not
+	byte roverfriction;  ///< flag for whether friction originated from a FOF or not
 } friction_t;
 
 // Friction defines.
@@ -426,18 +425,18 @@ typedef struct
 	thinker_t thinker; ///< Thinker structure for push/pull effect.
 	/** Types of push/pull effects.
 	*/
-	pushertype_e type; ///< Type of push/pull effect.
-	mobj_t *source;    ///< Point source if point pusher/puller.
+	pushertype_e type;  ///< Type of push/pull effect.
+	mobj_t *source;     ///< Point source if point pusher/puller.
 	INT32 x_mag;        ///< X strength.
 	INT32 y_mag;        ///< Y strength.
 	INT32 magnitude;    ///< Vector strength for point pusher/puller.
 	INT32 radius;       ///< Effective radius for point pusher/puller.
 	INT32 x, y, z;      ///< Point source if point pusher/puller.
 	INT32 affectee;     ///< Number of affected sector.
-	byte roverpusher;  ///< flag for whether pusher originated from a FOF or not
+	byte roverpusher;   ///< flag for whether pusher originated from a FOF or not
 	INT32 referrer;     ///< If roverpusher == true, then this will contain the sector # of the control sector where the effect was applied.
-	INT32 exclusive;     /// < Once this affect has been applied to a mobj, no other pushers may affect it.
-	INT32 slider;        /// < Should the player go into an uncontrollable slide?
+	INT32 exclusive;    /// < Once this affect has been applied to a mobj, no other pushers may affect it.
+	INT32 slider;       /// < Should the player go into an uncontrollable slide?
 } pusher_t;
 
 // Model for disappearing/reappearing FOFs
@@ -448,9 +447,9 @@ typedef struct
 	tic_t disappeartime;///< Tics to be disappeared for
 	tic_t offset;       ///< Time to wait until thinker starts
 	tic_t timer;        ///< Timer between states
-	INT32 affectee;       ///< Number of affected line
-	INT32 sourceline;     ///< Number of source line
-	INT32 exists;         ///< Exists toggle
+	INT32 affectee;     ///< Number of affected line
+	INT32 sourceline;   ///< Number of source line
+	INT32 exists;       ///< Exists toggle
 } disappear_t;
 
 void T_Disappear(disappear_t *d);

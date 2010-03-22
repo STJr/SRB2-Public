@@ -261,7 +261,7 @@ typedef struct
 	Uint16 header;     // 3?
 	Uint16 samplerate; // 11025+
 	Uint16 samples;    // number of samples
-	Uint16 dummmy;     // 0
+	Uint16 dummy;     // 0
 	Uint8  data[0];    // data;
 } ATTRPACK dssfx_t;
 

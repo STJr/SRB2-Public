@@ -810,6 +810,14 @@ void S_UpdateSounds(void)
 	MPos.fTop = 0.0;
 	I_UpdateMumble(&MPos);
 
+#ifdef HW3SOUND
+	if (hws_mode != HWS_DEFAULT_MODE)
+	{
+		HW3S_UpdateSources();
+		return;
+	}
+#endif
+
 	if (listenmobj2)
 	{
 		if (cv_chasecam2.value)
@@ -827,14 +835,6 @@ void S_UpdateSounds(void)
 			listener2.angle = listenmobj2->angle;
 		}
 	}
-
-#ifdef HW3SOUND
-	if (hws_mode != HWS_DEFAULT_MODE)
-	{
-		HW3S_UpdateSources();
-		return;
-	}
-#endif
 
 	// Clean up unused data.
 #if 0

@@ -936,6 +936,11 @@ void I_StartupSound(void)
 		hws_mode = HWS_FMOD3D;
 		sdrv_name = "s_fmod.dll";
 	}
+	else if (M_CheckParm("-openal"))
+	{
+		hws_mode = HWS_FMOD3D;
+		sdrv_name = "s_openal.dll";
+	}
 	else if (M_CheckParm("-sounddriver") &&  M_IsNextParm())
 	{
 		hws_mode = HWS_OTHER;

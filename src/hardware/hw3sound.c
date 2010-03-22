@@ -38,8 +38,11 @@
 #define NORM_PITCH 128
 #define NORM_PRIORITY 64
 #define NORM_SEP 128
-//Alam_GBC: MPS, not MPF!
+#if 1
+#define TPS(x) (x)
+#else //Alam_GBC: MPS, not MPF!
 #define TPS(x) ((float)(x)/(float)TICRATE)
+#endif
 
 struct hardware3ds_s hw3ds_driver;
 
@@ -54,7 +57,7 @@ typedef struct source_s
 {
 	sfxinfo_t       *sfxinfo;
 	const void      *origin;
-	INT32             handle;     // Internal source handle
+	INT32           handle;     // Internal source handle
 	channel_type_t  type;       // Sound type (attack, scream, etc)
 } source_t;
 
@@ -254,13 +257,16 @@ static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean spli
 		if (!src->sfxinfo)
 			break;
 
+#if 0
 		if (origin && src->origin ==  origin)
 		{
 			HW3S_KillSource(snum);
 			break;
 		}
+#endif
 	}
 
+#if 0
 	// Check to see if it is audible
 	if (origin && origin != listenmobj)
 	{
@@ -269,6 +275,12 @@ static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean spli
 		if (!rc)
 			return -1;
 	}
+#else
+	(void)origin;
+	(void)pitch;
+	(void)volume;
+	(void)sep;
+#endif
 
 	// None available
 	if (snum == num_sources)
@@ -299,14 +311,14 @@ static void HW3S_FillSourceParameters
                                source3D_data_t  *data,
                                channel_type_t   c_type)
 {
-	fixed_t x, y, z;
+	fixed_t x = 0, y = 0, z = 0;
+
+	data->max_distance = MAX_DISTANCE;
+	data->min_distance = MIN_DISTANCE;
 
 	if (origin && origin != players[displayplayer].mo)
 	{
-		memset(data, 0, sizeof (source3D_data_t));
-
-		data->max_distance = MAX_DISTANCE;
-		data->min_distance = MIN_DISTANCE;
+		data->head_relative = false;
 
 		data->pos.momx = TPS(FIXED_TO_FLOAT(origin->momx));
 		data->pos.momy = TPS(FIXED_TO_FLOAT(origin->momy));
@@ -326,11 +338,18 @@ static void HW3S_FillSourceParameters
 
 		else if (c_type == CT_SCREAM)
 			z += origin->height - (5 * FRACUNIT);
-
-		data->pos.x = FIXED_TO_FLOAT(x);
-		data->pos.y = FIXED_TO_FLOAT(y);
-		data->pos.z = FIXED_TO_FLOAT(z);
 	}
+	else
+	{
+		data->head_relative = true;
+
+		data->pos.momx = 0.0f;
+		data->pos.momy = 0.0f;
+		data->pos.momz = 0.0f;
+	}
+	data->pos.x = FIXED_TO_FLOAT(x);
+	data->pos.y = FIXED_TO_FLOAT(y);
+	data->pos.z = FIXED_TO_FLOAT(z);
 }
 
 #define HEADER_SIZE 8
@@ -517,6 +536,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 				if (!source_parm)
 				{
 					source_parm = &source3d_data;
+					source3d_data.permanent = 0;
 					HW3S_FillSourceParameters(origin, source_parm, c_type);
 				}
 
@@ -611,6 +631,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 			if (!source_parm)
 			{
 				source_parm = &source3d_data;
+				source3d_data.permanent = 0;
 				HW3S_FillSourceParameters(origin, source_parm, c_type);
 			}
 
@@ -689,13 +710,14 @@ INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 	if (HW3DS.pfnStartup(FatalErrorFunction, snd_dev))
 	{
-		// Creating player sources
-		memset(&source_data, 0, sizeof (source_data));
-
 		// Attack source
 		source_data.head_relative = 1;
-		source_data.pos.y = 16;
+		source_data.pos.x = 0.0f;
+		source_data.pos.y = 16.0f;
 		source_data.pos.z = -FIXED_TO_FLOAT(mobjinfo[MT_PLAYER].height >> 1);
+		source_data.pos.momx = 0.0f;
+		source_data.pos.momy = 0.0f;
+		source_data.pos.momz = 0.0f;
 		source_data.min_distance = MIN_DISTANCE;
 		source_data.max_distance = MAX_DISTANCE;
 		source_data.permanent = 1;
@@ -704,8 +726,8 @@ INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 		M_Memcpy(&p_attack_source2, &p_attack_source, sizeof (source_t));
 
-		p_attack_source.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
-		p_attack_source2.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
+		p_attack_source.handle = HW3DS.pfnAddSource(&source_data, sfx_None);
+		p_attack_source2.handle = HW3DS.pfnAddSource(&source_data, sfx_None);
 
 		// Scream source
 		source_data.pos.y = 0;
@@ -715,8 +737,8 @@ INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 		M_Memcpy(&p_scream_source2, &p_scream_source, sizeof (source_t));
 
-		p_scream_source.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
-		p_scream_source2.handle = HW3DS.pfnAddSource(&source_data, NUMSFX);
+		p_scream_source.handle = HW3DS.pfnAddSource(&source_data, sfx_None);
+		p_scream_source2.handle = HW3DS.pfnAddSource(&source_data, sfx_None);
 
 		//FIXED_TO_FLOAT(mobjinfo[MT_PLAYER].height - (5 * FRACUNIT));
 
@@ -734,8 +756,8 @@ INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 		M_Memcpy(&ambient_sdata.right, &ambient_sdata.left, sizeof (source3D_data_t));
 
 		ambient_sdata.right.pos.x = -ambient_sdata.left.pos.x;
-		ambient_source.left.handle = HW3DS.pfnAddSource(&ambient_sdata.left, NUMSFX);
-		ambient_source.right.handle = HW3DS.pfnAddSource(&ambient_sdata.right, NUMSFX);
+		ambient_source.left.handle = HW3DS.pfnAddSource(&ambient_sdata.left, sfx_None);
+		ambient_source.right.handle = HW3DS.pfnAddSource(&ambient_sdata.right, sfx_None);
 
 		succ = p_attack_source.handle > -1 && p_scream_source.handle > -1 &&
 			p_attack_source2.handle > -1 && p_scream_source2.handle > -1 &&
@@ -880,7 +902,7 @@ void HW3S_SetSfxVolume(INT32 volume)
 static void HW3S_Update3DSource(source_t *src)
 {
 	source3D_data_t data;
-
+	data.permanent = 0;
 	HW3S_FillSourceParameters(src->origin, &data, src->type);
 	HW3DS.pfnUpdate3DSource(src->handle, &data.pos);
 
@@ -902,6 +924,7 @@ void HW3S_UpdateSources(void)
 	{
 		if (src->sfxinfo)
 		{
+#if 0
 			if (HW3DS.pfnIsPlaying(src->handle))
 			{
 				if (src->origin)
@@ -945,6 +968,14 @@ void HW3S_UpdateSources(void)
 				// Source allocated but stopped. Kill.
 				HW3S_KillSource(snum);
 			}
+#else
+			if (src->origin && listener != src->origin && !(listener2 && src->origin == listener2))
+				HW3S_Update3DSource(src); // Update positional sources
+			(void)pitch;
+			(void)sep;
+			(void)volume;
+			(void)audible;
+#endif
 		}
 	}
 }
@@ -975,6 +1006,17 @@ void *HW3S_GetSfx(sfxinfo_t *sfx)
 
 void HW3S_FreeSfx(sfxinfo_t *sfx)
 {
+	INT32 snum;
+
+	for (snum = 0; snum < num_sources; snum++)
+	{
+		if (sources[snum].sfxinfo == sfx)
+		{
+			HW3S_KillSource(snum);
+			break;
+		}
+	}
+
 	if (sfx->length > 0)
 		HW3DS.pfnKillSfx((u_int)sfx->length);
 	sfx->length = 0;

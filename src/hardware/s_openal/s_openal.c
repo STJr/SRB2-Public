@@ -89,7 +89,7 @@ static ALenum ALCo_GetError(ALvoid)
 	return ALCo_Lasterror;
 }
 
-static ALfloat Alvol(ALint vol, ALsizei step)
+static ALfloat ALvol(ALint vol, ALsizei step)
 {
 	return ((ALfloat)vol)/(ALfloat)step;
 }
@@ -169,7 +169,7 @@ static const ALchar *GetALCErrorString(ALenum err)
 			break;
 
 		default:
-			return alcGetString(ALCDevice,err);
+			return alcGetString(ALCDevice, err);
 			break;
 	}
 }
@@ -248,7 +248,10 @@ static ALvoid kill_sound(stack_snd_t *snd)
 {
 	if (alIsSource(snd->ALsource))
 		alDeleteSources(1,&snd->ALsource);
-	ALo_GetError();
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: alDeleteSources, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
 	memset(snd,0, sizeof (stack_snd_t));
 	snd->ALsource = (ALuint)AL_INVALID;
 }
@@ -288,16 +291,21 @@ static ALsizei find_handle(void)
 	return free_sfx;
 }
 
-static ALvoid ALSetPan(ALuint source,INT32 sep)
+static ALvoid ALSetPan(ALuint sid, INT32 sep)
 {
-	ALfloat facing[3] ={0.0f,0.0f,0.0f}; //Alam: bad?
+	ALfloat facing[3] ={0.0f, 0.0f, 0.0f}; //Alam: bad?
+	const ALfloat fsep = (ALfloat)sep;
+	const ALfloat nsep = (ALfloat)NORMAL_SEP;
 	if (sep)
 	{
-		facing[0] = (ALfloat)sep/(ALfloat)NORMAL_SEP;
+		facing[0] = (ALfloat)(fsep/nsep);
 		facing[2] = 1.0f;
 	}
-	alSourcefv(source,AL_POSITION,facing);
-	ALo_GetError();
+	alSourcefv(sid, AL_POSITION, facing);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: alSourcefv, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
 }
 
 
@@ -308,6 +316,7 @@ static ALvoid ALSetPan(ALuint source,INT32 sep)
  *****************************************************************************/
 EXPORT INT32 HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 {
+	ALenum          model      = AL_INVERSE_DISTANCE_CLAMPED;
 	ALCboolean      inited     = ALC_FALSE;
 	ALCint          AlSetup[8] = {ALC_FREQUENCY,22050,ALC_REFRESH,35,ALC_SYNC,AL_FALSE,ALC_INVALID,ALC_INVALID};
 #if (defined (_WIN32) || defined (_WIN64)) && 0
@@ -336,8 +345,8 @@ EXPORT INT32 HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 	I_ErrorOpenAl = FatalErrorFunction;
 
 	AlSetup[1] = snd_dev->sample_rate; //ALC_FREQUENCY
+	AlSetup[1] = 44100;
 	AlSetup[3] = 35;                   //ALC_REFRESH
-	AlSetup[5] = AL_FALSE;             //ALC_SYNC
 
 	//Alam: The Environment?
 	ALContext = alcCreateContext(ALCDevice,AlSetup);
@@ -367,7 +376,7 @@ EXPORT INT32 HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 	DBG_Printf("Version     : %s\n", alGetString(AL_VERSION));
 	DBG_Printf("Extensions  : %s\n", alGetString(AL_EXTENSIONS));
 
-	alDopplerFactor(1.6f);
+	alDopplerFactor(0.0f);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
 		DBG_Printf("S_OpenAl: Error %s when setting Doppler Factor!\n",GetALErrorString(ALo_Lasterror));
@@ -375,10 +384,21 @@ EXPORT INT32 HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 	}
 	else
 	{
-		DBG_Printf("S_OpenAl: Doppler Factor of 1.6f setted\n");
+		DBG_Printf("S_OpenAl: Doppler Factor of %f setted\n", alGetDouble(AL_DOPPLER_FACTOR));
 	}
 
-	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+	alSpeedOfSound(600.0f);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("S_OpenAl: Error %s when setting Speed of Sound!\n",GetALErrorString(ALo_Lasterror));
+		return inited;
+	}
+	else
+	{
+		DBG_Printf("S_OpenAl: Speed of Sound set to %f\n", alGetDouble(AL_SPEED_OF_SOUND));
+	}
+
+	alDistanceModel(model);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
 		DBG_Printf("S_OpenAl: Error %s when setting Distance Model!\n",GetALErrorString(ALo_Lasterror));
@@ -386,7 +406,7 @@ EXPORT INT32 HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 	}
 	else
 	{
-		DBG_Printf("S_OpenAl: Clamped Distance Model mode setted\n");
+		//DBG_Printf("S_OpenAl: %s mode setted\n",alGetString(model));
 	}
 
 	inited = reallocate_stack();
@@ -437,22 +457,34 @@ EXPORT void HWRAPI( Shutdown ) ( void )
 	//TODO:check?
 }
 
-static ALsizei makedata(ALvoid *sfxdata, size_t len)
-{
-	size_t    i;
-	ALubyte  *data     = sfxdata;
-	const ALsizei freq = ((data[3]<<8)+data[2]);
-	ALushort *checksfx = (ALushort *)sfxdata+3;
+#ifdef _MSC_VER
+#pragma warning(disable :  4200)
+#pragma pack(1)
+#endif
 
-	if (!data || len <= 8)
+typedef struct
+{
+	ALushort header;     // 3?
+	ALushort samplerate; // 11025+
+	ALushort samples;    // number of samples
+	ALushort dummy;     // 0
+	ALubyte  data[0];    // data;
+} ATTRPACK dssfx_t;
+
+#ifdef _MSC_VER
+#pragma pack()
+#pragma warning(default : 4200)
+#endif
+
+static ALsizei getfreq(ALvoid *sfxdata, size_t len)
+{
+	dssfx_t *dsfx = sfxdata;
+	const ALsizei freq = SHORT(dsfx->samplerate);
+
+	if (len <= 8)
 		return 0;
-	else if (*checksfx == 0x0080)
-		return freq; //Alam: Already done
-	data += 8; // Alam: Skip the first 8 bytes
-	for (i = len-8; i; --i)
-		*data++ ^= 0x80; //Alam: note that the data is unsigned and the OpenAL wants signed?
-	*checksfx = 0x0080; // Alam: All done
-	return freq;
+	else
+		return freq;
 }
 
 static ALsizei makechan(ALuint sfxhandle, ALboolean perm)
@@ -461,7 +493,7 @@ static ALsizei makechan(ALuint sfxhandle, ALboolean perm)
 
 	if (chan == (ALsizei)AL_INVALID) return chan;
 
-	alGenSources(1,&ALstack[chan].ALsource);
+	alGenSources(1, &ALstack[chan].ALsource);
 	if (ALo_GetError() != AL_NO_ERROR || !alIsSource(ALstack[chan].ALsource))
 	{
 		DBG_Printf("S_OpenAl: Error %s when make an ALSource!\n",GetALErrorString(ALo_Lasterror));
@@ -471,10 +503,10 @@ static ALsizei makechan(ALuint sfxhandle, ALboolean perm)
 
 	ALstack[chan].permanent = perm;
 
-	alSourcei(ALstack[chan].ALsource,AL_BUFFER, sfxhandle);
+	alSourceQueueBuffers(ALstack[chan].ALsource, 1, &sfxhandle);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		DBG_Printf("S_OpenAl: Error %s when setting up an alSource!\n",GetALErrorString(ALo_Lasterror));
+		DBG_Printf("S_OpenAl: Error %s when queue up an alSource!\n",GetALErrorString(ALo_Lasterror));
 	}
 
 	return chan;
@@ -488,94 +520,122 @@ static ALsizei makechan(ALuint sfxhandle, ALboolean perm)
 EXPORT INT32 HWRAPI ( AddSource ) (source3D_data_t *src, u_int sfxhandle)
 {
 	ALsizei chan = makechan(sfxhandle, (ALboolean)(src?src->permanent:AL_FALSE));
-
-	if (chan == (ALsizei)AL_INVALID) return AL_INVALID;
+	ALuint sid = (ALuint)AL_INVALID;
+	if (chan == (ALsizei)AL_INVALID)
+		return AL_INVALID;
+	else
+		sid = ALstack[chan].ALsource;
 
 	if (src) //3D
 	{
-		alSourcef(ALstack[chan].ALsource,AL_REFERENCE_DISTANCE,src->min_distance);
+#if 0
+		alSourcef(sid, AL_REFERENCE_DISTANCE, src->min_distance);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
+			DBG_Printf("%s: AL_REFERENCE_DISTANCE, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 
-		alSourcef(ALstack[chan].ALsource,AL_MAX_DISTANCE,src->max_distance);
+		alSourcef(sid, AL_MAX_DISTANCE, src->max_distance);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
+			DBG_Printf("%s: AL_MAX_DISTANCE, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+		}
+#endif
+
+		if (src->head_relative)
+			alSourcei(sid,  AL_SOURCE_RELATIVE, AL_TRUE);
+		else
+			alSourcei(sid, AL_SOURCE_RELATIVE, AL_FALSE);
+		if (ALo_GetError() != AL_NO_ERROR)
+		{
+			DBG_Printf("%s: AL_SOURCE_RELATIVE, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 
-		alSourcei(ALstack[chan].ALsource,AL_SOURCE_TYPE,src->head_relative);
+		alSource3f(sid, AL_POSITION, src->pos.x, src->pos.z, src->pos.y);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
+			DBG_Printf("%s: AL_POSITION, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
-
-		alSource3f(ALstack[chan].ALsource,AL_POSITION,src->pos.x,   src->pos.z,   src->pos.y);
+		alSource3f(sid, AL_VELOCITY, src->pos.momx, src->pos.momz, src->pos.momy);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
-		}
-		alSource3f(ALstack[chan].ALsource,AL_VELOCITY,src->pos.momx,src->pos.momz,src->pos.momy);
-		if (ALo_GetError() != AL_NO_ERROR)
-		{
-			//TODO
+			DBG_Printf("%s: AL_VELOCITY, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 	}
 	else //2D
 	{
-		alSourcei(ALstack[chan].ALsource,AL_SOURCE_TYPE,AL_SOURCE_RELATIVE);
+		alSourcei(sid, AL_SOURCE_RELATIVE, AL_TRUE);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
-		}
-
-		alSourcef(ALstack[chan].ALsource,AL_ROLLOFF_FACTOR, 0);
-		if (ALo_GetError() != AL_NO_ERROR)
-		{
-			//TODO
+			DBG_Printf("%s: AL_SOURCE_RELATIVE, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 	}
 
+	alSourcef(sid, AL_ROLLOFF_FACTOR, 0.0f);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: AL_ROLLOFF_FACTOR, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
+
+	alSourcef(sid, AL_REFERENCE_DISTANCE, 0.0f);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: AL_REFERENCE_DISTANC, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
 	return chan;
 }
 
-EXPORT INT32 HWRAPI (StartSource) (INT32 chan)
+EXPORT INT32 HWRAPI ( StartSource ) (INT32 chan)
 {
-	ALint playing = AL_FALSE;
+	ALint state = AL_NONE;
+	ALuint sid = (ALuint)AL_INVALID;
 
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
-		return playing;
+		return AL_FALSE;
 	else
-		ALo_GetError();
+		sid = ALstack[chan].ALsource;
 
-	alSourcePlay(ALstack[chan].ALsource);
+	ALo_GetError();
+
+	alSourcePlay(sid);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: alSourcePlay, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 
-	alGetSourcei(ALstack[chan].ALsource, AL_PLAYING, &playing);
+	alGetSourcei(sid, AL_SOURCE_STATE, &state);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: alGetSourcei, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 
-	return playing;
+	return (state == AL_PLAYING);
 }
 
 EXPORT void HWRAPI ( StopSource) (INT32 chan)
 {
+	ALuint sfxhandle = AL_NONE;
+	ALuint sid = (ALuint)AL_INVALID;
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
 		return;
 	else
-		ALo_GetError();
+		sid = ALstack[chan].ALsource;
 
-	alSourcePause(ALstack[chan].ALsource);
+	ALo_GetError();
+
+#if 1
+	alSourceQueueBuffers(sid, 1, &sfxhandle);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: alSourceQueueBuffers, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
+#else
+	alSourceStop(sid);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: alSourceStop, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
+#endif
 }
 
 EXPORT INT32 HWRAPI ( GetHW3DSVersion) (void)
@@ -588,7 +648,7 @@ EXPORT void HWRAPI (BeginFrameUpdate) (void)
 	alcSuspendContext(ALContext);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: alcSuspendContext, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 }
 
@@ -597,26 +657,29 @@ EXPORT void HWRAPI (EndFrameUpdate) (void)
 	alcProcessContext(ALContext);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: alcProcessContext, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 }
 
 EXPORT INT32 HWRAPI (IsPlaying) (INT32 chan)
 {
-	ALint playing = AL_FALSE;
+	ALint state = AL_NONE;
+	ALuint sid = (ALuint)AL_INVALID;
 
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
-		return playing;
+		return AL_FALSE;
 	else
-		ALo_GetError();
+		sid = ALstack[chan].ALsource;
 
-	alGetSourcei(ALstack[chan].ALsource,AL_PLAYING, &playing);
+	ALo_GetError();
+
+	alGetSourcei(sid, AL_SOURCE_STATE, &state);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: alGetSourcei, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 
-	return playing;
+	return (state == AL_PLAYING);
 }
 
 /******************************************************************************
@@ -643,22 +706,22 @@ EXPORT void HWRAPI (UpdateListener) (listener_data_t *data, INT32 num)
 		facing[4] = 1.0f;
 		facing[5] = 0.0f;
 
-		alListener3f(AL_POSITION,(ALfloat)data->x,(ALfloat)data->z,(ALfloat)data->y);
+		alListener3f(AL_POSITION,(ALfloat)-data->x,(ALfloat)data->z,(ALfloat)data->y);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
+			DBG_Printf("%s: AL_POSITIO, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 
 		alListener3f(AL_VELOCITY,(ALfloat)data->momx,(ALfloat)data->momz,(ALfloat)data->momy);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
+			DBG_Printf("%s: AL_VELOCITY, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 
 		alListenerfv(AL_ORIENTATION, facing);
 		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			//TODO
+			DBG_Printf("%s: AL_ORIENTATION, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 	}
 	else
@@ -669,29 +732,38 @@ EXPORT void HWRAPI (UpdateListener) (listener_data_t *data, INT32 num)
 
 /******************************************************************************
  *
- * Update volume for #D source and separation (panning) of 2D source
+ * Update volume for 2D source and separation (panning) of 2D source
  *
  *****************************************************************************/
 EXPORT void HWRAPI (UpdateSourceParms) (INT32 chan, INT32 vol, INT32 sep)
 {
-	if (chan > AL_INVALID && alIsSource(ALstack[chan].ALsource))
-	{
-		if (vol != -1)
-		{
-			alSourcef(ALstack[chan].ALsource,AL_GAIN,Alvol(vol,256));
-			if (ALo_GetError() != AL_NO_ERROR)
-			{
-				//TODO
-			}
-		}
+	ALuint sid = AL_NONE;
+	ALint is2d = AL_FALSE;
+	if (chan > AL_INVALID && !alIsSource(ALstack[chan].ALsource))
+		return;
+	else
+		sid = ALstack[chan].ALsource;
 
-		if (sep != -1)
+	alGetSourcei(sid, AL_SOURCE_RELATIVE, &is2d);
+
+	if (!is2d)
+		return;
+
+	if (vol != -1)
+	{
+		alSourcef(sid,AL_GAIN,ALvol(vol,256));
+		if (ALo_GetError() != AL_NO_ERROR)
 		{
-			ALSetPan(ALstack[chan].ALsource,sep-NORMAL_SEP);
-			if (ALo_GetError() != AL_NO_ERROR)
-			{
-				//TODO
-			}
+			DBG_Printf("%s: alSourcef, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+		}
+	}
+
+	if (sep != -1)
+	{
+		ALSetPan(sid,sep-NORMAL_SEP);
+		if (ALo_GetError() != AL_NO_ERROR)
+		{
+			DBG_Printf("%s: ALSetPan, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 		}
 	}
 }
@@ -701,64 +773,73 @@ EXPORT void HWRAPI (UpdateSourceParms) (INT32 chan, INT32 vol, INT32 sep)
 // --------------------------------------------------------------------------
 EXPORT void HWRAPI (SetGlobalSfxVolume) (INT32 vol)
 {
-	alListenerf(AL_GAIN,Alvol(vol,32));
+	alListenerf(AL_GAIN, ALvol(vol,32));
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: AL_GAIN, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 }
 
 //Alam: Not Used?
 EXPORT INT32 HWRAPI (SetCone) (INT32 chan, cone_def_t *cone_def)
 {
-	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
+	ALuint sid = AL_NONE;
+	ALint is2d = AL_FALSE;
+	if (chan > AL_INVALID && !alIsSource(ALstack[chan].ALsource))
 		return AL_FALSE;
 	else
-		ALo_GetError();
-	if (cone_def)
-	{
-		alSourcef(ALstack[chan].ALsource,AL_CONE_INNER_ANGLE,cone_def->inner);
-		if (ALo_GetError() != AL_NO_ERROR)
-		{
-			//TODO
-		}
+		sid = ALstack[chan].ALsource;
 
-		alSourcef(ALstack[chan].ALsource,AL_CONE_OUTER_ANGLE,cone_def->outer);
-		if (ALo_GetError() != AL_NO_ERROR)
-		{
-			//TODO
-		}
+	alGetSourcei(sid, AL_SOURCE_RELATIVE, &is2d);
 
-		alSourcei(ALstack[chan].ALsource,AL_CONE_OUTER_GAIN, cone_def->outer_gain);
-		if (ALo_GetError() != AL_NO_ERROR)
-		{
-			//TODO
-		}
-
-		return AL_TRUE;
-	}
-	else
-	{
+	if(is2d || !cone_def)
 		return AL_FALSE;
+
+	alSourcef(sid,AL_CONE_INNER_ANGLE,cone_def->inner);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: AL_CONE_INNER_ANGLE, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
+
+	alSourcef(sid,AL_CONE_OUTER_ANGLE,cone_def->outer);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: AL_CONE_OUTER_ANGL, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
+
+	alSourcei(sid,AL_CONE_OUTER_GAIN, cone_def->outer_gain);
+	if (ALo_GetError() != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: AL_CONE_OUTER_GAIN, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
+
+	return AL_TRUE;
 }
 
 EXPORT void HWRAPI (Update3DSource) (INT32 chan, source3D_pos_t *sfx)
 {
-	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource))
+	ALuint sid = AL_NONE;
+	ALint is2d = AL_FALSE;
+	if (chan > AL_INVALID && !alIsSource(ALstack[chan].ALsource))
 		return;
 	else
-		ALo_GetError();
-	alSource3f(ALstack[chan].ALsource,AL_POSITION,sfx->x,   sfx->z,   sfx->y);
+		sid = ALstack[chan].ALsource;
+
+	alGetSourcei(sid, AL_SOURCE_RELATIVE, &is2d);
+
+	if (is2d)
+		return;
+
+	alSource3f(sid, AL_POSITION, sfx->x, sfx->z, sfx->y);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: AL_POSITION, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 
-	alSource3f(ALstack[chan].ALsource,AL_VELOCITY,sfx->momx,sfx->momz,sfx->momy);
+	alSource3f(sid, AL_VELOCITY, sfx->momx, sfx->momz, sfx->momy);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
-		//TODO
+		DBG_Printf("%s: AL_VELOCITY, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
 	}
 }
 
@@ -767,15 +848,27 @@ EXPORT void HWRAPI (Update3DSource) (INT32 chan, source3D_pos_t *sfx)
 //-------------------------------------------------------------
 EXPORT INT32 HWRAPI (ReloadSource) (INT32 chan, u_int sfxhandle)
 {
+	ALuint sid;
+
 	if (chan <= AL_INVALID || !alIsSource(ALstack[chan].ALsource) || !alIsBuffer(sfxhandle))
 		return AL_INVALID;
 	else
-		ALo_GetError();
-	alSourcei(ALstack[chan].ALsource,AL_BUFFER,sfxhandle); //Alam: not needed?
-	if (ALo_GetError() != AL_NO_ERROR)
+		sid = ALstack[chan].ALsource;
+
+	ALo_GetError();
+
+	alSourceQueueBuffers(sid, 1, &sfxhandle);
+	if (ALo_GetError() == AL_INVALID_OPERATION) //Alam: not needed?
 	{
-		//TODO
+		alSourceStop(sid);
+		alSourcei(sid, AL_BUFFER, sfxhandle);
+		ALo_GetError();
 	}
+	if (ALo_Lasterror != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: alSourcei, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
+
 	return chan;
 }
 
@@ -795,17 +888,27 @@ EXPORT u_int HWRAPI (AddSfx) (sfx_data_t *sfx)
 {
 	ALuint chan = (ALuint)AL_INVALID;
 	ALsizei freq = 11025;
+	ALubyte *data = NULL;
+	ALsizei size = 0;
 
-	alGenBuffers(1,&chan);
+	if (!sfx)
+		return 0;
+	else
+	{
+		data = ((ALubyte *)sfx->data)+8;
+		size = (ALsizei)(sfx->length-8);
+	}
+
+	alGenBuffers(1, &chan);
 	if (ALo_GetError() != AL_NO_ERROR || !alIsBuffer(chan))
 	{
 		DBG_Printf("S_OpenAl: Error %s when make an ALBuffer!\n",GetALErrorString(ALo_Lasterror));
 		return (u_int)AL_INVALID;
 	}
 
-	freq = makedata(sfx->data, sfx->length);
+	freq = getfreq(sfx->data, sfx->length);
 
-	alBufferData(chan,AL_FORMAT_MONO8,(ALubyte *)sfx->data+8,(ALsizei)sfx->length-8,freq);
+	alBufferData(chan, AL_FORMAT_MONO8, data, size, freq);
 	if (ALo_GetError() != AL_NO_ERROR)
 	{
 		DBG_Printf("S_OpenAl: Error %s when setting up a alBuffer!\n",GetALErrorString(ALo_Lasterror));
@@ -817,13 +920,22 @@ EXPORT u_int HWRAPI (AddSfx) (sfx_data_t *sfx)
 EXPORT void HWRAPI (KillSfx) (u_int sfxhandle)
 {
 	ALuint ALsfx = sfxhandle;
-	alDeleteBuffers(1,&ALsfx);
-	ALo_GetError();
+	if (!alIsBuffer(ALsfx))
+		return;
+	alDeleteBuffers(1, &ALsfx);
+	if (ALo_GetError() == AL_INVALID_OPERATION)
+	{
+		// Buffer leak
+	}
+	else if (ALo_Lasterror != AL_NO_ERROR)
+	{
+		DBG_Printf("%s: alDeleteBuffers, %s", __FUNCTION__, GetALErrorString(ALo_Lasterror));
+	}
 }
 
 EXPORT void HWRAPI (GetHW3DSTitle) (char *buf, size_t size)
 {
-	strncpy(buf,"OpenAL",size);
+	strncpy(buf, "OpenAL", size);
 }
 
 

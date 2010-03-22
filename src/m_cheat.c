@@ -145,7 +145,7 @@ boolean cht_Responder(event_t *ev)
 {
 	static player_t *plyr;
 
-	if (ev->type == ev_keydown)
+	if (ev->type == ev_keydown && 0x00 <= ev->data1 && ev->data1 <= 0xFF)
 	{
 		plyr = &players[consoleplayer];
 

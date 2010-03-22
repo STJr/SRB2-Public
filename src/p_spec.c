@@ -4399,7 +4399,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 
 	ffloor->flags = flags;
 	ffloor->master = master;
-	ffloor->norender = (unsigned)-1;
+	ffloor->norender = (tic_t)-1;
 
 	// scan the thinkers
 	// to see if this FOF should have spikeness
@@ -4794,6 +4794,8 @@ static inline void P_AddCameraScanner(sector_t *sourcesec, sector_t *actionsecto
 	elevator->distance = FixedInt(AngleFixed(angle));
 }
 
+static const ffloortype_e laserflags = FF_EXISTS|FF_RENDERALL|FF_NOSHADE|FF_EXTRA|FF_CUTEXTRA;
+
 /** Flashes a laser block.
   *
   * \param flash Thinker structure for this laser.
@@ -4806,26 +4808,33 @@ void T_LaserFlash(laserthink_t *flash)
 	mobj_t *thing;
 	sector_t *sourcesec;
 	fixed_t zplusheight;
+	ffloor_t *ffloor = flash->ffloor;
+	sector_t *sector = flash->sector;
 
-	if (!(flash->ffloor->flags & FF_EXISTS))
+#ifdef REMOVE_FOR_205
+	if (!ffloor)
+		flash->ffloor = ffloor = P_AddFakeFloor(sector, flash->sec, flash->sourceline, laserflags);
+#endif
+
+	if (!(ffloor->flags & FF_EXISTS))
 		return;
 
 	if (leveltime & 1)
-		flash->ffloor->flags |= FF_RENDERALL;
+		ffloor->flags |= FF_RENDERALL;
 	else
-		flash->ffloor->flags &= ~FF_RENDERALL;
+		ffloor->flags &= ~FF_RENDERALL;
 
-	sourcesec = flash->ffloor->master->frontsector; // Less to type!
+	sourcesec = ffloor->master->frontsector; // Less to type!
 
-	flash->sector->soundorg.z = (*flash->ffloor->topheight + *flash->ffloor->bottomheight)/2;
-	S_StartSound(&flash->sector->soundorg, sfx_laser);
+	sector->soundorg.z = (*ffloor->topheight + *ffloor->bottomheight)/2;
+	S_StartSound(&sector->soundorg, sfx_laser);
 
 	// Seek out objects to DESTROY! MUAHAHHAHAHAA!!!*cough*
-	for (node = flash->sector->touching_thinglist; node && node->m_thing; node = node->m_snext)
+	for (node = sector->touching_thinglist; node && node->m_thing; node = node->m_snext)
 	{
 		thing = node->m_thing;
 
-		if ((flash->ffloor->master->flags & ML_EFFECT1)
+		if ((ffloor->master->flags & ML_EFFECT1)
 			&& thing->flags & MF_BOSS)
 			continue; // Don't hurt bosses
 
@@ -4846,9 +4855,10 @@ void T_LaserFlash(laserthink_t *flash)
   * \sa T_LaserFlash
   * \author SSNTails <http://www.ssntails.org>
   */
-static inline void EV_AddLaserThinker(ffloor_t *ffloor, sector_t *sector)
+static inline void EV_AddLaserThinker(sector_t *sec, sector_t *sec2, line_t *line)
 {
 	laserthink_t *flash;
+	ffloor_t *ffloor = P_AddFakeFloor(sec, sec2, line, laserflags);
 
 	if (!ffloor)
 		return;
@@ -4859,7 +4869,11 @@ static inline void EV_AddLaserThinker(ffloor_t *ffloor, sector_t *sector)
 
 	flash->thinker.function.acp1 = (actionf_p1)T_LaserFlash;
 	flash->ffloor = ffloor;
-	flash->sector = sector; // For finding mobjs
+	flash->sector = sec; // For finding mobjs
+#ifdef REMOVE_FOR_205
+	flash->sector = sec2; // For finding mobjs
+	flash->sourceline = line;
+#endif
 }
 
 //
@@ -5673,8 +5687,7 @@ void P_SpawnSpecials(void)
 				sec = sides[*lines[i].sidenum].sector - sectors;
 
 				for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
-					EV_AddLaserThinker(P_AddFakeFloor(&sectors[s], &sectors[sec], lines + i,
-						FF_EXISTS|FF_RENDERALL|FF_NOSHADE|FF_EXTRA|FF_CUTEXTRA), &sectors[s]);
+					EV_AddLaserThinker(&sectors[s], &sector[sec], lines + i);
 				break;
 
 			case 259: // Make-Your-Own FOF!

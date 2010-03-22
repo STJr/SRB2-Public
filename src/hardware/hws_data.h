@@ -62,8 +62,8 @@ typedef struct source3D_data_s
 {
 	float           min_distance;       //
 	float           max_distance;       //
-	INT32             head_relative;      //
-	INT32             permanent;          //
+	INT32           head_relative;      //
+	INT32           permanent;          //
 	source3D_pos_t  pos;                // source position in 3D
 
 } source3D_data_t;
@@ -74,8 +74,8 @@ typedef struct sfx_data_s
 {
 	size_t  length;
 	void    *data;
-	INT32     priority;
-	INT32     sep;                    // Only when source is 2D sound
+	INT32   priority;
+	INT32   sep;                    // Only when source is 2D sound
 } sfx_data_t;
 
 
@@ -84,7 +84,7 @@ typedef struct cone_def_s
 {
 	float   inner;
 	float   outer;
-	INT32     outer_gain;
+	INT32   outer_gain;
 	/*float   f_angle;
 	float   h_angle;*/
 } cone_def_t;

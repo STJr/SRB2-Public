@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "..\..\tools\libpn
 		{73A5729C-7323-41D4-AB48-8A03C9F81603} = {73A5729C-7323-41D4-AB48-8A03C9F81603}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s_openal", "..\hardware\s_openal\s_openal-vc9.vcproj", "{1CE27C1D-6595-46BB-A93E-329C8A8CDD13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -46,6 +48,11 @@ Global
 		{72B01ACA-7A1A-4F7B-ACEF-2607299CF052}.Release|Win32.Build.0 = Release|Win32
 		{72B01ACA-7A1A-4F7B-ACEF-2607299CF052}.Release|x64.ActiveCfg = Release|x64
 		{72B01ACA-7A1A-4F7B-ACEF-2607299CF052}.Release|x64.Build.0 = Release|x64
+		{1CE27C1D-6595-46BB-A93E-329C8A8CDD13}.Debug|Win32.ActiveCfg = Debug|x64
+		{1CE27C1D-6595-46BB-A93E-329C8A8CDD13}.Debug|x64.ActiveCfg = Debug|x64
+		{1CE27C1D-6595-46BB-A93E-329C8A8CDD13}.Release|Win32.ActiveCfg = Release|Win32
+		{1CE27C1D-6595-46BB-A93E-329C8A8CDD13}.Release|Win32.Build.0 = Release|Win32
+		{1CE27C1D-6595-46BB-A93E-329C8A8CDD13}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

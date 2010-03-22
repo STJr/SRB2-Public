@@ -301,7 +301,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
+				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -400,7 +400,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
+				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

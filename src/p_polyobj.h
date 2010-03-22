@@ -145,28 +145,27 @@ typedef struct polymove_s
 {
 	thinker_t thinker;  // must be first
 
-	INT32 polyObjNum;     // numeric id of polyobject
-	INT32 speed;          // resultant velocity
+	INT32 polyObjNum;   // numeric id of polyobject
+	INT32 speed;        // resultant velocity
 	fixed_t momx;       // x component of speed along angle
 	fixed_t momy;       // y component of speed along angle
-	INT32 distance;       // total distance to move
-	UINT32 angle; // angle along which to move
+	INT32 distance;     // total distance to move
+	UINT32 angle;       // angle along which to move
 } polymove_t;
 
 typedef struct polywaypoint_s
 {
 	thinker_t thinker; // must be first
 
-	INT32 polyObjNum;		// numeric id of polyobject
-	INT32 speed;          // resultant velocity
-	INT32 sequence;		// waypoint sequence #
-	INT32 pointnum;       // waypoint #
-	INT32 direction;      // 1 for normal, -1 for backwards
-	boolean comeback;   // reverses and comes back when the end is reached
-	boolean wrap;       // Wrap around waypoints
-	boolean continuous; // continuously move - used with COMEBACK or WRAP
-	boolean stophere;   // Will stop after it reaches the next waypoint
-
+	INT32 polyObjNum;   // numeric id of polyobject
+	INT32 speed;        // resultant velocity
+	INT32 sequence;	    // waypoint sequence #
+	INT32 pointnum;     // waypoint #
+	INT32 direction;    // 1 for normal, -1 for backwards
+	INT32 comeback;     // reverses and comes back when the end is reached
+	INT32 wrap;         // Wrap around waypoints
+	INT32 continuous;   // continuously move - used with COMEBACK or WRAP
+	INT32 stophere;     // Will stop after it reaches the next waypoint
 	// Difference between location of PO and location of waypoint (offset)
 	fixed_t diffx;
 	fixed_t diffy;
@@ -184,12 +183,12 @@ typedef struct polyslidedoor_s
 	INT32 speed;              // speed of motion
 	INT32 initDistance;       // initial distance to travel
 	INT32 distance;           // current distance to travel
-	UINT32 initAngle; // intial angle
-	UINT32 angle;     // angle of motion
-	UINT32 revAngle;  // reversed angle to avoid roundoff error
-	fixed_t momx;           // x component of speed along angle
-	fixed_t momy;           // y component of speed along angle
-	boolean closing;        // if true, is closing
+	UINT32 initAngle;         // intial angle
+	UINT32 angle;             // angle of motion
+	UINT32 revAngle;          // reversed angle to avoid roundoff error
+	fixed_t momx;             // x component of speed along angle
+	fixed_t momy;             // y component of speed along angle
+	INT32 closing;            // if true, is closing
 } polyslidedoor_t;
 
 typedef struct polyswingdoor_s
@@ -203,7 +202,7 @@ typedef struct polyswingdoor_s
 	INT32 speed;         // speed of rotation
 	INT32 initDistance;  // initial distance to travel
 	INT32 distance;      // current distance to travel
-	boolean closing;   // if true, is closing
+	INT32 closing;       // if true, is closing
 } polyswingdoor_t;
 
 //
@@ -216,27 +215,27 @@ typedef struct polyrotdata_s
 	INT32 direction;    // direction of rotation
 	INT32 speed;        // angular speed
 	INT32 distance;     // distance to move
-	boolean overRide; // if true, will override any action on the object
+	INT32 overRide;     // if true, will override any action on the object
 } polyrotdata_t;
 
 typedef struct polymovedata_s
 {
-	INT32 polyObjNum;     // numeric id of polyobject to affect
+	INT32 polyObjNum;   // numeric id of polyobject to affect
 	fixed_t distance;   // distance to move
 	fixed_t speed;      // linear speed
 	angle_t angle;      // angle of movement
-	boolean overRide;   // if true, will override any action on the object
+	INT32 overRide;     // if true, will override any action on the object
 } polymovedata_t;
 
 typedef struct polywaypointdata_s
 {
-	INT32 polyObjNum;     // numeric id of polyobject to affect
-	INT32 sequence;       // waypoint sequence #
-	fixed_t speed;      // linear speed
-	boolean reverse;    // if true, will go in reverse waypoint order
-	boolean comeback;   // reverses and comes back when the end is reached
-	boolean wrap;       // Wrap around waypoints
-	boolean continuous; // continuously move - used with COMEBACK or WRAP
+	INT32 polyObjNum; // numeric id of polyobject to affect
+	INT32 sequence;   // waypoint sequence #
+	fixed_t speed;    // linear speed
+	INT32 reverse;    // if true, will go in reverse waypoint order
+	INT32 comeback;   // reverses and comes back when the end is reached
+	INT32 wrap;       // Wrap around waypoints
+	INT32 continuous; // continuously move - used with COMEBACK or WRAP
 } polywaypointdata_t;
 
 // polyobject door types
