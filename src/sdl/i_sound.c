@@ -1462,7 +1462,7 @@ void I_ShutdownMusic(void)
 	I_StopDigSong();
 	Mix_CloseAudio();
 #ifdef MIX_INIT
-	//Mix_Quit();
+	Mix_Quit();
 #endif
 	CONS_Printf("shut down\n");
 	musicStarted = SDL_FALSE;

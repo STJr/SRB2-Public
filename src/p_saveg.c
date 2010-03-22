@@ -2103,7 +2103,7 @@ static void P_NetUnArchiveSpecials(void)
 static void P_ArchiveMisc(void)
 {
 	if (gamecomplete)
-		WRITESHORT(save_p, 24);
+		WRITESHORT(save_p, spstage_end);
 	else
 		WRITESHORT(save_p, gamemap);
 

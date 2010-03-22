@@ -7639,11 +7639,12 @@ if (gametype == GT_TAG)
 				else if (player->currentweapon == WEP_AUTO && player->powers[pw_automaticring])
 				{
 					// Automatic
-					// todo: make this use TICRATE somehow.
-					player->weapondelay = 2;
+					// These delay values look stupid, but now they'll work
+					// if the TICRATE changes to something else.
+					player->weapondelay = (2 * TICRATE) / OLDTICRATE;
 
 					if (player->skin == 2) // Knuckles
-						player->weapondelay = 1;
+						player->weapondelay = TICRATE / OLDTICRATE;
 
 					mo = P_SpawnPlayerMissile(player->mo, MT_THROWNAUTOMATIC, MF2_AUTOMATIC, false);
 

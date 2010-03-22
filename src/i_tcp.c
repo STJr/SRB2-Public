@@ -184,7 +184,7 @@ typedef union
 
 static int ipx = 0;
 
-#define MAXBANS 20
+#define MAXBANS 100
 
 #include "i_system.h"
 #include "i_net.h"
@@ -416,6 +416,18 @@ static signed char getfreenode(void)
 		}
 	return -1;
 }
+
+// This is a hack. For some reason, nodes aren't being freed properly.
+// This goes through and cleans up what nodes were supposed to be freed.
+static void cleanupnodes(void)
+{
+	signed char j;
+
+	// Why can't I start at zero?
+	for (j = 1; j < MAXNETNODES; j++)
+		if (!nodeingame[j])
+			nodeconnected[j] = false;
+}
 #endif
 
 #ifndef NONET
@@ -465,6 +477,7 @@ static void SOCK_Get(void)
 	// not found
 
 	// find a free slot
+	cleanupnodes();
 	j = getfreenode();
 	if (j > 0)
 	{
@@ -1008,6 +1021,7 @@ static signed char SOCK_NetMakeNode(const char *hostname)
 			t++;
 		*t = '\0';
 
+		cleanupnodes();
 		newnode = getfreenode();
 		if (newnode == -1)
 		{

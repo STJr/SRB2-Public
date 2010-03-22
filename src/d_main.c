@@ -1086,12 +1086,10 @@ void D_SRB2Main(void)
 
 	if (M_CheckParm("-warp") && M_IsNextParm())
 	{
-		if ((modifiedgame && !savemoddata) || netgame)
-		{
-			pstartmap = atoi(M_GetNextParm());
-			autostart = true;
-			savemoddata = false;
-		}
+		pstartmap = atoi(M_GetNextParm());
+		modifiedgame = true;
+		autostart = true;
+		savemoddata = false;
 	}
 
 	CONS_Printf("%s",text[Z_INIT]);
@@ -1113,7 +1111,11 @@ void D_SRB2Main(void)
 
 	// load wad, including the main wad file
 	if (!W_InitMultipleFiles(startupwadfiles))
+#ifdef _DEBUG
 		CONS_Error("A WAD file was not found or not valid\n");
+#else
+		I_Error("A WAD file was not found or not valid\n");
+#endif
 	D_CleanFile();
 
 	// Check MD5s of autoloaded files

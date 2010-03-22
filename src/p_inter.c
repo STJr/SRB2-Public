@@ -1841,7 +1841,9 @@ void P_CheckSurvivors(void)
 			else if (players[i].pflags & PF_TAGIT)
 				taggers++;
 			else if (!(players[i].pflags & PF_TAGGED))
+			{
 				survivors++;
+			}
 		}
 	}
 

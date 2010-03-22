@@ -2293,7 +2293,7 @@ static short TOLFlag(INT32 pgametype)
   *         has those flags.
   * \author Graue <graue@oceanbase.org>
   */
-static short RandMap(short tolflags)
+static short RandMap(short tolflags, short pprevmap)
 {
 	XBOXSTATIC short okmaps[NUMMAPS];
 	INT32 numokmaps = 0;
@@ -2302,7 +2302,7 @@ static short RandMap(short tolflags)
 
 	// Find all the maps that are ok and and put them in an array.
 	for (ix = 0; ix < NUMMAPS; ix++)
-		if ((mapheaderinfo[ix].typeoflevel & tolflags) == tolflags)
+		if ((mapheaderinfo[ix].typeoflevel & tolflags) == tolflags && ix != pprevmap) // Don't pick the same map.
 			okmaps[numokmaps++] = ix;
 
 	if (numokmaps == 0)
@@ -2462,7 +2462,7 @@ skipit:
 		if (cv_advancemap.value == 0) // Stay on same map.
 			nextmap = prevmap;
 		else if (cv_advancemap.value == 2) // Go to random map.
-			nextmap = (short)(RandMap(TOLFlag(gametype))-1);
+			nextmap = (short)(RandMap(TOLFlag(gametype), prevmap) - 1);
 	}
 
 	if (skipstats)

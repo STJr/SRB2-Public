@@ -390,8 +390,18 @@ visplane_t *R_FindPlane(fixed_t height, INT32 picnum, INT32 lightlevel,
 	visplane_t *check;
 	unsigned hash;
 
-	xoff += viewx;
-	yoff = -viewy + yoff;
+	if (plangle != 0)
+	{
+		// Add the view offset, rotated by the plane angle.
+		angle_t angle = plangle>>ANGLETOFINESHIFT;
+		xoff += FixedMul(viewx,FINECOSINE(angle))-FixedMul(viewy,FINESINE(angle));
+		yoff += -FixedMul(viewx,FINESINE(angle))-FixedMul(viewy,FINECOSINE(angle));
+	}
+	else
+	{
+		xoff += viewx;
+		yoff -= viewy;
+	}
 
 	// This appears to fix the Nimbus Ruins sky bug.
 	if (picnum == skyflatnum && pfloor)

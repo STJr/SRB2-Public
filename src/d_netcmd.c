@@ -2198,6 +2198,9 @@ static void Command_Pause(void)
 
 static void Got_Pause(byte **cp, INT32 playernum)
 {
+	byte dedicatedpause = false;
+	const char *playername;
+
 	if (netgame && !cv_pause.value && playernum != serverplayer && playernum != adminplayer)
 	{
 		CONS_Printf(text[ILLEGALPAUSECMD], player_names[playernum]);
@@ -2218,10 +2221,15 @@ static void Got_Pause(byte **cp, INT32 playernum)
 	{
 		if (netgame)
 		{
-			if (paused)
-				CONS_Printf(text[GAME_PAUSED],player_names[playernum]);
+			if (dedicatedpause)
+				playername = "SERVER";
 			else
-				CONS_Printf(text[GAME_UNPAUSED],player_names[playernum]);
+				playername = player_names[playernum];
+
+			if (paused)
+				CONS_Printf(text[GAME_PAUSED],playername);
+			else
+				CONS_Printf(text[GAME_UNPAUSED],playername);
 		}
 
 		if (paused)
@@ -2976,10 +2984,9 @@ static void Command_MotD_f(void)
 
 static void Got_MotD_f(byte **cp, INT32 playernum)
 {
-	XBOXSTATIC char mymotd[256];
+	XBOXSTATIC char mymotd[sizeof(motd)];
 	INT32 i;
 	boolean kick = false;
-
 
 	READSTRINGN(*cp, mymotd, sizeof(mymotd));
 
@@ -3078,10 +3085,12 @@ static void Got_RunSOCcmd(byte **cp, INT32 playernum)
 			if (ncs == FS_NOTFOUND)
 			{
 				CONS_Printf(text[CLIENT_NEEDFILE], filename);
+				M_StartMessage(va("The server added a file\n(%s)\nthat you do not have.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 			}
 			else
 			{
 				CONS_Printf(text[SOC_NOTFOUND], filename);
+				M_StartMessage(va("Unknown error trying to load a file\nthat the server added\n(%s).\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 			}
 			return;
 		}
@@ -3203,7 +3212,7 @@ static void Command_Addfile(void)
 	if (!W_VerifyNMUSlumps(fn))
 	{
 		// ... But only so long as they contain nothing more then music and sprites.
-		if (netgame && !(server || adminplayer))
+		if (netgame && !(server || adminplayer == consoleplayer))
 		{
 			CONS_Printf("%s", text[SERVERONLY]);
 			return;
@@ -3213,7 +3222,8 @@ static void Command_Addfile(void)
 		modifiedgame = true;
 	}
 
-	if (!(netgame || multiplayer))
+	// Add file on your client directly if it is trivial, or you aren't in a netgame.
+	if (!(netgame || multiplayer) || W_VerifyNMUSlumps(fn))
 	{
 		P_AddWadFile(fn, NULL);
 		return;
@@ -3406,14 +3416,17 @@ static void Got_Addfilecmd(byte **cp, INT32 playernum)
 		if (ncs == FS_NOTFOUND)
 		{
 			CONS_Printf(text[CLIENT_NEEDFILE], filename);
+			M_StartMessage(va("The server added a file \n(%s)\nthat you do not have.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 		}
 		else if (ncs == FS_MD5SUMBAD)
 		{
 			CONS_Printf(text[CHECKSUM_MISMATCH], filename);
+			M_StartMessage(va("Checksum mismatch while loading \n%s.\nThe server seems to have a\ndifferent version of this file.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 		}
 		else
 		{
 			CONS_Printf(text[WAD_NOTFOUND], filename);
+			M_StartMessage(va("Unknown error trying to load a file\nthat the server added \n(%s).\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 		}
 		return;
 	}
