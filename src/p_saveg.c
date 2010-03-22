@@ -2103,7 +2103,7 @@ static inline void LoadLaserThinker(actionf_p1 thinker)
 #endif
 	ht->sector = LoadSector(READULONG(save_p));
 #ifdef REMOVE_FOR_205
-	ht->src = LoadSector(READULONG(save_p));
+	ht->sec = LoadSector(READULONG(save_p));
 	ht->sourceline = LoadLine(READULONG(save_p));
 #else
 	ht->ffloor = LoadFfloor(tmp, ht->sector);

@@ -7274,7 +7274,7 @@ boolean M_Responder(event_t *ev)
 		return false;
 
 	// F-Keys
-	if (!menuactive)
+	if (!menuactive || ch == KEY_F8) //allow screenshots
 	{
 		switch (ch)
 		{
