@@ -904,7 +904,7 @@ static void SaveCeilingThinker(const thinker_t *th, const byte type)
 	WRITEFIXED(save_p, ht->oldspeed);
 	WRITEFIXED(save_p, ht->delay);
 	WRITEFIXED(save_p, ht->delaytimer);
-	WRITEFIXED(save_p, ht->crush);
+	WRITELONG(save_p, ht->crush);
 	WRITELONG(save_p, ht->texture);
 	WRITELONG(save_p, ht->direction);
 	WRITELONG(save_p, ht->tag);
@@ -1792,10 +1792,11 @@ static void LoadSpecialLevelThinker(actionf_p1 thinker, byte floorOrCeiling)
 {
 	levelspecthink_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	size_t i;
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->type = READLONG(save_p); //type
 	for (i = 0; i < 16; i++)
 		ht->vars[i] = READFIXED(save_p); //var[16]
@@ -1823,10 +1824,11 @@ static void LoadSpecialLevelThinker(actionf_p1 thinker, byte floorOrCeiling)
 static void LoadCeilingThinker(actionf_p1 thinker)
 {
 	ceiling_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->type = READLONG(save_p);
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->bottomheight = READFIXED(save_p);
@@ -1835,7 +1837,7 @@ static void LoadCeilingThinker(actionf_p1 thinker)
 	ht->oldspeed = READFIXED(save_p);
 	ht->delay = READFIXED(save_p);
 	ht->delaytimer = READFIXED(save_p);
-	ht->crush = READFIXED(save_p);
+	ht->crush = READLONG(save_p);
 	ht->texture = READLONG(save_p);
 	ht->direction = READLONG(save_p);
 	ht->tag = READLONG(save_p);
@@ -1856,10 +1858,11 @@ static void LoadCeilingThinker(actionf_p1 thinker)
 static void LoadFloormoveThinker(actionf_p1 thinker)
 {
 	floormove_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->type = READLONG(save_p);
 	ht->crush = READLONG(save_p);
 	ht->sector = LoadSector(READULONG(save_p));
@@ -1883,10 +1886,11 @@ static void LoadFloormoveThinker(actionf_p1 thinker)
 static inline void LoadLightflashThinker(actionf_p1 thinker)
 {
 	lightflash_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->maxlight = READLONG(save_p);
 	ht->minlight = READLONG(save_p);
@@ -1903,10 +1907,11 @@ static inline void LoadLightflashThinker(actionf_p1 thinker)
 static inline void LoadStrobeThinker(actionf_p1 thinker)
 {
 	strobe_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->count = READLONG(save_p);
 	ht->minlight = READLONG(save_p);
@@ -1926,11 +1931,11 @@ static inline void LoadStrobeThinker(actionf_p1 thinker)
 static inline void LoadGlowThinker(actionf_p1 thinker)
 {
 	glow_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->minlight = READLONG(save_p);
 	ht->maxlight = READLONG(save_p);
 	ht->direction = READLONG(save_p);
@@ -1947,10 +1952,11 @@ static inline void LoadGlowThinker(actionf_p1 thinker)
 static inline void LoadFireflickerThinker(actionf_p1 thinker)
 {
 	fireflicker_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->count = READLONG(save_p);
 	ht->resetcount = READLONG(save_p);
@@ -1968,10 +1974,11 @@ static inline void LoadFireflickerThinker(actionf_p1 thinker)
 static void LoadElevatorThinker(actionf_p1 thinker, byte floorOrCeiling)
 {
 	elevator_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->type = READLONG(save_p);
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->actionsector = LoadSector(READULONG(save_p));
@@ -2009,10 +2016,11 @@ static void LoadElevatorThinker(actionf_p1 thinker, byte floorOrCeiling)
 static inline void LoadScrollThinker(actionf_p1 thinker)
 {
 	scroll_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->dx = READFIXED(save_p);
 	ht->dy = READFIXED(save_p);
 	ht->affectee = READLONG(save_p);
@@ -2034,10 +2042,11 @@ static inline void LoadScrollThinker(actionf_p1 thinker)
 static inline void LoadFrictionThinker(actionf_p1 thinker)
 {
 	friction_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->friction = READLONG(save_p);
 	ht->movefactor = READLONG(save_p);
 	ht->affectee = READLONG(save_p);
@@ -2057,10 +2066,11 @@ static inline void LoadFrictionThinker(actionf_p1 thinker)
 static inline void LoadPusherThinker(actionf_p1 thinker)
 {
 	pusher_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->type = READLONG(save_p);
 	(void)READULONG(save_p); //source dummy, used affectee
 	ht->x_mag = READLONG(save_p);
@@ -2093,15 +2103,16 @@ static inline void LoadLaserThinker(actionf_p1 thinker)
 	UINT32 tmp;
 #endif
 	laserthink_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
-	ht->ffloor = NULL;
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 #ifndef REMOVE_FOR_205
 	tmp = READULONG(save_p);
 #endif
 	ht->sector = LoadSector(READULONG(save_p));
+	ht->ffloor = NULL;
 #ifdef REMOVE_FOR_205
 	ht->sec = LoadSector(READULONG(save_p));
 	ht->sourceline = LoadLine(READULONG(save_p));
@@ -2119,10 +2130,11 @@ static inline void LoadLaserThinker(actionf_p1 thinker)
 static inline void LoadLightlevelThinker(actionf_p1 thinker)
 {
 	lightlevel_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->sector = LoadSector(READULONG(save_p));
 	ht->destlevel = READLONG(save_p);
 	ht->speed = READLONG(save_p);
@@ -2139,10 +2151,11 @@ static inline void LoadLightlevelThinker(actionf_p1 thinker)
 static inline void LoadExecutorThinker(actionf_p1 thinker)
 {
 	executor_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->line = LoadLine(READULONG(save_p));
 	ht->caller = LoadMobj(READULONG(save_p));
 	ht->timer = READLONG(save_p);
@@ -2157,10 +2170,11 @@ static inline void LoadExecutorThinker(actionf_p1 thinker)
 static inline void LoadDisappearThinker(actionf_p1 thinker)
 {
 	disappear_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->appeartime = READULONG(save_p);
 	ht->disappeartime = READULONG(save_p);
 	ht->offset = READULONG(save_p);
@@ -2181,10 +2195,11 @@ static inline void LoadDisappearThinker(actionf_p1 thinker)
 static inline void LoadPolyrotatetThinker(actionf_p1 thinker)
 {
 	polyrotate_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->polyObjNum = READLONG(save_p);
 	ht->speed = READLONG(save_p);
 	ht->distance = READLONG(save_p);
@@ -2199,10 +2214,11 @@ static inline void LoadPolyrotatetThinker(actionf_p1 thinker)
 static void LoadPolymoveThinker(actionf_p1 thinker)
 {
 	polymove_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->polyObjNum = READLONG(save_p);
 	ht->speed = READLONG(save_p);
 	ht->momx = READFIXED(save_p);
@@ -2220,10 +2236,11 @@ static void LoadPolymoveThinker(actionf_p1 thinker)
 static inline void LoadPolywaypointThinker(actionf_p1 thinker)
 {
 	polywaypoint_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->polyObjNum = READLONG(save_p);
 	ht->speed = READLONG(save_p);
 	ht->sequence = READLONG(save_p);
@@ -2247,10 +2264,11 @@ static inline void LoadPolywaypointThinker(actionf_p1 thinker)
 static inline void LoadPolyslidedoorThinker(actionf_p1 thinker)
 {
 	polyslidedoor_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->polyObjNum = READLONG(save_p);
 	ht->delay = READLONG(save_p);
 	ht->delayCount = READLONG(save_p);
@@ -2275,10 +2293,11 @@ static inline void LoadPolyslidedoorThinker(actionf_p1 thinker)
 static inline void LoadPolyswingdoorThinker(actionf_p1 thinker)
 {
 	polyswingdoor_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 	ht->polyObjNum = READLONG(save_p);
 	ht->delay = READLONG(save_p);
 	ht->delayCount = READLONG(save_p);
@@ -2300,10 +2319,11 @@ static inline void LoadPolyswingdoorThinker(actionf_p1 thinker)
 static inline void LoadWhatThinker(actionf_p1 thinker)
 {
 	what_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
-	ht->thinker.prev = NULL;(void)READULONG(save_p); //thinker.prev dummy
-	ht->thinker.next = NULL;(void)READULONG(save_p); //thinker.next dummy
-	ht->thinker.function.acp1 = thinker;(void)READLONG(save_p); //thinker.actionf_t dummy
-	ht->thinker.references = -1;(void)READLONG(save_p);  //thinker.references dummy
+	ht->thinker.function.acp1 = thinker;
+	(void)READULONG(save_p); //thinker.prev dummy
+	(void)READULONG(save_p); //thinker.next dummy
+	(void)READLONG(save_p);  //thinker.actionf_t dummy
+	(void)READLONG(save_p);  //thinker.references dummy
 }
 */
 
