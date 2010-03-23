@@ -26,7 +26,7 @@
 #include <time.h>
 #endif
 
-#if (defined (NOMD5) || defined (NOMSERV) || defined (__BIG_ENDIAN__)) && !defined (NONET)
+#if (defined (NOMD5) || defined (NOMSERV)) && !defined (NONET)
 #define NONET
 #endif
 
@@ -129,9 +129,9 @@
   */
 typedef struct
 {
-	INT32 id;                  ///< Unused?
-	INT32 type;                ///< Type of message.
-	UINT32 length;              ///< Length of the message.
+	INT32 id;                 ///< Unused?
+	INT32 type;               ///< Type of message.
+	UINT32 length;            ///< Length of the message.
 	char buffer[PACKET_SIZE]; ///< Actual contents of the message.
 } ATTRPACK msg_t;
 
@@ -154,7 +154,7 @@ static time_t MSLastPing;
 typedef struct
 {
 	char ip[16];         // Big enough to hold a full address.
-	unsigned short port;
+	USHORT port;
 	byte padding1[2];
 	tic_t time;
 } ATTRPACK ms_holepunch_packet_t;
@@ -763,10 +763,10 @@ void SendAskInfoViaMS(INT32 node, tic_t asktime)
 	*inip = '\0';
 
 	// Get the port.
-	mshpp.port = (unsigned short)(*address++ ? atoi(address) : 0);
+	mshpp.port = SHORT((USHORT)(*address++ ? atoi(address) : 0));
 
 	// Set the time for ping calculation.
-	mshpp.time = asktime;
+	mshpp.time = LONG(asktime);
 
 	// Send to the MS.
 	M_Memcpy(netbuffer, &mshpp, sizeof(mshpp));

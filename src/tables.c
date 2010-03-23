@@ -75,7 +75,7 @@ unsigned SlopeDiv(unsigned num, unsigned den)
 #define ANGLE_TO_FIXED(a) (fixed_t)(((a)>>(29-FRACBITS))*45)
 #define FIXED_TO_ANGLE(x) (angle_t)(((x)/45)<<(29-FRACBITS))
 
-#if 0 // for netplay with v2.0.4
+#ifdef REMOVE_FOR_205
 #define FIXEDPOINTCONV
 #endif
 

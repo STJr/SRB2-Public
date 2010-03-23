@@ -32,7 +32,7 @@
 
 #include "doomdef.h"
 
-#if (defined (NOMD5) || defined (__BIG_ENDIAN__)) && !defined (NONET)
+#if defined (NOMD5) && !defined (NONET)
 //#define NONET
 #endif
 
