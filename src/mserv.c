@@ -748,6 +748,7 @@ static inline void SendPingToMasterServer(void)
 void SendAskInfoViaMS(INT32 node, tic_t asktime)
 {
 	const char *address;
+	USHORT port;
 	char *inip;
 	ms_holepunch_packet_t mshpp;
 
@@ -763,7 +764,8 @@ void SendAskInfoViaMS(INT32 node, tic_t asktime)
 	*inip = '\0';
 
 	// Get the port.
-	mshpp.port = SHORT((USHORT)(*address++ ? atoi(address) : 0));
+	port = (USHORT)(*address++ ? atoi(address) : 0);
+	mshpp.port = SHORT(port);
 
 	// Set the time for ping calculation.
 	mshpp.time = LONG(asktime);

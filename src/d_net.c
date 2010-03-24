@@ -731,7 +731,7 @@ static void DebugPrintpacket(const char *header)
 			fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %"PRIdS"\n    ",
 				(UINT32)ExpandTics(netbuffer->u.serverpak.starttic), netbuffer->u.serverpak.numslots,
 				netbuffer->u.serverpak.numtics,
-				(&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
+				(size_t)(&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(byte)(
 				&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			break;
