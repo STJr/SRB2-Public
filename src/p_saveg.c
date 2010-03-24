@@ -834,13 +834,13 @@ static inline ULONG SaveMobjnum(const mobj_t *mobj)
 	return 0;
 }
 
-static inline UINT32 SaveSector(const sector_t *sector)
+static UINT32 SaveSector(const sector_t *sector)
 {
 	if (sector) return (UINT32)(sector - sectors);
 	return 0xFFFFFFFF;
 }
 
-static inline UINT32 SaveLine(const line_t *line)
+static UINT32 SaveLine(const line_t *line)
 {
 	if (line) return (UINT32)(line - lines);
 	return 0xFFFFFFFF;
@@ -1750,13 +1750,13 @@ static inline mobj_t *LoadMobj(UINT32 mobjnum)
 	return (mobj_t *)(size_t)mobjnum;
 }
 
-static inline sector_t *LoadSector(UINT32 sector)
+static sector_t *LoadSector(UINT32 sector)
 {
 	if (sector >= numsectors) return NULL;
 	return &sectors[sector];
 }
 
-static inline line_t *LoadLine(UINT32 line)
+static line_t *LoadLine(UINT32 line)
 {
 	if (line >= numlines) return NULL;
 	return &lines[line];
