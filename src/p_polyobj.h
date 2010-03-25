@@ -101,20 +101,20 @@ typedef struct polyobj_s
 
 	degenmobj_t spawnSpot; // location of spawn spot
 	vertex_t    centerPt;  // center point
-	fixed_t zdist;                // viewz distance for sorting
-	angle_t angle;                // for rotation
-	boolean attached;             // if true, is attached to a subsector
+	fixed_t zdist;         // viewz distance for sorting
+	angle_t angle;         // for rotation
+	boolean attached;      // if true, is attached to a subsector
 
 	fixed_t blockbox[4]; // bounding box for clipping
 	boolean linked;      // is linked to blockmap
-	size_t validcount;      // for clipping: prevents multiple checks
-	INT32 damage;          // damage to inflict on stuck things
+	size_t validcount;   // for clipping: prevents multiple checks
+	INT32 damage;        // damage to inflict on stuck things
 	fixed_t thrust;      // amount of thrust to put on blocking objects
-	INT32 flags;           // Flags for this polyobject
+	INT32 flags;         // Flags for this polyobject
 
 	thinker_t *thinker;  // pointer to a thinker affecting this polyobj
 
-	boolean isBad; // a bad polyobject: should not be rendered/manipulated
+	boolean isBad;      // a bad polyobject: should not be rendered/manipulated
 	INT32 translucency; // index to translucency tables
 } polyobj_t;
 
@@ -250,7 +250,7 @@ typedef struct polydoordata_s
 	INT32 polyObjNum;     // numeric id of polyobject to affect
 	INT32 doorType;       // polyobj door type
 	INT32 speed;          // linear or angular speed
-	angle_t angle;      // for slide door only, angle of motion
+	angle_t angle;        // for slide door only, angle of motion
 	INT32 distance;       // distance to move
 	INT32 delay;          // delay time after opening
 } polydoordata_t;

@@ -2103,7 +2103,11 @@ INT32 P_GetPlayerControlDirection(player_t *player)
 			controlplayerdirection += ANGLE_90;
 			controllerdirection += ANGLE_90;
 		}
+#ifdef REMOVE_FOR_205
+		else if (controlplayerdirection >= ANGLE_270)
+#else
 		else if (controlplayerdirection > ANGLE_270)
+#endif
 		{
 			controlplayerdirection -= ANGLE_90;
 			controllerdirection -= ANGLE_90;

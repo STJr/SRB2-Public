@@ -1207,7 +1207,6 @@ static inline void SaveDisappearThinker(const thinker_t *th, const byte type)
 	WRITELONG(save_p, ht->affectee);
 	WRITELONG(save_p, ht->sourceline);
 	WRITELONG(save_p, ht->exists);
-
 }
 
 #ifdef POLYOBJECTS
@@ -1936,6 +1935,7 @@ static inline void LoadGlowThinker(actionf_p1 thinker)
 	(void)READULONG(save_p); //thinker.next dummy
 	(void)READLONG(save_p);  //thinker.actionf_t dummy
 	(void)READLONG(save_p);  //thinker.references dummy
+	ht->sector = LoadSector(READULONG(save_p));
 	ht->minlight = READLONG(save_p);
 	ht->maxlight = READLONG(save_p);
 	ht->direction = READLONG(save_p);
