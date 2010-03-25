@@ -2398,7 +2398,7 @@ void P_MobjCheckWater(mobj_t *mobj)
 			S_StartSound(mobj, sfx_splish); // And make a sound!
 		}
 
-			bubblecount = FIXEDSCALE(abs(mobj->momz), mobj->scale)>>FRACBITS;
+			bubblecount = abs(mobj->momz)>>FRACBITS;
 			// Create tons of bubbles
 			for (i = 0; i < bubblecount; i++)
 			{
@@ -2433,9 +2433,6 @@ void P_MobjCheckWater(mobj_t *mobj)
 						bubble->momz = mobj->momz >> 4;
 					else
 						bubble->momz = 0;
-
-					bubble->destscale = mobj->scale;
-					P_SetScale(bubble, mobj->scale);
 				}
 			//}
 		}
