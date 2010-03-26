@@ -5869,7 +5869,7 @@ void A_RandomStateRange(mobj_t *actor)
 
 	// Scale P_Random() to the difference.
 	statenum = P_Random();
-	statenum /= statenum/difference;
+	statenum = statenum/difference;
 
 	statenum += locvar1;
 
