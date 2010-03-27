@@ -202,7 +202,7 @@ static void P_ClearSingleMapHeaderInfo(short i)
 	mapheaderinfo[num].runsoc[0] = '#';
 	DEH_WriteUndoline(va("# uload for map %d", i), NULL, UNDO_DONE);
 	DEH_WriteUndoline("MAPCREDITS", mapheaderinfo[num].mapcredits, UNDO_NONE);
-		mapheaderinfo[num].mapcredits[0] = '\0';
+	mapheaderinfo[num].mapcredits[0] = '\0';
 }
 
 /** Clears the data from the map headers for all levels.
