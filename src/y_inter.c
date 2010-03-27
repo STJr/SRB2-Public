@@ -182,7 +182,7 @@ void Y_IntermissionDrawer(void)
 	{
 		if (rendermode == render_soft && usebuffer)
 			VID_BlitLinearScreen(screens[1], screens[0], vid.width*vid.bpp, vid.height, vid.width*vid.bpp, vid.rowbytes);
-#ifdef SHUFFLE
+#if defined (SHUFFLE) && defined (HWRENDER)
 		else if(rendermode != render_soft && usebuffer)
 		{
 			HWR_DrawIntermissionBG();

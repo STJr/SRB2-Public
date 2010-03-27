@@ -270,7 +270,7 @@ static void D_Display(void)
 				&& gamestate == GS_INTERMISSION))
 			{
 				V_DrawFill(0, 0, vid.width, vid.height, 31);
-#ifdef SHUFFLE
+#if defined (SHUFFLE) && defined (HWRENDER)
 				if(rendermode != render_soft)
 				{
 					HWR_PrepFadeToBlack();

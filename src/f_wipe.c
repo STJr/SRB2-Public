@@ -151,7 +151,7 @@ void F_WipeEndScreen(INT32 x, INT32 y, INT32 width, INT32 height)
 {
 	if(rendermode != render_soft)
 	{
-#ifdef SHUFFLE
+#if defined (SHUFFLE) && defined (HWRENDER)
 		HWR_EndScreenWipe();
 #endif
 		return;
