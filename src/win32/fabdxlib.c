@@ -433,7 +433,7 @@ BOOL ScreenFlip(int waitflip)
 	HRESULT hr;
 	RECT rect;
 
-	waitflip = 0;
+	UNREFERENCED_PARAMETER(waitflip);
 	if (bAppFullScreen)
 	{
 		//hr = IDirectDrawSurface_GetFlipStatus (ScreenReal, DDGFS_);
@@ -475,7 +475,7 @@ BOOL ScreenFlip(int waitflip)
 	}
 
 	if (hr != DD_OK)
-		I_Error("ScreenFlip() : couldn't Flip surfaces");
+		I_Error("ScreenFlip() : couldn't Flip surfaces because %s", DXErrorToString(hr));
 
 	return FALSE;
 }

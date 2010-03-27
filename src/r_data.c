@@ -360,12 +360,12 @@ void R_LoadTextures(void)
 	// there are actually 5 buffers allocated in one for convenience
 	Z_Free(textures);
 
-	textures = Z_Malloc(numtextures*sizeof(*textures)*5, PU_STATIC, NULL);
+	textures = Z_Malloc(numtextures*sizeof(void *)*5, PU_STATIC, NULL);
 
-	texturecolumnofs = (void *)((size_t *)textures + numtextures);
-	texturecache = (void *)((size_t *)textures + numtextures*2);
-	texturewidthmask = (void *)((size_t *)textures + numtextures*3);
-	textureheight = (void *)((size_t *)textures + numtextures*4);
+	texturecolumnofs = (void *)((byte *)textures + numtextures*sizeof(void *)*1);
+	texturecache     = (void *)((byte *)textures + numtextures*sizeof(void *)*2);
+	texturewidthmask = (void *)((byte *)textures + numtextures*sizeof(void *)*3);
+	textureheight    = (void *)((byte *)textures + numtextures*sizeof(void *)*4);
 
 	for (i = 0; i < numtextures; i++, directory++)
 	{
