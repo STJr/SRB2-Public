@@ -258,20 +258,23 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define UINT2RGBA(a) (ULONG)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((ULONG)a&0xff000000)>>24)
 #endif
 
+#ifdef _WIN64
+#define PRIdS "I64u" // MSVCRT64
+#elif defined (_WIN32) || defined (_PSP) || defined (_arch_dreamcast)
+#define PRIdS "Iu" // MSVCRT32, PSPCRT or Newlib
+#endif
+
 #ifdef __GNUC__ // __attribute__ ((X))
 #define FUNCNORETURN __attribute__ ((noreturn))
 #if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) && defined (__MINGW32__)
+#include "inttypes.h"
 #ifdef __USE_MINGW_ANSI_STDIO
 #define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
-#define PRIdS "zu" // Mingw
 #else // !__USE_MINGW_ANSI_STDIO
 #define FUNCPRINTF __attribute__ ((format(ms_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(ms_printf, 1, 2),noreturn))
-#define PRIdS "Id" // MSVCRT
 #endif
-#elif defined (__MINGW32__) || defined (_PSP) || defined (_arch_dreamcast)
-#define PRIdS "d"
 #else
 #define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(printf, 1, 2),noreturn))
@@ -297,7 +300,6 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define XBOXSTATIC static
 #endif
 #elif defined (_MSC_VER)
-#define PRIdS "d"
 #define ATTRNORETURN __declspec(noreturn)
 #define ATTRINLINE __forceinline
 #if _MSC_VER > 1200
