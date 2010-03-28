@@ -258,17 +258,19 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define UINT2RGBA(a) (ULONG)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((ULONG)a&0xff000000)>>24)
 #endif
 
-#ifdef _WIN64
-#define PRIdS "I64u" // MSVCRT64
-#elif defined (_WIN32) || defined (_PSP) || defined (_arch_dreamcast)
-#define PRIdS "Iu" // MSVCRT32, PSPCRT or Newlib
+#if defined (_WIN32)
+#define PRIdS "Iu"
+#elif defined (_PSP) || defined (_arch_dreamcast)
+#define PRIdS "u"
+#else
+#define PRIdS "zu"
 #endif
 
 #ifdef __GNUC__ // __attribute__ ((X))
 #define FUNCNORETURN __attribute__ ((noreturn))
 #if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) && defined (__MINGW32__)
 #include "inttypes.h"
-#ifdef __USE_MINGW_ANSI_STDIO
+#if defined  (__USE_MINGW_ANSI_STDIO) && __USER_MINGW_ANSI_STDIO > 0
 #define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
 #else // !__USE_MINGW_ANSI_STDIO
@@ -315,9 +317,6 @@ typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #endif
 #ifndef FUNCIERROR
 #define FUNCIERROR
-#endif
-#ifndef PRIdS
-#define PRIdS "zu"
 #endif
 #ifndef FUNCMATH
 #define FUNCMATH
