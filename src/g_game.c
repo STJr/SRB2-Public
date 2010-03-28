@@ -857,14 +857,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	axis = JoyAxis(AXISFIRE);
 	if (gamekeydown[gamecontrol[gc_fire][0]] ||
 		gamekeydown[gamecontrol[gc_fire][1]] ||
-		axis > 0)
+		(cv_usejoystick.value && axis > 0))
 		cmd->buttons |= BT_ATTACK;
 
 	// fire normal with any button/key
 	axis = JoyAxis(AXISFIRENORMAL);
 	if (gamekeydown[gamecontrol[gc_firenormal][0]] ||
 		gamekeydown[gamecontrol[gc_firenormal][1]] ||
-		axis > 0)
+		(cv_usejoystick.value && axis > 0))
 		cmd->buttons |= BT_FIRENORMAL;
 
 	if (gamekeydown[gamecontrol[gc_tossflag][0]] ||
@@ -1184,14 +1184,14 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	axis = Joy2Axis(AXISFIRE);
 	if (gamekeydown[gamecontrolbis[gc_fire][0]] ||
 		gamekeydown[gamecontrolbis[gc_fire][1]] ||
-		axis > 0)
+		(cv_usejoystick2.value && axis > 0))
 		cmd->buttons |= BT_ATTACK;
 
 	// fire normal with any button/key
 	axis = Joy2Axis(AXISFIRENORMAL);
 	if (gamekeydown[gamecontrolbis[gc_firenormal][0]] ||
 		gamekeydown[gamecontrolbis[gc_firenormal][1]] ||
-		axis > 0)
+		(cv_usejoystick2.value && axis > 0))
 		cmd->buttons |= BT_FIRENORMAL;
 
 	if (gamekeydown[gamecontrolbis[gc_tossflag][0]] ||
