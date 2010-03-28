@@ -4871,7 +4871,7 @@ static inline void EV_AddLaserThinker(sector_t *sec, sector_t *sec2, line_t *lin
 	flash->ffloor = ffloor;
 	flash->sector = sec; // For finding mobjs
 #ifdef REMOVE_FOR_205
-	flash->sector = sec2; // For finding mobjs
+	flash->sec = sec2; // For finding mobjs
 	flash->sourceline = line;
 #endif
 }
@@ -5687,7 +5687,7 @@ void P_SpawnSpecials(void)
 				sec = sides[*lines[i].sidenum].sector - sectors;
 
 				for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
-					EV_AddLaserThinker(&sectors[s], &sector[sec], lines + i);
+					EV_AddLaserThinker(&sectors[s], &sectors[sec], lines + i);
 				break;
 
 			case 259: // Make-Your-Own FOF!
