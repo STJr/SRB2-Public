@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile="C:\srb2demo2\srb2debug.exe"
+				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -180,7 +180,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile="C:\srb2demo2\srb2debug64.exe"
+				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -279,7 +279,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile="C:\srb2demo2\srb2win.exe"
+				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
@@ -378,7 +378,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile="C:\srb2demo2\srb2w64.exe"
+				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
