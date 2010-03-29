@@ -109,7 +109,7 @@ OBJS=$(OBJDIR)/i_video.o
 LIBS=-lm
 endif
 
-ifdef HAIKUS
+ifdef HAIKU
 SDL=1
 NONET=1
 NOASM=1
