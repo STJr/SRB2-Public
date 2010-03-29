@@ -39,6 +39,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="`sdl-config --libs`" />
 					<Add library="SDL_mixer" />
 				</Linker>
@@ -83,6 +84,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="`sdl-config --libs`" />
 					<Add option="`libpng-config --libs`" />
 					<Add library="SDL_mixer" />
@@ -140,6 +142,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add directory="tools/zlib" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add library="SDL" />
 					<Add library="SDL_mixer" />
 					<Add library="advapi32" />
@@ -212,6 +215,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add directory="src/win32" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="-g" />
 					<Add library="advapi32" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
@@ -275,6 +279,9 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
 				</Compiler>
+				<Linker>
+					<Add option="-g" />
+				</Linker>
 			</Target>
 			<Target title="Release Any/Dummy">
 				<Option output="bin/dummy/Release/srb2dummy" prefix_auto="1" extension_auto="1" />
@@ -303,6 +310,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/r_mingw.def" />
 					<Add library="gdi32" />
 				</Linker>
@@ -337,6 +345,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/r_mingw.def" />
 					<Add library="gdi32" />
 				</Linker>
@@ -371,6 +380,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/s_mingw.def" />
 					<Add library="dsound" />
 				</Linker>
@@ -405,6 +415,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/s_mingw.def" />
 					<Add library="fmod" />
 				</Linker>
@@ -439,6 +450,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/s_mingw.def" />
 					<Add library="openal32" />
 				</Linker>
@@ -471,6 +483,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="-nostartfiles" />
 					<Add library="openal" />
 				</Linker>
@@ -514,6 +527,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add directory="tools/zlib" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add library="SDL" />
 					<Add library="SDL_mixer" />
 					<Add library="advapi32" />
@@ -584,6 +598,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add directory="src/win32" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="-g" />
 					<Add library="advapi32" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
@@ -646,6 +661,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/r_mingw.def" />
 					<Add library="gdi32" />
 				</Linker>
@@ -678,6 +694,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/r_mingw.def" />
 					<Add library="gdi32" />
 				</Linker>
@@ -710,6 +727,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/s_mingw.def" />
 					<Add library="dsound" />
 				</Linker>
@@ -742,6 +760,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/s_mingw.def" />
 					<Add library="fmod" />
 				</Linker>
@@ -774,6 +793,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_WINDOWS" />
 				</Compiler>
 				<Linker>
+					<Add option="-g" />
 					<Add option="--def src/hardware/s_mingw.def" />
 					<Add library="openal32" />
 				</Linker>
