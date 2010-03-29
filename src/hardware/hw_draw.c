@@ -34,15 +34,6 @@
 #include "../v_video.h"
 #include "../st_stuff.h"
 
-#if !(defined(__unix__) || defined(UNIXCOMMON)) // unix does not need this 19991024 by Kin
-#ifdef __GNUC__
-#include <sys/unistd.h>
-#endif
-#if !(defined(macintosh) || defined(__APPLE__))
-#include <io.h>
-#endif
-#else
-#endif // normalunix
 #include <fcntl.h>
 #include "../i_video.h"  // for rendermode != render_glide
 
