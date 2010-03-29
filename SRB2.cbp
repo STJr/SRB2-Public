@@ -276,7 +276,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 				</Compiler>
 			</Target>
-			<Target title="Release Amy/Dummy">
+			<Target title="Release Any/Dummy">
 				<Option output="bin/dummy/Release/srb2dummy" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin/Resources" />
 				<Option object_output="objs/dummy/Release/" />
@@ -818,7 +818,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -834,7 +834,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -850,7 +850,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -867,7 +867,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -883,7 +883,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -901,7 +901,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -918,7 +918,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -934,7 +934,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -951,7 +951,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -967,7 +967,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -983,7 +983,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -999,7 +999,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1016,7 +1016,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1032,7 +1032,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1049,7 +1049,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1065,7 +1065,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1082,7 +1082,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1098,7 +1098,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1115,7 +1115,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1131,7 +1131,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1147,7 +1147,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1163,7 +1163,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1179,7 +1179,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1196,7 +1196,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1212,7 +1212,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1228,7 +1228,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1244,7 +1244,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1260,7 +1260,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1276,7 +1276,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1293,7 +1293,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1309,7 +1309,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1320,32 +1320,32 @@ HW3SOUND for 3D hardware sound  support
 		<Unit filename="src/dummy/i_cdmus.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 		</Unit>
 		<Unit filename="src/dummy/i_main.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 		</Unit>
 		<Unit filename="src/dummy/i_net.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 		</Unit>
 		<Unit filename="src/dummy/i_sound.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 		</Unit>
 		<Unit filename="src/dummy/i_system.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 		</Unit>
 		<Unit filename="src/dummy/i_video.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 		</Unit>
 		<Unit filename="src/f_finale.c">
 			<Option compilerVar="CC" />
@@ -1356,7 +1356,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1372,7 +1372,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1389,7 +1389,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1406,7 +1406,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1422,7 +1422,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1439,7 +1439,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1455,7 +1455,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1472,7 +1472,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1488,7 +1488,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1504,7 +1504,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1520,7 +1520,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1537,7 +1537,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1553,7 +1553,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1570,7 +1570,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1587,7 +1587,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1603,7 +1603,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1619,7 +1619,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1635,7 +1635,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1652,7 +1652,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1668,7 +1668,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1684,7 +1684,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1700,7 +1700,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1717,7 +1717,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1733,7 +1733,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1750,7 +1750,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1766,7 +1766,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1783,7 +1783,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1799,7 +1799,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1816,7 +1816,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1832,7 +1832,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1875,7 +1875,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Mingw R_OpenGL" />
 			<Option target="Release Mingw R_OpenGL" />
 			<Option target="Debug Mingw R_MiniGL" />
@@ -1921,7 +1921,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1937,7 +1937,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1953,7 +1953,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1969,7 +1969,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -1985,7 +1985,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2001,7 +2001,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2018,7 +2018,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2034,7 +2034,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2050,7 +2050,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2067,7 +2067,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2083,7 +2083,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2099,7 +2099,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2116,7 +2116,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2132,7 +2132,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2149,7 +2149,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2165,7 +2165,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2182,7 +2182,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2198,7 +2198,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2215,7 +2215,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2231,7 +2231,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2247,7 +2247,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2264,7 +2264,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2280,7 +2280,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2297,7 +2297,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2313,7 +2313,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2330,7 +2330,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2346,7 +2346,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2363,7 +2363,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2379,7 +2379,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2396,7 +2396,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2412,7 +2412,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2428,7 +2428,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2445,7 +2445,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2461,7 +2461,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2478,7 +2478,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2494,7 +2494,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2510,7 +2510,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2527,7 +2527,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2544,7 +2544,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2561,7 +2561,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2578,7 +2578,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2595,7 +2595,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2612,7 +2612,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2628,7 +2628,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2645,7 +2645,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2662,7 +2662,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2678,7 +2678,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2695,7 +2695,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2711,7 +2711,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2728,7 +2728,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2744,7 +2744,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2760,7 +2760,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2777,7 +2777,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2793,7 +2793,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2810,7 +2810,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2826,7 +2826,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2843,7 +2843,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2860,7 +2860,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2876,7 +2876,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2893,7 +2893,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2910,7 +2910,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2926,7 +2926,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2943,7 +2943,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2960,7 +2960,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2976,7 +2976,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -2993,7 +2993,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3009,7 +3009,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3025,7 +3025,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3042,7 +3042,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3058,7 +3058,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3077,7 +3077,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3096,7 +3096,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3112,7 +3112,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3129,7 +3129,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3145,7 +3145,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3162,7 +3162,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3178,7 +3178,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3195,7 +3195,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3211,7 +3211,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3228,7 +3228,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3244,7 +3244,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3261,7 +3261,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3277,7 +3277,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3293,7 +3293,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3310,7 +3310,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3326,7 +3326,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3343,7 +3343,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3359,7 +3359,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3376,7 +3376,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3392,7 +3392,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3409,7 +3409,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3443,7 +3443,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3466,7 +3466,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3489,7 +3489,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3501,7 +3501,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3524,7 +3524,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3539,7 +3539,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3562,7 +3562,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3651,7 +3651,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3663,7 +3663,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/SDL" />
 			<Option target="Release Mingw/SDL" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3678,7 +3678,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3694,7 +3694,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3711,7 +3711,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3727,7 +3727,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3744,7 +3744,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3761,7 +3761,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3777,7 +3777,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3814,7 +3814,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3830,7 +3830,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3859,7 +3859,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -3875,7 +3875,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -4029,7 +4029,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -4045,7 +4045,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -4062,7 +4062,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
@@ -4078,7 +4078,7 @@ HW3SOUND for 3D hardware sound  support
 			<Option target="Debug Mingw/DirectX" />
 			<Option target="Release Mingw/DirectX" />
 			<Option target="Debug Any/Dummy" />
-			<Option target="Release Amy/Dummy" />
+			<Option target="Release Any/Dummy" />
 			<Option target="Debug Linux/SDL" />
 			<Option target="Release Linux/SDL" />
 			<Option target="Debug Mingw64/SDL" />
