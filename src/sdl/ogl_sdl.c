@@ -100,7 +100,7 @@ boolean LoadGL(void)
 	GLULibname = "/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib";
 #elif defined (macintos)
 	GLULibname = "OpenGLLibrary";
-#elif defined (__unix__)
+#elif defined (__unix__) || defined (__HAIKU__)
 	GLULibname = "libGLU.so";
 #else
 	GLULibname = NULL;
@@ -124,7 +124,7 @@ boolean LoadGL(void)
 	}
 	else
 	{
-		I_OutputMsg("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS");
+		I_OutputMsg("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS\n");
 		I_OutputMsg("falling back to Software mode\n");
 		I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
 	}
