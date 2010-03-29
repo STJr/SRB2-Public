@@ -109,6 +109,15 @@ OBJS=$(OBJDIR)/i_video.o
 LIBS=-lm
 endif
 
+ifdef HAIKUS
+SDL=1
+NONET=1
+NOASM=1
+EXENAME?=srb2
+PNG_CFLAGS?=
+PNG_LDFLAGS?=-lpng
+endif
+
 ifdef WIILINUX
 LINUX=1
 NONX86=1
