@@ -1496,60 +1496,60 @@ static void ST_drawRaceHUD(void)
 
 static void ST_drawTagHUD(void)
 {
-	char stime[33] = "";
-	char stext[33] = "";
+	char pstime[33] = "";
+	char pstext[33] = "";
 
 	// Figure out what we're going to print.
 	if (leveltime < hidetime * TICRATE) //during the hide time, the seeker and hiders have different messages on their HUD.
 	{
 		if (cv_hidetime.value)
-			sprintf(stime, "%d", (hidetime - leveltime/TICRATE)); //hide time is in seconds, not tics.
+			sprintf(pstime, "%d", (hidetime - leveltime/TICRATE)); //hide time is in seconds, not tics.
 
 		if (stplyr->pflags & PF_TAGIT && !stplyr->spectator)
-			sprintf(stext, "WAITING FOR PLAYERS TO HIDE...");
+			sprintf(pstext, "WAITING FOR PLAYERS TO HIDE...");
 		else
 		{
 			if (!stplyr->spectator) //spectators get a generic HUD message rather than a gametype specific one.
 			{
 				if (cv_tagtype.value == 1) //hide and seek.
-					sprintf(stext, "HIDE BEFORE TIME RUNS OUT!");
+					sprintf(pstext, "HIDE BEFORE TIME RUNS OUT!");
 				else //default
-					sprintf(stext, "FLEE BEFORE YOU ARE HUNTED!");
+					sprintf(pstext, "FLEE BEFORE YOU ARE HUNTED!");
 			}
 			else
-				sprintf(stext, "HIDE TIME REMAINING:");
+				sprintf(pstext, "HIDE TIME REMAINING:");
 		}
 	}
 	else
 	{
 		if (cv_timelimit.value && timelimitintics >= leveltime)
-			sprintf(stime, "%d", (timelimitintics-leveltime)/TICRATE);
+			sprintf(pstime, "%d", (timelimitintics-leveltime)/TICRATE);
 
 		if (stplyr->pflags & PF_TAGIT)
-			sprintf(stext, "YOU'RE IT!");
+			sprintf(pstext, "YOU'RE IT!");
 		else
 		{
 			if (cv_timelimit.value)
-				sprintf(stext, "TIME REMAINING:");
+				sprintf(pstext, "TIME REMAINING:");
 			else //Since having no hud message in tag is not characteristic:
-				sprintf(stext, "NO TIME LIMIT");
+				sprintf(pstext, "NO TIME LIMIT");
 		}
 	}
 
 	// Print the stuff.
-	if (stext[0])
+	if (pstext[0])
 	{
 		if (splitscreen)
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, stext);
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, pstext);
 		else
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stext);
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, pstext);
 	}
-	if (stime[0])
+	if (pstime[0])
 	{
 		if (splitscreen)
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, stime);
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, pstime);
 		else
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, stime);
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, pstime);
 	}
 
 
