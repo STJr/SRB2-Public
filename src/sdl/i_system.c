@@ -91,7 +91,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #ifdef _PSP
 #include <pspiofilemgr.h>
 #else
-#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined(__HAIKU__)
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined(__HAIKU__))
 #if defined (__linux__)
 #include <sys/vfs.h>
 #else
@@ -2436,7 +2436,7 @@ void I_ShutdownSystem(void)
 
 void I_GetDiskFreeSpace(INT64 *freespace)
 {
-#if defined (_arch_dreamcast) || defined (_PSP)
+#if defined (_arch_dreamcast) || defined (_PSP) || defined (__HAIKU__)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #ifdef SOLARIS
