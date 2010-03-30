@@ -112,6 +112,9 @@ endif
 ifdef HAIKU
 NOIPX=1
 NOASM=1
+ifndef NONET
+LIBS=-lnetwork
+endif
 CFLAGS+=-DUNIXCOMMON
 EXENAME?=srb2
 PNG_CFLAGS?=
