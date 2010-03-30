@@ -112,6 +112,7 @@ endif
 ifdef HAIKU
 NOIPX=1
 NOASM=1
+UNIX=1
 EXENAME?=srb2
 PNG_CFLAGS?=
 PNG_LDFLAGS?=-lpng
