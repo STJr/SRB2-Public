@@ -1014,7 +1014,7 @@ static void R_ProjectSprite(mobj_t *thing)
 	yscale = FixedDiv(projectiony, tz);
 
 	// decide which patch to use for sprite relative to player
-	if ((unsigned)thing->sprite >= numsprites)
+	if ((size_t)(thing->sprite) >= numsprites)
 #ifdef RANGECHECK
 		I_Error("R_ProjectSprite: invalid sprite number %d ", thing->sprite);
 #else
@@ -1038,13 +1038,13 @@ static void R_ProjectSprite(mobj_t *thing)
 	else
 		sprdef = &sprites[thing->sprite];
 
-	if ((byte)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
+	if ((unsigned)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
 #ifdef RANGECHECK
 		I_Error("R_ProjectSprite: invalid sprite frame %u : %d for %s",
 		 thing->sprite, thing->frame, sprnames[thing->sprite]);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %d with invalid sprite data (%d) detected and removed.\n", thing->type, (thing->frame&FF_FRAMEMASK));
+		CONS_Printf("Warning: Mobj of type %d with invalid sprite frame (%d) detected and removed.\n", thing->type, (thing->frame&FF_FRAMEMASK));
 		if (thing->player)
 		{
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
