@@ -110,7 +110,7 @@ LIBS=-lm
 endif
 
 ifdef HAIKU
-NONET=1
+NOIPX=1
 NOASM=1
 EXENAME?=srb2
 PNG_CFLAGS?=
