@@ -2436,10 +2436,10 @@ void I_ShutdownSystem(void)
 
 void I_GetDiskFreeSpace(INT64 *freespace)
 {
-#if defined (_arch_dreamcast) || defined (_PSP) || defined (__HAIKU__)
+#if defined (_arch_dreamcast) || defined (_PSP)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#ifdef SOLARIS
+#if defined (SOLARIS) || defined (__HAIKU__)
 	*freespace = MAXINT;
 	return;
 #else // Both Linux and BSD have this, apparently.
