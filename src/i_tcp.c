@@ -443,7 +443,7 @@ static void SOCK_Get(void)
 		(void *)&fromaddress, &fromlen);
 	if (c == ERRSOCKET)
 	{
-		if ((errno == EWOULDBLOCK) || (errno == EMSGSIZE) || (errno == ECONNREFUSED) || (errno == ETIMEOUT))
+		if ((errno == EWOULDBLOCK) || (errno == EMSGSIZE) || (errno == ECONNREFUSED) || (errno == ETIMEDOUT))
 		{
 			doomcom->remotenode = -1; // no packet
 			return;
