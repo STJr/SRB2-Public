@@ -110,7 +110,6 @@ LIBS=-lm
 endif
 
 ifdef HAIKU
-SDL=1
 NONET=1
 NOASM=1
 EXENAME?=srb2
@@ -119,7 +118,6 @@ PNG_LDFLAGS?=-lpng
 endif
 
 ifdef WIILINUX
-LINUX=1
 NONX86=1
 NOTERMIOS=1
 NOHW=1
