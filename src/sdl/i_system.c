@@ -91,7 +91,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #ifdef _PSP
 #include <pspiofilemgr.h>
 #else
-#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast))
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined(__HAIKU__)
 #if defined (__linux__)
 #include <sys/vfs.h>
 #else
@@ -108,7 +108,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #endif
 
-#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP))
+#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__))
 #ifndef NOTERMIOS
 #include <termios.h>
 #include <sys/ioctl.h> // ioctl
