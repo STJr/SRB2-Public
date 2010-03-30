@@ -116,7 +116,6 @@ ifndef NONET
 LIBS=-lnetwork
 endif
 CFLAGS+=-DUNIXCOMMON
-EXENAME?=srb2
 PNG_CFLAGS?=
 PNG_LDFLAGS?=-lpng
 endif
@@ -306,6 +305,9 @@ ifdef PROFILEMODE
 	# build with profiling information
 	CFLAGS:=-pg $(CFLAGS)
 endif
+
+# default EXENAME if all else fails
+EXENAME?=srb2
 
 # not too sophisticated dependency
 OBJS:=$(i_main_o) \

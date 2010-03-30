@@ -2316,7 +2316,9 @@ static void Sk_SetDefaultValue(skin_t *skin)
 	for (i = 0; i < sfx_skinsoundslot0; i++)
 		if (S_sfx[i].skinsound != -1)
 			skin->soundsid[S_sfx[i].skinsound] = i;
-	M_Memcpy(&skins[0].spritedef, &sprites[SPR_PLAY], sizeof (spritedef_t));
+
+	skins[0].spritedef.numframes = sprites[SPR_PLAY].numframes;
+	skins[0].spritedef.spriteframes = sprites[SPR_PLAY].spriteframes;
 }
 
 //
