@@ -221,7 +221,7 @@ static byte bannedmask[MAXBANS];
 
 #elif defined(HAVE_LWIP)
 #define SELECTTEST
-#elif !defined( _arch_dreamcast)
+#elif !defined( _arch_dreamcast) && !defined (__HAIKU__)
 #define SELECTTEST
 #endif
 
