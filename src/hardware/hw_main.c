@@ -3712,19 +3712,21 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	}
 #endif
 
+	rot = thing->frame&FF_FRAMEMASK;
+
 	//Fab : 02-08-98: 'skin' override spritedef currently used for skin
 	if (thing->skin)
 		sprdef = &((skin_t *)thing->skin)->spritedef;
 	else
 		sprdef = &sprites[thing->sprite];
 
-	if ((size_t)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
+	if (rot >= sprdef->numframes)
 #ifdef RANGECHECK
-		I_Error("HWR_ProjectSprite: invalid sprite frame %i : %d for %s",
-		         thing->sprite, thing->frame, sprnames[thing->sprite]);
+		I_Error("HWR_ProjectSprite: nvalid sprite frame %u : %u/%"PRIdS" for %s",
+		 thing->sprite, rot, sprdef->numframes, sprnames[thing->sprite]);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %i with invalid sprite frame (%d) detected and removed.\n", thing->type, (thing->frame&FF_FRAMEMASK));
+		CONS_Printf("Warning: Mobj of type %d with invalid sprite frame (%u/%"PRIdS") of %s detected and removed.\n", thing->type, rot, sprnames[thing->sprite]);
 		if (thing->player)
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
 		else
