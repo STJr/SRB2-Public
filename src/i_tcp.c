@@ -221,7 +221,7 @@ static byte bannedmask[MAXBANS];
 
 #elif defined(HAVE_LWIP)
 #define SELECTTEST
-#elif !defined( _arch_dreamcast) && !defined (__HAIKU__)
+#elif !defined( _arch_dreamcast)
 #define SELECTTEST
 #endif
 
@@ -460,7 +460,7 @@ static void SOCK_Get(void)
 			/// Later, hmmm, SIO_UDP_CONNRESET turned off should fix this
 		}
 #endif
-		I_Error("SOCK_Get error #%d: %s\n\n(Disabling any firewalls and/or rebooting your computer may fix this problem)", errno, strerror(errno));
+		I_Error("SOCK_Get error #%u: %s\n\n(Disabling any firewalls and/or rebooting your computer may fix this problem)", errno, strerror(errno));
 	}
 
 	// find remote node number
@@ -581,7 +581,7 @@ static void SOCK_Send(void)
 		(struct sockaddr *)&clientaddress[doomcom->remotenode], d);
 
 	if (c == ERRSOCKET && errno != ECONNREFUSED && errno != EWOULDBLOCK)
-		I_Error("SOCK_Send, error sending to node %d (%s) #%d: %s", doomcom->remotenode,
+		I_Error("SOCK_Send, error sending to node %d (%s) #%u: %s", doomcom->remotenode,
 			SOCK_GetNodeAddress(doomcom->remotenode), errno, strerror(errno));
 }
 #endif
@@ -630,7 +630,7 @@ static SOCKET_TYPE UDP_Socket(void)
 #endif
 	s = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (s == (SOCKET_TYPE)ERRSOCKET || s == BADSOCKET)
-		I_Error("UDP_Socket error #%d: Can't create socket: %s", errno, strerror(errno));
+		I_Error("UDP_Socket error #%u: Can't create socket: %s", errno, strerror(errno));
 
 #ifdef _WIN32
 	{ // Alam_GBC: disable the new UDP connection reset behavior for Win2k and up
@@ -688,7 +688,7 @@ static SOCKET_TYPE UDP_Socket(void)
 				"\nThis isn't a normal error, and probably indicates that something network-related\n"
 				"on your computer is configured improperly.");
 #endif
-		I_Error("UDP_Socket error #%d: %s", errno, strerror(errno));
+		I_Error("UDP_Socket error #%u: %s", errno, strerror(errno));
 	}
 
 #ifdef HAVE_IP6
@@ -770,7 +770,7 @@ static SOCKET_TYPE IPX_Socket(void)
 	// allocate a socket
 	s = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
 	if (s == (SOCKET_TYPE)ERRSOCKET || s == BADSOCKET)
-		I_Error("IPX_socket error #%d: Can't create socket: %s", errno, strerror(errno));
+		I_Error("IPX_socket error #%u: Can't create socket: %s", errno, strerror(errno));
 
 	memset(&address, 0, sizeof (address));
 #if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
@@ -781,7 +781,7 @@ static SOCKET_TYPE IPX_Socket(void)
 	address.sa_socket = htons(sock_port);
 #endif // UNIXCOMMON
 	if (bind(s, (void *)&address, sizeof (address)) == ERRSOCKET)
-		I_Error("IPX_Bind error #%d: %s", errno, strerror(errno));
+		I_Error("IPX_Bind error #%u: %s", errno, strerror(errno));
 
 	// make it non blocking
 	ioctl(s, FIONBIO, &trueval);

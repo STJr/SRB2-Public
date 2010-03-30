@@ -550,7 +550,7 @@ static INT32 AddToMasterServer(void)
 	{
 		if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 		{
-			CONS_Printf("Mastserver error on select #%d: %s\n", errno, strerror(errno));
+			CONS_Printf("Mastserver error on select #%u: %s\n", errno, strerror(errno));
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -562,7 +562,7 @@ static INT32 AddToMasterServer(void)
 	getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, (char *)&i, &j);
 	if (i) // it was bad
 	{
-		CONS_Printf("Masterserver getsockopt error #%d: %s\n", errno, strerror(errno));
+		CONS_Printf("Masterserver getsockopt error #%u: %s\n", errno, strerror(errno));
 		MSLastPing = timestamp;
 		return ConnectionFailed();
 	}
