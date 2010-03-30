@@ -1577,6 +1577,25 @@ static FUNCTARGET("mmx") void *mmx1_cpy(void *dest, const void *src, size_t n) /
 }
 #endif
 
+// Alam: why? memcpy may be __cdecl/_System and our code may be not the same type
+static void *cpu_cpy(void *dest, const void *src, size_t n)
+{
+	if(src == NULL)
+	{
+		I_OutputMsg("Memcpy from 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
+		return dest;
+	}
+
+	if(dest == NULL)
+	{
+		I_OutputMsg("Memcpy to 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
+		return dest;
+	}
+
+	//  char *dp = dest;  const char *sp = src;  for (;n>0;n--) *dp++ = *sp++;
+	return memcpy(dest, src, n);
+}
+
 static /*FUNCTARGET("mmx")*/ void *mmx_cpy(void *dest, const void *src, size_t n)
 {
 #if defined (_MSC_VER) && defined (_X86_)
@@ -1682,27 +1701,8 @@ static /*FUNCTARGET("mmx")*/ void *mmx_cpy(void *dest, const void *src, size_t n
 	if (n) __memcpy(dest, src, n);
 	return retval;
 #else
-	return memcpy(dest, src, n);
+	return cpu_cpy(dest, src, n);
 #endif
-}
-
-// Alam: why? memcpy may be __cdecl/_System and our code may be not the same type
-static void *cpu_cpy(void *dest, const void *src, size_t n)
-{
-	if(src == 0)
-	{
-		I_OutputMsg("Memcpy from 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
-		return dest;
-	}
-
-	if(dest == 0)
-	{
-		I_OutputMsg("Memcpy to 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
-		return dest;
-	}
-
-	//  char *dp = dest;  const char *sp = src;  for (;n>0;n--) *dp++ = *sp++;
-	return memcpy(dest, src, n);
 }
 
 void *(*M_Memcpy)(void* dest, const void* src, size_t n) = cpu_cpy;
@@ -1723,4 +1723,7 @@ void M_SetupMemcpy(void)
 #endif
 	if (R_MMX)
 		M_Memcpy = mmx_cpy;
+#if 0
+	M_Memcpy = cpu_cpy;
+#endif
 }
