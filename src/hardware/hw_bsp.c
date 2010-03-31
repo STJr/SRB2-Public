@@ -959,7 +959,7 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	// allocate extra data for each subsector present in map
 	totsubsectors = numsubsectors + NEWSUBSECTORS;
 	extrasubsectors = calloc(totsubsectors, sizeof (*extrasubsectors));
-	if (!extrasubsectors)
+	if (extrasubsectors == NULL)
 		I_Error("couldn't malloc extrasubsectors totsubsectors %"PRIdS"\n", totsubsectors);
 
 	// allocate table for back to front drawing of subsectors

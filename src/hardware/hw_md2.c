@@ -261,7 +261,7 @@ static md2_model_t *md2_readModel(const char *filename)
 	size_t i;
 
 	model = calloc(1, sizeof (*model));
-	if (!model)
+	if (model == NULL)
 		return 0;
 
 	file = fopen(filename, "rb");

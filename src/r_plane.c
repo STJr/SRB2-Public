@@ -365,7 +365,7 @@ static visplane_t *new_visplane(unsigned hash)
 	if (!check)
 	{
 		check = calloc(1, sizeof (*check));
-		if (check == NULL) I_Error("out of memory"); // FIXME: ugly
+		if (check == NULL) I_Error("%s: Out of memory", __FUNCTION__); // FIXME: ugly
 	}
 	else
 	{

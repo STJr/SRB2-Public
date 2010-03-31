@@ -576,14 +576,17 @@ static void Got_Saycmd(byte **p, INT32 playernum)
 			else
 				tempchar = (char *)calloc(strlen(cstart) + strlen(remotechar) + 1, sizeof(char));
 
-			strcat(tempchar, cstart);
+			if (tempchar)
+			{
+				strcat(tempchar, cstart);
 
-			if (playernum == serverplayer)
-				strcat(tempchar, adminchar);
-			else
-				strcat(tempchar, remotechar);
+				if (playernum == serverplayer)
+					strcat(tempchar, adminchar);
+				else
+					strcat(tempchar, remotechar);
 
-			cstart = tempchar;
+				cstart = tempchar;
+			}
 		}
 
 		// Choose the proper format string for display.

@@ -518,7 +518,7 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 	//           512 different flats per level should be plenty
 
 	foundflats = calloc(MAXLEVELFLATS, sizeof (*foundflats));
-	if (!foundflats)
+	if (foundflats == NULL)
 		I_Error("Ran out of memory while loading sectors\n");
 
 	numlevelflats = 0;
@@ -1381,6 +1381,8 @@ static void P_CreateBlockMap(void)
 		size_t tot = bmapwidth * bmapheight; // size of blockmap
 		bmap_t *bmap = calloc(tot, sizeof (*bmap)); // array of blocklists
 		boolean straight;
+
+		if (bmap == NULL) I_Error("%s: Out of memory making blockmap", __FUNCTION__);
 
 		for (i = 0; i < numlines; i++)
 		{

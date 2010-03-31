@@ -706,6 +706,8 @@ void HWR_GetMappedPatch(GLPatch_t *gpatch, const byte *colormap)
 	//    this malloc is cleared in HWR_FreeTextureCache
 	//    (...) unfortunately z_malloc fragment alot the memory :(so malloc is better
 	newmip = calloc(1, sizeof (*newmip));
+	if (newmip == NULL)
+		I_Error("%s: Out of memory", __FUNCTION__);
 	grmip->nextcolormap = newmip;
 
 	newmip->colormap = colormap;
