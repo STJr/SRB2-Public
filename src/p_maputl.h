@@ -43,9 +43,6 @@ typedef struct
 	} d;
 } intercept_t;
 
-extern intercept_t *intercepts;
-extern intercept_t *intercept_p;
-
 typedef boolean (*traverser_t)(intercept_t *in);
 
 boolean P_PathTraverse(fixed_t px1, fixed_t py1, fixed_t px2, fixed_t py2,

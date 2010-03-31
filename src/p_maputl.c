@@ -23,6 +23,7 @@
 #include "r_main.h"
 #include "p_maputl.h"
 #include "p_polyobj.h"
+#include "z_zone.h"
 
 //
 // P_AproxDistance
@@ -845,8 +846,8 @@ boolean P_BlockThingsIterator(INT32 x, INT32 y, boolean (*func)(mobj_t *))
 //
 
 //SoM: 4/6/2000: Limit removal
-intercept_t *intercepts = NULL;
-intercept_t *intercept_p = NULL;
+static intercept_t *intercepts = NULL;
+static intercept_t *intercept_p = NULL;
 
 divline_t trace;
 static boolean earlyout;
@@ -860,17 +861,11 @@ static void P_CheckIntercepts(void)
 	if (max_intercepts <= count)
 	{
 		if (!max_intercepts)
-		{
 			max_intercepts = 128;
-			intercepts = malloc(sizeof (*intercepts) * max_intercepts);
-		}
 		else
-		{
 			max_intercepts *= 2;
-			intercepts = realloc(intercepts, sizeof (*intercepts) * max_intercepts);
-		}
-		if (!intercepts)
-			I_Error("Out of Memory in P_CheckIntercepts");
+
+		intercepts = Z_Realloc(intercepts, sizeof (*intercepts) * max_intercepts, PU_STATIC, NULL);
 
 		intercept_p = intercepts + count;
 	}
