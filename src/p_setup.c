@@ -1379,7 +1379,7 @@ static void P_CreateBlockMap(void)
 		} bmap_t; // blocklist structure
 
 		size_t tot = bmapwidth * bmapheight; // size of blockmap
-		bmap_t *bmap = calloc(sizeof (*bmap), tot); // array of blocklists
+		bmap_t *bmap = calloc(tot, sizeof (*bmap)); // array of blocklists
 		boolean straight;
 
 		for (i = 0; i < numlines; i++)

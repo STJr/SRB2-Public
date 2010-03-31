@@ -1132,7 +1132,7 @@ void R_PrecacheLevel(void)
 	//
 	// no need to precache all software textures in 3D mode
 	// (note they are still used with the reference software view)
-	texturepresent = calloc(numtextures, sizeof(char));
+	texturepresent = calloc(numtextures, sizeof(*texturepresent));
 
 	for (j = 0; j < numsides; j++)
 	{
@@ -1166,7 +1166,7 @@ void R_PrecacheLevel(void)
 	//
 	// Precache sprites.
 	//
-	spritepresent = calloc(numsprites, sizeof(char));
+	spritepresent = calloc(numsprites, sizeof(*spritepresent));
 
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		if (th->function.acp1 == (actionf_p1)P_MobjThinker)

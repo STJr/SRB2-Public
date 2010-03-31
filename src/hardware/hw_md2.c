@@ -260,7 +260,7 @@ static md2_model_t *md2_readModel(const char *filename)
 	byte buffer[MD2_MAX_FRAMESIZE];
 	size_t i;
 
-	model = calloc(1, sizeof *model);
+	model = calloc(1, sizeof (*model));
 	if (!model)
 		return 0;
 
