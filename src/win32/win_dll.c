@@ -62,8 +62,8 @@ static HMODULE LoadDLL (LPCSTR dllName, loadfunc_t *funcTable)
 	}
 	else
 	{
-		MessageBoxA(NULL, va("LoadLibrary() FAILED : couldn't load '%s'\r\n", dllName), "Warning", MB_OK|MB_ICONINFORMATION);
 		I_ShowLastError(FALSE);
+		MessageBoxA(NULL, va("LoadLibrary() FAILED : couldn't load '%s'\r\n", dllName), "Warning", MB_OK|MB_ICONINFORMATION);
 	}
 
 	return hModule;
