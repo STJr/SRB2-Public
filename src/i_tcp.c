@@ -422,12 +422,14 @@ static signed char getfreenode(void)
 // This goes through and cleans up what nodes were supposed to be freed.
 static void cleanupnodes(void)
 {
+#if 0
 	signed char j;
 
 	// Why can't I start at zero?
 	for (j = 1; j < MAXNETNODES; j++)
 		if (!nodeingame[j])
 			nodeconnected[j] = false;
+#endif
 }
 #endif
 
