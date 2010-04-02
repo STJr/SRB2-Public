@@ -2016,10 +2016,11 @@ noscript:
 	S_StopSounds();
 	S_ClearSfx();
 
+	// why not use Zone memory? unknown
 	for (ss = sectors; sectors+numsectors != ss; ss++)
 	{
-		Z_Free(ss->attached);
-		Z_Free(ss->attachedsolid);
+		if (ss->attached) free(ss->attached);
+		if (ss->attachedsolid) free(ss->attachedsolid);
 	}
 
 	Z_FreeTags(PU_LEVEL, PU_PURGELEVEL - 1);
