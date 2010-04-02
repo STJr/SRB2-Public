@@ -2018,8 +2018,8 @@ noscript:
 
 	for (ss = sectors; sectors+numsectors != ss; ss++)
 	{
-		if (ss->attached) Z_Free(ss->attached);
-		if (ss->attachedsolid) Z_Free(ss->attachedsolid);
+		Z_Free(ss->attached);
+		Z_Free(ss->attachedsolid);
 	}
 
 	Z_FreeTags(PU_LEVEL, PU_PURGELEVEL - 1);
