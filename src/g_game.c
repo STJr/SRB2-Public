@@ -3270,7 +3270,7 @@ boolean G_CheckDemoStatus(void)
 		timingdemo = false;
 		f1 = (double)demotime;
 		f2 = (double)framecount*TICRATE;
-		CONS_Printf("timed %d gametics in %d realtics\n"
+		CONS_Printf("timed %u gametics in %d realtics\n"
 			"%f seconds, %f avg fps\n",
 			leveltime,demotime,f1/TICRATE,f2/f1);
 		if (restorecv_vidwait != cv_vidwait.value)

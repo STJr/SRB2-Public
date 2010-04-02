@@ -80,7 +80,7 @@ void Z_Init(void)
 	head.next = head.prev = &head;
 
 	memfree = I_GetFreeMem(&total)>>20;
-	CONS_Printf("system memory %dMB free %dMB\n", total>>20, memfree);
+	CONS_Printf("system memory %uMB free %uMB\n", total>>20, memfree);
 
 	// Note: This allocates memory. Watch out.
 	COM_AddCommand("memfree", Command_Memfree_f);
@@ -448,8 +448,8 @@ void Command_Memfree_f(void)
 
 	CONS_Printf("\2System Memory Info\n");
 	freebytes = I_GetFreeMem(&totalbytes);
-	CONS_Printf("    Total physical memory: %7d KB\n", totalbytes>>10);
-	CONS_Printf("Available physical memory: %7d KB\n", freebytes>>10);
+	CONS_Printf("    Total physical memory: %7u KB\n", totalbytes>>10);
+	CONS_Printf("Available physical memory: %7u KB\n", freebytes>>10);
 }
 
 // Creates a copy of a string.

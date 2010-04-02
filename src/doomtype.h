@@ -55,7 +55,7 @@ typedef long ssize_t;
 #include <arch/types.h>
 
 #define USHORT uint16
-#define ULONG unsigned long
+#define ULONG unsigned int
 
 #define UINT16 uint16
 #define INT16 int16

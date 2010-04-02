@@ -564,7 +564,7 @@ void P_TransferToAxis(player_t *player, INT32 axisnum)
 	fixed_t dist1, dist2 = 0;
 
 	if (cv_debug)
-		CONS_Printf("Transferring to axis %d\nLeveltime: %d...\n", axisnum,leveltime);
+		CONS_Printf("Transferring to axis %d\nLeveltime: %u...\n", axisnum, leveltime);
 
 	closestaxis = NULL;
 

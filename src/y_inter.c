@@ -357,7 +357,7 @@ void Y_IntermissionDrawer(void)
 				if (data.match.numplayers > 9)
 				{
 					if (inttype == int_match)
-						V_DrawRightAlignedString(x+152, y, 0, va("%d", data.match.scores[i]));
+						V_DrawRightAlignedString(x+152, y, 0, va("%i", data.match.scores[i]));
 					else if (inttype == int_race)
 					{
 						snprintf(strtime, sizeof strtime,
@@ -371,7 +371,7 @@ void Y_IntermissionDrawer(void)
 				else
 				{
 					if (inttype == int_match)
-						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, va("%d", data.match.scores[i]));
+						V_DrawRightAlignedString(x+152+BASEVIDWIDTH/2, y, 0, va("%u", data.match.scores[i]));
 					else if (inttype == int_race)
 					{
 						if (players[data.match.num[i]].pflags & PF_TIMEOVER)
@@ -416,10 +416,10 @@ void Y_IntermissionDrawer(void)
 
 		// Show the team flags and the team score at the top instead of "RESULTS"
 		V_DrawSmallScaledPatch(128 - SHORT(data.match.blueflag->width)/4, 2, 0, data.match.blueflag);
-		V_DrawCenteredString(128, 16, 0, va("%d", bluescore));
+		V_DrawCenteredString(128, 16, 0, va("%u", bluescore));
 
 		V_DrawSmallScaledPatch(192 - SHORT(data.match.redflag->width)/4, 2, 0, data.match.redflag);
-		V_DrawCenteredString(192, 16, 0, va("%d", redscore));
+		V_DrawCenteredString(192, 16, 0, va("%u", redscore));
 
 		// draw the level name
 		V_DrawCenteredString(BASEVIDWIDTH/2, 24, 0, data.match.levelstring);
@@ -470,7 +470,7 @@ void Y_IntermissionDrawer(void)
 
 				V_DrawString(x+36, y, V_ALLOWLOWERCASE, name);
 
-				V_DrawRightAlignedString(x+152, y, 0, va("%d", data.match.scores[i]));
+				V_DrawRightAlignedString(x+152, y, 0, va("%u", data.match.scores[i]));
 			}
 		}
 	}

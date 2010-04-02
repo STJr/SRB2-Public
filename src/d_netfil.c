@@ -464,7 +464,7 @@ void SendRam(INT32 node, byte *data, size_t size, freemethod_t freemethod, char 
 	p->fileid = fileid;
 	p->next = NULL; // end of list
 
-	DEBFILE(va("Sending ram %p(size:%d) to %d (id=%d)\n",p->filename,p->size,node,fileid));
+	DEBFILE(va("Sending ram %p(size:%u) to %d (id=%u)\n",p->filename,p->size,node,fileid));
 
 	filetosend++;
 }
@@ -625,7 +625,7 @@ void Got_Filetxpak(void)
 		if (filetime == 0)
 		{
 			Net_GetNetStat();
-			CONS_Printf("\r%s %dK/%dK %.1fK/s\n",fileneeded[filenum].filename,
+			CONS_Printf("\r%s %uK/%uK %.1fK/s\n",fileneeded[filenum].filename,
 			                                       fileneeded[filenum].currentsize>>10,
 			                                       fileneeded[filenum].totalsize>>10,
 			                                       ((double)getbps)/1024);
@@ -641,7 +641,7 @@ void Got_Filetxpak(void)
 		                                  ((double)getbps)/1024));
 			else //don't show the total file size if we don't know what it IS!
 				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0,
-				 va("%dK/??K %.1fK/s\n",fileneeded[filenum].currentsize>>10,
+				 va("%uK/??K %.1fK/s\n",fileneeded[filenum].currentsize>>10,
 		                                 ((double)getbps)/1024));
 		}
 

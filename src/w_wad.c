@@ -399,7 +399,7 @@ USHORT W_LoadWadFile(const char *filename)
 	//
 	// add the wadfile
 	//
-	CONS_Printf("Added file %s (%d lumps)\n", filename, numlumps);
+	CONS_Printf("Added file %s (%u lumps)\n", filename, numlumps);
 	wadfiles[numwadfiles] = wadfile;
 	W_LoadDehackedLumps(numwadfiles);
 

@@ -1756,57 +1756,57 @@ static void readmaincfg(MYFILE *f)
 			}
 			else if (!strcmp(word, "INVULNTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", invulntics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", invulntics), UNDO_NONE);
 				invulntics = value;
 			}
 			else if (!strcmp(word, "SNEAKERTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", sneakertics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", sneakertics), UNDO_NONE);
 				sneakertics = value;
 			}
 			else if (!strcmp(word, "FLASHINGTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", flashingtics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", flashingtics), UNDO_NONE);
 				flashingtics = value;
 			}
 			else if (!strcmp(word, "TAILSFLYTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", tailsflytics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", tailsflytics), UNDO_NONE);
 				tailsflytics = value;
 			}
 			else if (!strcmp(word, "UNDERWATERTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", underwatertics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", underwatertics), UNDO_NONE);
 				underwatertics = value;
 			}
 			else if (!strcmp(word, "SPACETIMETICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", spacetimetics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", spacetimetics), UNDO_NONE);
 				spacetimetics = value;
 			}
 			else if (!strcmp(word, "EXTRALIFETICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", extralifetics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", extralifetics), UNDO_NONE);
 				extralifetics = value;
 			}
 			else if (!strcmp(word, "GRAVBOOTSTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", gravbootstics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", gravbootstics), UNDO_NONE);
 				gravbootstics = value;
 			}
 			else if (!strcmp(word, "PARALOOPTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", paralooptics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", paralooptics), UNDO_NONE);
 				paralooptics = value;
 			}
 			else if (!strcmp(word, "HELPERTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", helpertics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", helpertics), UNDO_NONE);
 				helpertics = value;
 			}
 			else if (!strcmp(word, "GAMEOVERTICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", gameovertics), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%u", gameovertics), UNDO_NONE);
 				gameovertics = value;
 			}
 			else if (!strcmp(word, "INTROTOPLAY"))

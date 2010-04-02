@@ -328,7 +328,7 @@ void R_LoadTextures(void)
 	name_p = pnames+4;
 	patchlookup = malloc(nummappatches*sizeof (*patchlookup));
 	if (!patchlookup)
-		I_Error("Could not malloc %"PRIdS" bytes for patchloopup", nummappatches*sizeof (*patchlookup));
+		I_Error("Could not malloc %"PRIdS" bytes for patchloopup", (size_t)nummappatches*sizeof (*patchlookup));
 
 	for (i = 0; i < nummappatches; i++)
 	{
@@ -487,7 +487,7 @@ static void R_InitExtraColormaps(void)
 		colormaplumps[numcolormaplumps].numlumps = endnum - (startnum + 1);
 		numcolormaplumps++;
 	}
-	CONS_Printf("Number of Extra Colormaps: %d\n", (ULONG)numcolormaplumps);
+	CONS_Printf("Number of Extra Colormaps: %"PRIdS"\n", numcolormaplumps);
 }
 
 lumpnum_t R_GetFlatNumForName(const char *name)

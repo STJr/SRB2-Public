@@ -656,7 +656,7 @@ static void P_NetUnArchiveWorld(void)
 			break;
 
 		if (i > numsectors)
-			I_Error("Invalid sector number %d from server (expected end at %"PRIdS")", i, numsectors);
+			I_Error("Invalid sector number %u from server (expected end at %"PRIdS")", i, numsectors);
 
 		diff = READBYTE(get);
 		if (diff & SD_DIFF2)
@@ -712,7 +712,7 @@ static void P_NetUnArchiveWorld(void)
 		if (i == 0xffff)
 			break;
 		if (i > numlines)
-			I_Error("Invalid line number %d from server", i);
+			I_Error("Invalid line number %u from server", i);
 
 		diff = READBYTE(get);
 		li = &lines[i];

@@ -468,7 +468,7 @@ void Net_AckTicker(void)
 				ackpak[i].acknum = 0;
 				continue;
 			}
-			DEBFILE(va("Resend ack %d, %d<%d at %d\n", ackpak[i].acknum, ackpak[i].senttime,
+			DEBFILE(va("Resend ack %d, %u<%d at %u\n", ackpak[i].acknum, ackpak[i].senttime,
 				node->timeout, I_GetTime()));
 			M_Memcpy(netbuffer, ackpak[i].pak.raw, ackpak[i].length);
 			ackpak[i].senttime = I_GetTime();

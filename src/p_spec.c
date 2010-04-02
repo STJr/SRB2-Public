@@ -1181,7 +1181,7 @@ void P_ChangeSectorTag(ULONG sector, short newtag)
 	i = sectors[(unsigned)oldtag % numsectors].firsttag;
 
 	if (i == -1) // shouldn't happen
-		I_Error("Corrupt tag list for sector %d\n", sector);
+		I_Error("Corrupt tag list for sector %u\n", sector);
 	else if ((ULONG)i == sector)
 		sectors[(unsigned)oldtag % numsectors].firsttag = sectors[sector].nexttag;
 	else

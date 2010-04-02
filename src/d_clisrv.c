@@ -233,7 +233,7 @@ static void ExtraDataTicker(void)
 						buf[0] = (char)i;
 						buf[1] = KICK_MSG_CON_FAIL;
 						SendNetXCmd(XD_KICK, &buf, 2);
-						DEBFILE(va("player %d kicked [gametic=%d] reason as follows:\n", i, gametic));
+						DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
 					}
 					CONS_Printf(text[UNKNOWNNETCMD], curpos - (byte *)&(textcmds[tic][i]), *curpos, textcmds[tic][i][0]);
 					return;
@@ -251,7 +251,7 @@ static void D_Clearticcmd(tic_t tic)
 		textcmds[tic%BACKUPTICS][i][0] = 0;
 		netcmds[tic%BACKUPTICS][i].angleturn = 0;
 	}
-	DEBFILE(va("clear tic %5d (%2d)\n", tic, tic%BACKUPTICS));
+	DEBFILE(va("clear tic %5u (%2u)\n", tic, tic%BACKUPTICS));
 }
 
 // -----------------------------------------------------------------
@@ -2181,7 +2181,7 @@ FILESTAMP
 						playernode[(byte)serverplayer] = servernode;
 
 					CONS_Printf("%s", text[JOINACCEPTED]);
-					DEBFILE(va("Server accept join gametic=%d mynode=%d\n", gametic, mynode));
+					DEBFILE(va("Server accept join gametic=%u mynode=%d\n", gametic, mynode));
 
 					playermask = LONG(netbuffer->u.servercfg.playerdetected);
 					for (j = 0; j < MAXPLAYERS; j++)
@@ -2259,7 +2259,7 @@ FILESTAMP
 				// discard out of order packet
 				if (nettics[node] > realend)
 				{
-					DEBFILE(va("out of order ticcmd discarded nettics = %d\n", nettics[node]));
+					DEBFILE(va("out of order ticcmd discarded nettics = %u\n", nettics[node]));
 					break;
 				}
 
@@ -2291,7 +2291,7 @@ FILESTAMP
 						if (cv_blamecfail.value)
 							CONS_Printf(text[CONSFAILRESTORE], netconsole);
 
-						DEBFILE(va("Restoring player %d (consistency failure) [%d] %d!=%d\n",
+						DEBFILE(va("Restoring player %d (consistency failure) [%u] %d!=%d\n",
 							netconsole, realstart, consistancy[realstart%BACKUPTICS],
 							SHORT(netbuffer->u.clientpak.consistancy)));
 
@@ -2361,7 +2361,7 @@ FILESTAMP
 						buf[1] = KICK_MSG_CON_FAIL;
 //						SV_SavedGame();
 						SendNetXCmd(XD_KICK, &buf, 2);
-						DEBFILE(va("player %d kicked (consistency failure) [%d] %d!=%d\n",
+						DEBFILE(va("player %d kicked (consistency failure) [%u] %d!=%d\n",
 							netconsole, realstart, consistancy[realstart%BACKUPTICS],
 							SHORT(netbuffer->u.clientpak.consistancy)));
 					}
@@ -2403,12 +2403,12 @@ FILESTAMP
 					if (tic >= firstticstosend + BACKUPTICS)
 					{
 						DEBFILE(va("GetPacket: Textcmd too long (max %"PRIdS", used %"PRIdS", mak %d, "
-							"tosend %d, node %d, player %d)\n", j, TotalTextCmdPerTic(maketic),
+							"tosend %u, node %u, player %d)\n", j, TotalTextCmdPerTic(maketic),
 							maketic, firstticstosend, node, netconsole));
 						Net_UnAcknowledgPacket(node);
 						break;
 					}
-					DEBFILE(va("textcmd put in tic %d at position %d (player %d) ftts %d mk %d\n",
+					DEBFILE(va("textcmd put in tic %u at position %d (player %d) ftts %u mk %u\n",
 						tic, textcmds[p][netconsole][0]+1, netconsole, firstticstosend, maketic));
 					p = tic % BACKUPTICS;
 					M_Memcpy(&textcmds[p][netconsole][textcmds[p][netconsole][0]+1],
@@ -2504,7 +2504,7 @@ FILESTAMP
 					neededtic = realend;
 				}
 				else
-					DEBFILE(va("frame not in bound: %d\n", neededtic));
+					DEBFILE(va("frame not in bound: %u\n", neededtic));
 				break;
 			case PT_SERVERCFG:
 				break;
@@ -2532,7 +2532,7 @@ static short Consistancy(void)
 	short ret = 0;
 	INT32 i;
 
-	DEBFILE(va("TIC %d ", gametic));
+	DEBFILE(va("TIC %u ", gametic));
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] && players[i].mo)
 		{
@@ -2633,7 +2633,7 @@ static void SV_SendTics(void)
 				// to resent packet that are supposed lost (this is necessary since lost
 				// packet detection work when we have received packet with firsttic > neededtic
 				// (getpacket servertics case)
-				DEBFILE(va("Nothing to send node %d mak=%d sup=%d net=%d \n",
+				DEBFILE(va("Nothing to send node %u mak=%u sup=%u net=%u \n",
 					n, maketic, supposedtics[n], nettics[n]));
 				realfirsttic = nettics[n];
 				if (realfirsttic >= maketic || (I_GetTime() + n)&3)
