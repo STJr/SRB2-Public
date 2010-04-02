@@ -534,7 +534,7 @@ static void Polyobj_findExplicit(polyobj_t *po)
 			if (numSegItems >= numSegItemsAlloc)
 			{
 				numSegItemsAlloc = numSegItemsAlloc ? numSegItemsAlloc*2 : 4;
-				segitems = Z_Realloc(segitems, numSegItemsAlloc*sizeof(segitem_t), PU_STATIC, NULL);
+				segitems = realloc(segitems, numSegItemsAlloc*sizeof(segitem_t));
 			}
 			segitems[numSegItems].seg = &segs[i];
 			segitems[numSegItems].num = parentID;
@@ -559,7 +559,7 @@ static void Polyobj_findExplicit(polyobj_t *po)
 		Polyobj_addSeg(po, segitems[i].seg);
 
 	// free the temporary array
-	Z_Free(segitems);
+	free(segitems);
 }
 
 // Setup functions

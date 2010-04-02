@@ -23,7 +23,6 @@
 #include "r_main.h"
 #include "p_maputl.h"
 #include "p_polyobj.h"
-#include "z_zone.h"
 
 //
 // P_AproxDistance
@@ -861,11 +860,17 @@ static void P_CheckIntercepts(void)
 	if (max_intercepts <= count)
 	{
 		if (!max_intercepts)
+		{
 			max_intercepts = 128;
+			intercepts = malloc(sizeof (*intercepts) * max_intercepts);
+		}
 		else
+		{
 			max_intercepts *= 2;
-
-		intercepts = Z_Realloc(intercepts, sizeof (*intercepts) * max_intercepts, PU_STATIC, NULL);
+			intercepts = realloc(intercepts, sizeof (*intercepts) * max_intercepts);
+		}
+		if (!intercepts)
+			I_Error("Out of Memory in P_CheckIntercepts");
 
 		intercept_p = intercepts + count;
 	}

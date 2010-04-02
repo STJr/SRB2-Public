@@ -4347,7 +4347,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 		sec2->attached = malloc(sizeof (*sec2->attached) * sec2->maxattached);
 		sec2->attachedsolid = malloc(sizeof (*sec2->attachedsolid) * sec2->maxattached);
 		if (!sec2->attached || !sec2->attachedsolid)
-			I_Error("Out of memory adding FoF");
+			I_Error("No more free memory to AddFakeFloor");
 		sec2->attached[0] = sec - sectors;
 		sec2->numattached = 1;
 		sec2->attachedsolid[0] = (flags & FF_SOLID);
@@ -4362,29 +4362,11 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 
 		if (sec2->numattached >= sec2->maxattached)
 		{
-			void *old = sec2->attached;
-			sec2->attached = realloc(old, sizeof (*sec2->attached) * sec2->maxattached*2);
-			if (!sec2->attached) //realloc can return NULL;
-			{
-				sec2->attached = malloc(sizeof (*sec2->attached) * sec2->maxattached*2);
-				if (sec2->attached)
-					M_Memcpy(sec2->attached, old, sizeof (*sec2->attached) * sec2->maxattached);
-				else
-					I_Error("Out of memory adding more FoFs");
-				free(old);
-			}
-			old = sec2->attachedsolid;
-			sec2->attachedsolid = realloc(old, sizeof (*sec2->attachedsolid) * sec2->maxattached);
-			if (!sec2->attachedsolid) //realloc can return NULL;
-			{
-				sec2->attachedsolid = malloc(sizeof (*sec2->attachedsolid) * sec2->maxattached*2);
-				if (sec2->attachedsolid)
-					M_Memcpy(sec2->attachedsolid, old, sizeof (*sec2->attachedsolid) * sec2->maxattached);
-				else
-					I_Error("Out of memory adding more FoFs");
-				free(old);
-			}
 			sec2->maxattached *= 2;
+			sec2->attached = realloc(sec2->attached, sizeof (*sec2->attached) * sec2->maxattached);
+			sec2->attachedsolid = realloc(sec2->attachedsolid, sizeof (*sec2->attachedsolid) * sec2->maxattached);
+			if (!sec2->attached || !sec2->attachedsolid)
+				I_Error("Out of Memory in P_AddFakeFloor");
 		}
 		sec2->attached[sec2->numattached] = sec - sectors;
 		sec2->attachedsolid[sec2->numattached] = (flags & FF_SOLID);

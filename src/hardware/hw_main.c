@@ -3353,8 +3353,9 @@ void HWR_AddTransparentFloor(lumpnum_t lumpnum, extrasubsector_t *xsub,
 {
 	if (!(numplanes % MAX_TRANSPARENTFLOOR))
 	{
-		planeinfo = Z_Realloc(planeinfo,
-			(numplanes + MAX_TRANSPARENTFLOOR) * sizeof *planeinfo, PU_STATIC, NULL);
+		planeinfo = realloc(planeinfo,
+			(numplanes + MAX_TRANSPARENTFLOOR) * sizeof *planeinfo);
+		if (!planeinfo) I_Error("Out of Memory in HWR_AddTransparentFloor");
 	}
 
 	planeinfo[numplanes].fixedheight = fixedheight;
@@ -4441,8 +4442,9 @@ static void HWR_Add3DWater(lumpnum_t lumpnum, extrasubsector_t *xsub,
 {
 	if (!(numfloors % MAX_3DWATER))
 	{
-		planeinfo = Z_Realloc(planeinfo,
-			(numfloors + MAX_3DWATER) * sizeof *planeinfo, PU_STATIC, NULL);
+		planeinfo = realloc(planeinfo,
+			(numfloors + MAX_3DWATER) * sizeof *planeinfo);
+		if (!planeinfo) I_Error("Out of Memory in HWR_Add3DWater");
 	}
 	planeinfo[numfloors].fixedheight = fixedheight;
 	planeinfo[numfloors].lightlevel = lightlevel;
@@ -4533,8 +4535,9 @@ static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, I
 {
 	if (!(numwalls % MAX_TRANSPARENTWALL))
 	{
-		wallinfo = Z_Realloc(wallinfo,
-			(numwalls + MAX_TRANSPARENTWALL) * sizeof *wallinfo, PU_STATIC, NULL);
+		wallinfo = realloc(wallinfo,
+			(numwalls + MAX_TRANSPARENTWALL) * sizeof *wallinfo);
+		if (!wallinfo) I_Error("Out of Memory in HWR_AddTransparentWall");
 	}
 
 	M_Memcpy(wallinfo[numwalls].wallVerts, wallVerts, sizeof (wallinfo[numwalls].wallVerts));

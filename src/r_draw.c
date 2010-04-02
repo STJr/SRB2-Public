@@ -99,7 +99,7 @@ byte *bosstranslationtables;
 */
 byte *dc_translation;
 
-struct r_lightlist_s *dc_lightlist = NULL;
+struct r_lightlist_s *dc_lightlist = NULL; /// \todo free leak
 INT32 dc_numlights = 0, dc_maxlights, dc_texheight;
 
 // =========================================================================

@@ -456,7 +456,7 @@ static void R_InitExtraColormaps(void)
 {
 	lumpnum_t startnum, endnum;
 	USHORT cfile, clump;
-	static size_t maxcolormaplumps = 16;
+	size_t maxcolormaplumps = 16;
 
 	for (cfile = clump = 0; cfile < numwadfiles; cfile++, clump = 0)
 	{
@@ -473,9 +473,15 @@ static void R_InitExtraColormaps(void)
 			I_Error("R_InitExtraColormaps: C_START and C_END in different wad files!\n");
 
 		if (numcolormaplumps >= maxcolormaplumps)
+		{
 			maxcolormaplumps *= 2;
-		colormaplumps = Z_Realloc(colormaplumps,
-			sizeof (*colormaplumps) * maxcolormaplumps, PU_STATIC, NULL);
+			colormaplumps = realloc(colormaplumps,
+				sizeof (*colormaplumps) * maxcolormaplumps);
+		}
+		else if (!colormaplumps)
+			colormaplumps = malloc(sizeof (*colormaplumps) * maxcolormaplumps);
+		if (!colormaplumps)
+			I_Error("Out of Memory in R_InitExtraColormaps");
 		colormaplumps[numcolormaplumps].wadfile = WADFILENUM(startnum);
 		colormaplumps[numcolormaplumps].firstlump = LUMPNUM(startnum+1);
 		colormaplumps[numcolormaplumps].numlumps = endnum - (startnum + 1);
