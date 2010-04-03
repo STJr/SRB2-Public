@@ -422,10 +422,10 @@ static signed char getfreenode(void)
 // This goes through and cleans up what nodes were supposed to be freed.
 static void cleanupnodes(void)
 {
+	signed char j;
+
 	if (!Playing())
 		return;
-
-	signed char j;
 
 	// Why can't I start at zero?
 	for (j = 1; j < MAXNETNODES; j++)
