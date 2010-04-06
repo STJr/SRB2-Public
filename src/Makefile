@@ -95,6 +95,19 @@ D_FILES=$(D_DIR)/srb2.srb \
 	$(D_DIR)/soar.dta \
 	$(D_DIR)/music.dta \
 
+ifdef WIILINXU
+LINUX=1
+endif
+
+ifdef LINUX64
+LINUX=1
+NONX86=1
+endif
+
+ifdef HAIKU
+SDL=1
+endif
+
 include Makefile.cfg
 
 ifdef DUMMY
