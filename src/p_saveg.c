@@ -1133,7 +1133,7 @@ static inline void SavePusherThinker(const thinker_t *th, const byte type)
 //
 // Saves a laserthink_t thinker
 //
-static inline void SaveLaserThinker(const thinker_t *th, const byte type)
+static void SaveLaserThinker(const thinker_t *th, const byte type)
 {
 	const laserthink_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1156,7 +1156,7 @@ static inline void SaveLaserThinker(const thinker_t *th, const byte type)
 //
 // Saves a lightlevel_t thinker
 //
-static inline void SaveLightlevelThinker(const thinker_t *th, const byte type)
+static void SaveLightlevelThinker(const thinker_t *th, const byte type)
 {
 	const lightlevel_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1174,7 +1174,7 @@ static inline void SaveLightlevelThinker(const thinker_t *th, const byte type)
 //
 // Saves a executor_t thinker
 //
-static inline void SaveExecutorThinker(const thinker_t *th, const byte type)
+static void SaveExecutorThinker(const thinker_t *th, const byte type)
 {
 	const executor_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1192,7 +1192,7 @@ static inline void SaveExecutorThinker(const thinker_t *th, const byte type)
 //
 // Saves a disappear_t thinker
 //
-static inline void SaveDisappearThinker(const thinker_t *th, const byte type)
+static void SaveDisappearThinker(const thinker_t *th, const byte type)
 {
 	const disappear_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1255,7 +1255,7 @@ static void SavePolymoveThinker(const thinker_t *th, const byte type)
 //
 // Saves a polywaypoint_t thinker
 //
-static inline void SavePolywaypointThinker(const thinker_t *th, byte type)
+static void SavePolywaypointThinker(const thinker_t *th, byte type)
 {
 	const polywaypoint_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1282,7 +1282,7 @@ static inline void SavePolywaypointThinker(const thinker_t *th, byte type)
 //
 // Saves a polyslidedoor_t thinker
 //
-static inline void SavePolyslidedoorThinker(const thinker_t *th, const byte type)
+static void SavePolyslidedoorThinker(const thinker_t *th, const byte type)
 {
 	const polyslidedoor_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1310,7 +1310,7 @@ static inline void SavePolyslidedoorThinker(const thinker_t *th, const byte type
 //
 // Saves a polyswingdoor_t thinker
 //
-static inline void SavePolyswingdoorThinker(const thinker_t *th, const byte type)
+static void SavePolyswingdoorThinker(const thinker_t *th, const byte type)
 {
 	const polyswingdoor_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1903,7 +1903,7 @@ static inline void LoadLightflashThinker(actionf_p1 thinker)
 //
 // Loads a strobe_t from a save game
 //
-static inline void LoadStrobeThinker(actionf_p1 thinker)
+static void LoadStrobeThinker(actionf_p1 thinker)
 {
 	strobe_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -1927,7 +1927,7 @@ static inline void LoadStrobeThinker(actionf_p1 thinker)
 //
 // Loads a glow_t from a save game
 //
-static inline void LoadGlowThinker(actionf_p1 thinker)
+static void LoadGlowThinker(actionf_p1 thinker)
 {
 	glow_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -1949,7 +1949,7 @@ static inline void LoadGlowThinker(actionf_p1 thinker)
 //
 // Loads a fireflicker_t from a save game
 //
-static inline void LoadFireflickerThinker(actionf_p1 thinker)
+static void LoadFireflickerThinker(actionf_p1 thinker)
 {
 	fireflicker_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -2013,7 +2013,7 @@ static void LoadElevatorThinker(actionf_p1 thinker, byte floorOrCeiling)
 //
 // Loads a scroll_t from a save game
 //
-static inline void LoadScrollThinker(actionf_p1 thinker)
+static void LoadScrollThinker(actionf_p1 thinker)
 {
 	scroll_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -2063,7 +2063,7 @@ static inline void LoadFrictionThinker(actionf_p1 thinker)
 //
 // Loads a pusher_t from a save game
 //
-static inline void LoadPusherThinker(actionf_p1 thinker)
+static void LoadPusherThinker(actionf_p1 thinker)
 {
 	pusher_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
