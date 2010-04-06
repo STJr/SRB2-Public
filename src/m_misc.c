@@ -481,7 +481,7 @@ void M_SaveConfig(char *filename)
 }
 
 
-#if NUMSCREENS > 2 || defined (HAVE_PNG)
+#if NUMSCREENS > 2
 static const char *Newsnapshotfile(const char *pathname, const char *ext)
 {
 	static char freename[13] = "srb2XXXX.ext";
