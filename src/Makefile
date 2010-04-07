@@ -95,7 +95,7 @@ D_FILES=$(D_DIR)/srb2.srb \
 	$(D_DIR)/soar.dta \
 	$(D_DIR)/music.dta \
 
-ifdef WIILINXU
+ifdef WIILINUX
 LINUX=1
 endif
 
