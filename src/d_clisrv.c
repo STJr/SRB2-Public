@@ -116,6 +116,34 @@ void D_ResetTiccmds(void)
 	memset(&localcmds2, 0, sizeof(ticcmd_t));
 }
 
+static inline void *G_DcpyTiccmd(void* dest, const ticcmd_t* src, const size_t n)
+{
+	const size_t d = n / sizeof(ticcmd_t);
+	const size_t r = n % sizeof(ticcmd_t);
+	byte *ret = dest;
+
+	if (r)
+		M_Memcpy(dest, src, n);
+	else if (d)
+		G_MoveTiccmd(dest, src, d);
+	return ret+n;
+}
+
+static inline void *G_ScpyTiccmd(ticcmd_t* dest, void* src, const size_t n)
+{
+	const size_t d = n / sizeof(ticcmd_t);
+	const size_t r = n % sizeof(ticcmd_t);
+	byte *ret = src;
+
+	if (r)
+		M_Memcpy(dest, src, n);
+	else if (d)
+		G_MoveTiccmd(dest, src, d);
+	return ret+n;
+}
+
+
+
 // some software don't support largest packet
 // (original sersetup, not exactely, but the probabylity of sending a packet
 // of 512 octet is like 0.1)
@@ -2368,10 +2396,10 @@ FILESTAMP
 				}
 
 				// copy ticcmd
-				G_CopyTiccmd(&netcmds[maketic%BACKUPTICS][netconsole], &netbuffer->u.clientpak.cmd, 1);
+				G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][netconsole], &netbuffer->u.clientpak.cmd, 1);
 
 				if (netbuffer->packettype == PT_CLIENT2CMD && nodetoplayer2[node] >= 0)
-					G_CopyTiccmd(&netcmds[maketic%BACKUPTICS][(byte)nodetoplayer2[node]],
+					G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][(byte)nodetoplayer2[node]],
 						&netbuffer->u.client2pak.cmd2, 1);
 
 				break;
@@ -2486,18 +2514,18 @@ FILESTAMP
 						D_Clearticcmd(i);
 
 						// copy the tics
-						G_CopyTiccmd(netcmds[i%BACKUPTICS], (ticcmd_t *)pak,
-							netbuffer->u.serverpak.numslots);
-						pak += netbuffer->u.serverpak.numslots*sizeof (ticcmd_t);
+						pak = G_ScpyTiccmd(netcmds[i%BACKUPTICS], pak,
+							netbuffer->u.serverpak.numslots*sizeof (ticcmd_t));
 
 						// copy the textcmds
 						numtxtpak = *txtpak++;
 						for (j = 0; j < numtxtpak; j++)
 						{
 							INT32 k = *txtpak++; // playernum
+							const size_t txtsize = txtpak[0]+1;
 
-							M_Memcpy(textcmds[i%BACKUPTICS][k], txtpak, txtpak[0]+1);
-							txtpak += txtpak[0]+1;
+							M_Memcpy(textcmds[i%BACKUPTICS][k], txtpak, txtsize);
+							txtpak += txtsize;
 						}
 					}
 
@@ -2566,14 +2594,14 @@ static void CL_SendClientCmd(void)
 	}
 	else if (gamestate != GS_NULL)
 	{
-		G_CopyTiccmd(&netbuffer->u.clientpak.cmd, &localcmds, 1);
+		G_MoveTiccmd(&netbuffer->u.clientpak.cmd, &localcmds, 1);
 		netbuffer->u.clientpak.consistancy = SHORT(consistancy[gametic%BACKUPTICS]);
 
 		// send a special packet with 2 cmd for splitscreen
 		if (splitscreen)
 		{
 			netbuffer->packettype += 2;
-			G_CopyTiccmd(&netbuffer->u.client2pak.cmd2, &localcmds2, 1);
+			G_MoveTiccmd(&netbuffer->u.client2pak.cmd2, &localcmds2, 1);
 			packetsize = sizeof (client2cmd_pak);
 		}
 		else
@@ -2686,8 +2714,7 @@ static void SV_SendTics(void)
 
 			for (i = realfirsttic; i < lasttictosend; i++)
 			{
-				G_CopyTiccmd((ticcmd_t *)bufpos, netcmds[i%BACKUPTICS], doomcom->numslots);
-				bufpos += doomcom->numslots * sizeof (ticcmd_t);
+				bufpos = G_DcpyTiccmd(bufpos, netcmds[i%BACKUPTICS], doomcom->numslots * sizeof (ticcmd_t));
 			}
 
 			// add textcmds
@@ -2702,7 +2729,7 @@ static void SV_SendTics(void)
 					if ((!j || playeringame[j]) && size)
 					{
 						(*ntextcmd)++;
-						*bufpos++ = (byte)j;
+						WRITEBYTE(bufpos, j);
 						M_Memcpy(bufpos, textcmds[i%BACKUPTICS][j], size + 1);
 						bufpos += size + 1;
 					}

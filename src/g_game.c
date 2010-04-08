@@ -668,15 +668,13 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	boolean strafe;
 	INT32 tspeed, forward, side, axis;
 	const INT32 speed = 1;
-	ticcmd_t *base;
 	// these ones used for multiple conditions
 	boolean turnleft, turnright, mouseaiming, analogjoystickmove, gamepadjoystickmove;
 
 	static INT32 turnheld; // for accelerative turning
 	static boolean keyboard_look; // true if lookup/down using keyboard
 
-	base = I_BaseTiccmd(); // empty, or external driver
-	M_Memcpy(cmd, base, sizeof (*cmd));
+	G_CopyTiccmd(cmd, I_BaseTiccmd(), 1); // empty, or external driver
 
 	//why build a ticcmd if we're paused?
 	if (paused)
@@ -991,15 +989,13 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	boolean strafe;
 	INT32 tspeed, forward, side, axis;
 	const INT32 speed = 1;
-	ticcmd_t *base;
 	// these ones used for multiple conditions
 	boolean turnleft, turnright, mouseaiming, analogjoystickmove, gamepadjoystickmove;
 
 	static INT32 turnheld; // for accelerative turning
 	static boolean keyboard_look; // true if lookup/down using keyboard
 
-	base = I_BaseTiccmd2(); // empty, or external driver
-	M_Memcpy(cmd, base, sizeof (*cmd));
+	G_CopyTiccmd(cmd,  I_BaseTiccmd2(), 1); // empty, or external driver
 
 	//why build a ticcmd if we're paused?
 	if (paused)
@@ -2956,6 +2952,11 @@ static ticcmd_t oldcmd[MAXPLAYERS];
 
 ticcmd_t *G_CopyTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n)
 {
+	return M_Memcpy(dest, src, n*sizeof(*src));
+}
+
+ticcmd_t *G_MoveTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n)
+{
 	size_t i;
 	for (i = 0; i < n; i++)
 	{
@@ -2989,9 +2990,9 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 	if (ziptic & ZT_EXTRADATA)
 		ReadLmpExtraData(&demo_p, playernum);
 	else
-		ReadLmpExtraData(0, playernum);
+		ReadLmpExtraData(NULL, playernum);
 
-	G_CopyTiccmd(cmd, &(oldcmd[playernum]), 1);
+	G_CopyTiccmd(cmd, oldcmd+playernum, 1);
 
 	if (*demo_p == DEMOMARKER)
 	{

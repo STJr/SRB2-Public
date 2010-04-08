@@ -68,8 +68,10 @@ const char *G_BuildMapName(INT32 map);
 void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics);
 void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics);
 
-// copy ticcmd_t to and fro network packets and demo lumps
+// copy ticcmd_t to and fro the normal way
 ticcmd_t *G_CopyTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n);
+// copy ticcmd_t to and fro network packets
+ticcmd_t *G_MoveTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n);
 
 // clip the console player aiming to the view
 short G_ClipAimingPitch(INT32 *aiming);
