@@ -174,7 +174,7 @@ static void I_DetectWin9x(void)
 }
 
 // return free and total memory in the system
-ULONG I_GetFreeMem(ULONG* total)
+UINT32 I_GetFreeMem(UINT32* total)
 {
 	MEMORYSTATUS info;
 

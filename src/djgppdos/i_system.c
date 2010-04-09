@@ -304,7 +304,7 @@ static void I_DetectOS (void)
 #endif
 }
 
-ULONG I_GetFreeMem(ULONG *total)
+UINT32 I_GetFreeMem(UINT32 *total)
 {
 	__dpmi_free_mem_info     info;
 

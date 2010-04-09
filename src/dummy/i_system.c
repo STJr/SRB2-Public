@@ -5,7 +5,7 @@ byte graphics_started = 0;
 
 byte keyboard_started = 0;
 
-ULONG I_GetFreeMem(ULONG *total)
+UINT32 I_GetFreeMem(UINT32 *total)
 {
 	*total = 0;
 	return 0;

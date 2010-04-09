@@ -1509,7 +1509,7 @@ EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value)
 // -----------------+
 // HWRAPI DrawMD2   : Draw an MD2 model with glcommands
 // -----------------+
-EXPORT void HWRAPI(DrawMD2i) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG duration, ULONG tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color)
+EXPORT void HWRAPI(DrawMD2i) (INT32 *gl_cmd_buffer, md2_frame_t *frame, UINT32 duration, UINT32 tics, md2_frame_t *nextframe, FTransform *pos, float scale, boolean flipped, byte *color)
 {
 	INT32     val, count, pindex;
 	GLfloat s, t;
@@ -1517,7 +1517,7 @@ EXPORT void HWRAPI(DrawMD2i) (INT32 *gl_cmd_buffer, md2_frame_t *frame, ULONG du
 	GLfloat diffuse[4];
 
 	float pol;
-	ULONG newtime;
+	UINT32 newtime;
 	float scalex, scaley, scalez;
 	scalex = scaley = scalez = scale;
 

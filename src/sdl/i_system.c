@@ -2778,7 +2778,7 @@ const char *I_LocateWad(void)
 #endif
 
 // quick fix for compil
-ULONG I_GetFreeMem(ULONG *total)
+UINT32 I_GetFreeMem(UINT32 *total)
 {
 #if defined (_arch_dreamcast)
 	//Dreamcast!
@@ -2831,8 +2831,8 @@ ULONG I_GetFreeMem(ULONG *total)
 	/* Linux */
 	char buf[1024];
 	char *memTag;
-	ULONG freeKBytes;
-	ULONG totalKBytes;
+	UINT32 freeKBytes;
+	UINT32 totalKBytes;
 	INT32 n;
 	INT32 meminfo_fd = -1;
 
@@ -2877,16 +2877,16 @@ ULONG I_GetFreeMem(ULONG *total)
 	info.dwLength = sizeof (MEMORYSTATUS);
 	GlobalMemoryStatus( &info );
 	if (total)
-		*total = (ULONG)info.dwTotalPhys;
-	return (ULONG)info.dwAvailPhys;
+		*total = (UINT32)info.dwTotalPhys;
+	return (UINT32)info.dwAvailPhys;
 #elif defined (__OS2__)
-	ULONG pr_arena;
+	UINT32 pr_arena;
 
 	if (total)
 		DosQuerySysInfo( QSV_TOTPHYSMEM, QSV_TOTPHYSMEM,
-							(PVOID) total, sizeof (ULONG));
+							(PVOID) total, sizeof (UINT32));
 	DosQuerySysInfo( QSV_MAXPRMEM, QSV_MAXPRMEM,
-				(PVOID) &pr_arena, sizeof (ULONG));
+				(PVOID) &pr_arena, sizeof (UINT32));
 
 	return pr_arena;
 #else
