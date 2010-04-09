@@ -472,10 +472,10 @@ typedef struct light_s
 	float light_xoffset;
 	float light_yoffset;  // y offset to adjust corona's height
 
-	ULONG corona_color;   // color of the light for static lighting
+	UINT32 corona_color;   // color of the light for static lighting
 	float corona_radius;  // radius of the coronas
 
-	ULONG dynamic_color;  // color of the light for dynamic lighting
+	UINT32 dynamic_color;  // color of the light for dynamic lighting
 	float dynamic_radius; // radius of the light ball
 	float dynamic_sqrradius; // radius^2 of the light ball
 } light_t;

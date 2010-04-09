@@ -56,7 +56,7 @@ extern char english_shiftxform[];
 
 typedef struct
 {
-	ULONG count;
+	UINT32 count;
 	INT32 num;
 	INT32 color;
 	boolean spectator;
@@ -109,7 +109,7 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer);
 void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer);
 void HU_DrawEmeralds(INT32 x, INT32 y, INT32 pemeralds);
 
-INT32 HU_CreateTeamScoresTbl(playersort_t *tab, ULONG dmtotals[]);
+INT32 HU_CreateTeamScoresTbl(playersort_t *tab, UINT32 dmtotals[]);
 void MatchType_OnChange(void);
 
 // CECHO interface.

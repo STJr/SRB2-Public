@@ -516,7 +516,7 @@ void Net_UnAcknowledgPacket(INT32 node)
 	{
 		nodes[node].firstacktosend--;
 		if (!nodes[node].firstacktosend)
-			nodes[node].firstacktosend = (byte)-1;
+			nodes[node].firstacktosend = UINT8_MAX;
 	}
 	else
 	{
@@ -528,7 +528,7 @@ void Net_UnAcknowledgPacket(INT32 node)
 
 			nodes[node].firstacktosend--;
 			if (!nodes[node].firstacktosend)
-				nodes[node].firstacktosend = (byte)-1;
+				nodes[node].firstacktosend = UINT8_MAX;
 		}
 		nodes[node].firstacktosend++;
 		if (!nodes[node].firstacktosend)
@@ -548,7 +548,7 @@ boolean Net_AllAckReceived(void)
 }
 
 // wait for all ackreturns with timeout in seconds
-void Net_WaitAllAckReceived(ULONG timeout)
+void Net_WaitAllAckReceived(UINT32 timeout)
 {
 	tic_t tictac = I_GetTime();
 	timeout = tictac + timeout*TICRATE;
@@ -587,12 +587,12 @@ static void InitAck(void)
 		InitNode(i);
 }
 
-void Net_AbortPacketType(char packettype)
+void Net_AbortPacketType(byte packettype)
 {
 	INT32 i;
 	for (i = 0; i < MAXACKPACKETS; i++)
 		if (ackpak[i].acknum && (ackpak[i].pak.data.packettype == packettype
-			|| packettype == (char)-1))
+			|| packettype == UINT8_MAX))
 		{
 			ackpak[i].acknum = 0;
 		}
@@ -639,9 +639,9 @@ void Net_CloseConnection(INT32 node)
 //
 // Checksum
 //
-static ULONG NetbufferChecksum(void)
+static UINT32 NetbufferChecksum(void)
 {
-	ULONG c = 0x1234567;
+	UINT32 c = 0x1234567;
 	const INT32 l = doomcom->datalength - 4;
 	const byte *buf = (byte *)netbuffer + 4;
 	INT32 i;
@@ -753,9 +753,9 @@ static void DebugPrintpacket(const char *header)
 		case PT_SERVERCFG:
 			fprintf(debugfile, "    playermask %x playerslots %d clientnode %d serverplayer %d "
 				"gametic %u gamestate %d gametype %d modifiedgame %d\n",
-				(ULONG)LONG(netbuffer->u.servercfg.playerdetected),
+				(UINT32)LONG(netbuffer->u.servercfg.playerdetected),
 				netbuffer->u.servercfg.totalslotnum, netbuffer->u.servercfg.clientnode,
-				netbuffer->u.servercfg.serverplayer, (ULONG)LONG(netbuffer->u.servercfg.gametic),
+				netbuffer->u.servercfg.serverplayer, (UINT32)LONG(netbuffer->u.servercfg.gametic),
 				netbuffer->u.servercfg.gamestate, netbuffer->u.servercfg.gametype,
 				netbuffer->u.servercfg.modifiedgame);
 			break;
@@ -764,7 +764,7 @@ static void DebugPrintpacket(const char *header)
 				netbuffer->u.serverinfo.servername, netbuffer->u.serverinfo.numberofplayer,
 				netbuffer->u.serverinfo.maxplayer, netbuffer->u.serverinfo.mapname,
 				netbuffer->u.serverinfo.fileneedednum,
-				(ULONG)LONG(netbuffer->u.serverinfo.time));
+				(UINT32)LONG(netbuffer->u.serverinfo.time));
 			fprintfstring((char *)netbuffer->u.serverinfo.fileneeded,
 				(byte)((char *)netbuffer + doomcom->datalength
 				- (char *)netbuffer->u.serverinfo.fileneeded));
@@ -775,7 +775,7 @@ static void DebugPrintpacket(const char *header)
 		case PT_FILEFRAGMENT:
 			fprintf(debugfile, "    fileid %d datasize %d position %u\n",
 				netbuffer->u.filetxpak.fileid, (UINT16)SHORT(netbuffer->u.filetxpak.size),
-				(ULONG)LONG(netbuffer->u.filetxpak.position));
+				(UINT32)LONG(netbuffer->u.filetxpak.position));
 			break;
 		case PT_REQUESTFILE:
 		default: // write as a raw packet

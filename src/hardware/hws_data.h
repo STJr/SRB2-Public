@@ -115,7 +115,7 @@ typedef struct snddev_s
 
 // Windows specific data
 #if defined (_WIN32) && !defined (_XBOX)
-	ULONG   cooplevel;
+	UINT32   cooplevel;
 	HWND    hWnd;
 #endif
 } snddev_t;

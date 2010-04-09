@@ -130,7 +130,7 @@ typedef struct
 	byte gamestate;
 	byte padding4[2];
 
-	ULONG playerdetected; // playeringame vector in bit field
+	UINT32 playerdetected; // playeringame vector in bit field
 	byte gametype;
 	byte modifiedgame;
 	char adminplayer; // needs to be signed
@@ -143,7 +143,7 @@ typedef struct
 typedef struct {
 	char fileid;
 	byte padding1[3];
-	ULONG position;
+	UINT32 position;
 	UINT16 size;
 	byte data[0]; // size is variable using hardare_MAXPACKETLENGTH
 #ifdef __GNUC__
@@ -208,7 +208,7 @@ typedef struct
 //
 typedef struct
 {
-	ULONG checksum;
+	UINT32 checksum;
 	byte ack; // if not null the node asks for acknowledgement, the receiver must resend the ack
 	byte ackreturn; // the return of the ack number
 

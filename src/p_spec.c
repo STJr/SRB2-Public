@@ -1167,7 +1167,7 @@ static boolean PolyRotate(line_t *line)
   * \sa P_InitTagLists, P_FindSectorFromTag
   * \author Graue <graue@oceanbase.org>
   */
-void P_ChangeSectorTag(ULONG sector, INT16 newtag)
+void P_ChangeSectorTag(UINT32 sector, INT16 newtag)
 {
 	INT16 oldtag;
 	INT32 i;
@@ -1182,11 +1182,11 @@ void P_ChangeSectorTag(ULONG sector, INT16 newtag)
 
 	if (i == -1) // shouldn't happen
 		I_Error("Corrupt tag list for sector %u\n", sector);
-	else if ((ULONG)i == sector)
+	else if ((UINT32)i == sector)
 		sectors[(unsigned)oldtag % numsectors].firsttag = sectors[sector].nexttag;
 	else
 	{
-		while (sectors[i].nexttag != -1 && (ULONG)sectors[i].nexttag < sector )
+		while (sectors[i].nexttag != -1 && (UINT32)sectors[i].nexttag < sector )
 			i = sectors[i].nexttag;
 
 		sectors[i].nexttag = sectors[sector].nexttag;
@@ -1195,7 +1195,7 @@ void P_ChangeSectorTag(ULONG sector, INT16 newtag)
 	sectors[sector].tag = newtag;
 
 	// now add it to the new tag's taglist
-	if ((ULONG)sectors[(unsigned)newtag % numsectors].firsttag > sector)
+	if ((UINT32)sectors[(unsigned)newtag % numsectors].firsttag > sector)
 	{
 		sectors[sector].nexttag = sectors[(unsigned)newtag % numsectors].firsttag;
 		sectors[(unsigned)newtag % numsectors].firsttag = sector;
@@ -1211,7 +1211,7 @@ void P_ChangeSectorTag(ULONG sector, INT16 newtag)
 		}
 		else
 		{
-			while (sectors[i].nexttag != -1 && (ULONG)sectors[i].nexttag < sector )
+			while (sectors[i].nexttag != -1 && (UINT32)sectors[i].nexttag < sector )
 				i = sectors[i].nexttag;
 
 			sectors[sector].nexttag = sectors[i].nexttag;
@@ -1936,7 +1936,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 		}
 
 		case 410: // Change front sector's tag
-			P_ChangeSectorTag((ULONG)(line->frontsector - sectors), (INT16)(P_AproxDistance(line->dx, line->dy)>>FRACBITS));
+			P_ChangeSectorTag((UINT32)(line->frontsector - sectors), (INT16)(P_AproxDistance(line->dx, line->dy)>>FRACBITS));
 			break;
 
 		case 411: // Stop floor/ceiling movement in tagged sector(s)
@@ -7068,7 +7068,7 @@ void T_Pusher(pusher_t *p)
   *         sector.
   * \sa P_GetTeleportDestThing, P_GetStarpostThing, P_GetAltViewThing
   */
-mobj_t *P_GetPushThing(ULONG s)
+mobj_t *P_GetPushThing(UINT32 s)
 {
 	mobj_t *thing;
 	sector_t *sec;

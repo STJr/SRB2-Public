@@ -35,23 +35,23 @@
 #endif
 typedef struct
 {
-	ULONG magic;
-	ULONG version;
-	ULONG skinWidth;
-	ULONG skinHeight;
-	ULONG frameSize;
-	ULONG numSkins;
-	ULONG numVertices;
-	ULONG numTexCoords;
-	ULONG numTriangles;
-	ULONG numGlCommands;
-	ULONG numFrames;
-	ULONG offsetSkins;
-	ULONG offsetTexCoords;
-	ULONG offsetTriangles;
-	ULONG offsetFrames;
-	ULONG offsetGlCommands;
-	ULONG offsetEnd;
+	UINT32 magic;
+	UINT32 version;
+	UINT32 skinWidth;
+	UINT32 skinHeight;
+	UINT32 frameSize;
+	UINT32 numSkins;
+	UINT32 numVertices;
+	UINT32 numTexCoords;
+	UINT32 numTriangles;
+	UINT32 numGlCommands;
+	UINT32 numFrames;
+	UINT32 offsetSkins;
+	UINT32 offsetTexCoords;
+	UINT32 offsetTriangles;
+	UINT32 offsetFrames;
+	UINT32 offsetGlCommands;
+	UINT32 offsetEnd;
 } ATTRPACK md2_header_t; //NOTE: each of md2_header's members are 4 unsigned bytes
 
 typedef struct

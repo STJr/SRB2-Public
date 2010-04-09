@@ -127,7 +127,7 @@ extern fixed_t t_cam2_dist, t_cam2_height, t_cam2_rotate;
 fixed_t P_GetPlayerHeight(player_t *player);
 fixed_t P_GetPlayerSpinHeight(player_t *player);
 INT32 P_GetPlayerControlDirection(player_t *player);
-void P_AddPlayerScore(player_t *player, ULONG amount);
+void P_AddPlayerScore(player_t *player, UINT32 amount);
 void P_ResetCamera(player_t *player, camera_t *thiscam);
 INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam);
 void P_SlideCameraMove(camera_t *thiscam);

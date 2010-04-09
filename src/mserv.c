@@ -686,7 +686,7 @@ void MSOpenUDPSocket(void)
 
 void MSCloseUDPSocket(void)
 {
-	if (msnode != (INT16)-1) I_NetFreeNodenum(msnode);
+	if (msnode != INT16_MAX) I_NetFreeNodenum(msnode);
 	msnode = -1;
 }
 

@@ -153,7 +153,7 @@ extern INT16 nextmapoverride;
 extern INT32 nextmapgametype;
 extern boolean skipstats;
 
-extern ULONG totalrings; //  Total # of rings in a level
+extern UINT32 totalrings; //  Total # of rings in a level
 
 // Fun extra stuff
 extern INT16 lastmap; // Last level you were at (returning from special stages).
@@ -277,14 +277,14 @@ typedef struct
 extern timeattack_t timedata[NUMMAPS];
 extern boolean mapvisited[NUMMAPS];
 
-extern ULONG token; ///< Number of tokens collected in a level
-extern ULONG tokenlist; ///< List of tokens collected
+extern UINT32 token; ///< Number of tokens collected in a level
+extern UINT32 tokenlist; ///< List of tokens collected
 extern INT32 tokenbits; ///< Used for setting token bits
 extern INT32 sstimer; ///< Time allotted in the special stage
-extern ULONG bluescore; ///< Blue Team Scores
-extern ULONG redscore;  ///< Red Team Scores
-extern ULONG redflagloose; ///< Red's flag is on the ground.
-extern ULONG blueflagloose; ///< Blue's flag is on the ground.
+extern UINT32 bluescore; ///< Blue Team Scores
+extern UINT32 redscore;  ///< Red Team Scores
+extern UINT32 redflagloose; ///< Red's flag is on the ground.
+extern UINT32 blueflagloose; ///< Blue's flag is on the ground.
 
 // Eliminates unnecessary searching.
 extern boolean CheckForBustableBlocks;
@@ -313,8 +313,8 @@ extern byte creditscutscene;
 extern mobj_t *hunt1, *hunt2, *hunt3; // Emerald hunt locations
 
 // For racing
-extern ULONG countdown;
-extern ULONG countdown2;
+extern UINT32 countdown;
+extern UINT32 countdown2;
 
 extern fixed_t gravity;
 
@@ -341,9 +341,9 @@ extern tic_t hidetime;
 // 5 = B
 // 6 = A
 // 7 = A+
-extern ULONG grade;
+extern UINT32 grade;
 
-extern ULONG timesbeaten; // # of times the game has been beaten.
+extern UINT32 timesbeaten; // # of times the game has been beaten.
 
 // ===========================
 // Internal parameters, fixed.

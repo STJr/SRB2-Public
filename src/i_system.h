@@ -46,7 +46,7 @@ extern byte keyboard_started;
 
 	\return	free memory in the system
 */
-ULONG I_GetFreeMem(ULONG *total);
+UINT32 I_GetFreeMem(UINT32 *total);
 
 /**	\brief  Called by D_SRB2Loop, returns current time in tics.
 */

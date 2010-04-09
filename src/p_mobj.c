@@ -2247,8 +2247,8 @@ static void P_SceneryZMovement(mobj_t *mo)
 void P_MobjCheckWater(mobj_t *mobj)
 {
 	sector_t *sector;
-	ULONG oldeflags;
-	ULONG wasinwater;
+	UINT32 oldeflags;
+	UINT32 wasinwater;
 
 	wasinwater = mobj->eflags & MFE_UNDERWATER; // important: not boolean!
 

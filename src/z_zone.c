@@ -75,7 +75,7 @@ static void Command_Memfree_f(void);
 
 void Z_Init(void)
 {
-	ULONG total, memfree;
+	UINT32 total, memfree;
 
 	head.next = head.prev = &head;
 
@@ -417,7 +417,7 @@ size_t Z_TagUsage(INT32 tagnum)
 
 void Command_Memfree_f(void)
 {
-	ULONG freebytes, totalbytes;
+	UINT32 freebytes, totalbytes;
 
 	Z_CheckHeap(-1);
 	CONS_Printf("\2Memory Info\n");

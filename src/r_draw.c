@@ -116,7 +116,7 @@ byte *ds_transmap; // one of the translucency tables
 /**	\brief Variable flat sizes
 */
 
-ULONG nflatxshift, nflatyshift, nflatshiftup, nflatmask;
+UINT32 nflatxshift, nflatyshift, nflatshiftup, nflatmask;
 
 // ==========================================================================
 //                        OLD DOOM FUZZY EFFECT

@@ -114,7 +114,7 @@ opendir (const CHAR *szPath)
 
   /* Attempt to determine if the given path really is a directory. */
   rc = GetFileAttributesA(szPath);
-  if (rc == (DWORD)-1)
+  if (rc == INVALID_FILE_ATTRIBUTES)
     {
       /* call GetLastError for more error info */
       errno = ENOENT;

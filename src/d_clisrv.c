@@ -153,14 +153,14 @@ tic_t ExpandTics(INT32 low)
 {
 	INT32 delta;
 
-	delta = low - (maketic & 0xff);
+	delta = low - (maketic & UINT8_MAX);
 
 	if (delta >= -64 && delta <= 64)
-		return (maketic & ~0xff) + low;
+		return (maketic & ~UINT8_MAX) + low;
 	else if (delta > 64)
-		return (maketic & ~0xff) - 256 + low;
+		return (maketic & ~UINT8_MAX) - 256 + low;
 	else //if (delta < -64)
-		return (maketic & ~0xff) + 256 + low;
+		return (maketic & ~UINT8_MAX) + 256 + low;
 }
 
 // -----------------------------------------------------------------
@@ -637,7 +637,7 @@ static UINT32 SL_SearchServer(INT32 node)
 		if (serverlist[i].node == node)
 			return i;
 
-	return (UINT32)-1;
+	return UINT32_MAX;
 }
 
 static void SL_InsertServer(serverinfo_pak* info, signed char node)
@@ -647,7 +647,7 @@ static void SL_InsertServer(serverinfo_pak* info, signed char node)
 
 	// search if not already on it
 	i = SL_SearchServer(node);
-	if (i == (UINT32)-1)
+	if (i == UINT32_MAX)
 	{
 		// not found add it
 		if (serverlistcount >= MAXSERVERLIST)
@@ -1308,7 +1308,7 @@ static void CL_RemovePlayer(INT32 playernum)
 
 	// remove avatar of player
 	playeringame[playernum] = false;
-	playernode[playernum] = (byte)-1;
+	playernode[playernum] = UINT8_MAX;
 	while (!playeringame[doomcom->numslots-1] && doomcom->numslots > 1)
 		doomcom->numslots--;
 
@@ -1481,7 +1481,7 @@ static void Command_Kick(void)
 	if (server || adminplayer == consoleplayer)
 	{
 		buf[0] = nametonum(COM_Argv(1));
-		if (buf[0] == (char)-1 || buf[0] == 0)
+		if (buf[0] == -1 || buf[0] == 0)
 			return;
 		buf[1] = KICK_MSG_GO_AWAY;
 		SendNetXCmd(XD_KICK, &buf, 2);
@@ -1706,7 +1706,7 @@ void SV_ResetServer(void)
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		playeringame[i] = false;
-		playernode[i] = (byte)-1;
+		playernode[i] = UINT8_MAX;
 
 		// keep your name, but clear everything else.
 		if (!i && cv_playername.string)
@@ -1799,7 +1799,7 @@ static void Got_AddPlayer(byte **p, INT32 playernum)
 {
 	INT32 node, newplayernum;
 	boolean splitscreenplayer;
-	static ULONG sendconfigtic = 0xffffffff;
+	static UINT32 sendconfigtic = UINT32_MAX;
 
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
@@ -2187,7 +2187,7 @@ FILESTAMP
 				{
 					INT32 j;
 					byte *scp;
-					ULONG playermask = 0;
+					UINT32 playermask = 0;
 
 					/// \note how would this happen? and is it doing the right thing if it does?
 					if (cl_mode != cl_waitjoinresponse)
@@ -2582,8 +2582,8 @@ static void CL_SendClientCmd(void)
 
 	if (cl_packetmissed)
 		netbuffer->packettype++;
-	netbuffer->u.clientpak.resendfrom = (byte)(neededtic & 0xFF);
-	netbuffer->u.clientpak.client_tic = (byte)(gametic & 0xFF);
+	netbuffer->u.clientpak.resendfrom = (byte)(neededtic & UINT8_MAX);
+	netbuffer->u.clientpak.client_tic = (byte)(gametic & UINT8_MAX);
 
 	if (gamestate == GS_WAITINGPLAYERS)
 	{
@@ -2639,7 +2639,7 @@ static void CL_SendClientCmd(void)
 static void SV_SendTics(void)
 {
 	tic_t realfirsttic, lasttictosend, i;
-	ULONG n;
+	UINT32 n;
 	INT32 j;
 	size_t packsize;
 	byte *bufpos;

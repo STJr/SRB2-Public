@@ -266,7 +266,7 @@ typedef struct player_s
 
 	INT32 skin;
 
-	ULONG score; // player score
+	UINT32 score; // player score
 	INT32 dashspeed; // dashing speed
 
 	INT32 normalspeed; // Normal ground
@@ -281,7 +281,7 @@ typedef struct player_s
 	INT32 charability; // Ability definition
 	INT32 charability2; // Secondary ability definition
 
-	ULONG charflags; // Extra abilities/settings for skins (combinable stuff)
+	UINT32 charflags; // Extra abilities/settings for skins (combinable stuff)
 	                 // See SF_ flags
 
 	mobjtype_t thokitem; // Object # to spawn for the thok
@@ -308,7 +308,7 @@ typedef struct player_s
 	INT32 secondjump;
 
 	INT32 fly1; // Tails flying
-	ULONG scoreadd; // Used for multiple enemy attack bonus
+	UINT32 scoreadd; // Used for multiple enemy attack bonus
 	tic_t glidetime; // Glide counter for thrust
 	INT32 climbing; // Climbing on the wall
 	INT32 deadtimer; // End game if game over lasts too long
@@ -332,8 +332,8 @@ typedef struct player_s
 	INT32 numboxes; // Number of item boxes obtained for Race Mode
 	INT32 totalring; // Total number of rings obtained for Race Mode
 	tic_t realtime; // integer replacement for leveltime
-	ULONG racescore; // Total of won categories
-	ULONG laps; // Number of laps (optional)
+	UINT32 racescore; // Total of won categories
+	UINT32 laps; // Number of laps (optional)
 
 	////////////////////
 	// Tag Mode Stuff //
@@ -362,7 +362,7 @@ typedef struct player_s
 	INT32 starpostnum; // The number of the last starpost you hit
 	tic_t starposttime; // Your time when you hit the starpost
 	angle_t starpostangle; // Angle that the starpost is facing - you respawn facing this way
-	ULONG starpostbit; // List of starposts hit
+	UINT32 starpostbit; // List of starposts hit
 
 	/////////////////
 	// NiGHTS Stuff//

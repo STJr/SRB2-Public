@@ -779,7 +779,7 @@ static void HWR_DrawPicInCache(byte *block, INT32 pblockwidth, INT32 pblockheigh
 					break;  // not supported yet
 				case RGBA32 : // assume dest bpp = 4
 					dest += 4;
-					*(ULONG *)dest = *((ULONG *)src + ((posx+FRACUNIT/2)>>FRACBITS));
+					*(UINT32 *)dest = *((UINT32 *)src + ((posx+FRACUNIT/2)>>FRACBITS));
 					break;
 			}
 			posx += stepx;

@@ -1390,7 +1390,7 @@ static void HU_DrawRankings(void)
 	playersort_t tab[MAXPLAYERS];
 	INT32 i, j, scorelines;
 	boolean completed[MAXPLAYERS];
-	ULONG whiteplayer;
+	UINT32 whiteplayer;
 
 	// draw the ranking title panel
 /*	if (gametype != GT_CTF)

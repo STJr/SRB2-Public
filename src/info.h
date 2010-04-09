@@ -2634,7 +2634,7 @@ typedef enum
 typedef struct
 {
 	spritenum_t sprite;
-	ULONG frame; // we use the upper 16 bits for translucency and other shade effects
+	UINT32 frame; // we use the upper 16 bits for translucency and other shade effects
 	INT32 tics;
 	actionf_t action;
 	INT32 var1;

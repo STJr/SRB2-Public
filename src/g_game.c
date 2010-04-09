@@ -101,7 +101,7 @@ INT32 secondarydisplayplayer; // for splitscreen
 
 tic_t gametic;
 tic_t levelstarttic; // gametic at level start
-ULONG totalrings; // for intermission
+UINT32 totalrings; // for intermission
 INT16 lastmap; // last level you were at (returning from special stages)
 tic_t timeinmap; // Ticker for time spent in level (used for levelcard display)
 
@@ -135,8 +135,8 @@ mapheader_t mapheaderinfo[NUMMAPS];
 static boolean exitgame = false;
 
 UINT16 emeralds;
-ULONG token; // Number of tokens collected in a level
-ULONG tokenlist; // List of tokens collected
+UINT32 token; // Number of tokens collected in a level
+UINT32 tokenlist; // List of tokens collected
 INT32 tokenbits; // Used for setting token bits
 INT32 sstimer; // Time allotted in the special stage
 
@@ -194,8 +194,8 @@ INT32 nummaprings = 0;
 timeattack_t timedata[NUMMAPS];
 boolean mapvisited[NUMMAPS];
 
-ULONG bluescore, redscore; // CTF and Team Match team scores
-ULONG blueflagloose, redflagloose; // Store the timer of a loose CTF flag.
+UINT32 bluescore, redscore; // CTF and Team Match team scores
+UINT32 blueflagloose, redflagloose; // Store the timer of a loose CTF flag.
 
 // Elminates unnecessary searching.
 boolean CheckForBustableBlocks;
@@ -227,7 +227,7 @@ mobj_t *hunt1;
 mobj_t *hunt2;
 mobj_t *hunt3;
 
-ULONG countdown, countdown2; // for racing
+UINT32 countdown, countdown2; // for racing
 
 fixed_t gravity;
 
@@ -245,8 +245,8 @@ INT32 tagtype; // for tag
 tic_t hidetime;
 
 // Grading
-ULONG grade;
-ULONG timesbeaten;
+UINT32 grade;
+UINT32 timesbeaten;
 
 static char demoname[32];
 boolean demorecording;
@@ -1597,7 +1597,7 @@ boolean G_Responder(event_t *ev)
 //
 void G_Ticker(void)
 {
-	ULONG i;
+	UINT32 i;
 	INT32 buf;
 	ticcmd_t *cmd;
 
@@ -2644,7 +2644,7 @@ void G_SaveGameData(void)
 {
 	size_t length;
 	INT32 i;
-	ULONG stemp;
+	UINT32 stemp;
 	byte btemp;
 
 	if (!gamedataloaded)

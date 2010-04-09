@@ -28,7 +28,7 @@
 typedef union
 {
 	char buffer[16]; // information such as password
-	ULONG signature;
+	UINT32 signature;
 } ATTRPACK msg_header_t;
 
 // Keep this structure 8 bytes aligned (current size is 80)

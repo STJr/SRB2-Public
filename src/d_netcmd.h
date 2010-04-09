@@ -71,7 +71,7 @@ extern consvar_t cv_friendlyfire;
 extern consvar_t cv_pointlimit;
 extern consvar_t cv_timelimit;
 extern consvar_t cv_numlaps;
-extern ULONG timelimitintics;
+extern UINT32 timelimitintics;
 extern consvar_t cv_allowexitlevel;
 
 extern consvar_t cv_cheats;

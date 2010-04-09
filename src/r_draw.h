@@ -70,10 +70,10 @@ extern byte *ds_source; // start of a 64*64 tile image
 extern byte *ds_transmap;
 
 // Variable flat sizes
-extern ULONG nflatxshift;
-extern ULONG nflatyshift;
-extern ULONG nflatshiftup;
-extern ULONG nflatmask;
+extern UINT32 nflatxshift;
+extern UINT32 nflatyshift;
+extern UINT32 nflatshiftup;
+extern UINT32 nflatmask;
 
 /// \brief Top border
 #define BRDR_T 0

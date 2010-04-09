@@ -180,7 +180,7 @@ static BOOL             GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe);
 #ifdef DEBUGMIDISTREAM
 static VOID             ShowTrackError(LPINTRACKSTATE pInTrack, LPSTR szErr);
 #endif
-static LPBYTE           GetInFileData(ULONG cbToGet);
+static LPBYTE           GetInFileData(UINT32 cbToGet);
 // either uses the local one (prints out on stderr) or Legacy's console output
 
 
@@ -248,8 +248,8 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 {
 	BOOL            fRet = FALSE;
 	LONG            cbRead;
-	ULONG          *pChunkID;
-	ULONG          *pChunkSize;
+	UINT32          *pChunkID;
+	UINT32          *pChunkSize;
 	LONG            iChunkSize;
 	LPMIDIFILEHDR   pHeader;
 	LPINTRACKSTATE  pInTrack;
@@ -308,9 +308,9 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 	ifs.pFilePointer = ifs.pFile;
 
 	// note: midi header size should always be 6
-	if ((pChunkID = (ULONG*)GetInFileData(sizeof (*pChunkID))) == NULL ||
+	if ((pChunkID = (UINT32*)GetInFileData(sizeof (*pChunkID))) == NULL ||
 		*pChunkID != MThd ||
-		(pChunkSize = (ULONG*)GetInFileData(sizeof (*pChunkSize))) == NULL ||
+		(pChunkSize = (UINT32*)GetInFileData(sizeof (*pChunkSize))) == NULL ||
 		(iChunkSize = LONGSWAP(*pChunkSize)) < sizeof (MIDIFILEHDR) ||
 		(pHeader = (LPMIDIFILEHDR)GetInFileData(iChunkSize)) == NULL)
 	{
@@ -351,9 +351,9 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 
 	for (iTrack = 0, pInTrack = ifs.pTracks; iTrack < ifs.nTracks; ++iTrack, ++pInTrack)
 	{
-		if ((pChunkID = (ULONG*)GetInFileData(sizeof (*pChunkID))) == NULL ||
+		if ((pChunkID = (UINT32*)GetInFileData(sizeof (*pChunkID))) == NULL ||
 			*pChunkID!= MTrk ||
-			(pChunkSize = (ULONG*)GetInFileData(sizeof (*pChunkSize))) == NULL)
+			(pChunkSize = (UINT32*)GetInFileData(sizeof (*pChunkSize))) == NULL)
 		{
 			I_OutputMsg("Read error on track header.\n");
 			goto Init_Cleanup;
@@ -419,7 +419,7 @@ Init_Cleanup:
 // Returns a pointer to the data or NULL if we'd read more than is
 // there.
 // -------------
-static LPBYTE GetInFileData(ULONG iBytesToGet)
+static LPBYTE GetInFileData(UINT32 iBytesToGet)
 {
 	LPBYTE pRet;
 	if (ifs.iBytesLeft < iBytesToGet)       // requested more BYTEs than there are left
@@ -683,7 +683,7 @@ static BOOL GetTrackVDWord(INTRACKSTATE *pInTrack, DWORD *lpdw)
 static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 {
 	BYTE b;
-	ULONG dwEventLength;
+	UINT32 dwEventLength;
 
 	// Clear out the temporary event structure to get rid of old data...
 	ZeroMemory(pMe, sizeof (TEMPEVENT));
@@ -1126,9 +1126,9 @@ VOID Mid2StreamConverterCleanup (VOID)
 BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 {
 	BOOL           fRet = TRUE;
-	ULONG         *pChunkID;
-	ULONG         *pChunkSize;
-	ULONG          iChunkSize;
+	UINT32         *pChunkID;
+	UINT32         *pChunkSize;
+	UINT32          iChunkSize;
 	LPMIDIFILEHDR  pHeader;
 	LPINTRACKSTATE pInTrack;
 	UINT           iTrack;
@@ -1154,9 +1154,9 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 #endif
 
 	// note: midi header size should always be 6
-	if ((pChunkID = (ULONG*)GetInFileData(sizeof (*pChunkID))) == NULL ||
+	if ((pChunkID = (UINT32*)GetInFileData(sizeof (*pChunkID))) == NULL ||
 		*pChunkID != MThd ||
-		(pChunkSize = (ULONG*)GetInFileData(sizeof (*pChunkSize))) == NULL ||
+		(pChunkSize = (UINT32*)GetInFileData(sizeof (*pChunkSize))) == NULL ||
 		(iChunkSize = LONGSWAP(*pChunkSize)) < sizeof (MIDIFILEHDR) ||
 		(pHeader = (LPMIDIFILEHDR)GetInFileData(iChunkSize)) == NULL)
 	{
@@ -1191,9 +1191,9 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 
 	for (iTrack = 0, pInTrack = ifs.pTracks; iTrack < ifs.nTracks; ++iTrack, ++pInTrack)
 	{
-		if ((pChunkID = (ULONG*)GetInFileData(sizeof (*pChunkID))) == NULL ||
+		if ((pChunkID = (UINT32*)GetInFileData(sizeof (*pChunkID))) == NULL ||
 			*pChunkID!= MTrk ||
-			(pChunkSize = (ULONG*)GetInFileData(sizeof (*pChunkSize))) == NULL)
+			(pChunkSize = (UINT32*)GetInFileData(sizeof (*pChunkSize))) == NULL)
 		{
 			I_OutputMsg("Read error on track header.\n");
 			goto Init_Cleanup;

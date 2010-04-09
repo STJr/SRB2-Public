@@ -421,7 +421,7 @@ void HWR_DrawFlatFill (INT32 x, INT32 y, INT32 w, INT32 h, lumpnum_t flatlumpnum
 //  | /|
 //  |/ |
 //  0--1
-void HWR_FadeScreenMenuBack(ULONG color, INT32 height)
+void HWR_FadeScreenMenuBack(UINT32 color, INT32 height)
 {
 	FOutVector  v[4];
 	FSurfaceInfo Surf;
@@ -447,7 +447,7 @@ void HWR_FadeScreenMenuBack(ULONG color, INT32 height)
 }
 
 // Draw the console background with translucency support
-void HWR_DrawConsoleBack(ULONG color, INT32 height)
+void HWR_DrawConsoleBack(UINT32 color, INT32 height)
 {
 	FOutVector  v[4];
 	FSurfaceInfo Surf;

@@ -47,8 +47,8 @@ typedef struct
 	unsigned char md5sum[16];
 	// used only for download
 	FILE *phandle;
-	ULONG currentsize;
-	ULONG totalsize;
+	UINT32 currentsize;
+	UINT32 totalsize;
 	filestatus_t status; // the value returned by recsearch
 } fileneeded_t;
 

@@ -784,7 +784,7 @@ static void M_DrawConnectMenu(void)
 			V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,V_TRANSLUCENT|V_ALLOWLOWERCASE,servername);
 		else
 			V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,V_ALLOWLOWERCASE,servername);
-		p = va("%u", (ULONG)LONG(serverlist[slindex].info.time));
+		p = va("%u", (UINT32)LONG(serverlist[slindex].info.time));
 		V_DrawString (currentMenu->x+200-V_StringWidth(p),currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,0,p);
 
 		switch (serverlist[slindex].info.gametype)

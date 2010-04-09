@@ -38,8 +38,8 @@ typedef void GLPatch_t;
 typedef struct
 {
 	char identification[4]; // should be "IWAD" or "PWAD"
-	ULONG numlumps; // how many resources
-	ULONG infotableofs; // the 'directory' of resources
+	UINT32 numlumps; // how many resources
+	UINT32 infotableofs; // the 'directory' of resources
 } wadinfo_t;
 
 //  a memory entry of the wad directory
@@ -72,7 +72,7 @@ typedef struct wadfile_s
 #endif
 	UINT16 numlumps; // this wad's number of resources
 	FILE *handle;
-	ULONG filesize; // for network
+	UINT32 filesize; // for network
 	unsigned char md5sum[16];
 } wadfile_t;
 

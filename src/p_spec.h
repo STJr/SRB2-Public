@@ -64,7 +64,7 @@ void P_SetupSignExit(player_t *player);
 void P_SwitchWeather(INT32 weathernum);
 
 void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller);
-void P_ChangeSectorTag(ULONG sector, INT16 newtag);
+void P_ChangeSectorTag(UINT32 sector, INT16 newtag);
 
 //
 // P_LIGHTS
@@ -470,7 +470,7 @@ void T_Disappear(disappear_t *d);
 
 // Prototype functions for pushers
 void T_Pusher(pusher_t *p);
-mobj_t *P_GetPushThing(ULONG s);
+mobj_t *P_GetPushThing(UINT32 s);
 
 void P_CalcHeight(player_t *player);
 

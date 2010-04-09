@@ -185,15 +185,15 @@ static void I_DetectWin9x(VOID)
 }
 
 // return free and total memory in the system
-ULONG I_GetFreeMem(ULONG* total)
+UINT32 I_GetFreeMem(UINT32* total)
 {
 	MEMORYSTATUS info;
 
 	info.dwLength = sizeof (MEMORYSTATUS);
 	GlobalMemoryStatus(&info);
 	if (total)
-		*total = (ULONG)info.dwTotalPhys;
-	return (ULONG)info.dwAvailPhys;
+		*total = (UINT32)info.dwTotalPhys;
+	return (UINT32)info.dwAvailPhys;
 }
 
 // ---------

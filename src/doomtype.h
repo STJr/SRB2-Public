@@ -30,8 +30,6 @@
 #endif
 
 #ifdef _MSC_VER
-#define ULONG unsigned __int32
-
 #define UINT16 unsigned __int16
 #define INT16 __int16
 
@@ -53,8 +51,6 @@ typedef long ssize_t;
 #elif defined (_arch_dreamcast) // KOS Dreamcast
 #include <arch/types.h>
 
-#define ULONG unsigned int
-
 #define UINT16 uint16
 #define INT16 int16
 
@@ -65,8 +61,6 @@ typedef long ssize_t;
 #else
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
-
-#define ULONG uint32_t
 
 #define UINT16 uint16_t
 #define INT16 int16_t
@@ -187,7 +181,7 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 	//#endif // __cplusplus
 #endif // __BYTEBOOL__
 
-typedef ULONG tic_t;
+typedef UINT32 tic_t;
 
 /* 7.18.2.1  Limits of exact-width integer types */
 #ifndef INT8_MIN
@@ -231,7 +225,7 @@ typedef ULONG tic_t;
 
 union FColorRGBA
 {
-	ULONG rgba;
+	UINT32 rgba;
 	struct
 	{
 		byte red;
@@ -251,13 +245,13 @@ typedef enum
 	postimg_heat
 } postimg_t;
 
-typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
+typedef UINT32 lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define LUMPERROR UINT32_MAX
 
 #ifdef __BIG_ENDIAN__
 #define UINT2RGBA(a) a
 #else
-#define UINT2RGBA(a) (ULONG)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((ULONG)a&0xff000000)>>24)
+#define UINT2RGBA(a) (UINT32)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((UINT32)a&0xff000000)>>24)
 #endif
 
 #if defined (_WIN32)

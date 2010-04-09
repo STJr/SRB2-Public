@@ -58,7 +58,7 @@ typedef union
 {
 	struct
 	{
-		ULONG score; // fake score
+		UINT32 score; // fake score
 		INT32 timebonus, ringbonus, perfbonus, total;
 		INT32 min, sec, tics;
 		boolean gotperfbonus; // true if we should show the perfect bonus line
@@ -75,7 +75,7 @@ typedef union
 
 	struct
 	{
-		ULONG score; // fake score
+		UINT32 score; // fake score
 		INT32 ringbonus;
 		INT32 headx;
 		patch_t *cemerald; // CHAOS EMERALDS (or GOT THEM ALL!)
@@ -86,7 +86,7 @@ typedef union
 
 	struct
 	{
-		ULONG scores[MAXPLAYERS]; // Winner's score
+		UINT32 scores[MAXPLAYERS]; // Winner's score
 		INT32 *color[MAXPLAYERS]; // Winner's color #
 		boolean spectator[MAXPLAYERS]; // Spectator list
 		INT32 *character[MAXPLAYERS]; // Winner's character #
@@ -101,7 +101,7 @@ typedef union
 
 	struct
 	{
-		ULONG scores[4]; // player scores
+		UINT32 scores[4]; // player scores
 		INT32 timemin[4]; // time (minutes)
 		INT32 timesec[4]; // time (seconds)
 		INT32 timetic[4]; // time (tics)
@@ -1432,7 +1432,7 @@ static void Y_CalculateRaceWinners(void)
 	INT32 winners[5], numwins[MAXPLAYERS];
 	INT32 i = 0, n = 0, ring, totalring, itembox, wins;
 	INT32 numplayersingame;
-	ULONG score = 0, racetime;
+	UINT32 score = 0, racetime;
 
 	// Everyone has zero wins.
 	memset(numwins, 0, sizeof (INT32)*MAXPLAYERS);

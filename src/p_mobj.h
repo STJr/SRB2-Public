@@ -249,7 +249,7 @@ typedef struct mobj_s
 	// More drawing info: to determine current sprite.
 	angle_t angle;  // orientation
 	spritenum_t sprite; // used to find patch_t and flip value
-	ULONG frame; // frame number, plus bits see p_pspr.h
+	UINT32 frame; // frame number, plus bits see p_pspr.h
 
 	struct msecnode_s *touching_sectorlist; // a linked list of sectors where this object appears
 
@@ -285,7 +285,7 @@ typedef struct mobj_s
 	mobjtype_t type;
 	const mobjinfo_t *info; // &mobjinfo[mobj->type]
 
-	ULONG eflags; // extra flags
+	UINT32 eflags; // extra flags
 	INT32 flags2; // MF2_ flags
 	INT32 health; // for player this is rings + 1
 
@@ -316,7 +316,7 @@ typedef struct mobj_s
 	INT32 watertop; // top of the water FOF the mobj is in
 	INT32 waterbottom; // bottom of the water FOF the mobj is in
 
-	ULONG mobjnum; // A unique number for this mobj. Used for restoring pointers on save games.
+	UINT32 mobjnum; // A unique number for this mobj. Used for restoring pointers on save games.
 
 	UINT16 scale;
 	UINT16 destscale;

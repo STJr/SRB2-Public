@@ -969,9 +969,9 @@ void P_DoSuperTransformation(player_t *player, boolean giverings)
 	P_PlayerFlagBurst(player, false);
 }
 // Adds to the player's score
-void P_AddPlayerScore(player_t *player, ULONG amount)
+void P_AddPlayerScore(player_t *player, UINT32 amount)
 {
-	ULONG oldscore = player->score;
+	UINT32 oldscore = player->score;
 
 	if (player->score + amount < INT32_MAX)
 		player->score += amount;

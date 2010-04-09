@@ -981,8 +981,8 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		FBITFIELD blend = 0;
 		GLPatch_t *oldgpatch = gpatch;
 		INT32 *buff;
-		ULONG durs = spr->mobj->state->tics;
-		ULONG tics = spr->mobj->tics;
+		UINT32 durs = spr->mobj->state->tics;
+		UINT32 tics = spr->mobj->tics;
 		md2_frame_t *curr, *next = NULL;
 		const boolean flip = (spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP;
 

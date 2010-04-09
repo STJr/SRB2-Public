@@ -72,7 +72,7 @@ typedef struct filetx_s
 {
 	INT32 ram;
 	char *filename; // name of the file or ptr of the data in ram
-	ULONG size;
+	UINT32 size;
 	char fileid;
 	INT32 node; // destination
 	struct filetx_s *next; // a queue
@@ -82,7 +82,7 @@ typedef struct filetx_s
 typedef struct filetran_s
 {
 	filetx_t *txlist;
-	ULONG position;
+	UINT32 position;
 	FILE *currentfile;
 } filetran_t;
 static filetran_t transfer[MAXNETNODES];
@@ -118,7 +118,7 @@ byte *PutFileNeeded(void)
 		// Store in the upper four bits
 		if (!cv_downloading.value)
 			filestatus += (2 << 4); // won't send
-		else if ((wadfiles[i]->filesize > (ULONG)cv_maxsend.value * 1024))
+		else if ((wadfiles[i]->filesize > (UINT32)cv_maxsend.value * 1024))
 			filestatus += (0 << 4); // won't send
 		else
 			filestatus += (1 << 4); // will send if requested
@@ -168,7 +168,7 @@ void CL_PrepareDownloadSaveGame(const char *tmpsave)
 {
 	fileneedednum = 1;
 	fileneeded[0].status = FS_REQUESTED;
-	fileneeded[0].totalsize = (ULONG)-1;
+	fileneeded[0].totalsize = UINT32_MAX;
 	fileneeded[0].phandle = NULL;
 	memset(fileneeded[0].md5sum, 0, 16);
 	strcpy(fileneeded[0].filename, tmpsave);
@@ -427,7 +427,7 @@ void SendFile(INT32 node, char *filename, char fileid)
 		return;
 	}
 
-	if (wadfiles[i]->filesize > (ULONG)cv_maxsend.value * 1024)
+	if (wadfiles[i]->filesize > (UINT32)cv_maxsend.value * 1024)
 	{
 		// too big
 		// don't inform client (client sucks, man)
@@ -460,7 +460,7 @@ void SendRam(INT32 node, byte *data, size_t size, freemethod_t freemethod, char 
 		I_Error("SendRam: No more ram\n");
 	p->ram = freemethod;
 	p->filename = (char *)data;
-	p->size = (ULONG)size;
+	p->size = (UINT32)size;
 	p->fileid = fileid;
 	p->next = NULL; // end of list
 
@@ -507,7 +507,7 @@ void FiletxTicker(void)
 		return;
 	if (!packetsent)
 		packetsent++;
-	// (((sendbytes-nowsentbyte)*TICRATE)/(I_GetTime()-starttime)<(ULONG)net_bandwidth)
+	// (((sendbytes-nowsentbyte)*TICRATE)/(I_GetTime()-starttime)<(UINT32)net_bandwidth)
 	while (packetsent-- && filetosend != 0)
 	{
 		for (i = currentnode, ram = 0; ram < MAXNETNODES;
@@ -546,7 +546,7 @@ void FiletxTicker(void)
 				if (-1 == filesize)
 					I_Error("Error getting filesize of %s\n", f->filename);
 
-				f->size = (ULONG)filesize;
+				f->size = (UINT32)filesize;
 				fseek(transfer[i].currentfile, 0, SEEK_SET);
 			}
 			else
@@ -578,7 +578,7 @@ void FiletxTicker(void)
 		}
 		else // success
 		{
-			transfer[i].position = (ULONG)(size+transfer[i].position);
+			transfer[i].position = (UINT32)(size+transfer[i].position);
 			if (transfer[i].position == f->size) //  finish ?
 				EndSend(i);
 		}
@@ -608,7 +608,7 @@ void Got_Filetxpak(void)
 
 	if (fileneeded[filenum].status == FS_DOWNLOADING)
 	{
-		ULONG pos = LONG(netbuffer->u.filetxpak.position);
+		UINT32 pos = LONG(netbuffer->u.filetxpak.position);
 		UINT16 size = SHORT(netbuffer->u.filetxpak.size);
 		// use a special tric to know when file is finished (not allways used)
 		// WARNING: filepak can arrive out of order so don't stop now !
@@ -634,7 +634,7 @@ void Got_Filetxpak(void)
 			M_DrawTextBox(24, (BASEVIDHEIGHT/2)-7, 32, 4);
 			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2, 0, "Downloading files...");
 			V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+12, 0, va("\r%s\n",fileneeded[filenum].filename));
-			if (fileneeded[filenum].totalsize != (ULONG)-1)
+			if (fileneeded[filenum].totalsize != UINT32_MAX)
 				V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+24, 0,
 		         va("%dK/%dK %.1fK/s\n",fileneeded[filenum].currentsize>>10,
 		                                  fileneeded[filenum].totalsize>>10,

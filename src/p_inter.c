@@ -1796,7 +1796,7 @@ void P_CheckPointLimit(void)
 	if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
 	{
 		// Just check both teams
-		if ((ULONG)cv_pointlimit.value <= redscore || (ULONG)cv_pointlimit.value <= bluescore)
+		if ((UINT32)cv_pointlimit.value <= redscore || (UINT32)cv_pointlimit.value <= bluescore)
 		{
 			if (server)
 				SendNetXCmd(XD_EXITLEVEL, NULL, 0);
@@ -1809,7 +1809,7 @@ void P_CheckPointLimit(void)
 			if (!playeringame[i])
 				continue;
 
-			if ((ULONG)cv_pointlimit.value <= players[i].score)
+			if ((UINT32)cv_pointlimit.value <= players[i].score)
 			{
 				if (server)
 					SendNetXCmd(XD_EXITLEVEL, NULL, 0);

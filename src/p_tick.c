@@ -423,7 +423,7 @@ void P_Ticker(void)
 
 		if (sstimer > 1) // As long as time isn't up...
 		{
-			ULONG ssrings = 0;
+			UINT32 ssrings = 0;
 			// Count up the rings of all the players and see if
 			// they've collected the required amount.
 			for (i = 0; i < MAXPLAYERS; i++)

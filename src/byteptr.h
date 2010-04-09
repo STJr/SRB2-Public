@@ -31,7 +31,7 @@
 #define WRITESHORT(p,b)     do {   INT16 *p_tmp = (void *)p; const   INT16 tv = (  INT16)(b); memcpy(p, &tv, sizeof(  INT16)); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITEUSHORT(p,b)    do {  UINT16 *p_tmp = (void *)p; const  UINT16 tv = ( UINT16)(b); memcpy(p, &tv, sizeof( UINT16)); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITELONG(p,b)      do {   INT32 *p_tmp = (void *)p; const   INT32 tv = (   INT32)(b); memcpy(p, &tv, sizeof( INT32)); p_tmp++; p = (void *)p_tmp; } while (0)
-#define WRITEULONG(p,b)     do {   ULONG *p_tmp = (void *)p; const   ULONG tv = (  ULONG)(b); memcpy(p, &tv, sizeof(  ULONG)); p_tmp++; p = (void *)p_tmp; } while (0)
+#define WRITEULONG(p,b)     do {   UINT32 *p_tmp = (void *)p; const   UINT32 tv = (  UINT32)(b); memcpy(p, &tv, sizeof(  UINT32)); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITEFIXED(p,b)     do { fixed_t *p_tmp = (void *)p; const fixed_t tv = (fixed_t)(b); memcpy(p, &tv, sizeof(fixed_t)); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITEANGLE(p,b)     do { angle_t *p_tmp = (void *)p; const angle_t tv = (angle_t)(b); memcpy(p, &tv, sizeof(angle_t)); p_tmp++; p = (void *)p_tmp; } while (0)
 #else
@@ -40,7 +40,7 @@
 #define WRITESHORT(p,b)     do {   INT16 *p_tmp = (  INT16 *)p; *p_tmp = (  INT16)(b); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITEUSHORT(p,b)    do {  UINT16 *p_tmp = ( UINT16 *)p; *p_tmp = ( UINT16)(b); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITELONG(p,b)      do {  INT32 *p_tmp = (   INT32 *)p; *p_tmp = (  INT32)(b); p_tmp++; p = (void *)p_tmp; } while (0)
-#define WRITEULONG(p,b)     do {   ULONG *p_tmp = (  ULONG *)p; *p_tmp = (  ULONG)(b); p_tmp++; p = (void *)p_tmp; } while (0)
+#define WRITEULONG(p,b)     do {   UINT32 *p_tmp = (  UINT32 *)p; *p_tmp = (  UINT32)(b); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITEFIXED(p,b)     do { fixed_t *p_tmp = (fixed_t *)p; *p_tmp = (fixed_t)(b); p_tmp++; p = (void *)p_tmp; } while (0)
 #define WRITEANGLE(p,b)     do { angle_t *p_tmp = (angle_t *)p; *p_tmp = (angle_t)(b); p_tmp++; p = (void *)p_tmp; } while (0)
 #endif
@@ -52,7 +52,7 @@
 #define READSHORT(p)        ({   INT16 *p_tmp = (void *)p;   INT16 b; memcpy(&b, p, sizeof(  INT16)); p_tmp++; p = (void *)p_tmp; b; })
 #define READUSHORT(p)       ({  UINT16 *p_tmp = (void *)p;  UINT16 b; memcpy(&b, p, sizeof( UINT16)); p_tmp++; p = (void *)p_tmp; b; })
 #define READLONG(p)         ({   INT32 *p_tmp = (void *)p;   INT32 b; memcpy(&b, p, sizeof(  INT32)); p_tmp++; p = (void *)p_tmp; b; })
-#define READULONG(p)        ({   ULONG *p_tmp = (void *)p;   ULONG b; memcpy(&b, p, sizeof(  ULONG)); p_tmp++; p = (void *)p_tmp; b; })
+#define READULONG(p)        ({   UINT32 *p_tmp = (void *)p;   UINT32 b; memcpy(&b, p, sizeof(  UINT32)); p_tmp++; p = (void *)p_tmp; b; })
 #define READFIXED(p)        ({ fixed_t *p_tmp = (void *)p; fixed_t b; memcpy(&b, p, sizeof(fixed_t)); p_tmp++; p = (void *)p_tmp; b; })
 #define READANGLE(p)        ({ angle_t *p_tmp = (void *)p; angle_t b; memcpy(&b, p, sizeof(angle_t)); p_tmp++; p = (void *)p_tmp; b; })
 #else
@@ -61,7 +61,7 @@
 #define READSHORT(p)        ({   INT16 *p_tmp = (  INT16 *)p;   INT16 b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
 #define READUSHORT(p)       ({  UINT16 *p_tmp = ( UINT16 *)p;  UINT16 b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
 #define READLONG(p)         ({   INT32 *p_tmp = (  INT32 *)p;   INT32 b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
-#define READULONG(p)        ({   ULONG *p_tmp = (  ULONG *)p;   ULONG b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
+#define READULONG(p)        ({   UINT32 *p_tmp = (  UINT32 *)p;   UINT32 b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
 #define READFIXED(p)        ({ fixed_t *p_tmp = (fixed_t *)p; fixed_t b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
 #define READANGLE(p)        ({ angle_t *p_tmp = (angle_t *)p; angle_t b = *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
 #endif
@@ -71,7 +71,7 @@
 #define READSHORT(p)        *((  INT16 *)p)++
 #define READUSHORT(p)       *(( UINT16 *)p)++
 #define READLONG(p)         *((   INT32 *)p)++
-#define READULONG(p)        *((  ULONG *)p)++
+#define READULONG(p)        *((  UINT32 *)p)++
 #define READFIXED(p)        *((fixed_t *)p)++
 #define READANGLE(p)        *((angle_t *)p)++
 #endif
@@ -103,7 +103,7 @@ FUNCINLINE static ATTRINLINE void writelong(void *ptr, INT32 val)
 #define WRITESHORT(p,b)     do {  INT16 *p_tmp = (  INT16 *)p; writeshort (p, (  INT16)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
 #define WRITEUSHORT(p,b)    do { UINT16 *p_tmp = ( UINT16 *)p; writeshort (p, ( UINT16)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
 #define WRITELONG(p,b)      do {   INT32 *p_tmp = (   INT32 *)p; writelong  (p, (   INT32)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
-#define WRITEULONG(p,b)     do {  ULONG *p_tmp = (  ULONG *)p; writelong  (p, (  ULONG)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
+#define WRITEULONG(p,b)     do {  UINT32 *p_tmp = (  UINT32 *)p; writelong  (p, (  UINT32)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
 #define WRITEFIXED(p,b)     do {fixed_t *p_tmp = (fixed_t *)p; writelong  (p, (fixed_t)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
 #define WRITEANGLE(p,b)     do {angle_t *p_tmp = (angle_t *)p; writelong  (p, (angle_t)(b)); p_tmp++; p = (void *)p_tmp;} while (0)
 
@@ -129,7 +129,7 @@ FUNCINLINE static ATTRINLINE INT32 readlong(void *ptr)
 	return (cp[3] << 24) | (ucp[2] << 16) | (ucp[1] << 8) | ucp[0];
 }
 
-FUNCINLINE static ATTRINLINE ULONG readulong(void *ptr)
+FUNCINLINE static ATTRINLINE UINT32 readulong(void *ptr)
 {
 	u_char *ucp = ptr;
 	return (ucp[3] << 24) | (ucp[2] << 16) | (ucp[1] << 8) | ucp[0];
@@ -140,7 +140,7 @@ FUNCINLINE static ATTRINLINE ULONG readulong(void *ptr)
 #define READSHORT(p)        ({   INT16 *p_tmp = (  INT16 *)p;   INT16 b =  readshort(p); p_tmp++; p = (void *)p_tmp; b; })
 #define READUSHORT(p)       ({  UINT16 *p_tmp = ( UINT16 *)p;  UINT16 b = readushort(p); p_tmp++; p = (void *)p_tmp; b; })
 #define READLONG(p)         ({   INT32 *p_tmp = (  INT32 *)p;   INT32 b =   readlong(p); p_tmp++; p = (void *)p_tmp; b; })
-#define READULONG(p)        ({   ULONG *p_tmp = (  ULONG *)p;   ULONG b =  readulong(p); p_tmp++; p = (void *)p_tmp; b; })
+#define READULONG(p)        ({   UINT32 *p_tmp = (  UINT32 *)p;   UINT32 b =  readulong(p); p_tmp++; p = (void *)p_tmp; b; })
 #define READFIXED(p)        ({ fixed_t *p_tmp = (fixed_t *)p; fixed_t b =   readlong(p); p_tmp++; p = (void *)p_tmp; b; })
 #define READANGLE(p)        ({ angle_t *p_tmp = (angle_t *)p; angle_t b =  readulong(p); p_tmp++; p = (void *)p_tmp; b; })
 #endif //__BIG_ENDIAN__

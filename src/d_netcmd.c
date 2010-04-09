@@ -3693,7 +3693,7 @@ static void NetTimeout_OnChange(void)
 	connectiontimeout = (tic_t)cv_nettimeout.value;
 }
 
-ULONG timelimitintics = 0;
+UINT32 timelimitintics = 0;
 
 /** Deals with a timelimit change by printing the change to the console.
   * If the gametype is single player, cooperative, or race, the timelimit is

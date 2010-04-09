@@ -418,7 +418,7 @@ static inline void InitLumLut(void)
 #define NORMALFOG 0x19000000
 #define CALCFOGALPHA(x,y) (byte)(((float)(x)/((0x19 - (y))/12.0f+1.0f)))
 #define CALCLIGHT(x,y) ((float)(x)/((0xFF - (y))/127.0f+1.0f))
-static ULONG HWR_Lighting(INT32 light, ULONG color)
+static UINT32 HWR_Lighting(INT32 light, UINT32 color)
 {
 	RGBA_t realcolor, surfcolor;
 
@@ -4131,9 +4131,9 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 
 					if (camview->z + (camview->height >> 1) < *rover->topheight)
 					{
-						ULONG sectorcolormap; // RGBA value of the sector's colormap
-						RGBA_t rgbcolor; // Convert the value from ULONG to RGA_t
-						ULONG fogvalue; // convert the color to FOG from RGBA to RGB
+						UINT32 sectorcolormap; // RGBA value of the sector's colormap
+						RGBA_t rgbcolor; // Convert the value from UINT32 to RGA_t
+						UINT32 fogvalue; // convert the color to FOG from RGBA to RGB
 
 						if (!(rover->master->frontsector->extra_colormap)) // See if there's a colormap in this FOF
 							continue;

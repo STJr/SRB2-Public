@@ -307,7 +307,7 @@ void R_LoadTextures(void)
 	char name[9];
 	char *name_p;
 	char *pnames;
-	ULONG *maptex, *maptex2, *maptex1, *directory, nummappatches, numtextures1, numtextures2, offset32;
+	UINT32 *maptex, *maptex2, *maptex1, *directory, nummappatches, numtextures1, numtextures2, offset32;
 	lumpnum_t *patchlookup;
 	size_t i, maxoff, maxoff2, offset;
 	int j;
@@ -323,7 +323,7 @@ void R_LoadTextures(void)
 	// Load the patch names from pnames.lmp.
 	name[8] = 0;
 	pnames = W_CacheLumpName("PNAMES", PU_STATIC);
-	M_Memcpy(&nummappatches, pnames, sizeof(ULONG));
+	M_Memcpy(&nummappatches, pnames, sizeof(UINT32));
 	nummappatches = LONG(nummappatches);
 	name_p = pnames+4;
 	patchlookup = malloc(nummappatches*sizeof (*patchlookup));
@@ -378,7 +378,7 @@ void R_LoadTextures(void)
 		}
 
 		// offset to the current texture in TEXTURESn lump
-		M_Memcpy(&offset32, directory, sizeof(ULONG));
+		M_Memcpy(&offset32, directory, sizeof(UINT32));
 		offset = LONG(offset32);
 
 		if (offset > maxoff)

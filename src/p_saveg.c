@@ -640,7 +640,7 @@ static void P_NetArchiveWorld(void)
 //
 static void P_NetUnArchiveWorld(void)
 {
-	ULONG i;
+	UINT32 i;
 	line_t *li;
 	side_t *si;
 	byte *get;
@@ -828,7 +828,7 @@ typedef enum
 	tc_end
 } specials_e;
 
-static inline ULONG SaveMobjnum(const mobj_t *mobj)
+static inline UINT32 SaveMobjnum(const mobj_t *mobj)
 {
 	if (mobj) return mobj->mobjnum;
 	return 0;
@@ -1354,7 +1354,7 @@ static void P_NetArchiveThinkers(void)
 {
 	const thinker_t *th;
 	const mobj_t *mobj;
-	ULONG diff;
+	UINT32 diff;
 
 	// save off the current thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -1452,7 +1452,7 @@ static void P_NetArchiveThinkers(void)
 			WRITEULONG(save_p, diff);
 
 			// save pointer, at load time we will search this pointer to reinitilize pointers
-			WRITEULONG(save_p, (ULONG)(size_t)mobj);
+			WRITEULONG(save_p, (UINT32)(size_t)mobj);
 
 			WRITEFIXED(save_p, mobj->z); // Force this so 3dfloor problems don't arise.
 			WRITEFIXED(save_p, mobj->floorz);
@@ -1723,7 +1723,7 @@ static void P_NetArchiveThinkers(void)
 // relink to this; the savegame contains the old position in the pointer
 // field copyed in the info field temporarily, but finally we just search
 // for the old position and relink to it.
-static mobj_t *FindNewPosition(ULONG oldposition)
+static mobj_t *FindNewPosition(UINT32 oldposition)
 {
 	thinker_t *th;
 	mobj_t *mobj;
@@ -2335,7 +2335,7 @@ static void P_NetUnArchiveThinkers(void)
 	thinker_t *currentthinker;
 	thinker_t *next;
 	mobj_t *mobj;
-	ULONG diff;
+	UINT32 diff;
 	INT32 i;
 	byte tclass;
 	byte restoreNum = false;
@@ -2692,14 +2692,14 @@ static void P_NetUnArchiveThinkers(void)
 	if (restoreNum)
 	{
 		executor_t *delay = NULL;
-		ULONG mobjnum;
+		UINT32 mobjnum;
 		for (currentthinker = thinkercap.next; currentthinker != &thinkercap;
 			currentthinker = currentthinker->next)
 		{
 			if (currentthinker->function.acp1 == (actionf_p1)T_ExecutorDelay)
 			{
 				delay = (void *)currentthinker;
-				if ((mobjnum = (ULONG)(size_t)delay->caller))
+				if ((mobjnum = (UINT32)(size_t)delay->caller))
 					delay->caller = FindNewPosition(mobjnum);
 			}
 		}
@@ -2805,7 +2805,7 @@ static inline void P_RelinkPointers(void)
 {
 	thinker_t *currentthinker;
 	mobj_t *mobj;
-	ULONG temp;
+	UINT32 temp;
 
 	// use info field (value = oldposition) to relink mobjs
 	for (currentthinker = thinkercap.next; currentthinker != &thinkercap;
@@ -2820,42 +2820,42 @@ static inline void P_RelinkPointers(void)
 
 			if (mobj->tracer)
 			{
-				temp = (ULONG)(size_t)mobj->tracer;
+				temp = (UINT32)(size_t)mobj->tracer;
 				mobj->tracer = NULL;
 				if (!P_SetTarget(&mobj->tracer, FindNewPosition(temp)))
 					CONS_Printf("tracer not found on %d\n", mobj->type);
 			}
 			if (mobj->target)
 			{
-				temp = (ULONG)(size_t)mobj->target;
+				temp = (UINT32)(size_t)mobj->target;
 				mobj->target = NULL;
 				if (!P_SetTarget(&mobj->target, FindNewPosition(temp)))
 					CONS_Printf("target not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->capsule)
 			{
-				temp = (ULONG)(size_t)mobj->player->capsule;
+				temp = (UINT32)(size_t)mobj->player->capsule;
 				mobj->player->capsule = NULL;
 				if (!P_SetTarget(&mobj->player->capsule, FindNewPosition(temp)))
 					CONS_Printf("capsule not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->axis1)
 			{
-				temp = (ULONG)(size_t)mobj->player->axis1;
+				temp = (UINT32)(size_t)mobj->player->axis1;
 				mobj->player->axis1 = NULL;
 				if (!P_SetTarget(&mobj->player->axis1, FindNewPosition(temp)))
 					CONS_Printf("axis1 not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->axis2)
 			{
-				temp = (ULONG)(size_t)mobj->player->axis2;
+				temp = (UINT32)(size_t)mobj->player->axis2;
 				mobj->player->axis2 = NULL;
 				if (!P_SetTarget(&mobj->player->axis2, FindNewPosition(temp)))
 					CONS_Printf("axis2 not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->awayviewmobj)
 			{
-				temp = (ULONG)(size_t)mobj->player->awayviewmobj;
+				temp = (UINT32)(size_t)mobj->player->awayviewmobj;
 				mobj->player->awayviewmobj = NULL;
 				if (!P_SetTarget(&mobj->player->awayviewmobj, FindNewPosition(temp)))
 					CONS_Printf("awayviewmobj not found on %d\n", mobj->type);
@@ -2996,7 +2996,7 @@ static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 
 static inline void P_NetArchiveMisc(void)
 {
-	ULONG pig = 0;
+	UINT32 pig = 0;
 	INT32 i, j;
 
 	WRITESHORT(save_p, gamemap);
@@ -3062,7 +3062,7 @@ static inline void P_NetArchiveMisc(void)
 
 static inline boolean P_NetUnArchiveMisc(void)
 {
-	ULONG pig;
+	UINT32 pig;
 	INT32 i, j;
 
 	gamemap = READSHORT(save_p);

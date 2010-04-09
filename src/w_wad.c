@@ -76,8 +76,8 @@ typedef struct
 // a raw entry of the wad directory
 typedef struct
 {
-	ULONG filepos; // file offset of the resource
-	ULONG size; // size of the resource
+	UINT32 filepos; // file offset of the resource
+	UINT32 size; // size of the resource
 	char name[8]; // name of the resource
 } ATTRPACK filelump_t;
 
@@ -202,7 +202,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	FILE *handle;
 	lumpinfo_t *lumpinfo;
 	wadfile_t *wadfile;
-	ULONG numlumps;
+	UINT32 numlumps;
 	size_t i;
 #ifdef HWRENDER
 	GLPatch_t *grPatch;
@@ -334,7 +334,7 @@ UINT16 W_LoadWadFile(const char *filename)
 			lump_p->size = lump_p->disksize = LONG(fileinfo->size);
 			if (compressed) // wad is compressed, lump might be
 			{
-				ULONG realsize = 0;
+				UINT32 realsize = 0;
 
 				if (fseek(handle, lump_p->position, SEEK_SET)
 					== -1 || fread(&realsize, 1, sizeof realsize,
