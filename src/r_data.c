@@ -48,8 +48,8 @@
 //
 typedef struct
 {
-	short originx, originy;
-	short patch, stepdir, colormap;
+	INT16 originx, originy;
+	INT16 patch, stepdir, colormap;
 } ATTRPACK mappatch_t;
 
 //
@@ -61,10 +61,10 @@ typedef struct
 {
 	char name[8];
 	INT32 masked;
-	short width;
-	short height;
+	INT16 width;
+	INT16 height;
 	INT32 columndirectory; // FIXTHIS: OBSOLETE
-	short patchcount;
+	INT16 patchcount;
 	mappatch_t patches[1];
 } ATTRPACK maptexture_t;
 
@@ -115,8 +115,8 @@ lighttable_t *colormaps;
 static size_t flatmemory, spritememory, texturememory;
 
 // highcolor stuff
-short color8to16[256]; // remap color index to highcolor rgb value
-short *hicolormaps; // test a 32k colormap remaps high -> high
+INT16 color8to16[256]; // remap color index to highcolor rgb value
+INT16 *hicolormaps; // test a 32k colormap remaps high -> high
 
 //
 // MAPTEXTURE_T CACHING
@@ -1003,14 +1003,14 @@ static void R_Init8to16(void)
 	for (i = 0; i < 256; i++)
 	{
 		// PLAYPAL uses 8 bit values
-		color8to16[i] = (short)makecol15(palette[0], palette[1], palette[2]);
+		color8to16[i] = (INT16)makecol15(palette[0], palette[1], palette[2]);
 		palette += 3;
 	}
 
 	// test a big colormap
 	hicolormaps = Z_Malloc(16384*sizeof(*hicolormaps), PU_STATIC, NULL);
 	for (i = 0; i < 16384; i++)
-		hicolormaps[i] = (short)(i<<1);
+		hicolormaps[i] = (INT16)(i<<1);
 }
 
 //

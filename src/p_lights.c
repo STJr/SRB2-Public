@@ -53,17 +53,17 @@ static void P_RemoveLighting(sector_t *sector)
   */
 void T_FireFlicker(fireflicker_t *flick)
 {
-	short amount;
+	INT16 amount;
 
 	if (--flick->count)
 		return;
 
-	amount = (short)((byte)(P_Random() & 3) * 16);
+	amount = (INT16)((byte)(P_Random() & 3) * 16);
 
 	if (flick->sector->lightlevel - amount < flick->minlight)
-		flick->sector->lightlevel = (short)flick->minlight;
+		flick->sector->lightlevel = (INT16)flick->minlight;
 	else
-		flick->sector->lightlevel = (short)((short)flick->maxlight - amount);
+		flick->sector->lightlevel = (INT16)((INT16)flick->maxlight - amount);
 
 	flick->count = flick->resetcount;
 }
@@ -128,7 +128,7 @@ void T_LightningFlash(lightflash_t *flash)
 
 	if (flash->sector->lightlevel <= flash->minlight)
 	{
-		flash->sector->lightlevel = (short)flash->minlight;
+		flash->sector->lightlevel = (INT16)flash->minlight;
 		P_RemoveLighting(flash->sector);
 	}
 }
@@ -168,7 +168,7 @@ void P_SpawnLightningFlash(sector_t *sector)
 	flash->sector = sector;
 	flash->maxlight = 255;
 	flash->minlight = minlight;
-	sector->lightlevel = (short)flash->maxlight;
+	sector->lightlevel = (INT16)flash->maxlight;
 
 	sector->lightingdata = flash;
 }
@@ -189,12 +189,12 @@ void T_StrobeFlash(strobe_t *flash)
 
 	if (flash->sector->lightlevel == flash->minlight)
 	{
-		flash->sector->lightlevel = (short)flash->maxlight;
+		flash->sector->lightlevel = (INT16)flash->maxlight;
 		flash->count = flash->brighttime;
 	}
 	else
 	{
-		flash->sector->lightlevel = (short)flash->minlight;
+		flash->sector->lightlevel = (INT16)flash->minlight;
 		flash->count = flash->darktime;
 	}
 }
@@ -264,20 +264,20 @@ void T_Glow(glow_t *g)
 	{
 		case -1:
 			// DOWN
-			g->sector->lightlevel = (short)(g->sector->lightlevel - (short)g->speed);
+			g->sector->lightlevel = (INT16)(g->sector->lightlevel - (INT16)g->speed);
 			if (g->sector->lightlevel <= g->minlight)
 			{
-				g->sector->lightlevel = (short)(g->sector->lightlevel + (short)g->speed);
+				g->sector->lightlevel = (INT16)(g->sector->lightlevel + (INT16)g->speed);
 				g->direction = 1;
 			}
 			break;
 
 		case 1:
 			// UP
-			g->sector->lightlevel = (short)(g->sector->lightlevel + (short)g->speed);
+			g->sector->lightlevel = (INT16)(g->sector->lightlevel + (INT16)g->speed);
 			if (g->sector->lightlevel >= g->maxlight)
 			{
-				g->sector->lightlevel = (short)(g->sector->lightlevel - (short)g->speed);
+				g->sector->lightlevel = (INT16)(g->sector->lightlevel - (INT16)g->speed);
 				g->direction = -1;
 			}
 			break;
@@ -344,7 +344,7 @@ glow_t *P_SpawnAdjustableGlowingLight(sector_t *minsector, sector_t *maxsector, 
   *       in this time regardless of initial values.
   * \sa T_LightFade
   */
-void P_FadeLight(short tag, INT32 destvalue, INT32 speed)
+void P_FadeLight(INT16 tag, INT32 destvalue, INT32 speed)
 {
 	INT32 i;
 	lightlevel_t *ll;
@@ -381,12 +381,12 @@ void T_LightFade(lightlevel_t *ll)
 		if (ll->sector->lightlevel + ll->speed >= ll->destlevel)
 		{
 			// stop changing light level
-			ll->sector->lightlevel = (short)ll->destlevel; // set to dest lightlevel
+			ll->sector->lightlevel = (INT16)ll->destlevel; // set to dest lightlevel
 
 			P_RemoveLighting(ll->sector); // clear lightingdata, remove thinker
 		}
 		else
-			ll->sector->lightlevel = (short)(ll->sector->lightlevel + (short)ll->speed); // move lightlevel
+			ll->sector->lightlevel = (INT16)(ll->sector->lightlevel + (INT16)ll->speed); // move lightlevel
 	}
 	else
 	{
@@ -394,11 +394,11 @@ void T_LightFade(lightlevel_t *ll)
 		if (ll->sector->lightlevel - ll->speed <= ll->destlevel)
 		{
 			// stop changing light level
-			ll->sector->lightlevel = (short)ll->destlevel; // set to dest lightlevel
+			ll->sector->lightlevel = (INT16)ll->destlevel; // set to dest lightlevel
 
 			P_RemoveLighting(ll->sector); // clear lightingdata, remove thinker
 		}
 		else
-			ll->sector->lightlevel = (short)(ll->sector->lightlevel - (short)ll->speed); // move lightlevel
+			ll->sector->lightlevel = (INT16)(ll->sector->lightlevel - (INT16)ll->speed); // move lightlevel
 	}
 }

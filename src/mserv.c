@@ -686,7 +686,7 @@ void MSOpenUDPSocket(void)
 
 void MSCloseUDPSocket(void)
 {
-	if (msnode != (short)-1) I_NetFreeNodenum(msnode);
+	if (msnode != (INT16)-1) I_NetFreeNodenum(msnode);
 	msnode = -1;
 }
 
@@ -732,7 +732,7 @@ static inline void SendPingToMasterServer(void)
 		// cur_time is just a dummy data to send
 		WRITEULONG(inbuffer, cur_time);
 		doomcom->datalength = sizeof (cur_time);
-		doomcom->remotenode = (short)msnode;
+		doomcom->remotenode = (INT16)msnode;
 		I_NetSend();
 	}
 */
@@ -773,7 +773,7 @@ void SendAskInfoViaMS(INT32 node, tic_t asktime)
 	// Send to the MS.
 	M_Memcpy(netbuffer, &mshpp, sizeof(mshpp));
 	doomcom->datalength = sizeof(ms_holepunch_packet_t);
-	doomcom->remotenode = (short)msnode;
+	doomcom->remotenode = (INT16)msnode;
 	I_NetSend();
 }
 

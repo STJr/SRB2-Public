@@ -560,7 +560,7 @@ static poly_t *CutOutSubsecPoly(seg_t *lseg, INT32 count, poly_t *poly)
 //
 static inline void HWR_SubsecPoly(INT32 num, poly_t *poly)
 {
-	short count;
+	INT16 count;
 	subsector_t *sub;
 	seg_t *lseg;
 
@@ -963,7 +963,7 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 		I_Error("couldn't malloc extrasubsectors totsubsectors %"PRIdS"\n", totsubsectors);
 
 	// allocate table for back to front drawing of subsectors
-	/*gr_drawsubsectors = (short *)malloc(sizeof (*gr_drawsubsectors) * totsubsectors);
+	/*gr_drawsubsectors = (INT16 *)malloc(sizeof (*gr_drawsubsectors) * totsubsectors);
 	if (!gr_drawsubsectors)
 		I_Error("couldn't malloc gr_drawsubsectors\n");*/
 

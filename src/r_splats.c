@@ -116,7 +116,7 @@ static wallsplat_t *R_AllocWallSplat(void)
 // top: top z coord
 // wallfrac: frac along the linedef vector (0 to FRACUNIT)
 // splatpatchname: name of patch to draw
-void R_AddWallSplat(line_t *wallline, short sectorside, const char *patchname, fixed_t top,
+void R_AddWallSplat(line_t *wallline, INT16 sectorside, const char *patchname, fixed_t top,
 	fixed_t wallfrac, INT32 flags)
 {
 	fixed_t fracsplat, linelength;

@@ -134,8 +134,8 @@ static void KOSUDP_Get(void)
 	for (i = 0; i < MAXNETNODES; i++)
 		if (KOSUDP_cmpaddr(&temp, &(clientaddress[i])))
 		{
-			doomcom->remotenode = (short)i; // good packet from a game player
-			doomcom->datalength = (short)size;
+			doomcom->remotenode = (INT16)i; // good packet from a game player
+			doomcom->datalength = (INT16)size;
 			return;
 		}
 
@@ -148,8 +148,8 @@ static void KOSUDP_Get(void)
 		M_Memcpy(&clientaddress[j], &temp, sizeof (temp));
 		DEBFILE(va("New node detected: node:%d address:%s\n", j,
 				KOSUDP_GetNodeAddress(j)));
-		doomcom->remotenode = (short)j; // good packet from a game player
-		doomcom->datalength = (short)size;
+		doomcom->remotenode = (INT16)j; // good packet from a game player
+		doomcom->datalength = (INT16)size;
 		// check if it's a banned dude so we can send a refusal later
 		for (i = 0; i < numbans; i++)
 			if (KOSUDP_cmpaddr(&temp, &banned[i]))
@@ -408,7 +408,7 @@ boolean I_InitNetwork(void)
 		// particular number here.
 		// FIXME: for dedicated server, numnodes needs to be set to 0 upon start
 /*		if (M_IsNextParm())
-			doomcom->numnodes = (short)atoi(M_GetNextParm());
+			doomcom->numnodes = (INT16)atoi(M_GetNextParm());
 		else */if (dedicated)
 			doomcom->numnodes = 0;
 		else

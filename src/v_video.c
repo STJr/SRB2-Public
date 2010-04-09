@@ -1844,7 +1844,7 @@ void V_DrawFadeConsBack(INT32 px1, INT32 py1, INT32 px2, INT32 py2, INT32 color)
 	INT32 *buf;
 	UINT32 quad;
 	byte p1, p2, p3, p4;
-	short *wput;
+	INT16 *wput;
 	const byte *deststop = screens[0] + vid.width * vid.height * vid.bpp;
 	byte *colormap;
 
@@ -1934,12 +1934,12 @@ void V_DrawFadeConsBack(INT32 px1, INT32 py1, INT32 px2, INT32 py2, INT32 color)
 		w = px2 - px1;
 		for (y = py1; y < py2; y++)
 		{
-			wput = (short *)(void *)(screens[0] + vid.width*y) + px1;
+			wput = (INT16 *)(void *)(screens[0] + vid.width*y) + px1;
 			for (x = 0; x < w; x++)
 			{
-				if (wput > (const short *)(const void *)deststop)
+				if (wput > (const INT16 *)(const void *)deststop)
 					return;
-				*wput = (short)(((*wput&0x7bde) + (15<<5)) >>1);
+				*wput = (INT16)(((*wput&0x7bde) + (15<<5)) >>1);
 				wput++;
 			}
 		}

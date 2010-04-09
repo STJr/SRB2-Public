@@ -72,7 +72,7 @@ fixed_t P_SegLength(seg_t *seg);
 void R_ClearLevelSplats(void);
 
 #ifdef WALLSPLATS
-void R_AddWallSplat(line_t *wallline, short sectorside, const char *patchname, fixed_t top,
+void R_AddWallSplat(line_t *wallline, INT16 sectorside, const char *patchname, fixed_t top,
 	fixed_t wallfrac, INT32 flags);
 #endif
 #ifdef FLOORSPLATS

@@ -61,15 +61,15 @@ static fixed_t topfrac, topstep;
 static fixed_t bottomfrac, bottomstep;
 
 lighttable_t **walllights;
-static short *maskedtexturecol;
+static INT16 *maskedtexturecol;
 
 // ==========================================================================
 // R_Splats Wall Splats Drawer
 // ==========================================================================
 
 #ifdef WALLSPLATS
-static short last_ceilingclip[MAXVIDWIDTH];
-static short last_floorclip[MAXVIDWIDTH];
+static INT16 last_ceilingclip[MAXVIDWIDTH];
+static INT16 last_floorclip[MAXVIDWIDTH];
 
 static void R_DrawSplatColumn(column_t *column)
 {
@@ -622,7 +622,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 	//							CONS_Printf("Top is %d, top_w is %d\n", top, top_w);
 								if (top_w < top)
 								{
-									ffloor[i].plane->top[dc_x] = (short)top;
+									ffloor[i].plane->top[dc_x] = (INT16)top;
 									ffloor[i].plane->picnum = 0;
 								}
 	//							CONS_Printf("top_w is now %d\n", ffloor[i].plane->top[dc_x]);
@@ -633,7 +633,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 
 								if (bottom_w > bottom)
 								{
-									ffloor[i].plane->bottom[dc_x] = (short)bottom;
+									ffloor[i].plane->bottom[dc_x] = (INT16)bottom;
 									ffloor[i].plane->picnum = 0;
 								}
 							}
@@ -1077,8 +1077,8 @@ static void R_RenderSegLoop (void)
 
 			if (top <= bottom)
 			{
-				ceilingplane->top[rw_x] = (short)top;
-				ceilingplane->bottom[rw_x] = (short)bottom;
+				ceilingplane->top[rw_x] = (INT16)top;
+				ceilingplane->bottom[rw_x] = (INT16)bottom;
 			}
 		}
 
@@ -1098,16 +1098,16 @@ static void R_RenderSegLoop (void)
 				top = ceilingclip[rw_x]+1;
 			if (top <= bottom && floorplane)
 			{
-				floorplane->top[rw_x] = (short)top;
-				floorplane->bottom[rw_x] = (short)bottom;
+				floorplane->top[rw_x] = (INT16)top;
+				floorplane->bottom[rw_x] = (INT16)bottom;
 			}
 #else // Spiffy new PRBoom code
 			top  = yh < ceilingclip[rw_x] ? ceilingclip[rw_x] : yh;
 
 			if (++top <= bottom && floorplane)
 			{
-				floorplane->top[rw_x] = (short)top;
-				floorplane->bottom[rw_x] = (short)bottom;
+				floorplane->top[rw_x] = (INT16)top;
+				floorplane->bottom[rw_x] = (INT16)bottom;
 			}
 #endif
 		}
@@ -1138,8 +1138,8 @@ static void R_RenderSegLoop (void)
 
 					if (top_w <= bottom_w)
 					{
-						ffloor[i].plane->top[rw_x] = (short)top_w;
-						ffloor[i].plane->bottom[rw_x] = (short)bottom_w;
+						ffloor[i].plane->top[rw_x] = (INT16)top_w;
+						ffloor[i].plane->bottom[rw_x] = (INT16)bottom_w;
 					}
 				}
 				else if (ffloor[i].height > viewz)
@@ -1155,8 +1155,8 @@ static void R_RenderSegLoop (void)
 
 					if (top_w <= bottom_w)
 					{
-						ffloor[i].plane->top[rw_x] = (short)top_w;
-						ffloor[i].plane->bottom[rw_x] = (short)bottom_w;
+						ffloor[i].plane->top[rw_x] = (INT16)top_w;
+						ffloor[i].plane->bottom[rw_x] = (INT16)bottom_w;
 					}
 				}
 			}
@@ -1250,7 +1250,7 @@ static void R_RenderSegLoop (void)
 
 		// dont draw anything more for this column, since
 		// a midtexture blocks the view
-		ceilingclip[rw_x] = (short)viewheight;
+		ceilingclip[rw_x] = (INT16)viewheight;
 		floorclip[rw_x] = -1;
 	}
 	else
@@ -1273,13 +1273,13 @@ static void R_RenderSegLoop (void)
 				dc_source = R_GetColumn(toptexture,texturecolumn);
 				dc_texheight = textureheight[toptexture]>>FRACBITS;
 				colfunc();
-				ceilingclip[rw_x] = (short)mid;
+				ceilingclip[rw_x] = (INT16)mid;
 			}
 			else
-				ceilingclip[rw_x] = (short)((short)yl - 1);
+				ceilingclip[rw_x] = (INT16)((INT16)yl - 1);
 			}
 			else if (markceiling) // no top wall
-				ceilingclip[rw_x] = (short)((short)yl - 1);
+				ceilingclip[rw_x] = (INT16)((INT16)yl - 1);
 
 			if (bottomtexture)
 			{
@@ -1300,20 +1300,20 @@ static void R_RenderSegLoop (void)
 						texturecolumn);
 					dc_texheight = textureheight[bottomtexture]>>FRACBITS;
 					colfunc();
-					floorclip[rw_x] = (short)mid;
+					floorclip[rw_x] = (INT16)mid;
 				}
 				else
-					floorclip[rw_x] = (short)((short)yh + 1);
+					floorclip[rw_x] = (INT16)((INT16)yh + 1);
 			}
 			else if (markfloor) // no bottom wall
-				floorclip[rw_x] = (short)((short)yh + 1);
+				floorclip[rw_x] = (INT16)((INT16)yh + 1);
 		}
 
 		if (maskedtexture || numthicksides)
 		{
 			// save texturecol
 			//  for backdrawing of masked mid texture
-			maskedtexturecol[rw_x] = (short)texturecolumn;
+			maskedtexturecol[rw_x] = (INT16)texturecolumn;
 		}
 
 		if (dc_numlights)
@@ -1337,7 +1337,7 @@ static void R_RenderSegLoop (void)
 			{
 				INT32 y_w = ffloor[i].b_frac >> HEIGHTBITS;
 
-				ffloor[i].f_clip[rw_x] = ffloor[i].c_clip[rw_x] = (short)(y_w & 0xFFFF);
+				ffloor[i].f_clip[rw_x] = ffloor[i].c_clip[rw_x] = (INT16)(y_w & 0xFFFF);
 				ffloor[i].b_frac += ffloor[i].b_step;
 			}
 
@@ -1412,8 +1412,8 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		if (need > maxopenings)
 		{
 			drawseg_t *ds;  //needed for fix from *cough* zdoom *cough*
-			short *oldopenings = openings;
-			short *oldlast = lastopening;
+			INT16 *oldopenings = openings;
+			INT16 *oldlast = lastopening;
 
 			do
 				maxopenings = maxopenings ? maxopenings*2 : 16384;
@@ -2183,9 +2183,9 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 	{
 		// Isn't a bit wasteful to copy the ENTIRE array for every drawseg?
 		M_Memcpy(last_ceilingclip + ds_p->x1, ceilingclip + ds_p->x1,
-			sizeof (short) * (ds_p->x2 - ds_p->x1 + 1));
+			sizeof (INT16) * (ds_p->x2 - ds_p->x1 + 1));
 		M_Memcpy(last_floorclip + ds_p->x1, floorclip + ds_p->x1,
-			sizeof (short) * (ds_p->x2 - ds_p->x1 + 1));
+			sizeof (INT16) * (ds_p->x2 - ds_p->x1 + 1));
 		R_RenderSegLoop();
 		R_DrawWallSplats();
 	}

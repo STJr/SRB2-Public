@@ -3786,7 +3786,7 @@ void A_RockSpawn(mobj_t *actor)
 {
 	mobj_t *mo;
 	mobjtype_t type;
-	INT32 i = P_FindSpecialLineFromTag(12, (short)actor->threshold, -1);
+	INT32 i = P_FindSpecialLineFromTag(12, (INT16)actor->threshold, -1);
 	line_t *line;
 	fixed_t dist;
 	fixed_t randomoomph;

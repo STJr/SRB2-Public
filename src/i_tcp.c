@@ -139,7 +139,7 @@
 // ipx not yet supported in libsocket (cut and pasted from wsipx.h (winsock)
 typedef struct sockaddr_ipx
 {
-	short sa_family;
+	INT16 sa_family;
 	char sa_netnum[4];
 	char sa_nodenum[6];
 	UINT16 sa_socket;
@@ -472,8 +472,8 @@ static void SOCK_Get(void)
 	{
 		if (SOCK_cmpaddr(&fromaddress, &clientaddress[j], 0))
 		{
-			doomcom->remotenode = (short)j; // good packet from a game player
-			doomcom->datalength = (short)c;
+			doomcom->remotenode = (INT16)j; // good packet from a game player
+			doomcom->datalength = (INT16)c;
 			return;
 		}
 	}
@@ -489,8 +489,8 @@ static void SOCK_Get(void)
 		M_Memcpy(&clientaddress[j], &fromaddress, fromlen);
 		DEBFILE(va("New node detected: node:%d address:%s\n", j,
 				SOCK_GetNodeAddress(j)));
-		doomcom->remotenode = (short)j; // good packet from a game player
-		doomcom->datalength = (short)c;
+		doomcom->remotenode = (INT16)j; // good packet from a game player
+		doomcom->datalength = (INT16)c;
 
 		// check if it's a banned dude so we can send a refusal later
 		for (i = 0; i < numbans; i++)
@@ -1193,7 +1193,7 @@ boolean I_InitTcpNetwork(void)
 		if (dedicated)
 			doomcom->numnodes = 0;
 /*		else if (M_IsNextParm())
-			doomcom->numnodes = (short)atoi(M_GetNextParm());*/
+			doomcom->numnodes = (INT16)atoi(M_GetNextParm());*/
 		else
 			doomcom->numnodes = 1;
 

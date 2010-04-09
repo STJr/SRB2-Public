@@ -84,7 +84,7 @@ static tic_t nettics[MAXNETNODES]; // what tic the client have received
 static tic_t supposedtics[MAXNETNODES]; // nettics prevision for smaller packet
 static byte nodewaiting[MAXNETNODES];
 static tic_t firstticstosend; // min of the nettics
-static short consistancy[BACKUPTICS];
+static INT16 consistancy[BACKUPTICS];
 static tic_t tictoclear = 0; // optimize d_clearticcmd
 static tic_t maketic;
 
@@ -339,7 +339,7 @@ void ReadLmpExtraData(byte **demo_pointer, INT32 playernum)
 // end extra data function for lmps
 // -----------------------------------------------------------------
 
-static short Consistancy(void);
+static INT16 Consistancy(void);
 
 #ifndef NONET
 #define JOININGAME
@@ -957,7 +957,7 @@ static void CL_ConnectToServer(boolean viams)
 				return;
 			}
 			if (key == 's' && server)
-				doomcom->numnodes = (short)pnumnodes;
+				doomcom->numnodes = (INT16)pnumnodes;
 
 			FiletxTicker();
 			oldtic = I_GetTime();
@@ -1824,7 +1824,7 @@ static void Got_AddPlayer(byte **p, INT32 playernum)
 	playeringame[newplayernum] = true;
 	G_AddPlayer(newplayernum);
 	if (newplayernum+1 > doomcom->numslots)
-		doomcom->numslots = (short)(newplayernum+1);
+		doomcom->numslots = (INT16)(newplayernum+1);
 
 	CONS_Printf(text[PLAYERINGAME], newplayernum+1, node);
 
@@ -2555,9 +2555,9 @@ FILESTAMP
 // no more use random generator, because at very first tic isn't yet synchronized
 // Note: It is called consistAncy on purpose.
 //
-static short Consistancy(void)
+static INT16 Consistancy(void)
 {
-	short ret = 0;
+	INT16 ret = 0;
 	INT32 i;
 
 	DEBFILE(va("TIC %u ", gametic));
@@ -2565,10 +2565,10 @@ static short Consistancy(void)
 		if (playeringame[i] && players[i].mo)
 		{
 			DEBFILE(va("p[%d].x = %f ", i, (double)FIXED_TO_FLOAT(players[i].mo->x)));
-			ret = (short)((ret + players[i].mo->x) & 0xFFFF);
+			ret = (INT16)((ret + players[i].mo->x) & 0xFFFF);
 		}
 	DEBFILE(va("pos = %d, rnd %d\n", ret, P_GetRandIndex()));
-	ret = (short)(ret + P_GetRandIndex());
+	ret = (INT16)(ret + P_GetRandIndex());
 
 	return ret;
 }
@@ -2589,7 +2589,7 @@ static void CL_SendClientCmd(void)
 	{
 		// send NODEKEEPALIVE packet
 		netbuffer->packettype += 4;
-		packetsize = sizeof (clientcmd_pak) - sizeof (ticcmd_t) - sizeof (short);
+		packetsize = sizeof (clientcmd_pak) - sizeof (ticcmd_t) - sizeof (INT16);
 		HSendPacket(servernode, false, 0, packetsize);
 	}
 	else if (gamestate != GS_NULL)
@@ -2773,7 +2773,7 @@ void SV_SpawnPlayer(INT32 playernum, INT32 x, INT32 y, angle_t angle)
 	if (server)
 	{
 		x = y = 0;
-		netcmds[maketic%BACKUPTICS][playernum].angleturn = (short)((short)(angle>>16) | TICCMD_RECEIVED);
+		netcmds[maketic%BACKUPTICS][playernum].angleturn = (INT16)((INT16)(angle>>16) | TICCMD_RECEIVED);
 	}
 }
 

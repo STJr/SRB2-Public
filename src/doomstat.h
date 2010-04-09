@@ -37,13 +37,13 @@
 // =============================
 
 // Selected by user.
-extern short gamemap;
+extern INT16 gamemap;
 extern musicenum_t mapmusic;
-extern short maptol;
+extern INT16 maptol;
 extern INT32 globalweather;
 extern INT32 curWeather;
 extern INT32 cursaveslot;
-extern short lastmapsaved;
+extern INT16 lastmapsaved;
 extern boolean gamecomplete;
 
 #define PRECIP_NONE  0
@@ -111,13 +111,13 @@ extern INT32 displayplayer;
 extern INT32 secondarydisplayplayer; // for splitscreen
 
 // Maps of special importance
-extern short spstage_start;
-extern short spstage_end;
-extern short sstage_start;
-extern short sstage_end;
-extern short nsstage_start;
-extern short nsstage_end;
-extern short racestage_start;
+extern INT16 spstage_start;
+extern INT16 spstage_end;
+extern INT16 sstage_start;
+extern INT16 sstage_end;
+extern INT16 nsstage_start;
+extern INT16 nsstage_end;
+extern INT16 racestage_start;
 
 extern boolean looptitle;
 extern boolean useNightsSS;
@@ -149,14 +149,14 @@ typedef struct
 extern cutscene_t cutscenes[128];
 
 // For the Custom Exit linedef.
-extern short nextmapoverride;
+extern INT16 nextmapoverride;
 extern INT32 nextmapgametype;
 extern boolean skipstats;
 
 extern ULONG totalrings; //  Total # of rings in a level
 
 // Fun extra stuff
-extern short lastmap; // Last level you were at (returning from special stages).
+extern INT16 lastmap; // Last level you were at (returning from special stages).
 extern mapthing_t *rflagpoint, *bflagpoint; // Original flag spawn locations
 #define MF_REDFLAG 1
 #define MF_BLUEFLAG 2
@@ -172,12 +172,12 @@ typedef struct
 	char lvlttl[33];      ///< Level name without "Zone".
 	char subttl[33];      ///< Subtitle for level
 	byte actnum;          ///< Act number or 0 for none.
-	short typeoflevel;    ///< Combination of typeoflevel flags.
-	short nextlevel;      ///< Map number of next level, or 1100-1102 to end.
+	INT16 typeoflevel;    ///< Combination of typeoflevel flags.
+	INT16 nextlevel;      ///< Map number of next level, or 1100-1102 to end.
 	musicenum_t musicslot;///< Music slot number to play. 0 for no music.
 	byte forcecharacter;  ///< Skin number to switch to or 255 to disable.
 	byte weather;         ///< 0 = sunny day, 1 = storm, 2 = snow, 3 = rain, 4 = blank, 5 = thunder w/o rain, 6 = rain w/o lightning, 7 = heat wave.
-	short skynum;         ///< Sky number to use.
+	INT16 skynum;         ///< Sky number to use.
 
 	// Extra information.
 	char interscreen[8];  ///< 320x200 patch to display at intermission.
@@ -185,7 +185,7 @@ typedef struct
 	boolean scriptislump; ///< True if the script is a lump, not a file.
 	byte precutscenenum;  ///< Cutscene number to play BEFORE a level starts.
 	byte cutscenenum;     ///< Cutscene number to use, 0 for none.
-	short countdown;      ///< Countdown until level end?
+	INT16 countdown;      ///< Countdown until level end?
 	boolean nozone;       ///< True to hide "Zone" in level name.
 	boolean hideinmenu;   ///< True to hide in the multiplayer menu.
 	boolean nossmusic;    ///< True to disable Super Sonic music in this level.

@@ -429,7 +429,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 				if (i != IT_DISABLED && !slotfound && (slotfound = findFreeSlot(&num)) == false)
 					return;
 				DEH_WriteUndoline(word, va("%d", PlayerMenu[num].status), UNDO_NONE);
-				PlayerMenu[num].status = (short)i;
+				PlayerMenu[num].status = (INT16)i;
 			}
 			else if (!strcmp(word, "SKINNAME"))
 			{
@@ -656,7 +656,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "TYPEOFLEVEL"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].typeoflevel), UNDO_NONE);
-				mapheaderinfo[num-1].typeoflevel = (short)i;
+				mapheaderinfo[num-1].typeoflevel = (INT16)i;
 			}
 			else if (!strcmp(word, "NEXTLEVEL"))
 			{
@@ -668,7 +668,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 					i = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nextlevel), UNDO_NONE);
-				mapheaderinfo[num-1].nextlevel = (short)i;
+				mapheaderinfo[num-1].nextlevel = (INT16)i;
 			}
 			else if (!strcmp(word, "MUSICSLOT"))
 			{
@@ -688,7 +688,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "SKYNUM"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].skynum), UNDO_NONE);
-				mapheaderinfo[num-1].skynum = (short)i;
+				mapheaderinfo[num-1].skynum = (INT16)i;
 			}
 			else if (!strcmp(word, "INTERSCREEN"))
 			{
@@ -719,7 +719,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "COUNTDOWN"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].countdown), UNDO_NONE);
-				mapheaderinfo[num-1].countdown = (short)i;
+				mapheaderinfo[num-1].countdown = (INT16)i;
 			}
 			else if (!strcmp(word, "NOZONE"))
 			{
@@ -1698,8 +1698,8 @@ static void readmaincfg(MYFILE *f)
 					value = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", sstage_start), UNDO_NONE);
-				sstage_start = (short)value;
-				sstage_end = (short)(sstage_start+6);
+				sstage_start = (INT16)value;
+				sstage_end = (INT16)(sstage_start+6);
 				useNightsSS = false;
 			}
 			else if (!strcmp(word, "NSSTAGE_START"))
@@ -1712,8 +1712,8 @@ static void readmaincfg(MYFILE *f)
 					value = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", nsstage_start), UNDO_NONE);
-				nsstage_start = (short)value;
-				nsstage_end = (short)(nsstage_start+6);
+				nsstage_start = (INT16)value;
+				nsstage_end = (INT16)(nsstage_start+6);
 				useNightsSS = true;
 			}
 			else if (!strcmp(word, "EXECCFG"))
@@ -1728,7 +1728,7 @@ static void readmaincfg(MYFILE *f)
 					value = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", spstage_start), UNDO_NONE);
-				spstage_start = (short)value;
+				spstage_start = (INT16)value;
 			}
 			else if (!strcmp(word, "SPSTAGE_END"))
 			{
@@ -1740,7 +1740,7 @@ static void readmaincfg(MYFILE *f)
 					value = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", spstage_end), UNDO_NONE);
-				spstage_end = (short)value;
+				spstage_end = (INT16)value;
 			}
 			else if (!strcmp(word, "RACESTAGE_START"))
 			{
@@ -1752,7 +1752,7 @@ static void readmaincfg(MYFILE *f)
 					value = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", racestage_start), UNDO_NONE);
-				racestage_start = (short)value;
+				racestage_start = (INT16)value;
 			}
 			else if (!strcmp(word, "INVULNTICS"))
 			{
@@ -1920,17 +1920,17 @@ static void reademblemdata(MYFILE *f, INT32 num)
 			if (!strcmp(word, "X"))
 			{
 				DEH_WriteUndoline(word, va("%d", emblemlocations[num-1].x), UNDO_NONE);
-				emblemlocations[num-1].x = (short)value;
+				emblemlocations[num-1].x = (INT16)value;
 			}
 			else if (!strcmp(word, "Y"))
 			{
 				DEH_WriteUndoline(word, va("%d", emblemlocations[num-1].y), UNDO_NONE);
-				emblemlocations[num-1].y = (short)value;
+				emblemlocations[num-1].y = (INT16)value;
 			}
 			else if (!strcmp(word, "Z"))
 			{
 				DEH_WriteUndoline(word, va("%d", emblemlocations[num-1].z), UNDO_NONE);
-				emblemlocations[num-1].z = (short)value;
+				emblemlocations[num-1].z = (INT16)value;
 			}
 			else if (!strcmp(word, "PLAYERNUM"))
 			{
@@ -1947,7 +1947,7 @@ static void reademblemdata(MYFILE *f, INT32 num)
 					value = M_MapNumber(word2[0], word2[1]);
 
 				DEH_WriteUndoline(word, va("%d", emblemlocations[num-1].level), UNDO_NONE);
-				emblemlocations[num-1].level = (short)value;
+				emblemlocations[num-1].level = (INT16)value;
 			}
 			else
 				deh_warning("Emblem: unknown word '%s'", word);

@@ -150,7 +150,7 @@ typedef struct ffloor_s
 {
 	fixed_t *topheight;
 	INT32 *toppic;
-	short *toplightlevel;
+	INT16 *toplightlevel;
 	fixed_t *topxoffs;
 	fixed_t *topyoffs;
 	angle_t *topangle;
@@ -184,7 +184,7 @@ typedef struct ffloor_s
 typedef struct lightlist_s
 {
 	fixed_t height;
-	short *lightlevel;
+	INT16 *lightlevel;
 	extracolormap_t *extra_colormap;
 	INT32 flags;
 	ffloor_t *caster;
@@ -198,7 +198,7 @@ typedef struct r_lightlist_s
 	fixed_t heightstep;
 	fixed_t botheight;
 	fixed_t botheightstep;
-	short lightlevel;
+	INT16 lightlevel;
 	extracolormap_t *extra_colormap;
 	lighttable_t *rcolormap;
 	ffloortype_e flags;
@@ -246,9 +246,9 @@ typedef struct sector_s
 	fixed_t ceilingheight;
 	INT32 floorpic;
 	INT32 ceilingpic;
-	short lightlevel;
-	short special;
-	short tag;
+	INT16 lightlevel;
+	INT16 special;
+	INT16 tag;
 	INT32 nexttag, firsttag; // for fast tag searches
 
 	// origin for any sounds played by the sector
@@ -356,9 +356,9 @@ typedef struct line_s
 	fixed_t dx, dy; // Precalculated v2 - v1 for side checking.
 
 	// Animation related.
-	short flags;
-	short special;
-	short tag;
+	INT16 flags;
+	INT16 special;
+	INT16 tag;
 
 	// Visual appearance: sidedefs.
 	UINT16 sidenum[2]; // sidenum[1] will be 0xffff if one-sided
@@ -402,8 +402,8 @@ typedef struct
 	// Sector the SideDef is facing.
 	sector_t *sector;
 
-	short special; // the special of the linedef this side belongs to
-	short repeatcnt; // # of times to repeat midtexture
+	INT16 special; // the special of the linedef this side belongs to
+	INT16 repeatcnt; // # of times to repeat midtexture
 } side_t;
 
 //
@@ -415,7 +415,7 @@ typedef struct
 typedef struct subsector_s
 {
 	sector_t *sector;
-	short numlines;
+	INT16 numlines;
 	UINT16 firstline;
 #ifdef POLYOBJECTS
 	struct polyobj_s *polyList; // haleyjd 02/19/06: list of polyobjects
@@ -585,14 +585,14 @@ typedef struct drawseg_s
 	fixed_t tsilheight; // do not clip sprites below this
 
 	// Pointers to lists for sprite clipping, all three adjusted so [x1] is first value.
-	short *sprtopclip;
-	short *sprbottomclip;
-	short *maskedtexturecol;
+	INT16 *sprtopclip;
+	INT16 *sprbottomclip;
+	INT16 *maskedtexturecol;
 
 	struct visplane_s *ffloorplanes[MAXFFLOORS];
 	INT32 numffloorplanes;
 	struct ffloor_s *thicksides[MAXFFLOORS];
-	short *thicksidecol;
+	INT16 *thicksidecol;
 	INT32 numthicksides;
 	fixed_t frontscale[MAXVIDWIDTH];
 } drawseg_t;
@@ -618,10 +618,10 @@ typedef enum
 // WARNING: this structure is cloned in GLPatch_t
 typedef struct
 {
-	short width;          // bounding box size
-	short height;
-	short leftoffset;     // pixels to the left of origin
-	short topoffset;      // pixels below the origin
+	INT16 width;          // bounding box size
+	INT16 height;
+	INT16 leftoffset;     // pixels to the left of origin
+	INT16 topoffset;      // pixels below the origin
 	INT32 columnofs[8];     // only [width] used
 	// the [0] is &columnofs[width]
 } ATTRPACK patch_t;
@@ -633,12 +633,12 @@ typedef struct
 // a pic is an unmasked block of pixels, stored in horizontal way
 typedef struct
 {
-	short width;
+	INT16 width;
 	byte zero;       // set to 0 allow autodetection of pic_t
 	                 // mode instead of patch or raw
 	byte mode;       // see pic_mode_t above
-	short height;
-	short reserved1; // set to 0
+	INT16 height;
+	INT16 reserved1; // set to 0
 	byte data[0];
 } ATTRPACK pic_t;
 

@@ -4626,7 +4626,7 @@ static void P_NiGHTSMovement(player_t *player)
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
 			UINT16 angle;
-			short temp;
+			INT16 temp;
 
 			angle = (UINT16)(player->anotherflyangle % 360);
 
@@ -4642,14 +4642,14 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt = mapthings+nummapthings-1;
 
-			mt->x = (short)(player->mo->x>>FRACBITS);
-			mt->y = (short)(player->mo->y>>FRACBITS);
+			mt->x = (INT16)(player->mo->x>>FRACBITS);
+			mt->y = (INT16)(player->mo->y>>FRACBITS);
 
 			// Tilt
-			mt->angle = (short)FixedInt(FixedDiv(angle*FRACUNIT, 360*(FRACUNIT/256)));
+			mt->angle = (INT16)FixedInt(FixedDiv(angle*FRACUNIT, 360*(FRACUNIT/256)));
 
 			// Traditional 2D Angle
-			temp = (short)FixedInt(AngleFixed(player->mo->angle));
+			temp = (INT16)FixedInt(AngleFixed(player->mo->angle));
 
 			if (player->anotherflyangle < 90 || player->anotherflyangle > 270)
 				temp -= 90;
@@ -4664,10 +4664,10 @@ static void P_NiGHTSMovement(player_t *player)
 				player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			/*'Fixed' version that doesn't work
-			mt->angle = (short)(mt->angle+(short)(FixedDiv(FixedDiv(temp*FRACUNIT, 360*(FRACUNIT/256)),1)<<8));
+			mt->angle = (INT16)(mt->angle+(INT16)(FixedDiv(FixedDiv(temp*FRACUNIT, 360*(FRACUNIT/256)),1)<<8));
 			*/
 
-			mt->angle = (short)(mt->angle+(short)((FixedDiv(temp*FRACUNIT, 360*(FRACUNIT/256))/FRACUNIT)<<8));
+			mt->angle = (INT16)(mt->angle+(INT16)((FixedDiv(temp*FRACUNIT, 360*(FRACUNIT/256))/FRACUNIT)<<8));
 
 			P_SpawnHoopsAndRings(mt);
 
@@ -4700,9 +4700,9 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt = mapthings+nummapthings-1;
 
-			mt->x = (short)(player->mo->x>>FRACBITS);
-			mt->y = (short)(player->mo->y>>FRACBITS);
-			mt->angle = (short)(FixedInt(AngleFixed(player->mo->angle)));
+			mt->x = (INT16)(player->mo->x>>FRACBITS);
+			mt->y = (INT16)(player->mo->y>>FRACBITS);
+			mt->angle = (INT16)(FixedInt(AngleFixed(player->mo->angle)));
 
 			mt->type = (UINT16)mobjinfo[MT_NIGHTSBUMPER].doomednum;
 
@@ -4735,8 +4735,8 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt = mapthings + nummapthings-1;
 
-			mt->x = (short)(player->mo->x>>FRACBITS);
-			mt->y = (short)(player->mo->y>>FRACBITS);
+			mt->x = (INT16)(player->mo->x>>FRACBITS);
+			mt->y = (INT16)(player->mo->y>>FRACBITS);
 			mt->angle = 0;
 			mt->type = (UINT16)mobjinfo[MT_RING].doomednum;
 
@@ -4769,8 +4769,8 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt = mapthings + nummapthings-1;
 
-			mt->x = (short)(player->mo->x>>FRACBITS);
-			mt->y = (short)(player->mo->y>>FRACBITS);
+			mt->x = (INT16)(player->mo->x>>FRACBITS);
+			mt->y = (INT16)(player->mo->y>>FRACBITS);
 			mt->angle = 0;
 			mt->type = (UINT16)mobjinfo[MT_NIGHTSWING].doomednum;
 
@@ -4839,10 +4839,10 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt = mapthings+nummapthings-1;
 
-			mt->x = (short)(player->mo->x>>FRACBITS);
-			mt->y = (short)(player->mo->y>>FRACBITS);
+			mt->x = (INT16)(player->mo->x>>FRACBITS);
+			mt->y = (INT16)(player->mo->y>>FRACBITS);
 			mt->angle = angle;
-			mt->type = (short)cv_mapthingnum.value;
+			mt->type = (INT16)cv_mapthingnum.value;
 
 			mt->options = (UINT16)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
@@ -4955,7 +4955,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
 			mobj_t *newthing;
-			short x,y,z = 0;
+			INT16 x,y,z = 0;
 			byte zshift;
 
 			if (player->mo->target->flags & MF_SPAWNCEILING)
@@ -4965,11 +4965,11 @@ static void P_ObjectplaceMovement(player_t *player)
 				if (cv_snapto.value)
 				{
 					if (cv_snapto.value == 1) // Snap to floor
-						z = (short)((player->mo->subsector->sector->ceilingheight - player->mo->floorz)>>FRACBITS);
+						z = (INT16)((player->mo->subsector->sector->ceilingheight - player->mo->floorz)>>FRACBITS);
 					else if (cv_snapto.value == 2) // Snap to ceiling
-						z = (short)((player->mo->subsector->sector->ceilingheight - player->mo->ceilingz - player->mo->target->height)>>FRACBITS);
+						z = (INT16)((player->mo->subsector->sector->ceilingheight - player->mo->ceilingz - player->mo->target->height)>>FRACBITS);
 					else if (cv_snapto.value == 3) // Snap to middle
-						z = (short)((player->mo->subsector->sector->ceilingheight - (player->mo->ceilingz - player->mo->floorz)/2 - player->mo->target->height/2)>>FRACBITS);
+						z = (INT16)((player->mo->subsector->sector->ceilingheight - (player->mo->ceilingz - player->mo->floorz)/2 - player->mo->target->height/2)>>FRACBITS);
 				}
 				else
 				{
@@ -4980,15 +4980,15 @@ static void P_ObjectplaceMovement(player_t *player)
 						adjust = cv_grid.value - (((player->mo->subsector->sector->ceilingheight -
 							player->mo->subsector->sector->floorheight)>>FRACBITS) % cv_grid.value);
 
-						z = (short)(((player->mo->subsector->sector->ceilingheight - player->mo->z))>>FRACBITS);
-						z = (short)(z + (short)adjust);
+						z = (INT16)(((player->mo->subsector->sector->ceilingheight - player->mo->z))>>FRACBITS);
+						z = (INT16)(z + (INT16)adjust);
 
 						// round to the nearest cv_grid.value
-						z = (short)((z + cv_grid.value/2) % cv_grid.value);
-						z = (short)(z - (short)adjust);
+						z = (INT16)((z + cv_grid.value/2) % cv_grid.value);
+						z = (INT16)(z - (INT16)adjust);
 					}
 					else
-						z = (short)((player->mo->subsector->sector->ceilingheight - player->mo->z)>>FRACBITS);
+						z = (INT16)((player->mo->subsector->sector->ceilingheight - player->mo->z)>>FRACBITS);
 				}
 			}
 			else
@@ -4996,23 +4996,23 @@ static void P_ObjectplaceMovement(player_t *player)
 				if (cv_snapto.value)
 				{
 					if (cv_snapto.value == 1) // Snap to floor
-						z = (short)((player->mo->floorz - player->mo->subsector->sector->floorheight)>>FRACBITS);
+						z = (INT16)((player->mo->floorz - player->mo->subsector->sector->floorheight)>>FRACBITS);
 					else if (cv_snapto.value == 2) // Snap to ceiling
-						z = (short)((player->mo->ceilingz - player->mo->target->height - player->mo->subsector->sector->floorheight)>>FRACBITS);
+						z = (INT16)((player->mo->ceilingz - player->mo->target->height - player->mo->subsector->sector->floorheight)>>FRACBITS);
 					else if (cv_snapto.value == 3) // Snap to middle
-						z = (short)((((player->mo->ceilingz - player->mo->floorz)/2)-(player->mo->target->height/2)-player->mo->subsector->sector->floorheight)>>FRACBITS);
+						z = (INT16)((((player->mo->ceilingz - player->mo->floorz)/2)-(player->mo->target->height/2)-player->mo->subsector->sector->floorheight)>>FRACBITS);
 				}
 				else
 				{
 					if (cv_grid.value)
 					{
-						z = (short)(((player->mo->subsector->sector->ceilingheight - player->mo->z))>>FRACBITS);
+						z = (INT16)(((player->mo->subsector->sector->ceilingheight - player->mo->z))>>FRACBITS);
 
 						// round to the nearest cv_grid.value
-						z = (short)((z + cv_grid.value/2) % cv_grid.value);
+						z = (INT16)((z + cv_grid.value/2) % cv_grid.value);
 					}
 					else
-						z = (short)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+						z = (INT16)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 				}
 			}
 
@@ -5048,10 +5048,10 @@ static void P_ObjectplaceMovement(player_t *player)
 			if (player->mo->target->flags & MF_SPECIALFLAGS)
 			{
 				if (player->mo->target->type == MT_STARPOST)
-					z = (short)z;
+					z = (INT16)z;
 			}
 			else
-				z = (short)(z + (short)cv_objflags.value); // Easy/med/hard/ambush/etc.
+				z = (INT16)(z + (INT16)cv_objflags.value); // Easy/med/hard/ambush/etc.
 
 			oldmapthings = mapthings;
 			nummapthings++;
@@ -5067,26 +5067,26 @@ static void P_ObjectplaceMovement(player_t *player)
 
 			if (cv_grid.value)
 			{
-				x = (short)(P_GridSnap(player->mo->x)>>FRACBITS);
-				y = (short)(P_GridSnap(player->mo->y)>>FRACBITS);
+				x = (INT16)(P_GridSnap(player->mo->x)>>FRACBITS);
+				y = (INT16)(P_GridSnap(player->mo->y)>>FRACBITS);
 			}
 			else
 			{
-				x = (short)(player->mo->x>>FRACBITS);
-				y = (short)(player->mo->y>>FRACBITS);
+				x = (INT16)(player->mo->x>>FRACBITS);
+				y = (INT16)(player->mo->y>>FRACBITS);
 			}
 
 			mt->x = x;
 			mt->y = y;
-			mt->angle = (short)FixedInt(AngleFixed(player->mo->angle));
+			mt->angle = (INT16)FixedInt(AngleFixed(player->mo->angle));
 
 			if (cv_mapthingnum.value != 0)
 			{
-				mt->type = (short)cv_mapthingnum.value;
+				mt->type = (INT16)cv_mapthingnum.value;
 				CONS_Printf("Placed object mapthingum %d, not the one below.\n", mt->type);
 			}
 			else
-				mt->type = (short)mobjinfo[player->currentthing].doomednum;
+				mt->type = (INT16)mobjinfo[player->currentthing].doomednum;
 
 			mt->options = z;
 

@@ -53,10 +53,10 @@ typedef struct
 	char color_map_type ; // 2
 	char image_type     ; // 3
 	char dummy[5]       ; // 4,  8
-	short x_origin      ; // 9, 10
-	short y_origin      ; //11, 12
-	short width         ; //13, 14
-	short height        ; //15, 16
+	INT16 x_origin      ; // 9, 10
+	INT16 y_origin      ; //11, 12
+	INT16 width         ; //13, 14
+	INT16 height        ; //15, 16
 	char image_pix_size ; //17
 	char image_descriptor; //18
 } ATTRPACK TGAHeader; // sizeof is 18

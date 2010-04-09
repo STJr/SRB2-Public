@@ -45,7 +45,7 @@ typedef int fixed_t;
 typedef struct {
 	signed char forwardmove; // *2048 for move
 	signed char sidemove; // *2048 for move
-	short angleturn; // <<16 for angle delta - SAVED AS A BYTE into demos
+	INT16 angleturn; // <<16 for angle delta - SAVED AS A BYTE into demos
 	INT16 aiming; // mouse aiming, see G_BuildTicCmd
 	byte buttons;
 #ifdef PACKED
@@ -56,14 +56,14 @@ typedef struct {
 typedef struct {
 	byte client_tic;
 	byte resendfrom;
-	short consistancy;
+	INT16 consistancy;
 	ticcmd_t cmd;
 } ATTRPACK clientcmd_pak;
 
 typedef struct {
 	byte client_tic;
 	byte resendfrom;
-	short consistancy;
+	INT16 consistancy;
 	ticcmd_t cmd, cmd2;
 } ATTRPACK client2cmd_pak;
 

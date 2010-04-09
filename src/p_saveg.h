@@ -29,7 +29,7 @@
 
 void P_SaveGame(void);
 void P_SaveNetGame(void);
-boolean P_LoadGame(short mapoverride);
+boolean P_LoadGame(INT16 mapoverride);
 boolean P_LoadNetGame(void);
 
 typedef struct

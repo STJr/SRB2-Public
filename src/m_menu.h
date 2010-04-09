@@ -98,7 +98,7 @@ void M_QuitResponse(INT32 ch);
 #define IT_CV_NOPRINT (256+512)
 #define IT_CV_NOMOD       1024
 
-// in short for some common use
+// in INT16 for some common use
 #define IT_BIGSPACE    (IT_SPACE  +IT_DYBIGSPACE)
 #define IT_LITLSPACE   (IT_SPACE  +IT_DYLITLSPACE)
 #define IT_CONTROL     (IT_STRING2+IT_CALL)
@@ -118,7 +118,7 @@ typedef union
 typedef struct menuitem_s
 {
 	// show IT_xxx
-	short status;
+	INT16 status;
 
 	const char *patch;
 	const char *text; // used when FONTBxx lump is found
@@ -136,12 +136,12 @@ typedef struct menu_s
 {
 	const char    *menutitlepic;
 	const char    *menutitle;          // title as string for display with fontb if present
-	short          numitems;           // # of menu items
+	INT16          numitems;           // # of menu items
 	struct menu_s *prevMenu;           // previous menu
 	menuitem_t    *menuitems;          // menu items
 	void         (*drawroutine)(void); // draw routine
-	short          x, y;               // x, y of menu
-	short          lastOn;             // last item user was on in menu
+	INT16          x, y;               // x, y of menu
+	INT16          lastOn;             // last item user was on in menu
 	boolean      (*quitroutine)(void); // called before quit a menu return true if we can
 } menu_t;
 
@@ -202,7 +202,7 @@ extern description_t description[15];
 extern consvar_t cv_newgametype, cv_nextmap, cv_chooseskin, cv_serversort;
 extern CV_PossibleValue_t gametype_cons_t[];
 
-extern short startmap;
+extern INT16 startmap;
 extern INT32 ultmode;
 
 extern boolean StartSplitScreenGame;

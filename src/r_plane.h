@@ -73,11 +73,11 @@ extern visplane_t *floorplane;
 extern visplane_t *ceilingplane;
 
 // Visplane related.
-extern short *lastopening, *openings;
+extern INT16 *lastopening, *openings;
 extern size_t maxopenings;
 typedef void (*planefunction_t)(INT32 top, INT32 bottom);
 
-extern short floorclip[MAXVIDWIDTH], ceilingclip[MAXVIDWIDTH];
+extern INT16 floorclip[MAXVIDWIDTH], ceilingclip[MAXVIDWIDTH];
 extern fixed_t frontscale[MAXVIDWIDTH], yslopetab[MAXVIDHEIGHT*4];
 extern fixed_t cachedheight[MAXVIDHEIGHT];
 extern fixed_t cacheddistance[MAXVIDHEIGHT];
@@ -112,8 +112,8 @@ typedef struct planemgr_s
 	fixed_t b_pos; // B for Back sector
 	fixed_t f_frac, f_step;
 	fixed_t b_frac, b_step;
-	short f_clip[MAXVIDWIDTH];
-	short c_clip[MAXVIDWIDTH];
+	INT16 f_clip[MAXVIDWIDTH];
+	INT16 c_clip[MAXVIDWIDTH];
 
 	struct ffloor_s *ffloor;
 #ifdef POLYOBJECTS_PLANES

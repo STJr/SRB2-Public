@@ -377,7 +377,7 @@ boolean I_InitNetwork(void)
 		// particular number here.
 		// FIXME: for dedicated server, numnodes needs to be set to 0 upon start
 /*		if (M_IsNextParm())
-			doomcom->numnodes = (short)atoi(M_GetNextParm());
+			doomcom->numnodes = (INT16)atoi(M_GetNextParm());
 		else */if (dedicated)
 			doomcom->numnodes = 0;
 		else

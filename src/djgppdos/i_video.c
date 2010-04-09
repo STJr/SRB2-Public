@@ -256,7 +256,7 @@ static void I_BlitScreenVesa1(void)
 
 //added:08-01-98: now we use Allegro's set_gfx_mode, but we want to
 //                restore the exact text mode that was before.
-static short  myOldVideoMode;
+static INT16  myOldVideoMode;
 static inline void I_SaveOldVideoMode(void)
 {
 	__dpmi_regs r;

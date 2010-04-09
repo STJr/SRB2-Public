@@ -151,9 +151,9 @@ FUNCNORETURN static ATTRNORETURN void CorruptMapError(const char *msg)
   * \param i Map number to clear header for.
   * \sa P_ClearMapHeaderInfo, P_LoadMapHeader
   */
-static void P_ClearSingleMapHeaderInfo(short i)
+static void P_ClearSingleMapHeaderInfo(INT16 i)
 {
-	const short num = (short)(i-1);
+	const INT16 num = (INT16)(i-1);
 	DEH_WriteUndoline("LEVELNAME", mapheaderinfo[num].lvlttl, UNDO_NONE);
 	mapheaderinfo[num].lvlttl[0] = '\0';
 	DEH_WriteUndoline("SUBTITLE", mapheaderinfo[num].subttl, UNDO_NONE);
@@ -163,7 +163,7 @@ static void P_ClearSingleMapHeaderInfo(short i)
 	DEH_WriteUndoline("TYPEOFLEVEL", va("%d", mapheaderinfo[num].typeoflevel), UNDO_NONE);
 	mapheaderinfo[num].typeoflevel = 0;
 	DEH_WriteUndoline("NEXTLEVEL", va("%d", mapheaderinfo[num].nextlevel), UNDO_NONE);
-	mapheaderinfo[num].nextlevel = (short)(i + 1);
+	mapheaderinfo[num].nextlevel = (INT16)(i + 1);
 	DEH_WriteUndoline("MUSICSLOT", va("%d", mapheaderinfo[num].musicslot), UNDO_NONE);
 	mapheaderinfo[num].musicslot = mus_map01m + num;
 	DEH_WriteUndoline("FORCECHARACTER", va("%d", mapheaderinfo[num].forcecharacter), UNDO_NONE);
@@ -211,7 +211,7 @@ static void P_ClearSingleMapHeaderInfo(short i)
   */
 void P_ClearMapHeaderInfo(void)
 {
-	short i;
+	INT16 i;
 
 	for (i = 1; i <= NUMMAPS; i++)
 		P_ClearSingleMapHeaderInfo(i);
@@ -250,7 +250,7 @@ void P_InitMapHeaders(void)
   * \param mapnum Map number to load header for.
   * \sa P_ClearSingleMapHeaderInfo, P_InitMapHeaders
   */
-static inline void P_LoadMapHeader(short mapnum)
+static inline void P_LoadMapHeader(INT16 mapnum)
 {
 	char mapheader[7];
 	lumpnum_t lumpnum;
@@ -670,7 +670,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 	char *data;
 	char *datastart;
 
-	nummapthings = W_LumpLength(lumpnum) / (5 * sizeof (short));
+	nummapthings = W_LumpLength(lumpnum) / (5 * sizeof (INT16));
 	mapthings = Z_Calloc(nummapthings * sizeof (*mapthings), PU_LEVEL, NULL);
 
 	tokenbits = 0;
@@ -711,7 +711,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 	for (i = 0; i < nummapthings; i++, mt++)
 	{
 		// Z for objects
-		mt->z = (short)(R_PointInSubsector(mt->x << FRACBITS, mt->y << FRACBITS)
+		mt->z = (INT16)(R_PointInSubsector(mt->x << FRACBITS, mt->y << FRACBITS)
 			->sector->floorheight>>FRACBITS);
 
 		if (mt->type == 1700 // MT_AXIS
@@ -792,7 +792,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 				mt->mobj = NULL;
 
 				// Z for objects Tails 05-26-2002
-				mt->z = (short)(R_PointInSubsector(mt->x << FRACBITS, mt->y << FRACBITS)
+				mt->z = (INT16)(R_PointInSubsector(mt->x << FRACBITS, mt->y << FRACBITS)
 					->sector->floorheight>>FRACBITS);
 
 				P_SpawnHoopsAndRings (mt);
@@ -862,7 +862,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 	mapthing_t *mt;
 	char *data, *datastart;
 	byte *savebuffer, *savebuf_p;
-	short temp;
+	INT16 temp;
 
 	data = datastart = W_CacheLumpNum(lumpnum, PU_LEVEL);
 
@@ -882,7 +882,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 
 		WRITESHORT(savebuf_p, mt->angle);
 
-		temp = (short)(mt->type + ((short)mt->extrainfo << 12));
+		temp = (INT16)(mt->type + ((INT16)mt->extrainfo << 12));
 		WRITESHORT(savebuf_p, temp);
 		WRITESHORT(savebuf_p, mt->options);
 	}
@@ -1022,9 +1022,9 @@ static void P_LoadLineDefs2(void)
 		// Repeat count for midtexture
 		if ((ld->flags & ML_EFFECT5) && (ld->sidenum[1] != 0xffff))
 		{
-			sides[ld->sidenum[0]].repeatcnt = (short)(((unsigned)sides[ld->sidenum[0]].textureoffset >> FRACBITS) >> 12);
+			sides[ld->sidenum[0]].repeatcnt = (INT16)(((unsigned)sides[ld->sidenum[0]].textureoffset >> FRACBITS) >> 12);
 			sides[ld->sidenum[0]].textureoffset = (((unsigned)sides[ld->sidenum[0]].textureoffset >> FRACBITS) & 2047) << FRACBITS;
-			sides[ld->sidenum[1]].repeatcnt = (short)(((unsigned)sides[ld->sidenum[1]].textureoffset >> FRACBITS) >> 12);
+			sides[ld->sidenum[1]].repeatcnt = (INT16)(((unsigned)sides[ld->sidenum[1]].textureoffset >> FRACBITS) >> 12);
 			sides[ld->sidenum[1]].textureoffset = (((unsigned)sides[ld->sidenum[1]].textureoffset >> FRACBITS) & 2047) << FRACBITS;
 		}
 	}
@@ -1555,7 +1555,7 @@ static boolean P_LoadBlockMap(lumpnum_t lumpnum)
 
 	{
 		size_t i;
-		short *wadblockmaplump = malloc(count); //short *wadblockmaplump = W_CacheLumpNum (lump, PU_LEVEL);
+		INT16 *wadblockmaplump = malloc(count); //INT16 *wadblockmaplump = W_CacheLumpNum (lump, PU_LEVEL);
 
 		if (wadblockmaplump) W_ReadLump(lumpnum, wadblockmaplump);
 		else return false;
@@ -1574,7 +1574,7 @@ static boolean P_LoadBlockMap(lumpnum_t lumpnum)
 
 		for (i = 4; i < count; i++)
 		{
-			short t = SHORT(wadblockmaplump[i]);          // killough 3/1/98
+			INT16 t = SHORT(wadblockmaplump[i]);          // killough 3/1/98
 			blockmaplump[i] = t == -1 ? (INT32)-1 : (INT32) t & 0xffff;
 		}
 
@@ -2330,7 +2330,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 {
 	size_t i, j, sreplaces = 0, mreplaces = 0;
 	UINT16 numlumps, wadnum;
-	short firstmapreplaced = 0, num;
+	INT16 firstmapreplaced = 0, num;
 	char *name;
 	lumpinfo_t *lumpinfo;
 	boolean texturechange = false;
@@ -2422,7 +2422,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 
 		if (name[0] == 'M' && name[1] == 'A' && name[2] == 'P') // Ignore the headers
 		{
-			num = (short)M_MapNumber(name[3], name[4]);
+			num = (INT16)M_MapNumber(name[3], name[4]);
 
 			//If you replaced the map you're on, end the level when done.
 			if (num == gamemap)

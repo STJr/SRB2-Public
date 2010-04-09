@@ -61,8 +61,8 @@ typedef struct
 static lighttable_t **spritelights;
 
 // constant arrays used for psprite clipping and initializing clipping
-short negonearray[MAXVIDWIDTH];
-short screenheightarray[MAXVIDWIDTH];
+INT16 negonearray[MAXVIDWIDTH];
+INT16 screenheightarray[MAXVIDWIDTH];
 
 //
 // INITIALIZATION FUNCTIONS
@@ -552,8 +552,8 @@ static vissprite_t *R_NewVisSprite(void)
 // Masked means: partly transparent, i.e. stored
 //  in posts/runs of opaque pixels.
 //
-short *mfloorclip;
-short *mceilingclip;
+INT16 *mfloorclip;
+INT16 *mceilingclip;
 
 fixed_t spryscale = 0, sprtopscreen = 0, sprbotscreen = 0;
 fixed_t windowtop = 0, windowbottom = 0;
@@ -879,7 +879,7 @@ static void R_DrawPrecipitationVisSprite(vissprite_t *vis)
 static void R_SplitSprite(vissprite_t *sprite, mobj_t *thing)
 {
 	INT32 i, lightnum, lindex;
-	short cutfrac;
+	INT16 cutfrac;
 	sector_t *sector;
 	vissprite_t *newsprite;
 
@@ -892,7 +892,7 @@ static void R_SplitSprite(vissprite_t *sprite, mobj_t *thing)
 		if (sector->lightlist[i].height <= sprite->gz)
 			return;
 
-		cutfrac = (short)((centeryfrac - FixedMul(sector->lightlist[i].height - viewz, sprite->scale))>>FRACBITS);
+		cutfrac = (INT16)((centeryfrac - FixedMul(sector->lightlist[i].height - viewz, sprite->scale))>>FRACBITS);
 		if (cutfrac < 0)
 			continue;
 		if (cutfrac > vid.height)
@@ -908,7 +908,7 @@ static void R_SplitSprite(vissprite_t *sprite, mobj_t *thing)
 		newsprite->gzt = sprite->gz;
 
 		sprite->sz = cutfrac;
-		newsprite->szt = (short)(sprite->sz - 1);
+		newsprite->szt = (INT16)(sprite->sz - 1);
 
 		if (sector->lightlist[i].height < sprite->pzt && sector->lightlist[i].height > sprite->pz)
 			sprite->pz = newsprite->pzt = sector->lightlist[i].height;
@@ -1248,8 +1248,8 @@ static void R_ProjectSprite(mobj_t *thing)
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 	vis->xscale = xscale; //SoM: 4/17/2000
 	vis->sector = thing->subsector->sector;
-	vis->szt = (short)((centeryfrac - FixedMul(vis->gzt - viewz, yscale))>>FRACBITS);
-	vis->sz = (short)((centeryfrac - FixedMul(vis->gz - viewz, yscale))>>FRACBITS);
+	vis->szt = (INT16)((centeryfrac - FixedMul(vis->gzt - viewz, yscale))>>FRACBITS);
+	vis->sz = (INT16)((centeryfrac - FixedMul(vis->gz - viewz, yscale))>>FRACBITS);
 	vis->cut = false;
 	if (thing->subsector->sector->numlights)
 		vis->extra_colormap = thing->subsector->sector->lightlist[light].extra_colormap;
@@ -1451,8 +1451,8 @@ static void R_ProjectPrecipitationSprite(precipmobj_t *thing)
 	vis->x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 	vis->xscale = xscale; //SoM: 4/17/2000
 	vis->sector = thing->subsector->sector;
-	vis->szt = (short)((centeryfrac - FixedMul(vis->gzt - viewz, yscale))>>FRACBITS);
-	vis->sz = (short)((centeryfrac - FixedMul(vis->gz - viewz, yscale))>>FRACBITS);
+	vis->szt = (INT16)((centeryfrac - FixedMul(vis->gzt - viewz, yscale))>>FRACBITS);
+	vis->sz = (INT16)((centeryfrac - FixedMul(vis->gz - viewz, yscale))>>FRACBITS);
 
 	iscale = FixedDiv(FRACUNIT, xscale);
 
@@ -1921,8 +1921,8 @@ void R_InitDrawNodes(void)
 static void R_DrawSprite(vissprite_t *spr)
 {
 	drawseg_t *ds;
-	short      clipbot[MAXVIDWIDTH];
-	short      cliptop[MAXVIDWIDTH];
+	INT16      clipbot[MAXVIDWIDTH];
+	INT16      cliptop[MAXVIDWIDTH];
 	INT32        x;
 	INT32        r1;
 	INT32        r2;
@@ -2028,13 +2028,13 @@ static void R_DrawSprite(vissprite_t *spr)
 			{                          // clip bottom
 				for (x = spr->x1; x <= spr->x2; x++)
 					if (clipbot[x] == -2 || h < clipbot[x])
-						clipbot[x] = (short)h;
+						clipbot[x] = (INT16)h;
 			}
 			else                        // clip top
 			{
 				for (x = spr->x1; x <= spr->x2; x++)
 					if (cliptop[x] == -2 || h > cliptop[x])
-						cliptop[x] = (short)h;
+						cliptop[x] = (INT16)h;
 			}
 		}
 
@@ -2046,13 +2046,13 @@ static void R_DrawSprite(vissprite_t *spr)
 			{                         // clip bottom
 				for (x = spr->x1; x <= spr->x2; x++)
 					if (clipbot[x] == -2 || h < clipbot[x])
-						clipbot[x] = (short)h;
+						clipbot[x] = (INT16)h;
 			}
 			else                       // clip top
 			{
 				for (x = spr->x1; x <= spr->x2; x++)
 					if (cliptop[x] == -2 || h > cliptop[x])
-						cliptop[x] = (short)h;
+						cliptop[x] = (INT16)h;
 			}
 		}
 	}
@@ -2090,11 +2090,11 @@ static void R_DrawSprite(vissprite_t *spr)
 	for (x = spr->x1; x <= spr->x2; x++)
 	{
 		if (clipbot[x] == -2)
-			clipbot[x] = (short)viewheight;
+			clipbot[x] = (INT16)viewheight;
 
 		if (cliptop[x] == -2)
 			//Fab : 26-04-98: was -1, now clips against console bottom
-		cliptop[x] = (short)con_clipviewtop;
+		cliptop[x] = (INT16)con_clipviewtop;
 	}
 
 	mfloorclip = clipbot;
@@ -2106,8 +2106,8 @@ static void R_DrawSprite(vissprite_t *spr)
 static void R_DrawPrecipitationSprite(vissprite_t *spr)
 {
 	drawseg_t *ds;
-	short      clipbot[MAXVIDWIDTH];
-	short      cliptop[MAXVIDWIDTH];
+	INT16      clipbot[MAXVIDWIDTH];
+	INT16      cliptop[MAXVIDWIDTH];
 	INT32        x;
 	INT32        r1;
 	INT32        r2;
@@ -2201,11 +2201,11 @@ static void R_DrawPrecipitationSprite(vissprite_t *spr)
 	for (x = spr->x1; x <= spr->x2; x++)
 	{
 		if (clipbot[x] == -2)
-			clipbot[x] = (short)viewheight;
+			clipbot[x] = (INT16)viewheight;
 
 		if (cliptop[x] == -2)
 			//Fab : 26-04-98: was -1, now clips against console bottom
-			cliptop[x] = (short)con_clipviewtop;
+			cliptop[x] = (INT16)con_clipviewtop;
 	}
 
 	mfloorclip = clipbot;

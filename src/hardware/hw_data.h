@@ -79,10 +79,10 @@ typedef struct GLTexture_s GLTexture_t;
 struct GLPatch_s
 {
 	// the 4 first fields come right away from the original patch_t
-	short               width;
-	short               height;
-	short               leftoffset;     // pixels to the left of origin
-	short               topoffset;      // pixels below the origin
+	INT16               width;
+	INT16               height;
+	INT16               leftoffset;     // pixels to the left of origin
+	INT16               topoffset;      // pixels below the origin
 	//
 	float               max_s,max_t;
 	lumpnum_t           patchlump;      // the software patch lump num for when the hardware patch

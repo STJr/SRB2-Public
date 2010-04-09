@@ -84,7 +84,7 @@ static byte cheat_xlate_table[256];
 void cht_Init(void)
 {
 	size_t i = 0;
-	short pi = 0;
+	INT16 pi = 0;
 	for (; i < 256; i++, pi++)
 	{
 		const INT32 cc = SCRAMBLE(pi);

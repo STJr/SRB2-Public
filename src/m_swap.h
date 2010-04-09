@@ -28,7 +28,7 @@
 // WAD files are stored little endian.
 #ifdef __BIG_ENDIAN__
 
-#define SHORT(x) ((short)(\
+#define SHORT(x) ((INT16)(\
 (((UINT16)(x) & (UINT16)0x00ffU) << 8) \
 | \
 (((UINT16)(x) & (UINT16)0xff00U) >> 8))) \
@@ -43,7 +43,7 @@
 (((UINT32)(x) & (UINT32)0xff000000UL) >> 24)))
 
 #else
-#define SHORT(x) ((short)(x))
+#define SHORT(x) ((INT16)(x))
 #define LONG(x)	((INT32)(x))
 #endif
 

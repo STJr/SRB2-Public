@@ -37,7 +37,7 @@
 ///  For use on the internet
 #define INETPACKETLENGTH 1024
 
-extern short hardware_MAXPACKETLENGTH;
+extern INT16 hardware_MAXPACKETLENGTH;
 extern INT32 net_bandwidth; // in byte/s
 
 #if defined(_MSC_VER)
@@ -50,34 +50,34 @@ typedef struct
 	INT32 id;
 
 	/// SRB2 executes an INT32 to execute commands.
-	short intnum;
+	INT16 intnum;
 	/// Communication between SRB2 and the driver.
 	/// Is CMD_SEND or CMD_GET.
-	short command;
+	INT16 command;
 	/// Is dest for send, set by get (-1 = no packet).
-	short remotenode;
+	INT16 remotenode;
 
 	/// Number of bytes in doomdata to be sent
-	short datalength;
+	INT16 datalength;
 
 	/// Info common to all nodes.
 	/// Console is always node 0.
-	short numnodes;
+	INT16 numnodes;
 	/// Flag: 1 = no duplication, 2-5 = dup for slow nets.
-	short ticdup;
+	INT16 ticdup;
 	/// Flag: 1 = send a backup tic in every packet.
-	short extratics;
+	INT16 extratics;
 	/// kind of game
-	short gametype;
+	INT16 gametype;
 	/// Flag: -1 = new game, 0-5 = load savegame
-	short savegame;
+	INT16 savegame;
 	/// currect map
-	short map;
+	INT16 map;
 
 	/// Info specific to this node.
-	short consoleplayer;
+	INT16 consoleplayer;
 	/// Number of "slots": the highest player number in use plus one.
-	short numslots;
+	INT16 numslots;
 
 	/// The packet data to be sent.
 	char data[MAXPACKETLENGTH];

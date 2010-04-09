@@ -2008,7 +2008,7 @@ static void Command_Map_f(void)
 		;
 	else if (multiplayer)
 	{
-		short tol = mapheaderinfo[newmapnum-1].typeoflevel, tolflag = 0;
+		INT16 tol = mapheaderinfo[newmapnum-1].typeoflevel, tolflag = 0;
 
 		switch (newgametype)
 		{
@@ -4433,7 +4433,7 @@ static void Command_Tunes_f(void)
 	if (!strcasecmp(COM_Argv(1), "default"))
 		tune = mapheaderinfo[gamemap-1].musicslot;
 
-	mapmusic = (short)(tune | 2048);
+	mapmusic = (INT16)(tune | 2048);
 
 	if (tune == mus_None)
 		S_StopMusic();

@@ -1154,7 +1154,7 @@ static inline void AM_drawCrosshair(INT32 color)
 	if (scr_bpp == 1)
 		fb[(f_w*(f_h + 1))/2] = (byte)color; // single point for now
 	else
-		*((short *)(void *)fb + (f_w*(f_h + 1))/2) = (short)color;
+		*((INT16 *)(void *)fb + (f_w*(f_h + 1))/2) = (INT16)color;
 }
 
 /** Draws the automap.

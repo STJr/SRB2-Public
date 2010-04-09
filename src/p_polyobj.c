@@ -249,7 +249,7 @@ boolean P_BBoxInsidePolyobj(polyobj_t *po, fixed_t *bbox)
 // Finds the 'polyobject settings' linedef that shares the same tag
 // as the polyobj linedef to get the settings for it.
 //
-void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *mirrorID, UINT16 *exparg)
+void Polyobj_GetInfo(INT16 tag, INT32 *polyID, INT32 *mirrorID, UINT16 *exparg)
 {
 	INT32 i = P_FindSpecialLineFromTag(POLYINFO_SPECIALNUM, tag, -1);
 

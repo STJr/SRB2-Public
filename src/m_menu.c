@@ -145,10 +145,10 @@ static saveinfo_t savegameinfo[10]; // Extra info about the save games.
 #ifndef NONET
 static char setupm_ip[16];
 #endif
-short startmap; // Mario, NiGHTS, or just a plain old normal game?
+INT16 startmap; // Mario, NiGHTS, or just a plain old normal game?
 
-static short itemOn = 1; // menu item skull is on, Hack by Tails 09-18-2002
-static short skullAnimCounter = 10; // skull animation counter
+static INT16 itemOn = 1; // menu item skull is on, Hack by Tails 09-18-2002
+static INT16 skullAnimCounter = 10; // skull animation counter
 
 //
 // PROTOTYPES
@@ -2946,7 +2946,7 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 		case KEY_UPARROW:
 			S_StartSound(NULL,sfx_menu1); // Tails
 			if (!itemOn)
-				itemOn = (short)(SetupMultiPlayerDef.numitems-1);
+				itemOn = (INT16)(SetupMultiPlayerDef.numitems-1);
 			else itemOn--;
 			break;
 
@@ -3106,7 +3106,7 @@ static void M_HandleSetupChoosePlayer(INT32 choice)
 		case KEY_UPARROW:
 			S_StartSound(NULL,sfx_menu1); // Tails
 			if (!itemOn)
-				itemOn = (short)(SetupMultiPlayerDef.numitems-1);
+				itemOn = (INT16)(SetupMultiPlayerDef.numitems-1);
 			else itemOn--;
 			break;
 
@@ -3808,7 +3808,7 @@ static void M_CustomWarp(INT32 choice)
 		return;
 	}
 
-	startmap = (short)(customsecretinfo[choice-1].variable);
+	startmap = (INT16)(customsecretinfo[choice-1].variable);
 
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PlayerDef);
@@ -4308,7 +4308,7 @@ static void M_LevelSelectWarp(INT32 choice)
 		M_SetupNextMenu(&PlayerDef);
 	}
 
-	startmap = (short)(cv_nextmap.value);
+	startmap = (INT16)(cv_nextmap.value);
 
 	fromlevelselect = true;
 
@@ -7001,10 +7001,10 @@ void M_StartMessage(const char *string, void *routine,
 			start += i;
 	}
 
-	MessageDef.x = (short)((BASEVIDWIDTH  - 8*max-16)/2);
-	MessageDef.y = (short)((BASEVIDHEIGHT - M_StringHeight(message))/2);
+	MessageDef.x = (INT16)((BASEVIDWIDTH  - 8*max-16)/2);
+	MessageDef.y = (INT16)((BASEVIDHEIGHT - M_StringHeight(message))/2);
 
-	MessageDef.lastOn = (short)((strlines<<8)+max);
+	MessageDef.lastOn = (INT16)((strlines<<8)+max);
 
 	//M_SetupNextMenu();
 	currentMenu = &MessageDef;
@@ -7017,13 +7017,13 @@ static void M_DrawMessageMenu(void)
 {
 	INT32 y = currentMenu->y;
 	size_t i, start = 0;
-	short max;
+	INT16 max;
 	char string[MAXMSGLINELEN];
 	INT32 mlines;
 	const char *msg = currentMenu->menuitems[0].text;
 
 	mlines = currentMenu->lastOn>>8;
-	max = (short)((byte)(currentMenu->lastOn & 0xFF)*8);
+	max = (INT16)((byte)(currentMenu->lastOn & 0xFF)*8);
 	M_DrawTextBox(currentMenu->x, y - 8, (max+7)>>3, mlines);
 
 	while (*(msg+start))
@@ -7413,7 +7413,7 @@ boolean M_Responder(event_t *ev)
 			do
 			{
 				if (!itemOn)
-					itemOn = (short)(currentMenu->numitems - 1);
+					itemOn = (INT16)(currentMenu->numitems - 1);
 				else
 					itemOn--;
 			} while ((currentMenu->menuitems[itemOn].status & IT_TYPE) == IT_SPACE);
@@ -7596,14 +7596,14 @@ boolean M_Responder(event_t *ev)
 /*			for (i = itemOn + 1; i < currentMenu->numitems; i++)
 				if (currentMenu->menuitems[i].alphaKey == ch && !(currentMenu->menuitems[i].status & IT_DISABLED))
 				{
-					itemOn = (short)i;
+					itemOn = (INT16)i;
 					S_StartSound(NULL, sfx_menu1);
 					return true;
 				}
 			for (i = 0; i <= itemOn; i++)
 				if (currentMenu->menuitems[i].alphaKey == ch && !(currentMenu->menuitems[i].status & IT_DISABLED))
 				{
-					itemOn = (short)i;
+					itemOn = (INT16)i;
 					S_StartSound(NULL, sfx_menu1);
 					return true;
 				}*/
@@ -7755,7 +7755,7 @@ void M_SetupNextMenu(menu_t *menudef)
 
 	// in case of...
 	if (itemOn >= currentMenu->numitems)
-		itemOn = (short)(currentMenu->numitems - 1);
+		itemOn = (INT16)(currentMenu->numitems - 1);
 
 	// the curent item can be disabled,
 	// this code go up until an enabled item found
@@ -7765,7 +7765,7 @@ void M_SetupNextMenu(menu_t *menudef)
 		{
 			if ((currentMenu->menuitems[i].status != IT_DISABLED))
 			{
-				itemOn = (short)i;
+				itemOn = (INT16)i;
 				break;
 			}
 		}

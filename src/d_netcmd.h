@@ -192,7 +192,7 @@ typedef struct {
 } ATTRPACK changeteam_value_t;
 
 //Since we do not want other files/modules to know about this data buffer we union it here with a Short Int.
-//Other files/modules will hand the short INT32 back to us and we will decode it here.
+//Other files/modules will hand the INT16 back to us and we will decode it here.
 //We don't have to use a union, but we would then send four bytes instead of two.
 typedef union {
 	changeteam_packet_t packet;

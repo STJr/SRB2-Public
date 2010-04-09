@@ -66,13 +66,13 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum);
 static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum);
 static void G_DoWorldDone(void);
 
-short gamemap = 1;
+INT16 gamemap = 1;
 musicenum_t mapmusic;
-short maptol;
+INT16 maptol;
 INT32 globalweather = 0;
 INT32 curWeather = PRECIP_NONE;
 INT32 cursaveslot = -1; // Auto-save 1p savegame slot
-short lastmapsaved = 0; // Last map we auto-saved at
+INT16 lastmapsaved = 0; // Last map we auto-saved at
 boolean gamecomplete = false;
 
 UINT16 mainwads = 0;
@@ -102,16 +102,16 @@ INT32 secondarydisplayplayer; // for splitscreen
 tic_t gametic;
 tic_t levelstarttic; // gametic at level start
 ULONG totalrings; // for intermission
-short lastmap; // last level you were at (returning from special stages)
+INT16 lastmap; // last level you were at (returning from special stages)
 tic_t timeinmap; // Ticker for time spent in level (used for levelcard display)
 
-short spstage_start;
-short spstage_end;
-short sstage_start;
-short sstage_end;
-short nsstage_start;
-short nsstage_end;
-short racestage_start;
+INT16 spstage_start;
+INT16 spstage_end;
+INT16 sstage_start;
+INT16 sstage_end;
+INT16 nsstage_start;
+INT16 nsstage_end;
+INT16 racestage_start;
 
 boolean looptitle = false;
 boolean useNightsSS = false;
@@ -121,7 +121,7 @@ byte countdowntimeup = false;
 
 cutscene_t cutscenes[128];
 
-short nextmapoverride;
+INT16 nextmapoverride;
 INT32 nextmapgametype;
 boolean skipstats;
 
@@ -258,7 +258,7 @@ boolean singledemo; // quit after playing a demo from cmdline
 
 boolean precache = true; // if true, load all graphics at start
 
-short prevmap, nextmap;
+INT16 prevmap, nextmap;
 
 static byte *savebuffer;
 
@@ -474,7 +474,7 @@ const char *G_BuildMapName(INT32 map)
   * \param aiming Pointer to the vertical angle to clip.
   * \return Short version of the clipped angle for building a ticcmd.
   */
-short G_ClipAimingPitch(INT32 *aiming)
+INT16 G_ClipAimingPitch(INT32 *aiming)
 {
 	INT32 limitangle;
 
@@ -489,7 +489,7 @@ short G_ClipAimingPitch(INT32 *aiming)
 	else if (*aiming < -limitangle)
 		*aiming = -limitangle;
 
-	return (short)((*aiming)>>16);
+	return (INT16)((*aiming)>>16);
 }
 
 static INT32 JoyAxis(axis_input_e axissel)
@@ -717,9 +717,9 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	if (cv_analog.value) // Analog
 	{
 		if (turnright)
-			cmd->angleturn = (short)(cmd->angleturn - angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn - angleturn[tspeed]);
 		if (turnleft)
-			cmd->angleturn = (short)(cmd->angleturn + angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn + angleturn[tspeed]);
 	}
 	if (strafe || cv_analog.value || twodlevel
 		|| (players[consoleplayer].mo && (players[consoleplayer].mo->flags2 & MF2_TWOD))
@@ -741,14 +741,14 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	else
 	{
 		if (turnright)
-			cmd->angleturn = (short)(cmd->angleturn - angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn - angleturn[tspeed]);
 		else if (turnleft)
-			cmd->angleturn = (short)(cmd->angleturn + angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn + angleturn[tspeed]);
 
 		if (analogjoystickmove && axis != 0)
 		{
 			// JOYAXISRANGE should be 1023 (divide by 1024)
-			cmd->angleturn = (short)(cmd->angleturn - ((axis * angleturn[1]) >> 10)); // ANALOG!
+			cmd->angleturn = (INT16)(cmd->angleturn - ((axis * angleturn[1]) >> 10)); // ANALOG!
 		}
 	}
 
@@ -963,7 +963,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 		|| (players[consoleplayer].pflags & PF_SLIDING)) // Analog for mouse
 		side += mousex*2;
 	else
-		cmd->angleturn = (short)(cmd->angleturn - (mousex*8));
+		cmd->angleturn = (INT16)(cmd->angleturn - (mousex*8));
 
 	mousex = mousey = mlooky = 0;
 
@@ -980,7 +980,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	cmd->sidemove = (signed char)(cmd->sidemove + side);
 
 	localangle += (cmd->angleturn<<16);
-	cmd->angleturn = (short)(localangle >> 16);
+	cmd->angleturn = (INT16)(localangle >> 16);
 }
 
 // like the g_buildticcmd 1 but using mouse2, gamcontrolbis, ...
@@ -1040,9 +1040,9 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	if (cv_analog2.value) // Analog
 	{
 		if (turnright)
-			cmd->angleturn = (short)(cmd->angleturn - angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn - angleturn[tspeed]);
 		if (turnleft)
-			cmd->angleturn = (short)(cmd->angleturn + angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn + angleturn[tspeed]);
 	}
 
 	if (strafe || cv_analog2.value || twodlevel
@@ -1065,14 +1065,14 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	else
 	{
 		if (turnright)
-			cmd->angleturn = (short)(cmd->angleturn - angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn - angleturn[tspeed]);
 		else if (turnleft)
-			cmd->angleturn = (short)(cmd->angleturn + angleturn[tspeed]);
+			cmd->angleturn = (INT16)(cmd->angleturn + angleturn[tspeed]);
 
 		if (analogjoystickmove && axis != 0)
 		{
 			// JOYAXISRANGE should be 1023 (divide by 1024)
-			cmd->angleturn = (short)(cmd->angleturn - ((axis * angleturn[1]) >> 10)); // ANALOG!
+			cmd->angleturn = (INT16)(cmd->angleturn - ((axis * angleturn[1]) >> 10)); // ANALOG!
 		}
 	}
 
@@ -1282,7 +1282,7 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 		|| (players[secondarydisplayplayer].pflags & PF_SLIDING)) // Analog for mouse
 		side = side + mouse2x*2;
 	else
-		cmd->angleturn = (short)(cmd->angleturn - (mouse2x*8));
+		cmd->angleturn = (INT16)(cmd->angleturn - (mouse2x*8));
 
 	mouse2x = mouse2y = mlook2y = 0;
 
@@ -1299,7 +1299,7 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	cmd->sidemove = (signed char)(cmd->sidemove + side);
 
 	localangle2 += (cmd->angleturn<<16);
-	cmd->angleturn = (short)(localangle2 >> 16);
+	cmd->angleturn = (INT16)(localangle2 >> 16);
 }
 
 // User has designated that they want
@@ -2265,7 +2265,7 @@ boolean G_IsSpecialStage(INT32 mapnum)
   * \return The typeoflevel flag to check for that gametype.
   * \author Graue <graue@oceanbase.org>
   */
-static short TOLFlag(INT32 pgametype)
+static INT16 TOLFlag(INT32 pgametype)
 {
 	if (!multiplayer)          return TOL_SP;
 	if (pgametype == GT_COOP)  return TOL_COOP;
@@ -2289,11 +2289,11 @@ static short TOLFlag(INT32 pgametype)
   *         has those flags.
   * \author Graue <graue@oceanbase.org>
   */
-static short RandMap(short tolflags, short pprevmap)
+static INT16 RandMap(INT16 tolflags, INT16 pprevmap)
 {
-	XBOXSTATIC short okmaps[NUMMAPS];
+	XBOXSTATIC INT16 okmaps[NUMMAPS];
 	INT32 numokmaps = 0;
-	short ix;
+	INT16 ix;
 	INT32 mapnum;
 
 	// Find all the maps that are ok and and put them in an array.
@@ -2308,7 +2308,7 @@ static short RandMap(short tolflags, short pprevmap)
 	mapnum |= M_Random();
 	mapnum %= numokmaps;
 
-	return (short)(okmaps[mapnum]+1);
+	return (INT16)(okmaps[mapnum]+1);
 }
 
 //
@@ -2332,14 +2332,14 @@ void G_DoCompleted(void)
 
 	S_StopSounds();
 
-	prevmap = (short)(gamemap-1);
+	prevmap = (INT16)(gamemap-1);
 
 	// go to next level
 	// nextmap is 0-based, unlike gamemap
 	if (nextmapoverride != 0)
-		nextmap = (short)(nextmapoverride-1);
+		nextmap = (INT16)(nextmapoverride-1);
 	else
-		nextmap = (short)(mapheaderinfo[gamemap-1].nextlevel-1);
+		nextmap = (INT16)(mapheaderinfo[gamemap-1].nextlevel-1);
 
 	// Remember last map for when you come out of the special stage.
 	if (!G_IsSpecialStage(gamemap))
@@ -2351,12 +2351,12 @@ void G_DoCompleted(void)
 	// for instance).
 	if (!token && !G_IsSpecialStage(gamemap))
 	{
-		short tolflag = TOLFlag(gametype);
+		INT16 tolflag = TOLFlag(gametype);
 
 		if (nextmap >= 0 && nextmap < NUMMAPS
 			&& !(mapheaderinfo[nextmap].typeoflevel & tolflag))
 		{
-			register short cm = nextmap;
+			register INT16 cm = nextmap;
 			byte visitedmap[(NUMMAPS+7)/8];
 
 			memset(visitedmap, 0, sizeof (visitedmap));
@@ -2364,7 +2364,7 @@ void G_DoCompleted(void)
 			while (!(mapheaderinfo[cm].typeoflevel & tolflag))
 			{
 				visitedmap[cm/8] |= (1<<(cm%8));
-				cm = (short)(mapheaderinfo[cm].nextlevel-1);
+				cm = (INT16)(mapheaderinfo[cm].nextlevel-1);
 				if (cm >= NUMMAPS || cm < 0) // out of range (either 1100-1102 or error)
 				{
 					cm = nextmap; //Start the loop again so that the error checking below is executed.
@@ -2406,7 +2406,7 @@ void G_DoCompleted(void)
 
 	// wrap around in race
 	if (nextmap >= 1100-1 && nextmap <= 1102-1 && gametype == GT_RACE)
-		nextmap = (short)(racestage_start-1);
+		nextmap = (INT16)(racestage_start-1);
 
 	if (gametype == GT_COOP && token)
 	{
@@ -2418,19 +2418,19 @@ void G_DoCompleted(void)
 			sstagestartmap = sstage_start;
 
 		if (!(emeralds & EMERALD1))
-			nextmap = (short)(sstagestartmap - 1); // Special Stage 1
+			nextmap = (INT16)(sstagestartmap - 1); // Special Stage 1
 		else if (!(emeralds & EMERALD2))
-			nextmap = (short)(sstagestartmap); // Special Stage 2
+			nextmap = (INT16)(sstagestartmap); // Special Stage 2
 		else if (!(emeralds & EMERALD3))
-			nextmap = (short)(sstagestartmap + 1); // Special Stage 3
+			nextmap = (INT16)(sstagestartmap + 1); // Special Stage 3
 		else if (!(emeralds & EMERALD4))
-			nextmap = (short)(sstagestartmap + 2); // Special Stage 4
+			nextmap = (INT16)(sstagestartmap + 2); // Special Stage 4
 		else if (!(emeralds & EMERALD5))
-			nextmap = (short)(sstagestartmap + 3); // Special Stage 5
+			nextmap = (INT16)(sstagestartmap + 3); // Special Stage 5
 		else if (!(emeralds & EMERALD6))
-			nextmap = (short)(sstagestartmap + 4); // Special Stage 6
+			nextmap = (INT16)(sstagestartmap + 4); // Special Stage 6
 		else if (!(emeralds & EMERALD7))
-			nextmap = (short)(sstagestartmap + 5); // Special Stage 7
+			nextmap = (INT16)(sstagestartmap + 5); // Special Stage 7
 		else
 		{
 			gottoken = false;
@@ -2458,7 +2458,7 @@ skipit:
 		if (cv_advancemap.value == 0) // Stay on same map.
 			nextmap = prevmap;
 		else if (cv_advancemap.value == 2) // Go to random map.
-			nextmap = (short)(RandMap(TOLFlag(gametype), prevmap) - 1);
+			nextmap = (INT16)(RandMap(TOLFlag(gametype), prevmap) - 1);
 	}
 
 	if (skipstats)
@@ -2701,7 +2701,7 @@ void G_SaveGameData(void)
 //
 #define VERSIONSIZE 16
 
-void G_LoadGame(UINT32 slot, short mapoverride)
+void G_LoadGame(UINT32 slot, INT16 mapoverride)
 {
 	size_t length;
 	char vcheck[VERSIONSIZE];
@@ -2906,7 +2906,7 @@ void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer, boole
 		return;
 	}
 
-	gamemap = (short)M_MapNumber(mapname[3], mapname[4]); // get xx out of MAPxx
+	gamemap = (INT16)M_MapNumber(mapname[3], mapname[4]); // get xx out of MAPxx
 	maptol = mapheaderinfo[gamemap-1].typeoflevel;
 	globalweather = mapheaderinfo[gamemap-1].weather;
 

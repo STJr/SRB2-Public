@@ -723,7 +723,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 }
 #endif
 
-#define word short
+#define word INT16
 typedef struct
 {
 	byte manufacturer;
@@ -849,8 +849,8 @@ static void md2_loadTexture(md2_t *model)
 		grpatch->mipmap.downloaded = 0;
 		grpatch->mipmap.flags = 0;
 
-		grpatch->width = (short)w;
-		grpatch->height = (short)h;
+		grpatch->width = (INT16)w;
+		grpatch->height = (INT16)h;
 		grpatch->mipmap.width = (UINT16)w;
 		grpatch->mipmap.height = (UINT16)h;
 

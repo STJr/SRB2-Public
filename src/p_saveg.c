@@ -600,7 +600,7 @@ static void P_NetArchiveWorld(void)
 		if (diff)
 		{
 			statline++;
-			WRITESHORT(put, (short)i);
+			WRITESHORT(put, (INT16)i);
 			WRITEBYTE(put, diff);
 			if (diff & LD_DIFF2)
 				WRITEBYTE(put, diff2);
@@ -693,7 +693,7 @@ static void P_NetUnArchiveWorld(void)
 			sectors[i].ceiling_yoffs = READFIXED(get);
 		if (diff2 & SD_TAG)
 		{
-			short tag;
+			INT16 tag;
 			tag = READSHORT(get);
 			sectors[i].firsttag = READLONG(get);
 			sectors[i].nexttag = READLONG(get);
@@ -2379,7 +2379,7 @@ static void P_NetUnArchiveThinkers(void)
 
 				if (diff & MD_SPAWNPOINT)
 				{
-					short spawnpointnum = READSHORT(save_p);
+					INT16 spawnpointnum = READSHORT(save_p);
 
 					if (mapthings[spawnpointnum].type == 1705) // NiGHTS Hoop special case
 					{
@@ -2952,7 +2952,7 @@ static inline void P_ArchiveMisc(void)
 	WRITESTRINGN(save_p, timeattackfolder, sizeof(timeattackfolder));
 }
 
-static inline boolean P_UnArchiveSPGame(short mapoverride)
+static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 {
 	char testname[sizeof(timeattackfolder)];
 
@@ -3172,7 +3172,7 @@ void P_SaveNetGame(void)
 	WRITEBYTE(save_p, 0x1d); // consistency marker
 }
 
-boolean P_LoadGame(short mapoverride)
+boolean P_LoadGame(INT16 mapoverride)
 {
 	if (gamestate == GS_INTERMISSION)
 		Y_EndIntermission();

@@ -68,13 +68,13 @@ typedef struct
 
 typedef struct
 {
-	short vertexIndices[3];
-	short textureIndices[3];
+	INT16 vertexIndices[3];
+	INT16 textureIndices[3];
 } ATTRPACK md2_triangle_t;
 
 typedef struct
 {
-	short s, t;
+	INT16 s, t;
 } ATTRPACK md2_textureCoordinate_t;
 
 typedef struct

@@ -385,7 +385,7 @@ typedef struct player_s
 	mobj_t *capsule; // Go inside the capsule
 	byte mare; // Current mare
 
-	short lastsidehit, lastlinehit;
+	INT16 lastsidehit, lastlinehit;
 
 	INT32 losscount; // # of times you've lost only 1 ring
 

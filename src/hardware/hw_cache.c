@@ -772,7 +772,7 @@ static void HWR_DrawPicInCache(byte *block, INT32 pblockwidth, INT32 pblockheigh
 					*dest++ = src[(posx+FRACUNIT/2)>>FRACBITS];
 					break;
 				case INTENSITY_ALPHA : // assume dest bpp = 2
-					*(UINT16*)dest = *((short *)src + ((posx+FRACUNIT/2)>>FRACBITS));
+					*(UINT16*)dest = *((INT16 *)src + ((posx+FRACUNIT/2)>>FRACBITS));
 					dest += 2;
 					break;
 				case RGB24 :

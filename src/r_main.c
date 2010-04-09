@@ -571,7 +571,7 @@ void R_ExecuteSetViewSize(void)
 
 	// thing clipping
 	for (i = 0; i < viewwidth; i++)
-		screenheightarray[i] = (short)viewheight;
+		screenheightarray[i] = (INT16)viewheight;
 
 	// setup sky scaling (uses pspriteyscale)
 	R_SetSkyScale();

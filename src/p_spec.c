@@ -862,7 +862,7 @@ INT32 P_FindSectorFromLineTag(line_t *line, INT32 start)
   * \return Number of the next tagged sector found.
   * \sa P_FindSectorFromLineTag
   */
-INT32 P_FindSectorFromTag(short tag, INT32 start)
+INT32 P_FindSectorFromTag(INT16 tag, INT32 start)
 {
 	if (tag == -1)
 	{
@@ -945,7 +945,7 @@ static INT32 P_FindLineFromTag(INT32 tag, INT32 start)
 //
 // P_FindSpecialLineFromTag
 //
-INT32 P_FindSpecialLineFromTag(short special, short tag, INT32 start)
+INT32 P_FindSpecialLineFromTag(INT16 special, INT16 tag, INT32 start)
 {
 	if (tag == -1)
 	{
@@ -1167,9 +1167,9 @@ static boolean PolyRotate(line_t *line)
   * \sa P_InitTagLists, P_FindSectorFromTag
   * \author Graue <graue@oceanbase.org>
   */
-void P_ChangeSectorTag(ULONG sector, short newtag)
+void P_ChangeSectorTag(ULONG sector, INT16 newtag)
 {
-	short oldtag;
+	INT16 oldtag;
 	INT32 i;
 
 	I_Assert(sector < numsectors);
@@ -1317,7 +1317,7 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 	sector_t *ctlsector;
 	fixed_t dist;
 	size_t masterline, i, linecnt, sectori;
-	short specialtype;
+	INT16 specialtype;
 
 	for (masterline = 0; masterline < numlines; masterline++)
 	{
@@ -1869,7 +1869,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 		case 402: // Set tagged sector's light level
 			{
-				short newlightlevel;
+				INT16 newlightlevel;
 				INT32 newfloorlightsec, newceilinglightsec;
 
 				newlightlevel = line->frontsector->lightlevel;
@@ -1929,14 +1929,14 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 				secnum)) != -1)
 			{
 				P_ChangeSectorTag(secnum,
-					(short)(P_AproxDistance(line->dx, line->dy)
+					(INT16)(P_AproxDistance(line->dx, line->dy)
 					>>FRACBITS));
 			}
 			break;
 		}
 
 		case 410: // Change front sector's tag
-			P_ChangeSectorTag((ULONG)(line->frontsector - sectors), (short)(P_AproxDistance(line->dx, line->dy)>>FRACBITS));
+			P_ChangeSectorTag((ULONG)(line->frontsector - sectors), (INT16)(P_AproxDistance(line->dx, line->dy)>>FRACBITS));
 			break;
 
 		case 411: // Stop floor/ceiling movement in tagged sector(s)
@@ -2042,7 +2042,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 				else
 					S_StopMusic();
 
-				mapmusic = (short)musicnum; // but it gets reset if you die
+				mapmusic = (INT16)musicnum; // but it gets reset if you die
 
 				// Except, you can use the ML_BLOCKMONSTERS flag to change this behavior.
 				// if (mapmusic & 2048) then it won't reset the music in G_PlayerReborn as usual.
@@ -2168,7 +2168,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 					// the maxsector (second argument) to also be the target
 					// sector, so we have to do some light level twiddling.
 					fireflicker_t *flick;
-					short reallightlevel = sectors[secnum].lightlevel;
+					INT16 reallightlevel = sectors[secnum].lightlevel;
 					sectors[secnum].lightlevel = line->backsector->lightlevel;
 
 					flick = P_SpawnAdjustableFireFlicker(line->frontsector, &sectors[secnum],
@@ -2176,9 +2176,9 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					// Make sure the starting light level is in range.
 					if (reallightlevel < flick->minlight)
-						reallightlevel = (short)flick->minlight;
+						reallightlevel = (INT16)flick->minlight;
 					else if (reallightlevel > flick->maxlight)
-						reallightlevel = (short)flick->maxlight;
+						reallightlevel = (INT16)flick->maxlight;
 
 					sectors[secnum].lightlevel = reallightlevel;
 				}
@@ -2202,7 +2202,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 					// the maxsector (second argument) to also be the target
 					// sector, so we have to do some light level twiddling.
 					glow_t *glow;
-					short reallightlevel = sectors[secnum].lightlevel;
+					INT16 reallightlevel = sectors[secnum].lightlevel;
 					sectors[secnum].lightlevel = line->backsector->lightlevel;
 
 					glow = P_SpawnAdjustableGlowingLight(line->frontsector, &sectors[secnum],
@@ -2210,9 +2210,9 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					// Make sure the starting light level is in range.
 					if (reallightlevel < glow->minlight)
-						reallightlevel = (short)glow->minlight;
+						reallightlevel = (INT16)glow->minlight;
 					else if (reallightlevel > glow->maxlight)
-						reallightlevel = (short)glow->maxlight;
+						reallightlevel = (INT16)glow->maxlight;
 
 					sectors[secnum].lightlevel = reallightlevel;
 				}
@@ -2236,7 +2236,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 					// the maxsector (second argument) to also be the target
 					// sector, so we have to do some light level twiddling.
 					strobe_t *flash;
-					short reallightlevel = sectors[secnum].lightlevel;
+					INT16 reallightlevel = sectors[secnum].lightlevel;
 					sectors[secnum].lightlevel = line->backsector->lightlevel;
 
 					flash = P_SpawnAdjustableStrobeFlash(line->frontsector, &sectors[secnum],
@@ -2244,9 +2244,9 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					// Make sure the starting light level is in range.
 					if (reallightlevel < flash->minlight)
-						reallightlevel = (short)flash->minlight;
+						reallightlevel = (INT16)flash->minlight;
 					else if (reallightlevel > flash->maxlight)
-						reallightlevel = (short)flash->maxlight;
+						reallightlevel = (INT16)flash->maxlight;
 
 					sectors[secnum].lightlevel = reallightlevel;
 				}
@@ -2270,7 +2270,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 					// the maxsector (second argument) to also be the target
 					// sector, so we have to do some light level twiddling.
 					strobe_t *flash;
-					short reallightlevel = sectors[secnum].lightlevel;
+					INT16 reallightlevel = sectors[secnum].lightlevel;
 					sectors[secnum].lightlevel = line->backsector->lightlevel;
 
 					flash = P_SpawnAdjustableStrobeFlash(line->frontsector, &sectors[secnum],
@@ -2278,9 +2278,9 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					// Make sure the starting light level is in range.
 					if (reallightlevel < flash->minlight)
-						reallightlevel = (short)flash->minlight;
+						reallightlevel = (INT16)flash->minlight;
 					else if (reallightlevel > flash->maxlight)
-						reallightlevel = (short)flash->maxlight;
+						reallightlevel = (INT16)flash->maxlight;
 
 					sectors[secnum].lightlevel = reallightlevel;
 				}
@@ -2470,8 +2470,8 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 		case 436: // Shatter block remotely
 			{
-				short sectag = (short)(sides[line->sidenum[0]].textureoffset>>FRACBITS);
-				short foftag = (short)(sides[line->sidenum[0]].rowoffset>>FRACBITS);
+				INT16 sectag = (INT16)(sides[line->sidenum[0]].textureoffset>>FRACBITS);
+				INT16 foftag = (INT16)(sides[line->sidenum[0]].rowoffset>>FRACBITS);
 				sector_t *sec; // Sector that the FOF is visible in
 				ffloor_t *rover; // FOF that we are going to crumble
 
@@ -3100,9 +3100,9 @@ DoneSection2:
 				{
 					// Special goodies with the block monsters flag depending on emeralds collected
 					if ((lines[lineindex].flags & ML_BLOCKMONSTERS) && ALL7EMERALDS(emeralds))
-						nextmapoverride = (short)(lines[lineindex].frontsector->ceilingheight>>FRACBITS);
+						nextmapoverride = (INT16)(lines[lineindex].frontsector->ceilingheight>>FRACBITS);
 					else
-						nextmapoverride = (short)(lines[lineindex].frontsector->floorheight>>FRACBITS);
+						nextmapoverride = (INT16)(lines[lineindex].frontsector->floorheight>>FRACBITS);
 
 					if (lines[lineindex].flags & ML_NOCLIMB)
 						skipstats = true;
@@ -5696,7 +5696,7 @@ void P_SpawnSpecials(void)
 					byte *data = W_CacheLumpNum(lastloadedmaplumpnum + ML_SIDEDEFS,PU_STATIC);
 					UINT16 b;
 
-					for (b = 0; b < (short)numsides; b++)
+					for (b = 0; b < (INT16)numsides; b++)
 					{
 						register mapsidedef_t *msd = (mapsidedef_t *)data + b;
 

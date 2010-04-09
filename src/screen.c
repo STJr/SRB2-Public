@@ -168,7 +168,7 @@ void SCR_SetMode(void)
 		CONS_Printf("WARNING: Resolution is not aspect-correct!\n"
 			"Use a multiple of %dx%d\n", BASEVIDWIDTH, BASEVIDHEIGHT);
 #endif
-	// set the apprpriate drawer for the sky (tall or short)
+	// set the apprpriate drawer for the sky (tall or INT16)
 	setmodeneeded = 0;
 }
 

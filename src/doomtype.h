@@ -216,11 +216,11 @@ typedef ULONG tic_t;
 #endif
 
 #define MAXCHAR  ((char)0x7f)
-#define MAXSHORT ((short)0x7fff)
+#define MAXSHORT ((INT16)0x7fff)
 #define MAXINT   ((INT32)0x7fffffff)
 #define MAXLONG  ((INT32)0x7fffffff)
 #define MINCHAR  ((char)0x80)
-#define MINSHORT ((short)-0x8000)
+#define MINSHORT ((INT16)-0x8000)
 #define MININT   ((INT32)0x80000000)
 #define MINLONG  ((INT32)0x80000000)
 

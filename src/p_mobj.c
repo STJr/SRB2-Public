@@ -6983,7 +6983,7 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 	else
 		z = mthing->z << FRACBITS;
 
-	mthing->z = (short)(z>>FRACBITS);
+	mthing->z = (INT16)(z>>FRACBITS);
 	mobj = P_SpawnMobj(x, y, z, MT_PLAYER);
 	mthing->mobj = mobj;
 
@@ -7275,7 +7275,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	if (i == MT_EMERHUNT)
 	{
 		ss = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS);
-		mthing->z = (short)((ss->sector->floorheight>>FRACBITS) + (mthing->options >> ZSHIFT));
+		mthing->z = (INT16)((ss->sector->floorheight>>FRACBITS) + (mthing->options >> ZSHIFT));
 
 		if (numhuntemeralds < MAXHUNTEMERALDS)
 			huntemeralds[numhuntemeralds++] = mthing;
@@ -7438,7 +7438,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		if (z == ONFLOORZ)
 			mthing->z = 0;
 		else
-			mthing->z = (short)(z>>FRACBITS);
+			mthing->z = (INT16)(z>>FRACBITS);
 	}
 	else
 		z = ONFLOORZ;
@@ -7630,7 +7630,7 @@ ML_NOCLIMB : Direction not controllable
 
 		z = R_PointInSubsector(x, y)->sector->floorheight + ((mthing->options >> (ZSHIFT)) << FRACBITS);
 
-		mthing->z = (short)(z>>FRACBITS);
+		mthing->z = (INT16)(z>>FRACBITS);
 	}
 	else if (mobj->type == MT_EGGCAPSULE)
 	{
@@ -7870,7 +7870,7 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 	{
 		mobj_t *nextmobj = NULL;
 		mobj_t *hoopcenter;
-		short spewangle;
+		INT16 spewangle;
 
 		mthingx = mthing->x << FRACBITS;
 		mthingy = mthing->y << FRACBITS;
@@ -7900,7 +7900,7 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 			360*(FRACUNIT/256)));
 		hoopcenter->movecount = FixedInt(AngleFixed(closestangle));
 
-		spewangle = (short)hoopcenter->movedir;
+		spewangle = (INT16)hoopcenter->movedir;
 
 		// Create the hoop!
 		for (i = 0; i < 32; i++)
@@ -7996,9 +7996,9 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 	else if (mthing->type == 1706) // Wing logo item.
 	{
 		if (mthing->options >> ZSHIFT)
-			mthing->z = (short)((R_PointInSubsector(x, y)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS))>>FRACBITS);
+			mthing->z = (INT16)((R_PointInSubsector(x, y)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS))>>FRACBITS);
 		else
-			mthing->z = (short)(R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight>>FRACBITS);
+			mthing->z = (INT16)(R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight>>FRACBITS);
 
 		mobj = P_SpawnMobj(mthing->x << FRACBITS, mthing->y << FRACBITS,mthing->z << FRACBITS, MT_NIGHTSWING);
 		mobj->spawnpoint = mthing;
@@ -8087,16 +8087,16 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 			if (mthing->options >> ZSHIFT)
 			{
 				if (!(mthing->options & MTF_OBJECTFLIP))
-					mthing->z = (short)((R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS))>>FRACBITS);
+					mthing->z = (INT16)((R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS))>>FRACBITS);
 				else
-					mthing->z = (short)((R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->ceilingheight - ((mthing->options >> ZSHIFT) << FRACBITS))>>FRACBITS);
+					mthing->z = (INT16)((R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->ceilingheight - ((mthing->options >> ZSHIFT) << FRACBITS))>>FRACBITS);
 			}
 			else
 			{
 				if (!(mthing->options & MTF_OBJECTFLIP))
-					mthing->z = (short)(R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight>>FRACBITS);
+					mthing->z = (INT16)(R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->floorheight>>FRACBITS);
 				else
-					mthing->z = (short)(R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->ceilingheight>>FRACBITS);
+					mthing->z = (INT16)(R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS)->sector->ceilingheight>>FRACBITS);
 			}
 
 			if (mthing->options & MTF_AMBUSH) // Special flag for rings

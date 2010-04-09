@@ -64,7 +64,7 @@ typedef struct
 {
 	signed char forwardmove; // *2048 for move
 	signed char sidemove; // *2048 for move
-	short angleturn; // <<16 for angle delta - SAVED AS A BYTE into demos
+	INT16 angleturn; // <<16 for angle delta - SAVED AS A BYTE into demos
 	INT16 aiming; // mouse aiming, see G_BuildTicCmd
 	UINT16 buttons;
 } ATTRPACK ticcmd_t;

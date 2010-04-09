@@ -48,7 +48,7 @@ extern boolean singledemo;
 extern tic_t levelstarttic;
 
 // for modding?
-extern short prevmap, nextmap;
+extern INT16 prevmap, nextmap;
 extern INT32 gameovertics;
 extern tic_t timeinmap; // Ticker for time spent in level (used for levelcard display)
 
@@ -74,7 +74,7 @@ ticcmd_t *G_CopyTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n);
 ticcmd_t *G_MoveTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n);
 
 // clip the console player aiming to the view
-short G_ClipAimingPitch(INT32 *aiming);
+INT16 G_ClipAimingPitch(INT32 *aiming);
 
 extern angle_t localangle, localangle2;
 extern INT32 localaiming, localaiming2; // should be an angle_t but signed
@@ -99,7 +99,7 @@ void G_DoLoadLevel(boolean resetplayer);
 void G_DeferedPlayDemo(const char *demo);
 
 // Can be called by the startup code or M_Responder, calls P_SetupLevel.
-void G_LoadGame(UINT32 slot, short mapoverride);
+void G_LoadGame(UINT32 slot, INT16 mapoverride);
 
 void G_SaveGameData(void);
 

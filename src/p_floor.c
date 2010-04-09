@@ -1079,7 +1079,7 @@ void T_MarioBlock(levelspecthink_t *block)
 		block->sector->ceilspeed = 0;
 	}
 
-	for (i = -1; (i = P_FindSectorFromTag((short)block->vars[0], i)) >= 0 ;)
+	for (i = -1; (i = P_FindSectorFromTag((INT16)block->vars[0], i)) >= 0 ;)
 		P_RecalcPrecipInSector(&sectors[i]);
 
 #undef speed
@@ -1171,7 +1171,7 @@ void T_FloatSector(levelspecthink_t *floater)
 
 	// Just find the first sector with the tag.
 	// Doesn't work with multiple sectors that have different floor/ceiling heights.
-	secnum = P_FindSectorFromTag((short)floater->vars[0], -1);
+	secnum = P_FindSectorFromTag((INT16)floater->vars[0], -1);
 
 	if (secnum > 0)
 		actionsector = &sectors[secnum];
@@ -1228,7 +1228,7 @@ void T_BridgeThinker(levelspecthink_t *bridge)
 	sector_t *controlsec = NULL;
 	INT32 i, k;
 
-	short j;
+	INT16 j;
 	boolean playeronme = false;
 	fixed_t ceilingdestination = 0, floordestination = 0;
 	result_e res = 0;
@@ -1237,8 +1237,8 @@ void T_BridgeThinker(levelspecthink_t *bridge)
 #define ORIGCEILINGHEIGHT (bridge->vars[1])
 #define BASESPEED (bridge->vars[2])
 #define CURSPEED (bridge->vars[3])
-#define STARTTAG ((short)bridge->vars[4])
-#define ENDTAG ((short)bridge->vars[5])
+#define STARTTAG ((INT16)bridge->vars[4])
+#define ENDTAG ((INT16)bridge->vars[5])
 #define DIRECTION (bridge->vars[8])
 #define SAGAMT (8*FRACUNIT)
 	fixed_t lowceilheight = ORIGCEILINGHEIGHT - SAGAMT;
@@ -1256,7 +1256,7 @@ void T_BridgeThinker(levelspecthink_t *bridge)
 			sector = &sectors[i];
 
 			// Nab the control sector that this sector belongs to.
-			k = P_FindSectorFromTag((short)(j + (ENDTAG-STARTTAG) + 1), -1);
+			k = P_FindSectorFromTag((INT16)(j + (ENDTAG-STARTTAG) + 1), -1);
 
 			if (k == -1)
 				break;
@@ -1409,7 +1409,7 @@ wegotit:
 
 				// TODO: Use T_MovePlane
 
-				for (j = (short)(ENDTAG+1); j <= sourcesec->tag; j++, plusplusme++)
+				for (j = (INT16)(ENDTAG+1); j <= sourcesec->tag; j++, plusplusme++)
 				{
 					for (i = -1; (i = P_FindSectorFromTag(j, i)) >= 0 ;)
 					{
@@ -1504,7 +1504,7 @@ wegotit:
 
 //				CONS_Printf("interval2 is %d\n", interval>>FRACBITS);
 
-				for (j = (short)(sourcesec->tag+1); j <= ENDTAG + (ENDTAG-STARTTAG) + 1; j++, plusplusme++)
+				for (j = (INT16)(sourcesec->tag+1); j <= ENDTAG + (ENDTAG-STARTTAG) + 1; j++, plusplusme++)
 				{
 					for (i = -1; (i = P_FindSectorFromTag(j, i)) >= 0 ;)
 					{
@@ -1595,7 +1595,7 @@ wegotit:
 	else
 	{
 		// Iterate control sectors
-		for (j = (short)(ENDTAG+1); j <= (ENDTAG+(ENDTAG-STARTTAG)+1); j++)
+		for (j = (INT16)(ENDTAG+1); j <= (ENDTAG+(ENDTAG-STARTTAG)+1); j++)
 		{
 			for (i = -1; (i = P_FindSectorFromTag(j, i)) >= 0 ;)
 			{
@@ -1734,7 +1734,7 @@ void T_ThwompSector(levelspecthink_t *thwomp)
 
 	// Just find the first sector with the tag.
 	// Doesn't work with multiple sectors that have different floor/ceiling heights.
-	secnum = P_FindSectorFromTag((short)thwomp->vars[0], -1);
+	secnum = P_FindSectorFromTag((INT16)thwomp->vars[0], -1);
 
 	if (secnum > 0)
 		actionsector = &sectors[secnum];

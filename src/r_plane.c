@@ -65,14 +65,14 @@ INT32 numffloors;
 
 //SoM: 3/23/2000: Use boom opening limit removal
 size_t maxopenings;
-short *openings, *lastopening; /// \todo free leak
+INT16 *openings, *lastopening; /// \todo free leak
 
 //
 // Clip values are the solid pixel bounding the range.
 //  floorclip starts out SCREENHEIGHT
 //  ceilingclip starts out -1
 //
-short floorclip[MAXVIDWIDTH], ceilingclip[MAXVIDWIDTH];
+INT16 floorclip[MAXVIDWIDTH], ceilingclip[MAXVIDWIDTH];
 fixed_t frontscale[MAXVIDWIDTH];
 
 //
@@ -327,13 +327,13 @@ void R_ClearPlanes(void)
 	// opening / clipping determination
 	for (i = 0; i < viewwidth; i++)
 	{
-		floorclip[i] = (short)viewheight;
-		ceilingclip[i] = (short)con_clipviewtop;
+		floorclip[i] = (INT16)viewheight;
+		ceilingclip[i] = (INT16)con_clipviewtop;
 		frontscale[i] = MAXINT;
 		for (p = 0; p < MAXFFLOORS; p++)
 		{
-			ffloor[p].f_clip[i] = (short)viewheight;
-			ffloor[p].c_clip[i] = (short)con_clipviewtop;
+			ffloor[p].f_clip[i] = (INT16)viewheight;
+			ffloor[p].c_clip[i] = (INT16)con_clipviewtop;
 		}
 	}
 

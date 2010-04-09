@@ -60,14 +60,14 @@ FILE *debugfile = NULL; // put some net info in a file during the game
 
 #define MAXREBOUND 8
 static doomdata_t reboundstore[MAXREBOUND];
-static short reboundsize[MAXREBOUND];
+static INT16 reboundsize[MAXREBOUND];
 static INT32 rebound_head, rebound_tail;
 
 /// \brief bandwith of netgame
 INT32 net_bandwidth;
 
 /// \brief max length per packet
-short hardware_MAXPACKETLENGTH;
+INT16 hardware_MAXPACKETLENGTH;
 
 void (*I_NetGet)(void) = NULL;
 void (*I_NetSend)(void) = NULL;
@@ -440,7 +440,7 @@ static inline void Net_ConnectionTimeout(INT32 node)
 	reboundstore[rebound_head].ack = 0;
 	reboundstore[rebound_head].ackreturn = 0;
 	reboundstore[rebound_head].u.textcmd[0] = (byte)node;
-	reboundsize[rebound_head] = (short)(BASEPACKETSIZE + 1);
+	reboundsize[rebound_head] = (INT16)(BASEPACKETSIZE + 1);
 	rebound_head = (rebound_head+1) % MAXREBOUND;
 
 	// do not redo it quickly (if we do not close connection it is
@@ -791,7 +791,7 @@ static void DebugPrintpacket(const char *header)
 //
 boolean HSendPacket(INT32 node, boolean reliable, byte acknum, size_t packetlength)
 {
-	doomcom->datalength = (short)(packetlength + BASEPACKETSIZE);
+	doomcom->datalength = (INT16)(packetlength + BASEPACKETSIZE);
 	if (node == 0) // packet is to go back to us
 	{
 		if ((rebound_head+1) % MAXREBOUND == rebound_tail)
@@ -808,7 +808,7 @@ boolean HSendPacket(INT32 node, boolean reliable, byte acknum, size_t packetleng
 #ifdef DEBUGFILE
 		if (debugfile)
 		{
-			doomcom->remotenode = (short)node;
+			doomcom->remotenode = (INT16)node;
 			DebugPrintpacket("SENDLOCAL");
 		}
 #endif
@@ -820,7 +820,7 @@ boolean HSendPacket(INT32 node, boolean reliable, byte acknum, size_t packetleng
 
 	// do this before GetFreeAcknum because this function backup
 	// the current packet
-	doomcom->remotenode = (short)node;
+	doomcom->remotenode = (INT16)node;
 	if (doomcom->datalength <= 0)
 	{
 		DEBFILE("HSendPacket: nothing to send\n");
@@ -1010,7 +1010,7 @@ boolean D_CheckNetGame(void)
 	if (M_CheckParm("-extratic"))
 	{
 		if (M_IsNextParm())
-			doomcom->extratics = (short)atoi(M_GetNextParm());
+			doomcom->extratics = (INT16)atoi(M_GetNextParm());
 		else
 			doomcom->extratics = 1;
 		CONS_Printf(text[SET_EXTRATICS], doomcom->extratics);

@@ -54,8 +54,8 @@ fixed_t P_FindLowestCeilingSurrounding(sector_t *sec);
 fixed_t P_FindHighestCeilingSurrounding(sector_t *sec);
 
 INT32 P_FindSectorFromLineTag(line_t *line, INT32 start);
-INT32 P_FindSectorFromTag(short tag, INT32 start);
-INT32 P_FindSpecialLineFromTag(short special, short tag, INT32 start);
+INT32 P_FindSectorFromTag(INT16 tag, INT32 start);
+INT32 P_FindSpecialLineFromTag(INT16 special, INT16 tag, INT32 start);
 
 INT32 P_FindMinSurroundingLight(sector_t *sector, INT32 max);
 
@@ -64,7 +64,7 @@ void P_SetupSignExit(player_t *player);
 void P_SwitchWeather(INT32 weathernum);
 
 void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller);
-void P_ChangeSectorTag(ULONG sector, short newtag);
+void P_ChangeSectorTag(ULONG sector, INT16 newtag);
 
 //
 // P_LIGHTS
@@ -151,7 +151,7 @@ strobe_t * P_SpawnAdjustableStrobeFlash(sector_t *minsector, sector_t *maxsector
 void T_Glow(glow_t *g);
 glow_t *P_SpawnAdjustableGlowingLight(sector_t *minsector, sector_t *maxsector, INT32 length);
 
-void P_FadeLight(short tag, INT32 destvalue, INT32 speed);
+void P_FadeLight(INT16 tag, INT32 destvalue, INT32 speed);
 void T_LightFade(lightlevel_t *ll);
 
 typedef enum

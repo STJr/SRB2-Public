@@ -83,7 +83,7 @@ typedef struct
 {
 	byte client_tic;
 	byte resendfrom;
-	short consistancy;
+	INT16 consistancy;
 	ticcmd_t cmd;
 } ATTRPACK clientcmd_pak;
 
@@ -93,7 +93,7 @@ typedef struct
 {
 	byte client_tic;
 	byte resendfrom;
-	short consistancy;
+	INT16 consistancy;
 	ticcmd_t cmd, cmd2;
 } ATTRPACK client2cmd_pak;
 

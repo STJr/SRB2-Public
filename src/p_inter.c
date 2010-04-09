@@ -1375,10 +1375,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				return;
 			if (player->ctfteam == 1) // Player is on the Red Team
 			{
-				short spawnheight;
+				INT16 spawnheight;
 
 				if (!special->spawnpoint->z)
-					spawnheight = (short)(special->floorz>>FRACBITS);
+					spawnheight = (INT16)(special->floorz>>FRACBITS);
 				else
 					spawnheight = special->spawnpoint->z;
 
@@ -1426,10 +1426,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				return;
 			if (player->ctfteam == 2) // Player is on the Blue Team
 			{
-				short spawnheight;
+				INT16 spawnheight;
 
 				if (!special->spawnpoint->z)
-					spawnheight = (short)(special->floorz>>FRACBITS);
+					spawnheight = (INT16)(special->floorz>>FRACBITS);
 				else
 					spawnheight = special->spawnpoint->z;
 

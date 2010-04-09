@@ -265,7 +265,7 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		case WM_MOUSEWHEEL:
 			//CONS_Printf("MW_WHEEL dispatched.\n");
 			ev.type = ev_keydown;
-			if ((short)HIWORD(wParam) > 0)
+			if ((INT16)HIWORD(wParam) > 0)
 				ev.data1 = KEY_MOUSEWHEELUP;
 			else
 				ev.data1 = KEY_MOUSEWHEELDOWN;

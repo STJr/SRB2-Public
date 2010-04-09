@@ -46,18 +46,18 @@ typedef struct
 {
 	// Keep name for switch changing, etc.
 	char name[8];
-	short width, height;
+	INT16 width, height;
 
 	// All the patches[patchcount] are drawn back to front into the cached texture.
-	short patchcount;
+	INT16 patchcount;
 	texpatch_t patches[1];
 } texture_t;
 
 // all loaded and prepared textures from the start of the game
 extern texture_t **textures;
 
-extern short color8to16[256]; // remap color index to highcolor
-extern short *hicolormaps; // remap high colors to high colors..
+extern INT16 color8to16[256]; // remap color index to highcolor
+extern INT16 *hicolormaps; // remap high colors to high colors..
 
 extern CV_PossibleValue_t Color_cons_t[];
 

@@ -31,7 +31,7 @@
 void R_DrawColumn_16(void)
 {
 	INT32 count;
-	short *dest;
+	INT16 *dest;
 	fixed_t frac, fracstep;
 
 	count = dc_yh - dc_yl + 1;
@@ -48,7 +48,7 @@ void R_DrawColumn_16(void)
 	// Framebuffer destination address.
 	// Use ylookup LUT to avoid multiply with ScreenWidth.
 	// Use columnofs LUT for subwindows?
-	dest = (short *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
+	dest = (INT16 *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
 
 	// Determine scaling, which is the only mapping to be done.
 	fracstep = dc_iscale;
@@ -60,7 +60,7 @@ void R_DrawColumn_16(void)
 	do
 	{
 		// Re-map color indices from wall texture column using a lighting/special effects LUT.
-		*dest = hicolormaps[((short *)(void *)dc_source)[(frac>>FRACBITS)&127]>>1];
+		*dest = hicolormaps[((INT16 *)(void *)dc_source)[(frac>>FRACBITS)&127]>>1];
 
 		dest += vid.width;
 		frac += fracstep;
@@ -74,7 +74,7 @@ void R_DrawColumn_16(void)
 void R_DrawWallColumn_16(void)
 {
 	INT32 count;
-	short *dest;
+	INT16 *dest;
 	fixed_t frac, fracstep;
 
 	count = dc_yh - dc_yl + 1;
@@ -88,14 +88,14 @@ void R_DrawWallColumn_16(void)
 		I_Error("R_DrawWallColumn_16: %d to %d at %d", dc_yl, dc_yh, dc_x);
 #endif
 
-	dest = (short *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
+	dest = (INT16 *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
 
 	fracstep = dc_iscale;
 	frac = dc_texturemid + (dc_yl - centery)*fracstep;
 
 	do
 	{
-		*dest = hicolormaps[((short *)(void *)dc_source)[(frac>>FRACBITS)&255]>>1];
+		*dest = hicolormaps[((INT16 *)(void *)dc_source)[(frac>>FRACBITS)&255]>>1];
 
 		dest += vid.width;
 		frac += fracstep;
@@ -109,7 +109,7 @@ void R_DrawWallColumn_16(void)
 void R_DrawTranslucentColumn_16(void)
 {
 	INT32 count;
-	short *dest;
+	INT16 *dest;
 	fixed_t frac, fracstep;
 
 	// check out coords for src*
@@ -126,7 +126,7 @@ void R_DrawTranslucentColumn_16(void)
 #endif
 
 	// FIXME. As above.
-	dest = (short *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
+	dest = (INT16 *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
 
 	// Looks familiar.
 	fracstep = dc_iscale;
@@ -135,8 +135,8 @@ void R_DrawTranslucentColumn_16(void)
 	// Here we do an additional index re-mapping.
 	do
 	{
-		*dest = (short)((short)((color8to16[dc_source[frac>>FRACBITS]]>>1) & 0x39ce)
-			+ (short)(((*dest & HIMASK1)) & 0x7fff));
+		*dest = (INT16)((INT16)((color8to16[dc_source[frac>>FRACBITS]]>>1) & 0x39ce)
+			+ (INT16)(((*dest & HIMASK1)) & 0x7fff));
 
 		dest += vid.width;
 		frac += fracstep;
@@ -149,7 +149,7 @@ void R_DrawTranslucentColumn_16(void)
 void R_DrawTranslatedColumn_16(void)
 {
 	INT32 count;
-	short *dest;
+	INT16 *dest;
 	fixed_t frac, fracstep;
 
 	count = dc_yh - dc_yl;
@@ -161,7 +161,7 @@ void R_DrawTranslatedColumn_16(void)
 		I_Error("R_DrawTranslatedColumn_16: %d to %d at %d", dc_yl, dc_yh, dc_x);
 #endif
 
-	dest = (short *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
+	dest = (INT16 *)(void *)(ylookup[dc_yl] + columnofs[dc_x]);
 
 	// Looks familiar.
 	fracstep = dc_iscale;
@@ -187,7 +187,7 @@ void R_DrawTranslatedColumn_16(void)
 void R_DrawSpan_16(void)
 {
 	fixed_t xfrac, yfrac;
-	short *dest;
+	INT16 *dest;
 	INT32 count, spot;
 
 #ifdef RANGECHECK
@@ -198,7 +198,7 @@ void R_DrawSpan_16(void)
 	xfrac = ds_xfrac;
 	yfrac = ds_yfrac;
 
-	dest = (short *)(void *)(ylookup[ds_y] + columnofs[ds_x1]);
+	dest = (INT16 *)(void *)(ylookup[ds_y] + columnofs[ds_x1]);
 
 	// We do not check for zero spans here?
 	count = ds_x2 - ds_x1;
@@ -212,7 +212,7 @@ void R_DrawSpan_16(void)
 		spot = ((yfrac>>(16-6))&(63*64)) + ((xfrac>>16)&63);
 
 		// Lookup pixel from flat texture tile, re-index using light/colormap.
-		*dest++ = hicolormaps[((short *)(void *)ds_source)[spot]>>1];
+		*dest++ = hicolormaps[((INT16 *)(void *)ds_source)[spot]>>1];
 
 		// Next step in u, v.
 		xfrac += ds_xstep;

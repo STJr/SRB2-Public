@@ -2248,7 +2248,7 @@ static inline void HWR_AddPolyObjectSegs(void)
 static lumpnum_t doomwaterflat;  //set by R_InitFlats hack
 static void HWR_Subsector(size_t num)
 {
-	short count;
+	INT16 count;
 	seg_t *line;
 	subsector_t *sub;
 	sector_t tempsec; //SoM: 4/7/2000

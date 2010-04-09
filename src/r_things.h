@@ -31,12 +31,12 @@
 
 // Constant arrays used for psprite clipping
 //  and initializing clipping.
-extern short negonearray[MAXVIDWIDTH];
-extern short screenheightarray[MAXVIDWIDTH];
+extern INT16 negonearray[MAXVIDWIDTH];
+extern INT16 screenheightarray[MAXVIDWIDTH];
 
 // vars for R_DrawMaskedColumn
-extern short *mfloorclip;
-extern short *mceilingclip;
+extern INT16 *mfloorclip;
+extern INT16 *mceilingclip;
 extern fixed_t spryscale;
 extern fixed_t sprtopscreen;
 extern fixed_t sprbotscreen;
@@ -64,7 +64,7 @@ void R_DrawMasked(void);
 
 typedef struct
 {
-	char name[SKINNAMESIZE+1]; // short descriptive name of the skin
+	char name[SKINNAMESIZE+1]; // INT16 descriptive name of the skin
 	spritedef_t spritedef;
 	UINT16 wadnum;
 	char sprite[9];
@@ -157,7 +157,7 @@ typedef struct vissprite_s
 	// Precalculated top and bottom screen coords for the sprite.
 	fixed_t thingheight; // The actual height of the thing (for 3D floors)
 	sector_t *sector; // The sector containing the thing.
-	short sz, szt;
+	INT16 sz, szt;
 
 	spritecut_e cut;
 

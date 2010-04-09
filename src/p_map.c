@@ -2211,7 +2211,7 @@ isblocking:
 				if (!whichside)
 				{
 					slidemo->player->lastsidehit = checkline->sidenum[whichside];
-					slidemo->player->lastlinehit = (short)(checkline - lines);
+					slidemo->player->lastlinehit = (INT16)(checkline - lines);
 				}
 
 				P_Thrust(slidemo, slidemo->angle, 5*FRACUNIT);
@@ -2341,7 +2341,7 @@ stairstep:
 void P_SlideMove(mobj_t *mo)
 {
 	fixed_t leadx, leady, trailx, traily, newx, newy;
-	short hitcount = 0;
+	INT16 hitcount = 0;
 
 	slidemo = mo;
 
