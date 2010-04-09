@@ -29,16 +29,21 @@
 #include <windows.h>
 #endif
 
+/* 7.18.1.1  Exact-width integer types */
 #ifdef _MSC_VER
+#define UINT8 unsigned __int8
+#define SINT8 signed __int8
+
 #define UINT16 unsigned __int16
 #define INT16 __int16
 
 #define INT32 __int32
 #define UINT32 unsigned __int32
 
-typedef long ssize_t;
 #define INT64  __int64
 #define UINT64 unsigned __int64
+
+typedef long ssize_t;
 
 /* Older Visual C++ headers don't have the Win64-compatible typedefs... */
 #if ((_MSC_VER <= 1200) && (!defined(DWORD_PTR)))
@@ -51,6 +56,9 @@ typedef long ssize_t;
 #elif defined (_arch_dreamcast) // KOS Dreamcast
 #include <arch/types.h>
 
+#define UIN8 unsigned int8
+#define SINT8 signed int8
+
 #define UINT16 uint16
 #define INT16 int16
 
@@ -61,6 +69,9 @@ typedef long ssize_t;
 #else
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
+
+#define UINT8 uint8_t
+#define SINT8 int8_t
 
 #define UINT16 uint16_t
 #define INT16 int16_t
