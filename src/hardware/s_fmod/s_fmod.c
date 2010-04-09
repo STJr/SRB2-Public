@@ -626,7 +626,7 @@ EXPORT INT32 HWRAPI (Add3DSource) (source3D_data_t *src, sfx_data_t *sfx)
 	if (fmsample)
 	{
 		if (sfx && !FSOUND_Sample_SetDefaults(fmsample,
-				(INT32)((*((unsigned short *)sfx->data+1))*recalc_pitch(sfx->pitch)),
+				(INT32)((*((UINT16 *)sfx->data+1))*recalc_pitch(sfx->pitch)),
 				(sfx->volume == -1 ? 255 : sfx->volume),
 				(sfx->sep == NORMAL_SEP ? FSOUND_STEREOPAN : sfx->sep),
 				(sfx->priority)
@@ -698,7 +698,7 @@ EXPORT INT32 HWRAPI (Add2DSource) (sfx_data_t *sfx)
 	if (fmsample)
 	{
 		if (!FSOUND_Sample_SetDefaults(fmsample,
-		 (INT32)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
+		 (INT32)((float)(*((UINT16 *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
 		 sfx->volume == -1 ? 255 : sfx->volume,
 		 sfx->sep == NORMAL_SEP ? FSOUND_STEREOPAN : sfx->sep,
 		 sfx->priority))
@@ -1081,7 +1081,7 @@ EXPORT INT32 HWRAPI (Reload3DSource) (INT32 handle, sfx_data_t *sfx)
 	if (fmsample)
 	{
 		if (!FSOUND_Sample_SetDefaults(fmsample,
-		 (INT32)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
+		 (INT32)((float)(*((UINT16 *)sfx->data+1)) * recalc_pitch(sfx->pitch)),
 		 sfx->volume == -1 ? 255 : sfx->volume,
 		 sfx->sep == NORMAL_SEP ? FSOUND_STEREOPAN : sfx->sep,
 		 sfx->priority))

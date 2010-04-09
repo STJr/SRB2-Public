@@ -29,9 +29,9 @@
 #ifdef __BIG_ENDIAN__
 
 #define SHORT(x) ((short)(\
-(((unsigned short)(x) & (unsigned short)0x00ffU) << 8) \
+(((UINT16)(x) & (UINT16)0x00ffU) << 8) \
 | \
-(((unsigned short)(x) & (unsigned short)0xff00U) >> 8))) \
+(((UINT16)(x) & (UINT16)0xff00U) >> 8))) \
 
 #define LONG(x) ((INT32)(\
 (((UINT32)(x) & (UINT32)0x000000ffUL) << 24) \

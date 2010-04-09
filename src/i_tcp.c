@@ -142,7 +142,7 @@ typedef struct sockaddr_ipx
 	short sa_family;
 	char sa_netnum[4];
 	char sa_nodenum[6];
-	unsigned short sa_socket;
+	UINT16 sa_socket;
 } SOCKADDR_IPX, *PSOCKADDR_IPX;
 #define NSPROTO_IPX 1000
 #endif
@@ -165,7 +165,7 @@ typedef struct sockaddr_ipx
 #include <netinet/in.h>
 #elif defined (_WIN32) || defined (__DJGPP__) || defined (__HAIKU__)
 #if !defined (_SA_FAMILY_T)
-typedef unsigned short sa_family_t;
+typedef UINT16 sa_family_t;
 #endif
 #endif
 
@@ -254,7 +254,7 @@ static size_t numbans = 0;
 static boolean SOCK_bannednode[MAXNETNODES+1]; /// \note do we really need the +1?
 static boolean init_tcp_driver = false;
 
-unsigned short sock_port = DEFAULTPORT;
+UINT16 sock_port = DEFAULTPORT;
 
 #ifndef NONET
 
@@ -617,7 +617,7 @@ static SOCKET_TYPE UDP_Socket(void)
 #ifdef HAVE_IP6
 	struct sockaddr_in6 address6;
 #endif
-	unsigned short sock_port_local;
+	UINT16 sock_port_local;
 
 #ifdef WATTCP
 	char trueval = true;
@@ -674,7 +674,7 @@ static SOCKET_TYPE UDP_Socket(void)
 	{
 		if (!M_IsNextParm())
 			I_Error("syntax: -clientport <portnum>");
-		sock_port_local = (unsigned short)atoi(M_GetNextParm());
+		sock_port_local = (UINT16)atoi(M_GetNextParm());
 	}
 	else
 		sock_port_local = sock_port;
@@ -998,7 +998,7 @@ static signed char SOCK_NetMakeNode(const char *hostname)
 	signed char newnode;
 	char *localhostname = strdup(hostname);
 	char *portchar;
-	unsigned short portnum = htons(sock_port);
+	UINT16 portnum = htons(sock_port);
 
 	DEBFILE(va("Creating new node: %s\n", hostname));
 
@@ -1006,7 +1006,7 @@ static signed char SOCK_NetMakeNode(const char *hostname)
 	strtok(localhostname, ":");
 	portchar = strtok(NULL, ":");
 	if (portchar)
-		portnum = htons((unsigned short)atoi(portchar));
+		portnum = htons((UINT16)atoi(portchar));
 	free(localhostname);
 
 	// server address only in ip
@@ -1173,7 +1173,7 @@ boolean I_InitTcpNetwork(void)
 	if (M_CheckParm("-udpport"))
 	{
 		if (M_IsNextParm())
-			sock_port = (unsigned short)atoi(M_GetNextParm());
+			sock_port = (UINT16)atoi(M_GetNextParm());
 		else
 			sock_port = 0;
 	}

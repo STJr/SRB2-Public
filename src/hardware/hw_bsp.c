@@ -596,7 +596,7 @@ static size_t ls_count = 0;
 static byte ls_percent = 0;
 
 // poly : the convex polygon that encloses all child subsectors
-static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fixed_t *bbox)
+static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *bbox)
 {
 	node_t *bsp;
 	poly_t *backpoly, *frontpoly;

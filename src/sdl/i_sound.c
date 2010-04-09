@@ -398,7 +398,7 @@ static INT32 FindChannel(INT32 handle)
 //
 static INT32 addsfx(sfxenum_t sfxid, INT32 volume, INT32 step, INT32 seperation)
 {
-	static unsigned short handlenums = 0;
+	static UINT16 handlenums = 0;
 	INT32 i, slot, oldestnum = 0;
 	tic_t oldest = gametic;
 
@@ -461,7 +461,7 @@ static INT32 addsfx(sfxenum_t sfxid, INT32 volume, INT32 step, INT32 seperation)
 	{
 		handlenums++;
 		// Reset current handle number, limited to 0..65535.
-		if (handlenums == (unsigned short)-1)
+		if (handlenums == (UINT16)-1)
 			handlenums = 0;
 	}
 

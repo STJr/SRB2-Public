@@ -35,7 +35,7 @@
 typedef struct
 {
 	// Block origin (always UL), which has already accounted for the internal origin of the patch.
-	unsigned short originx, originy;
+	UINT16 originx, originy;
 	lumpnum_t patch;
 } texpatch_t;
 

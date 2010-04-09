@@ -237,7 +237,7 @@ static signed char NET_NetMakeNode(const char *hostname)
 {
 	INT32 newnode;
 	char *portchar;
-	unsigned short portnum = sock_port;
+	UINT16 portnum = sock_port;
 	IPaddress hostnameIP;
 
 	// retrieve portnum from address!
@@ -359,7 +359,7 @@ boolean I_InitNetwork(void)
 	if (M_CheckParm("-udpport"))
 	{
 		if (M_IsNextParm())
-			sock_port = (unsigned short)atoi(M_GetNextParm());
+			sock_port = (UINT16)atoi(M_GetNextParm());
 		else
 			sock_port = 0;
 	}

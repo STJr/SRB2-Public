@@ -34,75 +34,75 @@
 // VESA information block structure
 typedef struct vbeinfoblock_s
 {
-	unsigned char  VESASignature[4]     ATTRPACK;
-	unsigned short VESAVersion          /*ATTRPACK*/;
-	unsigned long  OemStringPtr         ATTRPACK;
+	unsigned char  VESASignature[4];
+	UINT16         VESAVersion;
+	unsigned long  OemStringPtr;
 	byte           Capabilities[4];
-	unsigned long  VideoModePtr         ATTRPACK;
-	unsigned short TotalMemory          ATTRPACK;
+	unsigned long  VideoModePtr;
+	UINT16         TotalMemory;
 	byte           OemSoftwareRev[2];
 	byte           OemVendorNamePtr[4];
 	byte           OemProductNamePtr[4];
 	byte           OemProductRevPtr[4];
 	byte           Reserved[222];
 	byte           OemData[256];
-} vbeinfoblock_t;
+}  ATTTPACK vbeinfoblock_t;
 
 
 // VESA information for a specific mode
 typedef struct vesamodeinfo_s
 {
-	unsigned short ModeAttributes       /*ATTRPACK*/;
-	unsigned char  WinAAttributes       ATTRPACK;
-	unsigned char  WinBAttributes       ATTRPACK;
-	unsigned short WinGranularity       /*ATTRPACK*/;
-	unsigned short WinSize              ATTRPACK;
-	unsigned short WinASegment          /*ATTRPACK*/;
-	unsigned short WinBSegment          ATTRPACK;
-	unsigned long  WinFuncPtr           ATTRPACK;
-	unsigned short BytesPerScanLine     /*ATTRPACK*/;
-	unsigned short XResolution          ATTRPACK;
-	unsigned short YResolution          /*ATTRPACK*/;
-	unsigned char  XCharSize            ATTRPACK;
-	unsigned char  YCharSize            ATTRPACK;
-	unsigned char  NumberOfPlanes       ATTRPACK;
-	unsigned char  BitsPerPixel         ATTRPACK;
-	unsigned char  NumberOfBanks        ATTRPACK;
-	unsigned char  MemoryModel          ATTRPACK;
-	unsigned char  BankSize             ATTRPACK;
-	unsigned char  NumberOfImagePages   ATTRPACK;
-	unsigned char  Reserved_page        ATTRPACK;
-	unsigned char  RedMaskSize          ATTRPACK;
-	unsigned char  RedMaskPos           ATTRPACK;
-	unsigned char  GreenMaskSize        ATTRPACK;
-	unsigned char  GreenMaskPos         ATTRPACK;
-	unsigned char  BlueMaskSize         ATTRPACK;
-	unsigned char  BlueMaskPos          ATTRPACK;
-	unsigned char  ReservedMaskSize     ATTRPACK;
-	unsigned char  ReservedMaskPos      ATTRPACK;
-	unsigned char  DirectColorModeInfo  ATTRPACK;
+	UINT16         ModeAttributes;
+	unsigned char  WinAAttributes;
+	unsigned char  WinBAttributes;
+	UINT16         WinGranularity;
+	UINT16         WinSize;
+	UINT16         WinASegment;
+	UINT16         WinBSegment;
+	unsigned long  WinFuncPtr;
+	UINT16         BytesPerScanLine;
+	UINT16         XResolution;
+	UINT16         YResolution;
+	unsigned char  XCharSize;
+	unsigned char  YCharSize;
+	unsigned char  NumberOfPlanes;
+	unsigned char  BitsPerPixel;
+	unsigned char  NumberOfBanks;
+	unsigned char  MemoryModel;
+	unsigned char  BankSize;
+	unsigned char  NumberOfImagePages;
+	unsigned char  Reserved_page;
+	unsigned char  RedMaskSize;
+	unsigned char  RedMaskPos;
+	unsigned char  GreenMaskSize;
+	unsigned char  GreenMaskPos;
+	unsigned char  BlueMaskSize;
+	unsigned char  BlueMaskPos;
+	unsigned char  ReservedMaskSize;
+	unsigned char  ReservedMaskPos;
+	unsigned char  DirectColorModeInfo;
 
 	/* VBE 2.0 extensions */
-	unsigned long  PhysBasePtr          /*ATTRPACK*/;
-	unsigned long  OffScreenMemOffset   ATTRPACK;
-	unsigned short OffScreenMemSize     /*ATTRPACK*/;
+	unsigned long  PhysBasePtr;
+	unsigned long  OffScreenMemOffset;
+	UINT16         OffScreenMemSize;
 
 	/* VBE 3.0 extensions */
-	unsigned short LinBytesPerScanLine  ATTRPACK;
-	unsigned char  BnkNumberOfPages     ATTRPACK;
-	unsigned char  LinNumberOfPages     ATTRPACK;
-	unsigned char  LinRedMaskSize       ATTRPACK;
-	unsigned char  LinRedFieldPos       ATTRPACK;
-	unsigned char  LinGreenMaskSize     ATTRPACK;
-	unsigned char  LinGreenFieldPos     ATTRPACK;
-	unsigned char  LinBlueMaskSize      ATTRPACK;
-	unsigned char  LinBlueFieldPos      ATTRPACK;
-	unsigned char  LinRsvdMaskSize      ATTRPACK;
-	unsigned char  LinRsvdFieldPos      ATTRPACK;
-	unsigned long  MaxPixelClock        ATTRPACK;
+	UINT16         LinBytesPerScanLine;
+	unsigned char  BnkNumberOfPages;
+	unsigned char  LinNumberOfPages;
+	unsigned char  LinRedMaskSize;
+	unsigned char  LinRedFieldPos;
+	unsigned char  LinGreenMaskSize;
+	unsigned char  LinGreenFieldPos;
+	unsigned char  LinBlueMaskSize;
+	unsigned char  LinBlueFieldPos;
+	unsigned char  LinRsvdMaskSize;
+	unsigned char  LinRsvdFieldPos;
+	unsigned long  MaxPixelClock;
 
-	unsigned char  Reserved[190]        ATTRPACK;
-} vesamodeinfo_t;
+	unsigned char  Reserved[190];
+} ATTRPACK vesamodeinfo_t;
 
 
 // setup standard VGA + VESA modes list, activate the default video mode.

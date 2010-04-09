@@ -511,9 +511,9 @@ void VID_VesaGetExtraModes (void)
 	__dpmi_regs     regs;
 
 	// make a copy of the video modes list! else trash in __tb
-	unsigned short  vmode[MAX_VESA_MODES+1];
+	UINT16          vmode[MAX_VESA_MODES+1];
 	int             numvmodes;
-	unsigned short  vesamode;
+	UINT16          vesamode;
 
 	// new ugly stuff...
 	for (i=0; i<sizeof (vbeinfoblock_t); i++)

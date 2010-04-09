@@ -131,13 +131,13 @@ typedef struct
 	char picname[8][8];
 	boolean pichires[8];
 	char *text;
-	unsigned short xcoord[8];
-	unsigned short ycoord[8];
-	unsigned short picduration[8];
+	UINT16 xcoord[8];
+	UINT16 ycoord[8];
+	UINT16 picduration[8];
 	musicenum_t musicslot;
 	boolean musicloop;
-	unsigned short textxpos;
-	unsigned short textypos;
+	UINT16 textxpos;
+	UINT16 textypos;
 } scene_t;
 
 typedef struct

@@ -284,7 +284,7 @@ static signed char KOSUDP_NetMakeNode(const char *hostname)
 	strtok(localhostname, ":");
 	portchar = strtok(NULL, ":");
 	if (portchar)
-		portnum = net_ntohs((unsigned short)atoi(portchar));
+		portnum = net_ntohs((UINT16)atoi(portchar));
 
 	// remove the port in the hostname as we've it already
 	t = localhostname = strdup(hostname);
@@ -390,7 +390,7 @@ boolean I_InitNetwork(void)
 	if (M_CheckParm("-udpport"))
 	{
 		if (M_IsNextParm())
-			sock_port = (unsigned short)atoi(M_GetNextParm());
+			sock_port = (UINT16)atoi(M_GetNextParm());
 		else
 			sock_port = 0;
 	}

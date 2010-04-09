@@ -67,7 +67,7 @@
 // this function converts raw 11khz, 8-bit data to a SAMPLE* that allegro uses
 // it is need cuz allegro only loads samples from wavs and vocs
 //added:11-01-98: now reads the frequency from the rawdata header.
-//   dsdata points a 4 unsigned short header:
+//   dsdata points a 4 UINT16 header:
 //    +0 : value 3 what does it mean?
 //    +2 : sample rate, either 11025 or 22050.
 //    +4 : number of samples, each sample is a single byte since it's 8bit
@@ -81,7 +81,7 @@ static inline SAMPLE *raw2SAMPLE(unsigned char *dsdata, unsigned long len)
 		I_Error("Raw2Sample : no more free mem");
 	spl->bits = 8;
 	spl->stereo = 0;
-	spl->freq = *((unsigned short *)dsdata+1);   //mostly 11025, but some at 22050.
+	spl->freq = *((UINT16 *)dsdata+1);   //mostly 11025, but some at 22050.
 	spl->len = len-8;
 	spl->priority = 255;                //priority;
 	spl->loop_start = 0;

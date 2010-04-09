@@ -295,7 +295,7 @@ static LPDIRECTSOUNDBUFFER create_buffer (void *data, INT32 length, BOOL as3d)
 	ZeroMemory(&wfm, sizeof (WAVEFORMATEX));
 	wfm.wFormatTag = WAVE_FORMAT_PCM;
 	wfm.nChannels = 1;
-	wfm.nSamplesPerSec = data?*((unsigned short *)data+1):srate;      //mostly 11025, but some at 22050.
+	wfm.nSamplesPerSec = data?*((UINT16 *)data+1):srate;      //mostly 11025, but some at 22050.
 	wfm.wBitsPerSample = 8;
 	wfm.nBlockAlign = (WORD)(wfm.wBitsPerSample / 8 * wfm.nChannels);
 	wfm.nAvgBytesPerSec = wfm.nSamplesPerSec * wfm.nBlockAlign;
@@ -736,7 +736,7 @@ static stack_t *setup_source(INT32 handle, sfx_data_t *sfx, BOOL is_3dsource)
 		{
 			DWORD freq;
 
-			freq = (DWORD)((float)(*((unsigned short *)sfx->data+1)) * recalc_pitch(sfx->pitch));
+			freq = (DWORD)((float)(*((UINT16 *)sfx->data+1)) * recalc_pitch(sfx->pitch));
 			IDirectSoundBuffer_SetFrequency(dsbuffer, freq);
 		}
 

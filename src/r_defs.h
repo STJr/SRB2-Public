@@ -58,9 +58,9 @@ typedef byte lighttable_t;
 // ExtraColormap type. Use for extra_colormaps from now on.
 typedef struct
 {
-	unsigned short maskcolor, fadecolor;
+	UINT16 maskcolor, fadecolor;
 	double maskamt;
-	unsigned short fadestart, fadeend;
+	UINT16 fadestart, fadeend;
 	INT32 fog;
 
 	// rgba is used in hw mode for colored sector lighting
@@ -361,7 +361,7 @@ typedef struct line_s
 	short tag;
 
 	// Visual appearance: sidedefs.
-	unsigned short sidenum[2]; // sidenum[1] will be 0xffff if one-sided
+	UINT16 sidenum[2]; // sidenum[1] will be 0xffff if one-sided
 
 	fixed_t bbox[4]; // bounding box for the extent of the linedef
 
@@ -416,7 +416,7 @@ typedef struct subsector_s
 {
 	sector_t *sector;
 	short numlines;
-	unsigned short firstline;
+	UINT16 firstline;
 #ifdef POLYOBJECTS
 	struct polyobj_s *polyList; // haleyjd 02/19/06: list of polyobjects
 #endif
@@ -537,7 +537,7 @@ typedef struct
 	fixed_t bbox[2][4];
 
 	// If NF_SUBSECTOR its a subsector.
-	unsigned short children[2];
+	UINT16 children[2];
 } node_t;
 
 #if defined(_MSC_VER)

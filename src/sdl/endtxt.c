@@ -35,7 +35,7 @@ void ShowEndTxt(void)
 {
 #if !(defined (_WIN32_WCE) || defined (_XBOX) || defined (_arch_dreamcast))
 	INT32 i;
-	unsigned short j, att = 0;
+	UINT16 j, att = 0;
 	INT32 nlflag = 1;
 #ifdef _WIN32
 	HANDLE co = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -44,7 +44,7 @@ void ShowEndTxt(void)
 	COORD resizewin = {80,-1};
 	CHAR let = 0;
 #endif
-	unsigned short *ptext;
+	UINT16 *ptext;
 	void *data;
 	lumpnum_t endoomnum = W_GetNumForName("ENDOOM");
 	//char *col;
@@ -76,7 +76,7 @@ void ShowEndTxt(void)
 
 	for (i=1; i<=80*25; i++) // print 80x25 text and deal with the attributes too
 	{
-		j = (unsigned short)(*ptext >> 8); // attribute first
+		j = (UINT16)(*ptext >> 8); // attribute first
 		let = (char)(*ptext & 0xff); // text second
 		if (j != att) // attribute changed?
 		{

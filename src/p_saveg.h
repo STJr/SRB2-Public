@@ -39,7 +39,7 @@ typedef struct
 	INT32 score;
 	INT32 lives;
 	INT32 continues;
-	unsigned short emeralds;
+	UINT16 emeralds;
 } savedata_t;
 
 extern savedata_t savedata;

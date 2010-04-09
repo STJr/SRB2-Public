@@ -674,13 +674,13 @@ void I_Error(const char *error, ...)
 static inline VOID ShowEndTxt(HANDLE co)
 {
 	int i;
-	unsigned short j, att = 0;
+	UINT16 j, att = 0;
 	int nlflag = 1;
 	CONSOLE_SCREEN_BUFFER_INFO backupcon;
 	COORD resizewin = {80,-1};
 	DWORD bytesWritten;
 	CHAR let = 0;
-	unsigned short *text;
+	UINT16 *text;
 	void *data;
 	int endoomnum = W_GetNumForName("ENDOOM");
 	//HANDLE ci = GetStdHandle(STD_INPUT_HANDLE);
@@ -696,7 +696,7 @@ static inline VOID ShowEndTxt(HANDLE co)
 
 	for (i = 1; i <= 80*25; i++) // print 80x25 text and deal with the attributes too
 	{
-		j = (unsigned short)(*text >> 8); // attribute first
+		j = (UINT16)(*text >> 8); // attribute first
 		if (j != att) // attribute changed?
 		{
 			att = j; // save current attribute

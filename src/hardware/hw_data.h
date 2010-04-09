@@ -46,9 +46,9 @@ struct GLMipmap_s
 {
 	GrTexInfo       grInfo;         //for TexDownloadMipMap
 	FxU32           flags;
-	unsigned short  height;
-	unsigned short  width;
-	UINT32    downloaded;     // the dll driver have it in there cache ?
+	UINT16          height;
+	UINT16          width;
+	UINT32          downloaded;     // the dll driver have it in there cache ?
 
 	struct GLMipmap_s    *nextcolormap;
 	const byte              *colormap;

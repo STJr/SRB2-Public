@@ -394,7 +394,7 @@ static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 
 	if (MS_GetIP(ip_addr) == MS_GETHOSTBYNAME_ERROR)
 		return MS_GETHOSTBYNAME_ERROR;
-	addr.sin_port = htons((unsigned short)atoi(str_port));
+	addr.sin_port = htons((UINT16)atoi(str_port));
 
 	if (async) // do asynchronous connection
 	{
