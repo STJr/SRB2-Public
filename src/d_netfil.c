@@ -39,6 +39,7 @@
 
 #ifdef __GNUC__
 #include <unistd.h>
+#include <limits.h>
 #elif defined (_WIN32) && !defined (_WIN32_WCE)
 #include <sys/utime.h>
 #endif
