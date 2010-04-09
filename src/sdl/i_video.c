@@ -827,7 +827,7 @@ static inline void SDLJoyRemap(event_t *event)
 				event->type = ev_joystick;
 				DPAD |= 1<<button;
 			}
-			event->data2 = event->data3 = MAXINT;
+			event->data2 = event->data3 = INT32_MAX;
 			if ((DPAD & (1<<GP2X_BUTTON_UP)) && ((DPAD & (1<<GP2X_BUTTON_UPLEFT)) || (DPAD & (1<<GP2X_BUTTON_UPRIGHT))))
 				button = GP2X_BUTTON_UP;
 			if ((DPAD & (1<<GP2X_BUTTON_LEFT)) && ((DPAD & (1<<GP2X_BUTTON_UPLEFT)) || (DPAD & (1<<GP2X_BUTTON_DOWNLEFT))))
@@ -1128,7 +1128,7 @@ void I_GetEvent(void)
 			case SDL_JOYAXISMOTION:
 				inputEvent.jaxis.which++;
 				inputEvent.jaxis.axis++;
-				event.data1 = event.data2 = event.data3 = MAXINT;
+				event.data1 = event.data2 = event.data3 = INT32_MAX;
 				if (cv_usejoystick.value == inputEvent.jaxis.which)
 				{
 					event.type = ev_joystick;

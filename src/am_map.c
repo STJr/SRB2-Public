@@ -243,11 +243,11 @@ static inline void AM_getIslope(const mline_t *ml, islope_t *is)
 	dy = ml->a.y - ml->b.y;
 	dx = ml->b.x - ml->a.x;
 	if (!dy)
-		is->islp = (dx < 0 ? -MAXINT : MAXINT);
+		is->islp = (dx < 0 ? -INT32_MAX : INT32_MAX);
 	else
 		is->islp = FixedDiv(dx, dy);
 	if (!dx)
-		is->slp = (dy < 0 ? -MAXINT : MAXINT);
+		is->slp = (dy < 0 ? -INT32_MAX : INT32_MAX);
 	else
 		is->slp = FixedDiv(dy, dx);
 }
@@ -312,8 +312,8 @@ static void AM_findMinMaxBoundaries(void)
 	fixed_t a;
 	fixed_t b;
 
-	min_x = min_y = +MAXINT;
-	max_x = max_y = -MAXINT;
+	min_x = min_y = +INT32_MAX;
+	max_x = max_y = -INT32_MAX;
 
 	for (i = 0; i < numvertexes; i++)
 	{
@@ -346,7 +346,7 @@ static void AM_changeWindowLoc(void)
 	if (m_paninc.x || m_paninc.y)
 	{
 		followplayer = 0;
-		f_oldloc.x = MAXINT;
+		f_oldloc.x = INT32_MAX;
 	}
 
 	m_x += m_paninc.x;
@@ -373,7 +373,7 @@ static void AM_initVariables(void)
 	automapactive = true;
 	fb = screens[0];
 
-	f_oldloc.x = MAXINT;
+	f_oldloc.x = INT32_MAX;
 	amclock = 0;
 	lightlev = 0;
 
@@ -575,7 +575,7 @@ boolean AM_Responder(event_t *ev)
 					break;
 				case AM_FOLLOWKEY:
 					followplayer = !followplayer;
-					f_oldloc.x = MAXINT;
+					f_oldloc.x = INT32_MAX;
 					break;
 				case AM_GRIDKEY:
 					grid = !grid;

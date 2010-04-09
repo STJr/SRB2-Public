@@ -1959,7 +1959,7 @@ static CV_PossibleValue_t map_cons_t[LEVELARRAYSIZE] = {
 	{1033, "MAP1033"},
 	{1034, "MAP1034"},
 	{1035, "MAP1035"},
-	{MAXSHORT, NULL}
+	{INT16_MAX, NULL}
 };
 
 static void Newgametype_OnChange(void);

@@ -86,7 +86,7 @@ extern wadfile_t *wadfiles[MAX_WADFILES];
 
 void W_Shutdown(void);
 
-// Load and add a wadfile to the active wad files, returns numbers of lumps, MAXSHORT on error
+// Load and add a wadfile to the active wad files, returns numbers of lumps, INT16_MAX on error
 UINT16 W_LoadWadFile(const char *filename);
 void W_UnloadWadFile(UINT16 num);
 

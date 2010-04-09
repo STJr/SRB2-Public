@@ -438,10 +438,10 @@ static inline lumpnum_t R_CheckNumForNameList(char *name, lumplist_t *list, size
 	size_t i;
 	UINT16 lump;
 
-	for (i = listsize - 1; i < MAXSHORT; i--)
+	for (i = listsize - 1; i < INT16_MAX; i--)
 	{
 		lump = W_CheckNumForNamePwad(name, list[i].wadfile, list[i].firstlump);
-		if (lump == MAXSHORT || lump > (list[i].firstlump + list[i].numlumps))
+		if (lump == INT16_MAX || lump > (list[i].firstlump + list[i].numlumps))
 			continue;
 		else
 			return (list[i].wadfile<<16)+lump;

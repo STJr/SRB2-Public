@@ -238,7 +238,7 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedInt(fixed_t a)
 FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
 	if ((abs(a) >> (FRACBITS-2)) >= abs(b))
-		return (a^b) < 0 ? MININT : MAXINT;
+		return (a^b) < 0 ? INT32_MIN : INT32_MAX;
 
 	return FixedDiv2(a, b);
 }

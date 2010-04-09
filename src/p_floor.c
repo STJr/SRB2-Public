@@ -222,7 +222,7 @@ void T_MoveFloor(floormove_t *movefloor)
 			{
 				case moveFloorByFrontSector:
 					if (movefloor->texture < -1) // chained linedef executing
-						P_LinedefExecute(movefloor->texture + MAXSHORT + 2, NULL, NULL);
+						P_LinedefExecute(movefloor->texture + INT16_MAX + 2, NULL, NULL);
 				case instantMoveFloorByFrontSector:
 					if (movefloor->texture > -1) // flat changing
 						movefloor->sector->floorpic = movefloor->texture;
@@ -270,7 +270,7 @@ void T_MoveFloor(floormove_t *movefloor)
 			{
 				case moveFloorByFrontSector:
 					if (movefloor->texture < -1) // chained linedef executing
-						P_LinedefExecute(movefloor->texture + MAXSHORT + 2, NULL, NULL);
+						P_LinedefExecute(movefloor->texture + INT16_MAX + 2, NULL, NULL);
 				case instantMoveFloorByFrontSector:
 					if (movefloor->texture > -1) // flat changing
 						movefloor->sector->floorpic = movefloor->texture;
@@ -2375,14 +2375,14 @@ INT32 EV_DoFloor(line_t *line, floor_e floortype)
 			// changing the base height for placing things in that sector).
 			case instantLower:
 				dofloor->direction = -1; // down
-				dofloor->speed = MAXINT/2; // "instant" means "takes one tic"
+				dofloor->speed = INT32_MAX/2; // "instant" means "takes one tic"
 				dofloor->floordestheight = P_FindLowestFloorSurrounding(sec);
 				break;
 
 			// Linedef executor command, linetype 101.
 			// Front sector floor = destination height.
 			case instantMoveFloorByFrontSector:
-				dofloor->speed = MAXINT/2; // as above, "instant" is one tic
+				dofloor->speed = INT32_MAX/2; // as above, "instant" is one tic
 				dofloor->floordestheight = line->frontsector->floorheight;
 
 				if (dofloor->floordestheight >= sec->floorheight)

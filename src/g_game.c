@@ -2278,7 +2278,7 @@ static INT16 TOLFlag(INT32 pgametype)
 	if (pgametype == GT_CTF)   return TOL_CTF;
 
 	CONS_Printf("Error: Weird gametype! %d\n", pgametype);
-	return MAXSHORT;
+	return INT16_MAX;
 }
 
 /** Select a random map with the given typeoflevel flags.

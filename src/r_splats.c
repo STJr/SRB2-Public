@@ -514,8 +514,8 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 		}
 
 		// reset for next calls to edge rasterizer
-		rastertab[y].minx = MAXINT;
-		rastertab[y].maxx = MININT;
+		rastertab[y].minx = INT32_MAX;
+		rastertab[y].maxx = INT32_MIN;
 	}
 
 #else
@@ -552,8 +552,8 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 		}
 
 		// reinitialise the minimum and maximum for the next approach
-		rastertab[y].minx = MAXINT;
-		rastertab[y].maxx = MININT;
+		rastertab[y].minx = INT32_MAX;
+		rastertab[y].maxx = INT32_MIN;
 	}
 #endif
 }
@@ -616,8 +616,8 @@ static void prepare_rastertab(void)
 	INT32 iLine;
 	for (iLine = 0; iLine < vid.height; iLine++)
 	{
-		rastertab[iLine].minx = MAXINT;
-		rastertab[iLine].maxx = MININT;
+		rastertab[iLine].minx = INT32_MAX;
+		rastertab[iLine].maxx = INT32_MIN;
 	}
 }
 

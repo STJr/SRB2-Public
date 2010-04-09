@@ -94,7 +94,7 @@ angle_t xtoviewangle[MAXVIDWIDTH+1];
 // UNUSED.
 // The finetangentgent[angle+FINEANGLES/4] table
 // holds the fixed_t tangent values for view angles,
-// ranging from MININT to 0 to MAXINT.
+// ranging from INT32_MIN to 0 to INT32_MAX.
 
 fixed_t *finecosine = &finesine[FINEANGLES/4];
 

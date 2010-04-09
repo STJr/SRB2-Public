@@ -1391,7 +1391,7 @@ static void Y_CalculateTimeRaceWinners(void)
 	// Initialize variables
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		data.match.scores[i] = MAXINT;
+		data.match.scores[i] = INT32_MAX;
 
 	memset(data.match.color, 0, sizeof (data.match.color));
 	memset(data.match.character, 0, sizeof (data.match.character));

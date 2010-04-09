@@ -383,17 +383,17 @@ void R_AddSpriteDefs(UINT16 wadnum)
 	// (not really, but for speedup)
 
 	start = W_CheckNumForNamePwad("S_START", wadnum, 0);
-	if (start == MAXSHORT)
+	if (start == INT16_MAX)
 		start = W_CheckNumForNamePwad("SS_START", wadnum, 0); //deutex compatib.
-	if (start == MAXSHORT)
+	if (start == INT16_MAX)
 		start = 0; //let say S_START is lump 0
 	else
 		start++;   // just after S_START
 
 	end = W_CheckNumForNamePwad("S_END",wadnum,start);
-	if (end == MAXSHORT)
+	if (end == INT16_MAX)
 		end = W_CheckNumForNamePwad("SS_END",wadnum,start);     //deutex compatib.
-	if (end == MAXSHORT)
+	if (end == INT16_MAX)
 	{
 		if (devparm)
 			CONS_Printf("no sprites in pwad %d\n", wadnum);
@@ -431,17 +431,17 @@ void R_DelSpriteDefs(UINT16 wadnum)
 	// (not really, but for speedup)
 
 	start = W_CheckNumForNamePwad("S_START", wadnum, 0);
-	if (start == MAXSHORT)
+	if (start == INT16_MAX)
 		start = W_CheckNumForNamePwad("SS_START", wadnum, 0); //deutex compatib.
-	if (start == MAXSHORT)
+	if (start == INT16_MAX)
 		start = 0; //let say S_START is lump 0
 	else
 		start++;   // just after S_START
 
 	end = W_CheckNumForNamePwad("S_END",wadnum,start);
-	if (end == MAXSHORT)
+	if (end == INT16_MAX)
 		end = W_CheckNumForNamePwad("SS_END",wadnum,start);     //deutex compatib.
-	if (end == MAXSHORT)
+	if (end == INT16_MAX)
 	{
 		if (devparm)
 			CONS_Printf("no sprites in pwad %d\n", wadnum);
@@ -571,13 +571,13 @@ void R_DrawMaskedColumn(column_t *column)
 		// calculate unclipped screen coordinates
 		// for post
 		topscreen = sprtopscreen + spryscale*column->topdelta;
-		bottomscreen = sprbotscreen == MAXINT ? topscreen + spryscale*column->length
+		bottomscreen = sprbotscreen == INT32_MAX ? topscreen + spryscale*column->length
 		                                      : sprbotscreen + spryscale*column->length;
 
 		dc_yl = (topscreen+FRACUNIT-1)>>FRACBITS;
 		dc_yh = (bottomscreen-1)>>FRACBITS;
 
-		if (windowtop != MAXINT && windowbottom != MAXINT)
+		if (windowtop != INT32_MAX && windowbottom != INT32_MAX)
 		{
 			if (windowtop > topscreen)
 				dc_yl = (windowtop + FRACUNIT - 1)>>FRACBITS;
@@ -757,7 +757,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	frac = vis->startfrac;
 	spryscale = vis->scale;
 	sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
-	windowtop = windowbottom = sprbotscreen = MAXINT;
+	windowtop = windowbottom = sprbotscreen = INT32_MAX;
 	if (vis->mobjflags & MF_HIRES)
 	{
 		spryscale >>= 1;
@@ -847,7 +847,7 @@ static void R_DrawPrecipitationVisSprite(vissprite_t *vis)
 	frac = vis->startfrac;
 	spryscale = vis->scale;
 	sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
-	windowtop = windowbottom = sprbotscreen = MAXINT;
+	windowtop = windowbottom = sprbotscreen = INT32_MAX;
 
 	if (vis->x1 < 0)
 		vis->x1 = 0;
@@ -1644,7 +1644,7 @@ void R_SortVisSprites(void)
 	vsprsortedhead.next = vsprsortedhead.prev = &vsprsortedhead;
 	for (i = 0; i < count; i++)
 	{
-		bestscale = MAXINT;
+		bestscale = INT32_MAX;
 		for (ds = unsorted.next; ds != &unsorted; ds = ds->next)
 		{
 			if (ds->scale < bestscale)
@@ -2286,7 +2286,7 @@ static void Sk_SetDefaultValue(skin_t *skin)
 	//
 	memset(skin, 0, sizeof (skin_t));
 	strcpy(skin->name, DEFAULTSKIN);
-	skin->wadnum = MAXSHORT;
+	skin->wadnum = INT16_MAX;
 	strcpy(skin->sprite, "");
 	strcpy(skin->faceprefix, "SBOSLIFE");
 	strcpy(skin->superprefix, "SUPERICO");
@@ -2602,7 +2602,7 @@ static UINT16 W_CheckForSkinMarkerInPwad(UINT16 wadid, UINT16 startlump)
 			if (memcmp(lump_p->name,S_SKIN,6)==0)
 				return i;
 	}
-	return MAXSHORT; // not found
+	return INT16_MAX; // not found
 }
 
 //
@@ -2621,7 +2621,7 @@ void R_AddSkins(UINT16 wadnum)
 	// search for all skin markers in pwad
 	//
 
-	while ((lump = W_CheckForSkinMarkerInPwad(wadnum, lastlump)) != MAXSHORT)
+	while ((lump = W_CheckForSkinMarkerInPwad(wadnum, lastlump)) != INT16_MAX)
 	{
 		if (numskins > MAXSKINS)
 		{
@@ -2796,7 +2796,7 @@ next_token:
 
 			// not found so make a new one
 			if (!found)
-				R_AddSingleSpriteDef(sprname, &skins[numskins].spritedef, wadnum, 0, MAXSHORT);
+				R_AddSingleSpriteDef(sprname, &skins[numskins].spritedef, wadnum, 0, INT16_MAX);
 
 			while (W_CheckNameForNumPwad(wadnum,lastlump) && memcmp(W_CheckNameForNumPwad(wadnum, lastlump),sprname,4)==0)
 				lastlump++;
@@ -2828,7 +2828,7 @@ next_token:
 void R_DelSkins(UINT16 wadnum)
 {
 	UINT16 lump, lastlump = 0;
-	while ((lump = W_CheckForSkinMarkerInPwad(wadnum, lastlump)) != MAXSHORT)
+	while ((lump = W_CheckForSkinMarkerInPwad(wadnum, lastlump)) != INT16_MAX)
 	{
 		if (skins[numskins].wadnum != wadnum)
 			break;
@@ -2861,7 +2861,7 @@ void R_DelSkins(UINT16 wadnum)
 
 			// not found so make a new one
 			if (!found)
-				R_DelSingleSpriteDef(sprname, &skins[numskins].spritedef, wadnum, 0, MAXSHORT);
+				R_DelSingleSpriteDef(sprname, &skins[numskins].spritedef, wadnum, 0, INT16_MAX);
 
 			while (W_CheckNameForNumPwad(wadnum,lastlump) && memcmp(W_CheckNameForNumPwad(wadnum, lastlump),sprname,4)==0)
 				lastlump++;

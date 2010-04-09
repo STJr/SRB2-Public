@@ -113,16 +113,16 @@ void G_MapEventsToControls(event_t *ev)
 			i = ev->data1;
 			if (i >= JOYAXISSET)
 				break;
-			if (ev->data2 != MAXINT) joyxmove[i] = ev->data2;
-			if (ev->data3 != MAXINT) joyymove[i] = ev->data3;
+			if (ev->data2 != INT32_MAX) joyxmove[i] = ev->data2;
+			if (ev->data3 != INT32_MAX) joyymove[i] = ev->data3;
 			break;
 
 		case ev_joystick2: // buttons are virtual keys
 			i = ev->data1;
 			if (i >= JOYAXISSET)
 				break;
-			if (ev->data2 != MAXINT) joy2xmove[i] = ev->data2;
-			if (ev->data3 != MAXINT) joy2ymove[i] = ev->data3;
+			if (ev->data2 != INT32_MAX) joy2xmove[i] = ev->data2;
+			if (ev->data3 != INT32_MAX) joy2ymove[i] = ev->data3;
 			break;
 
 		case ev_mouse2: // buttons are virtual keys

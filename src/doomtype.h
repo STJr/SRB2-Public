@@ -63,6 +63,7 @@ typedef long ssize_t;
 #define INT64  int64
 #define UINT64 uint64
 #else
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 
 #define ULONG uint32_t
@@ -188,41 +189,45 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 
 typedef ULONG tic_t;
 
-#include <limits.h>
-
-#ifdef MAXCHAR
-#undef MAXCHAR
+/* 7.18.2.1  Limits of exact-width integer types */
+#ifndef INT8_MIN
+#define INT8_MIN (-128) 
 #endif
-#ifdef MAXSHORT
-#undef MAXSHORT
+#ifndef INT16_MIN
+#define INT16_MIN (-32768)
 #endif
-#ifdef MAXINT
-#undef MAXINT
+#ifndef INT32_MIN
+#define INT32_MIN (-2147483647 - 1)
 #endif
-#ifdef MAXLONG
-#undef MAXLONG
-#endif
-#ifdef MINCHAR
-#undef MINCHAR
-#endif
-#ifdef MINSHORT
-#undef MINSHORT
-#endif
-#ifdef MININT
-#undef MININT
-#endif
-#ifdef MINLONG
-#undef MINLONG
+#ifndef INT64_MIN
+#define INT64_MIN  (-9223372036854775807LL - 1)
 #endif
 
-#define MAXCHAR  ((char)0x7f)
-#define MAXSHORT ((INT16)0x7fff)
-#define MAXINT   ((INT32)0x7fffffff)
-#define MAXLONG  ((INT32)0x7fffffff)
-#define MINCHAR  ((char)0x80)
-#define MINSHORT ((INT16)-0x8000)
-#define MININT   ((INT32)0x80000000)
-#define MINLONG  ((INT32)0x80000000)
+#ifndef INT8_MAX
+#define INT8_MAX 127
+#endif
+#ifndef INT16_MAX
+#define INT16_MAX 32767
+#endif
+#ifndef INT32_MAX
+#define INT32_MAX 2147483647
+#endif
+#ifndef INT64_MAX
+#define INT64_MAX 9223372036854775807LL
+#endif
+
+#ifndef UINT8_MAX
+#define UINT8_MAX 0xff /* 255U */
+#endif
+#ifndef UINT16_MAX
+#define UINT16_MAX 0xffff /* 65535U */
+#endif
+#ifndef UINT32_MAX
+#define UINT32_MAX 0xffffffff  /* 4294967295U */
+#endif
+#ifndef UINT64_MAX
+#define UINT64_MAX 0xffffffffffffffffULL /* 18446744073709551615ULL */
+#endif
 
 union FColorRGBA
 {
@@ -247,7 +252,7 @@ typedef enum
 } postimg_t;
 
 typedef ULONG lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
-#define LUMPERROR 0xFFFFFFFF
+#define LUMPERROR UINT32_MAX
 
 #ifdef __BIG_ENDIAN__
 #define UINT2RGBA(a) a

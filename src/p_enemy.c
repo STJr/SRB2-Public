@@ -1790,7 +1790,7 @@ void A_1upThinker(mobj_t *actor)
 	else
 	{
 		INT32 i;
-		fixed_t dist = MAXINT;
+		fixed_t dist = INT32_MAX;
 		fixed_t temp;
 		INT32 closestplayer = 0;
 
@@ -1816,7 +1816,7 @@ void A_1upThinker(mobj_t *actor)
 	}
 	#else
 	INT32 i;
-	fixed_t dist = MAXINT;
+	fixed_t dist = INT32_MAX;
 	fixed_t temp;
 	INT32 closestplayer = 0;
 

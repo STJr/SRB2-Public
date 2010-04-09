@@ -329,7 +329,7 @@ void R_ClearPlanes(void)
 	{
 		floorclip[i] = (INT16)viewheight;
 		ceilingclip[i] = (INT16)con_clipviewtop;
-		frontscale[i] = MAXINT;
+		frontscale[i] = INT32_MAX;
 		for (p = 0; p < MAXFFLOORS; p++)
 		{
 			ffloor[p].f_clip[i] = (INT16)viewheight;

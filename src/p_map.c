@@ -1098,8 +1098,8 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
 						}
 						else
 						{
-							polytop = MAXINT;
-							polybottom = MININT;
+							polytop = INT32_MAX;
+							polybottom = INT32_MIN;
 						}
 
 						thingtop = thing->z + thing->height;
@@ -1302,8 +1302,8 @@ boolean P_CheckCameraPosition(fixed_t x, fixed_t y, camera_t *thiscam)
 						}
 						else
 						{
-							polytop = MAXINT;
-							polybottom = MININT;
+							polytop = INT32_MAX;
+							polybottom = INT32_MIN;
 						}
 
 						thingtop = thiscam->z + thiscam->height;

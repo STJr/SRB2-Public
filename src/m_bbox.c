@@ -30,8 +30,8 @@
 
 void M_ClearBox(fixed_t *box)
 {
-	box[BOXTOP] = box[BOXRIGHT] = MININT;
-	box[BOXBOTTOM] = box[BOXLEFT] = MAXINT;
+	box[BOXTOP] = box[BOXRIGHT] = INT32_MIN;
+	box[BOXBOTTOM] = box[BOXLEFT] = INT32_MAX;
 }
 /**	\brief	The M_AddToBox function
 

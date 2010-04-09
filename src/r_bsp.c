@@ -1017,10 +1017,10 @@ void R_Prep3DFloors(sector_t *sector)
 	sector->lightlist[0].extra_colormap = sector->extra_colormap;
 	sector->lightlist[0].flags = 0;
 
-	maxheight = MAXINT;
+	maxheight = INT32_MAX;
 	for (i = 1; i < count; i++)
 	{
-		bestheight = MAXINT * -1;
+		bestheight = INT32_MAX * -1;
 		best = NULL;
 		for (rover = sector->ffloors; rover; rover = rover->next)
 		{

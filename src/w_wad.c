@@ -128,20 +128,20 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 	UINT16 lump;
 
 	// Check for MAINCFG
-	for (lump = 0;lump != MAXSHORT;lump++)
+	for (lump = 0;lump != INT16_MAX;lump++)
 	{
 		lump = W_CheckNumForNamePwad("MAINCFG", wadnum, lump);
-		if (lump == MAXSHORT)
+		if (lump == INT16_MAX)
 			break;
 		CONS_Printf("Loading main config from %s\n", wadfiles[wadnum]->filename);
 		DEH_LoadDehackedLumpPwad(wadnum, lump);
 	}
 
 	// Check for OBJCTCFG
-	for (lump = 0;lump < MAXSHORT;lump++)
+	for (lump = 0;lump < INT16_MAX;lump++)
 	{
 		lump = W_CheckNumForNamePwad("OBJCTCFG", wadnum, lump);
-		if (lump == MAXSHORT)
+		if (lump == INT16_MAX)
 			break;
 		CONS_Printf("Loading object config from %s\n", wadfiles[wadnum]->filename);
 		DEH_LoadDehackedLumpPwad(wadnum, lump);
@@ -221,7 +221,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	if (numwadfiles >= MAX_WADFILES)
 	{
 		CONS_Printf("Maximum wad files reached\n");
-		return MAXSHORT;
+		return INT16_MAX;
 	}
 
 	strncpy(filenamebuf, filename, MAX_WADPATH);
@@ -242,13 +242,13 @@ UINT16 W_LoadWadFile(const char *filename)
 			if ((handle = fopen(filename, "rb")) == NULL)
 			{
 				CONS_Printf("Can't open %s\n", filename);
-				return MAXSHORT;
+				return INT16_MAX;
 			}
 		}
 		else
 		{
 			CONS_Printf("File %s not found.\n", filename);
-			return MAXSHORT;
+			return INT16_MAX;
 		}
 	}
 
@@ -268,7 +268,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		CONS_Printf("Maximum wad files reached\n");
 		if (handle)
 			fclose(handle);
-		return MAXSHORT;
+		return INT16_MAX;
 	}
 
 	// detect dehacked file with the "soc" extension
@@ -297,7 +297,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		if (fread(&header, 1, sizeof header, handle) < sizeof header)
 		{
 			CONS_Printf("Can't read wad header from %s because %s\n", filename, strerror(ferror(handle)));
-			return MAXSHORT;
+			return INT16_MAX;
 		}
 
 		if (memcmp(header.identification, "ZWAD", 4) == 0)
@@ -307,7 +307,7 @@ UINT16 W_LoadWadFile(const char *filename)
 			&& memcmp(header.identification, "SDLL", 4) != 0)
 		{
 			CONS_Printf("%s doesn't have IWAD or PWAD id\n", filename);
-			return MAXSHORT;
+			return INT16_MAX;
 		}
 
 		header.numlumps = LONG(header.numlumps);
@@ -321,7 +321,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		{
 			CONS_Printf("%s wadfile directory is corrupt; maybe %s\n", filename, strerror(ferror(handle)));
 			free(fileinfov);
-			return MAXSHORT;
+			return INT16_MAX;
 		}
 
 		numlumps = header.numlumps;
@@ -463,7 +463,7 @@ INT32 W_InitMultipleFiles(char **filenames)
 	for (; *filenames; filenames++)
 	{
 		//CONS_Printf("Loading %s\n", *filenames);
-		rc &= (W_LoadWadFile(*filenames) != MAXSHORT) ? 1 : 0;
+		rc &= (W_LoadWadFile(*filenames) != INT16_MAX) ? 1 : 0;
 	}
 
 	if (!numwadfiles)
@@ -520,7 +520,7 @@ UINT16 W_CheckNumForNamePwad(const char *name, UINT16 wad, UINT16 startlump)
 	strupr(uname);
 
 	if (!TestValidLump(wad,0))
-		return MAXSHORT;
+		return INT16_MAX;
 
 	//
 	// scan forward
@@ -538,7 +538,7 @@ UINT16 W_CheckNumForNamePwad(const char *name, UINT16 wad, UINT16 startlump)
 	}
 
 	// not found.
-	return MAXSHORT;
+	return INT16_MAX;
 }
 
 //
@@ -548,16 +548,16 @@ UINT16 W_CheckNumForNamePwad(const char *name, UINT16 wad, UINT16 startlump)
 lumpnum_t W_CheckNumForName(const char *name)
 {
 	INT32 i;
-	lumpnum_t check = MAXSHORT;
+	lumpnum_t check = INT16_MAX;
 
 	// scan wad files backwards so patch lump files take precedence
 	for (i = numwadfiles - 1; i >= 0; i--)
 	{
 		check = W_CheckNumForNamePwad(name,(UINT16)i,0);
-		if (check != MAXSHORT)
+		if (check != INT16_MAX)
 			break; //found it
 	}
-	if (check == MAXSHORT) return LUMPERROR;
+	if (check == INT16_MAX) return LUMPERROR;
 	else return (i<<16)+check;
 }
 
@@ -994,7 +994,7 @@ static int W_VerifyFile(const char *filename, lumpchecklist_t *checklist,
 
 		// read the header
 		if (fread(&header, 1, sizeof header, handle) == sizeof header
-			&& header.numlumps < MAXSHORT
+			&& header.numlumps < INT16_MAX
 			&& strncmp(header.identification, "ZWAD", 4)
 			&& strncmp(header.identification, "IWAD", 4)
 			&& strncmp(header.identification, "PWAD", 4)

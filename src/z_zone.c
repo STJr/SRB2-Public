@@ -308,7 +308,7 @@ void Z_CheckMemCleanup(void)
 	if (nextcleanup-- == 0)
 	{
 		nextcleanup = CLEANUPCOUNT;
-		Z_FreeTags(PU_PURGELEVEL, MAXINT);
+		Z_FreeTags(PU_PURGELEVEL, INT32_MAX);
 	}
 }
 
@@ -421,14 +421,14 @@ void Command_Memfree_f(void)
 
 	Z_CheckHeap(-1);
 	CONS_Printf("\2Memory Info\n");
-	CONS_Printf("Total heap used   : %7"PRIdS" KB\n", Z_TagsUsage(0, MAXINT)>>10);
+	CONS_Printf("Total heap used   : %7"PRIdS" KB\n", Z_TagsUsage(0, INT32_MAX)>>10);
 	CONS_Printf("Static            : %7"PRIdS" KB\n", Z_TagUsage(PU_STATIC)>>10);
 	CONS_Printf("Static (sound)    : %7"PRIdS" KB\n", Z_TagUsage(PU_SOUND)>>10);
 	CONS_Printf("Static (music)    : %7"PRIdS" KB\n", Z_TagUsage(PU_MUSIC)>>10);
 	CONS_Printf("Level             : %7"PRIdS" KB\n", Z_TagUsage(PU_LEVEL)>>10);
 	CONS_Printf("Special thinker   : %7"PRIdS" KB\n", Z_TagUsage(PU_LEVSPEC)>>10);
 	CONS_Printf("All purgable      : %7"PRIdS" KB\n",
-		Z_TagsUsage(PU_PURGELEVEL, MAXINT)>>10);
+		Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10);
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)

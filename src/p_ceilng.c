@@ -85,7 +85,7 @@ void T_MoveCeiling(ceiling_t *ceiling)
 						break;
 					case moveCeilingByFrontSector:
 						if (ceiling->texture < -1) // chained linedef executing
-							P_LinedefExecute(ceiling->texture + MAXSHORT + 2, NULL, NULL);
+							P_LinedefExecute(ceiling->texture + INT16_MAX + 2, NULL, NULL);
 						if (ceiling->texture > -1) // flat changing
 							ceiling->sector->ceilingpic = ceiling->texture;
 						// don't break
@@ -204,7 +204,7 @@ void T_MoveCeiling(ceiling_t *ceiling)
 
 					case moveCeilingByFrontSector:
 						if (ceiling->texture < -1) // chained linedef executing
-							P_LinedefExecute(ceiling->texture + MAXSHORT + 2, NULL, NULL);
+							P_LinedefExecute(ceiling->texture + INT16_MAX + 2, NULL, NULL);
 						if (ceiling->texture > -1) // flat changing
 							ceiling->sector->ceilingpic = ceiling->texture;
 						// don't break
@@ -475,7 +475,7 @@ INT32 EV_DoCeiling(line_t *line, ceiling_e type)
 			case instantRaise:
 				ceiling->topheight = P_FindHighestCeilingSurrounding(sec);
 				ceiling->direction = 1;
-				ceiling->speed = MAXINT/2;
+				ceiling->speed = INT32_MAX/2;
 				break;
 
 			//  Linedef executor excellence
@@ -513,7 +513,7 @@ INT32 EV_DoCeiling(line_t *line, ceiling_e type)
 
 			// More linedef executor junk
 			case instantMoveCeilingByFrontSector:
-				ceiling->speed = MAXINT/2;
+				ceiling->speed = INT32_MAX/2;
 
 				if (line->frontsector->ceilingheight >= sec->ceilingheight) // Move up
 				{

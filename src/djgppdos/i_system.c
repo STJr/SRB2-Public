@@ -1694,7 +1694,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 		             (unsigned long)df.bytes_per_sector *
 		             (unsigned long)df.sectors_per_cluster;
 	else
-		*freespace = MAXINT;
+		*freespace = INT32_MAX;
 }
 
 char *I_GetUserName(void)

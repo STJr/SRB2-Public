@@ -1482,7 +1482,7 @@ static void HU_DrawRankings(void)
 		tab[i].name = 0;
 
 		if (gametype == GT_RACE && !circuitmap)
-			tab[i].count = MAXINT;
+			tab[i].count = INT32_MAX;
 	}
 
 	for (j = 0; j < MAXPLAYERS; j++)

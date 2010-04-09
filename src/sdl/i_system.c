@@ -2440,13 +2440,13 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #if defined (SOLARIS) || defined (__HAIKU__)
-	*freespace = MAXINT;
+	*freespace = INT32_MAX;
 	return;
 #else // Both Linux and BSD have this, apparently.
 	struct statfs stfs;
 	if (statfs(".", &stfs) == -1)
 	{
-		*freespace = MAXINT;
+		*freespace = INT32_MAX;
 		return;
 	}
 	*freespace = stfs.f_bavail * stfs.f_bsize;
@@ -2466,7 +2466,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 		if (pfnGetDiskFreeSpaceEx(NULL, &lfreespace, &usedbytes, NULL))
 			*freespace = lfreespace.QuadPart;
 		else
-			*freespace = MAXINT;
+			*freespace = INT32_MAX;
 	}
 	else
 	{

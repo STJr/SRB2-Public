@@ -169,8 +169,8 @@ boolean P_PlayerMoving(INT32 pnum);
 //
 // P_MOBJ
 //
-#define ONFLOORZ MININT
-#define ONCEILINGZ MAXINT
+#define ONFLOORZ INT32_MIN
+#define ONCEILINGZ INT32_MAX
 
 // Time interval for item respawning.
 // WARNING MUST be a power of 2

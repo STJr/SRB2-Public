@@ -973,7 +973,7 @@ void P_AddPlayerScore(player_t *player, ULONG amount)
 {
 	ULONG oldscore = player->score;
 
-	if (player->score + amount < MAXLONG)
+	if (player->score + amount < INT32_MAX)
 		player->score += amount;
 	else
 		player->score = 0;
@@ -7468,8 +7468,8 @@ if (gametype == GT_TAG)
 							}
 							else
 							{
-								polytop = MAXINT;
-								polybottom = MININT;
+								polytop = INT32_MAX;
+								polybottom = INT32_MIN;
 							}
 
 							if (player->mo->eflags & MFE_VERTICALFLIP)
@@ -9343,8 +9343,8 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 						}
 						else
 						{
-							polytop = MAXINT;
-							polybottom = MININT;
+							polytop = INT32_MAX;
+							polybottom = INT32_MIN;
 						}
 
 						thingtop = midz + thiscam->height;

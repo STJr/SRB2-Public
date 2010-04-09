@@ -1333,7 +1333,7 @@ static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, f
 static void P_CreateBlockMap(void)
 {
 	register size_t i;
-	fixed_t minx = MAXINT, miny = MAXINT, maxx = MININT, maxy = MININT;
+	fixed_t minx = INT32_MAX, miny = INT32_MAX, maxx = INT32_MIN, maxy = INT32_MIN;
 	// First find limits of map
 
 	for (i = 0; i < numvertexes; i++)
@@ -2336,7 +2336,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 	boolean texturechange = false;
 	boolean replacedcurrentmap = false;
 
-	if ((numlumps = W_LoadWadFile(wadfilename)) == MAXSHORT)
+	if ((numlumps = W_LoadWadFile(wadfilename)) == UINT16_MAX)
 	{
 		CONS_Printf("couldn't load wad file %s\n", wadfilename);
 		return false;

@@ -3519,7 +3519,7 @@ void I_GetDiskFreeSpace(INT64* freespace)
 		if (pfnGetDiskFreeSpaceEx(NULL, &lfreespace, &usedbytes, NULL))
 			*freespace = lfreespace.QuadPart;
 		else
-			*freespace = MAXINT;
+			*freespace = INT32_MAX;
 	}
 	else
 	{

@@ -846,7 +846,7 @@ static void Polyobj_linkToBlockmap(polyobj_t *po)
 	if (po->isBad || po->linked)
 		return;
 
-	// 2/26/06: start line box with values of first vertex, not MININT/MAXINT
+	// 2/26/06: start line box with values of first vertex, not INT32_MIN/INT32_MAX
 	blockbox[BOXLEFT]   = blockbox[BOXRIGHT] = po->vertices[0]->x;
 	blockbox[BOXBOTTOM] = blockbox[BOXTOP]   = po->vertices[0]->y;
 

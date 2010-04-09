@@ -243,7 +243,7 @@ static void R_Render2sidedMultiPatchColumn(column_t *column)
 	dc_yl = (sprtopscreen+FRACUNIT-1)>>FRACBITS;
 	dc_yh = (bottomscreen-1)>>FRACBITS;
 
-	if (windowtop != MAXINT && windowbottom != MAXINT)
+	if (windowtop != INT32_MAX && windowbottom != INT32_MAX)
 	{
 		dc_yl = ((windowtop + FRACUNIT)>>FRACBITS);
 		dc_yh = (windowbottom - 1)>>FRACBITS;
@@ -289,7 +289,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 	frontsector = curline->frontsector;
 	backsector = curline->backsector;
 	texnum = texturetranslation[curline->sidedef->midtexture];
-	windowbottom = windowtop = sprbotscreen = MAXINT;
+	windowbottom = windowtop = sprbotscreen = INT32_MAX;
 
 	// hack translucent linedef types (900-909 for transtables 1-9)
 	ldef = curline->linedef;
@@ -499,13 +499,13 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 		for (dc_x = x1; dc_x <= x2; dc_x++)
 		{
 			// calculate lighting
-			if (maskedtexturecol[dc_x] != MAXSHORT)
+			if (maskedtexturecol[dc_x] != INT16_MAX)
 			{
 				if (dc_numlights)
 				{
 					lighttable_t **xwalllights;
 
-					sprbotscreen = MAXINT;
+					sprbotscreen = INT32_MAX;
 					sprtopscreen = windowtop = (centeryfrac - FixedMul(dc_texturemid, spryscale));
 
 					realbot = windowbottom = FixedMul(textureheight[texnum], spryscale) + sprtopscreen;
@@ -597,7 +597,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 					fixed_t my_yl, my_yh;
 
 					my_topscreen = sprtopscreen + spryscale*col->topdelta;
-					my_bottomscreen = sprbotscreen == MAXINT ? my_topscreen + spryscale*col->length
+					my_bottomscreen = sprbotscreen == INT32_MAX ? my_topscreen + spryscale*col->length
 					                                         : sprbotscreen + spryscale*col->length;
 
 					my_yl = (my_topscreen+FRACUNIT-1)>>FRACBITS;
@@ -847,7 +847,7 @@ void R_RenderThickSideRange(drawseg_t *ds, INT32 x1, INT32 x2, ffloor_t *pfloor)
 	// draw the columns
 	for (dc_x = x1; dc_x <= x2; dc_x++)
 	{
-		if (maskedtexturecol[dc_x] != MAXSHORT)
+		if (maskedtexturecol[dc_x] != INT16_MAX)
 		{
 			// SoM: New code does not rely on R_DrawColumnShadowed_8 which
 			// will (hopefully) put less strain on the stack.
@@ -998,8 +998,8 @@ void R_RenderThickSideRange(drawseg_t *ds, INT32 x1, INT32 x2, ffloor_t *pfloor)
 
 			//Handle over/underflows before they happen.  This fixes the textures part of the FOF rendering bug.
 			//...for the most part, anyway.
-			if (((signed)dc_texturemid > 0 && (spryscale>>FRACBITS > MAXINT / (signed)dc_texturemid))
-			 || ((signed)dc_texturemid < 0 && (spryscale) && (signed)(dc_texturemid)>>FRACBITS < (MININT / spryscale)))
+			if (((signed)dc_texturemid > 0 && (spryscale>>FRACBITS > INT32_MAX / (signed)dc_texturemid))
+			 || ((signed)dc_texturemid < 0 && (spryscale) && (signed)(dc_texturemid)>>FRACBITS < (INT32_MIN / spryscale)))
 			{
 				spryscale += rw_scalestep;
 				continue;
@@ -1518,8 +1518,8 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		ds_p->silhouette = SIL_BOTH;
 		ds_p->sprtopclip = screenheightarray;
 		ds_p->sprbottomclip = negonearray;
-		ds_p->bsilheight = MAXINT;
-		ds_p->tsilheight = MININT;
+		ds_p->bsilheight = INT32_MAX;
+		ds_p->tsilheight = INT32_MIN;
 	}
 	else
 	{
@@ -1535,7 +1535,7 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		else if (backsector->floorheight > viewz)
 		{
 			ds_p->silhouette = SIL_BOTTOM;
-			ds_p->bsilheight = MAXINT;
+			ds_p->bsilheight = INT32_MAX;
 			// ds_p->sprbottomclip = negonearray;
 		}
 
@@ -1547,21 +1547,21 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		else if (backsector->ceilingheight < viewz)
 		{
 			ds_p->silhouette |= SIL_TOP;
-			ds_p->tsilheight = MININT;
+			ds_p->tsilheight = INT32_MIN;
 			// ds_p->sprtopclip = screenheightarray;
 		}
 
 		if (backsector->ceilingheight <= frontsector->floorheight)
 		{
 			ds_p->sprbottomclip = negonearray;
-			ds_p->bsilheight = MAXINT;
+			ds_p->bsilheight = INT32_MAX;
 			ds_p->silhouette |= SIL_BOTTOM;
 		}
 
 		if (backsector->floorheight >= frontsector->ceilingheight)
 		{
 			ds_p->sprtopclip = screenheightarray;
-			ds_p->tsilheight = MININT;
+			ds_p->tsilheight = INT32_MIN;
 			ds_p->silhouette |= SIL_TOP;
 		}
 
@@ -1572,13 +1572,13 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 			if (doorclosed || backsector->ceilingheight <= frontsector->floorheight)
 			{
 				ds_p->sprbottomclip = negonearray;
-				ds_p->bsilheight = MAXINT;
+				ds_p->bsilheight = INT32_MAX;
 				ds_p->silhouette |= SIL_BOTTOM;
 			}
 			if (doorclosed || backsector->floorheight >= frontsector->ceilingheight)
 			{                   // killough 1/17/98, 2/8/98
 				ds_p->sprtopclip = screenheightarray;
-				ds_p->tsilheight = MININT;
+				ds_p->tsilheight = INT32_MIN;
 				ds_p->silhouette |= SIL_TOP;
 			}
 		}
@@ -2212,12 +2212,12 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 	if (maskedtexture && !(ds_p->silhouette & SIL_TOP))
 	{
 		ds_p->silhouette |= SIL_TOP;
-		ds_p->tsilheight = sidedef->midtexture ? MININT: MAXINT;
+		ds_p->tsilheight = sidedef->midtexture ? INT32_MIN: INT32_MAX;
 	}
 	if (maskedtexture && !(ds_p->silhouette & SIL_BOTTOM))
 	{
 		ds_p->silhouette |= SIL_BOTTOM;
-		ds_p->bsilheight = sidedef->midtexture ? MAXINT: MININT;
+		ds_p->bsilheight = sidedef->midtexture ? INT32_MAX: INT32_MIN;
 	}
 	ds_p++;
 }
