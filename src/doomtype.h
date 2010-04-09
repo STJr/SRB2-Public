@@ -181,8 +181,6 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 	//#endif // __cplusplus
 #endif // __BYTEBOOL__
 
-typedef UINT32 tic_t;
-
 /* 7.18.2.1  Limits of exact-width integer types */
 #ifndef INT8_MIN
 #define INT8_MIN (-128) 
@@ -247,6 +245,9 @@ typedef enum
 
 typedef UINT32 lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 #define LUMPERROR UINT32_MAX
+
+typedef UINT32 tic_t;
+#define INFTICS UINT32_MAX
 
 #ifdef __BIG_ENDIAN__
 #define UINT2RGBA(a) a

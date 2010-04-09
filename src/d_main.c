@@ -502,7 +502,7 @@ boolean supdate;
 
 void D_SRB2Loop(void)
 {
-	tic_t oldentertics = 0, entertic = 0, realtics = 0, rendertimeout = (tic_t)-1;
+	tic_t oldentertics = 0, entertic = 0, realtics = 0, rendertimeout = INFTICS;
 
 	if (demorecording)
 		G_BeginRecording();

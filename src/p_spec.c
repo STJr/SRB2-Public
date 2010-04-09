@@ -4399,7 +4399,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 
 	ffloor->flags = flags;
 	ffloor->master = master;
-	ffloor->norender = (tic_t)-1;
+	ffloor->norender = INFTICS;
 
 	// scan the thinkers
 	// to see if this FOF should have spikeness
