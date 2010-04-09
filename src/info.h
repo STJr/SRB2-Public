@@ -23,6 +23,7 @@
 // Needed for action function pointer handling.
 #include "d_think.h"
 #include "sounds.h"
+#include "m_fixed.h"
 
 // IMPORTANT NOTE: If you add/remove from this list of action
 // functions, don't forget to update them in dehacked.c!
