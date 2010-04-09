@@ -30,6 +30,7 @@
 #define ATTRPACK
 #endif
 
+#define INT16 short
 #define UINT16 unsigned short
 #define ULONG unsigned long
 
