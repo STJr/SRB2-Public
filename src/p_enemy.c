@@ -5294,15 +5294,15 @@ void A_SmokeTrailer(mobj_t *actor)
 //
 void A_SpawnObjectAbsolute(mobj_t *actor)
 {
-	signed short x, y, z; // Want to be sure we can use negative values
+	INT16 x, y, z; // Want to be sure we can use negative values
 	mobjtype_t type;
 	mobj_t *mo;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
-	x = (signed short)(locvar1>>16);
-	y = (signed short)(locvar1&65535);
-	z = (signed short)(locvar2>>16);
+	x = (INT16)(locvar1>>16);
+	y = (INT16)(locvar1&65535);
+	z = (INT16)(locvar2>>16);
 	type = (mobjtype_t)(locvar2&65535);
 
 	mo = P_SpawnMobj(x<<FRACBITS, y<<FRACBITS, z<<FRACBITS, type);
@@ -5322,7 +5322,7 @@ void A_SpawnObjectAbsolute(mobj_t *actor)
 //
 void A_SpawnObjectRelative(mobj_t *actor)
 {
-	signed short x, y, z; // Want to be sure we can use negative values
+	INT16 x, y, z; // Want to be sure we can use negative values
 	mobjtype_t type;
 	mobj_t *mo;
 	INT32 locvar1 = var1;
@@ -5331,9 +5331,9 @@ void A_SpawnObjectRelative(mobj_t *actor)
 	if (cv_debug)
 		CONS_Printf("A_SpawnObjectRelative called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
 
-	x = (signed short)(locvar1>>16);
-	y = (signed short)(locvar1&65535);
-	z = (signed short)(locvar2>>16);
+	x = (INT16)(locvar1>>16);
+	y = (INT16)(locvar1&65535);
+	z = (INT16)(locvar2>>16);
 	type = (mobjtype_t)(locvar2&65535);
 
 	mo = P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), actor->z + (z<<FRACBITS), type);

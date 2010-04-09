@@ -257,11 +257,11 @@ extern INT32 nummaprings; //keep track of spawned rings/coins
   */
 typedef struct
 {
-	signed short x; ///< X coordinate.
-	signed short y; ///< Y coordinate.
-	signed short z; ///< Z coordinate.
+	INT16 x; ///< X coordinate.
+	INT16 y; ///< Y coordinate.
+	INT16 z; ///< Z coordinate.
 	byte player;    ///< Player who can access this emblem.
-	signed short level;     ///< Level on which this emblem/egg can be found.
+	INT16 level;     ///< Level on which this emblem/egg can be found.
 	boolean collected; ///< Do you have this emblem?
 } emblem_t;
 

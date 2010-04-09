@@ -3191,7 +3191,7 @@ static void P_NiGHTSMovement(player_t *player)
 {
 	int drillamt = 0;
 	boolean still = false, moved = false, backwardaxis = false, firstdrill;
-	signed short newangle = 0;
+	INT16 newangle = 0;
 	fixed_t xspeed, yspeed;
 	thinker_t *th;
 	mobj_t *mo2;
@@ -3544,7 +3544,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 		if (cmd->sidemove != 0)
 		{
-			newangle = (signed short)FixedInt(AngleFixed(R_PointToAngle2(0,0, cmd->sidemove*FRACUNIT, cmd->forwardmove*FRACUNIT)));
+			newangle = (INT16)FixedInt(AngleFixed(R_PointToAngle2(0,0, cmd->sidemove*FRACUNIT, cmd->forwardmove*FRACUNIT)));
 		}
 		else if (cmd->forwardmove > 0)
 			newangle = 90;
@@ -3552,7 +3552,7 @@ static void P_NiGHTSMovement(player_t *player)
 			newangle = 269;
 
 		if (newangle < 0 && moved)
-			newangle = (signed short)(360+newangle);
+			newangle = (INT16)(360+newangle);
 	}
 
 	if (player->pflags & PF_DRILLING)

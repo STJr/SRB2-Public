@@ -1146,8 +1146,8 @@ void I_GetMouseEvents()
 
 	r.x.ax=0x0b;           // ask the mouvement not the position
 	__dpmi_int(0x33,&r);
-	xmickeys=(signed short)r.x.cx;
-	ymickeys=(signed short)r.x.dx;
+	xmickeys=(INT16)r.x.cx;
+	ymickeys=(INT16)r.x.dx;
 	r.x.ax=0x03;
 	__dpmi_int(0x33,&r);
 	buttons=r.h.bl;
