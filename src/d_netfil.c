@@ -545,7 +545,7 @@ void FiletxTicker(void)
 				if (filesize >= LONG_MAX)
 					I_Error("filesize of %s is too large", f->filename);
 				if (-1 == filesize)
-					I_Error("Error getting filesize of %s\n", f->filename);
+					I_Error("Error getting filesize of %s", f->filename);
 
 				f->size = (UINT32)filesize;
 				fseek(transfer[i].currentfile, 0, SEEK_SET);
