@@ -30,7 +30,7 @@
 #define ATTRPACK
 #endif
 
-#define USHORT unsigned short
+#define UINT16 unsigned short
 #define ULONG unsigned long
 
 typedef unsigned char byte;
@@ -115,7 +115,7 @@ typedef struct {
 	byte dummy1[3];
 #endif
 	ULONG position;
-	USHORT size;
+	UINT16 size;
 	byte data[0]; // size is variable using hardare_MAXPACKETLENGTH
 #ifdef PACKED
 	byte dummy2[2];

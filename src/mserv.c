@@ -154,7 +154,7 @@ static time_t MSLastPing;
 typedef struct
 {
 	char ip[16];         // Big enough to hold a full address.
-	USHORT port;
+	UINT16 port;
 	byte padding1[2];
 	tic_t time;
 } ATTRPACK ms_holepunch_packet_t;
@@ -748,7 +748,7 @@ static inline void SendPingToMasterServer(void)
 void SendAskInfoViaMS(INT32 node, tic_t asktime)
 {
 	const char *address;
-	USHORT port;
+	UINT16 port;
 	char *inip;
 	ms_holepunch_packet_t mshpp;
 
@@ -764,7 +764,7 @@ void SendAskInfoViaMS(INT32 node, tic_t asktime)
 	*inip = '\0';
 
 	// Get the port.
-	port = (USHORT)(*address++ ? atoi(address) : 0);
+	port = (UINT16)(*address++ ? atoi(address) : 0);
 	mshpp.port = SHORT(port);
 
 	// Set the time for ping calculation.

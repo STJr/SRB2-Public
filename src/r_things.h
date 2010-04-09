@@ -48,8 +48,8 @@ void R_SortVisSprites(void);
 
 //faB: find sprites in wadfile, replace existing, add new ones
 //     (only sprites from namelist are added or replaced)
-void R_AddSpriteDefs(USHORT wadnum);
-void R_DelSpriteDefs(USHORT wadnum);
+void R_AddSpriteDefs(UINT16 wadnum);
+void R_DelSpriteDefs(UINT16 wadnum);
 //SoM: 6/5/2000: Light sprites correctly!
 void R_AddSprites(sector_t *sec, INT32 lightlevel);
 void R_InitSprites(void);
@@ -66,7 +66,7 @@ typedef struct
 {
 	char name[SKINNAMESIZE+1]; // short descriptive name of the skin
 	spritedef_t spritedef;
-	USHORT wadnum;
+	UINT16 wadnum;
 	char sprite[9];
 	char faceprefix[9]; // 8 chars+'\0', default is "SBOSLIFE"
 	char superprefix[9]; // 8 chars+'\0', default is "SUPERICO"
@@ -185,8 +185,8 @@ extern skin_t skins[MAXSKINS + 1];
 void SetPlayerSkin(INT32 playernum,const char *skinname);
 void SetPlayerSkinByNum(INT32 playernum,INT32 skinnum); // Tails 03-16-2002
 INT32 R_SkinAvailable(const char *name);
-void R_AddSkins(USHORT wadnum);
-void R_DelSkins(USHORT wadnum);
+void R_AddSkins(UINT16 wadnum);
+void R_DelSkins(UINT16 wadnum);
 void R_InitDrawNodes(void);
 void SetSavedSkin(INT32 playernum, INT32 skinnum, INT32 skincolor);
 

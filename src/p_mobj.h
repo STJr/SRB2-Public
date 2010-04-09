@@ -318,8 +318,8 @@ typedef struct mobj_s
 
 	ULONG mobjnum; // A unique number for this mobj. Used for restoring pointers on save games.
 
-	USHORT scale;
-	USHORT destscale;
+	UINT16 scale;
+	UINT16 destscale;
 	byte scalespeed;
 
 	// WARNING: New fields must be added separately to savegame.
@@ -400,7 +400,7 @@ void P_SnowThinker(precipmobj_t *mobj);
 void P_RainThinker(precipmobj_t *mobj);
 void P_NullPrecipThinker(precipmobj_t *mobj);
 void P_RemovePrecipMobj(precipmobj_t *mobj);
-void P_SetScale(mobj_t *mobj, USHORT newscale);
+void P_SetScale(mobj_t *mobj, UINT16 newscale);
 void P_XYMovement(mobj_t *mo);
 void P_EmeraldManager(void);
 

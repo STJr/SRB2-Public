@@ -249,7 +249,7 @@ boolean P_BBoxInsidePolyobj(polyobj_t *po, fixed_t *bbox)
 // Finds the 'polyobject settings' linedef that shares the same tag
 // as the polyobj linedef to get the settings for it.
 //
-void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *mirrorID, USHORT *exparg)
+void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *mirrorID, UINT16 *exparg)
 {
 	INT32 i = P_FindSpecialLineFromTag(POLYINFO_SPECIALNUM, tag, -1);
 
@@ -263,7 +263,7 @@ void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *mirrorID, USHORT *exparg)
 		*mirrorID = lines[i].frontsector->special;
 
 	if (exparg)
-		*exparg = (USHORT)lines[i].frontsector->lightlevel;
+		*exparg = (UINT16)lines[i].frontsector->lightlevel;
 }
 
 // Reallocating array maintenance
@@ -651,7 +651,7 @@ static void Polyobj_spawnPolyObj(INT32 num, mobj_t *spawnSpot, INT32 id)
 	//    sorted order.
 	if (po->segCount == 0)
 	{
-		USHORT parent;
+		UINT16 parent;
 		Polyobj_findExplicit(po);
 		// if an error occurred above, quit processing this object
 		if (po->isBad)

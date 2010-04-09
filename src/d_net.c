@@ -147,8 +147,8 @@ typedef struct
 	byte nextacknum;
 	byte destinationnode;
 	tic_t senttime;
-	USHORT length;
-	USHORT resentnum;
+	UINT16 length;
+	UINT16 resentnum;
 	union {
 		char raw[MAXPACKETLENGTH];
 		doomdata_t data;
@@ -774,7 +774,7 @@ static void DebugPrintpacket(const char *header)
 			break;
 		case PT_FILEFRAGMENT:
 			fprintf(debugfile, "    fileid %d datasize %d position %u\n",
-				netbuffer->u.filetxpak.fileid, (USHORT)SHORT(netbuffer->u.filetxpak.size),
+				netbuffer->u.filetxpak.fileid, (UINT16)SHORT(netbuffer->u.filetxpak.size),
 				(ULONG)LONG(netbuffer->u.filetxpak.position));
 			break;
 		case PT_REQUESTFILE:
@@ -1041,7 +1041,7 @@ boolean D_CheckNetGame(void)
 				p = 75;
 			if (p > hardware_MAXPACKETLENGTH)
 				p = hardware_MAXPACKETLENGTH;
-			software_MAXPACKETLENGTH = (USHORT)p;
+			software_MAXPACKETLENGTH = (UINT16)p;
 		}
 		else
 			I_Error("usage: -packetsize <bytes_per_packet>");

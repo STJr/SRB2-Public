@@ -611,7 +611,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fi
 		{
 			// BP: i think this code is useless and wrong because
 			// - bspnum==-1 happens only when numsubsectors == 0
-			// - it can't happens in bsp recursive call since bspnum is a INT32 and children is USHORT
+			// - it can't happens in bsp recursive call since bspnum is a INT32 and children is UINT16
 			// - the BSP is complet !! (there just can have subsector without segs) (i am not sure of this point)
 
 			// do we have a valid polygon ?
@@ -622,7 +622,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, unsigned short *leafnode, fi
 					I_Error("WalkBSPNode: not enough addsubsectors\n");
 				else if (addsubsector > 0x7fff)
 					I_Error("WalkBSPNode: addsubsector > 0x7fff\n");
-				*leafnode = (USHORT)((USHORT)addsubsector | NF_SUBSECTOR);
+				*leafnode = (UINT16)((UINT16)addsubsector | NF_SUBSECTOR);
 				extrasubsectors[addsubsector].planepoly = poly;
 				addsubsector++;
 			}

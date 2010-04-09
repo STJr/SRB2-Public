@@ -187,8 +187,8 @@ typedef struct {
 #endif
 
 typedef struct {
-	USHORT l; // liitle endian
-	USHORT b; // big enian
+	UINT16 l; // liitle endian
+	UINT16 b; // big enian
 } ATTRPACK changeteam_value_t;
 
 //Since we do not want other files/modules to know about this data buffer we union it here with a Short Int.

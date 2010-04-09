@@ -467,7 +467,7 @@ typedef struct mprecipsecnode_s
 // that's why it's moved here
 typedef struct light_s
 {
-	USHORT type;          // light,... (cfr #define in hwr_light.c)
+	UINT16 type;          // light,... (cfr #define in hwr_light.c)
 
 	float light_xoffset;
 	float light_yoffset;  // y offset to adjust corona's height

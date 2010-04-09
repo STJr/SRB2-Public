@@ -76,8 +76,8 @@ typedef struct
 // Store lists of lumps for F_START/F_END etc.
 typedef struct
 {
-	USHORT wadfile;
-	USHORT firstlump;
+	UINT16 wadfile;
+	UINT16 firstlump;
 	size_t numlumps;
 } lumplist_t;
 
@@ -436,7 +436,7 @@ void R_LoadTextures(void)
 static inline lumpnum_t R_CheckNumForNameList(char *name, lumplist_t *list, size_t listsize)
 {
 	size_t i;
-	USHORT lump;
+	UINT16 lump;
 
 	for (i = listsize - 1; i < MAXSHORT; i--)
 	{
@@ -455,7 +455,7 @@ static size_t numcolormaplumps = 0;
 static void R_InitExtraColormaps(void)
 {
 	lumpnum_t startnum, endnum;
-	USHORT cfile, clump;
+	UINT16 cfile, clump;
 	size_t maxcolormaplumps = 16;
 
 	for (cfile = clump = 0; cfile < numwadfiles; cfile++, clump = 0)
@@ -734,11 +734,11 @@ INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 
 	// aligned on 8 bit for asm code
 	extra_colormaps[mapnum].colormap = NULL;
-	extra_colormaps[mapnum].maskcolor = (USHORT)maskcolor;
-	extra_colormaps[mapnum].fadecolor = (USHORT)fadecolor;
+	extra_colormaps[mapnum].maskcolor = (UINT16)maskcolor;
+	extra_colormaps[mapnum].fadecolor = (UINT16)fadecolor;
 	extra_colormaps[mapnum].maskamt = maskamt;
-	extra_colormaps[mapnum].fadestart = (USHORT)fadestart;
-	extra_colormaps[mapnum].fadeend = (USHORT)fadeend;
+	extra_colormaps[mapnum].fadestart = (UINT16)fadestart;
+	extra_colormaps[mapnum].fadeend = (UINT16)fadeend;
 	extra_colormaps[mapnum].fog = fog;
 
 	return (INT32)mapnum;
@@ -877,11 +877,11 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 
 	// aligned on 8 bit for asm code
 	extra_colormaps[mapnum].colormap = NULL;
-	extra_colormaps[mapnum].maskcolor = (USHORT)maskcolor;
-	extra_colormaps[mapnum].fadecolor = (USHORT)fadecolor;
+	extra_colormaps[mapnum].maskcolor = (UINT16)maskcolor;
+	extra_colormaps[mapnum].fadecolor = (UINT16)fadecolor;
 	extra_colormaps[mapnum].maskamt = maskamt;
-	extra_colormaps[mapnum].fadestart = (USHORT)fadestart;
-	extra_colormaps[mapnum].fadeend = (USHORT)fadeend;
+	extra_colormaps[mapnum].fadestart = (UINT16)fadestart;
+	extra_colormaps[mapnum].fadeend = (UINT16)fadeend;
 	extra_colormaps[mapnum].fog = fog;
 
 #define ABS2(x) ((x) < 0 ? -(x) : (x))
@@ -1043,7 +1043,7 @@ void R_InitData(void)
 //
 // Check whether texture is available. Filter out NoTexture indicator.
 //
-INT32 R_CheckTextureNumForName(const char *name, USHORT sidenum)
+INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 {
 	size_t i;
 
@@ -1097,7 +1097,7 @@ INT32 R_CheckTextureNumForName(const char *name, USHORT sidenum)
 //
 // Calls R_CheckTextureNumForName, aborts with error message.
 //
-INT32 R_TextureNumForName(const char *name, USHORT sidenum)
+INT32 R_TextureNumForName(const char *name, UINT16 sidenum)
 {
 	const INT32 i = R_CheckTextureNumForName(name, sidenum);
 

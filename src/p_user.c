@@ -87,7 +87,7 @@ void P_Thrust(mobj_t *mo, angle_t angle, fixed_t move)
 // Properly adds/subtracts the correct amount to scale an mobj's momentum.
 //
 // todo: refit the rest of the code to use this.
-fixed_t P_ScaleMomentum(USHORT scale, fixed_t momentum)
+fixed_t P_ScaleMomentum(UINT16 scale, fixed_t momentum)
 {
 	//Simply scaling the momentum by your scale value causes jump heights to be highly skewed.
 	//Before, scale 50 would chop your height in a quarter,
@@ -4625,10 +4625,10 @@ static void P_NiGHTSMovement(player_t *player)
 		{
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
-			USHORT angle;
+			UINT16 angle;
 			short temp;
 
-			angle = (USHORT)(player->anotherflyangle % 360);
+			angle = (UINT16)(player->anotherflyangle % 360);
 
 			oldmapthings = mapthings;
 			nummapthings++;
@@ -4660,7 +4660,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 			mt->type = 1705;
 
-			mt->options = (USHORT)((player->mo->z -
+			mt->options = (UINT16)((player->mo->z -
 				player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			/*'Fixed' version that doesn't work
@@ -4704,9 +4704,9 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->y = (short)(player->mo->y>>FRACBITS);
 			mt->angle = (short)(FixedInt(AngleFixed(player->mo->angle)));
 
-			mt->type = (USHORT)mobjinfo[MT_NIGHTSBUMPER].doomednum;
+			mt->type = (UINT16)mobjinfo[MT_NIGHTSBUMPER].doomednum;
 
-			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (UINT16)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			mt->options <<= ZSHIFT;
 
@@ -4738,12 +4738,12 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->x = (short)(player->mo->x>>FRACBITS);
 			mt->y = (short)(player->mo->y>>FRACBITS);
 			mt->angle = 0;
-			mt->type = (USHORT)mobjinfo[MT_RING].doomednum;
+			mt->type = (UINT16)mobjinfo[MT_RING].doomednum;
 
-			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (UINT16)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 			mt->options <<= ZSHIFT;
 
-			mt->options = (USHORT)(mt->options + (USHORT)cv_objflags.value);
+			mt->options = (UINT16)(mt->options + (UINT16)cv_objflags.value);
 			P_SpawnHoopsAndRings(mt);
 
 			player->dbginfo = true;
@@ -4772,15 +4772,15 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->x = (short)(player->mo->x>>FRACBITS);
 			mt->y = (short)(player->mo->y>>FRACBITS);
 			mt->angle = 0;
-			mt->type = (USHORT)mobjinfo[MT_NIGHTSWING].doomednum;
+			mt->type = (UINT16)mobjinfo[MT_NIGHTSWING].doomednum;
 
-			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (UINT16)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			CONS_Printf("Z is %d\n", mt->options);
 
 			mt->options <<= ZSHIFT;
 
-			mt->options = (USHORT)(mt->options + (USHORT)cv_objflags.value);
+			mt->options = (UINT16)(mt->options + (UINT16)cv_objflags.value);
 
 			P_SpawnHoopsAndRings(mt);
 
@@ -4795,9 +4795,9 @@ static void P_NiGHTSMovement(player_t *player)
 			mapthing_t *mt;
 			mapthing_t *oldmapthings;
 			INT32 shift;
-			USHORT angle;
+			UINT16 angle;
 
-			angle = (USHORT)((360-player->anotherflyangle) % 360);
+			angle = (UINT16)((360-player->anotherflyangle) % 360);
 			if (angle > 90 && angle < 270)
 			{
 				angle += 180;
@@ -4805,10 +4805,10 @@ static void P_NiGHTSMovement(player_t *player)
 			}
 
 			if (player->mo->target->flags & MF_AMBUSH)
-				angle = (USHORT)player->anotherflyangle;
+				angle = (UINT16)player->anotherflyangle;
 			else
 			{
-				angle = (USHORT)((360-player->anotherflyangle) % 360);
+				angle = (UINT16)((360-player->anotherflyangle) % 360);
 				if (angle > 90 && angle < 270)
 				{
 					angle += 180;
@@ -4844,7 +4844,7 @@ static void P_NiGHTSMovement(player_t *player)
 			mt->angle = angle;
 			mt->type = (short)cv_mapthingnum.value;
 
-			mt->options = (USHORT)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
+			mt->options = (UINT16)((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS);
 
 			if (mt->type == 200 || mt->type == 201) // Eggmobile 1 & 2
 				shift = ZSHIFT+1; // Why you would want to place these in a NiGHTS map, I have NO idea!
@@ -4858,7 +4858,7 @@ static void P_NiGHTSMovement(player_t *player)
 			else
 				mt->options = 0;
 
-			mt->options = (USHORT)(mt->options + (USHORT)cv_objflags.value);
+			mt->options = (UINT16)(mt->options + (UINT16)cv_objflags.value);
 
 			if (mt->type == 1705 || mt->type == 600 || mt->type == 601 || mt->type == 602
 				|| mt->type == 603 || mt->type == 604 || mt->type == 300 || mt->type == 605

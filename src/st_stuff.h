@@ -128,6 +128,6 @@ typedef enum
 
 extern hudinfo_t hudinfo[NUMHUDITEMS];
 
-extern USHORT objectsdrawn;
+extern UINT16 objectsdrawn;
 
 #endif

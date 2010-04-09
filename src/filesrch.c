@@ -45,8 +45,8 @@
 struct dirent
 {
 	long		d_ino;		/* Always zero. */
-	USHORT	d_reclen;	/* Always zero. */
-	USHORT	d_namlen;	/* Length of name in d_name. */
+	unsigned short	d_reclen;	/* Always zero. */
+	unsigned short	d_namlen;	/* Length of name in d_name. */
 	char		d_name[FILENAME_MAX]; /* File name. */
 };
 
@@ -243,7 +243,7 @@ readdir (DIR * dirp)
       /* Successfully got an entry. Everything about the file is
        * already appropriately filled in except the length of the
        * file name. */
-      dirp->dd_dir.d_namlen = (USHORT)strlen (dirp->dd_dta.name);
+      dirp->dd_dir.d_namlen = (unsigned short)strlen (dirp->dd_dta.name);
       strcpy (dirp->dd_dir.d_name, dirp->dd_dta.name);
       return &dirp->dd_dir;
     }

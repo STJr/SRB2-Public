@@ -147,7 +147,7 @@ static inline void *G_ScpyTiccmd(ticcmd_t* dest, void* src, const size_t n)
 // some software don't support largest packet
 // (original sersetup, not exactely, but the probabylity of sending a packet
 // of 512 octet is like 0.1)
-USHORT software_MAXPACKETLENGTH;
+UINT16 software_MAXPACKETLENGTH;
 
 tic_t ExpandTics(INT32 low)
 {

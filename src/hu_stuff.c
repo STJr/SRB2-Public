@@ -303,7 +303,7 @@ void MatchType_OnChange(void)
 				if (server)
 				{
 					changeteam_union NetPacket;
-					USHORT usvalue;
+					UINT16 usvalue;
 					NetPacket.value.l = NetPacket.value.b = 0;
 
 					NetPacket.packet.playernum = i;

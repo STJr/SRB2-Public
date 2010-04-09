@@ -32,10 +32,10 @@ typedef enum
 } undotype_f;
 
 void DEH_WriteUndoline(const char *value, const char *data, undotype_f flags);
-void DEH_UnloadDehackedWad(USHORT wad);
+void DEH_UnloadDehackedWad(UINT16 wad);
 
 void DEH_LoadDehackedLump(lumpnum_t lumpnum);
-void DEH_LoadDehackedLumpPwad(USHORT wad, USHORT lump);
+void DEH_LoadDehackedLumpPwad(UINT16 wad, UINT16 lump);
 
 extern boolean deh_loaded, modcredits;
 

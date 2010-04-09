@@ -690,7 +690,7 @@ byte *I_AllocLow(int length)
 #ifdef MOUSE2
 static _go32_dpmi_seginfo oldmouseinfo,newmouseinfo;
 static boolean mouse2_started=0;
-static USHORT  mouse2port;
+static UINT16  mouse2port;
 static byte    mouse2irq;
 static volatile int     handlermouse2buttons;
 static volatile int     handlermouse2x,handlermouse2y;
@@ -791,7 +791,7 @@ static inline void I_ShutdownMouse2(void)
 }
 
 static byte   ComIrq[4]={0x0c,0x0b,0x0c,0x0b};
-static USHORT ComPort[4]={0x3F8,0x2F8,0x3E8,0x2E8};
+static UINT16 ComPort[4]={0x3F8,0x2F8,0x3E8,0x2E8};
 //
 //  Installs the mouse2 handler.
 //

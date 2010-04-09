@@ -690,13 +690,13 @@ void I_Error(const char *error, ...)
 static inline VOID ShowEndTxt(HANDLE co)
 {
 	int i;
-	USHORT j, att = 0;
+	UINT16 j, att = 0;
 	int nlflag = 1;
 	CONSOLE_SCREEN_BUFFER_INFO backupcon;
 	COORD resizewin = {80,-1};
 	DWORD bytesWritten;
 	CHAR let = 0;
-	USHORT *ptext;
+	UINT16 *ptext;
 	LPVOID data;
 	lumpnum_t endoomnum = W_GetNumForName("ENDOOM");
 	//HANDLE ci = GetStdHandle(STD_INPUT_HANDLE);
@@ -712,7 +712,7 @@ static inline VOID ShowEndTxt(HANDLE co)
 
 	for (i = 1; i <= 80*25; i++) // print 80x25 text and deal with the attributes too
 	{
-		j = (USHORT)(*ptext >> 8); // attribute first
+		j = (UINT16)(*ptext >> 8); // attribute first
 		let = (char)(*ptext & 0xff); // text senond
 		if (j != att) // attribute changed?
 		{

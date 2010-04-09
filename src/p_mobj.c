@@ -4547,7 +4547,7 @@ void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 numb
 //
 // Sets the sprite scaling
 //
-void P_SetScale(mobj_t *mobj, USHORT newscale)
+void P_SetScale(mobj_t *mobj, UINT16 newscale)
 {
 	player_t *player;
 
@@ -4880,9 +4880,9 @@ void P_MobjThinker(mobj_t *mobj)
 		if (abspeed < speed)
 			P_SetScale(mobj, mobj->destscale);
 		else if (mobj->scale > mobj->destscale)
-			P_SetScale(mobj, (USHORT)(mobj->scale - speed));
+			P_SetScale(mobj, (UINT16)(mobj->scale - speed));
 		else if (mobj->scale < mobj->destscale)
-			P_SetScale(mobj, (USHORT)(mobj->scale + speed));
+			P_SetScale(mobj, (UINT16)(mobj->scale + speed));
 	}
 
 	// Special thinker for scenery objects

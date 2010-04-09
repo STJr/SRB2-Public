@@ -972,7 +972,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 
 			for (j=0; j < 2; j++)
 			{
-				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (USHORT)numsides)
+				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (UINT16)numsides)
 				{
 					ld->sidenum[j] = 0xffff;
 					CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has out-of-range sidedef number\n",numlines-i-1);
@@ -1045,10 +1045,10 @@ static void P_LoadLineDefs2(void)
 			for (k = numlines, ld = lines; k--; ld++)
 			{
 				if (ld->sidenum[0] == i)
-					ld->sidenum[0] = (USHORT)numnewsides;
+					ld->sidenum[0] = (UINT16)numnewsides;
 
 				if (ld->sidenum[1] == i)
-					ld->sidenum[1] = (USHORT)numnewsides;
+					ld->sidenum[1] = (UINT16)numnewsides;
 			}
 
 			for (j = i+1; j < numsides; j++)
@@ -1062,10 +1062,10 @@ static void P_LoadLineDefs2(void)
 					for (k = numlines, ld = lines; k--; ld++)
 					{
 						if (ld->sidenum[0] == j)
-							ld->sidenum[0] = (USHORT)numnewsides;
+							ld->sidenum[0] = (UINT16)numnewsides;
 
 						if (ld->sidenum[1] == j)
-							ld->sidenum[1] = (USHORT)numnewsides;
+							ld->sidenum[1] = (UINT16)numnewsides;
 					}
 					sides[j].sector = NULL; // Flag for deletion
 				}
@@ -1107,7 +1107,7 @@ static inline void P_LoadSideDefs(lumpnum_t lumpnum)
 static void P_LoadSideDefs2(lumpnum_t lumpnum)
 {
 	byte *data = W_CacheLumpNum(lumpnum, PU_STATIC);
-	USHORT i;
+	UINT16 i;
 	INT32 num;
 
 	for (i = 0; i < numsides; i++)
@@ -1120,7 +1120,7 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 		sd->rowoffset = SHORT(msd->rowoffset)<<FRACBITS;
 
 		{ /* cph 2006/09/30 - catch out-of-range sector numbers; use sector 0 instead */
-			USHORT sector_num = SHORT(msd->sector);
+			UINT16 sector_num = SHORT(msd->sector);
 
 			if (sector_num >= numsectors)
 			{
@@ -1647,7 +1647,7 @@ static void P_GroupLines(void)
 		if (!seg->sidedef)
 			CorruptMapError(va("P_GroupLines: seg->sidedef is NULL "
 				"(subsector %"PRIdS", firstline is %d)", i, ss->firstline));
-		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (USHORT)numsides)
+		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (UINT16)numsides)
 			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %"PRIdS" of %"PRIdS" "
 				"(subsector %"PRIdS", firstline is %d)", sidei, numsides,
 				i, ss->firstline));
@@ -1719,7 +1719,7 @@ static char *levellumps[] =
   */
 static inline boolean P_CheckLevel(lumpnum_t lumpnum)
 {
-	USHORT file, lump;
+	UINT16 file, lump;
 	size_t i;
 
 	for (i = ML_THINGS; i <= ML_REJECT; i++)
@@ -2329,7 +2329,7 @@ boolean P_RunSOC(const char *socfilename)
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 {
 	size_t i, j, sreplaces = 0, mreplaces = 0;
-	USHORT numlumps, wadnum;
+	UINT16 numlumps, wadnum;
 	short firstmapreplaced = 0, num;
 	char *name;
 	lumpinfo_t *lumpinfo;
@@ -2341,7 +2341,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 		CONS_Printf("couldn't load wad file %s\n", wadfilename);
 		return false;
 	}
-	else wadnum = (USHORT)(numwadfiles-1);
+	else wadnum = (UINT16)(numwadfiles-1);
 
 	//
 	// search for sound replacements
@@ -2463,7 +2463,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 boolean P_DelWadFile(void)
 {
 	sfxenum_t i;
-	const USHORT wadnum = (USHORT)(numwadfiles - 1);
+	const UINT16 wadnum = (UINT16)(numwadfiles - 1);
 	const lumpnum_t lumpnum = numwadfiles<<16;
 	//lumpinfo_t *lumpinfo = wadfiles[wadnum]->lumpinfo;
 	R_DelSkins(wadnum);

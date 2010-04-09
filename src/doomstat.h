@@ -57,7 +57,7 @@ extern boolean gamecomplete;
 
 // Set if homebrew PWAD stuff has been added.
 extern boolean modifiedgame;
-extern USHORT mainwads;
+extern UINT16 mainwads;
 extern boolean savemoddata; // This mod saves time/emblem data.
 extern boolean timeattacking;
 extern boolean disableSpeedAdjust; // Don't alter the duration of player states if true
@@ -237,7 +237,7 @@ extern mapheader_t mapheaderinfo[NUMMAPS];
 #define GTF_HIDEANDSEEK 44
 
 // Emeralds stored as bits to throw savegame hackers off.
-extern USHORT emeralds;
+extern UINT16 emeralds;
 extern tic_t totalplaytime;
 #define EMERALD1 1
 #define EMERALD2 2

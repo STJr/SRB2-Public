@@ -66,7 +66,7 @@ typedef struct
 	signed char sidemove; // *2048 for move
 	short angleturn; // <<16 for angle delta - SAVED AS A BYTE into demos
 	signed short aiming; // mouse aiming, see G_BuildTicCmd
-	USHORT buttons;
+	UINT16 buttons;
 } ATTRPACK ticcmd_t;
 
 #if defined(_MSC_VER)

@@ -51,7 +51,7 @@ typedef struct undehacked_s
 	struct undehacked_s *next;
 } undehacked_t;
 
-static USHORT unsocwad;
+static UINT16 unsocwad;
 static undehacked_t *unsocdata[MAX_WADFILES];
 static boolean disableundo = false;
 
@@ -783,7 +783,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 	char *word;
 	char *word2;
 	INT32 i;
-	USHORT usi;
+	UINT16 usi;
 
 	DEH_WriteUndoline("SCENETEXT", cutscenes[num].scene[scenenum].text, UNDO_ENDTEXT);
 
@@ -852,7 +852,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 			word2[strlen(word2)-1] = '\0';
 			i = atoi(word2);
-			usi = (USHORT)i;
+			usi = (UINT16)i;
 
 
 			if (!strcmp(word, "NUMBEROFPICS"))
@@ -2178,7 +2178,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 
 // read dehacked lump in a wad (there is special trick for for deh
 // file that are converted to wad in w_wad.c)
-void DEH_LoadDehackedLumpPwad(USHORT wad, USHORT lump)
+void DEH_LoadDehackedLumpPwad(UINT16 wad, UINT16 lump)
 {
 	MYFILE f;
 	unsocwad = wad;
@@ -2200,7 +2200,7 @@ void DEH_LoadDehackedLump(lumpnum_t lumpnum)
 #define DUMPUNDONE
 
 // read (un)dehacked lump in wad's memory
-void DEH_UnloadDehackedWad(USHORT wad)
+void DEH_UnloadDehackedWad(UINT16 wad)
 {
 	undehacked_t *tmp, *curundo = unsocdata[wad];
 	MYFILE f;

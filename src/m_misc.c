@@ -1107,15 +1107,15 @@ typedef struct
 	char encoding;
 	char bits_per_pixel;
 
-	USHORT xmin, ymin;
-	USHORT xmax, ymax;
-	USHORT hres, vres;
+	UINT16 xmin, ymin;
+	UINT16 xmax, ymax;
+	UINT16 hres, vres;
 	unsigned char palette[48];
 
 	char reserved;
 	char color_planes;
-	USHORT bytes_per_line;
-	USHORT palette_type;
+	UINT16 bytes_per_line;
+	UINT16 palette_type;
 
 	char filler[58];
 	unsigned char data; ///< Unbounded; used for all picture data.

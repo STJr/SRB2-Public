@@ -266,7 +266,7 @@ boolean P_PointInsidePolyobj(polyobj_t *po, fixed_t x, fixed_t y);
 boolean P_MobjTouchingPolyobj(polyobj_t *po, mobj_t *mo);
 boolean P_MobjInsidePolyobj(polyobj_t *po, mobj_t *mo);
 boolean P_BBoxInsidePolyobj(polyobj_t *po, fixed_t *bbox);
-void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *parentID, USHORT *exparg);
+void Polyobj_GetInfo(short tag, INT32 *polyID, INT32 *parentID, UINT16 *exparg);
 
 // thinkers (needed in p_saveg.c)
 void T_PolyObjRotate(polyrotate_t *);

@@ -94,7 +94,7 @@ typedef struct
 //===========================================================================
 //                                                                    GLOBALS
 //===========================================================================
-USHORT numwadfiles; // number of active wadfiles
+UINT16 numwadfiles; // number of active wadfiles
 wadfile_t *wadfiles[MAX_WADFILES]; // 0 to numwadfiles-1 are valid
 
 // W_Shutdown
@@ -123,9 +123,9 @@ void W_Shutdown(void)
 static char filenamebuf[MAX_WADPATH];
 
 // search for all DEHACKED lump in all wads and load it
-static inline void W_LoadDehackedLumps(USHORT wadnum)
+static inline void W_LoadDehackedLumps(UINT16 wadnum)
 {
-	USHORT lump;
+	UINT16 lump;
 
 	// Check for MAINCFG
 	for (lump = 0;lump != MAXSHORT;lump++)
@@ -197,7 +197,7 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 //
 // Can now load dehacked files (.soc)
 //
-USHORT W_LoadWadFile(const char *filename)
+UINT16 W_LoadWadFile(const char *filename)
 {
 	FILE *handle;
 	lumpinfo_t *lumpinfo;
@@ -369,7 +369,7 @@ USHORT W_LoadWadFile(const char *filename)
 	wadfile = Z_Malloc(sizeof (*wadfile), PU_STATIC, NULL);
 	wadfile->filename = Z_StrDup(filename);
 	wadfile->handle = handle;
-	wadfile->numlumps = (USHORT)numlumps;
+	wadfile->numlumps = (UINT16)numlumps;
 	wadfile->lumpinfo = lumpinfo;
 	fseek(handle, 0, SEEK_END);
 	wadfile->filesize = (unsigned)ftell(handle);
@@ -392,7 +392,7 @@ USHORT W_LoadWadFile(const char *filename)
 	for (i = 0; i < numlumps; i++)
 	{
 		// store the software patch lump number for each GLPatch
-		grPatch[i].patchlump = (numwadfiles<<16) + (USHORT)i;
+		grPatch[i].patchlump = (numwadfiles<<16) + (UINT16)i;
 	}
 #endif
 
@@ -407,7 +407,7 @@ USHORT W_LoadWadFile(const char *filename)
 	return wadfile->numlumps;
 }
 
-void W_UnloadWadFile(USHORT num)
+void W_UnloadWadFile(UINT16 num)
 {
 	INT32 i;
 	wadfile_t *delwad = wadfiles[num];
@@ -475,7 +475,7 @@ INT32 W_InitMultipleFiles(char **filenames)
 /** Make sure a lump number is valid.
   * Compiles away to nothing if PARANOIA is not defined.
   */
-static boolean TestValidLump(USHORT wad, USHORT lump)
+static boolean TestValidLump(UINT16 wad, UINT16 lump)
 {
 	I_Assert(wad < MAX_WADFILES);
 	if (!wadfiles[wad]) // make sure the wad file exists
@@ -489,7 +489,7 @@ static boolean TestValidLump(USHORT wad, USHORT lump)
 }
 
 
-const char *W_CheckNameForNumPwad(USHORT wad, USHORT lump)
+const char *W_CheckNameForNumPwad(UINT16 wad, UINT16 lump)
 {
 	if (lump >= wadfiles[wad]->numlumps || !TestValidLump(wad, 0))
 		return NULL;
@@ -509,9 +509,9 @@ const char *W_CheckNameForNum(lumpnum_t lumpnum)
 //
 // 'startlump' is the lump number to start the search
 //
-USHORT W_CheckNumForNamePwad(const char *name, USHORT wad, USHORT startlump)
+UINT16 W_CheckNumForNamePwad(const char *name, UINT16 wad, UINT16 startlump)
 {
-	USHORT i;
+	UINT16 i;
 	static char uname[9];
 
 	memset(uname, 0x00, sizeof uname);
@@ -553,7 +553,7 @@ lumpnum_t W_CheckNumForName(const char *name)
 	// scan wad files backwards so patch lump files take precedence
 	for (i = numwadfiles - 1; i >= 0; i--)
 	{
-		check = W_CheckNumForNamePwad(name,(USHORT)i,0);
+		check = W_CheckNumForNamePwad(name,(UINT16)i,0);
 		if (check != MAXSHORT)
 			break; //found it
 	}
@@ -578,7 +578,7 @@ lumpnum_t W_GetNumForName(const char *name)
 	return i;
 }
 
-size_t W_LumpLengthPwad(USHORT wad, USHORT lump)
+size_t W_LumpLengthPwad(UINT16 wad, UINT16 lump)
 {
 	if (!TestValidLump(wad, lump))
 		return 0;
@@ -605,7 +605,7 @@ size_t W_LumpLength(lumpnum_t lumpnum)
   * \return Number of bytes read (should equal size).
   * \sa W_ReadLumpHeader
   */
-static size_t W_RawReadLumpHeader(USHORT wad, USHORT lump, void *dest, size_t size, size_t offset)
+static size_t W_RawReadLumpHeader(UINT16 wad, UINT16 lump, void *dest, size_t size, size_t offset)
 {
 	size_t bytesread;
 	lumpinfo_t *l;
@@ -623,7 +623,7 @@ static size_t W_RawReadLumpHeader(USHORT wad, USHORT lump, void *dest, size_t si
 
 // Read a compressed lump; return it in newly Z_Malloc'd memory.
 // wad is number of wad file, lump is number of lump in wad.
-static void *W_ReadCompressedLump(USHORT wad, USHORT lump)
+static void *W_ReadCompressedLump(UINT16 wad, UINT16 lump)
 {
 #ifdef ZWAD
 	char *compressed, *data;
@@ -676,7 +676,7 @@ static void *W_ReadCompressedLump(USHORT wad, USHORT lump)
   * \return Number of bytes read (should equal size).
   * \sa W_ReadLump, W_RawReadLumpHeader
   */
-size_t W_ReadLumpHeaderPwad(USHORT wad, USHORT lump, void *dest, size_t size, size_t offset)
+size_t W_ReadLumpHeaderPwad(UINT16 wad, UINT16 lump, void *dest, size_t size, size_t offset)
 {
 	size_t lumpsize;
 
@@ -722,7 +722,7 @@ void W_ReadLump(lumpnum_t lumpnum, void *dest)
 	W_ReadLumpHeaderPwad(WADFILENUM(lumpnum),LUMPNUM(lumpnum),dest,0,0);
 }
 
-void W_ReadLumpPwad(USHORT wad, USHORT lump, void *dest)
+void W_ReadLumpPwad(UINT16 wad, UINT16 lump, void *dest)
 {
 	W_ReadLumpHeaderPwad(wad, lump, dest, 0, 0);
 }
@@ -730,7 +730,7 @@ void W_ReadLumpPwad(USHORT wad, USHORT lump, void *dest)
 // ==========================================================================
 // W_CacheLumpNum
 // ==========================================================================
-void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, INT32 tag)
+void *W_CacheLumpNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 {
 	lumpcache_t *lumpcache;
 
@@ -762,7 +762,7 @@ void *W_CacheLumpNum(lumpnum_t lumpnum, INT32 tag)
 //
 void *W_CacheLumpNumForce(lumpnum_t lumpnum, INT32 tag)
 {
-	USHORT wad, lump;
+	UINT16 wad, lump;
 	void *ptr;
 
 	wad = WADFILENUM(lumpnum);
@@ -784,7 +784,7 @@ void *W_CacheLumpNumForce(lumpnum_t lumpnum, INT32 tag)
 // return false.
 //
 // no outside code uses the PWAD form, for now
-static inline boolean W_IsLumpCachedPWAD(USHORT wad, USHORT lump, void *ptr)
+static inline boolean W_IsLumpCachedPWAD(UINT16 wad, UINT16 lump, void *ptr)
 {
 	void *lcache;
 
@@ -834,7 +834,7 @@ void *W_CacheLumpName(const char *name, INT32 tag)
 
 // Software-only compile cache the data without conversion
 #ifdef HWRENDER
-static inline void *W_CachePatchNumPwad(USHORT wad, USHORT lump, INT32 tag)
+static inline void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 {
 	GLPatch_t *grPatch;
 
@@ -915,7 +915,7 @@ static void PrintMD5String(const unsigned char *md5, char *buf)
   *                   textual string.
   * \author Graue <graue@oceanbase.org>
   */
-void W_VerifyFileMD5(USHORT wadfilenum, const char *matchmd5)
+void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5)
 {
 #ifdef NOMD5
 	(void)wadfilenum;

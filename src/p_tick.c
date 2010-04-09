@@ -261,7 +261,7 @@ static inline void P_RunThinkers(void)
 static void P_DoAutobalanceTeams(void)
 {
 	changeteam_union NetPacket;
-	USHORT usvalue;
+	UINT16 usvalue;
 	INT32 i=0;
 	INT32 red=0, blue=0;
 	INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
@@ -330,7 +330,7 @@ static void P_DoAutobalanceTeams(void)
 void P_DoTeamscrambling(void)
 {
 	changeteam_union NetPacket;
-	USHORT usvalue;
+	UINT16 usvalue;
 	NetPacket.value.l = NetPacket.value.b = 0;
 
 	// Only do it if we have enough room in the net buffer to send it.

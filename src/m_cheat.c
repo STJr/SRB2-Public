@@ -330,7 +330,7 @@ void Command_Scale_f(void)
 	if (!players[consoleplayer].mo)
 		return;
 
-	players[consoleplayer].mo->destscale = (USHORT)scale;
+	players[consoleplayer].mo->destscale = (UINT16)scale;
 
 	CONS_Printf("Scale set to %d\n", players[consoleplayer].mo->destscale);
 }

@@ -30,7 +30,6 @@
 #endif
 
 #ifdef _MSC_VER
-#define USHORT unsigned __int16
 #define ULONG unsigned __int32
 
 #define UINT16 unsigned __int16
@@ -54,7 +53,6 @@ typedef long ssize_t;
 #elif defined (_arch_dreamcast) // KOS Dreamcast
 #include <arch/types.h>
 
-#define USHORT uint16
 #define ULONG unsigned int
 
 #define UINT16 uint16
@@ -67,7 +65,6 @@ typedef long ssize_t;
 #else
 #include <stdint.h>
 
-#define USHORT uint16_t
 #define ULONG uint32_t
 
 #define UINT16 uint16_t

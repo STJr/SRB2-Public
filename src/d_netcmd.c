@@ -772,7 +772,7 @@ void D_RegisterClientCommands(void)
 static void Command_DummyCommand_f(void)
 {
 	dummypacket_union NetPacket;
-	USHORT usvalue;
+	UINT16 usvalue;
 	NetPacket.value.l = NetPacket.value.b = 0;
 
 	//   0        1         2
@@ -2317,7 +2317,7 @@ static void Command_Teamchange_f(void)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	USHORT usvalue;
+	UINT16 usvalue;
 	NetPacket.value.l = NetPacket.value.b = 0;
 
 	//      0         1
@@ -2404,7 +2404,7 @@ static void Command_Teamchange2_f(void)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	USHORT usvalue;
+	UINT16 usvalue;
 	NetPacket.value.l = NetPacket.value.b = 0;
 
 	//      0         1
@@ -2491,7 +2491,7 @@ static void Command_ServerTeamChange_f(void)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	USHORT usvalue;
+	UINT16 usvalue;
 	NetPacket.value.l = NetPacket.value.b = 0;
 
 	if (!(server || (adminplayer == consoleplayer)))

@@ -144,7 +144,7 @@ typedef struct {
 	char fileid;
 	byte padding1[3];
 	ULONG position;
-	USHORT size;
+	UINT16 size;
 	byte data[0]; // size is variable using hardare_MAXPACKETLENGTH
 #ifdef __GNUC__
 	byte padding2[2];
@@ -262,7 +262,7 @@ extern consvar_t cv_playdemospeed;
 
 extern boolean server;
 extern boolean dedicated; // for dedicated server
-extern USHORT software_MAXPACKETLENGTH;
+extern UINT16 software_MAXPACKETLENGTH;
 extern boolean acceptnewnode;
 extern signed char servernode;
 

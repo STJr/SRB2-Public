@@ -40,7 +40,7 @@ savedata_t savedata;
 byte *save_p;
 
 // Note: This cannot be bigger
-// than an USHORT
+// than an UINT16
 typedef enum
 {
 	RFLAGPOINT = 0x01,
@@ -2971,7 +2971,7 @@ static inline boolean P_UnArchiveSPGame(short mapoverride)
 	tokenlist = 0;
 	token = 0;
 
-	savedata.emeralds = (USHORT)(READUSHORT(save_p)-357);
+	savedata.emeralds = (UINT16)(READUSHORT(save_p)-357);
 
 	READSTRINGN(save_p, testname, sizeof(testname));
 

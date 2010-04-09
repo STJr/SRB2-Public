@@ -75,7 +75,7 @@ INT32 cursaveslot = -1; // Auto-save 1p savegame slot
 short lastmapsaved = 0; // Last map we auto-saved at
 boolean gamecomplete = false;
 
-USHORT mainwads = 0;
+UINT16 mainwads = 0;
 boolean modifiedgame; // Set if homebrew PWAD stuff has been added.
 boolean savemoddata = false;
 boolean paused;
@@ -134,7 +134,7 @@ mapheader_t mapheaderinfo[NUMMAPS];
 
 static boolean exitgame = false;
 
-USHORT emeralds;
+UINT16 emeralds;
 ULONG token; // Number of tokens collected in a level
 ULONG tokenlist; // List of tokens collected
 INT32 tokenbits; // Used for setting token bits
@@ -2964,7 +2964,7 @@ ticcmd_t *G_MoveTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n)
 		dest[i].sidemove = src[i].sidemove;
 		dest[i].angleturn = SHORT(src[i].angleturn);
 		dest[i].aiming = (signed short)SHORT(src[i].aiming);
-		dest[i].buttons = (USHORT)SHORT(src[i].buttons);
+		dest[i].buttons = (UINT16)SHORT(src[i].buttons);
 	}
 	return dest;
 }
@@ -2982,9 +2982,9 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 	if (ziptic & ZT_ANGLE)
 		oldcmd[playernum].angleturn = READSHORT(demo_p);
 	if (ziptic & ZT_BUTTONS)
-		oldcmd[playernum].buttons = (USHORT)(READBYTE(demo_p)<<8); //buttons in a USHORT, not a byte
+		oldcmd[playernum].buttons = (UINT16)(READBYTE(demo_p)<<8); //buttons in a UINT16, not a byte
 	if (ziptic & ZT_BUTTONS2)
-		oldcmd[playernum].buttons = (USHORT)(oldcmd[playernum].buttons+READBYTE(demo_p)); //ZT_BUTTONS2 always comes with ZT_BUTTONS
+		oldcmd[playernum].buttons = (UINT16)(oldcmd[playernum].buttons+READBYTE(demo_p)); //ZT_BUTTONS2 always comes with ZT_BUTTONS
 	if (ziptic & ZT_AIMING)
 		oldcmd[playernum].aiming = READSHORT(demo_p);
 	if (ziptic & ZT_EXTRADATA)

@@ -255,7 +255,7 @@ static DWORD sound_buffer_flags = DSBCAPS_CTRLPAN |
 // --------------------------------------------------------------------------
 // raw2DS : convert a raw sound data, returns a LPDIRECTSOUNDBUFFER
 // --------------------------------------------------------------------------
-//   dsdata points a 4 USHORT header:
+//   dsdata points a 4 UINT16 header:
 //    +0 : value 3 what does it mean?
 //    +2 : sample rate, either 11025 or 22050.
 //    +4 : number of samples, each sample is a single byte since it's 8bit

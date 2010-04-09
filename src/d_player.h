@@ -345,7 +345,7 @@ typedef struct player_s
 	// CTF Mode Stuff //
 	////////////////////
 	INT32 ctfteam; // 0 == Spectator, 1 == Red, 2 == Blue
-	USHORT gotflag; // 1 == Red, 2 == Blue Do you have the flag?
+	UINT16 gotflag; // 1 == Red, 2 == Blue Do you have the flag?
 
 	INT32 dbginfo; // Debugger
 	INT32 emeraldhunt; // # of emeralds found

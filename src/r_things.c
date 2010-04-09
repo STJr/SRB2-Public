@@ -87,8 +87,8 @@ static const char *spritename;
 //
 //
 //
-static void R_InstallSpriteLump(USHORT wad,            // graphics patch
-                                USHORT lump,
+static void R_InstallSpriteLump(UINT16 wad,            // graphics patch
+                                UINT16 lump,
                                 size_t lumpid,      // identifier
                                 byte frame,
                                 byte rotation,
@@ -147,8 +147,8 @@ static void R_InstallSpriteLump(USHORT wad,            // graphics patch
 	sprtemp[frame].flip[rotation] = flipped;
 }
 
-static void R_RemoveSpriteLump(USHORT wad,            // graphics patch
-                               USHORT lump,
+static void R_RemoveSpriteLump(UINT16 wad,            // graphics patch
+                               UINT16 lump,
                                size_t lumpid,      // identifier
                                byte frame,
                                byte rotation,
@@ -175,9 +175,9 @@ static void R_RemoveSpriteLump(USHORT wad,            // graphics patch
 //
 // Returns true if the sprite was succesfully added
 //
-static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef, USHORT wadnum, USHORT startlump, USHORT endlump)
+static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef, UINT16 wadnum, UINT16 startlump, UINT16 endlump)
 {
-	USHORT l;
+	UINT16 l;
 	byte frame;
 	byte rotation;
 	lumpinfo_t *lumpinfo;
@@ -322,9 +322,9 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 	return true;
 }
 
-static boolean R_DelSingleSpriteDef(const char *sprname, spritedef_t *spritedef, USHORT wadnum, USHORT startlump, USHORT endlump)
+static boolean R_DelSingleSpriteDef(const char *sprname, spritedef_t *spritedef, UINT16 wadnum, UINT16 startlump, UINT16 endlump)
 {
-	USHORT l;
+	UINT16 l;
 	byte frame;
 	byte rotation;
 	lumpinfo_t *lumpinfo;
@@ -373,10 +373,10 @@ static boolean R_DelSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 //
 // Search for sprites replacements in a wad whose names are in namelist
 //
-void R_AddSpriteDefs(USHORT wadnum)
+void R_AddSpriteDefs(UINT16 wadnum)
 {
 	size_t i, addsprites = 0;
-	USHORT start, end;
+	UINT16 start, end;
 
 	// find the sprites section in this pwad
 	// we need at least the S_END
@@ -421,10 +421,10 @@ void R_AddSpriteDefs(USHORT wadnum)
 	CONS_Printf("%"PRIdS" sprites added from file %s\n", addsprites, wadfiles[wadnum]->filename);
 }
 
-void R_DelSpriteDefs(USHORT wadnum)
+void R_DelSpriteDefs(UINT16 wadnum)
 {
 	size_t i, delsprites = 0;
-	USHORT start, end;
+	UINT16 start, end;
 
 	// find the sprites section in this pwad
 	// we need at least the S_END
@@ -502,7 +502,7 @@ void R_InitSprites(void)
 
 	// find sprites in each -file added pwad
 	for (i = 0; i < numwadfiles; i++)
-		R_AddSpriteDefs((USHORT)i);
+		R_AddSpriteDefs((UINT16)i);
 
 	//
 	// now check for skins
@@ -511,7 +511,7 @@ void R_InitSprites(void)
 	// it can be is do before loading config for skin cvar possible value
 	R_InitSkins();
 	for (i = 0; i < numwadfiles; i++)
-		R_AddSkins((USHORT)i);
+		R_AddSkins((UINT16)i);
 
 	//
 	// check if all sprites have frames
@@ -2588,9 +2588,9 @@ void SetSavedSkin(INT32 playernum, INT32 skinnum, INT32 skincolor)
 // the first 6 characters (this is so we can have S_SKIN1, S_SKIN2..
 // for wad editors that don't like multiple resources of the same name)
 //
-static USHORT W_CheckForSkinMarkerInPwad(USHORT wadid, USHORT startlump)
+static UINT16 W_CheckForSkinMarkerInPwad(UINT16 wadid, UINT16 startlump)
 {
-	USHORT i;
+	UINT16 i;
 	const char *S_SKIN = "S_SKIN";
 	lumpinfo_t *lump_p;
 
@@ -2608,9 +2608,9 @@ static USHORT W_CheckForSkinMarkerInPwad(USHORT wadid, USHORT startlump)
 //
 // Find skin sprites, sounds & optional status bar face, & add them
 //
-void R_AddSkins(USHORT wadnum)
+void R_AddSkins(UINT16 wadnum)
 {
-	USHORT lump, lastlump = 0;
+	UINT16 lump, lastlump = 0;
 	char *buf;
 	char *buf2;
 	char *stoken;
@@ -2825,9 +2825,9 @@ next_token:
 	return;
 }
 
-void R_DelSkins(USHORT wadnum)
+void R_DelSkins(UINT16 wadnum)
 {
-	USHORT lump, lastlump = 0;
+	UINT16 lump, lastlump = 0;
 	while ((lump = W_CheckForSkinMarkerInPwad(wadnum, lastlump)) != MAXSHORT)
 	{
 		if (skins[numskins].wadnum != wadnum)

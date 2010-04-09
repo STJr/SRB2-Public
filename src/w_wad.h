@@ -70,16 +70,16 @@ typedef struct wadfile_s
 #ifdef HWRENDER
 	GLPatch_t *hwrcache; // patches are cached in renderer's native format
 #endif
-	USHORT numlumps; // this wad's number of resources
+	UINT16 numlumps; // this wad's number of resources
 	FILE *handle;
 	ULONG filesize; // for network
 	unsigned char md5sum[16];
 } wadfile_t;
 
-#define WADFILENUM(lumpnum) (USHORT)((lumpnum)>>16) // wad flumpnum>>16) // wad file number in upper word
-#define LUMPNUM(lumpnum) (USHORT)((lumpnum)&0xFFFF) // lump number for this pwad
+#define WADFILENUM(lumpnum) (UINT16)((lumpnum)>>16) // wad flumpnum>>16) // wad file number in upper word
+#define LUMPNUM(lumpnum) (UINT16)((lumpnum)&0xFFFF) // lump number for this pwad
 
-extern USHORT numwadfiles;
+extern UINT16 numwadfiles;
 extern wadfile_t *wadfiles[MAX_WADFILES];
 
 // =========================================================================
@@ -87,29 +87,29 @@ extern wadfile_t *wadfiles[MAX_WADFILES];
 void W_Shutdown(void);
 
 // Load and add a wadfile to the active wad files, returns numbers of lumps, MAXSHORT on error
-USHORT W_LoadWadFile(const char *filename);
-void W_UnloadWadFile(USHORT num);
+UINT16 W_LoadWadFile(const char *filename);
+void W_UnloadWadFile(UINT16 num);
 
 // W_InitMultipleFiles returns 1 if all is okay, 0 otherwise,
 // so that it stops with a message if a file was not found, but not if all is okay.
 INT32 W_InitMultipleFiles(char **filenames);
 
-const char *W_CheckNameForNumPwad(USHORT wad, USHORT lump);
+const char *W_CheckNameForNumPwad(UINT16 wad, UINT16 lump);
 const char *W_CheckNameForNum(lumpnum_t lumpnum);
 
-USHORT W_CheckNumForNamePwad(const char *name, USHORT wad, USHORT startlump); // checks only in one pwad
+UINT16 W_CheckNumForNamePwad(const char *name, UINT16 wad, UINT16 startlump); // checks only in one pwad
 lumpnum_t W_CheckNumForName(const char *name);
 lumpnum_t W_GetNumForName(const char *name); // like W_CheckNumForName but I_Error on LUMPERROR
 
-size_t W_LumpLengthPwad(USHORT wad, USHORT lump);
+size_t W_LumpLengthPwad(UINT16 wad, UINT16 lump);
 size_t W_LumpLength(lumpnum_t lumpnum);
 
-size_t W_ReadLumpHeaderPwad(USHORT wad, USHORT lump, void *dest, size_t size, size_t offset);
+size_t W_ReadLumpHeaderPwad(UINT16 wad, UINT16 lump, void *dest, size_t size, size_t offset);
 size_t W_ReadLumpHeader(lumpnum_t lump, void *dest, size_t size, size_t offest); // read all or a part of a lump
-void W_ReadLumpPwad(USHORT wad, USHORT lump, void *dest);
+void W_ReadLumpPwad(UINT16 wad, UINT16 lump, void *dest);
 void W_ReadLump(lumpnum_t lump, void *dest);
 
-void *W_CacheLumpNumPwad(USHORT wad, USHORT lump, INT32 tag);
+void *W_CacheLumpNumPwad(UINT16 wad, UINT16 lump, INT32 tag);
 void *W_CacheLumpNum(lumpnum_t lump, INT32 tag);
 void *W_CacheLumpNumForce(lumpnum_t lumpnum, INT32 tag);
 
@@ -119,14 +119,14 @@ void *W_CacheLumpName(const char *name, INT32 tag);
 void *W_CachePatchName(const char *name, INT32 tag);
 
 #ifdef HWRENDER
-//void *W_CachePatchNumPwad(USHORT wad, USHORT lump, INT32 tag); // return a patch_t
+//void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag); // return a patch_t
 void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag); // return a patch_t
 #else
 //#define W_CachePatchNumPwad(wad, lump, tag) W_CacheLumpNumPwad(wad, lump, tag)
 #define W_CachePatchNum(lumpnum, tag) W_CacheLumpNum(lumpnum, tag)
 #endif
 
-void W_VerifyFileMD5(USHORT wadfilenum, const char *matchmd5);
+void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5);
 
 int W_VerifyNMUSlumps(const char *filename);
 

@@ -567,7 +567,7 @@ void FiletxTicker(void)
 		if (transfer[i].position + size == f->size)
 			p->position |= LONG(0x80000000);
 		p->fileid = f->fileid;
-		p->size = SHORT((USHORT)size);
+		p->size = SHORT((UINT16)size);
 		netbuffer->packettype = PT_FILEFRAGMENT;
 		if (!HSendPacket(i, true, 0, FILETXHEADER + size)) // reliable SEND
 		{ // not sent for some odd reason, retry at next call
@@ -609,7 +609,7 @@ void Got_Filetxpak(void)
 	if (fileneeded[filenum].status == FS_DOWNLOADING)
 	{
 		ULONG pos = LONG(netbuffer->u.filetxpak.position);
-		USHORT size = SHORT(netbuffer->u.filetxpak.size);
+		UINT16 size = SHORT(netbuffer->u.filetxpak.size);
 		// use a special tric to know when file is finished (not allways used)
 		// WARNING: filepak can arrive out of order so don't stop now !
 		if (pos & 0x80000000)
