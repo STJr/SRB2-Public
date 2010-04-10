@@ -72,11 +72,7 @@ extern fixed_t finetangent[FINEANGLES/2];
 #define ANGLE_337h 0xF0000000
 #define ANGLE_MAX  0xFFFFFFFF
 
-#if defined (_MSC_VER)
-typedef unsigned __int32 angle_t;
-#else
 typedef UINT32 angle_t;
-#endif
 
 // To get a global angle from Cartesian coordinates, the coordinates are
 // flipped until they are in the first octant of the coordinate system, then
@@ -104,12 +100,12 @@ FUNCMATH angle_t FixedAngleC(fixed_t fa, fixed_t factor);
 FUNCMATH angle_t FixedAcos(fixed_t x);
 
 /// Fixed Point Vector functions
-angle_t FV_AngleBetweenVectors(const fvector_t *Vector1, const fvector_t *Vector2);
-boolean FV_InsidePolygon(const fvector_t *vIntersection, const fvector_t *Poly, const INT32 vertexCount);
-boolean FV_IntersectedPolygon(const fvector_t *vPoly, const fvector_t *vLine, const INT32 vertexCount, fvector_t *collisionPoint);
-void FV_Rotate(fvector_t *rotVec, const fvector_t *axisVec, const angle_t angle);
+angle_t FV_AngleBetweenVectors(const vector_t *Vector1, const vector_t *Vector2);
+boolean FV_InsidePolygon(const vector_t *vIntersection, const vector_t *Poly, const INT32 vertexCount);
+boolean FV_IntersectedPolygon(const vector_t *vPoly, const vector_t *vLine, const INT32 vertexCount, vector_t *collisionPoint);
+void FV_Rotate(vector_t *rotVec, const vector_t *axisVec, const angle_t angle);
 /// Fixed Point Matrix functions
-void FM_Rotate(fmatrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z);
+void FM_Rotate(matrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z);
 
 // The table values in tables.c are calculated with this many fractional bits.
 #define FINE_FRACBITS 16

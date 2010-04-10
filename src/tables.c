@@ -10514,7 +10514,7 @@ FUNCMATH angle_t FixedAcos(fixed_t x)
 //
 // This checks to see if a point is inside the ranges of a polygon
 //
-angle_t FV_AngleBetweenVectors(const fvector_t *Vector1, const fvector_t *Vector2)
+angle_t FV_AngleBetweenVectors(const vector_t *Vector1, const vector_t *Vector2)
 {
 	// Remember, above we said that the Dot Product of returns the cosine of the angle
 	// between 2 vectors?  Well, that is assuming they are unit vectors (normalize vectors).
@@ -10539,11 +10539,11 @@ angle_t FV_AngleBetweenVectors(const fvector_t *Vector1, const fvector_t *Vector
 //
 // This checks to see if a point is inside the ranges of a polygon
 //
-boolean FV_InsidePolygon(const fvector_t *vIntersection, const fvector_t *Poly, const INT32 vertexCount)
+boolean FV_InsidePolygon(const vector_t *vIntersection, const vector_t *Poly, const INT32 vertexCount)
 {
 	INT32 i;
 	UINT64 Angle = 0;					// Initialize the angle
-	fvector_t vA, vB;					// Create temp vectors
+	vector_t vA, vB;					// Create temp vectors
 
 	// Just because we intersected the plane, doesn't mean we were anywhere near the polygon.
 	// This functions checks our intersection point to make sure it is inside of the polygon.
@@ -10586,9 +10586,9 @@ boolean FV_InsidePolygon(const fvector_t *vIntersection, const fvector_t *Poly, 
 //
 // This checks if a line is intersecting a polygon
 //
-boolean FV_IntersectedPolygon(const fvector_t *vPoly, const fvector_t *vLine, const INT32 vertexCount, fvector_t *collisionPoint)
+boolean FV_IntersectedPolygon(const vector_t *vPoly, const vector_t *vLine, const INT32 vertexCount, vector_t *collisionPoint)
 {
-	fvector_t vNormal, vIntersection;
+	vector_t vNormal, vIntersection;
 	fixed_t originDistance = 0*FRACUNIT;
 
 
@@ -10631,7 +10631,7 @@ boolean FV_IntersectedPolygon(const fvector_t *vPoly, const fvector_t *vLine, co
 //
 // Rotates a vector around another vector
 //
-void FV_Rotate(fvector_t *rotVec, const fvector_t *axisVec, const angle_t angle)
+void FV_Rotate(vector_t *rotVec, const vector_t *axisVec, const angle_t angle)
 {
 	// Rotate the point (x,y,z) around the vector (u,v,w)
 	fixed_t ux = FixedMul(axisVec->x, rotVec->x);
@@ -10670,13 +10670,13 @@ void FV_Rotate(fvector_t *rotVec, const fvector_t *axisVec, const angle_t angle)
 	rotVec->z = az+dz+ez;
 }
 
-void FM_Rotate(fmatrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z)
+void FM_Rotate(matrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z)
 {
 #define M(row,col) dest->m[row * 4 + col]
 	const fixed_t sinA = FINESINE(angle>>ANGLETOFINESHIFT);
 	const fixed_t cosA = FINECOSINE(angle>>ANGLETOFINESHIFT);
 	const fixed_t invCosA = FRACUNIT - cosA;
-	fvector_t nrm;
+	vector_t nrm;
 	fixed_t xSq, ySq, zSq;
 	fixed_t sx, sy, sz;
 	fixed_t sxy, sxz, syz;

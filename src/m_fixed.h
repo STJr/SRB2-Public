@@ -45,11 +45,7 @@
 	unit used as fixed_t
 */
 
-#if defined (_MSC_VER)
-typedef __int32 fixed_t;
-#else
 typedef INT32 fixed_t;
-#endif
 
 /*!
   \brief convert fixed_t into floating number
@@ -286,50 +282,50 @@ FUNCMATH fixed_t FixedHypot(fixed_t x, fixed_t y);
 typedef struct
 {
 	fixed_t x, y, z;
-} fvector_t;
+} vector_t;
 
-fvector_t *FV_Load(fvector_t *vec, fixed_t x, fixed_t y, fixed_t z);
-fvector_t *FV_Copy(fvector_t *a_o, const fvector_t *a_i);
-fvector_t *FV_AddO(const fvector_t *a_i, const fvector_t *a_c, fvector_t *a_o);
-fvector_t *FV_Add(fvector_t *a_i, const fvector_t *a_c);
-fvector_t *FV_SubO(const fvector_t *a_i, const fvector_t *a_c, fvector_t *a_o);
-fvector_t *FV_Sub(fvector_t *a_i, const fvector_t *a_c);
-fvector_t *FV_MulO(const fvector_t *a_i, fixed_t a_c, fvector_t *a_o);
-fvector_t *FV_Mul(fvector_t *a_i, fixed_t a_c);
-fvector_t *FV_DivideO(const fvector_t *a_i, fixed_t a_c, fvector_t *a_o);
-fvector_t *FV_Divide(fvector_t *a_i, fixed_t a_c);
-fvector_t *FV_Midpoint(const fvector_t *a_1, const fvector_t *a_2, fvector_t *a_o);
-fixed_t FV_Distance(const fvector_t *p1, const fvector_t *p2);
-fixed_t FV_Magnitude(const fvector_t *a_normal);
-fixed_t FV_NormalizeO(const fvector_t *a_normal, fvector_t *a_o);
-fixed_t FV_Normalize(fvector_t *a_normal);
-fvector_t *FV_NegateO(const fvector_t *a_1, fvector_t *a_o);
-fvector_t *FV_Negate(fvector_t *a_1);
-boolean FV_Equal(const fvector_t *a_1, const fvector_t *a_2);
-fixed_t FV_Dot(const fvector_t *a_1, const fvector_t *a_2);
-fvector_t *FV_Cross(const fvector_t *a_1, const fvector_t *a_2, fvector_t *a_o);
-fvector_t *FV_ClosestPointOnLine(const fvector_t *Line, const fvector_t *p, fvector_t *out);
-void FV_ClosestPointOnTriangle (const fvector_t *tri, const fvector_t *point, fvector_t *result);
-fvector_t *FV_Point2Vec (const fvector_t *point1, const fvector_t *point2, fvector_t *a_o);
-void FV_Normal (const fvector_t *a_triangle, fvector_t *a_normal);
-fixed_t FV_PlaneDistance(const fvector_t *a_normal, const fvector_t *a_point);
-boolean FV_IntersectedPlane(const fvector_t *a_triangle, const fvector_t *a_line, fvector_t *a_normal, fixed_t *originDistance);
-fixed_t FV_PlaneIntersection(const fvector_t *pOrigin, const fvector_t *pNormal, const fvector_t *rOrigin, const fvector_t *rVector);
-fixed_t FV_IntersectRaySphere(const fvector_t *rO, const fvector_t *rV, const fvector_t *sO, fixed_t sR);
-fvector_t *FV_IntersectionPoint(const fvector_t *vNormal, const fvector_t *vLine, fixed_t distance, fvector_t *ReturnVec);
-UINT8 FV_PointOnLineSide(const fvector_t *point, const fvector_t *line);
-boolean PointInsideBox(const fvector_t *point, const fvector_t *box);
+vector_t *FV_Load(vector_t *vec, fixed_t x, fixed_t y, fixed_t z);
+vector_t *FV_Copy(vector_t *a_o, const vector_t *a_i);
+vector_t *FV_AddO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
+vector_t *FV_Add(vector_t *a_i, const vector_t *a_c);
+vector_t *FV_SubO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
+vector_t *FV_Sub(vector_t *a_i, const vector_t *a_c);
+vector_t *FV_MulO(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
+vector_t *FV_Mul(vector_t *a_i, fixed_t a_c);
+vector_t *FV_DivideO(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
+vector_t *FV_Divide(vector_t *a_i, fixed_t a_c);
+vector_t *FV_Midpoint(const vector_t *a_1, const vector_t *a_2, vector_t *a_o);
+fixed_t FV_Distance(const vector_t *p1, const vector_t *p2);
+fixed_t FV_Magnitude(const vector_t *a_normal);
+fixed_t FV_NormalizeO(const vector_t *a_normal, vector_t *a_o);
+fixed_t FV_Normalize(vector_t *a_normal);
+vector_t *FV_NegateO(const vector_t *a_1, vector_t *a_o);
+vector_t *FV_Negate(vector_t *a_1);
+boolean FV_Equal(const vector_t *a_1, const vector_t *a_2);
+fixed_t FV_Dot(const vector_t *a_1, const vector_t *a_2);
+vector_t *FV_Cross(const vector_t *a_1, const vector_t *a_2, vector_t *a_o);
+vector_t *FV_ClosestPointOnLine(const vector_t *Line, const vector_t *p, vector_t *out);
+void FV_ClosestPointOnTriangle (const vector_t *tri, const vector_t *point, vector_t *result);
+vector_t *FV_Point2Vec (const vector_t *point1, const vector_t *point2, vector_t *a_o);
+void FV_Normal (const vector_t *a_triangle, vector_t *a_normal);
+fixed_t FV_PlaneDistance(const vector_t *a_normal, const vector_t *a_point);
+boolean FV_IntersectedPlane(const vector_t *a_triangle, const vector_t *a_line, vector_t *a_normal, fixed_t *originDistance);
+fixed_t FV_PlaneIntersection(const vector_t *pOrigin, const vector_t *pNormal, const vector_t *rOrigin, const vector_t *rVector);
+fixed_t FV_IntersectRaySphere(const vector_t *rO, const vector_t *rV, const vector_t *sO, fixed_t sR);
+vector_t *FV_IntersectionPoint(const vector_t *vNormal, const vector_t *vLine, fixed_t distance, vector_t *ReturnVec);
+UINT8 FV_PointOnLineSide(const vector_t *point, const vector_t *line);
+boolean PointInsideBox(const vector_t *point, const vector_t *box);
 
 typedef struct
 {
 	fixed_t m[16];
-} fmatrix_t;
+} matrix_t;
 
-void FM_LoadIdentity(fmatrix_t* matrix);
-void FM_CreateObjectMatrix(fmatrix_t *matrix, fixed_t x, fixed_t y, fixed_t z, fixed_t anglex, fixed_t angley, fixed_t anglez, fixed_t upx, fixed_t upy, fixed_t upz, fixed_t radius);
-void FM_MultMatrixVec(const fmatrix_t *matrix, const fvector_t *vec, fvector_t *out);
-void FM_MultMatrix(fmatrix_t *dest, const fmatrix_t *multme);
-void FM_Translate(fmatrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
-void FM_Scale(fmatrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
+void FM_LoadIdentity(matrix_t* matrix);
+void FM_CreateObjectMatrix(matrix_t *matrix, fixed_t x, fixed_t y, fixed_t z, fixed_t anglex, fixed_t angley, fixed_t anglez, fixed_t upx, fixed_t upy, fixed_t upz, fixed_t radius);
+void FM_MultMatrixVec(const matrix_t *matrix, const vector_t *vec, vector_t *out);
+void FM_MultMatrix(matrix_t *dest, const matrix_t *multme);
+void FM_Translate(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
+void FM_Scale(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
 
 #endif //m_fixed.h
