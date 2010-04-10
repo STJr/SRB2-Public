@@ -194,7 +194,7 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 
 /* 7.18.2.1  Limits of exact-width integer types */
 #ifndef INT8_MIN
-#define INT8_MIN (-128) 
+#define INT8_MIN (-128)
 #endif
 #ifndef INT16_MIN
 #define INT16_MIN (-32768)
