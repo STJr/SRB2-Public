@@ -170,7 +170,7 @@ vector_t *FV_Copy(vector_t *a_o, const vector_t *a_i)
 	return M_Memcpy(a_o, a_i, sizeof(vector_t));
 }
 
-vector_t *FV_AddO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o)
+vector_t *FV_AddEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o)
 {
 	a_o->x = a_i->x + a_c->x;
 	a_o->y = a_i->y + a_c->y;
@@ -180,10 +180,10 @@ vector_t *FV_AddO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o)
 
 vector_t *FV_Add(vector_t *a_i, const vector_t *a_c)
 {
-	return FV_AddO(a_i, a_c, a_i);
+	return FV_AddEx(a_i, a_c, a_i);
 }
 
-vector_t *FV_SubO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o)
+vector_t *FV_SubEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o)
 {
 	a_o->x = a_i->x - a_c->x;
 	a_o->y = a_i->y - a_c->y;
@@ -193,10 +193,10 @@ vector_t *FV_SubO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o)
 
 vector_t *FV_Sub(vector_t *a_i, const vector_t *a_c)
 {
-	return FV_SubO(a_i, a_c, a_i);
+	return FV_SubEx(a_i, a_c, a_i);
 }
 
-vector_t *FV_MulO(const vector_t *a_i, fixed_t a_c, vector_t *a_o)
+vector_t *FV_MulEx(const vector_t *a_i, fixed_t a_c, vector_t *a_o)
 {
 	a_o->x = FixedMul(a_i->x, a_c);
 	a_o->y = FixedMul(a_i->y, a_c);
@@ -206,10 +206,10 @@ vector_t *FV_MulO(const vector_t *a_i, fixed_t a_c, vector_t *a_o)
 
 vector_t *FV_Mul(vector_t *a_i, fixed_t a_c)
 {
-	return FV_MulO(a_i, a_c, a_i);
+	return FV_MulEx(a_i, a_c, a_i);
 }
 
-vector_t *FV_DivideO(const vector_t *a_i, fixed_t a_c, vector_t *a_o)
+vector_t *FV_DivideEx(const vector_t *a_i, fixed_t a_c, vector_t *a_o)
 {
 	a_o->x = FixedDiv(a_i->x, a_c);
 	a_o->y = FixedDiv(a_i->y, a_c);
@@ -219,7 +219,7 @@ vector_t *FV_DivideO(const vector_t *a_i, fixed_t a_c, vector_t *a_o)
 
 vector_t *FV_Divide(vector_t *a_i, fixed_t a_c)
 {
-	return FV_DivideO(a_i, a_c, a_i);
+	return FV_DivideEx(a_i, a_c, a_i);
 }
 
 // Vector Complex Math
@@ -251,7 +251,7 @@ fixed_t FV_Magnitude(const vector_t *a_normal)
 }
 
 // Also returns the magnitude
-fixed_t FV_NormalizeO(const vector_t *a_normal, vector_t *a_o)
+fixed_t FV_NormalizeEx(const vector_t *a_normal, vector_t *a_o)
 {
 	fixed_t magnitude = FV_Magnitude(a_normal);
 	a_o->x = FixedDiv(a_normal->x, magnitude);
@@ -262,10 +262,10 @@ fixed_t FV_NormalizeO(const vector_t *a_normal, vector_t *a_o)
 
 fixed_t FV_Normalize(vector_t *a_normal)
 {
-	return FV_NormalizeO(a_normal, a_normal);
+	return FV_NormalizeEx(a_normal, a_normal);
 }
 
-vector_t *FV_NegateO(const vector_t *a_1, vector_t *a_o)
+vector_t *FV_NegateEx(const vector_t *a_1, vector_t *a_o)
 {
 	a_o->x = -a_1->x;
 	a_o->y = -a_1->y;
@@ -275,7 +275,7 @@ vector_t *FV_NegateO(const vector_t *a_1, vector_t *a_o)
 
 vector_t *FV_Negate(vector_t *a_1)
 {
-	return FV_NegateO(a_1, a_1);
+	return FV_NegateEx(a_1, a_1);
 }
 
 boolean FV_Equal(const vector_t *a_1, const vector_t *a_2)
@@ -316,9 +316,9 @@ vector_t *FV_ClosestPointOnLine(const vector_t *Line, const vector_t *p, vector_
    // Determine t (the length of the vector from ‘Line[0]’ to ‘p’)
    vector_t c, V;
    fixed_t t, d = 0;
-   FV_SubO(p, &Line[0], &c);
-   FV_SubO(&Line[1], &Line[0], &V);
-   FV_NormalizeO(&V, &V);
+   FV_SubEx(p, &Line[0], &c);
+   FV_Subx(&Line[1], &Line[0], &V);
+   FV_NormalizeEx(&V, &V);
 
    d = FV_Distance(&Line[0], &Line[1]);
    t = FV_Dot(&V, &c);
@@ -336,7 +336,7 @@ vector_t *FV_ClosestPointOnLine(const vector_t *Line, const vector_t *p, vector_
    // Return the point between ‘Line[0]’ and ‘Line[1]’
    FV_Mul(&V, t);
 
-   return FV_AddO(&Line[0], &V, out);
+   return FV_AddEx(&Line[0], &V, out);
 }
 
 //
@@ -410,7 +410,7 @@ void FV_Normal (const vector_t *a_triangle, vector_t *a_normal)
 
 	FV_Cross(&a_1, &a_2, a_normal);
 
-	FV_NormalizeO(a_normal, a_normal);
+	FV_NormalizeEx(a_normal, a_normal);
 }
 
 //
@@ -474,7 +474,7 @@ fixed_t FV_IntersectRaySphere(const vector_t *rO, const vector_t *rV, const vect
 {
 	vector_t Q;
 	fixed_t c, v, d;
-	FV_SubO(sO, rO, &Q);
+	FV_SubEx(sO, rO, &Q);
 
 	c = FV_Magnitude(&Q);
 	v = FV_Dot(&Q, rV);
@@ -503,7 +503,7 @@ vector_t *FV_IntersectionPoint(const vector_t *vNormal, const vector_t *vLine, f
 
 	// 1)  First we need to get the vector of our line, Then normalize it so it's a length of 1
 	FV_Point2Vec(&vLine[1], &vLine[0], &vLineDir);		// Get the Vector of the line
-	FV_NormalizeO(&vLineDir, &vLineDir);				// Normalize the lines vector
+	FV_NormalizeEx(&vLineDir, &vLineDir);				// Normalize the lines vector
 
 
 	// 2) Use the plane equation (distance = Ax + By + Cz + D) to find the distance from one of our points to the plane.

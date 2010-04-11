@@ -286,20 +286,20 @@ typedef struct
 
 vector_t *FV_Load(vector_t *vec, fixed_t x, fixed_t y, fixed_t z);
 vector_t *FV_Copy(vector_t *a_o, const vector_t *a_i);
-vector_t *FV_AddO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
+vector_t *FV_AddEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
 vector_t *FV_Add(vector_t *a_i, const vector_t *a_c);
-vector_t *FV_SubO(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
+vector_t *FV_SubEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
 vector_t *FV_Sub(vector_t *a_i, const vector_t *a_c);
-vector_t *FV_MulO(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
+vector_t *FV_MulEx(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
 vector_t *FV_Mul(vector_t *a_i, fixed_t a_c);
-vector_t *FV_DivideO(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
+vector_t *FV_DivideEx(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
 vector_t *FV_Divide(vector_t *a_i, fixed_t a_c);
 vector_t *FV_Midpoint(const vector_t *a_1, const vector_t *a_2, vector_t *a_o);
 fixed_t FV_Distance(const vector_t *p1, const vector_t *p2);
 fixed_t FV_Magnitude(const vector_t *a_normal);
-fixed_t FV_NormalizeO(const vector_t *a_normal, vector_t *a_o);
+fixed_t FV_NormalizeEx(const vector_t *a_normal, vector_t *a_o);
 fixed_t FV_Normalize(vector_t *a_normal);
-vector_t *FV_NegateO(const vector_t *a_1, vector_t *a_o);
+vector_t *FV_NegateEx(const vector_t *a_1, vector_t *a_o);
 vector_t *FV_Negate(vector_t *a_1);
 boolean FV_Equal(const vector_t *a_1, const vector_t *a_2);
 fixed_t FV_Dot(const vector_t *a_1, const vector_t *a_2);
