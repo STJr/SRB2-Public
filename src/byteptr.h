@@ -17,6 +17,8 @@
 /// \brief Macros to read/write from/to a byte *,
 ///        used for packet creation and such
 
+#include "doomtype.h"
+
 #if defined (__arm__) || defined (__mips__)
 #define DEALIGNED
 #endif

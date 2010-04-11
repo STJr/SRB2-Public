@@ -88,6 +88,9 @@ typedef long ssize_t;
 #define HWRENDER
 #define NOIPX
 #define SHUFFLE
+#if defined (__ppc__) | defined (__ppc64__)
+#define __BIG_ENDIAN__
+#endif
 #endif
 
 #if defined (_MSC_VER) || defined (__OS2__)

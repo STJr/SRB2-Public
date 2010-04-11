@@ -20,9 +20,7 @@
 #ifndef __M_SWAP__
 #define __M_SWAP__
 
-#ifdef __GNUG__
-#pragma interface
-#endif
+#include "doomtype.h"
 
 // Endianess handling.
 // WAD files are stored little endian.

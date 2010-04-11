@@ -43,6 +43,7 @@
 #endif
 
 #include "md5.h"
+#include "doomtype.h"
 
 #ifdef _LIBC
  #include <endian.h>
