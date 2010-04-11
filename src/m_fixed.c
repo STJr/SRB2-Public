@@ -317,7 +317,7 @@ vector_t *FV_ClosestPointOnLine(const vector_t *Line, const vector_t *p, vector_
    vector_t c, V;
    fixed_t t, d = 0;
    FV_SubEx(p, &Line[0], &c);
-   FV_Subx(&Line[1], &Line[0], &V);
+   FV_SubEx(&Line[1], &Line[0], &V);
    FV_NormalizeEx(&V, &V);
 
    d = FV_Distance(&Line[0], &Line[1]);
