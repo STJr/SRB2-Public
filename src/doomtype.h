@@ -56,8 +56,8 @@ typedef long ssize_t;
 #elif defined (_arch_dreamcast) // KOS Dreamcast
 #include <arch/types.h>
 
-#define UIN8 unsigned int8
-#define SINT8 signed int8
+#define UINT8 unsigned char
+#define SINT8 signed char
 
 #define UINT16 uint16
 #define INT16 int16
