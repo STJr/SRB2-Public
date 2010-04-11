@@ -120,7 +120,7 @@ typedef struct
     signed char       (F_API *FSOUND_FX_SetGargle)(int fxid, int RateHz, int WaveShape);
     signed char       (F_API *FSOUND_FX_SetI3DL2Reverb)(int fxid, int Room, int RoomHF, float RoomRolloffFactor, float DecayTime, float DecayHFRatio, int Reflections, float ReflectionsDelay, int Reverb, float ReverbDelay, float Diffusion, float Density, float HFReference);
     signed char       (F_API *FSOUND_FX_SetParamEQ)(int fxid, float Center, float Bandwidth, float Gain);
-    signed char       (F_API *FSOUND_FX_SetWavesReverb)(int fxid, float InGain, float ReverbMix, float ReverbTime, float HighFreqRTRatio);  
+    signed char       (F_API *FSOUND_FX_SetWavesReverb)(int fxid, float InGain, float ReverbMix, float ReverbTime, float HighFreqRTRatio);
     signed char       (F_API *FSOUND_Stream_SetBufferSize)(int ms);      /* call this before opening streams, not after */
     FSOUND_STREAM *   (F_API *FSOUND_Stream_Open)(const char *name_or_data, unsigned int mode, int offset, int length);
     FSOUND_STREAM *   (F_API *FSOUND_Stream_Create)(FSOUND_STREAMCALLBACK callback, int length, unsigned int mode, int samplerate, void *userdata);
@@ -172,7 +172,7 @@ typedef struct
     int               (F_API *FSOUND_CD_GetTrack)(char drive);
     int               (F_API *FSOUND_CD_GetNumTracks)(char drive);
     int               (F_API *FSOUND_CD_GetVolume)(char drive);
-    int               (F_API *FSOUND_CD_GetTrackLength)(char drive, int track); 
+    int               (F_API *FSOUND_CD_GetTrackLength)(char drive, int track);
     int               (F_API *FSOUND_CD_GetTrackTime)(char drive);
     FSOUND_DSPUNIT *  (F_API *FSOUND_DSP_Create)(FSOUND_DSPCALLBACK callback, int priority, void *userdata);
     void              (F_API *FSOUND_DSP_Free)(FSOUND_DSPUNIT *unit);
@@ -200,7 +200,7 @@ typedef struct
     int               (F_API *FSOUND_Record_GetDriver)();
     signed char       (F_API *FSOUND_Record_StartSample)(FSOUND_SAMPLE *sptr, signed char loop);
     signed char       (F_API *FSOUND_Record_Stop)();
-    int               (F_API *FSOUND_Record_GetPosition)();  
+    int               (F_API *FSOUND_Record_GetPosition)();
     FMUSIC_MODULE *   (F_API *FMUSIC_LoadSong)(const char *name);
     FMUSIC_MODULE *   (F_API *FMUSIC_LoadSongEx)(const char *name_or_data, int offset, int length, unsigned int mode, const int *samplelist, int samplelistnum);
     int               (F_API *FMUSIC_GetOpenState)(FMUSIC_MODULE *mod);
