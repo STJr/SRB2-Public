@@ -167,11 +167,13 @@ FUNCINLINE static ATTRINLINE UINT32 readulong(void *ptr)
 #define READMEM(p,s,n)      { memcpy(s, p, n); p += n; }
 
 // old names
+#if 0
 #define WRITEBYTE(p,b)      WRITEUINT8(p,b)
 #define WRITESHORT(p,b)     WRITEINT16(p,b)
 #define WRITEUSHORT(p,b)    WRITEUINT16(p,b)
 #define WRITELONG(p,b)      WRITEINT32(p,b)
 #define WRITEULONG(p,b)     WRITEUINT32(p,b)
+#endif
 
 #define READBYTE(p)         READUINT8(p)
 #define READSHORT(p)        READINT16(p)
