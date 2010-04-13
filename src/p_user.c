@@ -386,11 +386,11 @@ void P_ResetScore(player_t *player)
 //
 // Returns the lowest open mare available
 //
-byte P_FindLowestMare(void)
+UINT8 P_FindLowestMare(void)
 {
 	thinker_t *th;
 	mobj_t *mo2;
-	byte mare = 255;
+	UINT8 mare = UINT8_MAX;
 
 	if (gametype == GT_RACE)
 		return 0;
@@ -406,7 +406,7 @@ byte P_FindLowestMare(void)
 
 		if (mo2->type == MT_EGGCAPSULE && mo2->health > 0)
 		{
-			const byte threshold = (byte)mo2->threshold;
+			const UINT8 threshold = (UINT8)mo2->threshold;
 			if (mare == 255)
 				mare = threshold;
 			else if (threshold < mare)
@@ -433,7 +433,7 @@ boolean P_TransferToNextMare(player_t *player)
 	mobj_t *mo2;
 	mobj_t *closestaxis = NULL;
 	INT32 lowestaxisnum = -1;
-	byte mare = P_FindLowestMare();
+	UINT8 mare = P_FindLowestMare();
 	fixed_t dist1, dist2 = 0;
 
 	if (mare == 255)
@@ -4956,7 +4956,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			mapthing_t *oldmapthings;
 			mobj_t *newthing;
 			INT16 x,y,z = 0;
-			byte zshift;
+			UINT8 zshift;
 
 			if (player->mo->target->flags & MF_SPAWNCEILING)
 			{

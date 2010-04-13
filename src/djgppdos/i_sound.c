@@ -72,7 +72,7 @@
 //    +2 : sample rate, either 11025 or 22050.
 //    +4 : number of samples, each sample is a single byte since it's 8bit
 //    +6 : value 0
-static inline SAMPLE *raw2SAMPLE(unsigned char *dsdata, unsigned long len)
+static inline SAMPLE *raw2SAMPLE(UBYTE *dsdata, size_t len)
 {
 	SAMPLE *spl;
 
@@ -98,14 +98,14 @@ static inline SAMPLE *raw2SAMPLE(unsigned char *dsdata, unsigned long len)
 //
 void *I_GetSfx (sfxinfo_t * sfx)
 {
-	byte *              dssfx;
+	UINT8 *dssfx;
 
 	if (sfx->lumpnum == LUMPERROR)
 		sfx->lumpnum = S_GetSfxLumpNum (sfx);
 
 	sfx->length = W_LumpLength (sfx->lumpnum);
 
-	dssfx = (byte *) W_CacheLumpNum (sfx->lumpnum, PU_SOUND);
+	dssfx = (UINT8 *) W_CacheLumpNum (sfx->lumpnum, PU_SOUND);
 	//_go32_dpmi_lock_data(dssfx,size);
 
 	// convert raw data and header from Doom sfx to a SAMPLE for Allegro
@@ -120,7 +120,7 @@ void I_FreeSfx (sfxinfo_t *sfx)
 
 	// free sample data
 	if ( sfx->data )
-		Z_Free((byte *) ((SAMPLE *)sfx->data)->data - 8);
+		Z_Free((UINT8 *) ((SAMPLE *)sfx->data)->data - 8);
 	Z_Free(sfx->data); // Allegro SAMPLE structure
 	sfx->data = NULL;
 	sfx->lumpnum = LUMPERROR;
@@ -320,7 +320,7 @@ void I_StartupSound(void)
 static MIDI* currsong;   //im assuming only 1 song will be played at once
 static int      islooping=0;
 static int      musicdies=-1;
-byte      music_started=0;
+UINT8           music_started=0;
 
 
 /* load_midi_mem:

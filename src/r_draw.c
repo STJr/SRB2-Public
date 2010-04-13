@@ -47,22 +47,22 @@ INT32 viewwidth, scaledviewwidth, viewheight, viewwindowx, viewwindowy;
 
 /**	\brief pointer to the start of each line of the screen,
 */
-byte *ylookup[MAXVIDHEIGHT*4];
+UINT8 *ylookup[MAXVIDHEIGHT*4];
 
 /**	\brief pointer to the start of each line of the screen, for view1 (splitscreen)
 */
-byte *ylookup1[MAXVIDHEIGHT*4];
+UINT8 *ylookup1[MAXVIDHEIGHT*4];
 
 /**	\brief pointer to the start of each line of the screen, for view2 (splitscreen)
 */
-byte *ylookup2[MAXVIDHEIGHT*4];
+UINT8 *ylookup2[MAXVIDHEIGHT*4];
 
 /**	\brief  x byte offset for columns inside the viewwindow,
 	so the first column starts at (SCRWIDTH - VIEWWIDTH)/2
 */
 INT32 columnofs[MAXVIDWIDTH*4];
 
-byte *topleft;
+UINT8 *topleft;
 
 // =========================================================================
 //                      COLUMN DRAWING CODE STUFF
@@ -72,32 +72,32 @@ lighttable_t *dc_colormap;
 INT32 dc_x = 0, dc_yl = 0, dc_yh = 0;
 
 fixed_t dc_iscale, dc_texturemid;
-byte dc_hires; // under MSVC boolean is a byte, while on other systems, it a bit,
+UINT8 dc_hires; // under MSVC boolean is a byte, while on other systems, it a bit,
                // soo lets make it a byte on all system for the ASM code
-byte *dc_source;
+UINT8 *dc_source;
 
 // -----------------------
 // translucency stuff here
 // -----------------------
 #define NUMTRANSTABLES 9 // how many translucency tables are used
 
-byte *transtables; // translucency tables
+UINT8 *transtables; // translucency tables
 
 /**	\brief R_DrawTransColumn uses this
 */
-byte *dc_transmap; // one of the translucency tables
+UINT8 *dc_transmap; // one of the translucency tables
 
 // ----------------------
 // translation stuff here
 // ----------------------
 
-byte *translationtables[MAXSKINS];
-byte *defaulttranslationtables;
-byte *bosstranslationtables;
+UINT8 *translationtables[MAXSKINS];
+UINT8 *defaulttranslationtables;
+UINT8 *bosstranslationtables;
 
 /**	\brief R_DrawTranslatedColumn uses this
 */
-byte *dc_translation;
+UINT8 *dc_translation;
 
 struct r_lightlist_s *dc_lightlist = NULL; /// \todo free leak
 INT32 dc_numlights = 0, dc_maxlights, dc_texheight;
@@ -110,8 +110,8 @@ INT32 ds_y, ds_x1, ds_x2;
 lighttable_t *ds_colormap;
 fixed_t ds_xfrac, ds_yfrac, ds_xstep, ds_ystep;
 
-byte *ds_source; // start of a 64*64 tile image
-byte *ds_transmap; // one of the translucency tables
+UINT8 *ds_source; // start of a 64*64 tile image
+UINT8 *ds_transmap; // one of the translucency tables
 
 /**	\brief Variable flat sizes
 */
@@ -174,7 +174,7 @@ void R_LoadSkinTable(void)
 void R_InitTranslationTables(void)
 {
 	INT32 i, j;
-	byte bi;
+	UINT8 bi;
 
 	// Load here the transparency lookup tables 'TINTTAB'
 	// NOTE: the TINTTAB resource MUST BE aligned on 64k for the asm
@@ -201,33 +201,33 @@ void R_InitTranslationTables(void)
 	{
 		if (i >= 160 && i <= 175)
 		{
-			bi = (byte)(i & 0xf);
+			bi = (UINT8)(i & 0xf);
 
-			defaulttranslationtables[i      ] = (byte)(0xd0 + bi); // Cyan
-			defaulttranslationtables[i+  256] = (byte)(0x40 + bi); // Peach // Tails 02-19-2000
-			defaulttranslationtables[i+2*256] = (byte)(0xf8 + bi/2); // Lavender
-			defaulttranslationtables[i+3*256] = (byte)(0x00 + bi); // silver // tails 02-19-2000
-			defaulttranslationtables[i+4*256] = (byte)(0x50 + bi); // orange // tails 02-19-2000
-			defaulttranslationtables[i+5*256] = (byte)(0x80 + bi); // light red
-			defaulttranslationtables[i+6*256] = (byte)(0xe0 + bi); // light blue
+			defaulttranslationtables[i      ] = (UINT8)(0xd0 + bi); // Cyan
+			defaulttranslationtables[i+  256] = (UINT8)(0x40 + bi); // Peach // Tails 02-19-2000
+			defaulttranslationtables[i+2*256] = (UINT8)(0xf8 + bi/2); // Lavender
+			defaulttranslationtables[i+3*256] = (UINT8)(0x00 + bi); // silver // tails 02-19-2000
+			defaulttranslationtables[i+4*256] = (UINT8)(0x50 + bi); // orange // tails 02-19-2000
+			defaulttranslationtables[i+5*256] = (UINT8)(0x80 + bi); // light red
+			defaulttranslationtables[i+6*256] = (UINT8)(0xe0 + bi); // light blue
 
 			// Steel blue
-			defaulttranslationtables[i+7*256] = (byte)(0xc8 + bi/2);
+			defaulttranslationtables[i+7*256] = (UINT8)(0xc8 + bi/2);
 
-			defaulttranslationtables[i+8*256] = (byte)(0x90 + bi/2); // Pink
-			defaulttranslationtables[i+9*256] = (byte)(0x20 + bi); // Beige
+			defaulttranslationtables[i+8*256] = (UINT8)(0x90 + bi/2); // Pink
+			defaulttranslationtables[i+9*256] = (UINT8)(0x20 + bi); // Beige
 
 			// Purple
-			defaulttranslationtables[i+10*256] = (byte)(0xc0 + bi/2);
+			defaulttranslationtables[i+10*256] = (UINT8)(0xc0 + bi/2);
 
 			// Green
-			defaulttranslationtables[i+11*256] = (byte)(0xa0 + bi);
+			defaulttranslationtables[i+11*256] = (UINT8)(0xa0 + bi);
 
 			// White
-			defaulttranslationtables[i+12*256] = (byte)(0x00 + bi/2);
+			defaulttranslationtables[i+12*256] = (UINT8)(0x00 + bi/2);
 
 			// Gold
-			defaulttranslationtables[i+13*256] = (byte)(0x70 + bi/2);
+			defaulttranslationtables[i+13*256] = (UINT8)(0x70 + bi/2);
 
 			// Yellow
 			switch (bi)
@@ -268,14 +268,14 @@ void R_InitTranslationTables(void)
 		else // Keep other colors as is.
 		{
 			for (j = 0; j < MAXSKINCOLORS*256; j += 256)
-				defaulttranslationtables[i+j] = (byte)i;
+				defaulttranslationtables[i+j] = (UINT8)i;
 		}
 	}
 
 	bosstranslationtables = Z_MallocAlign(256, PU_STATIC, NULL, 16);
 
 	for (i = 0; i < 256; i++)
-		bosstranslationtables[i] = (byte)i;
+		bosstranslationtables[i] = (UINT8)i;
 	bosstranslationtables[31] = 0; // White!
 }
 
@@ -293,40 +293,40 @@ void R_InitTranslationTables(void)
 void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum)
 {
 	INT32 i, j;
-	byte bi;
+	UINT8 bi;
 
 	// Translate the colors specified by the skin information.
 	for (i = 0; i < 256; i++)
 	{
 		if (i >= starttranscolor && i < starttranscolor+16)
 		{
-			bi = (byte)((i - starttranscolor) & 0xf);
+			bi = (UINT8)((i - starttranscolor) & 0xf);
 
-			translationtables[skinnum][i      ] = (byte)(0xd0 + bi); // Cyan
-			translationtables[skinnum][i+  256] = (byte)(0x40 + bi); // Peach // Tails 02-19-2000
-			translationtables[skinnum][i+2*256] = (byte)(0xf8 + bi/2); // Lavender
-			translationtables[skinnum][i+3*256] = (byte)(0x00 + bi); // silver // tails 02-19-2000
-			translationtables[skinnum][i+4*256] = (byte)(0x50 + bi); // orange // tails 02-19-2000
-			translationtables[skinnum][i+5*256] = (byte)(0x7d + bi); // light red
-			translationtables[skinnum][i+6*256] = (byte)(0xe0 + bi); // light blue
+			translationtables[skinnum][i      ] = (UINT8)(0xd0 + bi); // Cyan
+			translationtables[skinnum][i+  256] = (UINT8)(0x40 + bi); // Peach // Tails 02-19-2000
+			translationtables[skinnum][i+2*256] = (UINT8)(0xf8 + bi/2); // Lavender
+			translationtables[skinnum][i+3*256] = (UINT8)(0x00 + bi); // silver // tails 02-19-2000
+			translationtables[skinnum][i+4*256] = (UINT8)(0x50 + bi); // orange // tails 02-19-2000
+			translationtables[skinnum][i+5*256] = (UINT8)(0x7d + bi); // light red
+			translationtables[skinnum][i+6*256] = (UINT8)(0xe0 + bi); // light blue
 
 			// Steel blue
-			translationtables[skinnum][i+7*256] = (byte)(0xc8 + bi/2);
+			translationtables[skinnum][i+7*256] = (UINT8)(0xc8 + bi/2);
 
-			translationtables[skinnum][i+8*256] = (byte)(0x90 + bi/2); // Pink
-			translationtables[skinnum][i+9*256] = (byte)(0x20 + bi); // Beige
+			translationtables[skinnum][i+8*256] = (UINT8)(0x90 + bi/2); // Pink
+			translationtables[skinnum][i+9*256] = (UINT8)(0x20 + bi); // Beige
 
 			// Purple
-			translationtables[skinnum][i+10*256] = (byte)(0xc0 + bi/2);
+			translationtables[skinnum][i+10*256] = (UINT8)(0xc0 + bi/2);
 
 			// Green
-			translationtables[skinnum][i+11*256] = (byte)(0xa0 + bi);
+			translationtables[skinnum][i+11*256] = (UINT8)(0xa0 + bi);
 
 			// White
-			translationtables[skinnum][i+12*256] = (byte)(0x00 + bi/2);
+			translationtables[skinnum][i+12*256] = (UINT8)(0x00 + bi/2);
 
 			// Gold
-			translationtables[skinnum][i+13*256] = (byte)(0x70 + bi/2);
+			translationtables[skinnum][i+13*256] = (UINT8)(0x70 + bi/2);
 
 			// Yellow
 			switch (bi)
@@ -380,7 +380,7 @@ void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum)
 			// NOTE: Why MAXSKINCOLORS-1 here, but MAXSKINCOLORS
 			// in the above R_InitTranslationTables?
 			for (j = 0; j < (MAXSKINCOLORS-1) * 256; j += 256)
-				translationtables[skinnum][i+j] = (byte)i;
+				translationtables[skinnum][i+j] = (UINT8)i;
 		}
 	}
 }
@@ -467,7 +467,7 @@ void R_InitViewBorder(void)
 */
 void R_FillBackScreen(void)
 {
-	byte *src, *dest;
+	UINT8 *src, *dest;
 	patch_t *patch;
 	INT32 x, y, step, boff;
 

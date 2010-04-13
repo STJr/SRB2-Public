@@ -3074,7 +3074,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 {
 	INT32 i;
 	mobj_t *mo;
-	byte randomangle;
+	UINT8 randomangle;
 	angle_t fa;
 	fixed_t ns;
 	INT32 amt;

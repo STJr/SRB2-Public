@@ -34,11 +34,11 @@
 
 /**	\brief Graphic system had started up
 */
-extern byte graphics_started;
+extern UINT8 graphics_started;
 
 /**	\brief Keyboard system is up and run
 */
-extern byte keyboard_started;
+extern UINT8 keyboard_started;
 
 /**	\brief	The I_GetFreeMem function
 
@@ -89,14 +89,6 @@ ticcmd_t *I_BaseTiccmd2(void);
 /**	\brief Called by M_Responder when quit is selected, return exit code 0
 */
 void I_Quit(void) FUNCNORETURN;
-
-/**	\brief	Allocates from low memory under dos,
-	just mallocs under unix
-
-	\param	length	how much memory
-	\return	memory from low memory under dos
-*/
-byte *I_AllocLow(INT32 length) FUNCDEAD;
 
 typedef enum
 {

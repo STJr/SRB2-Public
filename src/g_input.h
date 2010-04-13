@@ -130,7 +130,7 @@ extern INT32 mouse2x, mouse2y, mlook2y;
 extern INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
 // current state of the keys: true if pushed
-extern byte gamekeydown[NUMINPUTS];
+extern UINT8 gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
 extern INT32 gamecontrol[num_gamecontrols][2];

@@ -37,15 +37,15 @@ typedef struct vbeinfoblock_s
 	unsigned char  VESASignature[4];
 	UINT16         VESAVersion;
 	unsigned long  OemStringPtr;
-	byte           Capabilities[4];
+	UINT8          Capabilities[4];
 	unsigned long  VideoModePtr;
 	UINT16         TotalMemory;
-	byte           OemSoftwareRev[2];
-	byte           OemVendorNamePtr[4];
-	byte           OemProductNamePtr[4];
-	byte           OemProductRevPtr[4];
-	byte           Reserved[222];
-	byte           OemData[256];
+	UINT8          OemSoftwareRev[2];
+	UINT8          OemVendorNamePtr[4];
+	UINT8          OemProductNamePtr[4];
+	UINT8          OemProductRevPtr[4];
+	UINT8          Reserved[222];
+	UINT8          OemData[256];
 }  ATTTPACK vbeinfoblock_t;
 
 

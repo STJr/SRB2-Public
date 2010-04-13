@@ -41,7 +41,7 @@ extern boolean moviemode;
 INT32 M_MapNumber(char first, char second);
 
 boolean FIL_WriteFile(char const *name, const void *source, size_t length);
-size_t FIL_ReadFile(char const *name, byte **buffer);
+size_t FIL_ReadFile(char const *name, UINT8 **buffer);
 
 boolean FIL_FileExists(const char *name);
 boolean FIL_WriteFileOK(char const *name);
@@ -53,7 +53,7 @@ void FIL_ForceExtension(char *path, const char *extension);
 boolean FIL_CheckExtension(const char *in);
 
 #ifdef HAVE_PNG
-boolean M_SavePNG(const char *filename, void *data, int width, int height, const byte *palette);
+boolean M_SavePNG(const char *filename, void *data, int width, int height, const UINT8 *palette);
 boolean M_StartMovie(void);
 void M_SaveFrame(void);
 boolean M_StopMovie(void);

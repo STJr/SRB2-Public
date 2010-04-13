@@ -102,7 +102,7 @@ void Z_Free(void *ptr)
 	CONS_Printf("Z_Free %s:%d\n", file, line);
 #endif
 
-	hdr = (memhdr_t *)((byte *)ptr - sizeof *hdr);
+	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
 	if (hdr->id != ZONEID)
 	{
 #ifdef ZDEBUG
@@ -168,11 +168,11 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 
 	// This horrible calculation makes sure that "given" is aligned
 	// properly.
-	given = (void *)((size_t)((byte *)ptr + extrabytes + sizeof *hdr)
+	given = (void *)((size_t)((UINT8 *)ptr + extrabytes + sizeof *hdr)
 		& ~extrabytes);
 
 	// The mem header lives 'sizeof (memhdr_t)' bytes before given.
-	hdr = (memhdr_t *)((byte *)given - sizeof *hdr);
+	hdr = (memhdr_t *)((UINT8 *)given - sizeof *hdr);
 
 	block->next = head.next;
 	block->prev = &head;
@@ -242,7 +242,7 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 	else
 		rez = Z_MallocAlign(size, tag, user, alignbits);
 
-	hdr = (memhdr_t *)((byte *)ptr - sizeof *hdr);
+	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
 	if (hdr->id != ZONEID)
 	{
 #ifdef ZDEBUG
@@ -283,7 +283,7 @@ void Z_FreeTags(INT32 lowtag, INT32 hightag)
 		next = block->next; // get link before freeing
 
 		if (block->tag >= lowtag && block->tag <= hightag)
-			Z_Free((byte *)block->hdr + sizeof *block->hdr);
+			Z_Free((UINT8 *)block->hdr + sizeof *block->hdr);
 	}
 }
 
@@ -327,7 +327,7 @@ void Z_CheckHeap(INT32 i)
 	for (block = head.next; block != &head; block = block->next)
 	{
 		blocknumon++;
-		given = (byte *)block->hdr + sizeof *(block->hdr);
+		given = (UINT8 *)block->hdr + sizeof *(block->hdr);
 #ifdef ZDEBUG
 		CONS_Printf("block %u owned by %s:%d\n",
 			blocknumon, block->ownerfile, block->ownerline);
@@ -373,7 +373,7 @@ void Z_ChangeTag2(void *ptr, INT32 tag)
 	if (ptr == NULL)
 		return;
 
-	hdr = (memhdr_t *)((byte *)ptr - sizeof *hdr);
+	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
 
 #ifdef PARANOIA
 	if (hdr->id != ZONEID) I_Error("Z_CT at %s:%d: wrong id", file, line);

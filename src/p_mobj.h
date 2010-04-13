@@ -320,7 +320,7 @@ typedef struct mobj_s
 
 	UINT16 scale;
 	UINT16 destscale;
-	byte scalespeed;
+	UINT8 scalespeed;
 
 	// WARNING: New fields must be added separately to savegame.
 } mobj_t;

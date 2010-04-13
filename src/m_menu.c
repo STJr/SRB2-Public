@@ -130,14 +130,14 @@ typedef struct
 {
 	char playername[SKINNAMESIZE];
 	char levelname[32];
-	byte actnum;
-	byte skincolor;
-	byte skinnum;
-	byte numemeralds;
+	UINT8 actnum;
+	UINT8 skincolor;
+	UINT8 skinnum;
+	UINT8 numemeralds;
 	INT32 lives;
 	INT32 continues;
 	INT32 gamemap;
-	byte netgame;
+	UINT8 netgame;
 } saveinfo_t;
 
 static saveinfo_t savegameinfo[10]; // Extra info about the save games.
@@ -2856,7 +2856,7 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	}
 	else
 	{
-		byte *colormap = (byte *)translationtables[setupm_player->skin] - 256
+		const UINT8 *colormap = (const UINT8 *)translationtables[setupm_player->skin] - 256
 			+ (setupm_cvcolor->value<<8);
 
 		if (atoi(skins[setupm_cvskin->value].highres))
@@ -3056,7 +3056,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 	{
 		// Compact the menu
 		INT32 i;
-		byte alpha = 0;
+		UINT8 alpha = 0;
 		for (i = 0; i < currentMenu->numitems; i++)
 		{
 			if (currentMenu->menuitems[i].status == 0
@@ -6465,7 +6465,7 @@ static void M_DrawGameStats(void)
 		V_DrawScaledPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
 	else
 	{
-		byte *colormap = (byte *) translationtables[savegameinfo[saveSlotSelected].skinnum] - 256 + (savegameinfo[saveSlotSelected].skincolor<<8);
+		const UINT8 *colormap = (const UINT8 *) translationtables[savegameinfo[saveSlotSelected].skinnum] - 256 + (savegameinfo[saveSlotSelected].skincolor<<8);
 		V_DrawMappedPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
 	}
 
@@ -6586,9 +6586,9 @@ static void M_ReadSavegameInfo(UINT32 slot)
 #define CHECKPOS if (save_p >= end_p) BADSAVE
 	size_t length;
 	char savename[255];
-	byte *savebuffer;
-	byte *end_p; // buffer end point, don't read past here
-	byte *save_p;
+	UINT8 *savebuffer;
+	UINT8 *end_p; // buffer end point, don't read past here
+	UINT8 *save_p;
 	INT32 fake; // Dummy variable
 	char temp[sizeof(timeattackfolder)];
 
@@ -6963,7 +6963,7 @@ void M_StartMessage(const char *string, void *routine,
 		MessageDef.prevMenu = currentMenu;
 
 	MessageDef.menuitems[0].text     = message;
-	MessageDef.menuitems[0].alphaKey = (byte)itemtype;
+	MessageDef.menuitems[0].alphaKey = (UINT8)itemtype;
 	if (!routine && itemtype != MM_NOTHING) itemtype = MM_NOTHING;
 	switch (itemtype)
 	{
@@ -7023,7 +7023,7 @@ static void M_DrawMessageMenu(void)
 	const char *msg = currentMenu->menuitems[0].text;
 
 	mlines = currentMenu->lastOn>>8;
-	max = (INT16)((byte)(currentMenu->lastOn & 0xFF)*8);
+	max = (INT16)((UINT8)(currentMenu->lastOn & 0xFF)*8);
 	M_DrawTextBox(currentMenu->x, y - 8, (max+7)>>3, mlines);
 
 	while (*(msg+start))

@@ -46,14 +46,14 @@ extern INT64 sendbytes; // realtime updated
 
 extern signed char nodetoplayer[MAXNETNODES];
 extern signed char nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
-extern byte playerpernode[MAXNETNODES]; // used specialy for scplitscreen
+extern UINT8 playerpernode[MAXNETNODES]; // used specialy for scplitscreen
 extern boolean nodeingame[MAXNETNODES]; // set false as nodes leave game
 
 void Net_AckTicker(void);
 boolean Net_AllAckReceived(void);
 
 // if reliable return true if packet sent, 0 else
-boolean HSendPacket(INT32 node, boolean reliable, byte acknum,
+boolean HSendPacket(INT32 node, boolean reliable, UINT8 acknum,
 	size_t packetlength);
 boolean HGetPacket(void);
 void D_SetDoomcom(void);
@@ -64,7 +64,7 @@ boolean D_CheckNetGame(void);
 void D_CloseConnection(void);
 void Net_UnAcknowledgPacket(INT32 node);
 void Net_CloseConnection(INT32 node);
-void Net_AbortPacketType(byte packettype);
+void Net_AbortPacketType(UINT8 packettype);
 void Net_SendAcks(INT32 node);
 void Net_WaitAllAckReceived(UINT32 timeout);
 #endif

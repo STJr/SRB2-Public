@@ -327,7 +327,7 @@ void I_LoadingScreen(LPCSTR msg)
 // ------------
 // I_ReadScreen
 // ------------
-void I_ReadScreen(byte *scr)
+void I_ReadScreen(UINT8 *scr)
 {
 	// DEBUGGING
 	if (rendermode != render_soft)

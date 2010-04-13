@@ -31,12 +31,12 @@
 #endif
 
 // For use if I do walls with outsides/insides
-static const byte GREENS     = (10*16);
-static const byte GREENRANGE = 16;
-static const byte GRAYS      = (0*16);
-static const byte GRAYSRANGE = 16;
-static const byte DBLACK     = 31;
-static const byte DWHITE     = 0;
+static const UINT8 GREENS     = (10*16);
+static const UINT8 GREENRANGE = 16;
+static const UINT8 GRAYS      = (0*16);
+static const UINT8 GRAYSRANGE = 16;
+static const UINT8 DBLACK     = 31;
+static const UINT8 DWHITE     = 0;
 
 // Automap colors
 #define BACKGROUND       DBLACK
@@ -168,7 +168,7 @@ static INT32 f_w;
 static INT32 f_h;
 
 static INT32 lightlev; // used for funky strobing effect
-static byte *fb; // pseudo-frame buffer
+static UINT8 *fb; // pseudo-frame buffer
 static INT32 amclock;
 
 static mpoint_t m_paninc; // how far the window pans each tic (map coords)
@@ -402,7 +402,7 @@ static void AM_initVariables(void)
 	old_m_h = m_h;
 }
 
-static const byte *maplump; // pointer to the raw data for the automap background.
+static const UINT8 *maplump; // pointer to the raw data for the automap background.
 
 /** Clears all map markers.
   */
@@ -691,8 +691,8 @@ static void AM_clearFB(INT32 color)
 	{
 		INT32 dmapx, dmapy, i, y;
 		static INT32 mapxstart, mapystart;
-		byte *dest = screens[0];
-		const byte *src;
+		UINT8 *dest = screens[0];
+		const UINT8 *src;
 #define MAPLUMPHEIGHT (200 - 42)
 
 		if (followplayer)
@@ -893,7 +893,7 @@ static void AM_drawFline_soft(const fline_t *fl, INT32 color)
 	}
 #endif
 
-#define PUTDOT(xx,yy,cc) fb[(yy)*f_w + (xx)]=(byte)(cc)
+#define PUTDOT(xx,yy,cc) fb[(yy)*f_w + (xx)]=(UINT8)(cc)
 
 	dx = fl->b.x - fl->a.x;
 	ax = 2 * (dx < 0 ? -dx : dx);
@@ -1152,7 +1152,7 @@ static inline void AM_drawCrosshair(INT32 color)
 		return; // BP: should be putpixel here
 
 	if (scr_bpp == 1)
-		fb[(f_w*(f_h + 1))/2] = (byte)color; // single point for now
+		fb[(f_w*(f_h + 1))/2] = (UINT8)color; // single point for now
 	else
 		*((INT16 *)(void *)fb + (f_w*(f_h + 1))/2) = (INT16)color;
 }

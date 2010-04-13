@@ -141,8 +141,6 @@ typedef long ssize_t;
 	#define strnicmp strncmp
 #endif
 
-	#define __BYTEBOOL__
-	typedef unsigned char byte;
 	#define boolean INT32
 
 	#ifndef O_BINARY
@@ -177,13 +175,6 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 #ifndef __BYTEBOOL__
 	#define __BYTEBOOL__
 
-	// Fixed to use builtin bool type with C++.
-	//#ifdef __cplusplus
-	//    typedef bool boolean;
-	//#else
-	#if defined (_XBOX) || !defined (__MINGW32__)
-		typedef unsigned char byte;
-	#endif
 	//faB: clean that up !!
 	#if (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
 		#define false   FALSE           // use windows types
@@ -240,10 +231,10 @@ union FColorRGBA
 	UINT32 rgba;
 	struct
 	{
-		byte red;
-		byte green;
-		byte blue;
-		byte alpha;
+		UINT8 red;
+		UINT8 green;
+		UINT8 blue;
+		UINT8 alpha;
 	} s;
 };
 typedef union FColorRGBA RGBA_t;

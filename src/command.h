@@ -62,7 +62,7 @@ typedef struct vsbuf_s
 {
 	boolean allowoverflow; // if false, do a I_Error
 	boolean overflowed; // set to true if the buffer size failed
-	byte *data;
+	UINT8 *data;
 	size_t maxsize;
 	size_t cursize;
 } vsbuf_t;
@@ -157,7 +157,7 @@ void CV_AddValue(consvar_t *var, INT32 increment);
 void CV_SaveVariables(FILE *f);
 
 // load/save gamesate (load and save option and for network join in game)
-void CV_SaveNetVars(byte **p);
-void CV_LoadNetVars(byte **p);
+void CV_SaveNetVars(UINT8 **p);
+void CV_LoadNetVars(UINT8 **p);
 
 #endif // __COMMAND_H__

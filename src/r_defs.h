@@ -53,7 +53,7 @@ typedef struct
 // Indeed, true color support is possible precalculating 24bpp lightmap/colormap LUT
 // from darkening PLAYPAL to all black.
 // Could even use more than 32 levels.
-typedef byte lighttable_t;
+typedef UINT8 lighttable_t;
 
 // ExtraColormap type. Use for extra_colormaps from now on.
 typedef struct
@@ -542,15 +542,15 @@ typedef struct
 // posts are runs of non masked source pixels
 typedef struct
 {
-	byte topdelta; // -1 is the last post in a column
-	byte length;   // length data bytes follows
+	UINT8 topdelta; // -1 is the last post in a column
+	UINT8 length;   // length data bytes follows
 } ATTRPACK post_t;
 
 #if defined(_MSC_VER)
 #pragma pack()
 #endif
 
-// column_t is a list of 0 or more post_t, (byte)-1 terminated
+// column_t is a list of 0 or more post_t, (UINT8)-1 terminated
 typedef post_t column_t;
 
 //
@@ -629,12 +629,12 @@ typedef struct
 typedef struct
 {
 	INT16 width;
-	byte zero;       // set to 0 allow autodetection of pic_t
+	UINT8 zero;       // set to 0 allow autodetection of pic_t
 	                 // mode instead of patch or raw
-	byte mode;       // see pic_mode_t above
+	UINT8 mode;       // see pic_mode_t above
 	INT16 height;
 	INT16 reserved1; // set to 0
-	byte data[0];
+	UINT8 data[0];
 } ATTRPACK pic_t;
 
 #ifdef _MSC_VER
@@ -661,14 +661,14 @@ typedef struct
 	// If false use 0 for any position.
 	// Note: as eight entries are available, we might as well insert the same
 	//  name eight times.
-	byte rotate;
+	UINT8 rotate;
 
 	// Lump to use for view angles 0-7.
 	lumpnum_t lumppat[8]; // lump number 16 : 16 wad : lump
 	size_t lumpid[8]; // id in the spriteoffset, spritewidth, etc. tables
 
 	// Flip bit (1 = flip) to use for view angles 0-7.
-	byte flip[8];
+	UINT8 flip[8];
 } spriteframe_t;
 
 //

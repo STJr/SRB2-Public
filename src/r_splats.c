@@ -359,14 +359,14 @@ void ASMCALL rasterize_segment_tex(INT32 x1, INT32 y1, INT32 x2, INT32 y2, INT32
 // fill the polygon with linear interpolation, call span drawer for each
 // scan line
 // --------------------------------------------------------------------------
-static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex)
+static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, UINT8 *pTex)
 {
 	// rasterizing
 	INT32 miny = vid.height + 1, maxy = 0, y, x1, ry1, x2, y2;
 	fixed_t offsetx, offsety;
 
 #ifdef FLOORSPLATSOLIDCOLOR
-	byte *pDest;
+	UINT8 *pDest;
 	INT32 tdx, tdy, ty, tx, x;
 #else
 	lighttable_t **planezlight;
@@ -545,7 +545,7 @@ static void R_RenderFloorSplat(floorsplat_t *pSplat, vertex_t *verts, byte *pTex
 
 			while (x-- > 0)
 			{
-				*(pDest++) = (byte)(y&1);
+				*(pDest++) = (UINT8)(y&1);
 				tx += tdx;
 				ty += tdy;
 			}

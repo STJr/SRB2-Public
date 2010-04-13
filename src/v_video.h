@@ -31,9 +31,9 @@
 // Screen 0 is the screen updated by I_Update screen.
 // Screen 1 is an extra buffer.
 
-extern byte *screens[5];
+extern UINT8 *screens[5];
 
-extern const byte gammatable[5][256];
+extern const UINT8 gammatable[5][256];
 extern consvar_t cv_ticrate, cv_usegamma, cv_allcaps;
 
 // Allocates buffer screens, call before R_Init.
@@ -50,7 +50,7 @@ extern RGBA_t *pLocalPalette;
 #define V_GetColor(color) (pLocalPalette[color&0xFF])
 
 // like V_DrawPatch, + using a colormap.
-void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap);
+void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap);
 
 // flags hacked in scrn (not supported by all functions (see src))
 #define V_NOSCALESTART       0x00010000  // don't scale x, y, start coords
@@ -77,8 +77,8 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
 // default params: scale patch and scale start
 void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
-void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap);
-void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const byte *colormap);
+void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap);
+void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap);
 void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
 // like V_DrawScaledPatch, plus translucency
@@ -87,7 +87,7 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 void V_DrawPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch);
 
 // Draw a linear block of pixels into the view buffer.
-void V_DrawBlock(INT32 x, INT32 y, INT32 scrn, INT32 width, INT32 height, const byte *src);
+void V_DrawBlock(INT32 x, INT32 y, INT32 scrn, INT32 width, INT32 height, const UINT8 *src);
 
 // draw a pic_t, SCALED
 void V_DrawScaledPic (INT32 px1, INT32 py1, INT32 scrn, INT32 lumpnum);
@@ -126,7 +126,7 @@ void V_DoPostProcessor(postimg_t type);
 
 void V_DrawPatchFill(patch_t *pat);
 
-void VID_BlitLinearScreen(const byte *srcptr, byte *destptr, INT32 width, INT32 height, INT32 srcrowbytes,
-	INT32 destrowbytes);
+void VID_BlitLinearScreen(const UINT8 *srcptr, UINT8 *destptr, INT32 width, INT32 height, INT32 srcrowbytes,
+	size_t destrowbytes);
 
 #endif

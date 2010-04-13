@@ -261,7 +261,7 @@ void OglSdlFinishUpdate(boolean waitvbl)
 EXPORT void HWRAPI( OglSdlSetPalette) (RGBA_t *palette, RGBA_t *pgamma)
 {
 	INT32 i = -1;
-	byte redgamma = pgamma->s.red, greengamma = pgamma->s.green,
+	UINT32 redgamma = pgamma->s.red, greengamma = pgamma->s.green,
 		bluegamma = pgamma->s.blue;
 
 #if 0 // changing the gamma to 127 is a bad idea
@@ -270,9 +270,9 @@ EXPORT void HWRAPI( OglSdlSetPalette) (RGBA_t *palette, RGBA_t *pgamma)
 	if (i == 0) redgamma = greengamma = bluegamma = 0x7F; //Alam: cool
 	for (i = 0; i < 256; i++)
 	{
-		myPaletteData[i].s.red   = (byte)MIN((palette[i].s.red   * redgamma)  /127, 255);
-		myPaletteData[i].s.green = (byte)MIN((palette[i].s.green * greengamma)/127, 255);
-		myPaletteData[i].s.blue  = (byte)MIN((palette[i].s.blue  * bluegamma) /127, 255);
+		myPaletteData[i].s.red   = (UINT8)MIN((palette[i].s.red   * redgamma)  /127, 255);
+		myPaletteData[i].s.green = (UINT8)MIN((palette[i].s.green * greengamma)/127, 255);
+		myPaletteData[i].s.blue  = (UINT8)MIN((palette[i].s.blue  * bluegamma) /127, 255);
 		myPaletteData[i].s.alpha = palette[i].s.alpha;
 	}
 #ifdef USE_PALETTED_TEXTURE

@@ -72,13 +72,13 @@ typedef struct gr_vissprite_s
 	float tz, ty;
 	lumpnum_t patchlumpnum;
 	boolean flip;
-	unsigned char translucency;       //alpha level 0-255
-	unsigned char sectorlight;        // ...
+	UINT8 translucency;       //alpha level 0-255
+	UINT8 sectorlight;        // ...
 	mobj_t *mobj;
 	boolean precip; // Tails 08-25-2002
 	boolean vflip;
    //Hurdler: 25/04/2000: now support colormap in hardware mode
-	byte *colormap;
+	UINT8 *colormap;
 } gr_vissprite_t;
 
 // --------
@@ -100,7 +100,7 @@ void HWR_FreeExtraSubsectors(void);
 void HWR_GetFlat(lumpnum_t flatlumpnum);
 GLTexture_t *HWR_GetTexture(INT32 tex);
 void HWR_GetPatch(GLPatch_t *gpatch);
-void HWR_GetMappedPatch(GLPatch_t *gpatch, const byte *colormap);
+void HWR_GetMappedPatch(GLPatch_t *gpatch, const UINT8 *colormap);
 GLPatch_t *HWR_GetPic(lumpnum_t lumpnum);
 void HWR_SetPalette(RGBA_t *palette);
 

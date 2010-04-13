@@ -16,9 +16,9 @@
 #define MEMTOTAL "MemTotal:"
 #define MEMFREE "MemFree:"
 
-byte graphics_started = 0;
+UINT8 graphics_started = 0;
 
-byte keyboard_started = 0;
+UINT8 keyboard_started = 0;
 
 static INT64 start_time; // as microseconds since the epoch
 
@@ -121,12 +121,6 @@ void I_Error(const char *error, ...)
 
   LOGE(logbuf);
   exit(-1);
-}
-
-byte *I_AllocLow(int length)
-{
-  (void)length;
-  return NULL;
 }
 
 void I_Tactile(FFType Type, const JoyFF_t *Effect)

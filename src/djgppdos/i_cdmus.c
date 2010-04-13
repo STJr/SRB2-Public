@@ -37,13 +37,13 @@ static void Command_Cd_f (void);
 //                   CD AUDIO MUSIC SUBSYSTEM
 //======================================================================
 
-byte   cdaudio_started=0;   // for system startup/shutdown
+UINT8  cdaudio_started=0;   // for system startup/shutdown
 
 #define MAX_CD_TRACKS 256
 static boolean cdPlaying = false;
 static int     cdPlayTrack;         // when cdPlaying is true
 static boolean cdLooping = false;
-static byte    cdRemap[MAX_CD_TRACKS];
+static UINT8   cdRemap[MAX_CD_TRACKS];
 static boolean cdEnabled=true;      // cd info available
 static boolean cdValid;             // true when last cd audio info was ok
 static boolean wasPlaying;
@@ -199,7 +199,7 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(s,"play",4))
 	{
-		I_PlayCD (atoi (COM_Argv (2)), false);
+		I_PlayCD ((UINT8)atoi (COM_Argv (2)), false);
 		return;
 	}
 
@@ -211,7 +211,7 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(s,"loop",4))
 	{
-		I_PlayCD (atoi (COM_Argv (2)), true);
+		I_PlayCD ((UINT8)atoi (COM_Argv (2)), true);
 		return;
 	}
 
@@ -368,7 +368,7 @@ void I_UpdateCD (void)
 
 
 //
-void I_PlayCD (int track, boolean looping)
+void I_PlayCD (UINT8 track, UINT8 looping)
 {
 	if (!cdaudio_started || !cdEnabled)
 		return;

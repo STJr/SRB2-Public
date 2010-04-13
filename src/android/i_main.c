@@ -48,6 +48,6 @@ JNIEXPORT jint JNICALL Java_org_srb2_nativecode_Main_main
     LOGE("Couldn't get method ID of Video#gotFrame() callback!");
     return -1;
   }
-  android_surface = (byte*) (*env)->GetDirectBufferAddress(env, fbBuf);
+  android_surface = (UINT8*) (*env)->GetDirectBufferAddress(env, fbBuf);
   return srb2_main();
 }

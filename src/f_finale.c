@@ -226,7 +226,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "\n");
 	strcpy(credits[i].realnames[j++], "Director\n");
 	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Game Designers\n");
 	j = 0;
@@ -237,7 +237,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
 	strcpy(credits[i].realnames[j++], "Art Freda\n");
 	strcpy(credits[i].realnames[j++], "Ben Geyer\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Character Designers\n");
 	j = 0;
@@ -246,14 +246,14 @@ void F_StartCredits(void)
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
 	strcpy(credits[i].realnames[j++], "David Spencer Jr\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Visual Design\n");
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Landscape Design\n");
 	j = 0;
@@ -262,14 +262,14 @@ void F_StartCredits(void)
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
 	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Chief Programmer\n");
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Programmers\n");
 	j = 0;
@@ -284,7 +284,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Scott Feeney\n");
 	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");
 	strcpy(credits[i].realnames[j++], "Andrew Clunis\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Coding Assistants\n");
 	j = 0;
@@ -301,7 +301,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Matt Marsalko\n");
 	strcpy(credits[i].realnames[j++], "Gregor Dick\n");
 	strcpy(credits[i].realnames[j++], "John J. Muniz\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Level Designers\n");
 	j = 0;
@@ -328,7 +328,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");
 	strcpy(credits[i].realnames[j++], "Nathan Giroux\n");
 	strcpy(credits[i].realnames[j++], "Dan Hagerstrand\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	credits[i].smallnames = true;
 	i++;
 	strcpy(credits[i].header, "Texture Artists\n");
@@ -344,7 +344,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Ryan Bloom\n");
 	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");
 	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Music Production\n");
 	j = 0;
@@ -366,7 +366,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Michael Antonakes\n");
 	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");
 	credits[i].smallnames = true;
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Lead Guitar\n");
 	j = 0;
@@ -375,7 +375,7 @@ void F_StartCredits(void)
 	j = 0;
 	strcpy(credits[i].realnames[j++], "David Spencer Sr\n");
 	strcpy(credits[i].realnames[j++], "Shane Sexton\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Sound Effects\n");
 	j = 0;
@@ -386,14 +386,14 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Sega\n");
 	strcpy(credits[i].realnames[j++], "David Spencer Jr\n");
 	strcpy(credits[i].realnames[j++], "Various Sources\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Official Mascot\n");
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Spazzo\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Michael Antonakes\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "Sky Sanctuary Team\n");
 	j = 0;
@@ -432,7 +432,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Erik Nielsen\n");	// Torgo
 	strcpy(credits[i].realnames[j++], "Julio Guir\n");      // Chaos Zero 64
 	strcpy(credits[i].realnames[j++], "Samuel Peters\n");   // Prime 2
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	credits[i].smallnames = true;
 	i++;
 	strcpy(credits[i].header, "Special Thanks\n");
@@ -448,7 +448,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Dave Perry\n");
 	strcpy(credits[i].realnames[j++], "Alex Fuller\n");
 	strcpy(credits[i].realnames[j++], "Chris Pryor\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 	strcpy(credits[i].header, "In Fond Memory Of\n");
 	j = 0;
@@ -461,7 +461,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Howard Drossin\n");
 	strcpy(credits[i].realnames[j++], "\n");
 	strcpy(credits[i].realnames[j++], "\n");
-	credits[i].numnames = (byte)j;
+	credits[i].numnames = (UINT8)j;
 	i++;
 }
 
@@ -1102,19 +1102,19 @@ static void F_IntroTextWrite(void)
 static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
 {
 	const column_t *column;
-	const byte *source;
-	byte *desttop, *dest = NULL;
-	const byte *deststop;
+	const UINT8 *source;
+	UINT8 *desttop, *dest = NULL;
+	const UINT8 *deststop;
 	size_t count;
 
-	column = (column_t *)((byte *)patch + LONG(patch->columnofs[col]));
+	column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[col]));
 	desttop = screens[0] + x*vid.dupx;
 	deststop = screens[0] + vid.width * vid.height * vid.bpp;
 
 	// step through the posts in a column
 	while (column->topdelta != 0xff)
 	{
-		source = (const byte *)column + 3;
+		source = (const UINT8 *)column + 3;
 		dest = desttop + column->topdelta*vid.width;
 		count = column->length;
 
@@ -1132,16 +1132,16 @@ static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
 			}
 			source++;
 		}
-		column = (const column_t *)((const byte *)column + column->length + 4);
+		column = (const column_t *)((const UINT8 *)column + column->length + 4);
 	}
 
 	// repeat a second time, for yrepeat number of pixels
 	if (yrepeat)
 	{
-		column = (column_t *)((byte *)patch + LONG(patch->columnofs[col]));
+		column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[col]));
 		while (column->topdelta != 0xff)
 		{
-			source = (const byte *)column + 3;
+			source = (const UINT8 *)column + 3;
 			count = column->length;
 
 			while (count--)
@@ -1160,7 +1160,7 @@ static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
 			}
 			if (!--yrepeat)
 				break;
-			column = (const column_t *)((const byte *)column + column->length + 4);
+			column = (const column_t *)((const UINT8 *)column + column->length + 4);
 		}
 	}
 }

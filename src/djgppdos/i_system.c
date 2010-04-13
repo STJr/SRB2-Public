@@ -133,14 +133,14 @@ static char JOYFILE[] = "allegro.cfg";
 #define MOUSEBUTTONS_MIN min((MOUSEBUTTONS),(MOUSEBUTTONS_MAX))
 
 // Do not execute cleanup code more than once. See Shutdown_xxx() routines.
-byte graphics_started = false;
-byte keyboard_started = false;
-byte sound_started    = false;
-static byte timer_started    = false;
+UINT8 graphics_started = false;
+UINT8 keyboard_started = false;
+UINT8 sound_started    = false;
+static UINT8 timer_started    = false;
 
 /* Mouse stuff */
-static byte mouse_detected   = false;
-static byte wheel_detected   = false;
+static UINT8 mouse_detected   = false;
+static UINT8 wheel_detected   = false;
 
 static volatile tic_t ticcount;   //returned by I_GetTime(), updated by timer interrupt
 
@@ -331,8 +331,8 @@ void I_Sleep(void)
 }
 
 
-static byte joystick_detected = false;
-static byte joystick2_detected = false;
+static UINT8 joystick_detected = false;
+static UINT8 joystick2_detected = false;
 
 //
 // I_Init
@@ -607,7 +607,7 @@ void I_Error (const char *error, ...)
 //
 void I_Quit (void)
 {
-	byte *endoom = NULL;
+	UINT8 *endoom = NULL;
 
 	//added:16-02-98: when recording a demo, should exit using 'q' key,
 	//        but sometimes we forget and use 'F10'.. so save here too.
@@ -675,28 +675,18 @@ void I_EndRead (void)
 {
 }
 
-byte *I_AllocLow(int length)
-{
-	byte *      mem;
-
-	mem = (byte *)malloc (length);
-	memset (mem,0,length);
-	return mem;
-
-}
-
 #define MOUSE2
 /* Secondary Mouse*/
 #ifdef MOUSE2
 static _go32_dpmi_seginfo oldmouseinfo,newmouseinfo;
 static boolean mouse2_started=0;
 static UINT16  mouse2port;
-static byte    mouse2irq;
+static UINT8   mouse2irq;
 static volatile int     handlermouse2buttons;
 static volatile int     handlermouse2x,handlermouse2y;
 // internal use
 static volatile int     bytenum;
-static volatile byte    combytes[8];
+static volatile UINT8   combytes[8];
 
 //
 // support a secondary mouse without mouse driver !
@@ -705,7 +695,7 @@ static volatile byte    combytes[8];
 static void I_MicrosoftMouseIntHandler(void)
 {
 	char   dx,dy;
-	byte   inbyte;
+	UINT8  inbyte;
 
 	// Get the port byte
 	inbyte = inportb(mouse2port);
@@ -790,7 +780,7 @@ static inline void I_ShutdownMouse2(void)
 	mouse2_started=false;
 }
 
-static byte   ComIrq[4]={0x0c,0x0b,0x0c,0x0b};
+static UINT8  ComIrq[4]={0x0c,0x0b,0x0c,0x0b};
 static UINT16 ComPort[4]={0x3F8,0x2F8,0x3E8,0x2E8};
 //
 //  Installs the mouse2 handler.
@@ -1207,7 +1197,7 @@ void I_GetEvent (void)
 	{
 		event_t event;
 		//mouse movement
-		static byte lastbuttons2=0;
+		static UINT8 lastbuttons2=0;
 
 		// post key event for buttons
 		if (handlermouse2buttons!=lastbuttons2)
@@ -1332,7 +1322,7 @@ void I_StartupTimer(void)
 //added:07-02-98:
 //
 //
-static byte ASCIINames[128] =
+static UINT8 ASCIINames[128] =
 {
 //        0           1              2            3
 //        4           5              6            7

@@ -41,30 +41,30 @@
 
 typedef struct
 {
-	byte *sequence;
-	byte *p;
+	UINT8 *sequence;
+	UINT8 *p;
 } cheatseq_t;
 
 // ==========================================================================
 //                             CHEAT Structures
 // ==========================================================================
 
-static byte cheat_bulmer_seq[] =
+static UINT8 cheat_bulmer_seq[] =
 {
 	SCRAMBLE('b'), SCRAMBLE('e'), SCRAMBLE('e'), SCRAMBLE('d'), SCRAMBLE('e'), SCRAMBLE('e'), 0xff
 };
 
-static byte cheat_poksoc_seq[] =
+static UINT8 cheat_poksoc_seq[] =
 {
 	SCRAMBLE('p'), SCRAMBLE('o'), SCRAMBLE('k'), SCRAMBLE('s'), SCRAMBLE('o'), SCRAMBLE('c'), 0xff
 };
 
-static byte cheat_apl_seq[] =
+static UINT8 cheat_apl_seq[] =
 {
 	SCRAMBLE('a'), SCRAMBLE('p'), SCRAMBLE('l'), 0xff
 };
 
-static byte cheat_ultimate_seq[] =
+static UINT8 cheat_ultimate_seq[] =
 {
 	SCRAMBLE('u'), SCRAMBLE('l'), SCRAMBLE('t'), SCRAMBLE('i'), SCRAMBLE('m'), SCRAMBLE('a'), SCRAMBLE('t'), SCRAMBLE('e'), 0xff
 };
@@ -79,7 +79,7 @@ static cheatseq_t cheat_ultimate = { cheat_ultimate_seq, 0 };
 //                        CHEAT SEQUENCE PACKAGE
 // ==========================================================================
 
-static byte cheat_xlate_table[256];
+static UINT8 cheat_xlate_table[256];
 
 void cht_Init(void)
 {
@@ -88,7 +88,7 @@ void cht_Init(void)
 	for (; i < 256; i++, pi++)
 	{
 		const INT32 cc = SCRAMBLE(pi);
-		cheat_xlate_table[i] = (byte)cc;
+		cheat_xlate_table[i] = (UINT8)cc;
 	}
 }
 
@@ -105,7 +105,7 @@ static INT32 cht_CheckCheat(cheatseq_t *cht, char key)
 
 	if (*cht->p == 0)
 		*(cht->p++) = key;
-	else if (cheat_xlate_table[(byte)key] == *cht->p)
+	else if (cheat_xlate_table[(UINT8)key] == *cht->p)
 		cht->p++;
 	else
 		cht->p = cht->sequence;
@@ -123,8 +123,8 @@ static INT32 cht_CheckCheat(cheatseq_t *cht, char key)
 
 static inline void cht_GetParam(cheatseq_t *cht, char *buffer)
 {
-	byte *p;
-	byte c;
+	UINT8 *p;
+	UINT8 c;
 
 	p = cht->sequence;
 	while (*(p++) != 1)
@@ -154,7 +154,7 @@ boolean cht_Responder(event_t *ev)
 		{
 			sfxenum_t sfxid;
 			const char *emoticon;
-			byte mrandom;
+			UINT8 mrandom;
 
 			/*
 			Shows a picture of David Bulmer with one the following messages:
@@ -195,7 +195,7 @@ boolean cht_Responder(event_t *ev)
 		else if (cht_CheckCheat(&cheat_poksoc, (char)ev->data1))
 		{
 			sfxenum_t sfxid;
-			byte mrandom = M_Random();
+			UINT8 mrandom = M_Random();
 
 			/*
 			Plays one of these sounds:
@@ -225,7 +225,7 @@ boolean cht_Responder(event_t *ev)
 		else if (cht_CheckCheat(&cheat_apl, (char)ev->data1))
 		{
 			sfxenum_t sfxid;
-			byte mrandom = M_Random();
+			UINT8 mrandom = M_Random();
 
 			/*
 			Plays one of these sounds:

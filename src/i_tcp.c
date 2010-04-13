@@ -195,7 +195,7 @@ static int ipx = 0;
 static mysockaddr_t clientaddress[MAXNETNODES+1];
 static boolean nodeconnected[MAXNETNODES+1];
 static mysockaddr_t banned[MAXBANS];
-static byte bannedmask[MAXBANS];
+static UINT8 bannedmask[MAXBANS];
 #endif
 #include "m_argv.h"
 
@@ -287,12 +287,12 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 		sprintf(s, "%s", ipx_ntoa(sk->ipx.sipx_addr));
 #else
 		sprintf(s,"%08x.%02x%02x%02x%02x%02x%02x:%d", sk->ipx.sipx_network,
-			(byte)sk->ipx.sipx_node[0],
-			(byte)sk->ipx.sipx_node[1],
-			(byte)sk->ipx.sipx_node[2],
-			(byte)sk->ipx.sipx_node[3],
-			(byte)sk->ipx.sipx_node[4],
-			(byte)sk->ipx.sipx_node[5],
+			(UINT8)sk->ipx.sipx_node[0],
+			(UINT8)sk->ipx.sipx_node[1],
+			(UINT8)sk->ipx.sipx_node[2],
+			(UINT8)sk->ipx.sipx_node[3],
+			(UINT8)sk->ipx.sipx_node[4],
+			(UINT8)sk->ipx.sipx_node[5],
 			sk->ipx.sipx_port);
 #endif
 	}
@@ -300,16 +300,16 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 	if (sk->sa_family == AF_IPX)
 	{
 		sprintf(s, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x:%d",
-			(byte)sk->ipx.sa_netnum[0],
-			(byte)sk->ipx.sa_netnum[1],
-			(byte)sk->ipx.sa_netnum[2],
-			(byte)sk->ipx.sa_netnum[3],
-			(byte)sk->ipx.sa_nodenum[0],
-			(byte)sk->ipx.sa_nodenum[1],
-			(byte)sk->ipx.sa_nodenum[2],
-			(byte)sk->ipx.sa_nodenum[3],
-			(byte)sk->ipx.sa_nodenum[4],
-			(byte)sk->ipx.sa_nodenum[5],
+			(UINT8)sk->ipx.sa_netnum[0],
+			(UINT8)sk->ipx.sa_netnum[1],
+			(UINT8)sk->ipx.sa_netnum[2],
+			(UINT8)sk->ipx.sa_netnum[3],
+			(UINT8)sk->ipx.sa_nodenum[0],
+			(UINT8)sk->ipx.sa_nodenum[1],
+			(UINT8)sk->ipx.sa_nodenum[2],
+			(UINT8)sk->ipx.sa_nodenum[3],
+			(UINT8)sk->ipx.sa_nodenum[4],
+			(UINT8)sk->ipx.sa_nodenum[5],
 			sk->ipx.sa_socket);
 	}
 #endif // UNIXCOMMON
@@ -365,7 +365,7 @@ static const char *SOCK_GetBanMask(size_t ban)
 }
 
 #ifdef USEIPX
-static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
+static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
 {
 	(void)mask;
 #if (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
@@ -384,7 +384,7 @@ static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
 #endif // USEIPX
 
 #ifndef NONET
-static boolean UDP_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
+static boolean UDP_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
 {
 	UINT32 bitmask = INADDR_NONE;
 
@@ -403,7 +403,7 @@ static boolean UDP_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, byte mask)
 		return false;
 }
 
-static boolean (*SOCK_cmpaddr)(mysockaddr_t *a, mysockaddr_t *b, byte mask);
+static boolean (*SOCK_cmpaddr)(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask);
 
 static signed char getfreenode(void)
 {
@@ -821,12 +821,12 @@ static SOCKET_TYPE IPX_Socket(void)
 #ifndef FREEBSD
 	clientaddress[BROADCASTADDR].ipx.sipx_network = 0;
 	for (i = 0; i < 6; i++)
-		clientaddress[BROADCASTADDR].ipx.sipx_node[i] = (byte)0xFF;
+		clientaddress[BROADCASTADDR].ipx.sipx_node[i] = (UINT8)0xFF;
 #else
 	clientaddress[BROADCASTADDR].ipx.sipx_addr.x_net.s_net[0] = 0;
 	clientaddress[BROADCASTADDR].ipx.sipx_addr.x_net.s_net[1] = 0;
 	for (i = 0; i < 6; i++)
-		clientaddress[BROADCASTADDR].ipx.sipx_addr.x_host.c_host[i] = (byte)0xFF;
+		clientaddress[BROADCASTADDR].ipx.sipx_addr.x_host.c_host[i] = (UINT8)0xFF;
 #endif
 #else
 	clientaddress[BROADCASTADDR].sa_family = AF_IPX;
@@ -834,7 +834,7 @@ static SOCKET_TYPE IPX_Socket(void)
 	for (i = 0; i < 4; i++)
 		clientaddress[BROADCASTADDR].ipx.sa_netnum[i] = 0;
 	for (i = 0; i < 6; i++)
-		clientaddress[BROADCASTADDR].ipx.sa_nodenum[i] = (byte)0xFF;
+		clientaddress[BROADCASTADDR].ipx.sa_nodenum[i] = (UINT8)0xFF;
 #endif // UNIXCOMMON
 	SOCK_cmpaddr = IPX_cmpaddr;
 	return s;
@@ -1141,7 +1141,7 @@ static boolean SOCK_SetBanAddress(const char *address, const char *mask)
 	banned[numbans].sa_family = AF_INET;
 
 	if (mask)
-		bannedmask[numbans] = (byte)atoi(mask);
+		bannedmask[numbans] = (UINT8)atoi(mask);
 	else
 		bannedmask[numbans] = 32;
 

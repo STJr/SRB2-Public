@@ -2633,7 +2633,7 @@ void A_ParticleSpawn(mobj_t *actor)
 	spawn = P_SpawnMobj(actor->x, actor->y, actor->z, type);
 	spawn->momz = speed;
 //	spawn->destscale = 1;
-//	spawn->scalespeed = (byte)((actor->spawnpoint->angle >> 8) & 63);
+//	spawn->scalespeed = (UINT8)((actor->spawnpoint->angle >> 8) & 63);
 	actor->tics = actor->spawnpoint->extrainfo + 1;
 }
 
@@ -2666,7 +2666,7 @@ void A_BunnyHop(mobj_t *actor)
 //
 void A_BubbleSpawn(mobj_t *actor)
 {
-	byte prandom;
+	UINT8 prandom;
 	mobj_t *bubble = NULL;
 	if (!(actor->eflags & MFE_UNDERWATER))
 	{
@@ -4063,7 +4063,7 @@ void A_CrawlaCommanderThink(mobj_t *actor)
 		}
 		else
 		{
-			byte prandom = P_Random();
+			UINT8 prandom = P_Random();
 			actor->angle = R_PointToAngle2(actor->x, actor->y, actor->target->x, actor->target->y) + (P_Random() & 1 ? -prandom : +prandom);
 			P_InstaThrust(actor, actor->angle, locvar2/3*2);
 			actor->momz = locvar2; // Bounce up in air
@@ -4147,7 +4147,7 @@ void A_RingExplode(mobj_t *actor)
 // var2 = unused
 //
 void A_OldRingExplode(mobj_t *actor) {
-	byte i;
+	UINT8 i;
 	mobj_t *mo;
 	const fixed_t ns = 20 * FRACUNIT;
 	INT32 locvar1 = var1;
@@ -4814,7 +4814,7 @@ void A_Boss2PogoSFX(mobj_t *actor)
 	}
 	else
 	{
-		byte prandom = P_Random();
+		UINT8 prandom = P_Random();
 		actor->angle = R_PointToAngle2(actor->x, actor->y, actor->target->x, actor->target->y) + (P_Random() & 1 ? -prandom : +prandom);
 		P_InstaThrust(actor, actor->angle, FixedMul(actor->info->speed,(locvar2)));
 	}

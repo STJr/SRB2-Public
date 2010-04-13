@@ -42,10 +42,10 @@ extern boolean con_hudupdate; // hud messages have changed, need refresh
 
 extern consvar_t cons_backcolor;
 
-extern byte *yellowmap, *purplemap, *lgreenmap, *bluemap, *graymap, *redmap, *orangemap;
+extern UINT8 *yellowmap, *purplemap, *lgreenmap, *bluemap, *graymap, *redmap, *orangemap;
 
 // Console bg colors:
-extern byte *cwhitemap, *corangemap, *cbluemap, *cgreenmap, *cgraymap,
+extern UINT8 *cwhitemap, *corangemap, *cbluemap, *cgreenmap, *cgraymap,
 	*credmap;
 
 void CON_ClearHUD(void); // clear heads up messages

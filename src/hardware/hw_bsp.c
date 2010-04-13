@@ -67,8 +67,8 @@ static INT32 totalsubsecpolys = 0;
 /// \todo check out how much is used
 static size_t POLYPOOLSIZE = 1024000;
 
-static byte *gr_polypool = NULL;
-static byte *gr_ppcurrent;
+static UINT8 *gr_polypool = NULL;
+static UINT8 *gr_ppcurrent;
 static size_t gr_ppfree;
 #endif
 
@@ -593,7 +593,7 @@ static inline void SearchDivline(node_t *bsp, fdivline_t *divline)
 
 //Hurdler: implement a loading status
 static size_t ls_count = 0;
-static byte ls_percent = 0;
+static UINT8 ls_percent = 0;
 
 // poly : the convex polygon that encloses all child subsectors
 static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *bbox)

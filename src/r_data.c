@@ -97,7 +97,7 @@ size_t numtextures = 0; // total number of textures found,
 
 texture_t **textures = NULL;
 static UINT32 **texturecolumnofs; // column offset lookup table for each texture
-static byte **texturecache; // graphics data for each generated full-size texture
+static UINT8 **texturecache; // graphics data for each generated full-size texture
 
 // texture width is a power of 2, so it can easily repeat along sidedefs using a simple mask
 static INT32 *texturewidthmask;
@@ -132,17 +132,17 @@ INT16 *hicolormaps; // test a 32k colormap remaps high -> high
 // R_DrawColumnInCache
 // Clip and draw a column from a patch into a cached post.
 //
-static inline void R_DrawColumnInCache(column_t *patch, byte *cache, int originy, int cacheheight)
+static inline void R_DrawColumnInCache(column_t *patch, UINT8 *cache, INT32 originy, INT32 cacheheight)
 {
-	int count, position;
-	byte *source;
-	byte *dest;
+	INT32 count, position;
+	UINT8 *source;
+	UINT8 *dest;
 
-	dest = (byte *)cache;
+	dest = (UINT8 *)cache;
 
 	while (patch->topdelta != 0xff)
 	{
-		source = (byte *)patch + 3;
+		source = (UINT8 *)patch + 3;
 		count = patch->length;
 		position = originy + patch->topdelta;
 
@@ -158,7 +158,7 @@ static inline void R_DrawColumnInCache(column_t *patch, byte *cache, int originy
 		if (count > 0)
 			M_Memcpy(cache + position, source, count);
 
-		patch = (column_t *)((byte *)patch + patch->length + 4);
+		patch = (column_t *)((UINT8 *)patch + patch->length + 4);
 	}
 }
 
@@ -173,10 +173,10 @@ static inline void R_DrawColumnInCache(column_t *patch, byte *cache, int originy
 // This is not optimised, but it's supposed to be executed only once
 // per level, when enough memory is available.
 //
-static byte *R_GenerateTexture(size_t texnum)
+static UINT8 *R_GenerateTexture(size_t texnum)
 {
-	byte *block;
-	byte *blocktex;
+	UINT8 *block;
+	UINT8 *blocktex;
 	texture_t *texture;
 	texpatch_t *patch;
 	patch_t *realpatch;
@@ -243,7 +243,7 @@ static byte *R_GenerateTexture(size_t texnum)
 
 		for (; x < x2; x++)
 		{
-			patchcol = (column_t *)((byte *)realpatch + LONG(realpatch->columnofs[x-x1]));
+			patchcol = (column_t *)((UINT8 *)realpatch + LONG(realpatch->columnofs[x-x1]));
 
 			// generate column ofset lookup
 			colofs[x] = LONG((x * texture->height) + (texture->width*4));
@@ -262,9 +262,9 @@ done:
 //
 // R_GetColumn
 //
-byte *R_GetColumn(fixed_t tex, INT32 col)
+UINT8 *R_GetColumn(fixed_t tex, INT32 col)
 {
-	byte *data;
+	UINT8 *data;
 
 	col &= texturewidthmask[tex];
 	data = texturecache[tex];
@@ -277,7 +277,7 @@ byte *R_GetColumn(fixed_t tex, INT32 col)
 
 // convert flats to hicolor as they are requested
 //
-byte *R_GetFlat(lumpnum_t flatlumpnum)
+UINT8 *R_GetFlat(lumpnum_t flatlumpnum)
 {
 	return W_CacheLumpNum(flatlumpnum, PU_CACHE);
 }
@@ -362,10 +362,10 @@ void R_LoadTextures(void)
 
 	textures = Z_Malloc(numtextures*sizeof(void *)*5, PU_STATIC, NULL);
 
-	texturecolumnofs = (void *)((byte *)textures + numtextures*sizeof(void *)*1);
-	texturecache     = (void *)((byte *)textures + numtextures*sizeof(void *)*2);
-	texturewidthmask = (void *)((byte *)textures + numtextures*sizeof(void *)*3);
-	textureheight    = (void *)((byte *)textures + numtextures*sizeof(void *)*4);
+	texturecolumnofs = (void *)((UINT8 *)textures + numtextures*sizeof(void *)*1);
+	texturecache     = (void *)((UINT8 *)textures + numtextures*sizeof(void *)*2);
+	texturewidthmask = (void *)((UINT8 *)textures + numtextures*sizeof(void *)*3);
+	textureheight    = (void *)((UINT8 *)textures + numtextures*sizeof(void *)*4);
 
 	for (i = 0; i < numtextures; i++, directory++)
 	{
@@ -386,7 +386,7 @@ void R_LoadTextures(void)
 
 		// maptexture describes texture name, size, and
 		// used patches in z order from bottom to top
-		mtexture = (maptexture_t *)((byte *)maptex + offset);
+		mtexture = (maptexture_t *)((UINT8 *)maptex + offset);
 
 		texture = textures[i] = Z_Malloc(sizeof (texture_t)
 			+ sizeof (texpatch_t)*(SHORT(mtexture->patchcount)-1), PU_STATIC, NULL);
@@ -608,7 +608,7 @@ INT32 R_ColormapNumForName(char *name)
 //
 static double deltas[256][3], map[256][3];
 
-static byte NearestColor(byte r, byte g, byte b);
+static UINT8 NearestColor(UINT8 r, UINT8 g, UINT8 b);
 static int RoundUp(double number);
 
 INT32 R_CreateColormap(char *p1, char *p2, char *p3)
@@ -888,15 +888,15 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 	if (rendermode == render_soft)
 	{
 		colormap_p = Z_MallocAlign((256 * 34) + 10, PU_LEVEL, NULL, 16);
-		extra_colormaps[mapnum].colormap = (byte *)colormap_p;
+		extra_colormaps[mapnum].colormap = (UINT8 *)colormap_p;
 
 		for (p = 0; p < 34; p++)
 		{
 			for (i = 0; i < 256; i++)
 			{
-				*colormap_p = NearestColor((byte)RoundUp(map[i][0]),
-					(byte)RoundUp(map[i][1]),
-					(byte)RoundUp(map[i][2]));
+				*colormap_p = NearestColor((UINT8)RoundUp(map[i][0]),
+					(UINT8)RoundUp(map[i][1]),
+					(UINT8)RoundUp(map[i][2]));
 				colormap_p++;
 
 				if ((UINT32)p < fadestart)
@@ -926,7 +926,7 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 
 // Thanks to quake2 source!
 // utils3/qdata/images.c
-static byte NearestColor(byte r, byte g, byte b)
+static UINT8 NearestColor(UINT8 r, UINT8 g, UINT8 b)
 {
 	int dr, dg, db;
 	int distortion, bestdistortion = 256 * 256 * 4, bestcolor = 0, i;
@@ -940,14 +940,14 @@ static byte NearestColor(byte r, byte g, byte b)
 		if (distortion < bestdistortion)
 		{
 			if (!distortion)
-				return (byte)i;
+				return (UINT8)i;
 
 			bestdistortion = distortion;
 			bestcolor = i;
 		}
 	}
 
-	return (byte)bestcolor;
+	return (UINT8)bestcolor;
 }
 
 // Rounds off floating numbers and checks for 0 - 255 bounds
@@ -995,7 +995,7 @@ FUNCMATH static inline int makecol15(int r, int g, int b)
 
 static void R_Init8to16(void)
 {
-	byte *palette;
+	UINT8 *palette;
 	int i;
 
 	palette = W_CacheLumpName("PLAYPAL",PU_CACHE);

@@ -563,9 +563,9 @@ EXPORT void HWRAPI(SetPalette) (RGBA_t *pal, RGBA_t *gamma)
 
 	for (i = 0; i < 256; i++)
 	{
-		myPaletteData[i].s.red   = (byte)MIN((pal[i].s.red*gamma->s.red)/127,     255);
-		myPaletteData[i].s.green = (byte)MIN((pal[i].s.green*gamma->s.green)/127, 255);
-		myPaletteData[i].s.blue  = (byte)MIN((pal[i].s.blue*gamma->s.blue)/127,   255);
+		myPaletteData[i].s.red   = (UINT8)MIN((pal[i].s.red*gamma->s.red)/127,     255);
+		myPaletteData[i].s.green = (UINT8)MIN((pal[i].s.green*gamma->s.green)/127, 255);
+		myPaletteData[i].s.blue  = (UINT8)MIN((pal[i].s.blue*gamma->s.blue)/127,   255);
 		myPaletteData[i].s.alpha = pal[i].s.alpha;
 	}
 #ifdef USE_PALETTED_TEXTURE

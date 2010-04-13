@@ -61,22 +61,22 @@
 // protos
 // ------
 
-static void Got_NameAndColor(byte **cp, INT32 playernum);
-static void Got_WeaponPref(byte **cp, INT32 playernum);
-static void Got_Mapcmd(byte **cp, INT32 playernum);
-static void Got_ExitLevelcmd(byte **cp, INT32 playernum);
-static void Got_RequestAddfilecmd(byte **cp, INT32 playernum);
+static void Got_NameAndColor(UINT8 **cp, INT32 playernum);
+static void Got_WeaponPref(UINT8 **cp, INT32 playernum);
+static void Got_Mapcmd(UINT8 **cp, INT32 playernum);
+static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum);
+static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum);
 #ifdef DELFILE
-static void Got_Delfilecmd(byte **cp, INT32 playernum);
+static void Got_Delfilecmd(UINT8 **cp, INT32 playernum);
 #endif
-static void Got_Addfilecmd(byte **cp, INT32 playernum);
-static void Got_Pause(byte **cp, INT32 playernum);
-static void Got_RandomSeed(byte **cp, INT32 playernum);
-static void Got_PizzaOrder(byte **cp, INT32 playernum);
-static void Got_RunSOCcmd(byte **cp, INT32 playernum);
-static void Got_Consistency(byte **cp, INT32 playernum);
-static void Got_Teamchange(byte **cp, INT32 playernum);
-static void Got_Clearscores(byte **cp, INT32 playernum);
+static void Got_Addfilecmd(UINT8 **cp, INT32 playernum);
+static void Got_Pause(UINT8 **cp, INT32 playernum);
+static void Got_RandomSeed(UINT8 **cp, INT32 playernum);
+static void Got_PizzaOrder(UINT8 **cp, INT32 playernum);
+static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum);
+static void Got_Consistency(UINT8 **cp, INT32 playernum);
+static void Got_Teamchange(UINT8 **cp, INT32 playernum);
+static void Got_Clearscores(UINT8 **cp, INT32 playernum);
 
 static void PointLimit_OnChange(void);
 static void TimeLimit_OnChange(void);
@@ -156,11 +156,11 @@ static void Command_Clearscores_f(void);
 // Remote Administration
 static void Command_Changepassword_f(void);
 static void Command_Login_f(void);
-static void Got_Login(byte **cp, INT32 playernum);
-static void Got_Verification(byte **cp, INT32 playernum);
+static void Got_Login(UINT8 **cp, INT32 playernum);
+static void Got_Verification(UINT8 **cp, INT32 playernum);
 static void Command_Verify_f(void);
 static void Command_MotD_f(void);
-static void Got_MotD_f(byte **cp, INT32 playernum);
+static void Got_MotD_f(UINT8 **cp, INT32 playernum);
 
 static void Command_ShowScores_f(void);
 static void Command_ShowTime_f(void);
@@ -801,7 +801,7 @@ static void Command_DummyCommand_f(void)
 	SendNetXCmd(XD_DUMMY, &usvalue, sizeof(usvalue));
 }
 
-static void Got_DummyCommand(byte **cp, INT32 playernum)
+static void Got_DummyCommand(UINT8 **cp, INT32 playernum)
 {
 	dummypacket_union NetPacket;
 
@@ -1051,7 +1051,7 @@ static void SendNameAndColor(void)
 {
 	XBOXSTATIC char buf[MAXPLAYERNAME+1+SKINNAMESIZE+1];
 	char *p;
-	byte extrainfo = 0; // color and (if applicable) CTF team
+	UINT8 extrainfo = 0; // color and (if applicable) CTF team
 
 	if (netgame && !addedtogame)
 		return;
@@ -1090,7 +1090,7 @@ static void SendNameAndColor(void)
 			CV_StealthSet(&cv_playercolor, cv_playercolor.defaultvalue);
 	}
 
-	extrainfo = (byte)(extrainfo + (byte)cv_playercolor.value);
+	extrainfo = (UINT8)(extrainfo + (UINT8)cv_playercolor.value);
 
 	// If you're not in a netgame, merely update the skin, color, and name.
 	if (!netgame)
@@ -1217,7 +1217,7 @@ static void SendNameAndColor2(void)
 	XBOXSTATIC char buf[MAXPLAYERNAME+1+SKINNAMESIZE+1];
 	char *p;
 	INT32 secondplaya;
-	byte extrainfo = 0;
+	UINT8 extrainfo = 0;
 
 	if (!splitscreen)
 		return; // can happen if skin2/color2/name2 changed
@@ -1256,7 +1256,7 @@ static void SendNameAndColor2(void)
 			CV_StealthSet(&cv_playercolor2, cv_playercolor2.defaultvalue);
 	}
 
-	extrainfo = (byte)cv_playercolor2.value; // do this after, because the above might've changed it
+	extrainfo = (UINT8)cv_playercolor2.value; // do this after, because the above might've changed it
 
 	// If you're not in a netgame, merely update the skin, color, and name.
 	if (!netgame || (server && secondplaya == consoleplayer))
@@ -1354,12 +1354,12 @@ static void SendNameAndColor2(void)
 	SendNetXCmd2(XD_NAMEANDCOLOR, buf, p - buf);
 }
 
-static void Got_NameAndColor(byte **cp, INT32 playernum)
+static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 {
 	player_t *p = &players[playernum];
 	INT32 i;
 	char *str;
-	byte extrainfo;
+	UINT8 extrainfo;
 
 #ifdef PARANOIA
 	if (playernum < 0 || playernum > MAXPLAYERS)
@@ -1538,7 +1538,7 @@ static void SendWeaponPref(void)
 	}
 }
 
-static void Got_WeaponPref(byte **cp,INT32 playernum)
+static void Got_WeaponPref(UINT8 **cp,INT32 playernum)
 {
 	if (READCHAR(*cp))
 		players[playernum].pflags |= PF_AUTOAIM;
@@ -1565,7 +1565,7 @@ static void Command_OrderPizza_f(void)
 	SendNetXCmd(XD_ORDERPIZZA, NULL, 0);
 }
 
-static void Got_PizzaOrder(byte **cp, INT32 playernum)
+static void Got_PizzaOrder(UINT8 **cp, INT32 playernum)
 {
 	cp = NULL;
 	CONS_Printf(text[ORDEREDPIZZA], player_names[playernum]);
@@ -1730,7 +1730,7 @@ static void Command_Teleport_f(void)
 // play a demo, add .lmp for external demos
 // eg: playdemo demo1 plays the internal game demo
 //
-// byte *demofile; // demo file buffer
+// UINT8 *demofile; // demo file buffer
 static void Command_Playdemo_f(void)
 {
 	char name[256];
@@ -1871,7 +1871,7 @@ void D_MapChange(INT32 mapnum, INT32 newgametype, boolean pultmode, INT32 resetp
 		chmappending++;
 		if (server && netgame)
 		{
-			byte seed = (byte)(totalplaytime % 256);
+			UINT8 seed = (UINT8)(totalplaytime % 256);
 			SendNetXCmd(XD_RANDOMSEED, &seed, 1);
 		}
 
@@ -2056,7 +2056,7 @@ static void Command_Map_f(void)
   *                  ::serverplayer or ::adminplayer.
   * \sa D_MapChange
   */
-static void Got_Mapcmd(byte **cp, INT32 playernum)
+static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 {
 	char mapname[MAX_WADPATH+1];
 	INT32 resetplayer = 1, lastgametype;
@@ -2196,9 +2196,9 @@ static void Command_Pause(void)
 		CONS_Printf("%s",text[SERVERPAUSE]);
 }
 
-static void Got_Pause(byte **cp, INT32 playernum)
+static void Got_Pause(UINT8 **cp, INT32 playernum)
 {
-	byte dedicatedpause = false;
+	UINT8 dedicatedpause = false;
 	const char *playername;
 
 	if (netgame && !cv_pause.value && playernum != serverplayer && playernum != adminplayer)
@@ -2253,9 +2253,9 @@ static void Got_Pause(byte **cp, INT32 playernum)
   * \param playernum Player responsible for the message. Must be ::serverplayer.
   * \author Graue <graue@oceanbase.org>
   */
-static void Got_RandomSeed(byte **cp, INT32 playernum)
+static void Got_RandomSeed(UINT8 **cp, INT32 playernum)
 {
-	byte seed;
+	UINT8 seed;
 
 	seed = READBYTE(*cp);
 	if (playernum != serverplayer) // it's not from the server, wtf?
@@ -2287,7 +2287,7 @@ static void Command_Clearscores_f(void)
   * \sa XD_CLEARSCORES, Command_Clearscores_f
   * \author SSNTails <http://www.ssntails.org>
   */
-static void Got_Clearscores(byte **cp, INT32 playernum)
+static void Got_Clearscores(UINT8 **cp, INT32 playernum)
 {
 	INT32 i;
 
@@ -2614,7 +2614,7 @@ static void Command_ServerTeamChange_f(void)
 }
 
 //todo: This and the other teamchange functions are getting too long and messy. Needs cleaning.
-static void Got_Teamchange(byte **cp, INT32 playernum)
+static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
@@ -2888,7 +2888,7 @@ static void Command_Login_f(void)
 	SendNetXCmd(XD_LOGIN, password, 9);
 }
 
-static void Got_Login(byte **cp, INT32 playernum)
+static void Got_Login(UINT8 **cp, INT32 playernum)
 {
 	char compareword[9];
 
@@ -2938,7 +2938,7 @@ static void Command_Verify_f(void)
 		SendNetXCmd(XD_VERIFIED, buf, 1);
 }
 
-static void Got_Verification(byte **cp, INT32 playernum)
+static void Got_Verification(UINT8 **cp, INT32 playernum)
 {
 	INT32 num = READBYTE(*cp);
 
@@ -2996,7 +2996,7 @@ static void Command_MotD_f(void)
 	SendNetXCmd(XD_SETMOTD, mymotd, strlen(mymotd));
 }
 
-static void Got_MotD_f(byte **cp, INT32 playernum)
+static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 {
 	XBOXSTATIC char mymotd[sizeof(motd)];
 	INT32 i;
@@ -3067,7 +3067,7 @@ static void Command_RunSOC(void)
 	SendNetXCmd(XD_RUNSOC, buf, length);
 }
 
-static void Got_RunSOCcmd(byte **cp, INT32 playernum)
+static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
@@ -3119,7 +3119,7 @@ static void Got_RunSOCcmd(byte **cp, INT32 playernum)
 // If you consfailed, this tries
 // to restore your state.
 //
-static void Got_Consistency(byte **cp, INT32 playernum)
+static void Got_Consistency(UINT8 **cp, INT32 playernum)
 {
 //	INT32 affectedplayer;
 	INT32 numplayers;
@@ -3315,7 +3315,7 @@ static void Command_Delfile(void)
 }
 #endif
 
-static void Got_RequestAddfilecmd(byte **cp, INT32 playernum)
+static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
@@ -3373,7 +3373,7 @@ static void Got_RequestAddfilecmd(byte **cp, INT32 playernum)
 }
 
 #ifdef DELFILE
-static void Got_Delfilecmd(byte **cp, INT32 playernum)
+static void Got_Delfilecmd(UINT8 **cp, INT32 playernum)
 {
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
@@ -3398,7 +3398,7 @@ static void Got_Delfilecmd(byte **cp, INT32 playernum)
 }
 #endif
 
-static void Got_Addfilecmd(byte **cp, INT32 playernum)
+static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
@@ -4364,7 +4364,7 @@ static void Command_ExitLevel_f(void)
 	SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 }
 
-static void Got_ExitLevelcmd(byte **cp, INT32 playernum)
+static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
 {
 	cp = NULL;
 
@@ -4736,7 +4736,7 @@ static void DummyConsvar_OnChange(void)
 
 static void Command_ShowScores_f(void)
 {
-	byte i;
+	UINT8 i;
 
 	if (!(netgame || multiplayer))
 	{

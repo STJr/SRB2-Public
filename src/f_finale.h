@@ -65,8 +65,8 @@ void F_StartCredits(void);
 typedef struct
 {
 	char header[32];       ///< Header text.
-	byte numnames;         ///< Number of names on this screen.
-	boolean smallnames;    ///< Use small text to write names
+	UINT8 numnames;         ///< Number of names on this screen.
+	UINT8 smallnames;    ///< Use small text to write names
 	char fakenames[32][32]; ///< Nicknames, e.g. Graue, Alam_GBC.
 	char realnames[32][32]; ///< Real names.
 } credit_t;

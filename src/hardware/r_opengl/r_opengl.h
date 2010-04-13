@@ -71,7 +71,7 @@ INT32 isExtAvailable(const char *extension, const GLubyte *start);
 boolean SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits);
 void SetModelView(GLint w, GLint h);
 void SetStates(void);
-FUNCMATH float byteasfloat(byte fbyte);
+FUNCMATH float byteasfloat(UINT8 fbyte);
 #ifdef USE_PALETTED_TEXTURE
 extern PFNGLCOLORTABLEEXTPROC glColorTableEXT;
 extern GLubyte                palette_tex[256*3];

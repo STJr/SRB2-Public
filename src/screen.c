@@ -75,7 +75,7 @@ consvar_t cv_fullscreen = {"fullscreen", "No", CV_SAVE|CV_CALL, CV_YesNo, SCR_Ch
 // =========================================================================
 
 INT32 scr_bpp; // current video mode bytes per pixel
-byte *scr_borderpatch; // flat used to fill the reduced view borders set at ST_Init()
+UINT8 *scr_borderpatch; // flat used to fill the reduced view borders set at ST_Init()
 
 // =========================================================================
 

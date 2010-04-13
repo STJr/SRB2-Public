@@ -39,9 +39,9 @@
 boolean WipeInAction = false;
 #ifndef NOWIPE
 
-static byte *wipe_scr_start; //screens 2
-static byte *wipe_scr_end; //screens 3
-static byte *wipe_scr; //screens 0
+static UINT8 *wipe_scr_start; //screens 2
+static UINT8 *wipe_scr_end; //screens 3
+static UINT8 *wipe_scr; //screens 0
 
 /**	\brief	start the wipe
 
@@ -75,9 +75,9 @@ static inline INT32 F_InitWipe(INT32 width, INT32 height, tic_t ticks)
 static INT32 F_DoWipe(INT32 width, INT32 height, tic_t ticks)
 {
 	boolean changed = false;
-	byte *w;
-	byte *e;
-	byte newval;
+	UINT8 *w;
+	UINT8 *e;
+	UINT8 newval;
 	static INT32 slowdown = 0;
 
 	while (ticks--)

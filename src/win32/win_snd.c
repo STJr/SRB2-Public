@@ -509,7 +509,7 @@ static int GetFreeStackNum(int  newpriority)
 static LPDIRECTSOUNDBUFFER CreateInvertedSound(int id)
 {
 	lumpnum_t lumpnum;
-	byte  *dsdata;
+	LPBYTE dsdata;
 
 	lumpnum = S_sfx[id].lumpnum;
 	if (lumpnum == LUMPERROR)
@@ -649,7 +649,7 @@ INT32 I_StartSound (sfxenum_t      id,
 		hr = IDirectSoundBuffer_Restore(dsbuffer);
 		if (SUCCEEDED (hr))
 		{
-			byte *  dsdata;
+			LPBYTE dsdata;
 			// reload sample data here
 			lumpnum_t lumpnum = S_sfx[id].lumpnum;
 			if (lumpnum == LUMPERROR)
@@ -677,7 +677,7 @@ INT32 I_StartSound (sfxenum_t      id,
 			hr = IDirectSoundBuffer_Restore(dssurround);
 			if (SUCCEEDED (hr))
 			{
-				byte *dsdata;
+				LPBYTE *dsdata;
 				lumpnum_t lumpnum = S_sfx[id].lumpnum;
 
 				if (lumpnum == LUMPERROR)
@@ -2004,9 +2004,11 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 	// Scan the Ogg Vorbis file for the COMMENT= field for a custom loop point
 	if (fmus && looping)
 	{
-		const BYTE *dataum = data;
+		const char *dataum = data;
 		size_t scan;
 		unsigned int loopstart = 0;
+		UINT8 newcount = 0;
+		char looplength[64];
 
 		for (scan = 0;scan < len; scan++)
 		{
@@ -2029,14 +2031,10 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 			if (*dataum++ == 'T'){
 			if (*dataum++ == '=')
 			{
-				BYTE newcount = 0;
-				CHAR looplength[64];
 				while (*dataum != 1 && newcount != 63)
-				{
 					looplength[newcount++] = *dataum++;
-				}
 
-				looplength[newcount] = '\n';
+				looplength[newcount] = '\0';
 
 				loopstart = atoi(looplength);
 			}

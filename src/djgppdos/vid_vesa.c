@@ -700,7 +700,7 @@ static inline boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
 	}
 
 	// allocate the new screen buffer
-	if ( (lvid->buffer = (byte *) malloc(vidbuffersize))==NULL )
+	if ( (lvid->buffer = (UINT8 *) malloc(vidbuffersize))==NULL )
 		return false;
 
 	// initially clear the video buffer
@@ -735,7 +735,7 @@ static int VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 
 	// here it is the standard VGA 64k window, not an LFB
 	// (you could have 320x200x256c with LFB in the vesa modes)
-	lvid->direct = (byte *) real2ptr (0xa0000);
+	lvid->direct = (UINT8 *) real2ptr (0xa0000);
 	lvid->u.numpages = 1;
 	lvid->bpp = pcurrentmode->bytesperpixel;
 

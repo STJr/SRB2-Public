@@ -123,11 +123,11 @@ extern boolean looptitle;
 extern boolean useNightsSS;
 
 extern tic_t countdowntimer;
-extern byte countdowntimeup;
+extern UINT8 countdowntimeup;
 
 typedef struct
 {
-	byte numpics;
+	UINT8 numpics;
 	char picname[8][8];
 	boolean pichires[8];
 	char *text;
@@ -171,20 +171,20 @@ typedef struct
 	// The original eight.
 	char lvlttl[33];      ///< Level name without "Zone".
 	char subttl[33];      ///< Subtitle for level
-	byte actnum;          ///< Act number or 0 for none.
+	UINT8 actnum;          ///< Act number or 0 for none.
 	INT16 typeoflevel;    ///< Combination of typeoflevel flags.
 	INT16 nextlevel;      ///< Map number of next level, or 1100-1102 to end.
 	musicenum_t musicslot;///< Music slot number to play. 0 for no music.
-	byte forcecharacter;  ///< Skin number to switch to or 255 to disable.
-	byte weather;         ///< 0 = sunny day, 1 = storm, 2 = snow, 3 = rain, 4 = blank, 5 = thunder w/o rain, 6 = rain w/o lightning, 7 = heat wave.
+	UINT8 forcecharacter;  ///< Skin number to switch to or 255 to disable.
+	UINT8 weather;         ///< 0 = sunny day, 1 = storm, 2 = snow, 3 = rain, 4 = blank, 5 = thunder w/o rain, 6 = rain w/o lightning, 7 = heat wave.
 	INT16 skynum;         ///< Sky number to use.
 
 	// Extra information.
 	char interscreen[8];  ///< 320x200 patch to display at intermission.
 	char scriptname[192]; ///< Script to use when the map is switched to.
 	boolean scriptislump; ///< True if the script is a lump, not a file.
-	byte precutscenenum;  ///< Cutscene number to play BEFORE a level starts.
-	byte cutscenenum;     ///< Cutscene number to use, 0 for none.
+	UINT8 precutscenenum;  ///< Cutscene number to play BEFORE a level starts.
+	UINT8 cutscenenum;     ///< Cutscene number to use, 0 for none.
 	INT16 countdown;      ///< Countdown until level end?
 	boolean nozone;       ///< True to hide "Zone" in level name.
 	boolean hideinmenu;   ///< True to hide in the multiplayer menu.
@@ -260,9 +260,9 @@ typedef struct
 	INT16 x; ///< X coordinate.
 	INT16 y; ///< Y coordinate.
 	INT16 z; ///< Z coordinate.
-	byte player;    ///< Player who can access this emblem.
+	UINT8 player;    ///< Player who can access this emblem.
 	INT16 level;     ///< Level on which this emblem/egg can be found.
-	boolean collected; ///< Do you have this emblem?
+	UINT8 collected; ///< Do you have this emblem?
 } emblem_t;
 
 extern emblem_t emblemlocations[MAXEMBLEMS];
@@ -307,8 +307,8 @@ extern tic_t gravbootstics;
 extern tic_t paralooptics;
 extern tic_t helpertics;
 
-extern byte introtoplay;
-extern byte creditscutscene;
+extern UINT8 introtoplay;
+extern UINT8 creditscutscene;
 
 extern mobj_t *hunt1, *hunt2, *hunt3; // Emerald hunt locations
 

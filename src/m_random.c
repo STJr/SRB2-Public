@@ -26,7 +26,7 @@
 	Returns a 0-255 number
 */
 
-static byte rndtable[256] =
+static UINT8 rndtable[256] =
 {
 	0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66,
 	74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36,
@@ -51,11 +51,11 @@ static byte rndtable[256] =
 /**	\brief M_Random seed
 */
 
-static byte rndindex = 0;
+static UINT8 rndindex = 0;
 /**	\brief P_Random seed
 */
 
-static byte prndindex = 0;
+static UINT8 prndindex = 0;
 
 #ifndef DEBUGRANDOM
 
@@ -65,7 +65,7 @@ static byte prndindex = 0;
   * \return A random byte, 0 to 255.
   * \sa P_SignedRandom, M_Random
   */
-byte P_Random(void)
+UINT8 P_Random(void)
 {
 	return rndtable[++prndindex];
 }
@@ -86,7 +86,7 @@ INT32 P_SignedRandom(void)
 
 #else
 
-byte P_Random2(char *a, INT32 b)
+UINT8 P_Random2(char *a, INT32 b)
 {
 	CONS_Printf("P_Random at: %sp %d\n", a, b);
 	return rndtable[++prndindex];
@@ -111,7 +111,7 @@ INT32 P_SignedRandom2(char *a, INT32 b)
   * \sa P_Random
   * \todo Consider replacing in favor of rand().
   */
-byte M_Random(void)
+UINT8 M_Random(void)
 {
 	return rndtable[++rndindex];
 }
@@ -134,7 +134,7 @@ void M_ClearRandom(void)
   * \sa P_SetRandIndex
   * \author Graue <graue@oceanbase.org>
   */
-byte P_GetRandIndex(void)
+UINT8 P_GetRandIndex(void)
 {
 	return prndindex;
 }
@@ -149,7 +149,7 @@ byte P_GetRandIndex(void)
   * \sa P_GetRandIndex
   * \author Graue <graue@oceanbase.org>
   */
-void P_SetRandIndex(byte newrindex)
+void P_SetRandIndex(UINT8 newrindex)
 {
 	prndindex = newrindex;
 }

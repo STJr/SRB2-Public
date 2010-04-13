@@ -119,7 +119,7 @@ void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 	{
 		FSurfaceInfo Surf;
 		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 0xff;
-		Surf.FlatColor.s.alpha = (byte)cv_grtranslucenthud.value;
+		Surf.FlatColor.s.alpha = (UINT8)cv_grtranslucenthud.value;
 		flags |= PF_Modulated;
 		HWD.pfnDrawPolygon(&Surf, v, 4, flags);
 	}
@@ -182,7 +182,7 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 	// Alam_GBC: There, you have translucent HW Draw, OK?
 	if ((option & V_TRANSLUCENT) && cv_grtranslucenthud.value != 255)
 	{
-		Surf.FlatColor.s.alpha = (byte)(cv_grtranslucenthud.value/2);
+		Surf.FlatColor.s.alpha = (UINT8)(cv_grtranslucenthud.value/2);
 	}
 	else
 		Surf.FlatColor.s.alpha = 127;
@@ -191,7 +191,7 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 }
 
 // Draws a patch 2x as small SSNTails 06-10-2003
-void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const byte *colormap)
+void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
 	FOutVector      v[4];
 	INT32 flags;
@@ -233,7 +233,7 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 	{
 		FSurfaceInfo Surf;
 		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 0xff;
-		Surf.FlatColor.s.alpha = (byte)cv_grtranslucenthud.value;
+		Surf.FlatColor.s.alpha = (UINT8)cv_grtranslucenthud.value;
 		flags |= PF_Modulated;
 		HWD.pfnDrawPolygon(&Surf, v, 4, flags);
 	}
@@ -244,7 +244,7 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 //
 // HWR_DrawMappedPatch(): Like HWR_DrawPatch but with translated color
 //
-void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const byte *colormap)
+void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
 	FOutVector      v[4];
 	INT32 flags;
@@ -286,7 +286,7 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, con
 	{
 		FSurfaceInfo Surf;
 		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 0xff;
-		Surf.FlatColor.s.alpha = (byte)cv_grtranslucenthud.value;
+		Surf.FlatColor.s.alpha = (UINT8)cv_grtranslucenthud.value;
 		flags |= PF_Modulated;
 		HWD.pfnDrawPolygon(&Surf, v, 4, flags);
 	}
@@ -330,7 +330,7 @@ void HWR_DrawPic(INT32 x, INT32 y, lumpnum_t lumpnum)
 	{
 		FSurfaceInfo Surf;
 		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 0xff;
-		Surf.FlatColor.s.alpha = (byte)cv_grtranslucenthud.value;
+		Surf.FlatColor.s.alpha = (UINT8)cv_grtranslucenthud.value;
 		HWD.pfnDrawPolygon(&Surf, v, 4, PF_Modulated | BLENDMODE | PF_NoDepthTest | PF_Clip | PF_NoZClip);
 	}
 	else
@@ -442,7 +442,7 @@ void HWR_FadeScreenMenuBack(UINT32 color, INT32 height)
 	v[2].tow = v[3].tow = 0.0f;
 
 	Surf.FlatColor.rgba = UINT2RGBA(color);
-	Surf.FlatColor.s.alpha = (byte)((0xff/2) * ((float)height / vid.height)); //calum: varies console alpha
+	Surf.FlatColor.s.alpha = (UINT8)((0xff/2) * ((float)height / vid.height)); //calum: varies console alpha
 	HWD.pfnDrawPolygon(&Surf, v, 4, PF_NoTexture|PF_Modulated|PF_Translucent|PF_NoDepthTest);
 }
 
@@ -691,7 +691,7 @@ static inline boolean saveTGA(const char *file_name, void *buffer,
 	INT32 fd;
 	TGAHeader tga_hdr;
 	INT32 i;
-	byte *buf8 = buffer;
+	UINT8 *buf8 = buffer;
 
 	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 	if (fd < 0)
@@ -708,7 +708,7 @@ static inline boolean saveTGA(const char *file_name, void *buffer,
 	// format to 888 BGR
 	for (i = 0; i < width * height * 3; i+=3)
 	{
-		const byte temp = buf8[i];
+		const UINT8 temp = buf8[i];
 		buf8[i] = buf8[i+2];
 		buf8[i+2] = temp;
 	}
@@ -722,9 +722,9 @@ static inline boolean saveTGA(const char *file_name, void *buffer,
 // screen shot
 // --------------------------------------------------------------------------
 
-byte *HWR_GetScreenshot(void)
+UINT8 *HWR_GetScreenshot(void)
 {
-	byte *buf = malloc(vid.width * vid.height * 3 * sizeof (*buf));
+	UINT8 *buf = malloc(vid.width * vid.height * 3 * sizeof (*buf));
 
 	if (!buf)
 		return NULL;
@@ -736,7 +736,7 @@ byte *HWR_GetScreenshot(void)
 boolean HWR_Screenshot(const char *lbmname)
 {
 	boolean ret;
-	byte *buf = malloc(vid.width * vid.height * 3 * sizeof (*buf));
+	UINT8 *buf = malloc(vid.width * vid.height * 3 * sizeof (*buf));
 
 	if (!buf)
 		return false;

@@ -37,7 +37,7 @@
 #include "p_polyobj.h"
 
 savedata_t savedata;
-byte *save_p;
+UINT8 *save_p;
 
 // Note: This cannot be bigger
 // than an UINT16
@@ -458,14 +458,14 @@ static void P_NetArchiveWorld(void)
 	INT32 statsec = 0, statline = 0;
 	const line_t *li = lines;
 	const side_t *si;
-	byte *put = save_p;
+	UINT8 *put = save_p;
 
 	// reload the map just to see difference
 	const mapsector_t *ms;
 	const mapsidedef_t *msd;
 	const maplinedef_t *mld;
 	const sector_t *ss = sectors;
-	byte diff, diff2;
+	UINT8 diff, diff2;
 
 	ms = W_CacheLumpNum(lastloadedmaplumpnum+ML_SECTORS, PU_CACHE);
 
@@ -643,8 +643,8 @@ static void P_NetUnArchiveWorld(void)
 	UINT32 i;
 	line_t *li;
 	side_t *si;
-	byte *get;
-	byte diff, diff2;
+	UINT8 *get;
+	UINT8 diff, diff2;
 
 	get = save_p;
 
@@ -866,7 +866,7 @@ static inline UINT32 SaveFfloor(const ffloor_t *pfloor, const sector_t *sector)
 //
 // Saves a levelspecthink_t thinker
 //
-static void SaveSpecialLevelThinker(const thinker_t *th, const byte type)
+static void SaveSpecialLevelThinker(const thinker_t *th, const UINT8 type)
 {
 	const levelspecthink_t *ht  = (const void *)th;
 	size_t i;
@@ -888,7 +888,7 @@ static void SaveSpecialLevelThinker(const thinker_t *th, const byte type)
 //
 // Saves a ceiling_t thinker
 //
-static void SaveCeilingThinker(const thinker_t *th, const byte type)
+static void SaveCeilingThinker(const thinker_t *th, const UINT8 type)
 {
 	const ceiling_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -919,7 +919,7 @@ static void SaveCeilingThinker(const thinker_t *th, const byte type)
 //
 // Saves a floormove_t thinker
 //
-static inline void SaveFloormoveThinker(const thinker_t *th, const byte type)
+static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const floormove_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -944,7 +944,7 @@ static inline void SaveFloormoveThinker(const thinker_t *th, const byte type)
 //
 // Saves a lightflash_t thinker
 //
-static inline void SaveLightflashThinker(const thinker_t *th, const byte type)
+static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightflash_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -962,7 +962,7 @@ static inline void SaveLightflashThinker(const thinker_t *th, const byte type)
 //
 // Saves a strobe_t thinker
 //
-static inline void SaveStrobeThinker(const thinker_t *th, const byte type)
+static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 {
 	const strobe_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -983,7 +983,7 @@ static inline void SaveStrobeThinker(const thinker_t *th, const byte type)
 //
 // Saves a glow_t thinker
 //
-static inline void SaveGlowThinker(const thinker_t *th, const byte type)
+static inline void SaveGlowThinker(const thinker_t *th, const UINT8 type)
 {
 	const glow_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1002,7 +1002,7 @@ static inline void SaveGlowThinker(const thinker_t *th, const byte type)
 //
 // Saves a fireflicker_t thinker
 //
-static inline void SaveFireflickerThinker(const thinker_t *th, const byte type)
+static inline void SaveFireflickerThinker(const thinker_t *th, const UINT8 type)
 {
 	const fireflicker_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1021,7 +1021,7 @@ static inline void SaveFireflickerThinker(const thinker_t *th, const byte type)
 //
 // Saves a elevator_t thinker
 //
-static void SaveElevatorThinker(const thinker_t *th, const byte type)
+static void SaveElevatorThinker(const thinker_t *th, const UINT8 type)
 {
 	const elevator_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1053,7 +1053,7 @@ static void SaveElevatorThinker(const thinker_t *th, const byte type)
 //
 // Saves a scroll_t thinker
 //
-static inline void SaveScrollThinker(const thinker_t *th, const byte type)
+static inline void SaveScrollThinker(const thinker_t *th, const UINT8 type)
 {
 	const scroll_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1078,7 +1078,7 @@ static inline void SaveScrollThinker(const thinker_t *th, const byte type)
 //
 // Saves a friction_t thinker
 //
-static inline void SaveFrictionThinker(const thinker_t *th, const byte type)
+static inline void SaveFrictionThinker(const thinker_t *th, const UINT8 type)
 {
 	const friction_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1101,7 +1101,7 @@ static inline void SaveFrictionThinker(const thinker_t *th, const byte type)
 //
 // Saves a pusher_t thinker
 //
-static inline void SavePusherThinker(const thinker_t *th, const byte type)
+static inline void SavePusherThinker(const thinker_t *th, const UINT8 type)
 {
 	const pusher_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1133,7 +1133,7 @@ static inline void SavePusherThinker(const thinker_t *th, const byte type)
 //
 // Saves a laserthink_t thinker
 //
-static void SaveLaserThinker(const thinker_t *th, const byte type)
+static void SaveLaserThinker(const thinker_t *th, const UINT8 type)
 {
 	const laserthink_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1156,7 +1156,7 @@ static void SaveLaserThinker(const thinker_t *th, const byte type)
 //
 // Saves a lightlevel_t thinker
 //
-static void SaveLightlevelThinker(const thinker_t *th, const byte type)
+static void SaveLightlevelThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightlevel_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1174,7 +1174,7 @@ static void SaveLightlevelThinker(const thinker_t *th, const byte type)
 //
 // Saves a executor_t thinker
 //
-static void SaveExecutorThinker(const thinker_t *th, const byte type)
+static void SaveExecutorThinker(const thinker_t *th, const UINT8 type)
 {
 	const executor_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1192,7 +1192,7 @@ static void SaveExecutorThinker(const thinker_t *th, const byte type)
 //
 // Saves a disappear_t thinker
 //
-static void SaveDisappearThinker(const thinker_t *th, const byte type)
+static void SaveDisappearThinker(const thinker_t *th, const UINT8 type)
 {
 	const disappear_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1216,7 +1216,7 @@ static void SaveDisappearThinker(const thinker_t *th, const byte type)
 //
 // Saves a polyrotate_t thinker
 //
-static inline void SavePolyrotatetThinker(const thinker_t *th, const byte type)
+static inline void SavePolyrotatetThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyrotate_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1234,7 +1234,7 @@ static inline void SavePolyrotatetThinker(const thinker_t *th, const byte type)
 //
 // Saves a polymovet_t thinker
 //
-static void SavePolymoveThinker(const thinker_t *th, const byte type)
+static void SavePolymoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const polymove_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1255,7 +1255,7 @@ static void SavePolymoveThinker(const thinker_t *th, const byte type)
 //
 // Saves a polywaypoint_t thinker
 //
-static void SavePolywaypointThinker(const thinker_t *th, byte type)
+static void SavePolywaypointThinker(const thinker_t *th, UINT8 type)
 {
 	const polywaypoint_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1282,7 +1282,7 @@ static void SavePolywaypointThinker(const thinker_t *th, byte type)
 //
 // Saves a polyslidedoor_t thinker
 //
-static void SavePolyslidedoorThinker(const thinker_t *th, const byte type)
+static void SavePolyslidedoorThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyslidedoor_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1310,7 +1310,7 @@ static void SavePolyslidedoorThinker(const thinker_t *th, const byte type)
 //
 // Saves a polyswingdoor_t thinker
 //
-static void SavePolyswingdoorThinker(const thinker_t *th, const byte type)
+static void SavePolyswingdoorThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyswingdoor_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1335,7 +1335,7 @@ static void SavePolyswingdoorThinker(const thinker_t *th, const byte type)
 //
 // Saves a what_t thinker
 //
-static inline void SaveWhatThinker(const thinker_t *th, const byte type)
+static inline void SaveWhatThinker(const thinker_t *th, const UINT8 type)
 {
 	const what_t *ht = (const void *)th;
 	WRITEBYTE(save_p, type);
@@ -1787,7 +1787,7 @@ static inline ffloor_t *LoadFfloor(UINT32 pfloors, sector_t *sector)
 //		2 - Ceiling Only
 //		3 - Both
 //
-static void LoadSpecialLevelThinker(actionf_p1 thinker, byte floorOrCeiling)
+static void LoadSpecialLevelThinker(actionf_p1 thinker, UINT8 floorOrCeiling)
 {
 	levelspecthink_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	size_t i;
@@ -1971,7 +1971,7 @@ static void LoadFireflickerThinker(actionf_p1 thinker)
 //
 // Loads a elevator_t from a save game
 //
-static void LoadElevatorThinker(actionf_p1 thinker, byte floorOrCeiling)
+static void LoadElevatorThinker(actionf_p1 thinker, UINT8 floorOrCeiling)
 {
 	elevator_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -2337,8 +2337,8 @@ static void P_NetUnArchiveThinkers(void)
 	mobj_t *mobj;
 	UINT32 diff;
 	INT32 i;
-	byte tclass;
-	byte restoreNum = false;
+	UINT8 tclass;
+	UINT8 restoreNum = false;
 	fixed_t z, floorz, ceilingz;
 
 	// remove all the current thinkers

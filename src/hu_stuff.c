@@ -163,7 +163,7 @@ static void Command_Say_f(void);
 static void Command_Sayto_f(void);
 static void Command_Sayteam_f(void);
 static void Command_CSay_f(void);
-static void Got_Saycmd(byte **p, INT32 playernum);
+static void Got_Saycmd(UINT8 **p, INT32 playernum);
 #endif
 
 void HU_LoadGraphics(void)
@@ -477,10 +477,10 @@ static void Command_CSay_f(void)
   * \sa DoSayCommand
   * \author Graue <graue@oceanbase.org>
   */
-static void Got_Saycmd(byte **p, INT32 playernum)
+static void Got_Saycmd(UINT8 **p, INT32 playernum)
 {
 	signed char target;
-	byte flags;
+	UINT8 flags;
 	const char *dispname;
 	char *msg;
 	boolean action = false;
@@ -754,7 +754,7 @@ boolean HU_Responder(event_t *ev)
 {
 	static boolean shiftdown = false, altdown = false;
 	boolean eatkey = false;
-	byte c;
+	UINT8 c;
 
 	if (ev->data1 == KEY_LSHIFT || ev->data1 == KEY_RSHIFT)
 	{
@@ -792,7 +792,7 @@ boolean HU_Responder(event_t *ev)
 	}
 	else
 	{
-		c = (byte)ev->data1;
+		c = (UINT8)ev->data1;
 
 		// use console translations
 		if (shiftdown)
@@ -1114,7 +1114,7 @@ void HU_Erase(void)
 void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer)
 {
 	INT32 i;
-	byte *colormap;
+	const UINT8 *colormap;
 
 	//this function is designed for 10 or less score lines only
 	I_Assert(scorelines <= 10);
@@ -1155,12 +1155,12 @@ void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, I
 		{
 			if (players[tab[i].num].powers[pw_super])
 			{
-				colormap = (byte *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
 				V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 			}
 			else
 			{
-				colormap = (byte *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
 				if (players[tab[i].num].health <= 0)
 					V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 				else
@@ -1197,7 +1197,7 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 {
 	INT32 i,x,y;
 	INT32 redplayers = 0, blueplayers = 0;
-	byte *colormap;
+	const UINT8 *colormap;
 	char name[MAXPLAYERNAME+1];
 
 	V_DrawFill(160, 26, 1, 173, 0); //Draw a vertical line to separate the two teams.
@@ -1248,12 +1248,12 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 
 		if (players[tab[i].num].powers[pw_super])
 		{
-			colormap = (byte *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
+			colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
 			V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 		}
 		else
 		{
-			colormap = (byte *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
+			colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
 			if (players[tab[i].num].health <= 0)
 				V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 			else
@@ -1269,7 +1269,7 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, INT32 whiteplayer)
 {
 	INT32 i;
-	byte *colormap;
+	const UINT8 *colormap;
 	char name[MAXPLAYERNAME+1];
 
 	V_DrawFill(160, 26, 1, 173, 0); //Draw a vertical line to separate the two sides.
@@ -1316,12 +1316,12 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 		{
 			if (players[tab[i].num].powers[pw_super])
 			{
-				colormap = (byte *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
 				V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 			}
 			else
 			{
-				colormap = (byte *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
 				if (players[tab[i].num].health <= 0)
 					V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 				else

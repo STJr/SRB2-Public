@@ -32,7 +32,7 @@
 void R_DrawColumn_8(void)
 {
 	INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register INT64 frac;
 	fixed_t fracstep;
 
@@ -63,7 +63,7 @@ void R_DrawColumn_8(void)
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
 	{
-		register const byte *source = dc_source;
+		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
 		register INT64 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
@@ -111,7 +111,7 @@ void R_DrawColumn_8(void)
 void R_DrawWallColumn_8(void)
 {
 	INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register INT64 frac;
 	fixed_t fracstep;
 
@@ -142,7 +142,7 @@ void R_DrawWallColumn_8(void)
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
 	{
-		register const byte *source = dc_source;
+		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
 		register INT64 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
@@ -189,7 +189,7 @@ void R_DrawWallColumn_8(void)
 void R_Draw2sMultiPatchColumn_8(void)
 {
 	INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register INT64 frac;
 	fixed_t fracstep;
 
@@ -220,10 +220,10 @@ void R_Draw2sMultiPatchColumn_8(void)
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
 	{
-		register const byte *source = dc_source;
+		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
 		register INT64 heightmask = dc_texheight-1;
-		register byte val;
+		register UINT8 val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
 			heightmask++;
@@ -281,7 +281,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 void R_DrawShadeColumn_8(void)
 {
 	register INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register fixed_t frac, fracstep;
 
 	// check out coords for src*
@@ -323,7 +323,7 @@ void R_DrawShadeColumn_8(void)
 void R_DrawTranslucentColumn_8(void)
 {
 	register INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register fixed_t frac, fracstep;
 
 	count = dc_yh - dc_yl + 1;
@@ -348,8 +348,8 @@ void R_DrawTranslucentColumn_8(void)
 	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
 	// This is as fast as it gets.
 	{
-		register const byte *source = dc_source;
-		register const byte *transmap = dc_transmap;
+		register const UINT8 *source = dc_source;
+		register const UINT8 *transmap = dc_transmap;
 		register const lighttable_t *colormap = dc_colormap;
 		register INT32 heightmask = dc_texheight - 1;
 		if (dc_texheight & heightmask)
@@ -400,7 +400,7 @@ void R_DrawTranslucentColumn_8(void)
 void R_DrawTranslatedTranslucentColumn_8(void)
 {
 	register INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register fixed_t frac, fracstep;
 
 	count = dc_yh - dc_yl + 1;
@@ -475,7 +475,7 @@ void R_DrawTranslatedTranslucentColumn_8(void)
 void R_DrawTranslatedColumn_8(void)
 {
 	register INT32 count;
-	register byte *dest;
+	register UINT8 *dest;
 	register fixed_t frac, fracstep;
 
 	count = dc_yh - dc_yl;
@@ -525,9 +525,9 @@ void R_DrawSpan_8 (void)
 	UINT32 yposition;
 	UINT32 xstep, ystep;
 
-	byte *source;
-	byte *colormap;
-	byte *dest;
+	UINT8 *source;
+	UINT8 *colormap;
+	UINT8 *dest;
 
 	size_t count;
 
@@ -603,9 +603,9 @@ void R_DrawSplat_8 (void)
 	UINT32 yposition;
 	UINT32 xstep, ystep;
 
-	byte *source;
-	byte *colormap;
-	byte *dest;
+	UINT8 *source;
+	UINT8 *colormap;
+	UINT8 *dest;
 
 	size_t count;
 	UINT32 val;
@@ -720,12 +720,12 @@ void R_DrawTranslucentSplat_8 (void)
 	UINT32 yposition;
 	UINT32 xstep, ystep;
 
-	byte *source;
-	byte *colormap;
-	byte *dest;
+	UINT8 *source;
+	UINT8 *colormap;
+	UINT8 *dest;
 
 	size_t count;
-	byte val;
+	UINT8 val;
 
 	// SoM: we only need 6 bits for the integer part (0 thru 63) so the rest
 	// can be used for the fraction part. This allows calculation of the memory address in the
@@ -819,9 +819,9 @@ void R_DrawTranslucentSpan_8 (void)
 	UINT32 yposition;
 	UINT32 xstep, ystep;
 
-	byte *source;
-	byte *colormap;
-	byte *dest;
+	UINT8 *source;
+	UINT8 *colormap;
+	UINT8 *dest;
 
 	size_t count;
 
@@ -894,9 +894,9 @@ void R_DrawTranslucentSpan_8 (void)
 */
 void R_DrawFogSpan_8(void)
 {
-	byte *colormap;
-	byte *transmap;
-	byte *dest;
+	UINT8 *colormap;
+	UINT8 *transmap;
+	UINT8 *dest;
 
 	size_t count;
 
@@ -931,7 +931,7 @@ void R_DrawFogSpan_8(void)
 void R_DrawFogColumn_8(void)
 {
 	INT32 count;
-	byte *dest;
+	UINT8 *dest;
 
 	count = dc_yh - dc_yl;
 

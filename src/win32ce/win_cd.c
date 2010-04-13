@@ -147,12 +147,12 @@ static int CD_TotalTime (void)
 //                   CD AUDIO MUSIC SUBSYSTEM
 //======================================================================
 
-byte   cdaudio_started = 0;   // for system startup/shutdown
+UINT8  cdaudio_started = 0;   // for system startup/shutdown
 
 static boolean cdPlaying = false;
 static int     cdPlayTrack;         // when cdPlaying is true
 static boolean cdLooping = false;
-static byte    cdRemap[MAX_CD_TRACKS];
+static UINT8   cdRemap[MAX_CD_TRACKS];
 static boolean cdEnabled = true;      // cd info available
 static boolean cdValid;             // true when last cd audio info was ok
 static boolean wasPlaying;
@@ -231,7 +231,7 @@ static void Command_Cd_f (void)
 			return;
 		}
 		for (j = 1; j <= i; j++)
-			cdRemap[j] = (byte)atoi (COM_Argv (j+1));
+			cdRemap[j] = (UINT8)atoi (COM_Argv (j+1));
 		return;
 	}
 
@@ -242,7 +242,7 @@ static void Command_Cd_f (void)
 		if (cdPlaying)
 			I_StopCD ();
 		for (i = 0; i < MAX_CD_TRACKS; i++)
-			cdRemap[i] = (byte)i;
+			cdRemap[i] = (UINT8)i;
 		CD_Reset();
 		cdValid = CD_ReadTrackInfo();
 		return;
@@ -300,7 +300,7 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(s,"play",4))
 	{
-		I_PlayCD (atoi (COM_Argv (2)), false);
+		I_PlayCD ((UINT8)atoi(COM_Argv (2)), false);
 		return;
 	}
 
@@ -312,7 +312,7 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(s,"loop",4))
 	{
-		I_PlayCD (atoi (COM_Argv (2)), true);
+		I_PlayCD ((UINT8)atoi(COM_Argv (2)), true);
 		return;
 	}
 
@@ -393,7 +393,7 @@ void I_InitCD (void)
 	I_SetVolumeCD (i);   // now set the last saved volume
 
 	for (i = 0; i < MAX_CD_TRACKS; i++)
-		cdRemap[i] = (byte)i;
+		cdRemap[i] = (UINT8)i;
 
 	if (!CD_ReadTrackInfo())
 	{
@@ -421,7 +421,7 @@ void I_UpdateCD (void)
 
 
 //
-void I_PlayCD (int nTrack, boolean bLooping)
+void I_PlayCD (UINT8 nTrack, UINT8 bLooping)
 {
 	MCI_PLAY_PARMS  mciPlay;
 	MCIERROR        iErr;
@@ -465,7 +465,7 @@ void I_PlayCD (int nTrack, boolean bLooping)
 	I_StopSong (0);
 
 	//faB: I don't use the notify message, I'm trying to minimize the delay
-	mciPlay.dwCallback = (DWORD)((size_t)hWndMain);
+	mciPlay.dwCallback = (DWORD_PTR)((size_t)hWndMain);
 	mciPlay.dwFrom = MCI_MAKE_TMSF(nTrack+1, 0, 0, 0);
 	iErr = mciSendCommand(m_MCIOpen.wDeviceID, MCI_PLAY, MCI_FROM|MCI_NOTIFY, (DWORD_PTR)&mciPlay);
 	if (iErr)

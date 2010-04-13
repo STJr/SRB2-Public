@@ -1393,7 +1393,7 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 			}
 			else if (GETSECSPECIAL(caller->special, 2) == 7)
 			{
-				byte mare;
+				UINT8 mare;
 
 				if (!(maptol & TOL_NIGHTS))
 					return;
@@ -5693,7 +5693,7 @@ void P_SpawnSpecials(void)
 			case 259: // Make-Your-Own FOF!
 				if (lines[i].sidenum[1] != 0xffff)
 				{
-					byte *data = W_CacheLumpNum(lastloadedmaplumpnum + ML_SIDEDEFS,PU_STATIC);
+					UINT8 *data = W_CacheLumpNum(lastloadedmaplumpnum + ML_SIDEDEFS,PU_STATIC);
 					UINT16 b;
 
 					for (b = 0; b < (INT16)numsides; b++)

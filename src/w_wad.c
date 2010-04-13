@@ -694,7 +694,7 @@ size_t W_ReadLumpHeaderPwad(UINT16 wad, UINT16 lump, void *dest, size_t size, si
 
 	if (wadfiles[wad]->lumpinfo[lump].compressed)
 	{
-		byte *data;
+		UINT8 *data;
 		data = W_ReadCompressedLump(wad, lump);
 		if (!data) return 0;
 		M_Memcpy(dest, data+offset, size);

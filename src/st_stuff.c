@@ -597,7 +597,7 @@ static void ST_DrawNightsOverlayNum(INT32 x /* right border */, INT32 y, INT32 n
 	patch_t **numpat, INT32 colornum)
 {
 	INT32 w = SHORT(numpat[0]->width);
-	byte *colormap;
+	const UINT8 *colormap;
 	int flags = 0;
 
 	if (colornum == 0)
@@ -607,7 +607,7 @@ static void ST_DrawNightsOverlayNum(INT32 x /* right border */, INT32 y, INT32 n
 		// Uses the player colors.
 		flags = (flags & ~MF_TRANSLATION) | (colornum<<MF_TRANSSHIFT);
 
-		colormap = (byte *)defaulttranslationtables - 256
+		colormap = (const UINT8 *)defaulttranslationtables - 256
 			+ ((flags & MF_TRANSLATION)>>(MF_TRANSSHIFT-8));
 	}
 
@@ -1038,14 +1038,14 @@ static void ST_drawNiGHTSHUD(void)
 		{
 			ST_DrawNightsOverlayNum(SCX(256), SCY(160), (stplyr->linkcount-1), nightsnum, colornum);
 			V_DrawMappedPatch(SCX(264), SCY(160), V_NOSCALESTART, nightslink,
-				colornum == 0 ? colormaps : (byte *)defaulttranslationtables - 256 + ((((0 & ~MF_TRANSLATION)
+				colornum == 0 ? colormaps : (const UINT8 *)defaulttranslationtables - 256 + ((((0 & ~MF_TRANSLATION)
 				| (colornum<<MF_TRANSSHIFT)) & MF_TRANSLATION) >> (MF_TRANSSHIFT-8)));
 		}
 		else
 		{
 			ST_DrawNightsOverlayNum(SCX(160), SCY(176), (stplyr->linkcount-1), nightsnum, colornum);
 			V_DrawMappedPatch(SCX(168), SCY(176), V_NOSCALESTART, nightslink,
-				colornum == 0 ? colormaps : (byte *)defaulttranslationtables - 256 + ((((0 & ~MF_TRANSLATION)
+				colornum == 0 ? colormaps : (const UINT8 *)defaulttranslationtables - 256 + ((((0 & ~MF_TRANSLATION)
 				| (colornum<<MF_TRANSSHIFT)) & MF_TRANSLATION) >> (MF_TRANSSHIFT-8)));
 		}
 	}
@@ -1967,7 +1967,7 @@ static void ST_overlayDrawer(void)
 			}
 			else
 			{
-				byte *colormap = (byte *)translationtables[stplyr->skin] - 256 + (((stplyr->powers[pw_super]) ? 15 : stplyr->skincolor)<<8);
+				const UINT8 *colormap = (UINT8 *)translationtables[stplyr->skin] - 256 + (((stplyr->powers[pw_super]) ? 15 : stplyr->skincolor)<<8);
 				V_DrawSmallMappedPatch(SCX(hudinfo[HUD_LIVESPIC].x), SCY(hudinfo[HUD_LIVESPIC].y - (splitscreen ? 8 : 0)),
 					V_NOSCALESTART|V_TRANSLUCENT,superprefix[stplyr->skin], colormap);
 			}
@@ -1981,7 +1981,7 @@ static void ST_overlayDrawer(void)
 			}
 			else
 			{
-				byte *colormap = (byte *)translationtables[stplyr->skin] - 256 + ((stplyr->skincolor)<<8);
+				const UINT8 *colormap = (UINT8 *)translationtables[stplyr->skin] - 256 + ((stplyr->skincolor)<<8);
 				V_DrawSmallMappedPatch(SCX(hudinfo[HUD_LIVESPIC].x), SCY(hudinfo[HUD_LIVESPIC].y - (splitscreen ? 8 : 0)),
 					V_NOSCALESTART|V_TRANSLUCENT,faceprefix[stplyr->skin], colormap);
 			}

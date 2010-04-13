@@ -67,8 +67,8 @@ typedef struct viddef_s
 {
 	INT32 modenum; // vidmode num indexes videomodes list
 
-	byte *buffer; // invisible screens buffer
-	unsigned rowbytes; // bytes per scanline of the VIDEO mode
+	UINT8 *buffer; // invisible screens buffer
+	size_t rowbytes; // bytes per scanline of the VIDEO mode
 	INT32 width; // PIXELS per scanline
 	INT32 height;
 	union { // don't need numpages for OpenGL, so we can use it for fullscreen/windowed mode
@@ -76,7 +76,7 @@ typedef struct viddef_s
 		INT32 windowed; // windowed or fullscren mode?
 	} u;
 	INT32 recalc; // if true, recalc vid-based stuff
-	byte *direct; // linear frame buffer, or vga base mem.
+	UINT8 *direct; // linear frame buffer, or vga base mem.
 	INT32 dupx, dupy; // scale 1, 2, 3 value for menus & overlays
 	float fdupx, fdupy; // same as dupx, dupy, but exact value when aspect ratio isn't 320/200
 	INT32 bpp; // BYTES per pixel: 1 = 256color, 2 = highcolor
@@ -151,7 +151,7 @@ extern viddef_t vid;
 extern INT32 setmodeneeded; // mode number to set if needed, or 0
 
 extern INT32 scr_bpp;
-extern byte *scr_borderpatch; // patch used to fill the view borders
+extern UINT8 *scr_borderpatch; // patch used to fill the view borders
 
 extern consvar_t cv_scr_width, cv_scr_height, cv_scr_depth, cv_renderview, cv_fullscreen;
 // wait for page flipping to end or not

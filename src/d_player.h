@@ -316,7 +316,7 @@ typedef struct player_s
 	tic_t exiting; // Exitlevel timer
 	INT32 blackow;
 
-	byte homing; // Are you homing?
+	UINT8 homing; // Are you homing?
 
 	////////////////////////////
 	// Conveyor Belt Movement //
@@ -380,10 +380,10 @@ typedef struct player_s
 	INT32 anotherflyangle;
 	tic_t nightstime; // How long you can fly as NiGHTS.
 	INT32 drillmeter;
-	byte drilldelay;
-	byte bonustime; // Capsule destroyed, now it's bonus time!
+	UINT8 drilldelay;
+	UINT8 bonustime; // Capsule destroyed, now it's bonus time!
 	mobj_t *capsule; // Go inside the capsule
-	byte mare; // Current mare
+	UINT8 mare; // Current mare
 
 	INT16 lastsidehit, lastlinehit;
 

@@ -152,7 +152,7 @@ static INT32 steptable[256];
 // Volume lookups.
 static Sint16 vol_lookup[128 * 256];
 
-byte sound_started = false;
+UINT8 sound_started = false;
 static SDL_mutex *Snd_Mutex = NULL;
 
 //SDL's Audio
@@ -1935,9 +1935,11 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 	// Scan the Ogg Vorbis file for the COMMENT= field for a custom loop point
 	if (fmus && looping)
 	{
-		const BYTE *dataum = data;
+		const char *dataum = data;
 		size_t scan;
-		UINT32 loopstart = 0;
+		unsigned int loopstart = 0;
+		UINT8 newcount = 0;
+		char looplength[64];
 
 		for (scan = 0;scan < len; scan++)
 		{
@@ -1960,14 +1962,10 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 			if (*dataum++ == 'T'){
 			if (*dataum++ == '=')
 			{
-				BYTE newcount = 0;
-				CHAR looplength[64];
 				while (*dataum != 1 && newcount != 63)
-				{
 					looplength[newcount++] = *dataum++;
-				}
 
-				looplength[newcount] = '\n';
+				looplength[newcount] = '\0';
 
 				loopstart = atoi(looplength);
 			}
@@ -2115,7 +2113,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 		const char *dataum = data;
 		XBOXSTATIC char looplength[64];
 		UINT32 loopstart = 0;
-		byte newcount = 0;
+		UINT8 newcount = 0;
 
 		Mix_HookMusicFinished(I_FinishMusic);
 
@@ -2144,7 +2142,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 				while (*dataum != 1 && newcount != 63)
 					looplength[newcount++] = *dataum++;
 
-				looplength[newcount] = '\n';
+				looplength[newcount] = '\0';
 
 				loopstart = atoi(looplength);
 

@@ -23,7 +23,7 @@
 
 #include <stdio.h>
 
-#if defined (HAVE_LIMITS_H) || (defined (_LIBC) && _LIBC)
+#if defined (HAVE_LIMITS_H) || (defined (_LIBC) && _LIBC) || defined (_WIN32)
 # include <limits.h>
 #endif
 

@@ -127,7 +127,7 @@ typedef struct menuitem_s
 	void *itemaction;
 
 	// hotkey in menu or y of the item
-	byte alphaKey;
+	UINT8 alphaKey;
 } menuitem_t;
 
 extern menuitem_t PlayerMenu[];

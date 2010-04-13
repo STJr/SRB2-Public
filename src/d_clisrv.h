@@ -81,8 +81,8 @@ typedef enum
 // client to server packet
 typedef struct
 {
-	byte client_tic;
-	byte resendfrom;
+	UINT8 client_tic;
+	UINT8 resendfrom;
 	INT16 consistancy;
 	ticcmd_t cmd;
 } ATTRPACK clientcmd_pak;
@@ -91,8 +91,8 @@ typedef struct
 // WARNING: must have the same format of clientcmd_pak, for more easy use
 typedef struct
 {
-	byte client_tic;
-	byte resendfrom;
+	UINT8 client_tic;
+	UINT8 resendfrom;
 	INT16 consistancy;
 	ticcmd_t cmd, cmd2;
 } ATTRPACK client2cmd_pak;
@@ -105,49 +105,49 @@ typedef struct
 // this packet is too large
 typedef struct
 {
-	byte starttic;
-	byte numtics;
-	byte numslots; // "Slots filled": Highest player number in use plus one.
-	byte padding1[1];
+	UINT8 starttic;
+	UINT8 numtics;
+	UINT8 numslots; // "Slots filled": Highest player number in use plus one.
+	UINT8 padding1[1];
 	ticcmd_t cmds[45]; // normally [BACKUPTIC][MAXPLAYERS] but too large
-	byte padding2[0];
+	UINT8 padding2[0];
 } ATTRPACK servertics_pak;
 
 typedef struct
 {
-	byte version; // different versions don't work
-	byte padding1[3];
-	byte subversion; // contains build version
-	byte padding2[3];
+	UINT8 version; // different versions don't work
+	UINT8 padding1[3];
+	UINT8 subversion; // contains build version
+	UINT8 padding2[3];
 
 	// server launch stuffs
-	byte serverplayer;
-	byte totalslotnum; // "Slots": highest player number in use plus one.
-	byte padding3[2];
+	UINT8 serverplayer;
+	UINT8 totalslotnum; // "Slots": highest player number in use plus one.
+	UINT8 padding3[2];
 
 	tic_t gametic;
-	byte clientnode;
-	byte gamestate;
-	byte padding4[2];
+	UINT8 clientnode;
+	UINT8 gamestate;
+	UINT8 padding4[2];
 
 	UINT32 playerdetected; // playeringame vector in bit field
-	byte gametype;
-	byte modifiedgame;
+	UINT8 gametype;
+	UINT8 modifiedgame;
 	char adminplayer; // needs to be signed
-	byte netcvarstates[0];
+	UINT8 netcvarstates[0];
 #ifdef __GNUC__
-	byte padding5[1];
+	UINT8 padding5[1];
 #endif
 } ATTRPACK serverconfig_pak;
 
 typedef struct {
 	char fileid;
-	byte padding1[3];
+	UINT8 padding1[3];
 	UINT32 position;
 	UINT16 size;
-	byte data[0]; // size is variable using hardare_MAXPACKETLENGTH
+	UINT8 data[0]; // size is variable using hardare_MAXPACKETLENGTH
 #ifdef __GNUC__
-	byte padding2[2];
+	UINT8 padding2[2];
 #endif
 } ATTRPACK filetx_pak;
 
@@ -157,31 +157,31 @@ typedef struct {
 
 typedef struct
 {
-	byte version; // different versions don't work
-	byte padding1[3];
-	byte subversion; // contains build version
-	byte padding2[3];
-	byte localplayers;
-	byte mode;
-	byte padding3[2];
+	UINT8 version; // different versions don't work
+	UINT8 padding1[3];
+	UINT8 subversion; // contains build version
+	UINT8 padding2[3];
+	UINT8 localplayers;
+	UINT8 mode;
+	UINT8 padding3[2];
 } ATTRPACK clientconfig_pak;
 
 #define MAXSERVERNAME 32
 // this packet is too large
 typedef struct
 {
-	byte version;
-	byte subversion;
-	byte numberofplayer;
-	byte maxplayer;
-	byte gametype;
-	byte modifiedgame;
-	byte fileneedednum;
+	UINT8 version;
+	UINT8 subversion;
+	UINT8 numberofplayer;
+	UINT8 maxplayer;
+	UINT8 gametype;
+	UINT8 modifiedgame;
+	UINT8 fileneedednum;
 	char adminplayer; // needs to be signed
 	tic_t time;
 	char servername[MAXSERVERNAME];
 	char mapname[8];
-	byte fileneeded[936]; // is filled with writexxx (byteptr.h)
+	UINT8 fileneeded[936]; // is filled with writexxx (byteptr.h)
 } ATTRPACK serverinfo_pak;
 
 typedef struct
@@ -191,15 +191,15 @@ typedef struct
 
 typedef struct
 {
-	byte version;
-	byte padding1[3];
+	UINT8 version;
+	UINT8 padding1[3];
 	tic_t time; // used for ping evaluation
 } ATTRPACK askinfo_pak;
 
 typedef struct
 {
 	char clientaddr[22];
-	byte padding1[2];
+	UINT8 padding1[2];
 	tic_t time; // used for ping evaluation
 } ATTRPACK msaskinfo_pak;
 
@@ -209,18 +209,18 @@ typedef struct
 typedef struct
 {
 	UINT32 checksum;
-	byte ack; // if not null the node asks for acknowledgement, the receiver must resend the ack
-	byte ackreturn; // the return of the ack number
+	UINT8 ack; // if not null the node asks for acknowledgement, the receiver must resend the ack
+	UINT8 ackreturn; // the return of the ack number
 
-	byte packettype;
-	byte reserved; // padding
+	UINT8 packettype;
+	UINT8 reserved; // padding
 	union
 	{
 		clientcmd_pak clientpak;    //      144 bytes
 		client2cmd_pak client2pak;  //      200 bytes
 		servertics_pak serverpak;   //   132496 bytes
 		serverconfig_pak servercfg; //      784 bytes
-		byte textcmd[MAXTEXTCMD+1]; //    66049 bytes
+		UINT8 textcmd[MAXTEXTCMD+1]; //   66049 bytes
 		filetx_pak filetxpak;       //      144 bytes
 		clientconfig_pak clientcfg; //      144 bytes
 		serverinfo_pak serverinfo;  // 17338896 bytes
@@ -276,7 +276,7 @@ tic_t ExpandTics(INT32 low);
 void D_ClientServerInit(void);
 
 // initialise the other field
-void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(byte **p, INT32 playernum));
+void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(UINT8 **p, INT32 playernum));
 void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam);
 void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam); // splitsreen player
 
@@ -304,8 +304,8 @@ void D_QuitNetGame(void);
 void TryRunTics(tic_t realtic);
 
 // extra data for lmps
-boolean AddLmpExtradata(byte **demo_p, INT32 playernum);
-void ReadLmpExtraData(byte **demo_pointer, INT32 playernum);
+boolean AddLmpExtradata(UINT8 **demo_p, INT32 playernum);
+void ReadLmpExtraData(UINT8 **demo_pointer, INT32 playernum);
 
 #ifndef NONET
 // translate a playername in a player number return -1 if not found and
@@ -314,13 +314,13 @@ char nametonum(const char *name);
 #endif
 
 extern char adminpassword[9], motd[256];
-extern byte playernode[MAXPLAYERS];
-extern byte consfailcount[MAXPLAYERS];
+extern UINT8 playernode[MAXPLAYERS];
+extern UINT8 consfailcount[MAXPLAYERS];
 
 INT32 D_NumPlayers(void);
 void D_ResetTiccmds(void);
 
 tic_t GetLag(INT32 node);
-byte GetFreeXCmdSize(void);
+UINT8 GetFreeXCmdSize(void);
 
 #endif

@@ -160,10 +160,10 @@ static void R_DrawTranslucentWaterSpan_8(void)
 	UINT32 yposition;
 	UINT32 xstep, ystep;
 
-	byte *source;
-	byte *colormap;
-	byte *dest;
-	byte *dsrc;
+	UINT8 *source;
+	UINT8 *colormap;
+	UINT8 *dest;
+	UINT8 *dsrc;
 
 	size_t count;
 
@@ -748,7 +748,7 @@ void R_DrawSinglePlane(visplane_t *pl)
 
 	currentplane = pl;
 
-	ds_source = (byte *)
+	ds_source = (UINT8 *)
 		W_CacheLumpNum(levelflats[pl->picnum].lumpnum,
 			PU_STATIC); // Stay here until Z_ChangeTag
 

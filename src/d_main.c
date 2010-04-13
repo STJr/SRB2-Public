@@ -624,8 +624,8 @@ void D_PageTicker(void)
 //
 void D_PageDrawer(const char *lumpname)
 {
-	byte *src;
-	byte *dest;
+	UINT8 *src;
+	UINT8 *dest;
 	INT32 x, y;
 
 	// software mode which uses generally lower resolutions doesn't look

@@ -23,22 +23,22 @@
 #include "doomtype.h"
 
 // Returns a number from 0 to 255, from a lookup table.
-byte M_Random(void);
+UINT8 M_Random(void);
 
 #ifdef DEBUGRANDOM
 #define P_Random() P_Random2(__FILE__, __LINE__)
 #define P_SignedRandom() P_SignedRandom2(__FILE__, __LINE__)
-byte P_Random2(char *a, INT32 b);
+UINT8 P_Random2(char *a, INT32 b);
 INT32 P_SignedRandom2(char *a, INT32 b);
 #else
 // As M_Random, but used only by the play simulation.
-byte P_Random(void);
+UINT8 P_Random(void);
 INT32 P_SignedRandom(void);
 #endif
 
 // Fix randoms for demos.
 void M_ClearRandom(void);
-byte P_GetRandIndex(void);
-void P_SetRandIndex(byte newrindex);
+UINT8 P_GetRandIndex(void);
+void P_SetRandIndex(UINT8 newrindex);
 
 #endif

@@ -108,7 +108,7 @@ mobj_t **blocklinks;
 // Speeds up enemy AI by skipping detailed LineOf Sight calculation.
 // Without special effect, this could be used as a PVS lookup as well.
 //
-byte *rejectmatrix;
+UINT8 *rejectmatrix;
 
 // Maintain single and multi player starting spots.
 INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
@@ -277,7 +277,7 @@ static inline void P_LoadMapHeader(INT16 mapnum)
   */
 static inline void P_LoadVertexes(lumpnum_t lumpnum)
 {
-	byte *data;
+	UINT8 *data;
 	size_t i;
 	mapvertex_t *ml;
 	vertex_t *li;
@@ -350,7 +350,7 @@ static inline float P_SegLengthf(seg_t *seg)
   */
 static void P_LoadSegs(lumpnum_t lumpnum)
 {
-	byte *data;
+	UINT8 *data;
 	size_t i;
 	INT32 linedef, side;
 	mapseg_t *ml;
@@ -502,7 +502,7 @@ INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 
 static void P_LoadSectors(lumpnum_t lumpnum)
 {
-	byte *data;
+	UINT8 *data;
 	size_t i;
 	mapsector_t *ms;
 	sector_t *ss;
@@ -628,9 +628,9 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 //
 static void P_LoadNodes(lumpnum_t lumpnum)
 {
-	byte *data;
+	UINT8 *data;
 	size_t i;
-	byte j, k;
+	UINT8 j, k;
 	mapnode_t *mn;
 	node_t *no;
 
@@ -688,7 +688,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 		mt->angle = READSHORT(data);
 		mt->type = READSHORT(data);
 		mt->options = READSHORT(data);
-		mt->extrainfo = (byte)(mt->type >> 12);
+		mt->extrainfo = (UINT8)(mt->type >> 12);
 
 		mt->type &= 4095;
 
@@ -861,12 +861,12 @@ void P_WriteThings(lumpnum_t lumpnum)
 	size_t i, length;
 	mapthing_t *mt;
 	char *data, *datastart;
-	byte *savebuffer, *savebuf_p;
+	UINT8 *savebuffer, *savebuf_p;
 	INT16 temp;
 
 	data = datastart = W_CacheLumpNum(lumpnum, PU_LEVEL);
 
-	savebuf_p = savebuffer = (byte *)malloc(nummapthings * sizeof (mapthing_t));
+	savebuf_p = savebuffer = (UINT8 *)malloc(nummapthings * sizeof (mapthing_t));
 
 	if (!savebuf_p)
 	{
@@ -903,7 +903,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 //
 static void P_LoadLineDefs(lumpnum_t lumpnum)
 {
-	byte *data;
+	UINT8 *data;
 	size_t i;
 	maplinedef_t *mld;
 	line_t *ld;
@@ -968,7 +968,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 		{
 			// cph 2006/09/30 - fix sidedef errors right away.
 			// cph 2002/07/20 - these errors are fatal if not fixed, so apply them
-			byte j;
+			UINT8 j;
 
 			for (j=0; j < 2; j++)
 			{
@@ -1106,7 +1106,7 @@ static inline void P_LoadSideDefs(lumpnum_t lumpnum)
 
 static void P_LoadSideDefs2(lumpnum_t lumpnum)
 {
-	byte *data = W_CacheLumpNum(lumpnum, PU_STATIC);
+	UINT8 *data = W_CacheLumpNum(lumpnum, PU_STATIC);
 	UINT16 i;
 	INT32 num;
 
@@ -2254,7 +2254,7 @@ noscript:
 	iquehead = iquetail = 0;
 
 	// Fab : 19-07-98 : start cd music for this level (note: can be remapped)
-	I_PlayCD(map + 1, false);
+	I_PlayCD((UINT8)(map + 1), false);
 
 	// preload graphics
 #ifdef HWRENDER // not win32 only 19990829 by Kin

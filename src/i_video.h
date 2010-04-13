@@ -131,7 +131,7 @@ void I_WaitVBL(INT32 count);
 
 	\return	void
 */
-void I_ReadScreen(byte *scr);
+void I_ReadScreen(UINT8 *scr);
 
 /**	\brief Start disk icon
 */

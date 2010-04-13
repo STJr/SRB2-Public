@@ -256,7 +256,7 @@ static INT32 mouse2_started = 0;
 SDL_bool consolevent = SDL_FALSE;
 SDL_bool framebuffer = SDL_FALSE;
 
-byte keyboard_started = false;
+UINT8 keyboard_started = false;
 
 #if 0
 static void signal_handler(INT32 num)
@@ -1726,14 +1726,14 @@ static INT32 handlermouse2x,handlermouse2y,handlermouse2buttons;
 
 static void I_PoolMouse2(void)
 {
-	byte buffer[MOUSECOMBUFFERSIZE];
+	UINT8 buffer[MOUSECOMBUFFERSIZE];
 	COMSTAT ComStat;
 	DWORD dwErrorFlags;
 	DWORD dwLength;
 	char dx,dy;
 
 	static INT32 bytenum;
-	static byte combytes[4];
+	static UINT8 combytes[4];
 	DWORD i;
 
 	ClearCommError(mouse2filehandle, &dwErrorFlags, &ComStat);
@@ -1772,7 +1772,7 @@ static void I_PoolMouse2(void)
 			handlermouse2x+= dx;
 			handlermouse2y+= dy;
 		}
-		else if (bytenum == 4) // fourth byte (logitech mouses)
+		else if (bytenum == 4) // fourth UINT8 (logitech mouses)
 		{
 			if (buffer[i] & 32)
 				handlermouse2buttons |= 4;
@@ -1784,7 +1784,7 @@ static void I_PoolMouse2(void)
 
 void I_GetMouseEvents(void)
 {
-	static byte lastbuttons2 = 0; //mouse movement
+	static UINT8 lastbuttons2 = 0; //mouse movement
 	event_t event;
 
 	if (mouse2filehandle == INVALID_HANDLE_VALUE)
@@ -1796,7 +1796,7 @@ void I_GetMouseEvents(void)
 	{
 		INT32 i, j = 1, k;
 		k = (handlermouse2buttons ^ lastbuttons2); // only changed bit to 1
-		lastbuttons2 = (byte)handlermouse2buttons;
+		lastbuttons2 = (UINT8)handlermouse2buttons;
 
 		for (i = 0; i < MOUSEBUTTONS; i++, j <<= 1)
 			if (k & j)
@@ -2214,15 +2214,6 @@ void I_BeginRead(void)
 
 void I_EndRead(void)
 {
-}
-
-byte *I_AllocLow(INT32 length)
-{
-	byte *mem;
-
-	mem = (byte *)malloc(length);
-	memset(mem, 0, length);
-	return mem;
 }
 
 //

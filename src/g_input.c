@@ -48,7 +48,7 @@ INT32 mouse2x, mouse2y, mlook2y;
 INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
 // current state of the keys: true if pushed
-byte gamekeydown[NUMINPUTS];
+UINT8 gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
 INT32 gamecontrol[num_gamecontrols][2];
@@ -56,9 +56,9 @@ INT32 gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
 
 typedef struct
 {
-	byte time;
-	byte state;
-	byte clicks;
+	UINT8 time;
+	UINT8 state;
+	UINT8 clicks;
 } dclick_t;
 static dclick_t mousedclicks[MOUSEBUTTONS];
 static dclick_t joydclicks[JOYBUTTONS + JOYHATS*4];
@@ -66,7 +66,7 @@ static dclick_t mouse2dclicks[MOUSEBUTTONS];
 static dclick_t joy2dclicks[JOYBUTTONS + JOYHATS*4];
 
 // protos
-static byte G_CheckDoubleClick(byte state, dclick_t *dt);
+static UINT8 G_CheckDoubleClick(UINT8 state, dclick_t *dt);
 
 //
 // Remaps the inputs to game controls.
@@ -78,7 +78,7 @@ static byte G_CheckDoubleClick(byte state, dclick_t *dt);
 void G_MapEventsToControls(event_t *ev)
 {
 	INT32 i;
-	byte flag;
+	UINT8 flag;
 
 	switch (ev->type)
 	{
@@ -167,7 +167,7 @@ void G_MapEventsToControls(event_t *ev)
 //
 // General double-click detection routine for any kind of input.
 //
-static byte G_CheckDoubleClick(byte state, dclick_t *dt)
+static UINT8 G_CheckDoubleClick(UINT8 state, dclick_t *dt)
 {
 	if (state != dt->state && dt->time > 1)
 	{

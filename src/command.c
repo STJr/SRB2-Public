@@ -252,7 +252,7 @@ static char *com_argv[MAX_ARGS];
 static const char *com_null_string = "";
 static char *com_args = NULL; // current command args or NULL
 
-static void Got_NetVar(byte **p, INT32 playernum);
+static void Got_NetVar(UINT8 **p, INT32 playernum);
 
 /** Initializes command buffer and adds basic commands.
   */
@@ -568,7 +568,7 @@ static void COM_CEchoDuration_f(void)
 static void COM_Exec_f(void)
 {
 	size_t length;
-	byte *buf = NULL;
+	UINT8 *buf = NULL;
 
 	if (COM_Argc() < 2 || COM_Argc() > 3)
 	{
@@ -826,9 +826,9 @@ void VS_Print(vsbuf_t *buf, const char *data)
 	len = strlen(data) + 1;
 
 	if (buf->data[buf->cursize-1])
-		M_Memcpy((byte *)VS_GetSpace(buf, len), data, len); // no trailing 0
+		M_Memcpy((UINT8 *)VS_GetSpace(buf, len), data, len); // no trailing 0
 	else
-		M_Memcpy((byte *)VS_GetSpace(buf, len-1) - 1, data, len); // write over trailing 0
+		M_Memcpy((UINT8 *)VS_GetSpace(buf, len-1) - 1, data, len); // write over trailing 0
 }
 
 // =========================================================================
@@ -1134,7 +1134,7 @@ finish:
 
 static boolean serverloading = false;
 
-static void Got_NetVar(byte **p, INT32 playernum)
+static void Got_NetVar(UINT8 **p, INT32 playernum)
 {
 	consvar_t *cvar;
 	UINT16 netid;
@@ -1172,7 +1172,7 @@ static void Got_NetVar(byte **p, INT32 playernum)
 }
 
 // get implicit parameter save_p
-void CV_SaveNetVars(byte **p)
+void CV_SaveNetVars(UINT8 **p)
 {
 	consvar_t *cvar;
 
@@ -1187,7 +1187,7 @@ void CV_SaveNetVars(byte **p)
 }
 
 // get implicit parameter save_p
-void CV_LoadNetVars(byte**p)
+void CV_LoadNetVars(UINT8 **p)
 {
 	consvar_t *cvar;
 
@@ -1254,8 +1254,8 @@ void CV_Set(consvar_t *var, const char *value)
 	if (var->flags & CV_NETVAR)
 	{
 		// send the value of the variable
-		XBOXSTATIC byte buf[128];
-		byte *p = buf;
+		XBOXSTATIC UINT8 buf[128];
+		UINT8 *p = buf;
 		if (!(server || (adminplayer == consoleplayer)))
 		{
 			CONS_Printf("Only the server can change this variable: %s %s\n",

@@ -66,9 +66,9 @@ void R_LoadTextures(void);
 void R_FlushTextureCache(void);
 
 // Retrieve column data for span blitting.
-byte *R_GetColumn(fixed_t tex, INT32 col);
+UINT8 *R_GetColumn(fixed_t tex, INT32 col);
 
-byte *R_GetFlat(lumpnum_t flatnum);
+UINT8 *R_GetFlat(lumpnum_t flatnum);
 
 // I/O, setting up the stuff.
 void R_InitData(void);

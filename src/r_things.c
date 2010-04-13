@@ -90,9 +90,9 @@ static const char *spritename;
 static void R_InstallSpriteLump(UINT16 wad,            // graphics patch
                                 UINT16 lump,
                                 size_t lumpid,      // identifier
-                                byte frame,
-                                byte rotation,
-                                byte flipped)
+                                UINT8 frame,
+                                UINT8 rotation,
+                                UINT8 flipped)
 {
 	INT32 r;
 	lumpnum_t lumppat = wad;
@@ -150,9 +150,9 @@ static void R_InstallSpriteLump(UINT16 wad,            // graphics patch
 static void R_RemoveSpriteLump(UINT16 wad,            // graphics patch
                                UINT16 lump,
                                size_t lumpid,      // identifier
-                               byte frame,
-                               byte rotation,
-                               byte flipped)
+                               UINT8 frame,
+                               UINT8 rotation,
+                               UINT8 flipped)
 {
 	(void)wad; /// \todo: how do I remove sprites?
 	(void)lump;
@@ -178,8 +178,8 @@ static void R_RemoveSpriteLump(UINT16 wad,            // graphics patch
 static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef, UINT16 wadnum, UINT16 startlump, UINT16 endlump)
 {
 	UINT16 l;
-	byte frame;
-	byte rotation;
+	UINT8 frame;
+	UINT8 rotation;
 	lumpinfo_t *lumpinfo;
 	patch_t patch;
 
@@ -206,8 +206,8 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 	{
 		if (memcmp(lumpinfo[l].name,sprname,4)==0)
 		{
-			frame = (byte)(lumpinfo[l].name[4] - 'A');
-			rotation = (byte)(lumpinfo[l].name[5] - '0');
+			frame = (UINT8)(lumpinfo[l].name[4] - 'A');
+			rotation = (UINT8)(lumpinfo[l].name[5] - '0');
 
 			if (frame >= 64 || rotation > 8) // Give an actual NAME error -_-...
 			{
@@ -241,8 +241,8 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 
 			if (lumpinfo[l].name[6])
 			{
-				frame = (byte)(lumpinfo[l].name[6] - 'A');
-				rotation = (byte)(lumpinfo[l].name[7] - '0');
+				frame = (UINT8)(lumpinfo[l].name[6] - 'A');
+				rotation = (UINT8)(lumpinfo[l].name[7] - '0');
 				R_InstallSpriteLump(wadnum, l, numspritelumps, frame, rotation, 1);
 			}
 
@@ -325,8 +325,8 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 static boolean R_DelSingleSpriteDef(const char *sprname, spritedef_t *spritedef, UINT16 wadnum, UINT16 startlump, UINT16 endlump)
 {
 	UINT16 l;
-	byte frame;
-	byte rotation;
+	UINT8 frame;
+	UINT8 rotation;
 	lumpinfo_t *lumpinfo;
 
 	maxframe = (size_t)-1;
@@ -341,8 +341,8 @@ static boolean R_DelSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 	{
 		if (memcmp(lumpinfo[l].name,sprname,4)==0)
 		{
-			frame = (byte)(lumpinfo[l].name[4] - 'A');
-			rotation = (byte)(lumpinfo[l].name[5] - '0');
+			frame = (UINT8)(lumpinfo[l].name[4] - 'A');
+			rotation = (UINT8)(lumpinfo[l].name[5] - '0');
 
 			// skip NULL sprites from very old dmadds pwads
 			if (W_LumpLengthPwad(wadnum,l)<=8)
@@ -354,8 +354,8 @@ static boolean R_DelSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 
 			if (lumpinfo[l].name[6])
 			{
-				frame = (byte)(lumpinfo[l].name[6] - 'A');
-				rotation = (byte)(lumpinfo[l].name[7] - '0');
+				frame = (UINT8)(lumpinfo[l].name[6] - 'A');
+				rotation = (UINT8)(lumpinfo[l].name[7] - '0');
 				R_RemoveSpriteLump(wadnum, l, numspritelumps, frame, rotation, 1);
 			}
 		}
@@ -596,7 +596,7 @@ void R_DrawMaskedColumn(column_t *column)
 
 		if (dc_yl <= dc_yh && dc_yl < vid.height && dc_yh > 0)
 		{
-			dc_source = (byte *)column + 3;
+			dc_source = (UINT8 *)column + 3;
 			dc_texturemid = basetexturemid - (column->topdelta<<FRACBITS);
 
 			// Drawn by R_DrawColumn.
@@ -620,7 +620,7 @@ void R_DrawMaskedColumn(column_t *column)
 				}
 			}
 		}
-		column = (column_t *)((byte *)column + column->length + 4);
+		column = (column_t *)((UINT8 *)column + column->length + 4);
 	}
 
 	dc_texturemid = basetexturemid;
@@ -643,7 +643,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	if (vis->vflip)
 	{
 		INT32 x, count;
-		byte *source, *dest;
+		UINT8 *source, *dest;
 		column_t *destcol;
 		patch_t *oldpatch;
 
@@ -655,15 +655,15 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
 		for (x = 0; x < SHORT(oldpatch->width); x++)
 		{
-			column = (column_t *)((byte *)oldpatch + LONG(oldpatch->columnofs[x]));
-			destcol = (column_t *)((byte *)patch + LONG(patch->columnofs[x]));
+			column = (column_t *)((UINT8 *)oldpatch + LONG(oldpatch->columnofs[x]));
+			destcol = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[x]));
 
 			while (column->topdelta != 0xff)
 			{
-				destcol->topdelta = (byte)(SHORT(oldpatch->height)-column->length-column->topdelta); //flippy
+				destcol->topdelta = (UINT8)(SHORT(oldpatch->height)-column->length-column->topdelta); //flippy
 
-				source = (byte *)column + 3;
-				dest = (byte *)destcol + 3;
+				source = (UINT8 *)column + 3;
+				dest = (UINT8 *)destcol + 3;
 				count = column->length;
 
 				while (count--)
@@ -675,8 +675,8 @@ static void R_DrawVisSprite(vissprite_t *vis)
 					*dest++ = *source;
 				}
 
-				column = (column_t *)((byte *)column + column->length + 4);
-				destcol = (column_t *)((byte *)destcol + destcol->length + 4);
+				column = (column_t *)((UINT8 *)column + column->length + 4);
+				destcol = (column_t *)((UINT8 *)destcol + destcol->length + 4);
 			}
 		}
 
@@ -796,9 +796,9 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
 		if (texturecolumn < 0 || texturecolumn >= SHORT(patch->width))
 			I_Error("R_DrawSpriteRange: bad texturecolumn");
-		column = (column_t *)((byte *)patch + LONG(patch->columnofs[texturecolumn]));
+		column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[texturecolumn]));
 #else
-		column = (column_t *)((byte *)patch + LONG(patch->columnofs[frac>>FRACBITS]));
+		column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[frac>>FRACBITS]));
 #endif
 		R_DrawMaskedColumn(column);
 	}
@@ -863,9 +863,9 @@ static void R_DrawPrecipitationVisSprite(vissprite_t *vis)
 		if (texturecolumn < 0 || texturecolumn >= SHORT(patch->width))
 			I_Error("R_DrawPrecipitationSpriteRange: bad texturecolumn");
 
-		column = (column_t *)((byte *)patch + LONG(patch->columnofs[texturecolumn]));
+		column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[texturecolumn]));
 #else
-		column = (column_t *)((byte *)patch + LONG(patch->columnofs[frac>>FRACBITS]));
+		column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[frac>>FRACBITS]));
 #endif
 		R_DrawMaskedColumn(column);
 	}
@@ -973,8 +973,8 @@ static void R_ProjectSprite(mobj_t *thing)
 	spriteframe_t *sprframe;
 	size_t lump;
 
-	unsigned rot;
-	byte flip;
+	size_t rot;
+	UINT8 flip;
 
 	INT32 lindex;
 
@@ -1371,7 +1371,7 @@ static void R_ProjectPrecipitationSprite(precipmobj_t *thing)
 
 	sprdef = &sprites[thing->sprite];
 
-	if ((byte)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
+	if ((UINT8)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
 #ifdef RANGECHECK
 		I_Error("R_ProjectSprite: invalid sprite frame %d : %d for %s",
 			thing->sprite, thing->frame, sprnames[thing->sprite]);
@@ -2729,13 +2729,13 @@ void R_AddSkins(UINT16 wadnum)
 			// custom translation table
 			else if (!stricmp(stoken, "startcolor"))
 			{
-				byte colorval;
+				UINT8 colorval;
 
 				STRBUFCPY(skins[numskins].starttranscolor,
 					value);
 				strupr(skins[numskins].starttranscolor);
 
-				colorval = (byte)atoi(skins[numskins].starttranscolor);
+				colorval = (UINT8)atoi(skins[numskins].starttranscolor);
 			}
 
 			GETSKINATTRIB_(prefcolor)

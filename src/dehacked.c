@@ -649,7 +649,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].actnum), UNDO_NONE);
 				if (i >= 0 && i < 20) // 0 for no act number, TTL1 through TTL19
-					mapheaderinfo[num-1].actnum = (byte)i;
+					mapheaderinfo[num-1].actnum = (UINT8)i;
 				else
 					deh_warning("Level header %d: invalid act number %d", num, i);
 			}
@@ -678,12 +678,12 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "FORCECHARACTER"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].forcecharacter), UNDO_NONE);
-				mapheaderinfo[num-1].forcecharacter = (byte)i;
+				mapheaderinfo[num-1].forcecharacter = (UINT8)i;
 			}
 			else if (!strcmp(word, "WEATHER"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].weather), UNDO_NONE);
-				mapheaderinfo[num-1].weather = (byte)i;
+				mapheaderinfo[num-1].weather = (UINT8)i;
 			}
 			else if (!strcmp(word, "SKYNUM"))
 			{
@@ -709,12 +709,12 @@ static void readlevelheader(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "PRECUTSCENENUM"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].precutscenenum), UNDO_NONE);
-				mapheaderinfo[num-1].precutscenenum = (byte)i;
+				mapheaderinfo[num-1].precutscenenum = (UINT8)i;
 			}
 			else if (!strcmp(word, "CUTSCENENUM"))
 			{
 				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].cutscenenum), UNDO_NONE);
-				mapheaderinfo[num-1].cutscenenum = (byte)i;
+				mapheaderinfo[num-1].cutscenenum = (UINT8)i;
 			}
 			else if (!strcmp(word, "COUNTDOWN"))
 			{
@@ -858,7 +858,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 			if (!strcmp(word, "NUMBEROFPICS"))
 			{
 				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].numpics), UNDO_NONE);
-				cutscenes[num].scene[scenenum].numpics = (byte)i;
+				cutscenes[num].scene[scenenum].numpics = (UINT8)i;
 			}
 			else if (!strcmp(word, "PIC1NAME"))
 			{
@@ -1812,7 +1812,7 @@ static void readmaincfg(MYFILE *f)
 			else if (!strcmp(word, "INTROTOPLAY"))
 			{
 				DEH_WriteUndoline(word, va("%d", introtoplay), UNDO_NONE);
-				introtoplay = (byte)value;
+				introtoplay = (UINT8)value;
 			}
 			else if (!strcmp(word, "LOOPTITLE"))
 			{
@@ -1827,12 +1827,12 @@ static void readmaincfg(MYFILE *f)
 			else if (!strcmp(word, "CREDITSCUTSCENE"))
 			{
 				DEH_WriteUndoline(word, va("%d", creditscutscene), UNDO_NONE);
-				creditscutscene = (byte)value;
+				creditscutscene = (UINT8)value;
 			}
 			else if (!strcmp(word, "DISABLESPEEDADJUST"))
 			{
 				DEH_WriteUndoline(word, va("%d", disableSpeedAdjust), UNDO_NONE);
-				disableSpeedAdjust = (byte)value;
+				disableSpeedAdjust = (UINT8)value;
 			}
 			else if (!strcmp(word, "GAMEDATA"))
 			{
@@ -1935,7 +1935,7 @@ static void reademblemdata(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "PLAYERNUM"))
 			{
 				DEH_WriteUndoline(word, va("%d", emblemlocations[num-1].player), UNDO_NONE);
-				emblemlocations[num-1].player = (byte)value;
+				emblemlocations[num-1].player = (UINT8)value;
 			}
 			else if (!strcmp(word, "MAPNUM"))
 			{

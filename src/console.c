@@ -238,40 +238,40 @@ static void CONS_Bind_f(void)
 
 // Prepare a colormap for GREEN ONLY translucency over background
 //
-byte *yellowmap;
-byte *purplemap;
-byte *lgreenmap;
-byte *bluemap;
-byte *graymap;
-byte *redmap;
-byte *orangemap;
+UINT8 *yellowmap;
+UINT8 *purplemap;
+UINT8 *lgreenmap;
+UINT8 *bluemap;
+UINT8 *graymap;
+UINT8 *redmap;
+UINT8 *orangemap;
 
 // Console BG colors
-byte *cwhitemap;
-byte *corangemap;
-byte *cbluemap;
-byte *cgreenmap;
-byte *cgraymap;
-byte *credmap;
+UINT8 *cwhitemap;
+UINT8 *corangemap;
+UINT8 *cbluemap;
+UINT8 *cgreenmap;
+UINT8 *cgraymap;
+UINT8 *credmap;
 static void CON_SetupBackColormap(void)
 {
 	INT32 i, j, k;
-	byte *pal;
+	UINT8 *pal;
 
-	cwhitemap   = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	corangemap  = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	cbluemap    = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	cgreenmap   = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	cgraymap    = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	credmap     = (byte *)Z_Malloc(256, PU_STATIC, NULL);
+	cwhitemap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	corangemap  = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	cbluemap    = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	cgreenmap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	cgraymap    = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	credmap     = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 
-	yellowmap = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	graymap   = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	purplemap = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	lgreenmap = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	bluemap   = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	redmap    = (byte *)Z_Malloc(256, PU_STATIC, NULL);
-	orangemap = (byte *)Z_Malloc(256, PU_STATIC, NULL);
+	yellowmap = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	graymap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	purplemap = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	lgreenmap = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	bluemap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	redmap    = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	orangemap = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 
 	pal = W_CacheLumpName("PLAYPAL", PU_CACHE);
 
@@ -279,12 +279,12 @@ static void CON_SetupBackColormap(void)
 	for (i = 0, k = 0; i < 768; i += 3, k++)
 	{
 		j = pal[i] + pal[i+1] + pal[i+2];
-		cwhitemap[k] = (byte)(15 - (j>>6));
-		corangemap[k] = (byte)(95 - (j>>6));
-		cbluemap[k] = (byte)(239 - (j>>6));
-		cgreenmap[k] = (byte)(175 - (j>>6));
-		cgraymap[k] = (byte)(31 - (j>>6));
-		credmap[k] = (byte)(143 - (j>>6));
+		cwhitemap[k] = (UINT8)(15 - (j>>6));
+		corangemap[k] = (UINT8)(95 - (j>>6));
+		cbluemap[k] = (UINT8)(239 - (j>>6));
+		cgreenmap[k] = (UINT8)(175 - (j>>6));
+		cgraymap[k] = (UINT8)(31 - (j>>6));
+		credmap[k] = (UINT8)(143 - (j>>6));
 	}
 
 	// setup the other colormaps, for console text
@@ -294,29 +294,29 @@ static void CON_SetupBackColormap(void)
 
 	for (i = 0; i < 256; i++)
 	{
-		yellowmap[i] = (byte)i; // remap each color to itself...
-		graymap[i] = (byte)i;
-		purplemap[i] = (byte)i;
-		lgreenmap[i] = (byte)i;
-		bluemap[i] = (byte)i;
-		redmap[i] = (byte)i;
-		orangemap[i] = (byte)i;
+		yellowmap[i] = (UINT8)i; // remap each color to itself...
+		graymap[i] = (UINT8)i;
+		purplemap[i] = (UINT8)i;
+		lgreenmap[i] = (UINT8)i;
+		bluemap[i] = (UINT8)i;
+		redmap[i] = (UINT8)i;
+		orangemap[i] = (UINT8)i;
 	}
 
-	yellowmap[3] = (byte)103;
-	yellowmap[9] = (byte)115;
-	purplemap[3] = (byte)195;
-	purplemap[9] = (byte)198;
-	lgreenmap[3] = (byte)162;
-	lgreenmap[9] = (byte)170;
-	bluemap[3]   = (byte)228;
-	bluemap[9]   = (byte)238;
-	graymap[3]   = (byte)28;
-	graymap[9]   = (byte)28;
-	redmap[3]    = (byte)124;
-	redmap[9]    = (byte)127;
-	orangemap[3] = (byte)85;
-	orangemap[9] = (byte)90;
+	yellowmap[3] = (UINT8)103;
+	yellowmap[9] = (UINT8)115;
+	purplemap[3] = (UINT8)195;
+	purplemap[9] = (UINT8)198;
+	lgreenmap[3] = (UINT8)162;
+	lgreenmap[9] = (UINT8)170;
+	bluemap[3]   = (UINT8)228;
+	bluemap[9]   = (UINT8)238;
+	graymap[3]   = (UINT8)28;
+	graymap[9]   = (UINT8)28;
+	redmap[3]    = (UINT8)124;
+	redmap[9]    = (UINT8)127;
+	orangemap[3] = (UINT8)85;
+	orangemap[9] = (UINT8)90;
 }
 
 // Setup the console text buffer
@@ -1092,7 +1092,7 @@ static void CON_DrawInput(void)
 // draw the last lines of console text to the top of the screen
 static void CON_DrawHudlines(void)
 {
-	byte *p;
+	UINT8 *p;
 	size_t i, x;
 	INT32 y;
 	INT32 charflags = 0;
@@ -1112,7 +1112,7 @@ static void CON_DrawHudlines(void)
 		if (con_hudtime[i%con_hudlines] == 0)
 			continue;
 
-		p = (byte *)&con_buffer[(i%con_totallines)*con_width];
+		p = (UINT8 *)&con_buffer[(i%con_totallines)*con_width];
 
 		for (x = 0; x < con_width; x++, p++)
 		{
@@ -1147,8 +1147,8 @@ static inline void CON_DrawBackpic2(pic_t *pic, INT32 startx, INT32 destwidth)
 {
 	INT32 x, y;
 	INT32 v;
-	byte *src, *dest;
-	const byte *deststop;
+	UINT8 *src, *dest;
+	const UINT8 *deststop;
 	INT32 frac, fracstep;
 
 	dest = screens[0]+startx;
@@ -1193,7 +1193,7 @@ static inline void CON_DrawBackpic2(pic_t *pic, INT32 startx, INT32 destwidth)
 //
 static void CON_DrawConsole(void)
 {
-	byte *p;
+	UINT8 *p;
 	size_t i, x;
 	INT32 y;
 	INT32 w = 0, x2 = 0;
@@ -1237,7 +1237,7 @@ static void CON_DrawConsole(void)
 
 	for (y = (con_curlines-20) % 8; y <= con_curlines-20; y += 8, i++)
 	{
-		p = (byte *)&con_buffer[((i > 0 ? i : 0)%con_totallines)*con_width];
+		p = (UINT8 *)&con_buffer[((i > 0 ? i : 0)%con_totallines)*con_width];
 
 		for (x = 0; x < con_width; x++, p++)
 		{

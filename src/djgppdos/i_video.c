@@ -195,7 +195,7 @@ void I_UpdateNoVsync(void)
 //
 // I_ReadScreen
 //
-void I_ReadScreen (byte *scr)
+void I_ReadScreen (UINT8 *scr)
 {
 	VID_BlitLinearScreen(screens[0], scr,
 	                     vid.width*vid.bpp, vid.height,
@@ -245,7 +245,7 @@ static void I_BlitScreenVesa1(void)
 		r.x.dx = i;
 		__dpmi_int(0x10,&r);      //set bank
 
-		M_Memcpy((byte *)dascreen,p_src,(virtualsize < VIDBANKSIZE) ? virtualsize : VIDBANKSIZE );
+		M_Memcpy((UINT8 *)dascreen,p_src,(virtualsize < VIDBANKSIZE) ? virtualsize : VIDBANKSIZE );
 
 		p_src += VIDBANKSIZE;
 		virtualsize -= VIDBANKSIZE;

@@ -74,15 +74,15 @@ INT32 serverplayer = 0;
 char adminpassword[9], motd[256]; // Password And Message of the Day
 
 // server specific vars
-byte playernode[MAXPLAYERS];
-byte consfailcount[MAXPLAYERS];
+UINT8 playernode[MAXPLAYERS];
+UINT8 consfailcount[MAXPLAYERS];
 signed char nodetoplayer[MAXNETNODES];
 signed char nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
-byte playerpernode[MAXNETNODES]; // used specialy for scplitscreen
+UINT8 playerpernode[MAXNETNODES]; // used specialy for scplitscreen
 boolean nodeingame[MAXNETNODES]; // set false as nodes leave game
 static tic_t nettics[MAXNETNODES]; // what tic the client have received
 static tic_t supposedtics[MAXNETNODES]; // nettics prevision for smaller packet
-static byte nodewaiting[MAXNETNODES];
+static UINT8 nodewaiting[MAXNETNODES];
 static tic_t firstticstosend; // min of the nettics
 static INT16 consistancy[BACKUPTICS];
 static tic_t tictoclear = 0; // optimize d_clearticcmd
@@ -93,10 +93,10 @@ static ticcmd_t localcmds;
 static ticcmd_t localcmds2;
 static boolean cl_packetmissed;
 // here it is for the secondary local player (splitscreen)
-static byte mynode; // my address pointofview server
+static UINT8 mynode; // my address pointofview server
 
-static byte localtextcmd[MAXTEXTCMD];
-static byte localtextcmd2[MAXTEXTCMD]; // splitscreen
+static UINT8 localtextcmd[MAXTEXTCMD];
+static UINT8 localtextcmd2[MAXTEXTCMD]; // splitscreen
 static tic_t neededtic;
 signed char servernode = 0; // the number of the server node
 /// \brief do we accept new players?
@@ -105,7 +105,7 @@ boolean acceptnewnode = true;
 
 // engine
 ticcmd_t netcmds[BACKUPTICS][MAXPLAYERS];
-static byte textcmds[BACKUPTICS][MAXPLAYERS][MAXTEXTCMD];
+static UINT8 textcmds[BACKUPTICS][MAXPLAYERS][MAXTEXTCMD];
 
 static consvar_t cv_showjoinaddress = {"showjoinaddress", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_playdemospeed = {"playdemospeed", "0", 0, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -120,7 +120,7 @@ static inline void *G_DcpyTiccmd(void* dest, const ticcmd_t* src, const size_t n
 {
 	const size_t d = n / sizeof(ticcmd_t);
 	const size_t r = n % sizeof(ticcmd_t);
-	byte *ret = dest;
+	UINT8 *ret = dest;
 
 	if (r)
 		M_Memcpy(dest, src, n);
@@ -133,7 +133,7 @@ static inline void *G_ScpyTiccmd(ticcmd_t* dest, void* src, const size_t n)
 {
 	const size_t d = n / sizeof(ticcmd_t);
 	const size_t r = n % sizeof(ticcmd_t);
-	byte *ret = src;
+	UINT8 *ret = src;
 
 	if (r)
 		M_Memcpy(dest, src, n);
@@ -167,9 +167,9 @@ tic_t ExpandTics(INT32 low)
 // Some extra data function for handle textcmd buffer
 // -----------------------------------------------------------------
 
-static void (*listnetxcmd[MAXNETXCMD])(byte **p, INT32 playernum);
+static void (*listnetxcmd[MAXNETXCMD])(UINT8 **p, INT32 playernum);
 
-void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(byte **p, INT32 playernum))
+void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(UINT8 **p, INT32 playernum))
 {
 #ifdef PARANOIA
 	if (id >= MAXNETXCMD)
@@ -195,11 +195,11 @@ void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam)
 		return;
 	}
 	localtextcmd[0]++;
-	localtextcmd[localtextcmd[0]] = (byte)id;
+	localtextcmd[localtextcmd[0]] = (UINT8)id;
 	if (param && nparam)
 	{
 		M_Memcpy(&localtextcmd[localtextcmd[0]+1], param, nparam);
-		localtextcmd[0] = (byte)(localtextcmd[0] + (byte)nparam);
+		localtextcmd[0] = (UINT8)(localtextcmd[0] + (UINT8)nparam);
 	}
 }
 
@@ -215,38 +215,38 @@ void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam)
 		return;
 	}
 	localtextcmd2[0]++;
-	localtextcmd2[localtextcmd2[0]] = (byte)id;
+	localtextcmd2[localtextcmd2[0]] = (UINT8)id;
 	if (param && nparam)
 	{
 		M_Memcpy(&localtextcmd2[localtextcmd2[0]+1], param, nparam);
-		localtextcmd2[0] = (byte)(localtextcmd2[0] + (byte)nparam);
+		localtextcmd2[0] = (UINT8)(localtextcmd2[0] + (UINT8)nparam);
 	}
 }
 
-byte GetFreeXCmdSize(void)
+UINT8 GetFreeXCmdSize(void)
 {
 	// -1 for the size and another -1 for the ID.
-	return (byte)(localtextcmd[0] - 2);
+	return (UINT8)(localtextcmd[0] - 2);
 }
 
 static void ExtraDataTicker(void)
 {
 	INT32 i, tic;
-	byte *curpos, *bufferend;
+	UINT8 *curpos, *bufferend;
 
 	tic = gametic % BACKUPTICS;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] || i == 0)
 		{
-			curpos = (byte *)&(textcmds[tic][i]);
+			curpos = (UINT8 *)&(textcmds[tic][i]);
 			bufferend = &curpos[curpos[0]+1];
 			curpos++;
 			while (curpos < bufferend)
 			{
 				if (*curpos < MAXNETXCMD && listnetxcmd[*curpos])
 				{
-					const byte id = *curpos;
+					const UINT8 id = *curpos;
 					curpos++;
 					DEBFILE(va("executing x_cmd %d ply %d ", id, i));
 					(listnetxcmd[id])(&curpos, i);
@@ -263,7 +263,7 @@ static void ExtraDataTicker(void)
 						SendNetXCmd(XD_KICK, &buf, 2);
 						DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
 					}
-					CONS_Printf(text[UNKNOWNNETCMD], curpos - (byte *)&(textcmds[tic][i]), *curpos, textcmds[tic][i][0]);
+					CONS_Printf(text[UNKNOWNNETCMD], curpos - (UINT8 *)&(textcmds[tic][i]), *curpos, textcmds[tic][i][0]);
 					return;
 				}
 			}
@@ -307,7 +307,7 @@ static void D_Clearticcmd(tic_t tic)
 //   char[NUMWEAPONS] | the weapon switch priority
 //   byte   | autoaim: true if use the old autoaim system
 // endif
-boolean AddLmpExtradata(byte **demo_point, INT32 playernum)
+boolean AddLmpExtradata(UINT8 **demo_point, INT32 playernum)
 {
 	INT32 tic;
 
@@ -320,9 +320,9 @@ boolean AddLmpExtradata(byte **demo_point, INT32 playernum)
 	return true;
 }
 
-void ReadLmpExtraData(byte **demo_pointer, INT32 playernum)
+void ReadLmpExtraData(UINT8 **demo_pointer, INT32 playernum)
 {
-	byte nextra;
+	UINT8 nextra;
 
 	if (!demo_pointer)
 	{
@@ -372,7 +372,7 @@ static boolean CL_SendJoin(void)
 	CONS_Printf("%s",text[JOINREQUEST]);
 	netbuffer->packettype = PT_CLIENTJOIN;
 
-	netbuffer->u.clientcfg.localplayers = (byte)((byte)splitscreen + 1);
+	netbuffer->u.clientcfg.localplayers = (UINT8)((UINT8)splitscreen + 1);
 	netbuffer->u.clientcfg.version = VERSION;
 	netbuffer->u.clientcfg.subversion = SUBVERSION;
 
@@ -381,7 +381,7 @@ static boolean CL_SendJoin(void)
 
 static void SV_SendServerInfo(INT32 node, tic_t servertime)
 {
-	byte *p;
+	UINT8 *p;
 
 	netbuffer->packettype = PT_SERVERINFO;
 	netbuffer->u.serverinfo.version = VERSION;
@@ -389,10 +389,10 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 	// return back the time value so client can compute their ping
 	netbuffer->u.serverinfo.time = (tic_t)LONG(servertime);
 
-	netbuffer->u.serverinfo.numberofplayer = (byte)D_NumPlayers();
-	netbuffer->u.serverinfo.maxplayer = (byte)cv_maxplayers.value;
-	netbuffer->u.serverinfo.gametype = (byte)gametype;
-	netbuffer->u.serverinfo.modifiedgame = (byte)modifiedgame;
+	netbuffer->u.serverinfo.numberofplayer = (UINT8)D_NumPlayers();
+	netbuffer->u.serverinfo.maxplayer = (UINT8)cv_maxplayers.value;
+	netbuffer->u.serverinfo.gametype = (UINT8)gametype;
+	netbuffer->u.serverinfo.modifiedgame = (UINT8)modifiedgame;
 	netbuffer->u.serverinfo.adminplayer = (char)adminplayer;
 	strncpy(netbuffer->u.serverinfo.servername, cv_servername.string,
 		MAXSERVERNAME);
@@ -400,13 +400,14 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 
 	p = PutFileNeeded();
 
-	HSendPacket(node, false, 0, p - ((byte *)&netbuffer->u));
+	HSendPacket(node, false, 0, p - ((UINT8 *)&netbuffer->u));
 }
 
 static boolean SV_SendPlayerInfo(INT32 node)
 {
-	int i, playermask = 0;
-	byte *p, *op;
+	int i;
+	UINT32 playermask = 0;
+	UINT8 *p, *op;
 	boolean waspacketsent;
 
 	netbuffer->packettype = PT_SERVERCFG;
@@ -417,15 +418,15 @@ static boolean SV_SendPlayerInfo(INT32 node)
 	netbuffer->u.servercfg.version = VERSION;
 	netbuffer->u.servercfg.subversion = SUBVERSION;
 
-	netbuffer->u.servercfg.serverplayer = (byte)serverplayer;
-	netbuffer->u.servercfg.totalslotnum = (byte)(doomcom->numslots);
+	netbuffer->u.servercfg.serverplayer = (UINT8)serverplayer;
+	netbuffer->u.servercfg.totalslotnum = (UINT8)(doomcom->numslots);
 	netbuffer->u.servercfg.playerdetected = LONG(playermask);
 	netbuffer->u.servercfg.gametic = (tic_t)LONG(gametic);
-	netbuffer->u.servercfg.clientnode = (byte)node;
-	netbuffer->u.servercfg.gamestate = (byte)gamestate;
-	netbuffer->u.servercfg.gametype = (byte)gametype;
+	netbuffer->u.servercfg.clientnode = (UINT8)node;
+	netbuffer->u.servercfg.gamestate = (UINT8)gamestate;
+	netbuffer->u.servercfg.gametype = (UINT8)gametype;
 	netbuffer->u.servercfg.adminplayer = (char)adminplayer;
-	netbuffer->u.servercfg.modifiedgame = (byte)modifiedgame;
+	netbuffer->u.servercfg.modifiedgame = (UINT8)modifiedgame;
 	op = p = netbuffer->u.servercfg.netcvarstates;
 	CV_SaveNetVars(&p);
 	{
@@ -465,10 +466,10 @@ static boolean SV_SendPlayerInfo(INT32 node)
 static void SV_SendSaveGame(INT32 node)
 {
 	size_t length;
-	byte *savebuffer;
+	UINT8 *savebuffer;
 
 	// first save it in a malloced buffer
-	save_p = savebuffer = (byte *)malloc(SAVEGAMESIZE);
+	save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
 	if (!save_p)
 	{
 		CONS_Printf("%s",text[NOSAVEGAMEMEM]);
@@ -498,7 +499,7 @@ static consvar_t cv_dumpconsistency = {"dumpconsistency", "Off", CV_NETVAR, CV_O
 static void SV_SavedGame(void)
 {
 	size_t length;
-	byte *savebuffer;
+	UINT8 *savebuffer;
 	XBOXSTATIC char tmpsave[256];
 
 	if (!cv_dumpconsistency.value)
@@ -507,7 +508,7 @@ static void SV_SavedGame(void)
 	sprintf(tmpsave, "%s" PATHSEP TMPSAVENAME, srb2home);
 
 	// first save it in a malloced buffer
-	save_p = savebuffer = (byte *)malloc(SAVEGAMESIZE);
+	save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
 	if (!save_p)
 	{
 		CONS_Printf("%s",NOSAVEGAMEMEM);
@@ -539,7 +540,7 @@ static void SV_SavedGame(void)
 
 static void CL_LoadReceivedSavegame(void)
 {
-	byte *savebuffer = NULL;
+	UINT8 *savebuffer = NULL;
 	size_t length;
 	XBOXSTATIC char tmpsave[256];
 
@@ -1337,7 +1338,7 @@ void CL_Reset(void)
 
 	if (servernode > 0 && servernode < MAXNETNODES)
 	{
-		nodeingame[(byte)servernode] = false;
+		nodeingame[(UINT8)servernode] = false;
 		Net_CloseConnection(servernode);
 	}
 	D_CloseConnection(); // netgame = false
@@ -1447,7 +1448,7 @@ static void Command_Ban(void)
 		const char pn = nametonum(COM_Argv(1));
 		const INT32 node = playernode[(INT32)pn];
 
-		if (pn == (char)UINT8_MAX || pn == 0)
+		if (pn == (char)-1 || pn == 0)
 			return;
 		else
 			buf[0] = pn;
@@ -1481,7 +1482,7 @@ static void Command_Kick(void)
 	if (server || adminplayer == consoleplayer)
 	{
 		buf[0] = nametonum(COM_Argv(1));
-		if (buf[0] == (char)UINT8_MAX || buf[0] == 0)
+		if (buf[0] == (char)-1 || buf[0] == 0)
 			return;
 		buf[1] = KICK_MSG_GO_AWAY;
 		SendNetXCmd(XD_KICK, &buf, 2);
@@ -1491,7 +1492,7 @@ static void Command_Kick(void)
 }
 #endif
 
-static void Got_KickCmd(byte **p, INT32 playernum)
+static void Got_KickCmd(UINT8 **p, INT32 playernum)
 {
 	INT32 pnum, msg;
 
@@ -1636,7 +1637,7 @@ consvar_t cv_blamecfail = {"blamecfail", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL
 static CV_PossibleValue_t maxsend_cons_t[] = {{0, "MIN"}, {51200, "MAX"}, {0, NULL}};
 consvar_t cv_maxsend = {"maxsend", "1024", CV_SAVE, maxsend_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-static void Got_AddPlayer(byte **p, INT32 playernum);
+static void Got_AddPlayer(UINT8 **p, INT32 playernum);
 
 // called one time at init
 void D_ClientServerInit(void)
@@ -1762,7 +1763,7 @@ void D_QuitNetGame(void)
 		if (serverrunning && cv_internetserver.value)
 			UnregisterServer();
 	}
-	else if (servernode > 0 && servernode < MAXNETNODES && nodeingame[(byte)servernode]!=0)
+	else if (servernode > 0 && servernode < MAXNETNODES && nodeingame[(UINT8)servernode]!=0)
 	{
 		netbuffer->packettype = PT_CLIENTQUIT;
 		HSendPacket(servernode, true, 0, 0);
@@ -1795,7 +1796,7 @@ static inline void SV_AddNode(INT32 node)
 }
 
 // Xcmd XD_ADDPLAYER
-static void Got_AddPlayer(byte **p, INT32 playernum)
+static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 {
 	INT32 node, newplayernum;
 	boolean splitscreenplayer;
@@ -1878,8 +1879,8 @@ static void Got_AddPlayer(byte **p, INT32 playernum)
 static boolean SV_AddWaitingPlayers(void)
 {
 	INT32 node, n, newplayer = false;
-	XBOXSTATIC byte buf[2];
-	byte newplayernum = 0;
+	XBOXSTATIC UINT8 buf[2];
+	UINT8 newplayernum = 0;
 
 	// What is the reason for this? Why can't newplayernum always be 0?
 	if (dedicated)
@@ -1909,7 +1910,7 @@ static boolean SV_AddWaitingPlayers(void)
 
 			playernode[newplayernum] = (char)node;
 
-			buf[0] = (byte)node;
+			buf[0] = (UINT8)node;
 			buf[1] = newplayernum;
 			if (playerpernode[node] < 1)
 				nodetoplayer[node] = newplayernum;
@@ -2052,7 +2053,7 @@ static void GetPackets(void)
 	XBOXSTATIC INT32 netconsole;
 	XBOXSTATIC signed char node;
 	XBOXSTATIC tic_t realend,realstart;
-	XBOXSTATIC byte *pak, *txtpak, numtxtpak;
+	XBOXSTATIC UINT8 *pak, *txtpak, numtxtpak;
 	INT32 p = maketic%BACKUPTICS;
 FILESTAMP
 	while (HGetPacket())
@@ -2079,7 +2080,7 @@ FILESTAMP
 				boolean newnode = false;
 
 				// client authorised to join
-				nodewaiting[node] = (byte)(netbuffer->u.clientcfg.localplayers - playerpernode[node]);
+				nodewaiting[node] = (UINT8)(netbuffer->u.clientcfg.localplayers - playerpernode[node]);
 				if (!nodeingame[node])
 				{
 					gamestate_t backupstate = gamestate;
@@ -2186,7 +2187,7 @@ FILESTAMP
 				case PT_SERVERCFG: // positive response of client join request
 				{
 					INT32 j;
-					byte *scp;
+					UINT8 *scp;
 					UINT32 playermask = 0;
 
 					/// \note how would this happen? and is it doing the right thing if it does?
@@ -2201,12 +2202,12 @@ FILESTAMP
 						adminplayer = netbuffer->u.servercfg.adminplayer;
 					}
 
-					nodeingame[(byte)servernode] = true;
+					nodeingame[(UINT8)servernode] = true;
 					serverplayer = netbuffer->u.servercfg.serverplayer;
 					doomcom->numslots = SHORT(netbuffer->u.servercfg.totalslotnum);
 					mynode = netbuffer->u.servercfg.clientnode;
 					if (serverplayer >= 0)
-						playernode[(byte)serverplayer] = servernode;
+						playernode[(UINT8)serverplayer] = servernode;
 
 					CONS_Printf("%s", text[JOINACCEPTED]);
 					DEBFILE(va("Server accept join gametic=%u mynode=%d\n", gametic, mynode));
@@ -2324,7 +2325,7 @@ FILESTAMP
 							SHORT(netbuffer->u.clientpak.consistancy)));
 
 						WRITEBYTE(cp, P_GetRandIndex());
-						//WRITEBYTE(cp, (byte)netconsole);
+						//WRITEBYTE(cp, (UINT8)netconsole);
 
 						numbytes += 1;
 
@@ -2343,7 +2344,7 @@ FILESTAMP
 							count++;
 						}
 
-						WRITEBYTE(cp, (byte)count); // # of players we are sending info about
+						WRITEBYTE(cp, (UINT8)count); // # of players we are sending info about
 						numbytes++;
 
 						for (i = 0; i < MAXPLAYERS; i++)
@@ -2354,7 +2355,7 @@ FILESTAMP
 							if (numbytes + 25 > xcmdfree)
 								break;
 
-							WRITEBYTE(cp, (byte)i);
+							WRITEBYTE(cp, (UINT8)i);
 							WRITEFIXED(cp, players[i].mo->x);
 							WRITEFIXED(cp, players[i].mo->y);
 							WRITEFIXED(cp, players[i].mo->z);
@@ -2399,7 +2400,7 @@ FILESTAMP
 				G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][netconsole], &netbuffer->u.clientpak.cmd, 1);
 
 				if (netbuffer->packettype == PT_CLIENT2CMD && nodetoplayer2[node] >= 0)
-					G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][(byte)nodetoplayer2[node]],
+					G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][(UINT8)nodetoplayer2[node]],
 						&netbuffer->u.client2pak.cmd2, 1);
 
 				break;
@@ -2441,7 +2442,7 @@ FILESTAMP
 					p = tic % BACKUPTICS;
 					M_Memcpy(&textcmds[p][netconsole][textcmds[p][netconsole][0]+1],
 						netbuffer->u.textcmd+1, netbuffer->u.textcmd[0]);
-					textcmds[p][netconsole][0] = (byte)(textcmds[p][netconsole][0] + (byte)netbuffer->u.textcmd[0]);
+					textcmds[p][netconsole][0] = (UINT8)(textcmds[p][netconsole][0] + (UINT8)netbuffer->u.textcmd[0]);
 				}
 				break;
 			case PT_NODETIMEOUT:
@@ -2463,7 +2464,7 @@ FILESTAMP
 					SendNetXCmd(XD_KICK, &buf, 2);
 					nodetoplayer[node] = -1;
 					if (nodetoplayer2[node] != -1 && nodetoplayer2[node] >= 0
-						&& playeringame[(byte)nodetoplayer2[node]])
+						&& playeringame[(UINT8)nodetoplayer2[node]])
 					{
 						buf[0] = nodetoplayer2[node];
 						SendNetXCmd(XD_KICK, &buf, 2);
@@ -2496,7 +2497,7 @@ FILESTAMP
 				realstart = ExpandTics(netbuffer->u.serverpak.starttic);
 				realend = realstart + netbuffer->u.serverpak.numtics;
 
-				txtpak = (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots
+				txtpak = (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots
 					* netbuffer->u.serverpak.numtics];
 
 				if (realend > gametic + BACKUPTICS)
@@ -2506,7 +2507,7 @@ FILESTAMP
 				if (realstart <= neededtic && realend > neededtic)
 				{
 					tic_t i, j;
-					pak = (byte *)&netbuffer->u.serverpak.cmds;
+					pak = (UINT8 *)&netbuffer->u.serverpak.cmds;
 
 					for (i = realstart; i < realend; i++)
 					{
@@ -2582,8 +2583,8 @@ static void CL_SendClientCmd(void)
 
 	if (cl_packetmissed)
 		netbuffer->packettype++;
-	netbuffer->u.clientpak.resendfrom = (byte)(neededtic & UINT8_MAX);
-	netbuffer->u.clientpak.client_tic = (byte)(gametic & UINT8_MAX);
+	netbuffer->u.clientpak.resendfrom = (UINT8)(neededtic & UINT8_MAX);
+	netbuffer->u.clientpak.client_tic = (UINT8)(gametic & UINT8_MAX);
 
 	if (gamestate == GS_WAITINGPLAYERS)
 	{
@@ -2642,8 +2643,8 @@ static void SV_SendTics(void)
 	UINT32 n;
 	INT32 j;
 	size_t packsize;
-	byte *bufpos;
-	byte *ntextcmd;
+	UINT8 *bufpos;
+	UINT8 *ntextcmd;
 
 	// send to all client but not to me
 	// for each node create a packet with x tics and send it
@@ -2707,10 +2708,10 @@ static void SV_SendTics(void)
 
 			// Send the tics
 			netbuffer->packettype = PT_SERVERTICS;
-			netbuffer->u.serverpak.starttic = (byte)realfirsttic;
-			netbuffer->u.serverpak.numtics = (byte)(lasttictosend - realfirsttic);
-			netbuffer->u.serverpak.numslots = (byte)SHORT(doomcom->numslots);
-			bufpos = (byte *)&netbuffer->u.serverpak.cmds;
+			netbuffer->u.serverpak.starttic = (UINT8)realfirsttic;
+			netbuffer->u.serverpak.numtics = (UINT8)(lasttictosend - realfirsttic);
+			netbuffer->u.serverpak.numslots = (UINT8)SHORT(doomcom->numslots);
+			bufpos = (UINT8 *)&netbuffer->u.serverpak.cmds;
 
 			for (i = realfirsttic; i < lasttictosend; i++)
 			{
@@ -2735,7 +2736,7 @@ static void SV_SendTics(void)
 					}
 				}
 			}
-			packsize = bufpos - (byte *)&(netbuffer->u);
+			packsize = bufpos - (UINT8 *)&(netbuffer->u);
 
 			HSendPacket(n, false, 0, packsize);
 			// when tic are too large, only one tic is sent so don't go backward!
@@ -2898,7 +2899,7 @@ void NetUpdate(void)
 	gametime = nowtime;
 
 	if (gametime & 255)
-		memset(consfailcount, 0, sizeof(byte)*MAXPLAYERS);
+		memset(consfailcount, 0, sizeof(consfailcount));
 
 	if (!server)
 		maketic = neededtic;

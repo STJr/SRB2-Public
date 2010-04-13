@@ -1,6 +1,6 @@
 #include "../i_sound.h"
 
-byte sound_started = 0;
+UINT8 sound_started = 0;
 
 void *I_GetSfx(sfxinfo_t *sfx)
 {
@@ -58,7 +58,7 @@ void I_SetSfxVolume(int volume)
 //
 //  MUSIC I/O
 //
-byte music_started = 0;
+UINT8 music_started = 0;
 
 void I_InitMusic(void){}
 
@@ -78,7 +78,7 @@ void I_ResumeSong(int handle)
 //  MIDI I/O
 //
 
-byte midimusic_started = 0;
+UINT8 midimusic_started = 0;
 
 void I_InitMIDIMusic(void){}
 
@@ -117,7 +117,7 @@ void I_UnRegisterSong(int handle)
 //  DIGMUSIC I/O
 //
 
-byte digmusic_started = 0;
+UINT8 digmusic_started = 0;
 
 void I_InitDigMusic(void){}
 

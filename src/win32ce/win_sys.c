@@ -116,9 +116,9 @@ static LPDIRECTINPUTEFFECT lpDIE2[NumberofForces];  // joystick 1Es
 static LPDIRECTINPUTDEVICE2 lpDIJ2A = NULL;// joystick 2I
 
 // Do not execute cleanup code more than once. See Shutdown_xxx() routines.
-byte graphics_started = 0;
-byte keyboard_started = 0;
-byte sound_started = 0;
+UINT8 graphics_started = 0;
+UINT8 keyboard_started = 0;
+UINT8 sound_started = 0;
 static boolean mouse_enabled = false;
 static boolean joystick_detected = false;
 static boolean joystick2_detected = false;
@@ -288,15 +288,6 @@ void I_BeginRead(void) {}
 // see above, end the 'loading' disc icon, set the flag false
 //
 void I_EndRead(void) {}
-
-byte *I_AllocLow(int length)
-{
-	byte *mem;
-
-	mem = (byte *)malloc(length);
-	ZeroMemory(mem, length);
-	return mem;
-}
 
 // ===========================================================================================
 //                                                                                      EVENTS
@@ -926,13 +917,13 @@ static int handlermouse2x, handlermouse2y, handlermouse2buttons;
 
 static void I_PoolMouse2(void)
 {
-	byte buffer[MOUSECOMBUFFERSIZE];
+	UINT8 buffer[MOUSECOMBUFFERSIZE];
 	COMSTAT ComStat;
 	DWORD dwErrorFlags, dwLength;
 	char dx, dy;
 
 	static int bytenum;
-	static byte combytes[4];
+	static UINT8 combytes[4];
 	DWORD i;
 
 	ClearCommError(mouse2filehandle, &dwErrorFlags, &ComStat);
@@ -1237,7 +1228,7 @@ void I_GetMouseEvents(void)
 	if (mouse2filehandle != INVALID_HANDLE_VALUE)
 	{
 		//mouse movement
-		static byte lastbuttons2 = 0;
+		static UINT8 lastbuttons2 = 0;
 
 		I_PoolMouse2();
 		// post key event for buttons
@@ -1245,7 +1236,7 @@ void I_GetMouseEvents(void)
 		{
 			int i, j = 1, k;
 			k = handlermouse2buttons ^ lastbuttons2; // only changed bit to 1
-			lastbuttons2 = (byte)handlermouse2buttons;
+			lastbuttons2 = (UINT8)handlermouse2buttons;
 
 			for (i = 0; i < MOUSEBUTTONS; i++, j <<= 1)
 				if (k & j)
@@ -3028,7 +3019,7 @@ const char *I_GetJoyName(int joyindex)
 //                                                                       DIRECT INPUT KEYBOARD
 // ===========================================================================================
 
-static byte ASCIINames[256] =
+static UINT8 ASCIINames[256] =
 {
 	//  0       1       2       3       4       5       6       7
 	//  8       9       A       B       C       D       E       F
@@ -3248,7 +3239,7 @@ getBufferedData:
 			else
 				event.type = ev_keyup;
 
-			ch = rgdod[d].dwOfs & 0xFF;
+			ch = rgdod[d].dwOfs & UINT8_MAX;
 			if (ASCIINames[ch])
 				event.data1 = ASCIINames[ch];
 			else

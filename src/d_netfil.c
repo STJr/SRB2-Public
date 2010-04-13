@@ -100,12 +100,12 @@ char downloaddir[256] = "DOWNLOAD";
   *
   * \todo Give this function a better name since it is in global scope.
   */
-byte *PutFileNeeded(void)
+UINT8 *PutFileNeeded(void)
 {
 	size_t i, count = 0;
-	byte *p = netbuffer->u.serverinfo.fileneeded;
+	UINT8 *p = netbuffer->u.serverinfo.fileneeded;
 	char wadfilename[MAX_WADPATH] = "";
-	byte filestatus;
+	UINT8 filestatus;
 	size_t bytesused = 0;
 
 	for (i = 0; i < numwadfiles; i++)
@@ -138,26 +138,26 @@ byte *PutFileNeeded(void)
 		WRITESTRINGN(p, wadfilename, MAX_WADPATH);
 		WRITEMEM(p, wadfiles[i]->md5sum, 16);
 	}
-	netbuffer->u.serverinfo.fileneedednum = (byte)count;
+	netbuffer->u.serverinfo.fileneedednum = (UINT8)count;
 
 	return p;
 }
 
 // parse the serverinfo packet and fill fileneeded table on client
-void D_ParseFileneeded(INT32 fileneedednum_parm, byte *fileneededstr)
+void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr)
 {
 	INT32 i;
-	byte *p;
-	byte filestatus;
+	UINT8 *p;
+	UINT8 filestatus;
 
 	fileneedednum = fileneedednum_parm;
-	p = (byte *)fileneededstr;
+	p = (UINT8 *)fileneededstr;
 	for (i = 0; i < fileneedednum; i++)
 	{
 		fileneeded[i].status = FS_NOTFOUND;
 		filestatus = READBYTE(p);
-		fileneeded[i].important = (byte)(filestatus & 3);
-		fileneeded[i].willsend = (byte)(filestatus >> 4);
+		fileneeded[i].important = (UINT8)(filestatus & 3);
+		fileneeded[i].willsend = (UINT8)(filestatus >> 4);
 		fileneeded[i].totalsize = READULONG(p);
 		fileneeded[i].phandle = NULL;
 		READSTRINGN(p, fileneeded[i].filename, MAX_WADPATH);
@@ -446,7 +446,7 @@ void SendFile(INT32 node, char *filename, char fileid)
 	filetosend++;
 }
 
-void SendRam(INT32 node, byte *data, size_t size, freemethod_t freemethod, char fileid)
+void SendRam(INT32 node, UINT8 *data, size_t size, freemethod_t freemethod, char fileid)
 {
 	filetx_t **q;
 	filetx_t *p;

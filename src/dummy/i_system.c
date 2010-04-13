@@ -1,9 +1,9 @@
 #include "../doomdef.h"
 #include "../i_system.h"
 
-byte graphics_started = 0;
+UINT8 graphics_started = 0;
 
-byte keyboard_started = 0;
+UINT8 keyboard_started = 0;
 
 UINT32 I_GetFreeMem(UINT32 *total)
 {
@@ -41,12 +41,6 @@ void I_Error(const char *error, ...)
 {
 	(void)error;
 	exit(-1);
-}
-
-byte *I_AllocLow(int length)
-{
-	(void)length;
-	return NULL;
 }
 
 void I_Tactile(FFType Type, const JoyFF_t *Effect)

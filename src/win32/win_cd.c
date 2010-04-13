@@ -147,7 +147,7 @@ static UINT CD_TotalTime(VOID)
 //                   CD AUDIO MUSIC SUBSYSTEM
 //======================================================================
 
-byte   cdaudio_started = 0;   // for system startup/shutdown
+UINT8  cdaudio_started = 0;   // for system startup/shutdown
 
 static BOOL cdPlaying = FALSE;
 static  INT cdPlayTrack;         // when cdPlaying is true
@@ -231,7 +231,7 @@ static void Command_Cd_f(void)
 			return;
 		}
 		for (j = 1; j <= i; j++)
-			cdRemap[j] = (byte)atoi (COM_Argv (j+1));
+			cdRemap[j] = (UINT8)atoi (COM_Argv (j+1));
 		return;
 	}
 
@@ -242,7 +242,7 @@ static void Command_Cd_f(void)
 		if (cdPlaying)
 			I_StopCD ();
 		for (i = 0; i < MAX_CD_TRACKS; i++)
-			cdRemap[i] = (byte)i;
+			cdRemap[i] = (UINT8)i;
 		CD_Reset();
 		cdValid = CD_ReadTrackInfo();
 		return;
@@ -300,7 +300,7 @@ static void Command_Cd_f(void)
 
 	if (!strncmp(s,"play",4))
 	{
-		I_PlayCD (atoi (COM_Argv (2)), false);
+		I_PlayCD ((UINT8)atoi (COM_Argv (2)), false);
 		return;
 	}
 
@@ -312,7 +312,7 @@ static void Command_Cd_f(void)
 
 	if (!strncmp(s,"loop",4))
 	{
-		I_PlayCD(atoi (COM_Argv (2)), true);
+		I_PlayCD((UINT8)atoi (COM_Argv (2)), true);
 		return;
 	}
 
@@ -362,7 +362,7 @@ void I_InitCD(void)
 	m_MCIOpen.wDeviceID = 0;
 	m_nTracksCount = 0;
 
-	cdaudio_started = FALSE;
+	cdaudio_started = false;
 
 	m_MCIOpen.lpstrDeviceType = (LPCTSTR)MCI_DEVTYPE_CD_AUDIO;
 	iErr = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_TYPE_ID, (DWORD_PTR)&m_MCIOpen);
@@ -393,7 +393,7 @@ void I_InitCD(void)
 	I_SetVolumeCD (i);   // now set the last saved volume
 
 	for (i = 0; i < MAX_CD_TRACKS; i++)
-		cdRemap[i] = (byte)i;
+		cdRemap[i] = (UINT8)i;
 
 	if (!CD_ReadTrackInfo())
 	{
@@ -421,7 +421,7 @@ void I_UpdateCD(void)
 
 
 //
-void I_PlayCD(INT32 nTrack, boolean bLooping)
+void I_PlayCD(UINT8 nTrack, UINT8 bLooping)
 {
 	MCI_PLAY_PARMS  mciPlay;
 	MCIERROR        iErr;

@@ -257,7 +257,7 @@ static md2_model_t *md2_readModel(const char *filename)
 {
 	FILE *file;
 	md2_model_t *model;
-	byte buffer[MD2_MAX_FRAMESIZE];
+	UINT8 buffer[MD2_MAX_FRAMESIZE];
 	size_t i;
 
 	model = calloc(1, sizeof (*model));
@@ -723,37 +723,35 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 }
 #endif
 
-#define word INT16
 typedef struct
 {
-	byte manufacturer;
-	byte version;
-	byte encoding;
-	byte bitsPerPixel;
-	word xmin;
-	word ymin;
-	word xmax;
-	word ymax;
-	word hDpi;
-	word vDpi;
-	byte colorMap[48];
-	byte reserved;
-	byte numPlanes;
-	word bytesPerLine;
-	word paletteInfo;
-	word hScreenSize;
-	word vScreenSize;
-	byte filler[54];
+	UINT8 manufacturer;
+	UINT8 version;
+	UINT8 encoding;
+	UINT8 bitsPerPixel;
+	INT16 xmin;
+	INT16 ymin;
+	INT16 xmax;
+	INT16 ymax;
+	INT16 hDpi;
+	INT16 vDpi;
+	UINT8 colorMap[48];
+	UINT8 reserved;
+	UINT8 numPlanes;
+	INT16 bytesPerLine;
+	INT16 paletteInfo;
+	INT16 hScreenSize;
+	INT16 vScreenSize;
+	UINT8 filler[54];
 } PcxHeader;
-#undef word
 
 static GrTextureFormat_t PCX_Load(const char *filename, int *w, int *h,
 	GLPatch_t *grpatch)
 {
 	PcxHeader header;
 #define PALSIZE 768
-	byte palette[PALSIZE];
-	const byte *pal;
+	UINT8 palette[PALSIZE];
+	const UINT8 *pal;
 	RGBA_t *image;
 	size_t pw, ph, size, ptr = 0;
 	INT32 ch, rep;
@@ -783,7 +781,7 @@ static GrTextureFormat_t PCX_Load(const char *filename, int *w, int *h,
 	ph = *h = header.ymax - header.ymin + 1;
 	image = Z_Malloc(pw*ph*4, PU_HWRCACHE, &grpatch->mipmap.grInfo.data);
 
-	if (fread(palette, sizeof (byte), PALSIZE, file) != PALSIZE)
+	if (fread(palette, sizeof (UINT8), PALSIZE, file) != PALSIZE)
 	{
 		Z_Free(image);
 		fclose(file);
@@ -933,7 +931,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	INT32 frame;
 	FTransform p;
 	md2_t *md2;
-	byte color[4];
+	UINT8 color[4];
 
 	// cache model graphics
 	//12/12/99: Hurdler:
@@ -968,9 +966,9 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 
 			temp.rgba = sector->extra_colormap->rgba;
 			alpha = (26 - temp.s.alpha)*spr->sectorlight;
-			Surf.FlatColor.s.red = (byte)((alpha + temp.s.alpha*temp.s.red)/26);
-			Surf.FlatColor.s.blue = (byte)((alpha + temp.s.alpha*temp.s.blue)/26);
-			Surf.FlatColor.s.green = (byte)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf.FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf.FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf.FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
 			Surf.FlatColor.s.alpha = 0xff;
 		}
 	}
@@ -984,7 +982,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		UINT32 durs = spr->mobj->state->tics;
 		UINT32 tics = spr->mobj->tics;
 		md2_frame_t *curr, *next = NULL;
-		const boolean flip = (spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP;
+		const UINT8 flip = (spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP;
 
 		if (spr->mobj->flags2 & MF2_SHADOW)
 		{

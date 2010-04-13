@@ -344,10 +344,10 @@ static LPDIRECTSOUNDBUFFER create_buffer (void *data, INT32 length, BOOL as3d)
 				I_ErrorDS3D("Lock fail(1) on %x, code %d\n",dsbuffer, hr);
 
 		// copy wave data into the buffer (note: dwBytes1 should equal to dsbdesc->dwBufferBytes ...)
-		CopyMemory (lpvAudio1, (byte *)data+8, dwBytes1);
+		CopyMemory (lpvAudio1, (LPBYTE)data+8, dwBytes1);
 
 		if ( dwBytes2 && lpvAudio2)
-			CopyMemory(lpvAudio2, ((byte *)data + 8) + dwBytes1, dwBytes2);
+			CopyMemory(lpvAudio2, ((LPBYTE)data + 8) + dwBytes1, dwBytes2);
 
 
 		// finally, unlock the buffer

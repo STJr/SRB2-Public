@@ -150,7 +150,7 @@ void M_FindResponseFile(void)
 			INT32 k, pindex, indexinfile;
 			long size;
 			boolean inquote = false;
-			byte *infile;
+			UINT8 *infile;
 			char *file;
 			char *moreargs[20];
 			char *firstargv;
@@ -185,7 +185,7 @@ void M_FindResponseFile(void)
 			memset(myargv, 0, sizeof (char *) * MAXARGVS);
 			myargv[0] = firstargv;
 
-			infile = (byte *)file;
+			infile = (UINT8 *)file;
 			indexinfile = k = 0;
 			indexinfile++; // skip past argv[0]
 			do

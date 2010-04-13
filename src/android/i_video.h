@@ -3,7 +3,7 @@
 
 #include <jni.h>
 
-byte * android_surface;
+UINT8 *android_surface;
 
 JNIEnv* jni_env;
 jobject androidVideo;

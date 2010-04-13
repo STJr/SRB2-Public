@@ -1048,7 +1048,7 @@ static LPBYTE GetOutStreamBytes(LONG tkNow, LONG cbNeeded, LONG cbUncompressed)
 #ifdef DEBUGMIDISTREAM
 static VOID ShowTrackError(LPINTRACKSTATE pInTrack, LPSTR szErr)
 {
-	byte *data;
+	LPBYTE data;
 	int i;
 
 	I_OutputMsg("Track %u: %s\n", pInTrack->nTrack, szErr);

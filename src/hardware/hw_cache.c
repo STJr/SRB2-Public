@@ -32,7 +32,7 @@
 #include "../r_draw.h"
 
 //Hurdler: 25/04/2000: used for new colormap code in hardware mode
-//static byte *gr_colormap = NULL; // by default it must be NULL ! (because colormap tables are not initialized)
+//static UINT8 *gr_colormap = NULL; // by default it must be NULL ! (because colormap tables are not initialized)
 boolean firetranslucent = false;
 
 // Values set after a call to HWR_ResizeBlock()
@@ -54,11 +54,11 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 	fixed_t yfrac, yfracstep, position, count;
 	fixed_t scale_y;
 	RGBA_t colortemp;
-	byte *dest;
-	const byte *source;
+	UINT8 *dest;
+	const UINT8 *source;
 	const column_t *patchcol;
-	byte alpha;
-	byte *block = mipmap->grInfo.data;
+	UINT8 alpha;
+	UINT8 *block = mipmap->grInfo.data;
 
 	x1 = originx;
 	x2 = x1 + SHORT(realpatch->width);
@@ -98,14 +98,14 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 
 	for (block += col*bpp; ncols--; block += bpp, xfrac += xfracstep)
 	{
-		patchcol = (const column_t *)((const byte *)realpatch
+		patchcol = (const column_t *)((const UINT8 *)realpatch
 		 + LONG(realpatch->columnofs[xfrac>>FRACBITS]));
 
 		scale_y = (pblockheight << FRACBITS) / ptextureheight;
 
 		while (patchcol->topdelta != 0xff)
 		{
-			source = (const byte *)patchcol + 3;
+			source = (const UINT8 *)patchcol + 3;
 			count  = ((patchcol->length * scale_y) + (FRACUNIT/2)) >> FRACBITS;
 			position = originy + patchcol->topdelta;
 
@@ -129,7 +129,7 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 			dest = block + (position*blockmodulo);
 			while (count > 0)
 			{
-				byte texel;
+				UINT8 texel;
 				count--;
 
 				texel = source[yfrac>>FRACBITS];
@@ -169,7 +169,7 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 				dest += blockmodulo;
 				yfrac += yfracstep;
 			}
-			patchcol = (const column_t *)((const byte *)patchcol + patchcol->length + 4);
+			patchcol = (const column_t *)((const UINT8 *)patchcol + patchcol->length + 4);
 		}
 	}
 }
@@ -297,10 +297,10 @@ static const INT32 format2bpp[16] =
 	2, //14 GR_TEXFMT_AP_88
 };
 
-static byte *MakeBlock(GLMipmap_t *grMipmap)
+static UINT8 *MakeBlock(GLMipmap_t *grMipmap)
 {
 	INT32 bpp;
-	byte *block;
+	UINT8 *block;
 	INT32 i;
 
 	bpp =  format2bpp[grMipmap->grInfo.format];
@@ -327,7 +327,7 @@ static byte *MakeBlock(GLMipmap_t *grMipmap)
 //
 static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 {
-	byte *block;
+	UINT8 *block;
 	texture_t *texture;
 	texpatch_t *patch;
 	patch_t *realpatch;
@@ -414,7 +414,7 @@ static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 //                 user for Z_Malloc(), becomes NULL if it is purged from the cache
 void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap)
 {
-	byte *block;
+	UINT8 *block;
 	INT32 newwidth, newheight;
 
 	// don't do it twice (like a cache)
@@ -541,9 +541,9 @@ void HWR_SetPalette(RGBA_t *palette)
 #endif
 
 	//Hurdler 16/10/99: added for OpenGL gamma correction
-	gamma_correction.s.red   = (byte)cv_grgammared.value;
-	gamma_correction.s.green = (byte)cv_grgammagreen.value;
-	gamma_correction.s.blue  = (byte)cv_grgammablue.value;
+	gamma_correction.s.red   = (UINT8)cv_grgammared.value;
+	gamma_correction.s.green = (UINT8)cv_grgammagreen.value;
+	gamma_correction.s.blue  = (UINT8)cv_grgammablue.value;
 	HWD.pfnSetPalette(palette, &gamma_correction);
 
 	// hardware driver will flush there own cache if cache is non paletized
@@ -574,7 +574,7 @@ GLTexture_t *HWR_GetTexture(INT32 tex)
 
 static void HWR_CacheFlat(GLMipmap_t *grMipmap, lumpnum_t flatlumpnum)
 {
-	byte *block;
+	UINT8 *block;
 	size_t size, pflatsize;
 
 	// setup the texture info
@@ -676,7 +676,7 @@ void HWR_GetPatch(GLPatch_t *gpatch)
 // -------------------+
 // HWR_GetMappedPatch : Same as HWR_GetPatch for sprite color
 // -------------------+
-void HWR_GetMappedPatch(GLPatch_t *gpatch, const byte *colormap)
+void HWR_GetMappedPatch(GLPatch_t *gpatch, const UINT8 *colormap)
 {
 	GLMipmap_t *grmip, *newmip;
 
@@ -723,12 +723,12 @@ static const INT32 picmode2GR[] =
 	GR_RGBA,                      // RGBA32             (opengl only)
 };
 
-static void HWR_DrawPicInCache(byte *block, INT32 pblockwidth, INT32 pblockheight,
+static void HWR_DrawPicInCache(UINT8 *block, INT32 pblockwidth, INT32 pblockheight,
 	INT32 blockmodulo, pic_t *pic, INT32 bpp)
 {
 	INT32 i,j;
 	fixed_t posx, posy, stepx, stepy;
-	byte *dest, *src, texel;
+	UINT8 *dest, *src, texel;
 	INT32 picbpp;
 	RGBA_t col;
 
@@ -801,7 +801,7 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 	if (!grpatch->mipmap.downloaded && !grpatch->mipmap.grInfo.data)
 	{
 		pic_t *pic;
-		byte *block;
+		UINT8 *block;
 		size_t len;
 		INT32 newwidth, newheight;
 

@@ -117,7 +117,7 @@ boolean looptitle = false;
 boolean useNightsSS = false;
 
 tic_t countdowntimer = 0;
-byte countdowntimeup = false;
+UINT8 countdowntimeup = false;
 
 cutscene_t cutscenes[128];
 
@@ -219,8 +219,8 @@ tic_t helpertics = 20*TICRATE;
 
 INT32 gameovertics = 45*TICRATE;
 
-byte introtoplay;
-byte creditscutscene;
+UINT8 introtoplay;
+UINT8 creditscutscene;
 
 // Emerald locations
 mobj_t *hunt1;
@@ -251,16 +251,16 @@ UINT32 timesbeaten;
 static char demoname[32];
 boolean demorecording;
 boolean demoplayback;
-static byte *demobuffer = NULL;
-static byte *demo_p;
-static byte *demoend;
+static UINT8 *demobuffer = NULL;
+static UINT8 *demo_p;
+static UINT8 *demoend;
 boolean singledemo; // quit after playing a demo from cmdline
 
 boolean precache = true; // if true, load all graphics at start
 
 INT16 prevmap, nextmap;
 
-static byte *savebuffer;
+static UINT8 *savebuffer;
 
 // Analog Control
 static void UserAnalog_OnChange(void);
@@ -1803,7 +1803,7 @@ void G_PlayerReborn(INT32 player)
 	INT32 laps;
 	INT32 totalring;
 	INT32 dbginfo;
-	byte mare;
+	UINT8 mare;
 	INT32 skincolor;
 	INT32 skin;
 	tic_t jointime;
@@ -2357,7 +2357,7 @@ void G_DoCompleted(void)
 			&& !(mapheaderinfo[nextmap].typeoflevel & tolflag))
 		{
 			register INT16 cm = nextmap;
-			byte visitedmap[(NUMMAPS+7)/8];
+			UINT8 visitedmap[(NUMMAPS+7)/8];
 
 			memset(visitedmap, 0, sizeof (visitedmap));
 
@@ -2580,7 +2580,7 @@ void G_LoadGameData(void)
 		mapvisited[i] = READBYTE(save_p);
 
 	for (i = 0; i < MAXEMBLEMS; i++)
-		emblemlocations[i].collected = READBYTE(save_p)-125-(i/4);
+		emblemlocations[i].collected = (UINT8)(READBYTE(save_p)-125-(i/4));
 
 	modded = READBYTE(save_p);
 	timesbeaten = (READULONG(save_p)/4)+2;
@@ -2645,12 +2645,12 @@ void G_SaveGameData(void)
 	size_t length;
 	INT32 i;
 	UINT32 stemp;
-	byte btemp;
+	UINT8 btemp;
 
 	if (!gamedataloaded)
 		return;
 
-	save_p = savebuffer = (byte *)malloc(GAMEDATASIZE);
+	save_p = savebuffer = (UINT8 *)malloc(GAMEDATASIZE);
 	if (!save_p)
 	{
 		CONS_Printf("No more free memory for saving game data\n");
@@ -2676,11 +2676,11 @@ void G_SaveGameData(void)
 
 	for (i = 0; i < MAXEMBLEMS; i++)
 	{
-		btemp = (byte)(emblemlocations[i].collected+125+(i/4));
+		btemp = (UINT8)(emblemlocations[i].collected+125+(i/4));
 		WRITEBYTE(save_p, btemp);
 	}
 
-	btemp = (byte)(savemoddata || modifiedgame);
+	btemp = (UINT8)(savemoddata || modifiedgame);
 	WRITEBYTE(save_p, btemp);
 	stemp = (timesbeaten-2)*4;
 	WRITEULONG(save_p, stemp);
@@ -2779,7 +2779,7 @@ void G_SaveGame(UINT32 savegameslot)
 		char name[VERSIONSIZE];
 		size_t length;
 
-		save_p = savebuffer = (byte *)malloc(SAVEGAMESIZE);
+		save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
 		if (!save_p)
 		{
 			CONS_Printf("No more free memory for savegame\n");
@@ -2856,7 +2856,7 @@ void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer, boole
 	if (!netgame)
 	{
 		if (!(demoplayback || demorecording))
-			P_SetRandIndex((byte)(totalplaytime % 256));
+			P_SetRandIndex((UINT8)(totalplaytime % 256));
 		else // Constant seed for demos
 			P_SetRandIndex(0);
 	}
@@ -2971,7 +2971,7 @@ ticcmd_t *G_MoveTiccmd(ticcmd_t* dest, const ticcmd_t* src, const size_t n)
 
 static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 {
-	byte ziptic;
+	UINT8 ziptic;
 
 	ziptic = READBYTE(demo_p);
 
@@ -2982,7 +2982,7 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 	if (ziptic & ZT_ANGLE)
 		oldcmd[playernum].angleturn = READSHORT(demo_p);
 	if (ziptic & ZT_BUTTONS)
-		oldcmd[playernum].buttons = (UINT16)(READBYTE(demo_p)<<8); //buttons in a UINT16, not a byte
+		oldcmd[playernum].buttons = (UINT16)(READBYTE(demo_p)<<8); //buttons in a UINT16, not a UINT8
 	if (ziptic & ZT_BUTTONS2)
 		oldcmd[playernum].buttons = (UINT16)(oldcmd[playernum].buttons+READBYTE(demo_p)); //ZT_BUTTONS2 always comes with ZT_BUTTONS
 	if (ziptic & ZT_AIMING)
@@ -3005,7 +3005,7 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 {
 	char ziptic = 0;
-	byte *ziptic_p;
+	UINT8 *ziptic_p;
 
 	ziptic_p = demo_p++; // the ziptic, written at the end of this function
 

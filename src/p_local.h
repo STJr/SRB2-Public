@@ -161,7 +161,7 @@ void P_NukeEnemies(player_t *player);
 void P_HomingAttack(mobj_t *source, mobj_t *enemy); /// \todo doesn't belong in p_user
 void P_DoJump(player_t *player, boolean soundandstate);
 boolean P_TransferToNextMare(player_t *player);
-byte P_FindLowestMare(void);
+UINT8 P_FindLowestMare(void);
 void P_FindEmerald(void);
 void P_TransferToAxis(player_t *player, INT32 axisnum);
 boolean P_PlayerMoving(INT32 pnum);
@@ -277,7 +277,7 @@ boolean PIT_PushableMoved(mobj_t *thing);
 //
 // P_SETUP
 //
-extern byte *rejectmatrix; // for fast sight rejection
+extern UINT8 *rejectmatrix; // for fast sight rejection
 extern INT32 *blockmaplump; // offsets in blockmap are from here
 extern INT32 *blockmap; // Big blockmap
 extern INT32 bmapwidth;

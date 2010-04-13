@@ -338,7 +338,7 @@ void Y_IntermissionDrawer(void)
 					V_DrawSmallScaledPatch(x+16, y-4, 0,faceprefix[*data.match.character[i]]);
 				else
 				{
-					byte *colormap = (byte *) translationtables[*data.match.character[i]] - 256 + (*data.match.color[i]<<8);
+					UINT8 *colormap = (UINT8 *) translationtables[*data.match.character[i]] - 256 + (*data.match.color[i]<<8);
 					V_DrawSmallMappedPatch(x+16, y-4, 0,faceprefix[*data.match.character[i]], colormap);
 				}
 
@@ -442,7 +442,7 @@ void Y_IntermissionDrawer(void)
 		{
 			if (playeringame[data.match.num[i]] && !(data.match.spectator[i]))
 			{
-				byte *colormap = (byte *) translationtables[*data.match.character[i]] - 256 + (*data.match.color[i]<<8);
+				UINT8 *colormap = (UINT8 *) translationtables[*data.match.character[i]] - 256 + (*data.match.color[i]<<8);
 
 				if (*data.match.color[i] == 6) //red
 				{

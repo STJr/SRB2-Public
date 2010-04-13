@@ -140,7 +140,7 @@ consvar_t cv_vidwait = {"vid_wait", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL
 #endif
 static consvar_t cv_stretch = {"stretch", "Off", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-byte graphics_started = 0; // Is used in console.c and screen.c
+UINT8 graphics_started = 0; // Is used in console.c and screen.c
 
 // To disable fullscreen at startup; is set in VID_PrepareModeList
 boolean allow_fullscreen = false;
@@ -816,7 +816,7 @@ static inline void SDLJoyRemap(event_t *event)
 		INT32 button = event->data1-KEY_JOY1;
 		if (button <= 7)
 		{
-			static byte DPAD = 0;
+			static UINT8 DPAD = 0;
 			if (event->type == ev_keyup)
 			{
 				event->type = ev_console;
@@ -1461,7 +1461,7 @@ void I_FinishUpdate(void)
 			{
 				if (vidSurface->pixels > vid.height)
 				{
-					byte *ptr = vidSurface->pixels;
+					UINT8 *ptr = vidSurface->pixels;
 					size_t half_excess = vidSurface->pitch*(vidSurface->height-vid.height)/2;
 					memset(ptr, 0x1F, half_excess);
 					ptr += half_excess;
@@ -1589,7 +1589,7 @@ void I_UpdateNoVsync(void)
 //
 // I_ReadScreen
 //
-void I_ReadScreen(byte *scr)
+void I_ReadScreen(UINT8 *scr)
 {
 	if (rendermode != render_soft)
 		I_Error ("I_ReadScreen: called while in non-software mode");

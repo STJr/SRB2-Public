@@ -413,7 +413,7 @@ typedef struct
 	INT32 movefactor;    ///< Inertia factor when adding to momentum.
 	INT32 affectee;      ///< Number of affected sector.
 	INT32 referrer;      ///< If roverfriction == true, then this will contain the sector # of the control sector where the effect was applied.
-	byte roverfriction;  ///< flag for whether friction originated from a FOF or not
+	UINT8 roverfriction;  ///< flag for whether friction originated from a FOF or not
 } friction_t;
 
 // Friction defines.
@@ -447,7 +447,7 @@ typedef struct
 	INT32 radius;       ///< Effective radius for point pusher/puller.
 	INT32 x, y, z;      ///< Point source if point pusher/puller.
 	INT32 affectee;     ///< Number of affected sector.
-	byte roverpusher;   ///< flag for whether pusher originated from a FOF or not
+	UINT8 roverpusher;   ///< flag for whether pusher originated from a FOF or not
 	INT32 referrer;     ///< If roverpusher == true, then this will contain the sector # of the control sector where the effect was applied.
 	INT32 exclusive;    /// < Once this affect has been applied to a mobj, no other pushers may affect it.
 	INT32 slider;       /// < Should the player go into an uncontrollable slide?

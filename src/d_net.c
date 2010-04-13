@@ -143,9 +143,9 @@ boolean Net_GetNetStat(void)
 
 typedef struct
 {
-	byte acknum;
-	byte nextacknum;
-	byte destinationnode;
+	UINT8 acknum;
+	UINT8 nextacknum;
+	UINT8 destinationnode;
 	tic_t senttime;
 	UINT16 length;
 	UINT16 resentnum;
@@ -166,13 +166,13 @@ static ackpak_t ackpak[MAXACKPACKETS];
 typedef struct
 {
 	// ack return to send (like sliding window protocol)
-	byte firstacktosend;
+	UINT8 firstacktosend;
 
 	// when no consecutive packets are received we keep in mind what packets
 	// we already received in a queue
-	byte acktosend_head;
-	byte acktosend_tail;
-	byte acktosend[MAXACKTOSEND];
+	UINT8 acktosend_head;
+	UINT8 acktosend_tail;
+	UINT8 acktosend[MAXACKTOSEND];
 
 	// automatically send keep alive packet when not enough trafic
 	tic_t lasttimeacktosend_sent;
@@ -180,10 +180,10 @@ typedef struct
 	tic_t lasttimepacketreceived;
 
 	// flow control: do not send too many packets with ack
-	byte remotefirstack;
-	byte nextacknum;
+	UINT8 remotefirstack;
+	UINT8 nextacknum;
 
-	byte flags;
+	UINT8 flags;
 	// jacobson tcp timeout evaluation algorithm (Karn variation)
 	fixed_t ping;
 	fixed_t varping;
@@ -200,7 +200,7 @@ static node_t nodes[MAXNETNODES];
 //         0 if a = n (mod 256)
 //        >0 if a > b (mod 256)
 // mnemonic: to use it compare to 0: cmpack(a,b)<0 is "a < b" ...
-FUNCMATH static INT32 cmpack(byte a, byte b)
+FUNCMATH static INT32 cmpack(UINT8 a, UINT8 b)
 {
 	register INT32 d = a - b;
 
@@ -210,12 +210,12 @@ FUNCMATH static INT32 cmpack(byte a, byte b)
 }
 
 // return a free acknum and copy netbuffer in the ackpak table
-static boolean GetFreeAcknum(byte *freeack, boolean lowtimer)
+static boolean GetFreeAcknum(UINT8 *freeack, boolean lowtimer)
 {
 	node_t *node = &nodes[doomcom->remotenode];
 	INT32 i, numfreeslote = 0;
 
-	if (cmpack((byte)((node->remotefirstack + MAXACKTOSEND) % 256), node->nextacknum) < 0)
+	if (cmpack((UINT8)((node->remotefirstack + MAXACKTOSEND) % 256), node->nextacknum) < 0)
 	{
 		DEBFILE(va("too fast %d %d\n",node->remotefirstack,node->nextacknum));
 		return false;
@@ -234,7 +234,7 @@ static boolean GetFreeAcknum(byte *freeack, boolean lowtimer)
 			node->nextacknum++;
 			if (!node->nextacknum)
 				node->nextacknum++;
-			ackpak[i].destinationnode = (byte)(node - nodes);
+			ackpak[i].destinationnode = (UINT8)(node - nodes);
 			ackpak[i].length = doomcom->datalength;
 			if (lowtimer)
 			{
@@ -265,7 +265,7 @@ static boolean GetFreeAcknum(byte *freeack, boolean lowtimer)
 }
 
 // Get a ack to send in the queu of this node
-static byte GetAcktosend(INT32 node)
+static UINT8 GetAcktosend(INT32 node)
 {
 	nodes[node].lasttimeacktosend_sent = I_GetTime();
 	return nodes[node].firstacktosend;
@@ -311,7 +311,7 @@ static boolean Processackpak(void)
 	// received a packet with ack, queue it to send the ack back
 	if (netbuffer->ack)
 	{
-		byte ack = netbuffer->ack;
+		UINT8 ack = netbuffer->ack;
 		getackpacket++;
 		if (cmpack(ack, node->firstacktosend) <= 0)
 		{
@@ -334,19 +334,19 @@ static boolean Processackpak(void)
 			{
 				// is a good packet so increment the acknowledge number,
 				// then search for a "hole" in the queue
-				byte nextfirstack = (byte)(node->firstacktosend + 1);
+				UINT8 nextfirstack = (UINT8)(node->firstacktosend + 1);
 				if (!nextfirstack)
 					nextfirstack = 1;
 
 				if (ack == nextfirstack)
 				{
-					byte hm1; // head - 1
+					UINT8 hm1; // head - 1
 					boolean change = true;
 
 					node->firstacktosend = nextfirstack++;
 					if (!nextfirstack)
 						nextfirstack = 1;
-					hm1 = (byte)((node->acktosend_head-1+MAXACKTOSEND) % MAXACKTOSEND);
+					hm1 = (UINT8)((node->acktosend_head-1+MAXACKTOSEND) % MAXACKTOSEND);
 					while (change)
 					{
 						change = false;
@@ -365,13 +365,13 @@ static boolean Processackpak(void)
 								if (i == node->acktosend_tail)
 								{
 									node->acktosend[node->acktosend_tail] = 0;
-									node->acktosend_tail = (byte)((i+1) % MAXACKTOSEND);
+									node->acktosend_tail = (UINT8)((i+1) % MAXACKTOSEND);
 								}
 								else if (i == hm1)
 								{
 									node->acktosend[hm1] = 0;
 									node->acktosend_head = hm1;
-									hm1 = (byte)((hm1-1+MAXACKTOSEND) % MAXACKTOSEND);
+									hm1 = (UINT8)((hm1-1+MAXACKTOSEND) % MAXACKTOSEND);
 								}
 							}
 						}
@@ -381,7 +381,7 @@ static boolean Processackpak(void)
 				{
 					// don't increment firsacktosend, put it in asktosend queue
 					// will be incremented when the nextfirstack comes (code above)
-					byte newhead = (byte)((node->acktosend_head+1) % MAXACKTOSEND);
+					UINT8 newhead = (UINT8)((node->acktosend_head+1) % MAXACKTOSEND);
 					DEBFILE(va("out of order packet (%d expected)\n", nextfirstack));
 					if (newhead != node->acktosend_tail)
 					{
@@ -439,7 +439,7 @@ static inline void Net_ConnectionTimeout(INT32 node)
 	reboundstore[rebound_head].packettype = PT_NODETIMEOUT;
 	reboundstore[rebound_head].ack = 0;
 	reboundstore[rebound_head].ackreturn = 0;
-	reboundstore[rebound_head].u.textcmd[0] = (byte)node;
+	reboundstore[rebound_head].u.textcmd[0] = (UINT8)node;
 	reboundsize[rebound_head] = (INT16)(BASEPACKETSIZE + 1);
 	rebound_head = (rebound_head+1) % MAXREBOUND;
 
@@ -510,7 +510,7 @@ void Net_UnAcknowledgPacket(INT32 node)
 	if (nodes[node].acktosend[hm1] == netbuffer->ack)
 	{
 		nodes[node].acktosend[hm1] = 0;
-		nodes[node].acktosend_head = (byte)hm1;
+		nodes[node].acktosend_head = (UINT8)hm1;
 	}
 	else if (nodes[node].firstacktosend == netbuffer->ack)
 	{
@@ -522,7 +522,7 @@ void Net_UnAcknowledgPacket(INT32 node)
 	{
 		while (nodes[node].firstacktosend != netbuffer->ack)
 		{
-			nodes[node].acktosend_tail = (byte)
+			nodes[node].acktosend_tail = (UINT8)
 				((nodes[node].acktosend_tail-1+MAXACKTOSEND) % MAXACKTOSEND);
 			nodes[node].acktosend[nodes[node].acktosend_tail] = nodes[node].firstacktosend;
 
@@ -587,7 +587,7 @@ static void InitAck(void)
 		InitNode(i);
 }
 
-void Net_AbortPacketType(byte packettype)
+void Net_AbortPacketType(UINT8 packettype)
 {
 	INT32 i;
 	for (i = 0; i < MAXACKPACKETS; i++)
@@ -643,7 +643,7 @@ static UINT32 NetbufferChecksum(void)
 {
 	UINT32 c = 0x1234567;
 	const INT32 l = doomcom->datalength - 4;
-	const byte *buf = (byte *)netbuffer + 4;
+	const UINT8 *buf = (UINT8 *)netbuffer + 4;
 	INT32 i;
 
 	for (i = 0; i < l; i++, buf++)
@@ -664,11 +664,11 @@ static void fprintfstring(char *s, size_t len)
 		{
 			if (!mode)
 			{
-				fprintf(debugfile, "[%d", (byte)s[i]);
+				fprintf(debugfile, "[%d", (UINT8)s[i]);
 				mode = 1;
 			}
 			else
-				fprintf(debugfile, ",%d", (byte)s[i]);
+				fprintf(debugfile, ",%d", (UINT8)s[i]);
 		}
 		else
 		{
@@ -731,9 +731,9 @@ static void DebugPrintpacket(const char *header)
 			fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %"PRIdS"\n    ",
 				(UINT32)ExpandTics(netbuffer->u.serverpak.starttic), netbuffer->u.serverpak.numslots,
 				netbuffer->u.serverpak.numtics,
-				(size_t)(&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
-			fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(byte)(
-				&((byte *)netbuffer)[doomcom->datalength] - (byte *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
+				(size_t)(&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
+			fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(size_t)(
+				&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			break;
 		case PT_CLIENTCMD:
 		case PT_CLIENT2CMD:
@@ -747,7 +747,7 @@ static void DebugPrintpacket(const char *header)
 			break;
 		case PT_TEXTCMD:
 		case PT_TEXTCMD2:
-			fprintf(debugfile, "    length %d\n    ", *(byte *)netbuffer->u.textcmd);
+			fprintf(debugfile, "    length %d\n    ", netbuffer->u.textcmd[0]);
 			fprintfstring((char *)netbuffer->u.textcmd+1, netbuffer->u.textcmd[0]);
 			break;
 		case PT_SERVERCFG:
@@ -766,8 +766,8 @@ static void DebugPrintpacket(const char *header)
 				netbuffer->u.serverinfo.fileneedednum,
 				(UINT32)LONG(netbuffer->u.serverinfo.time));
 			fprintfstring((char *)netbuffer->u.serverinfo.fileneeded,
-				(byte)((char *)netbuffer + doomcom->datalength
-				- (char *)netbuffer->u.serverinfo.fileneeded));
+				(UINT8)((UINT8 *)netbuffer + doomcom->datalength
+				- (UINT8 *)netbuffer->u.serverinfo.fileneeded));
 			break;
 		case PT_SERVERREFUSE:
 			fprintf(debugfile, "    reason %s\n", netbuffer->u.serverrefuse.reason);
@@ -780,7 +780,7 @@ static void DebugPrintpacket(const char *header)
 		case PT_REQUESTFILE:
 		default: // write as a raw packet
 			fprintfstring((char *)netbuffer->u.textcmd,
-				(byte)((char *)netbuffer + doomcom->datalength - (char *)netbuffer->u.textcmd));
+				(UINT8)((UINT8 *)netbuffer + doomcom->datalength - (UINT8 *)netbuffer->u.textcmd));
 			break;
 	}
 }
@@ -789,7 +789,7 @@ static void DebugPrintpacket(const char *header)
 //
 // HSendPacket
 //
-boolean HSendPacket(INT32 node, boolean reliable, byte acknum, size_t packetlength)
+boolean HSendPacket(INT32 node, boolean reliable, UINT8 acknum, size_t packetlength)
 {
 	doomcom->datalength = (INT16)(packetlength + BASEPACKETSIZE);
 	if (node == 0) // packet is to go back to us

@@ -376,10 +376,10 @@ static float gr_fovlud;
 //                                    LIGHT stuffs
 // ==========================================================================
 
-static byte lightleveltonumlut[256];
+static UINT8 lightleveltonumlut[256];
 
 // added to SRB2's sector lightlevel to make things a bit brighter (sprites/walls/planes)
-FUNCMATH static byte LightLevelToLum(INT32 l)
+FUNCMATH static UINT8 LightLevelToLum(INT32 l)
 {
 #ifdef HARDWAREFIX
 	if (!cv_grfog.value)
@@ -391,13 +391,13 @@ FUNCMATH static byte LightLevelToLum(INT32 l)
 		return lightleveltonumlut[l];
 	}
 #endif
-	return (byte)(255*gld_CalcLightLevel(l));
+	return (UINT8)(255*gld_CalcLightLevel(l));
 /*
 	l = lightleveltonumlut[l];
 
 	if (l > 255)
 		l = 255;
-	return (byte)l;*/
+	return (UINT8)l;*/
 }
 
 static inline void InitLumLut(void)
@@ -409,14 +409,14 @@ static inline void InitLumLut(void)
 			k += 2;
 		else
 			k = 1;
-		lightleveltonumlut[i] = (byte)(k);
+		lightleveltonumlut[i] = (UINT8)(k);
 	}
 }
 
 #ifdef HARDWAREFIX
 //#define FOGFACTOR 300 //was 600 >> Covered by cv_grfogdensity
 #define NORMALFOG 0x19000000
-#define CALCFOGALPHA(x,y) (byte)(((float)(x)/((0x19 - (y))/12.0f+1.0f)))
+#define CALCFOGALPHA(x,y) (UINT8)(((float)(x)/((0x19 - (y))/12.0f+1.0f)))
 #define CALCLIGHT(x,y) ((float)(x)/((0xFF - (y))/127.0f+1.0f))
 static UINT32 HWR_Lighting(INT32 light, UINT32 color)
 {
@@ -426,9 +426,9 @@ static UINT32 HWR_Lighting(INT32 light, UINT32 color)
 
 	if(cv_grfog.value)
 	{
-		surfcolor.s.red = (byte)(0xFF-(realcolor.s.green+realcolor.s.blue)/2);
-		surfcolor.s.green = (byte)(0xFF-(realcolor.s.red+realcolor.s.blue)/2);
-		surfcolor.s.blue = (byte)(0xFF-(realcolor.s.red+realcolor.s.green)/2);
+		surfcolor.s.red = (UINT8)(0xFF-(realcolor.s.green+realcolor.s.blue)/2);
+		surfcolor.s.green = (UINT8)(0xFF-(realcolor.s.red+realcolor.s.blue)/2);
+		surfcolor.s.blue = (UINT8)(0xFF-(realcolor.s.red+realcolor.s.green)/2);
 		surfcolor.s.alpha = 0xFF;
 
 		if(light == 0xFF && color == NORMALFOG)
@@ -456,9 +456,9 @@ static UINT32 HWR_Lighting(INT32 light, UINT32 color)
 		realcolor.s.blue = CALCFOGALPHA(realcolor.s.blue,realcolor.s.alpha);
 
 		// Set the surface colors and further modulate the colors by light.
-		surfcolor.s.red = (byte)CALCLIGHT(0xFF-(realcolor.s.green+realcolor.s.blue)/2,light);
-		surfcolor.s.green = (byte)CALCLIGHT(0xFF-(realcolor.s.red+realcolor.s.blue)/2,light);
-		surfcolor.s.blue = (byte)CALCLIGHT(0xFF-(realcolor.s.red+realcolor.s.green)/2,light);
+		surfcolor.s.red = (UINT8)CALCLIGHT(0xFF-(realcolor.s.green+realcolor.s.blue)/2,light);
+		surfcolor.s.green = (UINT8)CALCLIGHT(0xFF-(realcolor.s.red+realcolor.s.blue)/2,light);
+		surfcolor.s.blue = (UINT8)CALCLIGHT(0xFF-(realcolor.s.red+realcolor.s.green)/2,light);
 		surfcolor.s.alpha = 0xFF;
 	}
 	return surfcolor.rgba;
@@ -649,9 +649,9 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 
 			temp.rgba = psector->extra_colormap->rgba;
 			alpha = (26-temp.s.alpha)*LightLevelToLum(lightlevel);
-			Surf.FlatColor.s.red = (byte)((alpha + temp.s.alpha*temp.s.red)/26);
-			Surf.FlatColor.s.blue = (byte)((alpha + temp.s.alpha*temp.s.blue)/26);
-			Surf.FlatColor.s.green = (byte)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf.FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf.FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf.FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
 			Surf.FlatColor.s.alpha = 0xff;
 		}
 #endif
@@ -663,7 +663,7 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 
 	if (PolyFlags & PF_Translucent)
 	{
-		Surf.FlatColor.s.alpha = (byte)(PolyFlags>>24);
+		Surf.FlatColor.s.alpha = (UINT8)(PolyFlags>>24);
 		HWD.pfnDrawPolygon(&Surf, planeVerts, nrPlaneVerts,
 		                   PF_Translucent|PF_Modulated|PF_Occlude|PF_Clip);
 	}
@@ -948,7 +948,7 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 	INT32   solid, i;
 	lightlist_t *  list = sector->lightlist;
 #ifdef HARDWAREFIX
-	const byte alpha = Surf->FlatColor.s.alpha;
+	const UINT8 alpha = Surf->FlatColor.s.alpha;
 #endif
 
 	realtop = top = wallVerts[2].y;
@@ -996,7 +996,7 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 			lightnum = LightLevelToLum(*list[i-1].lightlevel);
 			// store Surface->FlatColor to modulate wall texture
 			Surf->FlatColor.s.red = Surf->FlatColor.s.green = Surf->FlatColor.s.blue =
-				(byte)lightnum;
+				(UINT8)lightnum;
 #endif
 
 			// colormap test
@@ -1019,11 +1019,11 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 				alpha = (INT32)((26 - temp.s.alpha)*lightnum);
 
 				Surf->FlatColor.s.red =
-					(byte)((alpha + temp.s.alpha*temp.s.red)/26);
+					(UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
 				Surf->FlatColor.s.blue =
-					(byte)((alpha + temp.s.alpha*temp.s.blue)/26);
+					(UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
 				Surf->FlatColor.s.green =
-					(byte)((alpha + temp.s.alpha*temp.s.green)/26);
+					(UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
 				Surf->FlatColor.s.alpha = 0xff;
 			}
 #endif
@@ -1062,7 +1062,7 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 		lightnum = LightLevelToLum(*list[i-1].lightlevel);
 		// store Surface->FlatColor to modulate wall texture
 		Surf->FlatColor.s.red = Surf->FlatColor.s.green = Surf->FlatColor.s.blue
-			= (byte)lightnum;
+			= (UINT8)lightnum;
 #endif
 
 		psector =  list[i-1].caster ? &sectors[list[i-1].caster->secnum] : gr_frontsector;
@@ -1082,10 +1082,10 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 
 			temp.rgba = psector->extra_colormap->rgba;
 			alpha = (INT32)((26 - temp.s.alpha)*lightnum);
-			Surf->FlatColor.s.red = (byte)((alpha + temp.s.alpha*temp.s.red)/26);
-			Surf->FlatColor.s.blue = (byte)((alpha + temp.s.alpha*temp.s.blue)/26);
-			Surf->FlatColor.s.green = (byte)((alpha + temp.s.alpha*temp.s.green)/26);
-			Surf->FlatColor.s.alpha = 0xff;
+			Surf->FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf->FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf->FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf->FlatColor.s.alpha = 0xFF;
 		}
 #endif
 	}
@@ -1205,7 +1205,7 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 
 	// store Surface->FlatColor to modulate wall texture
 	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue =
-		(byte)lightnum;
+		(UINT8)lightnum;
 #endif
 
 	if (gr_frontsector)
@@ -1231,11 +1231,11 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 			temp.rgba = sector->extra_colormap->rgba;
 			alpha = (INT32)((26 - temp.s.alpha)*lightnum);
 			Surf.FlatColor.s.red =
-				(byte)((alpha + temp.s.alpha*temp.s.red)/26);
+				(UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
 			Surf.FlatColor.s.blue =
-				(byte)((alpha + temp.s.alpha*temp.s.blue)/26);
+				(UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
 			Surf.FlatColor.s.green =
-				(byte)((alpha + temp.s.alpha*temp.s.green)/26);
+				(UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
 			Surf.FlatColor.s.alpha = 0xff;
 		}
 #endif
@@ -1591,7 +1591,7 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 					if (rover->flags & FF_TRANSLUCENT)
 					{
 						blendmode = PF_Translucent;
-						Surf.FlatColor.s.alpha = (byte)rover->alpha;
+						Surf.FlatColor.s.alpha = (UINT8)rover->alpha;
 					}
 					else if (grTex->mipmap.flags & TF_TRANSPARENT)
 					{
@@ -1647,7 +1647,7 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 					if (rover->flags & FF_TRANSLUCENT)
 					{
 						blendmode = PF_Translucent;
-						Surf.FlatColor.s.alpha = (byte)rover->alpha;
+						Surf.FlatColor.s.alpha = (UINT8)rover->alpha;
 					}
 					else if (grTex->mipmap.flags & TF_TRANSPARENT)
 					{
@@ -2805,7 +2805,7 @@ static fixed_t HWR_OpaqueFloorAtPos(fixed_t x, fixed_t y, fixed_t z, fixed_t hei
 // -----------------+
 static void HWR_DrawSprite(gr_vissprite_t *spr)
 {
-	byte i;
+	UINT8 i;
 	float tr_x, tr_y;
 	FOutVector wallVerts[4];
 	FOutVector *wv;
@@ -2946,9 +2946,9 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 
 			temp.rgba = sector->extra_colormap->rgba;
 			alpha = (26 - temp.s.alpha)*spr->sectorlight;
-			Surf.FlatColor.s.red = (byte)((alpha + temp.s.alpha*temp.s.red)/26);
-			Surf.FlatColor.s.blue = (byte)((alpha + temp.s.alpha*temp.s.blue)/26);
-			Surf.FlatColor.s.green = (byte)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf.FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf.FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf.FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
 			Surf.FlatColor.s.alpha = 0xff;
 		}
 #endif
@@ -3103,7 +3103,7 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 				Surf.FlatColor.rgba = HWR_Lighting(spr->sectorlight/2,NORMALFOG);
 #else
 			// sprite lighting by modulating the RGB components
-			sSurf.FlatColor.s.red = sSurf.FlatColor.s.green = sSurf.FlatColor.s.blue = (byte)(spr->sectorlight/2);
+			sSurf.FlatColor.s.red = sSurf.FlatColor.s.green = sSurf.FlatColor.s.blue = (UINT8)(spr->sectorlight/2);
 #endif
 		}
 		else
@@ -3139,7 +3139,7 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 						wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
 					}
 				}
-				sSurf.FlatColor.s.alpha = (byte)(0x80 - floorheight/4);
+				sSurf.FlatColor.s.alpha = (UINT8)(0x80 - floorheight/4);
 				HWD.pfnDrawPolygon(&sSurf, swallVerts, 4, PF_Translucent|PF_Modulated|PF_Clip);
 			}
 		}
@@ -3176,7 +3176,7 @@ noshadow:
 // Sprite drawer for precipitation
 static inline void HWR_DrawPrecipitationSprite(gr_vissprite_t *spr)
 {
-	byte i;
+	UINT8 i;
 	FBITFIELD blend = 0;
 	float tr_x, tr_y;
 	FOutVector wallVerts[4];
@@ -3793,11 +3793,11 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	{
 		// New colormap stuff for skins Tails 06-07-2002
 		if (vis->mobj->player) // This thing is a player!
-			vis->colormap = (byte *)translationtables[vis->mobj->player->skin] - 256 + ((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
+			vis->colormap = (UINT8 *)translationtables[vis->mobj->player->skin] - 256 + ((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
-			vis->colormap = (byte *)bosstranslationtables;
+			vis->colormap = (UINT8 *)bosstranslationtables;
 		else
-			vis->colormap = (byte *)defaulttranslationtables - 256 + ((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
+			vis->colormap = (UINT8 *)defaulttranslationtables - 256 + ((thing->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
 	}
 	else
 		vis->colormap = colormaps;
@@ -4584,7 +4584,7 @@ static void HWR_RenderTransparentWalls(void)
 static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIELD blend)
 {
 	FOutVector  trVerts[4];
-	byte        i;
+	UINT8       i;
 	FOutVector  *wv;
 
 	// transform
@@ -4636,7 +4636,7 @@ void HWR_DoPostProcessor(void)
 		// 10 by 10 grid. 2 coordinates (xy)
 		float v[SCREENVERTS][SCREENVERTS][2];
 		static double disStart = 0;
-		byte x, y;
+		UINT8 x, y;
 
 		// Modifies the wave.
 		const INT32 WAVELENGTH = 20; // Lower is longer
@@ -4659,8 +4659,8 @@ void HWR_DoPostProcessor(void)
 	{
 		// 10 by 10 grid. 2 coordinates (xy)
 		float v[SCREENVERTS][SCREENVERTS][2];
-		byte x, y;
-		byte flipy;
+		UINT8 x, y;
+		UINT8 flipy;
 
 		for (x = 0; x < SCREENVERTS; x++)
 		{

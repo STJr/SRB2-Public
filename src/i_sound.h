@@ -26,7 +26,7 @@
 
 /**	\brief Sound subsystem runing and waiting
 */
-extern byte sound_started;
+extern UINT8 sound_started;
 
 /**	\brief info of samplerate
 */
@@ -112,7 +112,7 @@ void I_SetSfxVolume(INT32 volume);
 //
 /**	\brief Music subsystem runing and waiting
 */
-extern byte music_started;
+extern UINT8 music_started;
 
 /** \brief Init the music systems
 */
@@ -144,7 +144,7 @@ void I_ResumeSong(INT32 handle);
 
 /**	\brief MIDI subsystem runing and waiting
 */
-extern byte midimusic_started;
+extern UINT8 midimusic_started;
 
 /**	\brief Startup the MIDI music system
 */
@@ -209,7 +209,7 @@ void I_UnRegisterSong(INT32 handle);
 /**	\brief DigMusic subsystem runing and waiting
 */
 
-extern byte digmusic_started;
+extern UINT8 digmusic_started;
 
 /**	\brief Startup the music system
 */
@@ -249,7 +249,7 @@ void I_SetDigMusicVolume(INT32 volume);
 
 /**	\brief  cd music interface
 */
-extern byte cdaudio_started;
+extern UINT8 cdaudio_started;
 
 /**	\brief Startup the CD system
 */
@@ -282,7 +282,7 @@ void I_UpdateCD(void);
 
 	\return	void
 */
-void I_PlayCD(INT32 track, boolean looping);
+void I_PlayCD(UINT8 track, UINT8 looping);
 
 /**	\brief	The I_SetVolumeCD function
 

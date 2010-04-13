@@ -1425,7 +1425,7 @@ static void P_ZMovement(mobj_t *mo)
 		case MT_SMALLBUBBLE:
 			if (mo->z-mo->momz <= mo->floorz) // Hit the floor, so POP!
 			{
-				byte prandom;
+				UINT8 prandom;
 
 				P_SetMobjState(mo, S_DISS);
 
@@ -1568,7 +1568,7 @@ static void P_ZMovement(mobj_t *mo)
 		{
 			if (mo->type == MT_SEED)
 			{
-				byte prandom = P_Random();
+				UINT8 prandom = P_Random();
 
 				if (prandom < 64)
 					P_SpawnMobj(mo->x, mo->y, mo->floorz, MT_GFZFLOWER3);
@@ -2155,7 +2155,7 @@ static void P_SceneryZMovement(mobj_t *mo)
 		case MT_SMALLBUBBLE:
 			if (mo->z <= mo->floorz) // Hit the floor, so POP!
 			{
-				byte prandom;
+				UINT8 prandom;
 
 				P_SetMobjState(mo, S_DISS);
 
@@ -2332,7 +2332,7 @@ void P_MobjCheckWater(mobj_t *mobj)
 		&& ((mobj->eflags & MFE_UNDERWATER) != wasinwater))
 	{
 		INT32 i, bubblecount;
-		byte prandom[6];
+		UINT8 prandom[6];
 
 		// Check to make sure you didn't just cross into a sector to jump out of
 		// that has shallower water than the block you were originally in.
@@ -4957,7 +4957,7 @@ void P_MobjThinker(mobj_t *mobj)
 				P_SceneryCheckWater(mobj);
 				if (!(mobj->eflags & MFE_UNDERWATER) || mobj->z + mobj->height >= mobj->ceilingz)
 				{
-					byte prandom;
+					UINT8 prandom;
 
 					P_SetMobjState(mobj, S_DISS);
 
@@ -5600,7 +5600,7 @@ void P_MobjThinker(mobj_t *mobj)
 
 			switch (mobj->type)
 			{
-				byte prandom;
+				UINT8 prandom;
 
 				// gargoyle and snowman handled in P_PushableThinker, not here
 				case MT_THROWNGRENADE:
@@ -6667,7 +6667,7 @@ void P_SpawnPrecipitation(void)
 	if (curWeather == PRECIP_SNOW)
 	{
 		const INT32 snowloop = preloop / cv_precipdensity.value;
-		byte z = 0;
+		UINT8 z = 0;
 
 		for (i = 0; i < snowloop; i++)
 		{

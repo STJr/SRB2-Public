@@ -196,6 +196,10 @@ typedef struct
 	UINT16 children[2];
 } ATTRPACK mapnode_t;
 
+#if defined(_MSC_VER)
+#pragma pack()
+#endif
+
 // Thing definition, position, orientation and type,
 // plus visibility flags and attributes.
 typedef struct
@@ -205,15 +209,11 @@ typedef struct
 	UINT16 type;
 	UINT16 options;
 	INT16 z;
-	byte extrainfo;
+	UINT8 extrainfo;
 	struct mobj_s *mobj;
-} ATTRPACK mapthing_t;
+} mapthing_t;
 
 #define ZSHIFT 4
-
-#if defined(_MSC_VER)
-#pragma pack()
-#endif
 
 extern const char *Color_Names[MAXSKINCOLORS];
 

@@ -41,8 +41,8 @@ typedef enum
 
 typedef struct
 {
-	byte important;
-	byte willsend; // is the server willing to send it?
+	UINT8 important;
+	UINT8 willsend; // is the server willing to send it?
 	char filename[MAX_WADPATH];
 	unsigned char md5sum[16];
 	// used only for download
@@ -56,8 +56,8 @@ extern INT32 fileneedednum;
 extern fileneeded_t fileneeded[MAX_WADFILES];
 extern char downloaddir[256];
 
-byte *PutFileNeeded(void);
-void D_ParseFileneeded(INT32 fileneedednum_parm, byte *fileneededstr);
+UINT8 *PutFileNeeded(void);
+void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr);
 void CL_PrepareDownloadSaveGame(const char *tmpsave);
 
 // check file list in wadfiles return 0 when a file is not found
@@ -67,7 +67,7 @@ void CL_PrepareDownloadSaveGame(const char *tmpsave);
 INT32 CL_CheckFiles(void);
 void CL_LoadServerFiles(void);
 void SendFile(INT32 node, char *filename, char fileid);
-void SendRam(INT32 node, byte *data, size_t size, freemethod_t freemethod,
+void SendRam(INT32 node, UINT8 *data, size_t size, freemethod_t freemethod,
 	char fileid);
 
 void FiletxTicker(void);

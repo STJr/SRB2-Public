@@ -56,7 +56,7 @@ void I_WaitVBL(int count)
 	(void)count;
 }
 
-void I_ReadScreen(byte *scr)
+void I_ReadScreen(UINT8 *scr)
 {
 	(void)scr;
 }

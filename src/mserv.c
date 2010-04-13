@@ -155,7 +155,7 @@ typedef struct
 {
 	char ip[16];         // Big enough to hold a full address.
 	UINT16 port;
-	byte padding1[2];
+	UINT8 padding1[2];
 	tic_t time;
 } ATTRPACK ms_holepunch_packet_t;
 #if defined(_MSC_VER)

@@ -141,7 +141,7 @@ static StackSound_t    StackSounds[MAXSTACKSOUNDS];
 // Fill the DirectSoundBuffer with data from a sample, made separate so that
 // sound data cna be reloaded if a sound buffer was lost.
 // --------------------------------------------------------------------------
-static boolean CopySoundData (LPDIRECTSOUNDBUFFER dsbuffer, byte *data, DWORD length)
+static boolean CopySoundData (LPDIRECTSOUNDBUFFER dsbuffer, LPBYTE data, DWORD length)
 {
 	LPVOID  lpvAudio1;              // receives address of lock start
 	DWORD   dwBytes1;               // receives number of bytes locked
@@ -211,7 +211,7 @@ a:
 
 // judgecutor:
 // Like normal CopySoundData but sound data will be inverted
-static boolean CopyAndInvertSoundData(LPDIRECTSOUNDBUFFER dsbuffer, byte *data, DWORD length)
+static boolean CopyAndInvertSoundData(LPDIRECTSOUNDBUFFER dsbuffer, LPBYTE data, DWORD length)
 {
 	LPVOID  lpvAudio1 = NULL; // receives address of lock start
 	DWORD   dwBytes1 = 0;     // receives number of bytes locked
@@ -319,12 +319,12 @@ static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, int len)
 #ifdef SURROUND
 	if (invert)
 		// just invert a sound data for producing the surround sound
-		CopyAndInvertSoundData(dsbuffer, (byte *)dsdata + 8, dsbdesc.dwBufferBytes);
+		CopyAndInvertSoundData(dsbuffer, (LPBYTE)dsdata + 8, dsbdesc.dwBufferBytes);
 	else
 		// Do a normal operation
 #endif
 	// fill the DirectSoundBuffer waveform data
-	CopySoundData (dsbuffer, (byte *)dsdata + 8, dsbdesc.dwBufferBytes);
+	CopySoundData (dsbuffer, (LPBYTE)dsdata + 8, dsbdesc.dwBufferBytes);
 
 	return dsbuffer;
 }
@@ -335,7 +335,7 @@ static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, int len)
 // --------------------------------------------------------------------------
 void *I_GetSfx (sfxinfo_t * sfx)
 {
-	byte *              dssfx;
+	LPBYTE dssfx;
 
 	if (sfx->lumpnum < 0)
 		sfx->lumpnum = S_GetSfxLumpNum (sfx);
@@ -348,7 +348,7 @@ void *I_GetSfx (sfxinfo_t * sfx)
 	sfx->length = W_LumpLength (sfx->lumpnum);
 
 	// PU_CACHE because the data is copied to the DIRECTSOUNDBUFFER, the one here will not be used
-	dssfx = (byte *) W_CacheLumpNum (sfx->lumpnum, PU_CACHE);
+	dssfx = (LPBYTE) W_CacheLumpNum (sfx->lumpnum, PU_CACHE);
 
 #ifdef SURROUND
 	// Make a normal (not inverted) sound buffer
@@ -510,8 +510,8 @@ static int GetFreeStackNum(int  newpriority)
 #ifdef SURROUND
 static LPDIRECTSOUNDBUFFER CreateInvertedSound(int id)
 {
-	int   lumpnum;
-	byte  *dsdata;
+	lumpnnum_t lumpnum;
+	LBYPTE dsdata;
 
 	lumpnum = S_sfx[id].lumpnum;
 	if (lumpnum < 0)
@@ -652,7 +652,7 @@ int I_StartSound (int            id,
 		hr = IDirectSoundBuffer_Restore (dsbuffer);
 		if (SUCCEEDED (hr))
 		{
-			byte *  dsdata;
+			LPBYTE dsdata;
 			// reload sample data here
 			int     lumpnum = S_sfx[id].lumpnum;
 			if (lumpnum < 0)
@@ -680,13 +680,13 @@ int I_StartSound (int            id,
 			hr = IDirectSoundBuffer_Restore (dssurround);
 			if (SUCCEEDED (hr))
 			{
-				byte *  dsdata;
-				int     lumpnum = S_sfx[id].lumpnum;
+				LPBYTE dsdata;
+				lumpnumt_t lumpnum = S_sfx[id].lumpnum;
 
 				if (lumpnum < 0)
 					lumpnum = S_GetSfxLumpNum (&S_sfx[id]);
 				dsdata = W_CacheLumpNum (lumpnum, PU_CACHE);
-				CopyAndInvertSoundData (dssurround, (byte *)dsdata + 8, S_sfx[id].length - 8);
+				CopyAndInvertSoundData (dssurround, (LPBYTE)dsdata + 8, S_sfx[id].length - 8);
 
 				hr = IDirectSoundBuffer_Play (dssurround, 0, 0, 0);
 			}
@@ -1910,7 +1910,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 	if (fmus && looping)
 	{
 		int scan;
-		byte *dataum;
+		char *dataum;
 		char looplength[64];
 		unsigned int loopstart = 0;
 		int newcount = 0;
@@ -1928,7 +1928,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 
 			data = W_CacheLumpName (filename, PU_CACHE);
 
-			dataum = (byte *)data;
+			dataum = (char *)data;
 
 			for (scan = 0;scan < lumplength; scan++)
 			{

@@ -34,8 +34,8 @@ boolean P_LoadNetGame(void);
 
 typedef struct
 {
-	byte skincolor;
-	byte skin;
+	UINT8 skincolor;
+	UINT8 skin;
 	INT32 score;
 	INT32 lives;
 	INT32 continues;
@@ -43,6 +43,6 @@ typedef struct
 } savedata_t;
 
 extern savedata_t savedata;
-extern byte *save_p;
+extern UINT8 *save_p;
 
 #endif

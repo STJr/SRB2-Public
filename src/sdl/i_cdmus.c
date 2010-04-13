@@ -56,7 +56,7 @@ void SDL_SYS_CDQuit(void)
 }
 #endif
 
-byte cdaudio_started = 0;   // for system startup/shutdown
+UINT8 cdaudio_started = 0;   // for system startup/shutdown
 
 consvar_t cd_volume = {"cd_volume","31",CV_SAVE,soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cdUpdate  = {"cd_update","1",CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -245,13 +245,13 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(command, "play", 4))
 	{
-		I_PlayCD((byte)atoi(COM_Argv (2)), SDL_FALSE);
+		I_PlayCD((UINT8)atoi(COM_Argv (2)), SDL_FALSE);
 		return;
 	}
 
 	if (!strncmp(command, "loop", 4))
 	{
-		I_PlayCD((byte)atoi(COM_Argv (2)), true);
+		I_PlayCD((UINT8)atoi(COM_Argv (2)), true);
 		return;
 	}
 
@@ -378,7 +378,7 @@ void I_ShutdownCD (void)
 	CONS_Printf("I_ShutdownCD: ");
 	SDL_CDClose(cdrom);
 	cdrom = NULL;
-	cdaudio_started = SDL_FALSE;
+	cdaudio_started = false;
 	CONS_Printf("shut down\n");
 	SDL_QuitSubSystem(SDL_INIT_CDROM);
 	cdEnabled = SDL_FALSE;
@@ -503,7 +503,7 @@ void I_UpdateCD (void)
  *
  **************************************************************************/
 
-void I_PlayCD (INT32 track, boolean looping)
+void I_PlayCD (UINT8 track, UINT8 looping)
 {
 #ifdef NOSDLCD
 	(void)track;
@@ -530,7 +530,7 @@ void I_PlayCD (INT32 track, boolean looping)
 	// don't try to play a non-audio track
 	if (cdrom->track[track].type == SDL_DATA_TRACK)
 	{
-		CONS_Printf("I_PlayCD: track %i is not audio\n", track);
+		CONS_Printf("I_PlayCD: track %u is not audio\n", track);
 		return;
 	}
 

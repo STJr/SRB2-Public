@@ -191,11 +191,11 @@ boolean FIL_WriteFile(char const *name, const void *source, size_t length)
   * \return Number of bytes read, not counting the zero byte added to the end,
   *         or 0 on error.
   */
-size_t FIL_ReadFile(char const *name, byte **buffer)
+size_t FIL_ReadFile(char const *name, UINT8 **buffer)
 {
 	FILE *handle = NULL;
 	size_t count, length;
-	byte *buf;
+	UINT8 *buf;
 
 	if (FIL_ReadFileOK(name))
 		handle = fopen(name, "rb");
@@ -939,7 +939,7 @@ failure:
 void M_SaveFrame(void)
 {
 #ifdef USE_APNG
-	byte *linear = NULL;
+	png_bytep linear = NULL;
 
 	if (!apng_FILE)
 	{
@@ -1012,7 +1012,7 @@ boolean M_StopMovie(void)
   * \param palette  Palette of image data
   *  \note if palette is NULL, BGR888 format
   */
-boolean M_SavePNG(const char *filename, void *data, int width, int height, const byte *palette)
+boolean M_SavePNG(const char *filename, void *data, int width, int height, const UINT8 *palette)
 {
 	png_structp png_ptr;
 	png_infop png_info_ptr;
@@ -1130,12 +1130,12 @@ typedef struct
   * \param palette  Palette of image data
   */
 #if NUMSCREENS > 2
-static boolean WritePCXfile(const char *filename, const byte *data, int width, int height, const byte *palette)
+static boolean WritePCXfile(const char *filename, const UINT8 *data, int width, int height, const UINT8 *palette)
 {
 	int i;
 	size_t length;
 	pcx_t *pcx;
-	byte *pack;
+	UINT8 *pack;
 
 	pcx = Z_Malloc(width*height*2 + 1000, PU_STATIC, NULL);
 
@@ -1175,7 +1175,7 @@ static boolean WritePCXfile(const char *filename, const byte *data, int width, i
 		*pack++ = *palette++;
 
 	// write output file
-	length = pack - (byte *)pcx;
+	length = pack - (UINT8 *)pcx;
 	i = FIL_WriteFile(filename, pcx, length);
 
 	Z_Free(pcx);
@@ -1196,7 +1196,7 @@ void M_ScreenShot(void)
 #if NUMSCREENS > 2
 	const char *freename = NULL, *pathname = ".";
 	boolean ret = false;
-	byte *linear = NULL;
+	UINT8 *linear = NULL;
 
 	if (cv_screenshot_option.value == 0)
 		pathname = usehome ? srb2home : srb2path;
