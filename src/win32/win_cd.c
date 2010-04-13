@@ -437,7 +437,7 @@ void I_PlayCD(UINT8 nTrack, UINT8 bLooping)
 
 	// tracks start at 0 in the code..
 	nTrack--;
-	if (nTrack < 0 || nTrack >= m_nTracksCount)
+	if (nTrack >= m_nTracksCount)
 		nTrack = nTrack % m_nTracksCount;
 
 	nTrack = cdRemap[nTrack];
