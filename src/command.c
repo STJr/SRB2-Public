@@ -1181,7 +1181,7 @@ void CV_SaveNetVars(UINT8 **p)
 	for (cvar = consvar_vars; cvar; cvar = cvar->next)
 		if (cvar->flags & CV_NETVAR)
 		{
-			WRITEUSHORT(*p, cvar->netid);
+			WRITEUINT16(*p, cvar->netid);
 			WRITESTRING(*p, cvar->string);
 		}
 }
@@ -1262,7 +1262,7 @@ void CV_Set(consvar_t *var, const char *value)
 				var->name, var->string);
 			return;
 		}
-		WRITEUSHORT(p, var->netid);
+		WRITEUINT16(p, var->netid);
 		WRITESTRING(p, value);
 		SendNetXCmd(XD_NETVAR, buf, p-buf);
 	}

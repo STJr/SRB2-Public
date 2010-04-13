@@ -84,7 +84,8 @@ static inline void P_UnArchivePlayer(void)
 //
 static inline void P_NetArchivePlayers(void)
 {
-	INT32 i, j, flags;
+	INT32 i, j;
+	UINT16 flags;
 	size_t q;
 
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -158,7 +159,7 @@ static inline void P_NetArchivePlayers(void)
 		// CTF Mode Stuff //
 		////////////////////
 		WRITELONG(save_p, players[i].ctfteam);
-		WRITEUSHORT(save_p, players[i].gotflag);
+		WRITEUINT16(save_p, players[i].gotflag);
 
 		WRITELONG(save_p, players[i].dbginfo);
 		WRITELONG(save_p, players[i].emeraldhunt);
@@ -234,7 +235,7 @@ static inline void P_NetArchivePlayers(void)
 			}
 		}
 
-		WRITEUSHORT(save_p, flags);
+		WRITEUINT16(save_p, flags);
 
 		if (flags & CAPSULE)
 			WRITEULONG(save_p, players[i].capsule->mobjnum);
@@ -514,7 +515,7 @@ static void P_NetArchiveWorld(void)
 		{
 			statsec++;
 
-			WRITEUSHORT(put, i);
+			WRITEUINT16(put, i);
 			WRITEUINT8(put, diff);
 			if (diff & SD_DIFF2)
 				WRITEUINT8(put, diff2);
@@ -551,7 +552,7 @@ static void P_NetArchiveWorld(void)
 		}
 	}
 
-	WRITEUSHORT(put, 0xffff);
+	WRITEUINT16(put, 0xffff);
 
 	mld = W_CacheLumpNum(lastloadedmaplumpnum+ML_LINEDEFS, PU_CACHE);
 	msd = W_CacheLumpNum(lastloadedmaplumpnum+ML_SIDEDEFS, PU_CACHE);
@@ -630,7 +631,7 @@ static void P_NetArchiveWorld(void)
 				WRITELONG(put, si->midtexture);
 		}
 	}
-	WRITEUSHORT(put, 0xffff);
+	WRITEUINT16(put, 0xffff);
 
 	save_p = put;
 }
@@ -1497,11 +1498,11 @@ static void P_NetArchiveThinkers(void)
 			if (diff & MD_RTIME)
 				WRITELONG(save_p, mobj->reactiontime);
 			if (diff & MD_STATE)
-				WRITEUSHORT(save_p, mobj->state-states);
+				WRITEUINT16(save_p, mobj->state-states);
 			if (diff & MD_TICS)
 				WRITELONG(save_p, mobj->tics);
 			if (diff & MD_SPRITE)
-				WRITEUSHORT(save_p, mobj->sprite);
+				WRITEUINT16(save_p, mobj->sprite);
 			if (diff & MD_FRAME)
 				WRITEULONG(save_p, mobj->frame);
 			if (diff & MD_EFLAGS)
@@ -1531,9 +1532,9 @@ static void P_NetArchiveThinkers(void)
 			if (diff & MD_WATERBOTTOM)
 				WRITELONG(save_p, mobj->waterbottom);
 			if (diff & MD_SCALE)
-				WRITEUSHORT(save_p, mobj->scale);
+				WRITEUINT16(save_p, mobj->scale);
 			if (diff & MD_DSCALE)
-				WRITEUSHORT(save_p, mobj->destscale);
+				WRITEUINT16(save_p, mobj->destscale);
 
 			WRITEUINT8(save_p, mobj->scalespeed);
 
@@ -2948,7 +2949,7 @@ static inline void P_ArchiveMisc(void)
 
 	lastmapsaved = gamemap;
 
-	WRITEUSHORT(save_p, emeralds+357);
+	WRITEUINT16(save_p, emeralds+357);
 	WRITESTRINGN(save_p, timeattackfolder, sizeof(timeattackfolder));
 }
 
@@ -3017,7 +3018,7 @@ static inline void P_NetArchiveMisc(void)
 	WRITEULONG(save_p, totalrings);
 	WRITEINT16(save_p, lastmap);
 
-	WRITEUSHORT(save_p, emeralds);
+	WRITEUINT16(save_p, emeralds);
 
 	WRITEULONG(save_p, token);
 	WRITELONG(save_p, sstimer);
