@@ -1526,7 +1526,7 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 
 static void SendWeaponPref(void)
 {
-	XBOXSTATIC char buf[1];
+	XBOXSTATIC SINT8 buf[1];
 
 	buf[0] = (char)cv_autoaim.value;
 	SendNetXCmd(XD_WEAPONPREF, buf, 1);
@@ -1540,7 +1540,7 @@ static void SendWeaponPref(void)
 
 static void Got_WeaponPref(UINT8 **cp,INT32 playernum)
 {
-	if (READCHAR(*cp))
+	if (READSINT8(*cp))
 		players[playernum].pflags |= PF_AUTOAIM;
 	else
 		players[playernum].pflags &= ~PF_AUTOAIM;

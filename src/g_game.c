@@ -2976,9 +2976,9 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 	ziptic = READBYTE(demo_p);
 
 	if (ziptic & ZT_FWD)
-		oldcmd[playernum].forwardmove = READCHAR(demo_p);
+		oldcmd[playernum].forwardmove = READSINT8(demo_p);
 	if (ziptic & ZT_SIDE)
-		oldcmd[playernum].sidemove = READCHAR(demo_p);
+		oldcmd[playernum].sidemove = READSINT8(demo_p);
 	if (ziptic & ZT_ANGLE)
 		oldcmd[playernum].angleturn = READSHORT(demo_p);
 	if (ziptic & ZT_BUTTONS)

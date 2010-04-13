@@ -479,15 +479,15 @@ static void Command_CSay_f(void)
   */
 static void Got_Saycmd(UINT8 **p, INT32 playernum)
 {
-	signed char target;
+	SINT8 target;
 	UINT8 flags;
 	const char *dispname;
 	char *msg;
 	boolean action = false;
 	char *ptr;
 
-	target = READCHAR(*p);
-	flags = READBYTE(*p);
+	target = READSINT8(*p);
+	flags = READUINT8(*p);
 
 	if ((cv_mute.value || (flags & HU_CSAY)) && playernum != serverplayer && playernum != adminplayer)
 	{

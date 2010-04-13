@@ -68,13 +68,15 @@
 #include "filesrch.h"
 #include "v_video.h"
 
+static void SendFile(INT32 node, const char *filename, UINT8 fileid);
+
 // sender structure
 typedef struct filetx_s
 {
 	INT32 ram;
 	char *filename; // name of the file or ptr of the data in ram
 	UINT32 size;
-	char fileid;
+	UINT8 fileid;
 	INT32 node; // destination
 	struct filetx_s *next; // a queue
 } filetx_t;
@@ -254,13 +256,13 @@ boolean SendRequestFile(void)
 		{
 			totalfreespaceneeded += fileneeded[i].totalsize;
 			nameonly(fileneeded[i].filename);
-			WRITECHAR(p, i); // fileid
+			WRITEUINT8(p, i); // fileid
 			WRITESTRINGN(p, fileneeded[i].filename, MAX_WADPATH);
 			// put it in download dir
 			strcatbf(fileneeded[i].filename, downloaddir, "/");
 			fileneeded[i].status = FS_REQUESTED;
 		}
-	WRITECHAR(p, -1);
+	WRITEUINT8(p, 0xFF);
 	I_GetDiskFreeSpace(&availablefreespace);
 	if (totalfreespaceneeded > availablefreespace)
 		I_Error("To play on this server you must download %"PRIdS" KB,\n"
@@ -275,15 +277,16 @@ boolean SendRequestFile(void)
 // get request filepak and put it on the send queue
 void Got_RequestFilePak(INT32 node)
 {
-	char *p;
-
-	p = (char *)netbuffer->u.textcmd;
-	while (*p != (char)-1
-		&& p < (char*)netbuffer->u.textcmd + MAXTEXTCMD-1) // Don't allow hacked client to overflow
+	char wad[MAX_WADPATH+1];
+	UINT8 *p = netbuffer->u.textcmd;
+	UINT8 id;
+	while (p < netbuffer->u.textcmd + MAXTEXTCMD-1) // Don't allow hacked client to overflow
 	{
-		SendFile(node, p + 1, *p);
-		(void)READBYTE(p); // skip fileid
-		SKIPSTRING(p);
+		id = READUINT8(p);
+		if (id == 0xFF)
+			break;
+		READSTRINGN(p, wad, MAX_WADPATH);
+		SendFile(node, wad, id);
 	}
 }
 
@@ -378,7 +381,7 @@ void CL_LoadServerFiles(void)
 // little optimization to test if there is a file in the queue
 static INT32 filetosend = 0;
 
-void SendFile(INT32 node, char *filename, char fileid)
+static void SendFile(INT32 node, const char *filename, UINT8 fileid)
 {
 	filetx_t **q;
 	filetx_t *p;
