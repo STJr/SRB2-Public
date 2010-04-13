@@ -321,10 +321,10 @@ extern fixed_t gravity;
 //for CTF balancing
 extern INT32 autobalance;
 extern INT32 teamscramble;
-extern INT32 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
-extern INT32 scrambleteams[MAXPLAYERS]; //for CTF team scramble
-extern INT32 scrambletotal; //for CTF team scramble
-extern INT32 scramblecount; //for CTF team scramble
+extern INT16 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
+extern INT16 scrambleteams[MAXPLAYERS]; //for CTF team scramble
+extern INT16 scrambletotal; //for CTF team scramble
+extern INT16 scramblecount; //for CTF team scramble
 
 extern INT32 cheats;
 

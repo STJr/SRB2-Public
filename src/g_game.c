@@ -233,10 +233,10 @@ fixed_t gravity;
 
 INT32 autobalance; //for CTF team balance
 INT32 teamscramble; //for CTF team scramble
-INT32 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
-INT32 scrambleteams[MAXPLAYERS]; //for CTF team scramble
-INT32 scrambletotal; //for CTF team scramble
-INT32 scramblecount; //for CTF team scramble
+INT16 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
+INT16 scrambleteams[MAXPLAYERS]; //for CTF team scramble
+INT16 scrambletotal; //for CTF team scramble
+INT16 scramblecount; //for CTF team scramble
 
 INT32 cheats; //for multiplayer cheat commands
 
@@ -3025,7 +3025,7 @@ static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 
 	if (cmd->angleturn != oldcmd[playernum].angleturn)
 	{
-		WRITESHORT(demo_p,cmd->angleturn);
+		WRITEINT16(demo_p,cmd->angleturn);
 		oldcmd[playernum].angleturn = cmd->angleturn;
 		ziptic |= ZT_ANGLE;
 	}
@@ -3041,7 +3041,7 @@ static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 
 	if (cmd->aiming != oldcmd[playernum].aiming)
 	{
-		WRITESHORT(demo_p,cmd->aiming);
+		WRITEINT16(demo_p,cmd->aiming);
 		oldcmd[playernum].aiming = cmd->aiming;
 		ziptic |= ZT_AIMING;
 	}

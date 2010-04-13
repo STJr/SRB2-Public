@@ -687,7 +687,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 		mt->y = READSHORT(data);
 		mt->angle = READSHORT(data);
 		mt->type = READSHORT(data);
-		mt->options = READSHORT(data);
+		mt->options = READUINT16(data);
 		mt->extrainfo = (UINT8)(mt->type >> 12);
 
 		mt->type &= 4095;
@@ -877,14 +877,14 @@ void P_WriteThings(lumpnum_t lumpnum)
 	mt = mapthings;
 	for (i = 0; i < nummapthings; i++, mt++)
 	{
-		WRITESHORT(savebuf_p, mt->x);
-		WRITESHORT(savebuf_p, mt->y);
+		WRITEINT16(savebuf_p, mt->x);
+		WRITEINT16(savebuf_p, mt->y);
 
-		WRITESHORT(savebuf_p, mt->angle);
+		WRITEINT16(savebuf_p, mt->angle);
 
 		temp = (INT16)(mt->type + ((INT16)mt->extrainfo << 12));
-		WRITESHORT(savebuf_p, temp);
-		WRITESHORT(savebuf_p, mt->options);
+		WRITEINT16(savebuf_p, temp);
+		WRITEUINT16(savebuf_p, mt->options);
 	}
 
 	Z_Free(datastart);

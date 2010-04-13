@@ -4091,11 +4091,11 @@ static void AutoBalance_OnChange(void)
 
 static void TeamScramble_OnChange(void)
 {
-	INT32 i = 0, j = 0, playercount = 0;
+	INT16 i = 0, j = 0, playercount = 0;
 	boolean repick = true;
 	INT32 blue = 0, red = 0;
 	INT32 maxcomposition = 0;
-	INT32 newteam = 0;
+	INT16 newteam = 0;
 
 	// Don't trigger outside level or intermission!
 	if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
@@ -4174,7 +4174,7 @@ static void TeamScramble_OnChange(void)
 		{
 			for (j = i; j < playercount; j++)
 			{
-				INT32 tempplayer = 0;
+				INT16 tempplayer = 0;
 
 				if ((players[scrambleplayers[i-1]].score > players[scrambleplayers[j]].score))
 				{

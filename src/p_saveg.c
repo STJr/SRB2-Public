@@ -203,8 +203,8 @@ static inline void P_NetArchivePlayers(void)
 		if (players[i].axis2)
 			flags |= SECONDAXIS;
 
-		WRITESHORT(save_p, players[i].lastsidehit);
-		WRITESHORT(save_p, players[i].lastlinehit);
+		WRITEINT16(save_p, players[i].lastsidehit);
+		WRITEINT16(save_p, players[i].lastlinehit);
 
 
 		WRITELONG(save_p, players[i].losscount);
@@ -527,9 +527,9 @@ static void P_NetArchiveWorld(void)
 			if (diff & SD_CEILPIC)
 				WRITEMEM(put, levelflats[ss->ceilingpic].name, 8);
 			if (diff & SD_LIGHT)
-				WRITESHORT(put, ss->lightlevel);
+				WRITEINT16(put, ss->lightlevel);
 			if (diff & SD_SPECIAL)
-				WRITESHORT(put, ss->special);
+				WRITEINT16(put, ss->special);
 			if (diff2 & SD_FXOFFS)
 				WRITEFIXED(put, ss->floor_xoffs);
 			if (diff2 & SD_FYOFFS)
@@ -540,7 +540,7 @@ static void P_NetArchiveWorld(void)
 				WRITEFIXED(put, ss->ceiling_yoffs);
 			if (diff2 & SD_TAG)
 			{
-				WRITESHORT(put, ss->tag);
+				WRITEINT16(put, ss->tag);
 				WRITELONG(put, ss->firsttag);
 				WRITELONG(put, ss->nexttag);
 			}
@@ -600,14 +600,14 @@ static void P_NetArchiveWorld(void)
 		if (diff)
 		{
 			statline++;
-			WRITESHORT(put, (INT16)i);
+			WRITEINT16(put, i);
 			WRITEUINT8(put, diff);
 			if (diff & LD_DIFF2)
 				WRITEUINT8(put, diff2);
 			if (diff & LD_FLAG)
-				WRITESHORT(put, li->flags);
+				WRITEINT16(put, li->flags);
 			if (diff & LD_SPECIAL)
-				WRITESHORT(put, li->special);
+				WRITEINT16(put, li->special);
 
 			si = &sides[li->sidenum[0]];
 			if (diff & LD_S1TEXOFF)
@@ -1464,7 +1464,7 @@ static void P_NetArchiveThinkers(void)
 
 				for (z = 0; z < nummapthings; z++)
 					if (&mapthings[z] == mobj->spawnpoint)
-						WRITESHORT(save_p, z);
+						WRITEUINT16(save_p, z);
 
 				if (mobj->type == MT_HOOPCENTER)
 					continue;
@@ -2379,7 +2379,7 @@ static void P_NetUnArchiveThinkers(void)
 
 				if (diff & MD_SPAWNPOINT)
 				{
-					INT16 spawnpointnum = READSHORT(save_p);
+					UINT16 spawnpointnum = READUINT16(save_p);
 
 					if (mapthings[spawnpointnum].type == 1705) // NiGHTS Hoop special case
 					{
@@ -2942,9 +2942,9 @@ static inline void P_NetUnArchiveSpecials(void)
 static inline void P_ArchiveMisc(void)
 {
 	if (gamecomplete)
-		WRITESHORT(save_p, spstage_end);
+		WRITEINT16(save_p, spstage_end);
 	else
-		WRITESHORT(save_p, gamemap);
+		WRITEINT16(save_p, gamemap);
 
 	lastmapsaved = gamemap;
 
@@ -2999,8 +2999,8 @@ static inline void P_NetArchiveMisc(void)
 	UINT32 pig = 0;
 	INT32 i, j;
 
-	WRITESHORT(save_p, gamemap);
-	WRITESHORT(save_p, gamestate);
+	WRITEINT16(save_p, gamemap);
+	WRITEINT16(save_p, gamestate);
 
 	WRITEULONG(save_p, tokenlist);
 
@@ -3015,7 +3015,7 @@ static inline void P_NetArchiveMisc(void)
 
 	WRITEULONG(save_p, leveltime);
 	WRITEULONG(save_p, totalrings);
-	WRITESHORT(save_p, lastmap);
+	WRITEINT16(save_p, lastmap);
 
 	WRITEUSHORT(save_p, emeralds);
 
@@ -3026,17 +3026,17 @@ static inline void P_NetArchiveMisc(void)
 	WRITEULONG(save_p, blueflagloose);
 	WRITEULONG(save_p, redflagloose);
 
-	WRITESHORT(save_p, autobalance);
-	WRITESHORT(save_p, teamscramble);
+	WRITEINT16(save_p, autobalance);
+	WRITEINT16(save_p, teamscramble);
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		WRITESHORT(save_p, scrambleplayers[i]);
+		WRITEINT16(save_p, scrambleplayers[i]);
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		WRITESHORT(save_p, scrambleteams[i]);
+		WRITEINT16(save_p, scrambleteams[i]);
 
-	WRITESHORT(save_p, scrambletotal);
-	WRITESHORT(save_p, scramblecount);
+	WRITEINT16(save_p, scrambletotal);
+	WRITEINT16(save_p, scramblecount);
 
 	WRITEULONG(save_p, countdown);
 	WRITEULONG(save_p, countdown2);
