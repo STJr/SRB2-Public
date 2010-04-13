@@ -2674,7 +2674,21 @@ static void Got_Teamchange(byte **cp, INT32 playernum)
 			return;
 	}
 	else
-		I_Error("Invalid gametype after initial checks!");
+	{
+		if (playernum != serverplayer && (playernum != adminplayer))
+		{
+			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
+			if (server)
+			{
+				XBOXSTATIC char buf[2];
+
+				buf[0] = (char)playernum;
+				buf[1] = KICK_MSG_CON_FAIL;
+				SendNetXCmd(XD_KICK, &buf, 2);
+			}
+		}
+		return;
+	}
 
 	//Make sure that the right team number is sent. Keep in mind that normal clients cannot change to certain teams in certain gametypes.
 	switch (gametype)
