@@ -2225,7 +2225,7 @@ static void LoadPolymoveThinker(actionf_p1 thinker)
 	ht->momx = READFIXED(save_p);
 	ht->momy = READFIXED(save_p);
 	ht->distance = READLONG(save_p);
-	ht->angle = READULONG(save_p);
+	ht->angle = READANGLE(save_p);
 	P_AddThinker(&ht->thinker);
 }
 
@@ -2739,7 +2739,7 @@ static inline void P_UnArchivePolyObj(polyobj_t *po)
 
 	id = READLONG(save_p);
 
-	angle = READULONG(save_p);
+	angle = READANGLE(save_p);
 
 	(void)READULONG(save_p); //thinker.prev dummy
 	(void)READULONG(save_p); //thinker.next dummy
