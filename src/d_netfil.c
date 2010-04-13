@@ -132,7 +132,7 @@ UINT8 *PutFileNeeded(void)
 		if (bytesused > sizeof(netbuffer->u.serverinfo.fileneeded))
 			I_Error("Too many wad files added to host a game. (%"PRIdS", stopped on %s)\n", bytesused, wadfilename);
 
-		WRITEBYTE(p, filestatus);
+		WRITEUINT8(p, filestatus);
 
 		count++;
 		WRITEULONG(p, wadfiles[i]->filesize);

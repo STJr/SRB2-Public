@@ -2672,16 +2672,16 @@ void G_SaveGameData(void)
 	WRITEULONG(save_p, stemp);
 
 	for (i = 0; i < NUMMAPS; i++)
-		WRITEBYTE(save_p, mapvisited[i]);
+		WRITEUINT8(save_p, mapvisited[i]);
 
 	for (i = 0; i < MAXEMBLEMS; i++)
 	{
 		btemp = (UINT8)(emblemlocations[i].collected+125+(i/4));
-		WRITEBYTE(save_p, btemp);
+		WRITEUINT8(save_p, btemp);
 	}
 
 	btemp = (UINT8)(savemoddata || modifiedgame);
-	WRITEBYTE(save_p, btemp);
+	WRITEUINT8(save_p, btemp);
 	stemp = (timesbeaten-2)*4;
 	WRITEULONG(save_p, stemp);
 
@@ -3011,14 +3011,14 @@ static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 
 	if (cmd->forwardmove != oldcmd[playernum].forwardmove)
 	{
-		WRITEBYTE(demo_p,cmd->forwardmove);
+		WRITEUINT8(demo_p,cmd->forwardmove);
 		oldcmd[playernum].forwardmove = cmd->forwardmove;
 		ziptic |= ZT_FWD;
 	}
 
 	if (cmd->sidemove != oldcmd[playernum].sidemove)
 	{
-		WRITEBYTE(demo_p,cmd->sidemove);
+		WRITEUINT8(demo_p,cmd->sidemove);
 		oldcmd[playernum].sidemove = cmd->sidemove;
 		ziptic |= ZT_SIDE;
 	}
@@ -3032,8 +3032,8 @@ static void G_WriteDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 
 	if (cmd->buttons != oldcmd[playernum].buttons)
 	{
-		WRITEBYTE(demo_p,cmd->buttons>>8);
-		WRITEBYTE(demo_p,cmd->buttons&255);
+		WRITEUINT8(demo_p,cmd->buttons>>8);
+		WRITEUINT8(demo_p,cmd->buttons&255);
 		oldcmd[playernum].buttons = cmd->buttons;
 		ziptic |= ZT_BUTTONS;
 		ziptic |= ZT_BUTTONS2;
@@ -3086,22 +3086,22 @@ void G_BeginRecording(void)
 
 	demo_p = demobuffer;
 
-	WRITEBYTE(demo_p,VERSION);
-	WRITEBYTE(demo_p,ultimatemode);
-	WRITEBYTE(demo_p,gamemap);
-	WRITEBYTE(demo_p,gametype);
-	WRITEBYTE(demo_p,cv_analog.value);
-	WRITEBYTE(demo_p,cv_analog2.value);
-	WRITEBYTE(demo_p,consoleplayer);
-	WRITEBYTE(demo_p,cv_timelimit.value); // just to be compatible with old demo (no longer used)
-	WRITEBYTE(demo_p,multiplayer);
+	WRITEUINT8(demo_p,VERSION);
+	WRITEUINT8(demo_p,ultimatemode);
+	WRITEUINT8(demo_p,gamemap);
+	WRITEUINT8(demo_p,gametype);
+	WRITEUINT8(demo_p,cv_analog.value);
+	WRITEUINT8(demo_p,cv_analog2.value);
+	WRITEUINT8(demo_p,consoleplayer);
+	WRITEUINT8(demo_p,cv_timelimit.value); // just to be compatible with old demo (no longer used)
+	WRITEUINT8(demo_p,multiplayer);
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (playeringame[i])
-			WRITEBYTE(demo_p,1);
+			WRITEUINT8(demo_p,1);
 		else
-			WRITEBYTE(demo_p,0);
+			WRITEUINT8(demo_p,0);
 	}
 
 	memset(oldcmd, 0, sizeof (oldcmd));
@@ -3294,7 +3294,7 @@ boolean G_CheckDemoStatus(void)
 
 	if (demorecording)
 	{
-		WRITEBYTE(demo_p, DEMOMARKER);
+		WRITEUINT8(demo_p, DEMOMARKER);
 		saved = FIL_WriteFile(demoname, demobuffer, demo_p - demobuffer);
 		free(demobuffer);
 		demorecording = false;

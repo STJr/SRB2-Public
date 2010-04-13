@@ -2324,8 +2324,8 @@ FILESTAMP
 							netconsole, realstart, consistancy[realstart%BACKUPTICS],
 							SHORT(netbuffer->u.clientpak.consistancy)));
 
-						WRITEBYTE(cp, P_GetRandIndex());
-						//WRITEBYTE(cp, (UINT8)netconsole);
+						WRITEUINT8(cp, P_GetRandIndex());
+						//WRITEUINT8(cp, (UINT8)netconsole);
 
 						numbytes += 1;
 
@@ -2344,7 +2344,7 @@ FILESTAMP
 							count++;
 						}
 
-						WRITEBYTE(cp, (UINT8)count); // # of players we are sending info about
+						WRITEUINT8(cp, count); // # of players we are sending info about
 						numbytes++;
 
 						for (i = 0; i < MAXPLAYERS; i++)
@@ -2355,7 +2355,7 @@ FILESTAMP
 							if (numbytes + 25 > xcmdfree)
 								break;
 
-							WRITEBYTE(cp, (UINT8)i);
+							WRITEUINT8(cp, i);
 							WRITEFIXED(cp, players[i].mo->x);
 							WRITEFIXED(cp, players[i].mo->y);
 							WRITEFIXED(cp, players[i].mo->z);
@@ -2730,7 +2730,7 @@ static void SV_SendTics(void)
 					if ((!j || playeringame[j]) && size)
 					{
 						(*ntextcmd)++;
-						WRITEBYTE(bufpos, j);
+						WRITEUINT8(bufpos, j);
 						M_Memcpy(bufpos, textcmds[i%BACKUPTICS][j], size + 1);
 						bufpos += size + 1;
 					}

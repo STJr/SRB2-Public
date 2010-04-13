@@ -1173,7 +1173,7 @@ static void SendNameAndColor(void)
 
 	snacpending++;
 
-	WRITEBYTE(p, extrainfo);
+	WRITEUINT8(p, extrainfo);
 
 	if (cv_mute.value && !(server || adminplayer == consoleplayer))
 	{
@@ -1315,7 +1315,7 @@ static void SendNameAndColor2(void)
 
 	snac2pending++;
 
-	WRITEBYTE(p, extrainfo);
+	WRITEUINT8(p, extrainfo);
 
 	if (cv_mute.value)
 	{
@@ -2932,7 +2932,7 @@ static void Command_Verify_f(void)
 
 	temp = buf;
 
-	WRITEBYTE(temp, playernum);
+	WRITEUINT8(temp, playernum);
 
 	if (playeringame[playernum])
 		SendNetXCmd(XD_VERIFIED, buf, 1);

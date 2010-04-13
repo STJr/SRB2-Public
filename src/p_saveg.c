@@ -58,8 +58,8 @@ static inline void P_ArchivePlayer(void)
 {
 	const player_t *player = &players[consoleplayer];
 
-	WRITEBYTE(save_p, player->skincolor);
-	WRITEBYTE(save_p, player->skin);
+	WRITEUINT8(save_p, player->skincolor);
+	WRITEUINT8(save_p, player->skin);
 
 	WRITELONG(save_p, player->score);
 	WRITELONG(save_p, player->lives);
@@ -106,9 +106,9 @@ static inline void P_NetArchivePlayers(void)
 		for (j = 0; j < NUMPOWERS; j++)
 			WRITELONG(save_p, players[i].powers[j]);
 
-		WRITEBYTE(save_p, players[i].playerstate);
+		WRITEUINT8(save_p, players[i].playerstate);
 		WRITELONG(save_p, players[i].pflags);
-		WRITEBYTE(save_p, players[i].spectator);
+		WRITEUINT8(save_p, players[i].spectator);
 
 		WRITELONG(save_p, players[i].bonuscount);
 		WRITELONG(save_p, players[i].skincolor);
@@ -120,7 +120,7 @@ static inline void P_NetArchivePlayers(void)
 		WRITELONG(save_p, players[i].xtralife);
 		WRITELONG(save_p, players[i].speed);
 		WRITELONG(save_p, players[i].jumping);
-		WRITEBYTE(save_p, players[i].secondjump);
+		WRITEUINT8(save_p, players[i].secondjump);
 		WRITELONG(save_p, players[i].fly1);
 		WRITEULONG(save_p, players[i].scoreadd);
 		WRITEULONG(save_p, players[i].glidetime);
@@ -129,7 +129,7 @@ static inline void P_NetArchivePlayers(void)
 		WRITELONG(save_p, players[i].splish);
 		WRITEULONG(save_p, players[i].exiting);
 		WRITELONG(save_p, players[i].blackow);
-		WRITEBYTE(save_p, players[i].homing);
+		WRITEUINT8(save_p, players[i].homing);
 
 		////////////////////////////
 		// Conveyor Belt Movement //
@@ -187,9 +187,9 @@ static inline void P_NetArchivePlayers(void)
 		WRITEULONG(save_p, players[i].nightstime);
 		WRITEULONG(save_p, players[i].bumpertime);
 		WRITELONG(save_p, players[i].drillmeter);
-		WRITEBYTE(save_p, players[i].drilldelay);
-		WRITEBYTE(save_p, players[i].bonustime);
-		WRITEBYTE(save_p, players[i].mare);
+		WRITEUINT8(save_p, players[i].drilldelay);
+		WRITEUINT8(save_p, players[i].bonustime);
+		WRITEUINT8(save_p, players[i].mare);
 
 		if (players[i].capsule)
 			flags |= CAPSULE;
@@ -515,9 +515,9 @@ static void P_NetArchiveWorld(void)
 			statsec++;
 
 			WRITEUSHORT(put, i);
-			WRITEBYTE(put, diff);
+			WRITEUINT8(put, diff);
 			if (diff & SD_DIFF2)
-				WRITEBYTE(put, diff2);
+				WRITEUINT8(put, diff2);
 			if (diff & SD_FLOORHT)
 				WRITEFIXED(put, ss->floorheight);
 			if (diff & SD_CEILHT)
@@ -601,9 +601,9 @@ static void P_NetArchiveWorld(void)
 		{
 			statline++;
 			WRITESHORT(put, (INT16)i);
-			WRITEBYTE(put, diff);
+			WRITEUINT8(put, diff);
 			if (diff & LD_DIFF2)
-				WRITEBYTE(put, diff2);
+				WRITEUINT8(put, diff2);
 			if (diff & LD_FLAG)
 				WRITESHORT(put, li->flags);
 			if (diff & LD_SPECIAL)
@@ -870,7 +870,7 @@ static void SaveSpecialLevelThinker(const thinker_t *th, const UINT8 type)
 {
 	const levelspecthink_t *ht  = (const void *)th;
 	size_t i;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -891,7 +891,7 @@ static void SaveSpecialLevelThinker(const thinker_t *th, const UINT8 type)
 static void SaveCeilingThinker(const thinker_t *th, const UINT8 type)
 {
 	const ceiling_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -922,7 +922,7 @@ static void SaveCeilingThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const floormove_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -947,7 +947,7 @@ static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightflash_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -965,7 +965,7 @@ static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 {
 	const strobe_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -986,7 +986,7 @@ static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveGlowThinker(const thinker_t *th, const UINT8 type)
 {
 	const glow_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1005,7 +1005,7 @@ static inline void SaveGlowThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveFireflickerThinker(const thinker_t *th, const UINT8 type)
 {
 	const fireflicker_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1024,7 +1024,7 @@ static inline void SaveFireflickerThinker(const thinker_t *th, const UINT8 type)
 static void SaveElevatorThinker(const thinker_t *th, const UINT8 type)
 {
 	const elevator_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1056,7 +1056,7 @@ static void SaveElevatorThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveScrollThinker(const thinker_t *th, const UINT8 type)
 {
 	const scroll_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1081,7 +1081,7 @@ static inline void SaveScrollThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveFrictionThinker(const thinker_t *th, const UINT8 type)
 {
 	const friction_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1090,10 +1090,10 @@ static inline void SaveFrictionThinker(const thinker_t *th, const UINT8 type)
 	WRITELONG(save_p, ht->movefactor);
 	WRITELONG(save_p, ht->affectee);
 	WRITELONG(save_p, ht->referrer);
-	WRITEBYTE(save_p, ht->roverfriction);
-	WRITEBYTE(save_p, 0x00); //gap dummy
-	WRITEBYTE(save_p, 0x00); //gap dummy
-	WRITEBYTE(save_p, 0x00); //gap dummy
+	WRITEUINT8(save_p, ht->roverfriction);
+	WRITEUINT8(save_p, 0x00); //gap dummy
+	WRITEUINT8(save_p, 0x00); //gap dummy
+	WRITEUINT8(save_p, 0x00); //gap dummy
 }
 
 //
@@ -1104,7 +1104,7 @@ static inline void SaveFrictionThinker(const thinker_t *th, const UINT8 type)
 static inline void SavePusherThinker(const thinker_t *th, const UINT8 type)
 {
 	const pusher_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1119,10 +1119,10 @@ static inline void SavePusherThinker(const thinker_t *th, const UINT8 type)
 	WRITELONG(save_p, ht->y);
 	WRITELONG(save_p, ht->z);
 	WRITELONG(save_p, ht->affectee);
-	WRITEBYTE(save_p, ht->roverpusher);
-	WRITEBYTE(save_p, 0x00); //gap dummy
-	WRITEBYTE(save_p, 0x00); //gap dummy
-	WRITEBYTE(save_p, 0x00); //gap dummy
+	WRITEUINT8(save_p, ht->roverpusher);
+	WRITEUINT8(save_p, 0x00); //gap dummy
+	WRITEUINT8(save_p, 0x00); //gap dummy
+	WRITEUINT8(save_p, 0x00); //gap dummy
 	WRITELONG(save_p, ht->referrer);
 	WRITELONG(save_p, ht->exclusive);
 	WRITELONG(save_p, ht->slider);
@@ -1136,7 +1136,7 @@ static inline void SavePusherThinker(const thinker_t *th, const UINT8 type)
 static void SaveLaserThinker(const thinker_t *th, const UINT8 type)
 {
 	const laserthink_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1159,7 +1159,7 @@ static void SaveLaserThinker(const thinker_t *th, const UINT8 type)
 static void SaveLightlevelThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightlevel_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1177,7 +1177,7 @@ static void SaveLightlevelThinker(const thinker_t *th, const UINT8 type)
 static void SaveExecutorThinker(const thinker_t *th, const UINT8 type)
 {
 	const executor_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1195,7 +1195,7 @@ static void SaveExecutorThinker(const thinker_t *th, const UINT8 type)
 static void SaveDisappearThinker(const thinker_t *th, const UINT8 type)
 {
 	const disappear_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1219,7 +1219,7 @@ static void SaveDisappearThinker(const thinker_t *th, const UINT8 type)
 static inline void SavePolyrotatetThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyrotate_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1237,7 +1237,7 @@ static inline void SavePolyrotatetThinker(const thinker_t *th, const UINT8 type)
 static void SavePolymoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const polymove_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1258,7 +1258,7 @@ static void SavePolymoveThinker(const thinker_t *th, const UINT8 type)
 static void SavePolywaypointThinker(const thinker_t *th, UINT8 type)
 {
 	const polywaypoint_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1285,7 +1285,7 @@ static void SavePolywaypointThinker(const thinker_t *th, UINT8 type)
 static void SavePolyslidedoorThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyslidedoor_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1313,7 +1313,7 @@ static void SavePolyslidedoorThinker(const thinker_t *th, const UINT8 type)
 static void SavePolyswingdoorThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyswingdoor_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1338,7 +1338,7 @@ static void SavePolyswingdoorThinker(const thinker_t *th, const UINT8 type)
 static inline void SaveWhatThinker(const thinker_t *th, const UINT8 type)
 {
 	const what_t *ht = (const void *)th;
-	WRITEBYTE(save_p, type);
+	WRITEUINT8(save_p, type);
 	WRITEULONG(save_p, 0); //thinker.prev dummy
 	WRITEULONG(save_p, 0); //thinker.next dummy
 	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
@@ -1448,7 +1448,7 @@ static void P_NetArchiveThinkers(void)
 			if (mobj->destscale != mobj->scale)
 				diff |= MD_DSCALE;
 
-			WRITEBYTE(save_p, tc_mobj);
+			WRITEUINT8(save_p, tc_mobj);
 			WRITEULONG(save_p, diff);
 
 			// save pointer, at load time we will search this pointer to reinitilize pointers
@@ -1507,7 +1507,7 @@ static void P_NetArchiveThinkers(void)
 			if (diff & MD_EFLAGS)
 				WRITEULONG(save_p, mobj->eflags);
 			if (diff & MD_PLAYER)
-				WRITEBYTE(save_p, mobj->player-players);
+				WRITEUINT8(save_p, mobj->player-players);
 			if (diff & MD_MOVEDIR)
 				WRITEANGLE(save_p, mobj->movedir);
 			if (diff & MD_MOVECOUNT)
@@ -1535,7 +1535,7 @@ static void P_NetArchiveThinkers(void)
 			if (diff & MD_DSCALE)
 				WRITEUSHORT(save_p, mobj->destscale);
 
-			WRITEBYTE(save_p, mobj->scalespeed);
+			WRITEUINT8(save_p, mobj->scalespeed);
 
 			WRITEULONG(save_p, mobj->mobjnum);
 		}
@@ -1716,7 +1716,7 @@ static void P_NetArchiveThinkers(void)
 #endif
 	}
 
-	WRITEBYTE(save_p, tc_end);
+	WRITEUINT8(save_p, tc_end);
 }
 
 // Now save the pointers, tracer and target, but at load time we must
@@ -2894,7 +2894,7 @@ static inline void P_NetArchiveSpecials(void)
 	WRITELONG(save_p, globallevelskynum);
 
 	// Current global weather type
-	WRITEBYTE(save_p, globalweather);
+	WRITEUINT8(save_p, globalweather);
 }
 
 //
@@ -3044,9 +3044,9 @@ static inline void P_NetArchiveMisc(void)
 	WRITEFIXED(save_p, gravity);
 
 	WRITEULONG(save_p, countdowntimer);
-	WRITEBYTE(save_p, countdowntimeup);
+	WRITEUINT8(save_p, countdowntimeup);
 
-	WRITEBYTE(save_p, P_GetRandIndex());
+	WRITEUINT8(save_p, P_GetRandIndex());
 
 	WRITELONG(save_p, matchtype);
 	WRITELONG(save_p, tagtype);
@@ -3055,9 +3055,9 @@ static inline void P_NetArchiveMisc(void)
 
 	// Is it paused?
 	if (paused)
-		WRITEBYTE(save_p, 0x2f);
+		WRITEUINT8(save_p, 0x2f);
 	else
-		WRITEBYTE(save_p, 0x2e);
+		WRITEUINT8(save_p, 0x2e);
 }
 
 static inline boolean P_NetUnArchiveMisc(void)
@@ -3139,7 +3139,7 @@ void P_SaveGame(void)
 	P_ArchiveMisc();
 	P_ArchivePlayer();
 
-	WRITEBYTE(save_p, 0x1d); // consistency marker
+	WRITEUINT8(save_p, 0x1d); // consistency marker
 }
 
 void P_SaveNetGame(void)
@@ -3169,7 +3169,7 @@ void P_SaveNetGame(void)
 	P_NetArchiveThinkers();
 	P_NetArchiveSpecials();
 
-	WRITEBYTE(save_p, 0x1d); // consistency marker
+	WRITEUINT8(save_p, 0x1d); // consistency marker
 }
 
 boolean P_LoadGame(INT16 mapoverride)
