@@ -2667,9 +2667,9 @@ void G_SaveGameData(void)
 	// Cipher
 	// Author: Caesar <caesar@rome.it>
 	//
-	WRITEULONG(save_p, totalplaytime);
+	WRITEUINT32(save_p, totalplaytime);
 	stemp = (grade*2)+25;
-	WRITEULONG(save_p, stemp);
+	WRITEUINT32(save_p, stemp);
 
 	for (i = 0; i < NUMMAPS; i++)
 		WRITEUINT8(save_p, mapvisited[i]);
@@ -2683,10 +2683,10 @@ void G_SaveGameData(void)
 	btemp = (UINT8)(savemoddata || modifiedgame);
 	WRITEUINT8(save_p, btemp);
 	stemp = (timesbeaten-2)*4;
-	WRITEULONG(save_p, stemp);
+	WRITEUINT32(save_p, stemp);
 
 	for (i = 0; i < NUMMAPS; i++)
-		WRITEULONG(save_p, timedata[i].time);
+		WRITEUINT32(save_p, timedata[i].time);
 
 	length = save_p - savebuffer;
 

@@ -730,7 +730,7 @@ static inline void SendPingToMasterServer(void)
 			return;
 
 		// cur_time is just a dummy data to send
-		WRITEULONG(inbuffer, cur_time);
+		WRITEUINT32(inbuffer, cur_time);
 		doomcom->datalength = sizeof (cur_time);
 		doomcom->remotenode = (INT16)msnode;
 		I_NetSend();

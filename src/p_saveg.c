@@ -114,7 +114,7 @@ static inline void P_NetArchivePlayers(void)
 		WRITEINT32(save_p, players[i].bonuscount);
 		WRITEINT32(save_p, players[i].skincolor);
 		WRITEINT32(save_p, players[i].skin);
-		WRITEULONG(save_p, players[i].score);
+		WRITEUINT32(save_p, players[i].score);
 		WRITEINT32(save_p, players[i].dashspeed);
 		WRITEINT32(save_p, players[i].lives);
 		WRITEINT32(save_p, players[i].continues);
@@ -123,12 +123,12 @@ static inline void P_NetArchivePlayers(void)
 		WRITEINT32(save_p, players[i].jumping);
 		WRITEUINT8(save_p, players[i].secondjump);
 		WRITEINT32(save_p, players[i].fly1);
-		WRITEULONG(save_p, players[i].scoreadd);
-		WRITEULONG(save_p, players[i].glidetime);
+		WRITEUINT32(save_p, players[i].scoreadd);
+		WRITEUINT32(save_p, players[i].glidetime);
 		WRITEINT32(save_p, players[i].climbing);
 		WRITEINT32(save_p, players[i].deadtimer);
 		WRITEINT32(save_p, players[i].splish);
-		WRITEULONG(save_p, players[i].exiting);
+		WRITEUINT32(save_p, players[i].exiting);
 		WRITEINT32(save_p, players[i].blackow);
 		WRITEUINT8(save_p, players[i].homing);
 
@@ -145,9 +145,9 @@ static inline void P_NetArchivePlayers(void)
 		/////////////////////
 		WRITEINT32(save_p, players[i].numboxes);
 		WRITEINT32(save_p, players[i].totalring);
-		WRITEULONG(save_p, players[i].realtime);
-		WRITEULONG(save_p, players[i].racescore);
-		WRITEULONG(save_p, players[i].laps);
+		WRITEUINT32(save_p, players[i].realtime);
+		WRITEUINT32(save_p, players[i].racescore);
+		WRITEUINT32(save_p, players[i].laps);
 
 		////////////////////
 		// Tag Mode Stuff //
@@ -167,26 +167,26 @@ static inline void P_NetArchivePlayers(void)
 		WRITEINT32(save_p, players[i].weapondelay);
 		WRITEINT32(save_p, players[i].tossdelay);
 		WRITEINT32(save_p, players[i].shielddelay);
-		WRITEULONG(save_p, players[i].taunttimer);
+		WRITEUINT32(save_p, players[i].taunttimer);
 
-		WRITEULONG(save_p, players[i].starposttime);
+		WRITEUINT32(save_p, players[i].starposttime);
 		WRITEINT32(save_p, players[i].starpostx);
 		WRITEINT32(save_p, players[i].starposty);
 		WRITEINT32(save_p, players[i].starpostz);
 		WRITEINT32(save_p, players[i].starpostnum);
 		WRITEANGLE(save_p, players[i].starpostangle);
-		WRITEULONG(save_p, players[i].starpostbit);
+		WRITEUINT32(save_p, players[i].starpostbit);
 
 		WRITEANGLE(save_p, players[i].angle_pos);
 		WRITEANGLE(save_p, players[i].old_angle_pos);
 
 		WRITEINT32(save_p, players[i].flyangle);
-		WRITEULONG(save_p, players[i].drilltimer);
+		WRITEUINT32(save_p, players[i].drilltimer);
 		WRITEINT32(save_p, players[i].linkcount);
-		WRITEULONG(save_p, players[i].linktimer);
+		WRITEUINT32(save_p, players[i].linktimer);
 		WRITEINT32(save_p, players[i].anotherflyangle);
-		WRITEULONG(save_p, players[i].nightstime);
-		WRITEULONG(save_p, players[i].bumpertime);
+		WRITEUINT32(save_p, players[i].nightstime);
+		WRITEUINT32(save_p, players[i].bumpertime);
 		WRITEINT32(save_p, players[i].drillmeter);
 		WRITEUINT8(save_p, players[i].drilldelay);
 		WRITEUINT8(save_p, players[i].bonustime);
@@ -212,7 +212,7 @@ static inline void P_NetArchivePlayers(void)
 
 		WRITEINT32(save_p, players[i].onconveyor);
 
-		WRITEULONG(save_p, players[i].jointime);
+		WRITEUINT32(save_p, players[i].jointime);
 
 		if (i == 0)
 		{
@@ -238,23 +238,23 @@ static inline void P_NetArchivePlayers(void)
 		WRITEUINT16(save_p, flags);
 
 		if (flags & CAPSULE)
-			WRITEULONG(save_p, players[i].capsule->mobjnum);
+			WRITEUINT32(save_p, players[i].capsule->mobjnum);
 
 		if (flags & FIRSTAXIS)
-			WRITEULONG(save_p, players[i].axis1->mobjnum);
+			WRITEUINT32(save_p, players[i].axis1->mobjnum);
 
 		if (flags & SECONDAXIS)
-			WRITEULONG(save_p, players[i].axis2->mobjnum);
+			WRITEUINT32(save_p, players[i].axis2->mobjnum);
 
 		if (flags & AWAYVIEW)
-			WRITEULONG(save_p, players[i].awayviewmobj->mobjnum);
+			WRITEUINT32(save_p, players[i].awayviewmobj->mobjnum);
 
 		if (flags & RFLAGPOINT)
 			for (q = 0; q < nummapthings; q++)
 			{
 				if (&mapthings[q] == rflagpoint)
 				{
-					WRITEULONG(save_p, q);
+					WRITEUINT32(save_p, q);
 					break;
 				}
 			}
@@ -264,7 +264,7 @@ static inline void P_NetArchivePlayers(void)
 			{
 				if (&mapthings[q] == bflagpoint)
 				{
-					WRITEULONG(save_p, q);
+					WRITEUINT32(save_p, q);
 					break;
 				}
 			}
@@ -872,16 +872,16 @@ static void SaveSpecialLevelThinker(const thinker_t *th, const UINT8 type)
 	const levelspecthink_t *ht  = (const void *)th;
 	size_t i;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->type);
 	for (i = 0; i < 16; i++)
 		WRITEFIXED(save_p, ht->vars[i]); //var[16]
-	WRITEULONG(save_p, 0); //activator dummy
-	WRITEULONG(save_p, SaveLine(ht->sourceline));
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, 0); //activator dummy
+	WRITEUINT32(save_p, SaveLine(ht->sourceline));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 }
 
 //
@@ -893,12 +893,12 @@ static void SaveCeilingThinker(const thinker_t *th, const UINT8 type)
 {
 	const ceiling_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->type);
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEFIXED(save_p, ht->bottomheight);
 	WRITEFIXED(save_p, ht->topheight);
 	WRITEFIXED(save_p, ht->speed);
@@ -924,13 +924,13 @@ static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const floormove_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->type);
 	WRITEINT32(save_p, ht->crush);
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEINT32(save_p, ht->direction);
 	WRITEINT32(save_p, ht->texture);
 	WRITEFIXED(save_p, ht->floordestheight);
@@ -949,11 +949,11 @@ static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightflash_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEINT32(save_p, ht->maxlight);
 	WRITEINT32(save_p, ht->minlight);
 }
@@ -967,11 +967,11 @@ static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 {
 	const strobe_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEINT32(save_p, ht->count);
 	WRITEINT32(save_p, ht->minlight);
 	WRITEINT32(save_p, ht->maxlight);
@@ -988,11 +988,11 @@ static inline void SaveGlowThinker(const thinker_t *th, const UINT8 type)
 {
 	const glow_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEINT32(save_p, ht->minlight);
 	WRITEINT32(save_p, ht->maxlight);
 	WRITEINT32(save_p, ht->direction);
@@ -1007,11 +1007,11 @@ static inline void SaveFireflickerThinker(const thinker_t *th, const UINT8 type)
 {
 	const fireflicker_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEINT32(save_p, ht->count);
 	WRITEINT32(save_p, ht->resetcount);
 	WRITEINT32(save_p, ht->maxlight);
@@ -1026,13 +1026,13 @@ static void SaveElevatorThinker(const thinker_t *th, const UINT8 type)
 {
 	const elevator_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->type);
-	WRITEULONG(save_p, SaveSector(ht->sector));
-	WRITEULONG(save_p, SaveSector(ht->actionsector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->actionsector));
 	WRITEINT32(save_p, ht->direction);
 	WRITEFIXED(save_p, ht->floordestheight);
 	WRITEFIXED(save_p, ht->ceilingdestheight);
@@ -1045,8 +1045,8 @@ static void SaveElevatorThinker(const thinker_t *th, const UINT8 type)
 	WRITEFIXED(save_p, ht->delaytimer);
 	WRITEFIXED(save_p, ht->floorwasheight);
 	WRITEFIXED(save_p, ht->ceilingwasheight);
-	WRITEULONG(save_p, SavePlayer(ht->player)); // was dummy
-	WRITEULONG(save_p, SaveLine(ht->sourceline));
+	WRITEUINT32(save_p, SavePlayer(ht->player)); // was dummy
+	WRITEUINT32(save_p, SaveLine(ht->sourceline));
 }
 
 //
@@ -1058,9 +1058,9 @@ static inline void SaveScrollThinker(const thinker_t *th, const UINT8 type)
 {
 	const scroll_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEFIXED(save_p, ht->dx);
 	WRITEFIXED(save_p, ht->dy);
@@ -1083,9 +1083,9 @@ static inline void SaveFrictionThinker(const thinker_t *th, const UINT8 type)
 {
 	const friction_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->friction);
 	WRITEINT32(save_p, ht->movefactor);
@@ -1106,12 +1106,12 @@ static inline void SavePusherThinker(const thinker_t *th, const UINT8 type)
 {
 	const pusher_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->type);
-	WRITEULONG(save_p, 0); //source dummy, used affectee
+	WRITEUINT32(save_p, 0); //source dummy, used affectee
 	WRITEINT32(save_p, ht->x_mag);
 	WRITEINT32(save_p, ht->y_mag);
 	WRITEINT32(save_p, ht->magnitude);
@@ -1138,17 +1138,17 @@ static void SaveLaserThinker(const thinker_t *th, const UINT8 type)
 {
 	const laserthink_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 #ifndef REMOVE_FOR_205
-	WRITEULONG(save_p, SaveFfloor(ht->ffloor, ht->sector)); ///< TODO: remove
+	WRITEUINT32(save_p, SaveFfloor(ht->ffloor, ht->sector)); ///< TODO: remove
 #endif
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 #ifdef REMOVE_FOR_205
-	WRITEULONG(save_p, SaveSector(ht->sec));
-	WRITEULONG(save_p, SaveLine(ht->sourceline));
+	WRITEUINT32(save_p, SaveSector(ht->sec));
+	WRITEUINT32(save_p, SaveLine(ht->sourceline));
 #endif
 }
 
@@ -1161,11 +1161,11 @@ static void SaveLightlevelThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightlevel_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, SaveSector(ht->sector));
+	WRITEUINT32(save_p, SaveSector(ht->sector));
 	WRITEINT32(save_p, ht->destlevel);
 	WRITEINT32(save_p, ht->speed);
 }
@@ -1179,12 +1179,12 @@ static void SaveExecutorThinker(const thinker_t *th, const UINT8 type)
 {
 	const executor_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, SaveLine(ht->line));
-	WRITEULONG(save_p, SaveMobjnum(ht->caller));
+	WRITEUINT32(save_p, SaveLine(ht->line));
+	WRITEUINT32(save_p, SaveMobjnum(ht->caller));
 	WRITEINT32(save_p, ht->timer);
 }
 
@@ -1197,14 +1197,14 @@ static void SaveDisappearThinker(const thinker_t *th, const UINT8 type)
 {
 	const disappear_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
-	WRITEULONG(save_p, ht->appeartime);
-	WRITEULONG(save_p, ht->disappeartime);
-	WRITEULONG(save_p, ht->offset);
-	WRITEULONG(save_p, ht->timer);
+	WRITEUINT32(save_p, ht->appeartime);
+	WRITEUINT32(save_p, ht->disappeartime);
+	WRITEUINT32(save_p, ht->offset);
+	WRITEUINT32(save_p, ht->timer);
 	WRITEINT32(save_p, ht->affectee);
 	WRITEINT32(save_p, ht->sourceline);
 	WRITEINT32(save_p, ht->exists);
@@ -1221,9 +1221,9 @@ static inline void SavePolyrotatetThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyrotate_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->polyObjNum);
 	WRITEINT32(save_p, ht->speed);
@@ -1239,16 +1239,16 @@ static void SavePolymoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const polymove_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->polyObjNum);
 	WRITEINT32(save_p, ht->speed);
 	WRITEFIXED(save_p, ht->momx);
 	WRITEFIXED(save_p, ht->momy);
 	WRITEINT32(save_p, ht->distance);
-	WRITEULONG(save_p, ht->angle);
+	WRITEANGLE(save_p, ht->angle);
 }
 
 //
@@ -1260,9 +1260,9 @@ static void SavePolywaypointThinker(const thinker_t *th, UINT8 type)
 {
 	const polywaypoint_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->polyObjNum);
 	WRITEINT32(save_p, ht->speed);
@@ -1287,9 +1287,9 @@ static void SavePolyslidedoorThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyslidedoor_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->polyObjNum);
 	WRITEINT32(save_p, ht->delay);
@@ -1298,9 +1298,9 @@ static void SavePolyslidedoorThinker(const thinker_t *th, const UINT8 type)
 	WRITEINT32(save_p, ht->speed);
 	WRITEINT32(save_p, ht->initDistance);
 	WRITEINT32(save_p, ht->distance);
-	WRITEULONG(save_p, ht->initAngle);
-	WRITEULONG(save_p, ht->angle);
-	WRITEULONG(save_p, ht->revAngle);
+	WRITEUINT32(save_p, ht->initAngle);
+	WRITEUINT32(save_p, ht->angle);
+	WRITEUINT32(save_p, ht->revAngle);
 	WRITEFIXED(save_p, ht->momx);
 	WRITEFIXED(save_p, ht->momy);
 	WRITEINT32(save_p, ht->closing);
@@ -1315,9 +1315,9 @@ static void SavePolyswingdoorThinker(const thinker_t *th, const UINT8 type)
 {
 	const polyswingdoor_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEINT32(save_p, ht->polyObjNum);
 	WRITEINT32(save_p, ht->delay);
@@ -1340,9 +1340,9 @@ static inline void SaveWhatThinker(const thinker_t *th, const UINT8 type)
 {
 	const what_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 }
 */
@@ -1450,10 +1450,10 @@ static void P_NetArchiveThinkers(void)
 				diff |= MD_DSCALE;
 
 			WRITEUINT8(save_p, tc_mobj);
-			WRITEULONG(save_p, diff);
+			WRITEUINT32(save_p, diff);
 
 			// save pointer, at load time we will search this pointer to reinitilize pointers
-			WRITEULONG(save_p, (UINT32)(size_t)mobj);
+			WRITEUINT32(save_p, (size_t)mobj);
 
 			WRITEFIXED(save_p, mobj->z); // Force this so 3dfloor problems don't arise.
 			WRITEFIXED(save_p, mobj->floorz);
@@ -1472,7 +1472,7 @@ static void P_NetArchiveThinkers(void)
 			}
 
 			if (diff & MD_TYPE)
-				WRITEULONG(save_p, mobj->type);
+				WRITEUINT32(save_p, mobj->type);
 			if (diff & MD_POS)
 			{
 				WRITEFIXED(save_p, mobj->x);
@@ -1504,9 +1504,9 @@ static void P_NetArchiveThinkers(void)
 			if (diff & MD_SPRITE)
 				WRITEUINT16(save_p, mobj->sprite);
 			if (diff & MD_FRAME)
-				WRITEULONG(save_p, mobj->frame);
+				WRITEUINT32(save_p, mobj->frame);
 			if (diff & MD_EFLAGS)
-				WRITEULONG(save_p, mobj->eflags);
+				WRITEUINT32(save_p, mobj->eflags);
 			if (diff & MD_PLAYER)
 				WRITEUINT8(save_p, mobj->player-players);
 			if (diff & MD_MOVEDIR)
@@ -1518,9 +1518,9 @@ static void P_NetArchiveThinkers(void)
 			if (diff & MD_LASTLOOK)
 				WRITEINT32(save_p, mobj->lastlook);
 			if (diff & MD_TARGET)
-				WRITEULONG(save_p, mobj->target->mobjnum);
+				WRITEUINT32(save_p, mobj->target->mobjnum);
 			if (diff & MD_TRACER)
-				WRITEULONG(save_p, mobj->tracer->mobjnum);
+				WRITEUINT32(save_p, mobj->tracer->mobjnum);
 			if (diff & MD_FRICTION)
 				WRITEINT32(save_p, mobj->friction);
 			if (diff & MD_MOVEFACTOR)
@@ -1538,7 +1538,7 @@ static void P_NetArchiveThinkers(void)
 
 			WRITEUINT8(save_p, mobj->scalespeed);
 
-			WRITEULONG(save_p, mobj->mobjnum);
+			WRITEUINT32(save_p, mobj->mobjnum);
 		}
 #ifdef PARANOIA
 		else if (th->function.acp1 == (actionf_p1)P_RainThinker
@@ -2717,9 +2717,9 @@ static inline void P_ArchivePolyObj(polyobj_t *po)
 	WRITEINT32(save_p, po->id);
 	WRITEANGLE(save_p, po->angle);
 
-	WRITEULONG(save_p, 0); //thinker.prev dummy
-	WRITEULONG(save_p, 0); //thinker.next dummy
-	WRITEULONG(save_p, 0); //thinker.actionf_t dummy
+	WRITEUINT32(save_p, 0); //thinker.prev dummy
+	WRITEUINT32(save_p, 0); //thinker.next dummy
+	WRITEUINT32(save_p, 0); //thinker.actionf_t dummy
 	WRITEINT32(save_p, 0);  //thinker.references dummy
 	WRITEFIXED(save_p, po->spawnSpot.x);
 	WRITEFIXED(save_p, po->spawnSpot.y);
@@ -2889,7 +2889,7 @@ static inline void P_NetArchiveSpecials(void)
 	}
 
 	// end delimiter
-	WRITEULONG(save_p, 0xffffffff);
+	WRITEUINT32(save_p, 0xffffffff);
 
 	// Sky number
 	WRITEINT32(save_p, globallevelskynum);
@@ -3003,29 +3003,29 @@ static inline void P_NetArchiveMisc(void)
 	WRITEINT16(save_p, gamemap);
 	WRITEINT16(save_p, gamestate);
 
-	WRITEULONG(save_p, tokenlist);
+	WRITEUINT32(save_p, tokenlist);
 
 	for (i = 0; i < MAXPLAYERS; i++)
 		pig |= (playeringame[i] != 0)<<i;
 
-	WRITEULONG(save_p, pig);
+	WRITEUINT32(save_p, pig);
 
 	for (i = 0; i < MAXPLAYERS; i++)
 		for (j = 0; j < S_PLAY_SUPERTRANS9+1; j++)
 			WRITEINT32(save_p, playerstatetics[i][j]);
 
-	WRITEULONG(save_p, leveltime);
-	WRITEULONG(save_p, totalrings);
+	WRITEUINT32(save_p, leveltime);
+	WRITEUINT32(save_p, totalrings);
 	WRITEINT16(save_p, lastmap);
 
 	WRITEUINT16(save_p, emeralds);
 
-	WRITEULONG(save_p, token);
+	WRITEUINT32(save_p, token);
 	WRITEINT32(save_p, sstimer);
-	WRITEULONG(save_p, bluescore);
-	WRITEULONG(save_p, redscore);
-	WRITEULONG(save_p, blueflagloose);
-	WRITEULONG(save_p, redflagloose);
+	WRITEUINT32(save_p, bluescore);
+	WRITEUINT32(save_p, redscore);
+	WRITEUINT32(save_p, blueflagloose);
+	WRITEUINT32(save_p, redflagloose);
 
 	WRITEINT16(save_p, autobalance);
 	WRITEINT16(save_p, teamscramble);
@@ -3039,12 +3039,12 @@ static inline void P_NetArchiveMisc(void)
 	WRITEINT16(save_p, scrambletotal);
 	WRITEINT16(save_p, scramblecount);
 
-	WRITEULONG(save_p, countdown);
-	WRITEULONG(save_p, countdown2);
+	WRITEUINT32(save_p, countdown);
+	WRITEUINT32(save_p, countdown2);
 
 	WRITEFIXED(save_p, gravity);
 
-	WRITEULONG(save_p, countdowntimer);
+	WRITEUINT32(save_p, countdowntimer);
 	WRITEUINT8(save_p, countdowntimeup);
 
 	WRITEUINT8(save_p, P_GetRandIndex());
@@ -3052,7 +3052,7 @@ static inline void P_NetArchiveMisc(void)
 	WRITEINT32(save_p, matchtype);
 	WRITEINT32(save_p, tagtype);
 
-	WRITEULONG(save_p, hidetime);
+	WRITEUINT32(save_p, hidetime);
 
 	// Is it paused?
 	if (paused)

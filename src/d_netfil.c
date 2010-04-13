@@ -135,7 +135,7 @@ UINT8 *PutFileNeeded(void)
 		WRITEUINT8(p, filestatus);
 
 		count++;
-		WRITEULONG(p, wadfiles[i]->filesize);
+		WRITEUINT32(p, wadfiles[i]->filesize);
 		nameonly(strcpy(wadfilename, wadfiles[i]->filename));
 		WRITESTRINGN(p, wadfilename, MAX_WADPATH);
 		WRITEMEM(p, wadfiles[i]->md5sum, 16);
