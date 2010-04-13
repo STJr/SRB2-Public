@@ -1447,7 +1447,7 @@ static void Command_Ban(void)
 		const char pn = nametonum(COM_Argv(1));
 		const INT32 node = playernode[(INT32)pn];
 
-		if (pn == (char)-1 || pn == 0)
+		if (pn == (char)UINT8_MAX || pn == 0)
 			return;
 		else
 			buf[0] = pn;
@@ -1481,7 +1481,7 @@ static void Command_Kick(void)
 	if (server || adminplayer == consoleplayer)
 	{
 		buf[0] = nametonum(COM_Argv(1));
-		if (buf[0] == -1 || buf[0] == 0)
+		if (buf[0] == (char)UINT8_MAX || buf[0] == 0)
 			return;
 		buf[1] = KICK_MSG_GO_AWAY;
 		SendNetXCmd(XD_KICK, &buf, 2);
