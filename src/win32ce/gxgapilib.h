@@ -52,7 +52,7 @@ extern int                                      ScreenWidth;
 extern int                                      ScreenHeight;
 extern BOOL                                     ScreenLocked;                   // Screen surface is being locked
 extern int                                      ScreenPitch;                    // offset from one line to the next
-extern unsigned char *                          ScreenPtr;                              // memory of the surface
+extern LPBYTE                                   ScreenPtr;                              // memory of the surface
 
 extern BOOL                                     bDX0300;
 

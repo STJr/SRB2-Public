@@ -63,7 +63,7 @@ typedef struct
 #if defined(_MSC_VER)
 #pragma pack()
 #endif
-typedef unsigned char GLRGB[3];
+typedef UINT8 GLRGB[3];
 
 #define BLENDMODE PF_Translucent
 

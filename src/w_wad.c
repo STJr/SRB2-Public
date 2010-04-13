@@ -896,7 +896,7 @@ void *W_CachePatchName(const char *name, INT32 tag)
   */
 #define MD5_FORMAT \
 	"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x"
-static void PrintMD5String(const unsigned char *md5, char *buf)
+static void PrintMD5String(const UINT8 *md5, char *buf)
 {
 	snprintf(buf, 2*MD5_LEN+1, MD5_FORMAT,
 		md5[0], md5[1], md5[2], md5[3],
@@ -921,7 +921,7 @@ void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5)
 	(void)wadfilenum;
 	(void)matchmd5;
 #else
-	unsigned char realmd5[MD5_LEN];
+	UINT8 realmd5[MD5_LEN];
 	INT32 ix;
 
 	I_Assert(strlen(matchmd5) == 2*MD5_LEN);
@@ -939,8 +939,8 @@ void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5)
 			if (isupper(c)) n = c - 'A' + 10;
 			else n = c - 'a' + 10;
 		}
-		if (ix & 1) realmd5[ix>>1] = (unsigned char)(realmd5[ix>>1]+n);
-		else realmd5[ix>>1] = (unsigned char)(n<<4);
+		if (ix & 1) realmd5[ix>>1] = (UINT8)(realmd5[ix>>1]+n);
+		else realmd5[ix>>1] = (UINT8)(n<<4);
 	}
 
 	if (memcmp(realmd5, wadfiles[wadfilenum]->md5sum, 16))

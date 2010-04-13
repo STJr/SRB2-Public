@@ -1367,7 +1367,7 @@ static volatile char nextkeyextended;
 
 static void I_KeyboardHandler(void)
 {
-	unsigned char ch;
+	UINT8 ch;
 	event_t       event;
 
 	ch=inportb(0x60);

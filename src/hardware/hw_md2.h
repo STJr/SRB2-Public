@@ -56,8 +56,8 @@ typedef struct
 
 typedef struct
 {
-	unsigned char vertex[3];
-	unsigned char lightNormalIndex;
+	UINT8 vertex[3];
+	UINT8 lightNormalIndex;
 } ATTRPACK md2_alias_triangleVertex_t;
 
 typedef struct

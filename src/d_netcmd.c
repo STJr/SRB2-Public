@@ -3247,7 +3247,7 @@ static void Command_Addfile(void)
 	length = strlen(buf)+1;
 
 	{
-		unsigned char md5sum[16+1] = "";
+		UINT8 md5sum[16+1] = "";
 #ifndef NOMD5
 		FILE *fhandle;
 
@@ -3319,7 +3319,7 @@ static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
-	unsigned char md5sum[16+1];
+	UINT8 md5sum[16+1];
 	boolean kick = false;
 	INT32 i;
 
@@ -3402,7 +3402,7 @@ static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
 {
 	char filename[256];
 	filestatus_t ncs = FS_NOTFOUND;
-	unsigned char md5sum[16+1];
+	UINT8 md5sum[16+1];
 
 	READSTRINGN(*cp, filename, 255);
 	(void)READBYTE(*cp);

@@ -1619,7 +1619,7 @@ void I_UpdateMumble(const MumblePos_t *MPos)
 
 void I_GetMouseEvents(void)
 {
-	static unsigned char mdata[5];
+	static UINT8 mdata[5];
 	static INT32 i = 0,om2b = 0;
 	INT32 di, j, mlp, button;
 	event_t event;

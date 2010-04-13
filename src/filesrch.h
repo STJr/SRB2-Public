@@ -22,7 +22,7 @@
 
 */
 
-filestatus_t filesearch(char *filename, const char *startpath, const unsigned char *wantedmd5sum,
+filestatus_t filesearch(char *filename, const char *startpath, const UINT8 *wantedmd5sum,
 	boolean completepath, int maxsearchdepth);
 
 #endif // __FILESRCH_H__

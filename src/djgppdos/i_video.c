@@ -228,7 +228,7 @@ static void I_BlitScreenVesa1(void)
 #define VIDBANKSIZEMASK (VIDBANKSIZE-1)   // defines ahoy!
 
 	__dpmi_regs r;
-	unsigned char *p_src;
+	UINT8 *p_src;
 	long     i;
 	long     virtualsize;
 

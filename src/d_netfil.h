@@ -44,7 +44,7 @@ typedef struct
 	UINT8 important;
 	UINT8 willsend; // is the server willing to send it?
 	char filename[MAX_WADPATH];
-	unsigned char md5sum[16];
+	UINT8 md5sum[16];
 	// used only for download
 	FILE *phandle;
 	UINT32 currentsize;
@@ -82,9 +82,9 @@ void CloseNetFile(void);
 boolean fileexist(char *filename, time_t ptime);
 
 // search a file in the wadpath, return FS_FOUND when found
-filestatus_t findfile(char *filename, const unsigned char *wantedmd5sum,
+filestatus_t findfile(char *filename, const UINT8 *wantedmd5sum,
 	boolean completepath);
-filestatus_t checkfilemd5(char *filename, const unsigned char *wantedmd5sum);
+filestatus_t checkfilemd5(char *filename, const UINT8 *wantedmd5sum);
 
 void nameonly(char *s);
 size_t nameonlylength(const char *s);

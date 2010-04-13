@@ -730,14 +730,14 @@ size_t nameonlylength(const char *s)
 #define O_BINARY 0
 #endif
 
-filestatus_t checkfilemd5(char *filename, const unsigned char *wantedmd5sum)
+filestatus_t checkfilemd5(char *filename, const UINT8 *wantedmd5sum)
 {
 #if defined (NOMD5) || defined (_arch_dreamcast)
 	(void)wantedmd5sum;
 	(void)filename;
 #else
 	FILE *fhandle;
-	unsigned char md5sum[16];
+	UINT8 md5sum[16];
 
 	if (!wantedmd5sum)
 		return FS_FOUND;
@@ -757,7 +757,7 @@ filestatus_t checkfilemd5(char *filename, const unsigned char *wantedmd5sum)
 	return FS_FOUND; // will never happen, but makes the compiler shut up
 }
 
-filestatus_t findfile(char *filename, const unsigned char *wantedmd5sum, boolean completepath)
+filestatus_t findfile(char *filename, const UINT8 *wantedmd5sum, boolean completepath)
 {
 	filestatus_t homecheck = filesearch(filename, srb2home, wantedmd5sum, false, 10);
 	if (homecheck == FS_FOUND)

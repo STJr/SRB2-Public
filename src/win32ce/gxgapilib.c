@@ -47,7 +47,7 @@ int                        ScreenWidth;
 int                        ScreenHeight;
 BOOL                       ScreenLocked;         // Screen surface is being locked
 int                        ScreenPitch;          // offset from one line to the next
-unsigned char *            ScreenPtr;            // memory of the surface
+LPBYTE                     ScreenPtr;            // memory of the surface
 
 
 //
@@ -501,7 +501,7 @@ boolean LockScreen(VOID)
 	if (ddrval == DD_OK)
 	{
 		ScreenLocked = TRUE;
-		ScreenPtr    = (unsigned char *)ddsd.lpSurface;
+		ScreenPtr    = (LPBYTE)ddsd.lpSurface;
 		ScreenPitch = ddsd.
 #ifdef DUMMYUNIONNAMEN
 		 DUMMYUNIONNAMEN(1).

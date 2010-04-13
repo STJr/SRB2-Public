@@ -3549,7 +3549,7 @@ static void HWR_DrawMD2S(void)
 // HWR_AddSprites
 // During BSP traversal, this adds sprites by sector.
 // --------------------------------------------------------------------------
-static unsigned char sectorlight;
+static UINT8 sectorlight;
 static void HWR_AddSprites(sector_t *sec)
 {
 	mobj_t *thing;
@@ -4689,7 +4689,7 @@ void HWR_DoPostProcessor(void)
 
 		flags = PF_Modulated | PF_Translucent | PF_Clip | PF_NoZClip | PF_NoDepthTest | PF_NoTexture;
 		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 255;
-		Surf.FlatColor.s.alpha = (unsigned char)(stplyr->bonuscount*25);
+		Surf.FlatColor.s.alpha = (UINT8)(stplyr->bonuscount*25);
 
 		HWD.pfnDrawPolygon(&Surf, v, 4, flags);
 	}

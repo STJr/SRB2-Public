@@ -34,7 +34,7 @@
 // VESA information block structure
 typedef struct vbeinfoblock_s
 {
-	unsigned char  VESASignature[4];
+	UINT8          VESASignature[4];
 	UINT16         VESAVersion;
 	unsigned long  OemStringPtr;
 	UINT8          Capabilities[4];
@@ -53,8 +53,8 @@ typedef struct vbeinfoblock_s
 typedef struct vesamodeinfo_s
 {
 	UINT16         ModeAttributes;
-	unsigned char  WinAAttributes;
-	unsigned char  WinBAttributes;
+	UINT8          WinAAttributes;
+	UINT8          WinBAttributes;
 	UINT16         WinGranularity;
 	UINT16         WinSize;
 	UINT16         WinASegment;
@@ -63,24 +63,24 @@ typedef struct vesamodeinfo_s
 	UINT16         BytesPerScanLine;
 	UINT16         XResolution;
 	UINT16         YResolution;
-	unsigned char  XCharSize;
-	unsigned char  YCharSize;
-	unsigned char  NumberOfPlanes;
-	unsigned char  BitsPerPixel;
-	unsigned char  NumberOfBanks;
-	unsigned char  MemoryModel;
-	unsigned char  BankSize;
-	unsigned char  NumberOfImagePages;
-	unsigned char  Reserved_page;
-	unsigned char  RedMaskSize;
-	unsigned char  RedMaskPos;
-	unsigned char  GreenMaskSize;
-	unsigned char  GreenMaskPos;
-	unsigned char  BlueMaskSize;
-	unsigned char  BlueMaskPos;
-	unsigned char  ReservedMaskSize;
-	unsigned char  ReservedMaskPos;
-	unsigned char  DirectColorModeInfo;
+	UINT8          XCharSize;
+	UINT8          YCharSize;
+	UINT8          NumberOfPlanes;
+	UINT8          BitsPerPixel;
+	UINT8          NumberOfBanks;
+	UINT8          MemoryModel;
+	UINT8          BankSize;
+	UINT8          NumberOfImagePages;
+	UINT8          Reserved_page;
+	UINT8          RedMaskSize;
+	UINT8          RedMaskPos;
+	UINT8          GreenMaskSize;
+	UINT8          GreenMaskPos;
+	UINT8          BlueMaskSize;
+	UINT8          BlueMaskPos;
+	UINT8          ReservedMaskSize;
+	UINT8          ReservedMaskPos;
+	UINT8          DirectColorModeInfo;
 
 	/* VBE 2.0 extensions */
 	unsigned long  PhysBasePtr;
@@ -89,19 +89,19 @@ typedef struct vesamodeinfo_s
 
 	/* VBE 3.0 extensions */
 	UINT16         LinBytesPerScanLine;
-	unsigned char  BnkNumberOfPages;
-	unsigned char  LinNumberOfPages;
-	unsigned char  LinRedMaskSize;
-	unsigned char  LinRedFieldPos;
-	unsigned char  LinGreenMaskSize;
-	unsigned char  LinGreenFieldPos;
-	unsigned char  LinBlueMaskSize;
-	unsigned char  LinBlueFieldPos;
-	unsigned char  LinRsvdMaskSize;
-	unsigned char  LinRsvdFieldPos;
+	UINT8          BnkNumberOfPages;
+	UINT8          LinNumberOfPages;
+	UINT8          LinRedMaskSize;
+	UINT8          LinRedFieldPos;
+	UINT8          LinGreenMaskSize;
+	UINT8          LinGreenFieldPos;
+	UINT8          LinBlueMaskSize;
+	UINT8          LinBlueFieldPos;
+	UINT8          LinRsvdMaskSize;
+	UINT8          LinRsvdFieldPos;
 	unsigned long  MaxPixelClock;
 
-	unsigned char  Reserved[190];
+	UINT8          Reserved[190];
 } ATTRPACK vesamodeinfo_t;
 
 

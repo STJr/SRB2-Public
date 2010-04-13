@@ -297,7 +297,7 @@ const char *VID_GetModeName (int modenum)
 // ========================================================================
 // Sets a video mode
 // ========================================================================
-int VID_SetMode (int modenum)  //, unsigned char *palette)
+int VID_SetMode (int modenum)  //, UINT8 *palette)
 {
 	int     stat;
 	vmode_t *pnewmode, *poldmode;
@@ -465,8 +465,8 @@ int VID_VesaGetModeInfo (int modenum)
 #ifdef DEBUG
 		CONS_Printf("VID: (VESA) info for mode 0x%x\n", modeinfo.modenum);
 		CONS_Printf("  mode attrib = 0x%0x\n", modeinfo.mode_attributes);
-		CONS_Printf("  win a attrib = 0x%0x\n", *(unsigned char *)(infobuf+2));
-		CONS_Printf("  win b attrib = 0x%0x\n", *(unsigned char *)(infobuf+3));
+		CONS_Printf("  win a attrib = 0x%0x\n", *(UINT8 *)(infobuf+2));
+		CONS_Printf("  win b attrib = 0x%0x\n", *(UINT8 *)(infobuf+3));
 		CONS_Printf("  win a seg 0x%0x\n", (int) modeinfo.winasegment);
 		CONS_Printf("  win b seg 0x%0x\n", (int) modeinfo.winbsegment);
 		CONS_Printf("  bytes per scanline = %d\n",

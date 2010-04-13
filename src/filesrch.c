@@ -282,7 +282,7 @@ closedir (DIR * dirp)
 }
 #endif
 #if defined (_XBOX) && defined (_MSC_VER)
-filestatus_t filesearch(char *filename, const char *startpath, const unsigned char *wantedmd5sum,
+filestatus_t filesearch(char *filename, const char *startpath, const UINT8 *wantedmd5sum,
 	boolean completepath, int maxsearchdepth)
 {
 //NONE?
@@ -293,7 +293,7 @@ filestatus_t filesearch(char *filename, const char *startpath, const unsigned ch
 	return FS_NOTFOUND;
 }
 #elif defined (_WIN32_WCE)
-filestatus_t filesearch(char *filename, const char *startpath, const unsigned char *wantedmd5sum,
+filestatus_t filesearch(char *filename, const char *startpath, const UINT8 *wantedmd5sum,
 	boolean completepath, int maxsearchdepth)
 {
 #ifdef __GNUC__
@@ -343,7 +343,7 @@ filestatus_t filesearch(char *filename, const char *startpath, const unsigned ch
 	return FS_NOTFOUND;
 }
 #else
-filestatus_t filesearch(char *filename, const char *startpath, const unsigned char *wantedmd5sum, boolean completepath, int maxsearchdepth)
+filestatus_t filesearch(char *filename, const char *startpath, const UINT8 *wantedmd5sum, boolean completepath, int maxsearchdepth)
 {
 	filestatus_t retval = FS_NOTFOUND;
 	DIR **dirhandle;

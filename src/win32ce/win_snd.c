@@ -267,9 +267,9 @@ static DWORD sound_buffer_flags = DSBCAPS_CTRLPAN |
 // judgecutor:
 // We need an another function definition for supporting the surround sound
 // Invert just cause to copy an inverted sound data
-static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, int len, boolean invert)
+static LPDIRECTSOUNDBUFFER raw2DS(LPBYTE *dsdata, size_t len, UINT8 invert)
 #else
-static LPDIRECTSOUNDBUFFER raw2DS(unsigned char *dsdata, int len)
+static LPDIRECTSOUNDBUFFER raw2DS(LPBYTE *dsdata, size_t len)
 #endif
 {
 	HRESULT             hr;
@@ -1122,7 +1122,7 @@ static BOOL bMidiCanSetVolume;          // midi caps
 static void Mid2StreamFreeBuffers(void);
 static void CALLBACK MidiStreamCallback (HMIDIIN hMidi, UINT uMsg, DWORD dwInstance,
                                          DWORD dwParam1, DWORD dwParam2);
-static BOOL StreamBufferSetup(unsigned char *pMidiData, int iMidiSize);
+static BOOL StreamBufferSetup(LPBYTE pMidiData, size_t iMidiSize);
 
 // -------------------
 // MidiErrorMessageBox
@@ -2094,7 +2094,7 @@ int I_RegisterSong(void *data, int len)
 #endif
 
 	// setup midi stream buffer
-	if (StreamBufferSetup((unsigned char *)pMidiFileData, len))
+	if (StreamBufferSetup((LPBYTE)pMidiFileData, len))
 	{
 		Mid2StreamConverterCleanup();
 		I_Error("I_RegisterSong: StreamBufferSetup FAILED");
@@ -2114,7 +2114,7 @@ int I_RegisterSong(void *data, int len)
 // StreamBufferSetup
 // - returns TRUE if a problem occurs
 // -----------------
-static BOOL StreamBufferSetup(unsigned char *pMidiData, int iMidiSize)
+static BOOL StreamBufferSetup(LPBYTE pMidiData, size_t iMidiSize)
 {
 	MMRESULT mmrRetVal;
 	MIDIPROPTIMEDIV mptd;

@@ -1110,7 +1110,7 @@ typedef struct
 	UINT16 xmin, ymin;
 	UINT16 xmax, ymax;
 	UINT16 hres, vres;
-	unsigned char palette[48];
+	UINT8  palette[48];
 
 	char reserved;
 	char color_planes;
@@ -1118,7 +1118,7 @@ typedef struct
 	UINT16 palette_type;
 
 	char filler[58];
-	unsigned char data; ///< Unbounded; used for all picture data.
+	UINT8 data; ///< Unbounded; used for all picture data.
 } pcx_t;
 
 /** Writes a PCX file to disk.

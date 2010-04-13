@@ -311,7 +311,7 @@ int __cdecl RecordExceptionInfo (PEXCEPTION_POINTERS data/*, LPCSTR Message, LPS
 	MEMORY_BASIC_INFORMATION    MemInfo;
 	static int          BeenHere = false;
 	HANDLE              fileHandle;
-	unsigned char *     code;
+	UINT8              *code;
 	int                 codebyte,i;
 
 	if (data)
@@ -429,7 +429,7 @@ int __cdecl RecordExceptionInfo (PEXCEPTION_POINTERS data/*, LPCSTR Message, LPS
 	// this code needs to be wrapped in an exception handler, in case there
 	// is no memory to read. If the dereferencing of code[] fails, the
 	// exception handler will print '??'.
-	code = (unsigned char *)(size_t)Context->Eip;
+	code = (UINT8 *)(size_t)Context->Eip;
 	for (codebyte = 0; codebyte < NumCodeBytes; codebyte++)
 	{
 #ifdef NO_SEH_MINGW
@@ -610,7 +610,7 @@ int __cdecl RecordExceptionInfo (PEXCEPTION_POINTERS data/*, LPCSTR Message, LPS
 	}
 
 	FPrintf ("\r\nBytes at CS : EIP:\r\n");
-	ucptr = (unsigned char *)Context->Eip;
+	ucptr = (UINT8 *)Context->Eip;
 	for (i = 0; i < 16; i++)
 		FPrintf ("%.2x ", *ucptr++);
 
