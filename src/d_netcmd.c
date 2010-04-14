@@ -406,7 +406,7 @@ consvar_t cv_mute = {"mute", "Off", CV_NETVAR|CV_CALL, CV_OnOff, Mute_OnChange, 
 consvar_t cv_sleep = {"cpusleep", "-1", CV_SAVE, sleeping_cons_t, NULL, -1, NULL, NULL, 0, 0, NULL};
 
 static boolean triggerforcedskin = false;
-INT32 gametype = GT_COOP;
+INT16 gametype = GT_COOP;
 boolean splitscreen = false;
 boolean circuitmap = false;
 INT32 adminplayer = -1;
@@ -1382,7 +1382,7 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 
 		// Skip the message, ignoring it. The server will send
 		// another later.
-		extrainfo = READBYTE(*cp);
+		extrainfo = READUINT8(*cp);
 		SKIPSTRING(*cp); // name
 		SKIPSTRING(*cp); // skin
 		return;
@@ -1398,7 +1398,7 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 		I_Error("snacpending negative!");
 #endif
 
-	extrainfo = READBYTE(*cp);
+	extrainfo = READUINT8(*cp);
 
 	if (playernum == consoleplayer && ((extrainfo&31) % MAXSKINCOLORS) != cv_playercolor.value
 		&& !snacpending && !chmappending)
@@ -2060,7 +2060,7 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 {
 	char mapname[MAX_WADPATH+1];
 	INT32 resetplayer = 1, lastgametype;
-	boolean skipprecutscene, FLS;
+	UINT8 skipprecutscene, FLS;
 
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
@@ -2079,15 +2079,15 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 	if (chmappending)
 		chmappending--;
 
-	ultimatemode = READBYTE(*cp);
+	ultimatemode = READUINT8(*cp);
 
 	if (netgame || multiplayer)
 		ultimatemode = false;
 
-	resetplayer = ((READBYTE(*cp) & 2) == 0);
+	resetplayer = ((READUINT8(*cp) & 2) == 0);
 
 	lastgametype = gametype;
-	gametype = READBYTE(*cp);
+	gametype = READUINT8(*cp);
 
 	// Base Gametypes
 	if (gametype == GT_MATCH)
@@ -2131,9 +2131,9 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 	if (gametype != lastgametype)
 		D_GameTypeChanged(lastgametype); // emulate consvar_t behavior for gametype
 
-	skipprecutscene = READBYTE(*cp);
+	skipprecutscene = READUINT8(*cp);
 
-	FLS = READBYTE(*cp);
+	FLS = READUINT8(*cp);
 
 	READSTRINGN(*cp, mapname, MAX_WADPATH);
 
@@ -2215,7 +2215,7 @@ static void Got_Pause(UINT8 **cp, INT32 playernum)
 		return;
 	}
 
-	paused = READBYTE(*cp);
+	paused = READUINT8(*cp);
 
 	if (!demoplayback)
 	{
@@ -2257,7 +2257,7 @@ static void Got_RandomSeed(UINT8 **cp, INT32 playernum)
 {
 	UINT8 seed;
 
-	seed = READBYTE(*cp);
+	seed = READUINT8(*cp);
 	if (playernum != serverplayer) // it's not from the server, wtf?
 		return;
 
@@ -2940,7 +2940,7 @@ static void Command_Verify_f(void)
 
 static void Got_Verification(UINT8 **cp, INT32 playernum)
 {
-	INT32 num = READBYTE(*cp);
+	INT16 num = READUINT8(*cp);
 
 	if (playernum != serverplayer) // it's not from the server (hacker or bug)
 	{
@@ -3121,10 +3121,11 @@ static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 //
 static void Got_Consistency(UINT8 **cp, INT32 playernum)
 {
-//	INT32 affectedplayer;
-	INT32 numplayers;
+//	INT16 affectedplayer;
+	INT16 numplayers;
 	player_t *player;
-	INT32 i, j;
+	INT32 i;
+	INT16 j;
 	fixed_t x, y, z, momx, momy, momz;
 //	mobj_t* mo;
 //	player_t *playstruct;
@@ -3144,15 +3145,15 @@ static void Got_Consistency(UINT8 **cp, INT32 playernum)
 		return;
 	}
 
-	P_SetRandIndex(READBYTE(*cp)); // New random index
+	P_SetRandIndex(READUINT8(*cp)); // New random index
 
-//	affectedplayer = READBYTE(*cp);
+//	affectedplayer = READUINT8(*cp);
 
-	numplayers = READBYTE(*cp);
+	numplayers = READUINT8(*cp);
 
 	for (i = 0; i < numplayers; i++)
 	{
-		j = READBYTE(*cp);
+		j = READUINT8(*cp);
 		x = READFIXED(*cp);
 		y = READFIXED(*cp);
 		z = READFIXED(*cp);
@@ -3324,7 +3325,7 @@ static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
 	INT32 i;
 
 	READSTRINGN(*cp, filename, 255);
-	(void)READBYTE(*cp);
+	(void)READUINT8(*cp);
 	READMEM(*cp, md5sum, 17);
 
 	// Only the server processes this message.
@@ -3405,7 +3406,7 @@ static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
 	UINT8 md5sum[16+1];
 
 	READSTRINGN(*cp, filename, 255);
-	(void)READBYTE(*cp);
+	(void)READUINT8(*cp);
 	READMEM(*cp, md5sum, 17);
 
 	if (playernum != serverplayer)

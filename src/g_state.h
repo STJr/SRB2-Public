@@ -49,7 +49,7 @@ typedef enum
 } gameaction_t;
 
 extern gamestate_t gamestate;
-extern boolean ultimatemode; // was sk_insane
+extern UINT8 ultimatemode; // was sk_insane
 extern boolean oncontinuescreen;
 extern gameaction_t gameaction;
 

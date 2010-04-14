@@ -49,7 +49,7 @@
 
 gameaction_t gameaction;
 gamestate_t gamestate = GS_NULL;
-boolean ultimatemode = false;
+UINT8 ultimatemode = false;
 boolean oncontinuescreen = false;
 
 JoyType_t Joystick;
@@ -69,7 +69,7 @@ static void G_DoWorldDone(void);
 INT16 gamemap = 1;
 musicenum_t mapmusic;
 INT16 maptol;
-INT32 globalweather = 0;
+UINT8 globalweather = 0;
 INT32 curWeather = PRECIP_NONE;
 INT32 cursaveslot = -1; // Auto-save 1p savegame slot
 INT16 lastmapsaved = 0; // Last map we auto-saved at
@@ -78,7 +78,7 @@ boolean gamecomplete = false;
 UINT16 mainwads = 0;
 boolean modifiedgame; // Set if homebrew PWAD stuff has been added.
 boolean savemoddata = false;
-boolean paused;
+UINT8 paused;
 boolean timeattacking = false;
 boolean disableSpeedAdjust = false;
 boolean imcontinuing = false;
@@ -192,7 +192,7 @@ INT32 nummaprings = 0;
 
 // Time attack data for levels
 timeattack_t timedata[NUMMAPS];
-boolean mapvisited[NUMMAPS];
+UINT8 mapvisited[NUMMAPS];
 
 UINT32 bluescore, redscore; // CTF and Team Match team scores
 UINT32 blueflagloose, redflagloose; // Store the timer of a loose CTF flag.
@@ -1807,7 +1807,7 @@ void G_PlayerReborn(INT32 player)
 	INT32 skincolor;
 	INT32 skin;
 	tic_t jointime;
-	boolean spectator;
+	UINT8 spectator;
 
 	score = players[player].score;
 	lives = players[player].lives;
@@ -2552,7 +2552,7 @@ void G_LoadGameData(void)
 {
 	size_t length;
 	INT32 i;
-	boolean modded = false;
+	UINT8 modded = false;
 	boolean corrupt = false;
 
 	for (i = 0; i < MAXEMBLEMS; i++)
@@ -2577,12 +2577,12 @@ void G_LoadGameData(void)
 	grade = (READULONG(save_p)-25)/2;
 
 	for (i = 0; i < NUMMAPS; i++)
-		mapvisited[i] = READBYTE(save_p);
+		mapvisited[i] = READUINT8(save_p);
 
 	for (i = 0; i < MAXEMBLEMS; i++)
-		emblemlocations[i].collected = (UINT8)(READBYTE(save_p)-125-(i/4));
+		emblemlocations[i].collected = (UINT8)(READUINT8(save_p)-125-(i/4));
 
-	modded = READBYTE(save_p);
+	modded = READUINT8(save_p);
 	timesbeaten = (READULONG(save_p)/4)+2;
 
 	// Initialize the table
@@ -2840,7 +2840,7 @@ void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar, b
 // This is the map command interpretation something like Command_Map_f
 //
 // called at: map cmd execution, doloadgame, doplaydemo
-void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer, boolean skipprecutscene)
+void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer, boolean skipprecutscene)
 {
 	INT32 i;
 
@@ -2973,7 +2973,7 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 {
 	UINT8 ziptic;
 
-	ziptic = READBYTE(demo_p);
+	ziptic = READUINT8(demo_p);
 
 	if (ziptic & ZT_FWD)
 		oldcmd[playernum].forwardmove = READSINT8(demo_p);
@@ -2982,9 +2982,9 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 	if (ziptic & ZT_ANGLE)
 		oldcmd[playernum].angleturn = READSHORT(demo_p);
 	if (ziptic & ZT_BUTTONS)
-		oldcmd[playernum].buttons = (UINT16)(READBYTE(demo_p)<<8); //buttons in a UINT16, not a UINT8
+		oldcmd[playernum].buttons = (UINT16)(READUINT8(demo_p)<<8); //buttons in a UINT16, not a UINT8
 	if (ziptic & ZT_BUTTONS2)
-		oldcmd[playernum].buttons = (UINT16)(oldcmd[playernum].buttons+READBYTE(demo_p)); //ZT_BUTTONS2 always comes with ZT_BUTTONS
+		oldcmd[playernum].buttons = (UINT16)(oldcmd[playernum].buttons+READUINT8(demo_p)); //ZT_BUTTONS2 always comes with ZT_BUTTONS
 	if (ziptic & ZT_AIMING)
 		oldcmd[playernum].aiming = READSHORT(demo_p);
 	if (ziptic & ZT_EXTRADATA)
@@ -3122,7 +3122,8 @@ void G_DeferedPlayDemo(const char *name)
 //
 void G_DoPlayDemo(char *defdemoname)
 {
-	INT32 i, map;
+	INT32 i;
+	INT16 map;
 	lumpnum_t l;
 
 	// load demo file / resource
@@ -3144,27 +3145,27 @@ void G_DoPlayDemo(char *defdemoname)
 
 	// read demo header
 	gameaction = ga_nothing;
-	(void)READBYTE(demo_p); // ultmode
-	map = READBYTE(demo_p);
+	(void)READUINT8(demo_p); // ultmode
+	map = READUINT8(demo_p);
 
-	(void)READBYTE(demo_p);
+	(void)READUINT8(demo_p);
 
-	(void)READBYTE(demo_p);
+	(void)READUINT8(demo_p);
 
-	(void)READBYTE(demo_p);
+	(void)READUINT8(demo_p);
 
 	// pay attention to displayplayer because the status bar links
 	// to the display player when playing back a demo.
-	displayplayer = consoleplayer = READBYTE(demo_p);
+	displayplayer = consoleplayer = READUINT8(demo_p);
 
 	// support old v1.9 demos with ONLY 4 PLAYERS ! Man! what a shame!!!
 
-	(void)READBYTE(demo_p);
+	(void)READUINT8(demo_p);
 
-	multiplayer = READBYTE(demo_p);
+	multiplayer = READUINT8(demo_p);
 
 	for (i = 0; i < 32; i++)
-		playeringame[i] = READBYTE(demo_p);
+		playeringame[i] = READUINT8(demo_p);
 
 #if MAXPLAYERS > 32
 "Please add support for old lmps"

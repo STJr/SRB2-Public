@@ -71,8 +71,8 @@ static inline void P_ArchivePlayer(void)
 //
 static inline void P_UnArchivePlayer(void)
 {
-	savedata.skincolor = READBYTE(save_p);
-	savedata.skin = READBYTE(save_p);
+	savedata.skincolor = READUINT8(save_p);
+	savedata.skin = READUINT8(save_p);
 
 	savedata.score = READLONG(save_p);
 	savedata.lives = READLONG(save_p);
@@ -296,9 +296,9 @@ static inline void P_NetUnArchivePlayers(void)
 		for (j = 0; j < NUMPOWERS; j++)
 			players[i].powers[j] = READLONG(save_p);
 
-		players[i].playerstate = READBYTE(save_p);
+		players[i].playerstate = READUINT8(save_p);
 		players[i].pflags = READLONG(save_p);
-		players[i].spectator = READBYTE(save_p);
+		players[i].spectator = READUINT8(save_p);
 
 		players[i].bonuscount = READLONG(save_p);
 		players[i].skincolor = READLONG(save_p);
@@ -310,7 +310,7 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].xtralife = READLONG(save_p); // Ring Extra Life counter
 		players[i].speed = READLONG(save_p); // Player's speed (distance formula of MOMX and MOMY values)
 		players[i].jumping = READLONG(save_p); // Jump counter
-		players[i].secondjump = READBYTE(save_p);
+		players[i].secondjump = READUINT8(save_p);
 		players[i].fly1 = READLONG(save_p); // Tails flying
 		players[i].scoreadd = READULONG(save_p); // Used for multiple enemy attack bonus
 		players[i].glidetime = READULONG(save_p); // Glide counter for thrust
@@ -319,7 +319,7 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].splish = READLONG(save_p); // Don't make splish repeat tons
 		players[i].exiting = READULONG(save_p); // Exitlevel timer
 		players[i].blackow = READLONG(save_p);
-		players[i].homing = READBYTE(save_p); // Are you homing?
+		players[i].homing = READUINT8(save_p); // Are you homing?
 
 		////////////////////////////
 		// Conveyor Belt Movement //
@@ -377,9 +377,9 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].nightstime = READULONG(save_p);
 		players[i].bumpertime = READULONG(save_p);
 		players[i].drillmeter = READLONG(save_p);
-		players[i].drilldelay = READBYTE(save_p);
-		players[i].bonustime = READBYTE(save_p);
-		players[i].mare = READBYTE(save_p);
+		players[i].drilldelay = READUINT8(save_p);
+		players[i].bonustime = READUINT8(save_p);
+		players[i].mare = READUINT8(save_p);
 
 		players[i].lastsidehit = READSHORT(save_p);
 		players[i].lastlinehit = READSHORT(save_p);
@@ -659,9 +659,9 @@ static void P_NetUnArchiveWorld(void)
 		if (i > numsectors)
 			I_Error("Invalid sector number %u from server (expected end at %"PRIdS")", i, numsectors);
 
-		diff = READBYTE(get);
+		diff = READUINT8(get);
 		if (diff & SD_DIFF2)
-			diff2 = READBYTE(get);
+			diff2 = READUINT8(get);
 		else
 			diff2 = 0;
 
@@ -715,11 +715,11 @@ static void P_NetUnArchiveWorld(void)
 		if (i > numlines)
 			I_Error("Invalid line number %u from server", i);
 
-		diff = READBYTE(get);
+		diff = READUINT8(get);
 		li = &lines[i];
 
 		if (diff & LD_DIFF2)
-			diff2 = READBYTE(get);
+			diff2 = READUINT8(get);
 		else
 			diff2 = 0;
 		if (diff & LD_FLAG)
@@ -2052,10 +2052,10 @@ static inline void LoadFrictionThinker(actionf_p1 thinker)
 	ht->movefactor = READLONG(save_p);
 	ht->affectee = READLONG(save_p);
 	ht->referrer = READLONG(save_p);
-	ht->roverfriction = READBYTE(save_p);
-	(void)READBYTE(save_p); //gap dummy
-	(void)READBYTE(save_p); //gap dummy
-	(void)READBYTE(save_p); //gap dummy
+	ht->roverfriction = READUINT8(save_p);
+	(void)READUINT8(save_p); //gap dummy
+	(void)READUINT8(save_p); //gap dummy
+	(void)READUINT8(save_p); //gap dummy
 	P_AddThinker(&ht->thinker);
 }
 
@@ -2082,10 +2082,10 @@ static void LoadPusherThinker(actionf_p1 thinker)
 	ht->y = READLONG(save_p);
 	ht->z = READLONG(save_p);
 	ht->affectee = READLONG(save_p);
-	ht->roverpusher = READBYTE(save_p);
-	(void)READBYTE(save_p); //gap dummy
-	(void)READBYTE(save_p); //gap dummy
-	(void)READBYTE(save_p); //gap dummy
+	ht->roverpusher = READUINT8(save_p);
+	(void)READUINT8(save_p); //gap dummy
+	(void)READUINT8(save_p); //gap dummy
+	(void)READUINT8(save_p); //gap dummy
 	ht->referrer = READLONG(save_p);
 	ht->exclusive = READLONG(save_p);
 	ht->slider = READLONG(save_p);
@@ -2362,7 +2362,7 @@ static void P_NetUnArchiveThinkers(void)
 	// read in saved thinkers
 	for (;;)
 	{
-		tclass = READBYTE(save_p);
+		tclass = READUINT8(save_p);
 
 		if (tclass == tc_end)
 			break; // leave the saved thinker reading loop
@@ -2480,7 +2480,7 @@ static void P_NetUnArchiveThinkers(void)
 					mobj->eflags = READULONG(save_p);
 				if (diff & MD_PLAYER)
 				{
-					i = READBYTE(save_p);
+					i = READUINT8(save_p);
 					mobj->player = &players[i];
 					mobj->player->mo = mobj;
 					// added for angle prediction
@@ -2526,7 +2526,7 @@ static void P_NetUnArchiveThinkers(void)
 				else
 					mobj->destscale = mobj->scale;
 
-				mobj->scalespeed = READBYTE(save_p);
+				mobj->scalespeed = READUINT8(save_p);
 
 				// now set deductable field
 				/// \todo save this too
@@ -2921,7 +2921,7 @@ static inline void P_NetUnArchiveSpecials(void)
 		P_SetupLevelSky(levelskynum);
 	}
 
-	globalweather = READBYTE(save_p);
+	globalweather = READUINT8(save_p);
 
 	if (globalweather)
 	{
@@ -3119,9 +3119,9 @@ static inline boolean P_NetUnArchiveMisc(void)
 	gravity = READFIXED(save_p);
 
 	countdowntimer = READULONG(save_p);
-	countdowntimeup = READBYTE(save_p);
+	countdowntimeup = READUINT8(save_p);
 
-	P_SetRandIndex(READBYTE(save_p));
+	P_SetRandIndex(READUINT8(save_p));
 
 	matchtype = READLONG(save_p);
 	tagtype = READLONG(save_p);
@@ -3129,7 +3129,7 @@ static inline boolean P_NetUnArchiveMisc(void)
 	hidetime = READULONG(save_p);
 
 	// Is it paused?
-	if (READBYTE(save_p) == 0x2f)
+	if (READUINT8(save_p) == 0x2f)
 		paused = true;
 
 	return true;
@@ -3182,7 +3182,7 @@ boolean P_LoadGame(INT16 mapoverride)
 	if (!P_UnArchiveSPGame(mapoverride))
 		return false;
 
-	return READBYTE(save_p) == 0x1d;
+	return READUINT8(save_p) == 0x1d;
 }
 
 boolean P_LoadNetGame(void)
@@ -3206,5 +3206,5 @@ boolean P_LoadNetGame(void)
 	// precipitation when loading a netgame save. Instead, precip has to be spawned here.
 	// This is done in P_NetUnArchiveSpecials now.
 
-	return READBYTE(save_p) == 0x1d;
+	return READUINT8(save_p) == 0x1d;
 }

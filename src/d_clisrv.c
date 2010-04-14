@@ -1494,10 +1494,11 @@ static void Command_Kick(void)
 
 static void Got_KickCmd(UINT8 **p, INT32 playernum)
 {
-	INT32 pnum, msg;
+	INT32 pnum;
+	INT16 msg;
 
-	pnum = READBYTE(*p);
-	msg = READBYTE(*p);
+	pnum = READUINT8(*p);
+	msg = READUINT8(*p);
 
 	if (pnum == serverplayer && playernum == adminplayer)
 	{
@@ -1798,7 +1799,7 @@ static inline void SV_AddNode(INT32 node)
 // Xcmd XD_ADDPLAYER
 static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 {
-	INT32 node, newplayernum;
+	INT16 node, newplayernum;
 	boolean splitscreenplayer;
 	static UINT32 sendconfigtic = UINT32_MAX;
 
@@ -1817,8 +1818,8 @@ static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 		return;
 	}
 
-	node = READBYTE(*p);
-	newplayernum = READBYTE(*p);
+	node = READUINT8(*p);
+	newplayernum = READUINT8(*p);
 	splitscreenplayer = newplayernum & 0x80;
 	newplayernum &= ~0x80;
 

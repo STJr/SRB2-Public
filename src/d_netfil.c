@@ -157,7 +157,7 @@ void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr)
 	for (i = 0; i < fileneedednum; i++)
 	{
 		fileneeded[i].status = FS_NOTFOUND;
-		filestatus = READBYTE(p);
+		filestatus = READUINT8(p);
 		fileneeded[i].important = (UINT8)(filestatus & 3);
 		fileneeded[i].willsend = (UINT8)(filestatus >> 4);
 		fileneeded[i].totalsize = READULONG(p);

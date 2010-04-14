@@ -305,7 +305,7 @@ typedef struct player_s
 	INT32 speed; // Player's speed (distance formula of MOMX and MOMY values)
 	INT32 jumping; // Jump counter
 
-	INT32 secondjump;
+	UINT8 secondjump;
 
 	INT32 fly1; // Tails flying
 	UINT32 scoreadd; // Used for multiple enemy attack bonus
@@ -396,7 +396,7 @@ typedef struct player_s
 	mobj_t *awayviewmobj;
 	INT32 awayviewtics;
 
-	boolean spectator;
+	UINT8 spectator;
 
 	tic_t jointime; // Timer when player joins game to change skin/color
 #ifdef HWRENDER

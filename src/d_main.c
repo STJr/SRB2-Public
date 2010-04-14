@@ -1276,7 +1276,7 @@ void D_SRB2Main(void)
 
 	if (M_CheckParm("-ultimatemode"))
 	{
-		ultimatemode = autostart = true;
+		autostart = ultimatemode = true;
 	}
 
 	if (autostart || netgame || M_CheckParm("+connect") || M_CheckParm("-connect"))
@@ -1292,7 +1292,8 @@ void D_SRB2Main(void)
 		if (M_CheckParm("-gametype") && M_IsNextParm())
 		{
 			// from Command_Map_f
-			INT32 j, newgametype = -1;
+			INT32 j;
+			INT16 newgametype = -1;
 			char *sgametype = M_GetNextParm();
 
 			for (j = 0; gametype_cons_t[j].strvalue; j++)
@@ -1314,7 +1315,7 @@ void D_SRB2Main(void)
 						CV_SetValue(&cv_tagtype, 1);
 					}
 					else
-						newgametype = gametype_cons_t[j].value;
+						newgametype = (INT16)gametype_cons_t[j].value;
 
 					break;
 				}
@@ -1322,7 +1323,7 @@ void D_SRB2Main(void)
 			{
 				j = atoi(sgametype); // assume they gave us a gametype number, which is okay too
 				if (j >= 0 && j < NUMGAMETYPES)
-					newgametype = j;
+					newgametype = (INT16)j;
 			}
 
 			if (newgametype != -1)

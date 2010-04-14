@@ -40,7 +40,7 @@
 extern INT16 gamemap;
 extern musicenum_t mapmusic;
 extern INT16 maptol;
-extern INT32 globalweather;
+extern UINT8 globalweather;
 extern INT32 curWeather;
 extern INT32 cursaveslot;
 extern INT16 lastmapsaved;
@@ -69,7 +69,7 @@ extern boolean addedtogame; // true after the server has added you
 // Only true if >1 player. netgame => multiplayer but not (multiplayer=>netgame)
 extern boolean multiplayer;
 
-extern INT32 gametype;
+extern INT16 gametype;
 extern boolean splitscreen;
 extern boolean circuitmap; // Does this level have 'circuit mode'?
 extern boolean fromlevelselect;
@@ -92,7 +92,7 @@ extern boolean digital_disabled;
 //
 
 extern boolean menuactive; // Menu overlaid?
-extern boolean paused; // Game paused?
+extern UINT8 paused; // Game paused?
 
 extern boolean nodrawers;
 extern boolean noblit;
@@ -275,7 +275,7 @@ typedef struct
 } timeattack_t;
 
 extern timeattack_t timedata[NUMMAPS];
-extern boolean mapvisited[NUMMAPS];
+extern UINT8 mapvisited[NUMMAPS];
 
 extern UINT32 token; ///< Number of tokens collected in a level
 extern UINT32 tokenlist; ///< List of tokens collected

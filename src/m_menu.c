@@ -6645,9 +6645,9 @@ static void M_ReadSavegameInfo(UINT32 slot)
 
 	// P_UnArchivePlayer()
 	CHECKPOS
-	savegameinfo[slot].skincolor = READBYTE(save_p);
+	savegameinfo[slot].skincolor = READUINT8(save_p);
 	CHECKPOS
-	savegameinfo[slot].skinnum = READBYTE(save_p);
+	savegameinfo[slot].skinnum = READUINT8(save_p);
 	strcpy(savegameinfo[slot].playername,
 		skins[savegameinfo[slot].skinnum].name);
 

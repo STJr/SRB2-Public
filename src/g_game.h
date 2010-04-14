@@ -87,7 +87,7 @@ void G_DeathMatchSpawnPlayer(INT32 playernum);
 void G_CoopSpawnPlayer(INT32 playernum, boolean starpost);
 void G_PlayerReborn(INT32 player);
 void G_DoCompleted(void);
-void G_InitNew(boolean pultmode, const char *mapname, boolean resetplayer,
+void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer,
 	boolean skipprecutscene);
 
 // Can be called by the startup code or M_Responder.
