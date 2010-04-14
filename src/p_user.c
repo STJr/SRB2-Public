@@ -3353,7 +3353,7 @@ static void P_NiGHTSMovement(player_t *player)
 		player->mo->tracer->eflags &= ~MFE_VERTICALFLIP;
 
 	if (player->mo->eflags & MFE_VERTICALFLIP)
-		cmd->forwardmove = (char)(-cmd->forwardmove);
+		cmd->forwardmove = (SINT8)(-cmd->forwardmove);
 
 	// Currently reeling from being hit.
 	if (player->powers[pw_flashing] > (2*flashingtics)/3)

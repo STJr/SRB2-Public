@@ -990,10 +990,10 @@ static VOID I_PoolMouse2(VOID)
 			}
 			else if (bytenum == 3)
 			{
-				dx = (char)((combytes[0] &  3) << 6);
-				dy = (char)((combytes[0] & 12) << 4);
-				dx = (char)(dx + combytes[1]);
-				dy = (char)(dy + combytes[2]);
+				dx = (CHAR)((combytes[0] &  3) << 6);
+				dy = (CHAR)((combytes[0] & 12) << 4);
+				dx = (CHAR)(dx + combytes[1]);
+				dy = (CHAR)(dy + combytes[2]);
 				handlermouse2x += dx;
 				handlermouse2y += dy;
 			}

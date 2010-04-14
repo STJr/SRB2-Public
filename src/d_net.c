@@ -150,7 +150,7 @@ typedef struct
 	UINT16 length;
 	UINT16 resentnum;
 	union {
-		char raw[MAXPACKETLENGTH];
+		SINT8 raw[MAXPACKETLENGTH];
 		doomdata_t data;
 	} pak;
 } ackpak_t;

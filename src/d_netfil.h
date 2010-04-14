@@ -66,8 +66,8 @@ void CL_PrepareDownloadSaveGame(const char *tmpsave);
 //                                                   no enought space to download files)
 INT32 CL_CheckFiles(void);
 void CL_LoadServerFiles(void);
-void SendRam(INT32 node, UINT8 *data, size_t size, freemethod_t freemethod,
-	char fileid);
+void SendRam(INT32 node, void *data, size_t size, freemethod_t freemethod,
+	UINT8 fileid);
 
 void FiletxTicker(void);
 void Got_Filetxpak(void);

@@ -256,9 +256,9 @@ static void ExtraDataTicker(void)
 				{
 					if (server)
 					{
-						XBOXSTATIC char buf[3];
+						XBOXSTATIC UINT8 buf[3];
 
-						buf[0] = (char)i;
+						buf[0] = (UINT8)i;
 						buf[1] = KICK_MSG_CON_FAIL;
 						SendNetXCmd(XD_KICK, &buf, 2);
 						DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
@@ -393,7 +393,7 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 	netbuffer->u.serverinfo.maxplayer = (UINT8)cv_maxplayers.value;
 	netbuffer->u.serverinfo.gametype = (UINT8)gametype;
 	netbuffer->u.serverinfo.modifiedgame = (UINT8)modifiedgame;
-	netbuffer->u.serverinfo.adminplayer = (char)adminplayer;
+	netbuffer->u.serverinfo.adminplayer = (SINT8)adminplayer;
 	strncpy(netbuffer->u.serverinfo.servername, cv_servername.string,
 		MAXSERVERNAME);
 	strncpy(netbuffer->u.serverinfo.mapname, G_BuildMapName(gamemap), 7);
@@ -425,7 +425,7 @@ static boolean SV_SendPlayerInfo(INT32 node)
 	netbuffer->u.servercfg.clientnode = (UINT8)node;
 	netbuffer->u.servercfg.gamestate = (UINT8)gamestate;
 	netbuffer->u.servercfg.gametype = (UINT8)gametype;
-	netbuffer->u.servercfg.adminplayer = (char)adminplayer;
+	netbuffer->u.servercfg.adminplayer = (SINT8)adminplayer;
 	netbuffer->u.servercfg.modifiedgame = (UINT8)modifiedgame;
 	op = p = netbuffer->u.servercfg.netcvarstates;
 	CV_SaveNetVars(&p);
@@ -737,7 +737,7 @@ void CL_UpdateServerList(boolean internetsearch)
 		server_list = GetShortServersList();
 		if (server_list)
 		{
-			char version[8] = {'\0'};
+			char version[8] = "";
 			snprintf(version, sizeof (version), "%d.%d.%d", VERSION/100, VERSION%100, SUBVERSION);
 			version[sizeof (version) - 1] = '\0';
 
@@ -1176,7 +1176,7 @@ static void Command_connect(void)
 		// used in menu to connect to a server in the list
 		if (netgame && !stricmp(COM_Argv(1), "node"))
 		{
-			servernode = (char)atoi(COM_Argv(2));
+			servernode = (SINT8)atoi(COM_Argv(2));
 
 			// Use MS to traverse NAT firewalls.
 			viams = true;
@@ -1368,29 +1368,29 @@ static void Command_GetPlayerNum(void)
 		}
 }
 
-char nametonum(const char *name)
+SINT8 nametonum(const char *name)
 {
 	INT32 playernum, i;
 
 	if (!strcmp(name, "0"))
 		return 0;
 
-	playernum = (char)atoi(name);
+	playernum = (SINT8)atoi(name);
 
-	if (playernum >= MAXPLAYERS)
+	if (playernum < 0 && playernum >= MAXPLAYERS)
 		return -1;
 
 	if (playernum)
 	{
 		if (playeringame[playernum])
-			return (char)playernum;
+			return (SINT8)playernum;
 		else
 			return -1;
 	}
 
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] && !stricmp(player_names[i], name))
-			return (char)i;
+			return (SINT8)i;
 
 	CONS_Printf(text[NOPLAYERNAMED], name);
 
@@ -1444,11 +1444,11 @@ static void Command_Ban(void)
 
 	if (server || adminplayer == consoleplayer)
 	{
-		XBOXSTATIC char buf[3];
-		const char pn = nametonum(COM_Argv(1));
+		XBOXSTATIC UINT8 buf[3];
+		const SINT8 pn = nametonum(COM_Argv(1));
 		const INT32 node = playernode[(INT32)pn];
 
-		if (pn == (char)-1 || pn == 0)
+		if (pn == -1 || pn == 0)
 			return;
 		else
 			buf[0] = pn;
@@ -1471,7 +1471,7 @@ static void Command_Ban(void)
 
 static void Command_Kick(void)
 {
-	XBOXSTATIC char buf[3];
+	XBOXSTATIC UINT8 buf[3];
 
 	if (COM_Argc() != 2)
 	{
@@ -1481,9 +1481,10 @@ static void Command_Kick(void)
 
 	if (server || adminplayer == consoleplayer)
 	{
-		buf[0] = nametonum(COM_Argv(1));
-		if (buf[0] == (char)-1 || buf[0] == 0)
+		const SINT8 pn = nametonum(COM_Argv(1));
+		if (pn == -1 || pn == 0)
 			return;
+		buf[0] = (UINT8)pn;
 		buf[1] = KICK_MSG_GO_AWAY;
 		SendNetXCmd(XD_KICK, &buf, 2);
 	}
@@ -1809,9 +1810,9 @@ static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 		CONS_Printf(text[ILLEGALADDPLRCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -1909,7 +1910,7 @@ static boolean SV_AddWaitingPlayers(void)
 			// before accepting the join
 			I_Assert(newplayernum < MAXPLAYERS);
 
-			playernode[newplayernum] = (char)node;
+			playernode[newplayernum] = (UINT8)node;
 
 			buf[0] = (UINT8)node;
 			buf[1] = newplayernum;
@@ -1941,12 +1942,12 @@ void CL_AddSplitscreenPlayer(void)
 
 void CL_RemoveSplitscreenPlayer(void)
 {
-	XBOXSTATIC char buf[2];
+	XBOXSTATIC UINT8 buf[2];
 
 	if (cl_mode != cl_connected)
 		return;
 
-	buf[0] = (char)secondarydisplayplayer;
+	buf[0] = (UINT8)secondarydisplayplayer;
 	buf[1] = KICK_MSG_PLAYER_QUIT;
 	SendNetXCmd(XD_KICK, &buf, 2);
 }
@@ -2309,8 +2310,8 @@ FILESTAMP
 
 					if (cv_consfailprotect.value && players[netconsole].mo && consfailcount[netconsole] < cv_consfailprotect.value)
 					{
-						XBOXSTATIC char buf[255];
-						char *cp = buf;
+						XBOXSTATIC UINT8 buf[255];
+						UINT8 *cp = buf;
 //						player_t *player = &players[netconsole];
 						INT32 count = 0;
 						INT32 numbytes = 0;
@@ -2375,7 +2376,7 @@ FILESTAMP
 						}
 
 /*
-						buf[0] = (char)netconsole;
+						buf[0] = (UINT8)netconsole;
 						buf[1] = P_GetRandIndex();
 						M_Memcpy(&buf[2], players[netconsole].mo, sizeof(mobj_t));
 
@@ -2385,9 +2386,9 @@ FILESTAMP
 					}
 					else
 					{
-						XBOXSTATIC char buf[3];
+						XBOXSTATIC UINT8 buf[3];
 
-						buf[0] = (char)netconsole;
+						buf[0] = (UINT8)netconsole;
 						buf[1] = KICK_MSG_CON_FAIL;
 //						SV_SavedGame();
 						SendNetXCmd(XD_KICK, &buf, 2);
@@ -2456,8 +2457,8 @@ FILESTAMP
 				nodewaiting[node] = 0;
 				if (netconsole != -1 && playeringame[netconsole])
 				{
-					XBOXSTATIC char buf[2];
-					buf[0] = (char)netconsole;
+					XBOXSTATIC UINT8 buf[2];
+					buf[0] = (UINT8)netconsole;
 					if (netbuffer->packettype == PT_NODETIMEOUT)
 						buf[1] = KICK_MSG_TIMEOUT;
 					else
@@ -2484,10 +2485,10 @@ FILESTAMP
 
 					if (server)
 					{
-						XBOXSTATIC char buf[2];
+						XBOXSTATIC UINT8 buf[2];
 						CONS_Printf("PT_SERVERTICS recieved from non-host %d\n", node);
 
-						buf[0] = (char)node;
+						buf[0] = (UINT8)node;
 						buf[1] = KICK_MSG_CON_FAIL;
 						SendNetXCmd(XD_KICK, &buf, 2);
 					}

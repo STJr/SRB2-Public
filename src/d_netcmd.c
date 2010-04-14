@@ -1034,9 +1034,9 @@ static void SetPlayerName(INT32 playernum, char *newname)
 		CONS_Printf(text[ILLEGALNAMECMD], playernum+1);
 		if (server && netgame)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -1464,10 +1464,10 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 
 		if (kick)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 			CONS_Printf(text[ILLEGALCOLORCMD], player_names[playernum], p->ctfteam, p->skincolor);
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 			return;
@@ -1528,12 +1528,12 @@ static void SendWeaponPref(void)
 {
 	XBOXSTATIC SINT8 buf[1];
 
-	buf[0] = (char)cv_autoaim.value;
+	buf[0] = (SINT8)cv_autoaim.value;
 	SendNetXCmd(XD_WEAPONPREF, buf, 1);
 
 	if (splitscreen)
 	{
-		buf[0] = (char)cv_autoaim2.value;
+		buf[0] = (SINT8)cv_autoaim2.value;
 		SendNetXCmd2(XD_WEAPONPREF, buf, 1);
 	}
 }
@@ -2067,9 +2067,9 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALMAPCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -2177,11 +2177,11 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 
 static void Command_Pause(void)
 {
-	XBOXSTATIC char buf;
+	XBOXSTATIC UINT8 buf;
 	if (COM_Argc() > 1)
-		buf = (char)(atoi(COM_Argv(1)) != 0);
+		buf = (UINT8)(atoi(COM_Argv(1)) != 0);
 	else
-		buf = (char)(!paused);
+		buf = (UINT8)(!paused);
 
 	if (cv_pause.value || server || (adminplayer == consoleplayer))
 	{
@@ -2206,9 +2206,9 @@ static void Got_Pause(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALPAUSECMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -2297,9 +2297,9 @@ static void Got_Clearscores(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALCLRSCRCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -2626,9 +2626,9 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -2641,9 +2641,9 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
 			if (server)
 			{
-				XBOXSTATIC char buf[2];
+				XBOXSTATIC UINT8 buf[2];
 
-				buf[0] = (char)playernum;
+				buf[0] = (UINT8)playernum;
 				buf[1] = KICK_MSG_CON_FAIL;
 				SendNetXCmd(XD_KICK, &buf, 2);
 			}
@@ -2680,9 +2680,9 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
 			if (server)
 			{
-				XBOXSTATIC char buf[2];
+				XBOXSTATIC UINT8 buf[2];
 
-				buf[0] = (char)playernum;
+				buf[0] = (UINT8)playernum;
 				buf[1] = KICK_MSG_CON_FAIL;
 				SendNetXCmd(XD_KICK, &buf, 2);
 			}
@@ -2722,9 +2722,9 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 
 	if (server && ((NetPacket.packet.newteam < 0 || NetPacket.packet.newteam > 3) || error))
 	{
-		XBOXSTATIC char buf[2];
+		XBOXSTATIC UINT8 buf[2];
 
-		buf[0] = (char)playernum;
+		buf[0] = (UINT8)playernum;
 		buf[1] = KICK_MSG_CON_FAIL;
 		CONS_Printf(text[SENTILLEGALTEAMCHANGE], player_names[playernum], NetPacket.packet.newteam);
 		SendNetXCmd(XD_KICK, &buf, 2);
@@ -2947,9 +2947,9 @@ static void Got_Verification(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALVERIFYCMD], player_names[playernum], player_names[serverplayer]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -3014,9 +3014,9 @@ static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALMOTDCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -3077,9 +3077,9 @@ static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALRUNSOCCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -3136,9 +3136,9 @@ static void Got_Consistency(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALCONSCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -3339,11 +3339,11 @@ static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
 
 	if ((playernum != serverplayer && playernum != adminplayer) || kick)
 	{
-		XBOXSTATIC char buf[2];
+		XBOXSTATIC UINT8 buf[2];
 
 		CONS_Printf(text[ILLEGALADDFILECMD], player_names[playernum]);
 
-		buf[0] = (char)playernum;
+		buf[0] = (UINT8)playernum;
 		buf[1] = KICK_MSG_CON_FAIL;
 		SendNetXCmd(XD_KICK, &buf, 2);
 		return;
@@ -3381,9 +3381,9 @@ static void Got_Delfilecmd(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALDELFILECMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -3414,9 +3414,9 @@ static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALADDFILECMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -3920,10 +3920,10 @@ void D_GameTypeChanged(INT32 lastgametype)
 			{
 				if (players[i].skincolor == 15)
 				{
-					XBOXSTATIC char buf[2];
+					XBOXSTATIC UINT8 buf[2];
 					CONS_Printf(text[ILLEGALCOLORCMD], player_names[i], players[i].ctfteam, players[i].skincolor);
 
-					buf[0] = (char)i;
+					buf[0] = (UINT8)i;
 					buf[1] = KICK_MSG_CON_FAIL;
 					SendNetXCmd(XD_KICK, &buf, 2);
 				}
@@ -4378,9 +4378,9 @@ static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
 		CONS_Printf(text[ILLEGALEXITLVLCMD], player_names[playernum]);
 		if (server)
 		{
-			XBOXSTATIC char buf[2];
+			XBOXSTATIC UINT8 buf[2];
 
-			buf[0] = (char)playernum;
+			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}

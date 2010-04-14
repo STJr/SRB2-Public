@@ -28,8 +28,8 @@ UINT8 M_Random(void);
 #ifdef DEBUGRANDOM
 #define P_Random() P_Random2(__FILE__, __LINE__)
 #define P_SignedRandom() P_SignedRandom2(__FILE__, __LINE__)
-UINT8 P_Random2(char *a, INT32 b);
-INT32 P_SignedRandom2(char *a, INT32 b);
+UINT8 P_Random2(const char *a, INT32 b);
+INT32 P_SignedRandom2(const char *a, INT32 b);
 #else
 // As M_Random, but used only by the play simulation.
 UINT8 P_Random(void);

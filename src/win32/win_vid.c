@@ -523,7 +523,7 @@ void I_SetPalette(RGBA_t *palette)
 	{
 		// set palette in RGBQUAD format, NOT THE SAME ORDER as PALETTEENTRY, grmpf!
 		RGBQUAD *pColors;
-		pColors = (RGBQUAD *)((char *)bmiMain + bmiMain->bmiHeader.biSize);
+		pColors = (RGBQUAD *)((LPBYTE)bmiMain + bmiMain->bmiHeader.biSize);
 		ZeroMemory(pColors, sizeof (RGBQUAD)*256);
 		for (i = 0; i < 256; i++, pColors++, palette++)
 		{

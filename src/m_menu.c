@@ -6009,8 +6009,8 @@ static void M_DrawControlsGenerics(void)
 static void M_DrawControl(void)
 {
 	char     tmp[50];
-	INT32      i;
-	INT32      keys[2];
+	INT32    i;
+	INT32    keys[2];
 
 	// draw title, strings and submenu
 	M_DrawControlsGenerics();

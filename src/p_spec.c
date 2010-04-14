@@ -291,7 +291,7 @@ void P_InitPicAnims(void)
 			lastanim->speed = LONG(animdefs[i].speed) * NEWTICRATERATIO;
 		lastanim++;
 	}
-	lastanim->istexture = (boolean)-1;
+	lastanim->istexture = -1;
 
 	if (animdefs != harddefs)
 		Z_ChangeTag(animdefs, PU_CACHE);

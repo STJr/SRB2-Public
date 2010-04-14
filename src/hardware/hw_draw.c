@@ -49,16 +49,16 @@ float gr_patch_scaley;
 #endif
 typedef struct
 {
-	char id_field_length; // 1
-	char color_map_type ; // 2
-	char image_type     ; // 3
-	char dummy[5]       ; // 4,  8
-	INT16 x_origin      ; // 9, 10
-	INT16 y_origin      ; //11, 12
-	INT16 width         ; //13, 14
-	INT16 height        ; //15, 16
-	char image_pix_size ; //17
-	char image_descriptor; //18
+	UINT8 id_field_length ; // 1
+	UINT8 color_map_type  ; // 2
+	UINT8 image_type      ; // 3
+	UINT8 dummy[5]        ; // 4,  8
+	INT16 x_origin        ; // 9, 10
+	INT16 y_origin        ; //11, 12
+	INT16 width           ; //13, 14
+	INT16 height          ; //15, 16
+	UINT8 image_pix_size  ; //17
+	UINT8 image_descriptor; //18
 } ATTRPACK TGAHeader; // sizeof is 18
 #if defined(_MSC_VER)
 #pragma pack()

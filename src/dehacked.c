@@ -72,7 +72,7 @@ void DEH_WriteUndoline(const char *value, const char *data, undotype_f flags)
 		pader = space;
 
 	if (flags & UNDO_ENDTEXT && !data)
-		data =space;
+		data = space;
 
 	if (value)
 	{

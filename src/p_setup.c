@@ -667,8 +667,7 @@ static void P_LoadThings(lumpnum_t lumpnum)
 {
 	size_t i;
 	mapthing_t *mt;
-	char *data;
-	char *datastart;
+	UINT8 *data, *datastart;
 
 	nummapthings = W_LumpLength(lumpnum) / (5 * sizeof (INT16));
 	mapthings = Z_Calloc(nummapthings * sizeof (*mapthings), PU_LEVEL, NULL);
@@ -860,7 +859,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 {
 	size_t i, length;
 	mapthing_t *mt;
-	char *data, *datastart;
+	UINT8 *data, *datastart;
 	UINT8 *savebuffer, *savebuf_p;
 	INT16 temp;
 

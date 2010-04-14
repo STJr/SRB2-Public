@@ -1549,7 +1549,7 @@ boolean G_Responder(event_t *ev)
 				if (!pausedelay)
 				{
 					// don't let busy scripts prevent pausing
-					char buf = (char)(!paused);
+					UINT8 buf = (UINT8)(!paused);
 					pausedelay = TICRATE/7;
 
 					if (cv_pause.value == 1 || server || (adminplayer == consoleplayer))

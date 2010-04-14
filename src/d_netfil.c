@@ -449,7 +449,7 @@ static void SendFile(INT32 node, const char *filename, UINT8 fileid)
 	filetosend++;
 }
 
-void SendRam(INT32 node, UINT8 *data, size_t size, freemethod_t freemethod, char fileid)
+void SendRam(INT32 node, void *data, size_t size, freemethod_t freemethod, UINT8 fileid)
 {
 	filetx_t **q;
 	filetx_t *p;
@@ -463,7 +463,7 @@ void SendRam(INT32 node, UINT8 *data, size_t size, freemethod_t freemethod, char
 	else
 		I_Error("SendRam: No more ram\n");
 	p->ram = freemethod;
-	p->filename = (char *)data;
+	p->filename = data;
 	p->size = (UINT32)size;
 	p->fileid = fileid;
 	p->next = NULL; // end of list

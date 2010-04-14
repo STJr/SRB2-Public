@@ -86,13 +86,13 @@ INT32 P_SignedRandom(void)
 
 #else
 
-UINT8 P_Random2(char *a, INT32 b)
+UINT8 P_Random2(const char *a, INT32 b)
 {
 	CONS_Printf("P_Random at: %sp %d\n", a, b);
 	return rndtable[++prndindex];
 }
 
-INT32 P_SignedRandom2(char *a, INT32 b)
+INT32 P_SignedRandom2(const char *a, INT32 b)
 {
 	INT32 r;
 	CONS_Printf("P_SignedRandom at: %sp %d\n",a,b);

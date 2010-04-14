@@ -1102,18 +1102,18 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
   */
 typedef struct
 {
-	char manufacturer;
-	char version;
-	char encoding;
-	char bits_per_pixel;
+	UINT8 manufacturer;
+	UINT8 version;
+	UINT8 encoding;
+	UINT8 bits_per_pixel;
 
 	UINT16 xmin, ymin;
 	UINT16 xmax, ymax;
 	UINT16 hres, vres;
 	UINT8  palette[48];
 
-	char reserved;
-	char color_planes;
+	UINT8 reserved;
+	UINT8 color_planes;
 	UINT16 bytes_per_line;
 	UINT16 palette_type;
 
@@ -1592,7 +1592,6 @@ static void *cpu_cpy(void *dest, const void *src, size_t n)
 		return dest;
 	}
 
-	//  char *dp = dest;  const char *sp = src;  for (;n>0;n--) *dp++ = *sp++;
 	return memcpy(dest, src, n);
 }
 

@@ -133,7 +133,7 @@ typedef struct
 	UINT32 playerdetected; // playeringame vector in bit field
 	UINT8 gametype;
 	UINT8 modifiedgame;
-	char adminplayer; // needs to be signed
+	SINT8 adminplayer; // needs to be signed
 	UINT8 netcvarstates[0];
 #ifdef __GNUC__
 	UINT8 padding5[1];
@@ -141,7 +141,7 @@ typedef struct
 } ATTRPACK serverconfig_pak;
 
 typedef struct {
-	char fileid;
+	UINT8 fileid;
 	UINT8 padding1[3];
 	UINT32 position;
 	UINT16 size;
@@ -177,7 +177,7 @@ typedef struct
 	UINT8 gametype;
 	UINT8 modifiedgame;
 	UINT8 fileneedednum;
-	char adminplayer; // needs to be signed
+	SINT8 adminplayer; // needs to be signed
 	tic_t time;
 	char servername[MAXSERVERNAME];
 	char mapname[8];
@@ -310,7 +310,7 @@ void ReadLmpExtraData(UINT8 **demo_pointer, INT32 playernum);
 #ifndef NONET
 // translate a playername in a player number return -1 if not found and
 // print a error message in the console
-char nametonum(const char *name);
+SINT8 nametonum(const char *name);
 #endif
 
 extern char adminpassword[9], motd[256];
