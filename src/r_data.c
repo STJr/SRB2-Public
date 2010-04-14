@@ -433,7 +433,7 @@ void R_LoadTextures(void)
 		texturetranslation[i] = (INT32)i;
 }
 
-static inline lumpnum_t R_CheckNumForNameList(char *name, lumplist_t *list, size_t listsize)
+static inline lumpnum_t R_CheckNumForNameList(const char *name, lumplist_t *list, size_t listsize)
 {
 	size_t i;
 	UINT16 lump;
