@@ -125,7 +125,7 @@ void S_SetMIDIMusicVolume(INT32 volume);
 void S_SetSfxVolume(INT32 volume);
 
 INT32 S_SoundPlaying(void *origin, sfxenum_t id);
-void S_StartSoundName(void *mo, char *soundname);
+void S_StartSoundName(void *mo, const  char *soundname);
 
 void S_StopSoundByNum(sfxenum_t sfxnum);
 

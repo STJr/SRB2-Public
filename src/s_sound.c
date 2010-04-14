@@ -1326,7 +1326,7 @@ INT32 S_SoundPlaying(void *origin, sfxenum_t id)
 #define MAXNEWSOUNDS 10
 static sfxenum_t newsounds[MAXNEWSOUNDS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-void S_StartSoundName(void *mo, char *soundname)
+void S_StartSoundName(void *mo, const char *soundname)
 {
 	INT32 i, soundnum = 0;
 	// Search existing sounds...
