@@ -233,7 +233,7 @@ static void NET_CloseSocket(void)
 	mysocket = NULL;
 }
 
-static signed char NET_NetMakeNode(const char *hostname)
+static SINT8 NET_NetMakeNode(const char *hostname)
 {
 	INT32 newnode;
 	char *portchar;
@@ -263,7 +263,7 @@ static signed char NET_NetMakeNode(const char *hostname)
 	}
 	newnode++;
 	M_Memcpy(&clientaddress[newnode],&hostnameIP,sizeof (IPaddress));
-	return (signed char)newnode;
+	return (SINT8)newnode;
 }
 
 

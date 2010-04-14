@@ -103,9 +103,9 @@ static boolean KOSUDP_cmpaddr(IPaddress* a, IPaddress* b)
 	return (a->host == b->host && (b->port == 0 || a->port == b->port));
 }
 
-static signed char getfreenode(void)
+static SINT8 getfreenode(void)
 {
-	signed char j;
+	SINT8 j;
 
 	for (j = 0; j < MAXNETNODES; j++)
 		if (!nodeconnected[j])
@@ -120,7 +120,7 @@ static void KOSUDP_Get(void)
 {
 	int size;
 	size_t i;
-	signed char j;
+	SINT8 j;
 	IPaddress temp = {clientaddress[BROADCASTADDR].host,clientaddress[BROADCASTADDR].port};
 
 	size = net_udp_recvfrom(mysocket,(char *)&doomcom->data, MAXPACKETLENGTH, &temp.port, &temp.host);
@@ -274,9 +274,9 @@ static void KOSUDP_CloseSocket(void)
 	mysocket = 0;
 }
 
-static signed char KOSUDP_NetMakeNode(const char *hostname)
+static SINT8 KOSUDP_NetMakeNode(const char *hostname)
 {
-	signed char newnode;
+	SINT8 newnode;
 	char *portchar, *t, *localhostname = strdup(hostname);
 	uint16 portnum = net_ntohs(sock_port);
 

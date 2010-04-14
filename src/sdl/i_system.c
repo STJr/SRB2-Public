@@ -1667,8 +1667,8 @@ void I_GetMouseEvents(void)
 					}
 				}
 			}
-			event.data2 = ((signed char)mdata[1])+((signed char)mdata[3]);
-			event.data3 = ((signed char)mdata[2])+((signed char)mdata[4]);
+			event.data2 = ((SINT8)mdata[1])+((SINT8)mdata[3]);
+			event.data3 = ((SINT8)mdata[2])+((SINT8)mdata[4]);
 			if (event.data2 && event.data3)
 			{
 				event.type = ev_mouse2;
