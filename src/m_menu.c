@@ -6652,12 +6652,12 @@ static void M_ReadSavegameInfo(UINT32 slot)
 		skins[savegameinfo[slot].skinnum].name);
 
 	CHECKPOS
-	(void)READLONG(save_p); // Score
+	(void)READINT32(save_p); // Score
 
 	CHECKPOS
-	savegameinfo[slot].lives = READLONG(save_p); // lives
+	savegameinfo[slot].lives = READINT32(save_p); // lives
 	CHECKPOS
-	savegameinfo[slot].continues = READLONG(save_p); // continues
+	savegameinfo[slot].continues = READINT32(save_p); // continues
 
 	// done
 	Z_Free(savebuffer);
