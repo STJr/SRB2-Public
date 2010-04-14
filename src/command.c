@@ -1155,7 +1155,7 @@ static void Got_NetVar(UINT8 **p, INT32 playernum)
 		}
 		return;
 	}
-	netid = READUSHORT(*p);
+	netid = READUINT16(*p);
 	cvar = CV_FindNetVar(netid);
 	svalue = (char *)*p;
 	SKIPSTRING(*p);

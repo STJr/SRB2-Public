@@ -276,7 +276,8 @@ static inline void P_NetArchivePlayers(void)
 //
 static inline void P_NetUnArchivePlayers(void)
 {
-	INT32 i, j, flags;
+	INT32 i, j;
+	UINT16 flags;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -348,7 +349,7 @@ static inline void P_NetUnArchivePlayers(void)
 		// CTF Mode Stuff //
 		////////////////////
 		players[i].ctfteam = READLONG(save_p); // 1 == Red, 2 == Blue
-		players[i].gotflag = READUSHORT(save_p); // 1 == Red, 2 == Blue Do you have the flag?
+		players[i].gotflag = READUINT16(save_p); // 1 == Red, 2 == Blue Do you have the flag?
 
 		players[i].dbginfo = READLONG(save_p); // Debugger
 		players[i].emeraldhunt = READLONG(save_p); // # of emeralds found
@@ -390,7 +391,7 @@ static inline void P_NetUnArchivePlayers(void)
 
 		players[i].jointime = READULONG(save_p);
 
-		flags = READUSHORT(save_p);
+		flags = READUINT16(save_p);
 
 		if (flags & CAPSULE)
 			players[i].capsule = (mobj_t *)(size_t)READULONG(save_p);
@@ -641,7 +642,7 @@ static void P_NetArchiveWorld(void)
 //
 static void P_NetUnArchiveWorld(void)
 {
-	UINT32 i;
+	UINT16 i;
 	line_t *li;
 	side_t *si;
 	UINT8 *get;
@@ -651,7 +652,7 @@ static void P_NetUnArchiveWorld(void)
 
 	for (;;)
 	{
-		i = READUSHORT(get);
+		i = READUINT16(get);
 
 		if (i == 0xffff)
 			break;
@@ -708,7 +709,7 @@ static void P_NetUnArchiveWorld(void)
 
 	for (;;)
 	{
-		i = READUSHORT(get);
+		i = READUINT16(get);
 
 		if (i == 0xffff)
 			break;
@@ -2461,7 +2462,7 @@ static void P_NetUnArchiveThinkers(void)
 					mobj->reactiontime = mobj->info->reactiontime;
 
 				if (diff & MD_STATE)
-					mobj->state = &states[READUSHORT(save_p)];
+					mobj->state = &states[READUINT16(save_p)];
 				else
 					mobj->state = &states[mobj->info->spawnstate];
 				if (diff & MD_TICS)
@@ -2469,7 +2470,7 @@ static void P_NetUnArchiveThinkers(void)
 				else
 					mobj->tics = mobj->state->tics;
 				if (diff & MD_SPRITE)
-					mobj->sprite = READUSHORT(save_p);
+					mobj->sprite = READUINT16(save_p);
 				else
 					mobj->sprite = mobj->state->sprite;
 				if (diff & MD_FRAME)
@@ -2518,11 +2519,11 @@ static void P_NetUnArchiveThinkers(void)
 				if (diff & MD_WATERBOTTOM)
 					mobj->waterbottom = READLONG(save_p);
 				if (diff & MD_SCALE)
-					mobj->scale = READUSHORT(save_p);
+					mobj->scale = READUINT16(save_p);
 				else
 					mobj->scale = 100;
 				if (diff & MD_DSCALE)
-					mobj->destscale = READUSHORT(save_p);
+					mobj->destscale = READUINT16(save_p);
 				else
 					mobj->destscale = mobj->scale;
 
@@ -2972,7 +2973,7 @@ static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 	tokenlist = 0;
 	token = 0;
 
-	savedata.emeralds = (UINT16)(READUSHORT(save_p)-357);
+	savedata.emeralds = (UINT16)(READUINT16(save_p)-357);
 
 	READSTRINGN(save_p, testname, sizeof(testname));
 
@@ -3092,7 +3093,7 @@ static inline boolean P_NetUnArchiveMisc(void)
 	totalrings = READULONG(save_p);
 	lastmap = READINT16(save_p);
 
-	emeralds = READUSHORT(save_p);
+	emeralds = READUINT16(save_p);
 
 	token = READULONG(save_p);
 	sstimer = READLONG(save_p);

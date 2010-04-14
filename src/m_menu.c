@@ -6621,7 +6621,7 @@ static void M_ReadSavegameInfo(UINT32 slot)
 	savegameinfo[slot].actnum = mapheaderinfo[fake-1].actnum;
 
 	CHECKPOS
-	fake = READUSHORT(save_p)-357; // emeralds
+	fake = READUINT16(save_p)-357; // emeralds
 
 	savegameinfo[slot].numemeralds = 0;
 
