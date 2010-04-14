@@ -231,8 +231,8 @@ UINT32 countdown, countdown2; // for racing
 
 fixed_t gravity;
 
-INT32 autobalance; //for CTF team balance
-INT32 teamscramble; //for CTF team scramble
+INT16 autobalance; //for CTF team balance
+INT16 teamscramble; //for CTF team scramble
 INT16 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
 INT16 scrambleteams[MAXPLAYERS]; //for CTF team scramble
 INT16 scrambletotal; //for CTF team scramble
@@ -2980,13 +2980,13 @@ static void G_ReadDemoTiccmd(ticcmd_t *cmd, INT32 playernum)
 	if (ziptic & ZT_SIDE)
 		oldcmd[playernum].sidemove = READSINT8(demo_p);
 	if (ziptic & ZT_ANGLE)
-		oldcmd[playernum].angleturn = READSHORT(demo_p);
+		oldcmd[playernum].angleturn = READINT16(demo_p);
 	if (ziptic & ZT_BUTTONS)
 		oldcmd[playernum].buttons = (UINT16)(READUINT8(demo_p)<<8); //buttons in a UINT16, not a UINT8
 	if (ziptic & ZT_BUTTONS2)
 		oldcmd[playernum].buttons = (UINT16)(oldcmd[playernum].buttons+READUINT8(demo_p)); //ZT_BUTTONS2 always comes with ZT_BUTTONS
 	if (ziptic & ZT_AIMING)
-		oldcmd[playernum].aiming = READSHORT(demo_p);
+		oldcmd[playernum].aiming = READINT16(demo_p);
 	if (ziptic & ZT_EXTRADATA)
 		ReadLmpExtraData(&demo_p, playernum);
 	else

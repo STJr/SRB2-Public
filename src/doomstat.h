@@ -319,8 +319,8 @@ extern UINT32 countdown2;
 extern fixed_t gravity;
 
 //for CTF balancing
-extern INT32 autobalance;
-extern INT32 teamscramble;
+extern INT16 autobalance;
+extern INT16 teamscramble;
 extern INT16 scrambleplayers[MAXPLAYERS]; //for CTF team scramble
 extern INT16 scrambleteams[MAXPLAYERS]; //for CTF team scramble
 extern INT16 scrambletotal; //for CTF team scramble

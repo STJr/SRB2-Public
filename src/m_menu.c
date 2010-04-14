@@ -6613,7 +6613,7 @@ static void M_ReadSavegameInfo(UINT32 slot)
 	// P_UnArchiveMisc()
 
 	CHECKPOS
-	fake = READSHORT(save_p);
+	fake = READINT16(save_p);
 	if (fake-1 >= NUMMAPS) BADSAVE
 	strcpy(savegameinfo[slot].levelname, mapheaderinfo[fake-1].lvlttl);
 	savegameinfo[slot].gamemap = fake;

@@ -381,8 +381,8 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].bonustime = READUINT8(save_p);
 		players[i].mare = READUINT8(save_p);
 
-		players[i].lastsidehit = READSHORT(save_p);
-		players[i].lastlinehit = READSHORT(save_p);
+		players[i].lastsidehit = READINT16(save_p);
+		players[i].lastlinehit = READINT16(save_p);
 
 		players[i].losscount = READLONG(save_p);
 
@@ -680,9 +680,9 @@ static void P_NetUnArchiveWorld(void)
 			get += 8;
 		}
 		if (diff & SD_LIGHT)
-			sectors[i].lightlevel = READSHORT(get);
+			sectors[i].lightlevel = READINT16(get);
 		if (diff & SD_SPECIAL)
-			sectors[i].special = READSHORT(get);
+			sectors[i].special = READINT16(get);
 
 		if (diff2 & SD_FXOFFS)
 			sectors[i].floor_xoffs = READFIXED(get);
@@ -695,7 +695,7 @@ static void P_NetUnArchiveWorld(void)
 		if (diff2 & SD_TAG)
 		{
 			INT16 tag;
-			tag = READSHORT(get);
+			tag = READINT16(get);
 			sectors[i].firsttag = READLONG(get);
 			sectors[i].nexttag = READLONG(get);
 			P_ChangeSectorTag(i, tag);
@@ -723,9 +723,9 @@ static void P_NetUnArchiveWorld(void)
 		else
 			diff2 = 0;
 		if (diff & LD_FLAG)
-			li->flags = READSHORT(get);
+			li->flags = READINT16(get);
 		if (diff & LD_SPECIAL)
-			li->special = READSHORT(get);
+			li->special = READINT16(get);
 
 		si = &sides[li->sidenum[0]];
 		if (diff & LD_S1TEXOFF)
@@ -2957,7 +2957,7 @@ static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 {
 	char testname[sizeof(timeattackfolder)];
 
-	gamemap = READSHORT(save_p);
+	gamemap = READINT16(save_p);
 
 	if (mapoverride != 0)
 	{
@@ -3066,8 +3066,8 @@ static inline boolean P_NetUnArchiveMisc(void)
 	UINT32 pig;
 	INT32 i, j;
 
-	gamemap = READSHORT(save_p);
-	G_SetGamestate(READSHORT(save_p));
+	gamemap = READINT16(save_p);
+	G_SetGamestate(READINT16(save_p));
 
 	tokenlist = READULONG(save_p);
 
@@ -3090,7 +3090,7 @@ static inline boolean P_NetUnArchiveMisc(void)
 	// get the time
 	leveltime = READULONG(save_p);
 	totalrings = READULONG(save_p);
-	lastmap = READSHORT(save_p);
+	lastmap = READINT16(save_p);
 
 	emeralds = READUSHORT(save_p);
 
@@ -3101,17 +3101,17 @@ static inline boolean P_NetUnArchiveMisc(void)
 	blueflagloose = READULONG(save_p);
 	redflagloose = READULONG(save_p);
 
-	autobalance = READSHORT(save_p);
-	teamscramble = READSHORT(save_p);
+	autobalance = READINT16(save_p);
+	teamscramble = READINT16(save_p);
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		scrambleplayers[i] = READSHORT(save_p);
+		scrambleplayers[i] = READINT16(save_p);
 
 	for (i = 0; i < MAXPLAYERS; i++)
-		scrambleteams[i] = READSHORT(save_p);
+		scrambleteams[i] = READINT16(save_p);
 
-	scrambletotal = READSHORT(save_p);
-	scramblecount = READSHORT(save_p);
+	scrambletotal = READINT16(save_p);
+	scramblecount = READINT16(save_p);
 
 	countdown = READULONG(save_p);
 	countdown2 = READULONG(save_p);

@@ -683,10 +683,10 @@ static void P_LoadThings(lumpnum_t lumpnum)
 	mt = mapthings;
 	for (i = 0; i < nummapthings; i++, mt++)
 	{
-		mt->x = READSHORT(data);
-		mt->y = READSHORT(data);
-		mt->angle = READSHORT(data);
-		mt->type = READSHORT(data);
+		mt->x = READINT16(data);
+		mt->y = READINT16(data);
+		mt->angle = READINT16(data);
+		mt->type = READUINT16(data);
 		mt->options = READUINT16(data);
 		mt->extrainfo = (UINT8)(mt->type >> 12);
 

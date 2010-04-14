@@ -805,7 +805,7 @@ static void Got_DummyCommand(UINT8 **cp, INT32 playernum)
 {
 	dummypacket_union NetPacket;
 
-	NetPacket.value.l = NetPacket.value.b = READSHORT(*cp);
+	NetPacket.value.l = NetPacket.value.b = READINT16(*cp);
 
 #ifdef PARANOIA
 	if (playernum < 0 || playernum > MAXPLAYERS)
@@ -2618,7 +2618,7 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 {
 	changeteam_union NetPacket;
 	boolean error = false;
-	NetPacket.value.l = NetPacket.value.b = READSHORT(*cp);
+	NetPacket.value.l = NetPacket.value.b = READINT16(*cp);
 
 	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)) //Make sure you're in the right gametype.
 	{
@@ -4087,7 +4087,7 @@ static void SoundTest_OnChange(void)
 
 static void AutoBalance_OnChange(void)
 {
-	autobalance = cv_autobalance.value;
+	autobalance = (INT16)cv_autobalance.value;
 }
 
 static void TeamScramble_OnChange(void)
@@ -4214,7 +4214,7 @@ static void TeamScramble_OnChange(void)
 	{
 		scrambletotal = playercount;
 		CONS_Printf("%s", text[TEAMS_SCRAMBLED]);
-		teamscramble = cv_teamscramble.value;
+		teamscramble = (INT16)cv_teamscramble.value;
 	}
 }
 
