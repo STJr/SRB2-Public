@@ -160,7 +160,7 @@ void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr)
 		filestatus = READUINT8(p);
 		fileneeded[i].important = (UINT8)(filestatus & 3);
 		fileneeded[i].willsend = (UINT8)(filestatus >> 4);
-		fileneeded[i].totalsize = READULONG(p);
+		fileneeded[i].totalsize = READUINT32(p);
 		fileneeded[i].phandle = NULL;
 		READSTRINGN(p, fileneeded[i].filename, MAX_WADPATH);
 		READMEM(p, fileneeded[i].md5sum, 16);

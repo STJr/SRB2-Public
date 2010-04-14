@@ -304,7 +304,7 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].bonuscount = READINT32(save_p);
 		players[i].skincolor = READINT32(save_p);
 		players[i].skin = READINT32(save_p);
-		players[i].score = READULONG(save_p);
+		players[i].score = READUINT32(save_p);
 		players[i].dashspeed = READINT32(save_p); // dashing speed
 		players[i].lives = READINT32(save_p);
 		players[i].continues = READINT32(save_p); // continues that player has acquired
@@ -313,12 +313,12 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].jumping = READINT32(save_p); // Jump counter
 		players[i].secondjump = READUINT8(save_p);
 		players[i].fly1 = READINT32(save_p); // Tails flying
-		players[i].scoreadd = READULONG(save_p); // Used for multiple enemy attack bonus
-		players[i].glidetime = READULONG(save_p); // Glide counter for thrust
+		players[i].scoreadd = READUINT32(save_p); // Used for multiple enemy attack bonus
+		players[i].glidetime = READUINT32(save_p); // Glide counter for thrust
 		players[i].climbing = READINT32(save_p); // Climbing on the wall
 		players[i].deadtimer = READINT32(save_p); // End game if game over lasts too long
 		players[i].splish = READINT32(save_p); // Don't make splish repeat tons
-		players[i].exiting = READULONG(save_p); // Exitlevel timer
+		players[i].exiting = READUINT32(save_p); // Exitlevel timer
 		players[i].blackow = READINT32(save_p);
 		players[i].homing = READUINT8(save_p); // Are you homing?
 
@@ -335,9 +335,9 @@ static inline void P_NetUnArchivePlayers(void)
 		/////////////////////
 		players[i].numboxes = READINT32(save_p); // Number of item boxes obtained for Race Mode
 		players[i].totalring = READINT32(save_p); // Total number of rings obtained for Race Mode
-		players[i].realtime = READULONG(save_p); // integer replacement for leveltime
-		players[i].racescore = READULONG(save_p); // Total of won categories
-		players[i].laps = READULONG(save_p); // Number of laps (optional)
+		players[i].realtime = READUINT32(save_p); // integer replacement for leveltime
+		players[i].racescore = READUINT32(save_p); // Total of won categories
+		players[i].laps = READUINT32(save_p); // Number of laps (optional)
 
 		////////////////////
 		// Tag Mode Stuff //
@@ -357,26 +357,26 @@ static inline void P_NetUnArchivePlayers(void)
 		players[i].weapondelay = READINT32(save_p);
 		players[i].tossdelay = READINT32(save_p);
 		players[i].shielddelay = READINT32(save_p);
-		players[i].taunttimer = READULONG(save_p);
+		players[i].taunttimer = READUINT32(save_p);
 
-		players[i].starposttime = READULONG(save_p);
+		players[i].starposttime = READUINT32(save_p);
 		players[i].starpostx = READINT32(save_p);
 		players[i].starposty = READINT32(save_p);
 		players[i].starpostz = READINT32(save_p);
 		players[i].starpostnum = READINT32(save_p);
 		players[i].starpostangle = READANGLE(save_p);
-		players[i].starpostbit = READULONG(save_p);
+		players[i].starpostbit = READUINT32(save_p);
 
 		players[i].angle_pos = READANGLE(save_p);
 		players[i].old_angle_pos = READANGLE(save_p);
 
 		players[i].flyangle = READINT32(save_p);
-		players[i].drilltimer = READULONG(save_p);
+		players[i].drilltimer = READUINT32(save_p);
 		players[i].linkcount = READINT32(save_p);
-		players[i].linktimer = READULONG(save_p);
+		players[i].linktimer = READUINT32(save_p);
 		players[i].anotherflyangle = READINT32(save_p);
-		players[i].nightstime = READULONG(save_p);
-		players[i].bumpertime = READULONG(save_p);
+		players[i].nightstime = READUINT32(save_p);
+		players[i].bumpertime = READUINT32(save_p);
 		players[i].drillmeter = READINT32(save_p);
 		players[i].drilldelay = READUINT8(save_p);
 		players[i].bonustime = READUINT8(save_p);
@@ -389,29 +389,29 @@ static inline void P_NetUnArchivePlayers(void)
 
 		players[i].onconveyor = READINT32(save_p);
 
-		players[i].jointime = READULONG(save_p);
+		players[i].jointime = READUINT32(save_p);
 
 		flags = READUINT16(save_p);
 
 		if (flags & CAPSULE)
-			players[i].capsule = (mobj_t *)(size_t)READULONG(save_p);
+			players[i].capsule = (mobj_t *)(size_t)READUINT32(save_p);
 
 		if (flags & FIRSTAXIS)
-			players[i].axis1 = (mobj_t *)(size_t)READULONG(save_p);
+			players[i].axis1 = (mobj_t *)(size_t)READUINT32(save_p);
 
 		if (flags & SECONDAXIS)
-			players[i].axis2 = (mobj_t *)(size_t)READULONG(save_p);
+			players[i].axis2 = (mobj_t *)(size_t)READUINT32(save_p);
 
 		if (flags & AWAYVIEW)
-			players[i].awayviewmobj = (mobj_t *)(size_t)READULONG(save_p);
+			players[i].awayviewmobj = (mobj_t *)(size_t)READUINT32(save_p);
 
 		if (i == 0)
 		{
 			if (flags & RFLAGPOINT)
-				rflagpoint = &mapthings[READULONG(save_p)];
+				rflagpoint = &mapthings[READUINT32(save_p)];
 
 			if (flags & BFLAGPOINT)
-				bflagpoint = &mapthings[READULONG(save_p)];
+				bflagpoint = &mapthings[READUINT32(save_p)];
 		}
 
 		players[i].viewheight = cv_viewheight.value<<FRACBITS;
@@ -1794,17 +1794,17 @@ static void LoadSpecialLevelThinker(actionf_p1 thinker, UINT8 floorOrCeiling)
 	levelspecthink_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	size_t i;
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->type = READINT32(save_p); //type
 	for (i = 0; i < 16; i++)
 		ht->vars[i] = READFIXED(save_p); //var[16]
 
-	(void)READULONG(save_p); // activator dummy
-	ht->sourceline = LoadLine(READULONG(save_p));
-	ht->sector = LoadSector(READULONG(save_p));
+	(void)READUINT32(save_p); // activator dummy
+	ht->sourceline = LoadLine(READUINT32(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 
 	if (ht->sector)
 	{
@@ -1826,12 +1826,12 @@ static void LoadCeilingThinker(actionf_p1 thinker)
 {
 	ceiling_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->type = READUINT32(save_p);
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->bottomheight = READFIXED(save_p);
 	ht->topheight = READFIXED(save_p);
 	ht->speed = READFIXED(save_p);
@@ -1860,13 +1860,13 @@ static void LoadFloormoveThinker(actionf_p1 thinker)
 {
 	floormove_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->type = READUINT32(save_p);
 	ht->crush = READINT32(save_p);
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->direction = READINT32(save_p);
 	ht->texture = READINT32(save_p);
 	ht->floordestheight = READFIXED(save_p);
@@ -1888,11 +1888,11 @@ static inline void LoadLightflashThinker(actionf_p1 thinker)
 {
 	lightflash_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->maxlight = READINT32(save_p);
 	ht->minlight = READINT32(save_p);
 	if (ht->sector)
@@ -1909,11 +1909,11 @@ static void LoadStrobeThinker(actionf_p1 thinker)
 {
 	strobe_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->count = READINT32(save_p);
 	ht->minlight = READINT32(save_p);
 	ht->maxlight = READINT32(save_p);
@@ -1933,11 +1933,11 @@ static void LoadGlowThinker(actionf_p1 thinker)
 {
 	glow_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->minlight = READINT32(save_p);
 	ht->maxlight = READINT32(save_p);
 	ht->direction = READINT32(save_p);
@@ -1955,11 +1955,11 @@ static void LoadFireflickerThinker(actionf_p1 thinker)
 {
 	fireflicker_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->count = READINT32(save_p);
 	ht->resetcount = READINT32(save_p);
 	ht->maxlight = READINT32(save_p);
@@ -1977,13 +1977,13 @@ static void LoadElevatorThinker(actionf_p1 thinker, UINT8 floorOrCeiling)
 {
 	elevator_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->type = READUINT32(save_p);
-	ht->sector = LoadSector(READULONG(save_p));
-	ht->actionsector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
+	ht->actionsector = LoadSector(READUINT32(save_p));
 	ht->direction = READINT32(save_p);
 	ht->floordestheight = READFIXED(save_p);
 	ht->ceilingdestheight = READFIXED(save_p);
@@ -1996,8 +1996,8 @@ static void LoadElevatorThinker(actionf_p1 thinker, UINT8 floorOrCeiling)
 	ht->delaytimer = READFIXED(save_p);
 	ht->floorwasheight = READFIXED(save_p);
 	ht->ceilingwasheight = READFIXED(save_p);
-	ht->player = LoadPlayer(READULONG(save_p)); // was dummy
-	ht->sourceline = LoadLine(READULONG(save_p));
+	ht->player = LoadPlayer(READUINT32(save_p)); // was dummy
+	ht->sourceline = LoadLine(READUINT32(save_p));
 
 	if (ht->sector)
 	{
@@ -2019,8 +2019,8 @@ static void LoadScrollThinker(actionf_p1 thinker)
 {
 	scroll_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->dx = READFIXED(save_p);
@@ -2045,8 +2045,8 @@ static inline void LoadFrictionThinker(actionf_p1 thinker)
 {
 	friction_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->friction = READINT32(save_p);
@@ -2069,12 +2069,12 @@ static void LoadPusherThinker(actionf_p1 thinker)
 {
 	pusher_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->type = READUINT32(save_p);
-	(void)READULONG(save_p); //source dummy, used affectee
+	(void)READUINT32(save_p); //source dummy, used affectee
 	ht->x_mag = READINT32(save_p);
 	ht->y_mag = READINT32(save_p);
 	ht->magnitude = READINT32(save_p);
@@ -2106,18 +2106,18 @@ static inline void LoadLaserThinker(actionf_p1 thinker)
 #endif
 	laserthink_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 #ifndef REMOVE_FOR_205
-	tmp = READULONG(save_p);
+	tmp = READUINT32(save_p);
 #endif
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->ffloor = NULL;
 #ifdef REMOVE_FOR_205
-	ht->sec = LoadSector(READULONG(save_p));
-	ht->sourceline = LoadLine(READULONG(save_p));
+	ht->sec = LoadSector(READUINT32(save_p));
+	ht->sourceline = LoadLine(READUINT32(save_p));
 #else
 	ht->ffloor = LoadFfloor(tmp, ht->sector);
 #endif
@@ -2133,11 +2133,11 @@ static inline void LoadLightlevelThinker(actionf_p1 thinker)
 {
 	lightlevel_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->sector = LoadSector(READULONG(save_p));
+	ht->sector = LoadSector(READUINT32(save_p));
 	ht->destlevel = READINT32(save_p);
 	ht->speed = READINT32(save_p);
 	if (ht->sector)
@@ -2154,12 +2154,12 @@ static inline void LoadExecutorThinker(actionf_p1 thinker)
 {
 	executor_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->line = LoadLine(READULONG(save_p));
-	ht->caller = LoadMobj(READULONG(save_p));
+	ht->line = LoadLine(READUINT32(save_p));
+	ht->caller = LoadMobj(READUINT32(save_p));
 	ht->timer = READINT32(save_p);
 	P_AddThinker(&ht->thinker);
 }
@@ -2173,14 +2173,14 @@ static inline void LoadDisappearThinker(actionf_p1 thinker)
 {
 	disappear_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
-	ht->appeartime = READULONG(save_p);
-	ht->disappeartime = READULONG(save_p);
-	ht->offset = READULONG(save_p);
-	ht->timer = READULONG(save_p);
+	ht->appeartime = READUINT32(save_p);
+	ht->disappeartime = READUINT32(save_p);
+	ht->offset = READUINT32(save_p);
+	ht->timer = READUINT32(save_p);
 	ht->affectee = READINT32(save_p);
 	ht->sourceline = READINT32(save_p);
 	ht->exists = READINT32(save_p);
@@ -2198,8 +2198,8 @@ static inline void LoadPolyrotatetThinker(actionf_p1 thinker)
 {
 	polyrotate_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->polyObjNum = READINT32(save_p);
@@ -2217,8 +2217,8 @@ static void LoadPolymoveThinker(actionf_p1 thinker)
 {
 	polymove_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->polyObjNum = READINT32(save_p);
@@ -2239,8 +2239,8 @@ static inline void LoadPolywaypointThinker(actionf_p1 thinker)
 {
 	polywaypoint_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->polyObjNum = READINT32(save_p);
@@ -2267,8 +2267,8 @@ static inline void LoadPolyslidedoorThinker(actionf_p1 thinker)
 {
 	polyslidedoor_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->polyObjNum = READINT32(save_p);
@@ -2278,9 +2278,9 @@ static inline void LoadPolyslidedoorThinker(actionf_p1 thinker)
 	ht->speed = READINT32(save_p);
 	ht->initDistance = READINT32(save_p);
 	ht->distance = READINT32(save_p);
-	ht->initAngle = READULONG(save_p);
-	ht->angle = READULONG(save_p);
-	ht->revAngle = READULONG(save_p);
+	ht->initAngle = READUINT32(save_p);
+	ht->angle = READUINT32(save_p);
+	ht->revAngle = READUINT32(save_p);
 	ht->momx = READFIXED(save_p);
 	ht->momy = READFIXED(save_p);
 	ht->closing = READINT32(save_p);
@@ -2296,8 +2296,8 @@ static inline void LoadPolyswingdoorThinker(actionf_p1 thinker)
 {
 	polyswingdoor_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	ht->polyObjNum = READINT32(save_p);
@@ -2322,8 +2322,8 @@ static inline void LoadWhatThinker(actionf_p1 thinker)
 {
 	what_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
 	(void)READINT32(save_p);  //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 }
@@ -2371,9 +2371,9 @@ static void P_NetUnArchiveThinkers(void)
 		switch (tclass)
 		{
 			case tc_mobj:
-				diff = READULONG(save_p);
+				diff = READUINT32(save_p);
 
-				next = (void *)(size_t)READULONG(save_p);
+				next = (void *)(size_t)READUINT32(save_p);
 
 				z = READFIXED(save_p); // Force this so 3dfloor problems don't arise.
 				floorz = READFIXED(save_p);
@@ -2402,7 +2402,7 @@ static void P_NetUnArchiveThinkers(void)
 				mobj->ceilingz = ceilingz;
 
 				if (diff & MD_TYPE)
-					mobj->type = READULONG(save_p);
+					mobj->type = READUINT32(save_p);
 				else
 				{
 					for (i = 0; i < NUMMOBJTYPES; i++)
@@ -2474,11 +2474,11 @@ static void P_NetUnArchiveThinkers(void)
 				else
 					mobj->sprite = mobj->state->sprite;
 				if (diff & MD_FRAME)
-					mobj->frame = READULONG(save_p);
+					mobj->frame = READUINT32(save_p);
 				else
 					mobj->frame = mobj->state->frame;
 				if (diff & MD_EFLAGS)
-					mobj->eflags = READULONG(save_p);
+					mobj->eflags = READUINT32(save_p);
 				if (diff & MD_PLAYER)
 				{
 					i = READUINT8(save_p);
@@ -2501,9 +2501,9 @@ static void P_NetUnArchiveThinkers(void)
 				else
 					mobj->lastlook = -1;
 				if (diff & MD_TARGET)
-					mobj->target = (mobj_t *)(size_t)READULONG(save_p);
+					mobj->target = (mobj_t *)(size_t)READUINT32(save_p);
 				if (diff & MD_TRACER)
-					mobj->tracer = (mobj_t *)(size_t)READULONG(save_p);
+					mobj->tracer = (mobj_t *)(size_t)READUINT32(save_p);
 				if (diff & MD_FRICTION)
 					mobj->friction = READINT32(save_p);
 				else
@@ -2536,7 +2536,7 @@ static void P_NetUnArchiveThinkers(void)
 				// set sprev, snext, bprev, bnext, subsector
 				P_SetThingPosition(mobj);
 
-				mobj->mobjnum = READULONG(save_p);
+				mobj->mobjnum = READUINT32(save_p);
 
 				if (mobj->player)
 				{
@@ -2742,9 +2742,9 @@ static inline void P_UnArchivePolyObj(polyobj_t *po)
 
 	angle = READANGLE(save_p);
 
-	(void)READULONG(save_p); //thinker.prev dummy
-	(void)READULONG(save_p); //thinker.next dummy
-	(void)READULONG(save_p); //thinker.actionf_t dummy
+	(void)READUINT32(save_p); //thinker.prev dummy
+	(void)READUINT32(save_p); //thinker.next dummy
+	(void)READUINT32(save_p); //thinker.actionf_t dummy
 	(void)READINT32(save_p);  //thinker.references dummy
 	x = READFIXED(save_p);
 	y = READFIXED(save_p);
@@ -2909,7 +2909,7 @@ static inline void P_NetUnArchiveSpecials(void)
 
 	// BP: added save itemrespawn queue for deathmatch
 	iquetail = iquehead = 0;
-	while ((i = READULONG(save_p)) != 0xffffffff)
+	while ((i = READUINT32(save_p)) != 0xffffffff)
 	{
 		itemrespawnque[iquehead] = &mapthings[i];
 		itemrespawntime[iquehead++] = READINT32(save_p);
@@ -3070,9 +3070,9 @@ static inline boolean P_NetUnArchiveMisc(void)
 	gamemap = READINT16(save_p);
 	G_SetGamestate(READINT16(save_p));
 
-	tokenlist = READULONG(save_p);
+	tokenlist = READUINT32(save_p);
 
-	pig = READULONG(save_p);
+	pig = READUINT32(save_p);
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -3089,18 +3089,18 @@ static inline boolean P_NetUnArchiveMisc(void)
 			playerstatetics[i][j] = READINT32(save_p);
 
 	// get the time
-	leveltime = READULONG(save_p);
-	totalrings = READULONG(save_p);
+	leveltime = READUINT32(save_p);
+	totalrings = READUINT32(save_p);
 	lastmap = READINT16(save_p);
 
 	emeralds = READUINT16(save_p);
 
-	token = READULONG(save_p);
+	token = READUINT32(save_p);
 	sstimer = READINT32(save_p);
-	bluescore = READULONG(save_p);
-	redscore = READULONG(save_p);
-	blueflagloose = READULONG(save_p);
-	redflagloose = READULONG(save_p);
+	bluescore = READUINT32(save_p);
+	redscore = READUINT32(save_p);
+	blueflagloose = READUINT32(save_p);
+	redflagloose = READUINT32(save_p);
 
 	autobalance = READINT16(save_p);
 	teamscramble = READINT16(save_p);
@@ -3114,12 +3114,12 @@ static inline boolean P_NetUnArchiveMisc(void)
 	scrambletotal = READINT16(save_p);
 	scramblecount = READINT16(save_p);
 
-	countdown = READULONG(save_p);
-	countdown2 = READULONG(save_p);
+	countdown = READUINT32(save_p);
+	countdown2 = READUINT32(save_p);
 
 	gravity = READFIXED(save_p);
 
-	countdowntimer = READULONG(save_p);
+	countdowntimer = READUINT32(save_p);
 	countdowntimeup = READUINT8(save_p);
 
 	P_SetRandIndex(READUINT8(save_p));
@@ -3127,7 +3127,7 @@ static inline boolean P_NetUnArchiveMisc(void)
 	matchtype = READINT32(save_p);
 	tagtype = READINT32(save_p);
 
-	hidetime = READULONG(save_p);
+	hidetime = READUINT32(save_p);
 
 	// Is it paused?
 	if (READUINT8(save_p) == 0x2f)

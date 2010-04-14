@@ -2573,8 +2573,8 @@ void G_LoadGameData(void)
 
 	save_p = savebuffer;
 
-	totalplaytime = READULONG(save_p);
-	grade = (READULONG(save_p)-25)/2;
+	totalplaytime = READUINT32(save_p);
+	grade = (READUINT32(save_p)-25)/2;
 
 	for (i = 0; i < NUMMAPS; i++)
 		mapvisited[i] = READUINT8(save_p);
@@ -2583,13 +2583,13 @@ void G_LoadGameData(void)
 		emblemlocations[i].collected = (UINT8)(READUINT8(save_p)-125-(i/4));
 
 	modded = READUINT8(save_p);
-	timesbeaten = (READULONG(save_p)/4)+2;
+	timesbeaten = (READUINT32(save_p)/4)+2;
 
 	// Initialize the table
 	memset(timedata, 0, sizeof (timeattack_t) * NUMMAPS);
 
 	for (i = 0; i < NUMMAPS; i++)
-		timedata[i].time = READULONG(save_p);
+		timedata[i].time = READUINT32(save_p);
 
 	// Aha! Someone's been screwing with the save file!
 	if ((modded && !savemoddata))
