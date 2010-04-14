@@ -36,7 +36,7 @@ void M_PushSpecialParameters(void);
 boolean M_IsNextParm(void);
 
 // Returns the next parameter after a M_CheckParm, NULL if not found.
-char *M_GetNextParm(void);
+const char *M_GetNextParm(void);
 
 // Finds and loads a response file (@moreargs.txt)
 void M_FindResponseFile(void);

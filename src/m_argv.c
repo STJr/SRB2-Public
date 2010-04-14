@@ -77,7 +77,7 @@ boolean M_IsNextParm(void)
   \return the next parameter after a M_CheckParm, NULL if not found
 	use M_IsNextParm to verify there is a parameter
 */
-char *M_GetNextParm(void)
+const char *M_GetNextParm(void)
 {
 	if (M_IsNextParm())
 	{

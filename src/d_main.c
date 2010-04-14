@@ -1039,7 +1039,7 @@ void D_SRB2Main(void)
 
 	if (M_CheckParm("-password") && M_IsNextParm())
 	{
-		char *pw = M_GetNextParm();
+		const char *pw = M_GetNextParm();
 		strncpy(adminpassword, pw, 8);
 		if (strlen(pw) < 8)
 		{
@@ -1067,7 +1067,7 @@ void D_SRB2Main(void)
 			// until end of parms or another - preceded parm
 			while (M_IsNextParm())
 			{
-				char *s = M_GetNextParm();
+				const char *s = M_GetNextParm();
 
 				if (s) // Check for NULL?
 				{
@@ -1294,7 +1294,7 @@ void D_SRB2Main(void)
 			// from Command_Map_f
 			INT32 j;
 			INT16 newgametype = -1;
-			char *sgametype = M_GetNextParm();
+			const char *sgametype = M_GetNextParm();
 
 			for (j = 0; gametype_cons_t[j].strvalue; j++)
 				if (!strcasecmp(gametype_cons_t[j].strvalue, sgametype))
@@ -1355,7 +1355,7 @@ void D_SRB2Main(void)
 
 const char *D_Home(void)
 {
-	char *userhome = NULL;
+	const char *userhome = NULL;
 
 #ifdef ANDROID
 	return "/data/data/org.srb2/";
