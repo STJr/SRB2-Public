@@ -353,7 +353,7 @@ void MatchType_OnChange(void)
   * \sa Command_Say_f, Command_Sayteam_f, Command_Sayto_f, Got_Saycmd
   * \author Graue <graue@oceanbase.org>
   */
-static void DoSayCommand(signed char target, size_t usedargs, char flags)
+static void DoSayCommand(SINT8 target, size_t usedargs, UINT8 flags)
 {
 	XBOXSTATIC char buf[254];
 	size_t numwords, ix;
@@ -429,7 +429,7 @@ static void Command_Sayto_f(void)
 	}
 	target++; // Internally we use 0 to 31, but say command uses 1 to 32.
 
-	DoSayCommand((signed char)target, 2, 0);
+	DoSayCommand((SINT8)target, 2, 0);
 }
 
 /** Send a message to members of the player's team.
@@ -450,7 +450,7 @@ static void Command_Sayteam_f(void)
 		return;
 	}
 
-	DoSayCommand((signed char)(-(consoleplayer+1)), 1, 0);
+	DoSayCommand((SINT8)(-(consoleplayer+1)), 1, 0);
 }
 
 /** Send a message to everyone, to be displayed by CECHO. Only

@@ -123,7 +123,7 @@ extern void (*I_NetFreeNodenum)(INT32 nodenum);
 
 
 */
-extern signed char (*I_NetMakeNode)(const char *address);
+extern SINT8 (*I_NetMakeNode)(const char *address);
 
 /**	\brief open connection
 */

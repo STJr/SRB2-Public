@@ -976,8 +976,8 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	cmd->forwardmove = (signed char)(cmd->forwardmove + forward);
-	cmd->sidemove = (signed char)(cmd->sidemove + side);
+	cmd->forwardmove = (SINT8)(cmd->forwardmove + forward);
+	cmd->sidemove = (SINT8)(cmd->sidemove + side);
 
 	localangle += (cmd->angleturn<<16);
 	cmd->angleturn = (INT16)(localangle >> 16);
@@ -1295,8 +1295,8 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
-	cmd->forwardmove = (signed char)(cmd->forwardmove + forward);
-	cmd->sidemove = (signed char)(cmd->sidemove + side);
+	cmd->forwardmove = (SINT8)(cmd->forwardmove + forward);
+	cmd->sidemove = (SINT8)(cmd->sidemove + side);
 
 	localangle2 += (cmd->angleturn<<16);
 	cmd->angleturn = (INT16)(localangle2 >> 16);

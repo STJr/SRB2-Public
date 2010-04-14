@@ -237,7 +237,7 @@ typedef struct
 #define MAXSERVERLIST 64 // depends only on the display
 typedef struct
 {
-	signed char node;
+	SINT8 node;
 	serverinfo_pak info;
 } serverelem_t;
 
@@ -264,7 +264,7 @@ extern boolean server;
 extern boolean dedicated; // for dedicated server
 extern UINT16 software_MAXPACKETLENGTH;
 extern boolean acceptnewnode;
-extern signed char servernode;
+extern SINT8 servernode;
 
 void Command_Ping_f(void);
 extern tic_t connectiontimeout;

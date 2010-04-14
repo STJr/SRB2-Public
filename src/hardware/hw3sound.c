@@ -357,7 +357,7 @@ static void HW3S_FillSourceParameters
 /*
 static void make_outphase_sfx(void *dest, void *src, INT32 size)
 {
-	signed char    *s = (signed char *)src + HEADER_SIZE, *d = (signed char *)dest + HEADER_SIZE;
+	SINT8    *s = (SINT8 *)src + HEADER_SIZE, *d = (SINT8 *)dest + HEADER_SIZE;
 
 	M_Memcpy(dest, src, HEADER_SIZE);
 	size -= HEADER_SIZE;

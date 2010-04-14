@@ -405,9 +405,9 @@ static boolean UDP_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
 
 static boolean (*SOCK_cmpaddr)(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask);
 
-static signed char getfreenode(void)
+static SINT8 getfreenode(void)
 {
-	signed char j;
+	SINT8 j;
 
 	for (j = 0; j < MAXNETNODES; j++)
 		if (!nodeconnected[j])
@@ -422,7 +422,7 @@ static signed char getfreenode(void)
 // This goes through and cleans up what nodes were supposed to be freed.
 static void cleanupnodes(void)
 {
-	signed char j;
+	SINT8 j;
 
 	if (!Playing())
 		return;
@@ -993,9 +993,9 @@ void I_ShutdownTcpDriver(void)
 }
 
 #ifndef NONET
-static signed char SOCK_NetMakeNode(const char *hostname)
+static SINT8 SOCK_NetMakeNode(const char *hostname)
 {
-	signed char newnode;
+	SINT8 newnode;
 	char *localhostname = strdup(hostname);
 	char *portchar;
 	UINT16 portnum = htons(sock_port);

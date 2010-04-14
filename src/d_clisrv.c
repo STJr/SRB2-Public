@@ -76,8 +76,8 @@ char adminpassword[9], motd[256]; // Password And Message of the Day
 // server specific vars
 UINT8 playernode[MAXPLAYERS];
 UINT8 consfailcount[MAXPLAYERS];
-signed char nodetoplayer[MAXNETNODES];
-signed char nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
+SINT8 nodetoplayer[MAXNETNODES];
+SINT8 nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
 UINT8 playerpernode[MAXNETNODES]; // used specialy for scplitscreen
 boolean nodeingame[MAXNETNODES]; // set false as nodes leave game
 static tic_t nettics[MAXNETNODES]; // what tic the client have received
@@ -98,7 +98,7 @@ static UINT8 mynode; // my address pointofview server
 static UINT8 localtextcmd[MAXTEXTCMD];
 static UINT8 localtextcmd2[MAXTEXTCMD]; // splitscreen
 static tic_t neededtic;
-signed char servernode = 0; // the number of the server node
+SINT8 servernode = 0; // the number of the server node
 /// \brief do we accept new players?
 /// \todo WORK!
 boolean acceptnewnode = true;
@@ -641,7 +641,7 @@ static UINT32 SL_SearchServer(INT32 node)
 	return UINT32_MAX;
 }
 
-static void SL_InsertServer(serverinfo_pak* info, signed char node)
+static void SL_InsertServer(serverinfo_pak* info, SINT8 node)
 {
 	UINT32 i;
 	boolean moved;
@@ -2052,14 +2052,14 @@ static size_t TotalTextCmdPerTic(tic_t tic)
 static void GetPackets(void)
 {FILESTAMP
 	XBOXSTATIC INT32 netconsole;
-	XBOXSTATIC signed char node;
+	XBOXSTATIC SINT8 node;
 	XBOXSTATIC tic_t realend,realstart;
 	XBOXSTATIC UINT8 *pak, *txtpak, numtxtpak;
 	INT32 p = maketic%BACKUPTICS;
 FILESTAMP
 	while (HGetPacket())
 	{
-		node = (signed char)doomcom->remotenode;
+		node = (SINT8)doomcom->remotenode;
 		if (netbuffer->packettype == PT_CLIENTJOIN && server)
 		{
 			if (bannednode && bannednode[node])

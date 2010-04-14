@@ -44,8 +44,8 @@ boolean Net_GetNetStat(void);
 extern INT32 getbytes;
 extern INT64 sendbytes; // realtime updated
 
-extern signed char nodetoplayer[MAXNETNODES];
-extern signed char nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
+extern SINT8 nodetoplayer[MAXNETNODES];
+extern SINT8 nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
 extern UINT8 playerpernode[MAXNETNODES]; // used specialy for scplitscreen
 extern boolean nodeingame[MAXNETNODES]; // set false as nodes leave game
 
