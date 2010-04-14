@@ -426,7 +426,7 @@ void M_FirstLoadConfig(void)
   *
   * \sa Command_SaveConfig_f
   */
-void M_SaveConfig(char *filename)
+void M_SaveConfig(const char *filename)
 {
 	FILE *f;
 

@@ -69,7 +69,7 @@ void Command_ChangeConfig_f(void);
 
 void M_FirstLoadConfig(void);
 // save game config: cvars, aliases..
-void M_SaveConfig(char *filename);
+void M_SaveConfig(const char *filename);
 
 // s1 = s2+s3+s1 (1024 lenghtmax)
 void strcatbf(char *s1, const char *s2, const char *s3);
