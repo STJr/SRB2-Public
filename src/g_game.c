@@ -2558,7 +2558,7 @@ void G_LoadGameData(void)
 	for (i = 0; i < MAXEMBLEMS; i++)
 		emblemlocations[i].collected = false;
 
-	memset(mapvisited, false, sizeof (boolean) * NUMMAPS);
+	memset(mapvisited, false, sizeof(mapvisited));
 
 	totalplaytime = 0;
 	grade = 0;
