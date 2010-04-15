@@ -1,0 +1,11 @@
+*.bat -crlf
+*.dsp -crlf
+*.dsw -crlf
+*.vcproj -crlf
+zlibd32.mak -crlf
+*.vcxproj -crlf
+*.vcxproj.filters -crlf
+*.vcxproj.user -crlf
+*.sln -crlf
+watcom_f.mak -crlf
+watcom_l.mak -crlf
