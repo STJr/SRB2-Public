@@ -1114,7 +1114,7 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 // Anything between means the wall segment has been clipped with solidsegs,
 //  reducing wall overdraw to a minimum
 //
-static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
+static void HWR_StoreWallRange(float startfrac, float endfrac)
 {
 	wallVert3D wallVerts[4];
 	v2d_t vs, ve; // start, end vertices of 2d line (view from above)
@@ -1171,12 +1171,12 @@ static void HWR_StoreWallRange(INT32 startfrac, INT32 endfrac)
 		fixed_t texturehpeg = gr_sidedef->textureoffset + gr_curline->offset;
 
 		// clip texture s start/end coords with solidsegs
-		if (startfrac > 0 && startfrac < 1)
+		if (startfrac > 0.0f && startfrac < 1.0f)
 			cliplow = texturehpeg + (gr_curline->flength*FRACUNIT) * startfrac;
 		else
 			cliplow = (float)texturehpeg;
 
-		if (endfrac > 0 && endfrac < 1)
+		if (endfrac > 0.0f && endfrac < 1.0f)
 			cliphigh = texturehpeg + (gr_curline->flength*FRACUNIT) * endfrac;
 		else
 			cliphigh = texturehpeg + (gr_curline->flength*FRACUNIT);
@@ -1741,7 +1741,7 @@ static void HWR_ClipSolidWallSegment(INT32 first, INT32 last)
 		else
 		{
 			highfrac = HWR_ClipViewSegment(start->first+1, (polyvertex_t *)gr_curline->v1, (polyvertex_t *)gr_curline->v2);
-			HWR_StoreWallRange(0, (INT32)highfrac);
+			HWR_StoreWallRange(0, highfrac);
 		}
 		// Now adjust the clip size.
 		start->first = first;
@@ -1766,7 +1766,7 @@ static void HWR_ClipSolidWallSegment(INT32 first, INT32 last)
 		{
 			lowfrac  = HWR_ClipViewSegment(next->last-1, (polyvertex_t *)gr_curline->v1, (polyvertex_t *)gr_curline->v2);
 			highfrac = HWR_ClipViewSegment((next+1)->first+1, (polyvertex_t *)gr_curline->v1, (polyvertex_t *)gr_curline->v2);
-			HWR_StoreWallRange((INT32)lowfrac, (INT32)highfrac);
+			HWR_StoreWallRange(lowfrac, highfrac);
 		}
 		next++;
 
@@ -1800,7 +1800,7 @@ static void HWR_ClipSolidWallSegment(INT32 first, INT32 last)
 		else
 		{
 			lowfrac  = HWR_ClipViewSegment(next->last-1, (polyvertex_t *)gr_curline->v1, (polyvertex_t *)gr_curline->v2);
-			HWR_StoreWallRange((INT32)lowfrac, 1);
+			HWR_StoreWallRange(lowfrac, 1);
 		}
 	}
 
@@ -1864,7 +1864,7 @@ static void HWR_ClipPassWallSegment(INT32 first, INT32 last)
 			highfrac = HWR_ClipViewSegment(min(start->first + 1,
 				start->last), (polyvertex_t *)gr_curline->v1,
 				(polyvertex_t *)gr_curline->v2);
-			HWR_StoreWallRange(0, (INT32)highfrac);
+			HWR_StoreWallRange(0, highfrac);
 		}
 	}
 
@@ -1884,7 +1884,7 @@ static void HWR_ClipPassWallSegment(INT32 first, INT32 last)
 		{
 			lowfrac  = HWR_ClipViewSegment(max(start->last-1,start->first), (polyvertex_t *)gr_curline->v1, (polyvertex_t *)gr_curline->v2);
 			highfrac = HWR_ClipViewSegment(min((start+1)->first+1,(start+1)->last), (polyvertex_t *)gr_curline->v1, (polyvertex_t *)gr_curline->v2);
-			HWR_StoreWallRange((INT32)lowfrac, (INT32)highfrac);
+			HWR_StoreWallRange(lowfrac, highfrac);
 		}
 		start++;
 
@@ -1915,7 +1915,7 @@ static void HWR_ClipPassWallSegment(INT32 first, INT32 last)
 			lowfrac = HWR_ClipViewSegment(max(start->last - 1,
 				start->first), (polyvertex_t *)gr_curline->v1,
 				(polyvertex_t *)gr_curline->v2);
-			HWR_StoreWallRange((INT32)lowfrac, 1);
+			HWR_StoreWallRange(lowfrac, 1);
 		}
 	}
 }
