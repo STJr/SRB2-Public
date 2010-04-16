@@ -477,7 +477,7 @@ static void R_InitTextureMapping(void)
 //
 #define DISTMAP 2
 
-static inline void R_InitLightTables(void)
+void R_InitLightTables(void)
 {
 	INT32 i;
 	INT32 j;
