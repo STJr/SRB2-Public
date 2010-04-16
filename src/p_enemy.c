@@ -4993,7 +4993,11 @@ void A_BuzzFly(mobj_t *actor)
 		if (P_LookForPlayers(actor, true, false, 0))
 			return; // got a new target
 
-		actor->momz = actor->momy = actor->momz = 0;
+#ifdef REMOVE_FOR_205
+		actor->momz = actor->momy = actor->momx = 0;
+#else
+		actor->momz = actor->momy = 0;
+#endif
 		P_SetMobjState(actor, actor->info->spawnstate);
 		return;
 	}
