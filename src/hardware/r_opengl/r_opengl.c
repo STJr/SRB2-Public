@@ -1371,6 +1371,8 @@ EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value)
 {
 	switch (IdState)
 	{
+
+#if 0
 		case 77:
 		{
 			//08/01/00: Hurdler this is a test for mirror
@@ -1378,6 +1380,7 @@ EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value)
 				ClearBuffer(false, true, 0); // clear depth buffer
 			break;
 		}
+#endif
 
 		case HWD_SET_PALETTECOLOR:
 		{
