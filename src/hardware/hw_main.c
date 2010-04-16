@@ -1114,7 +1114,7 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 // Anything between means the wall segment has been clipped with solidsegs,
 //  reducing wall overdraw to a minimum
 //
-static void HWR_StoreWallRange(float startfrac, float endfrac)
+static void HWR_StoreWallRange(double startfrac, double endfrac)
 {
 	wallVert3D wallVerts[4];
 	v2d_t vs, ve; // start, end vertices of 2d line (view from above)
@@ -1172,14 +1172,14 @@ static void HWR_StoreWallRange(float startfrac, float endfrac)
 
 		// clip texture s start/end coords with solidsegs
 		if (startfrac > 0.0f && startfrac < 1.0f)
-			cliplow = texturehpeg + (gr_curline->flength*FRACUNIT) * startfrac;
+			cliplow = (float)(texturehpeg + (gr_curline->flength*FRACUNIT) * startfrac);
 		else
 			cliplow = (float)texturehpeg;
 
 		if (endfrac > 0.0f && endfrac < 1.0f)
-			cliphigh = texturehpeg + (gr_curline->flength*FRACUNIT) * endfrac;
+			cliphigh = (float)(texturehpeg + (gr_curline->flength*FRACUNIT) * endfrac);
 		else
-			cliphigh = texturehpeg + (gr_curline->flength*FRACUNIT);
+			cliphigh = (float)(texturehpeg + (gr_curline->flength*FRACUNIT));
 	}
 
 #ifdef HARDWAREFIX
@@ -1586,7 +1586,7 @@ static void HWR_StoreWallRange(float startfrac, float endfrac)
 				}
 				if (!(rover->flags & FF_FOG))
 				{
-					INT32 blendmode = PF_Masked;
+					FBITFIELD blendmode = PF_Masked;
 
 					if (rover->flags & FF_TRANSLUCENT)
 					{

@@ -76,7 +76,7 @@ typedef UINT8 GLRGB[3];
 void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 {
 	FOutVector v[4];
-	INT32 flags;
+	FBITFIELD flags;
 
 //  3--2
 //  | /|
@@ -139,7 +139,7 @@ void HWR_DrawClippedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 {
 	FOutVector      v[4];
-	INT32 flags;
+	FBITFIELD flags;
 
 //  3--2
 //  | /|
@@ -194,7 +194,7 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
 	FOutVector      v[4];
-	INT32 flags;
+	FBITFIELD flags;
 
 	float sdupx = vid.fdupx;
 	float sdupy = vid.fdupy;
@@ -247,7 +247,7 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
 	FOutVector      v[4];
-	INT32 flags;
+	FBITFIELD flags;
 
 	float sdupx = vid.fdupx*2;
 	float sdupy = vid.fdupy*2;
