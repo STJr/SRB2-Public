@@ -1377,7 +1377,7 @@ SINT8 nametonum(const char *name)
 
 	playernum = (SINT8)atoi(name);
 
-	if (playernum < 0 && playernum >= MAXPLAYERS)
+	if (playernum < 0 || playernum >= MAXPLAYERS)
 		return -1;
 
 	if (playernum)
