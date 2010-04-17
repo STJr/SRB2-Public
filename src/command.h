@@ -20,7 +20,7 @@
 #define __COMMAND_H__
 
 #include <stdio.h>
-#include "doomtype.h"
+#include "doomdefs.h"
 #include "dstrings.h"
 
 //===================================
