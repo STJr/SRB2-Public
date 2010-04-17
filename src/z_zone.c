@@ -60,6 +60,7 @@ typedef struct memblock_s
 	INT32 tag; // purgelevel
 
 	size_t size; // including the header and blocks
+	size_t realsize; // size of real data only
 
 #ifdef ZDEBUG
 	const char *ownerfile;
@@ -210,6 +211,7 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	block->ownerfile = file;
 #endif
 	block->size = size + extrabytes + sizeof *hdr;
+	block->realsize = size;
 
 	hdr->id = ZONEID;
 	hdr->block = block;
@@ -275,10 +277,10 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 
 	rez = Z_MallocAlign(size, tag, user, alignbits);
 
-	if (size < block->size)
+	if (size < block->realsize)
 		copysize = size;
 	else
-		copysize = block->size;
+		copysize = block->realsize;
 
 	M_Memcpy(rez, ptr, copysize);
 
