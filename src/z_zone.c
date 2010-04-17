@@ -270,6 +270,9 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 	block = Ptr2Memblock(ptr, "Z_Realloc");
 #endif
 
+	if (block == NULL)
+		return NULL;
+
 #ifdef ZDEBUG
 	// Write every Z_Realloc call to a debug file.
 	DEBFILE(va("Z_Realloc at %s:%d\n", file, line));
