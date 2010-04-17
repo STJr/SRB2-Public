@@ -1489,7 +1489,7 @@ static void readframe(MYFILE *f, INT32 num)
 			}
 			else if (!strcmp(word1, "DURATION"))
 			{
-				DEH_WriteUndoline(word1, va("%d", states[num].tics), UNDO_NONE);
+				DEH_WriteUndoline(word1, va("%u", states[num].tics), UNDO_NONE);
 				states[num].tics = i;
 			}
 			else if (!strcmp(word1, "NEXT"))
