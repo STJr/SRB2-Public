@@ -273,9 +273,10 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 #ifdef ZDEBUG
 	// Write every Z_Realloc call to a debug file.
 	DEBFILE(va("Z_Realloc at %s:%d\n", file, line));
-#endif
-
+	rez = Z_MallocAlign2(size, tag, user, alignbits, file, line);
+#else
 	rez = Z_MallocAlign(size, tag, user, alignbits);
+#endif
 
 	if (size < block->realsize)
 		copysize = size;
