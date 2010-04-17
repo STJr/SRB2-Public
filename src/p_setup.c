@@ -1454,15 +1454,10 @@ static void P_CreateBlockMap(void)
 					// Graue 02-29-2004: make code more readable, don't realloc a null pointer
 					// (because it crashes for me, and because the comp.lang.c FAQ says so)
 					if (bmap[b].nalloc == 0)
-					{
 						bmap[b].nalloc = 8;
-						bmap[b].list = malloc(bmap[b].nalloc * sizeof (*bmap->list));
-					}
 					else
-					{
 						bmap[b].nalloc *= 2;
-						bmap[b].list = realloc(bmap[b].list, bmap[b].nalloc * sizeof (*bmap->list));
-					}
+					Z_Realloc(bmap[b].list, bmap[b].nalloc * sizeof (*bmap->list), PU_CACHE, &bmap[b].list);
 					if (!bmap[b].list)
 						I_Error("Out of Memory in P_CreateBlockMap");
 				}
@@ -1505,7 +1500,7 @@ static void P_CreateBlockMap(void)
 						blockmaplump[ndx++] = bp->list[--bp->n]; // Copy linedef list
 					while (bp->n);
 					blockmaplump[ndx++] = -1; // Store trailer
-					free(bp->list); // Free linedef list
+					Z_Free(bp->list); // Free linedef list
 				}
 				else // Empty blocklist: point to reserved empty blocklist
 					blockmaplump[i] = (INT32)tot;
@@ -2020,11 +2015,10 @@ noscript:
 	S_StopSounds();
 	S_ClearSfx();
 
-	// Why is this not Z_Malloc(PU_LEVEL)?
 	for (ss = sectors; sectors+numsectors != ss; ss++)
 	{
-		if (ss->attached) free(ss->attached);
-		if (ss->attachedsolid) free(ss->attachedsolid);
+		Z_Free(ss->attached);
+		Z_Free(ss->attachedsolid);
 	}
 
 	Z_FreeTags(PU_LEVEL, PU_PURGELEVEL - 1);

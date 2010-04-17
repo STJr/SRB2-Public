@@ -371,8 +371,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 		if (dc_numlights >= dc_maxlights)
 		{
 			dc_maxlights = dc_numlights;
-			dc_lightlist = realloc(dc_lightlist, sizeof (*dc_lightlist) * dc_maxlights);
-			if (!dc_lightlist) I_Error("Out of Memory in R_RenderMaskedSegRange");
+			dc_lightlist = Z_Realloc(dc_lightlist, sizeof (*dc_lightlist) * dc_maxlights, PU_STATIC, NULL);
 		}
 
 		for (i = 0; i < dc_numlights; i++)
@@ -736,8 +735,7 @@ void R_RenderThickSideRange(drawseg_t *ds, INT32 x1, INT32 x2, ffloor_t *pfloor)
 		if (dc_numlights > dc_maxlights)
 		{
 			dc_maxlights = dc_numlights;
-			dc_lightlist = realloc(dc_lightlist, sizeof (*dc_lightlist) * dc_maxlights);
-			if (!dc_lightlist) I_Error("Out of Memory in R_RenderThickSideRange");
+			dc_lightlist = Z_Realloc(dc_lightlist, sizeof (*dc_lightlist) * dc_maxlights, PU_STATIC, NULL);
 		}
 
 		for (i = p = 0; i < dc_numlights; i++)
@@ -1375,8 +1373,7 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		size_t newmax = maxdrawsegs ? maxdrawsegs*2 : 128;
 		if (firstseg)
 			firstseg = (drawseg_t *)(firstseg - drawsegs);
-		drawsegs = realloc(drawsegs,newmax*sizeof (*drawsegs));
-		if (!drawsegs) I_Error("Out of Memory in R_StoreWallRange");
+		drawsegs = Z_Realloc(drawsegs, newmax*sizeof (*drawsegs), PU_STATIC, NULL);
 		ds_p = drawsegs + pos;
 		firstnewseg = drawsegs + pos2;
 		maxdrawsegs = newmax;
@@ -1418,8 +1415,7 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 			do
 				maxopenings = maxopenings ? maxopenings*2 : 16384;
 			while (need > maxopenings);
-			openings = realloc(openings, maxopenings * sizeof (*openings));
-			if (!openings) I_Error("Out of Memory in R_StoreWallRange");
+			openings = Z_Realloc(openings, maxopenings * sizeof (*openings), PU_STATIC, NULL);
 			lastopening = openings + pos;
 
 			// borrowed fix from *cough* zdoom *cough*
@@ -1949,8 +1945,7 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		if (dc_numlights >= dc_maxlights)
 		{
 			dc_maxlights = dc_numlights;
-			dc_lightlist = realloc(dc_lightlist, sizeof (*dc_lightlist) * dc_maxlights);
-			if (!dc_lightlist) I_Error("Out of Memory in R_StoreWallRange");
+			dc_lightlist = Z_Realloc(dc_lightlist, sizeof (*dc_lightlist) * dc_maxlights, PU_STATIC, NULL);
 		}
 
 		for (i = p = 0; i < dc_numlights; i++)

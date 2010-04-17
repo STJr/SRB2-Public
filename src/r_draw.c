@@ -99,7 +99,7 @@ UINT8 *bosstranslationtables;
 */
 UINT8 *dc_translation;
 
-struct r_lightlist_s *dc_lightlist = NULL; /// \todo free leak
+struct r_lightlist_s *dc_lightlist = NULL;
 INT32 dc_numlights = 0, dc_maxlights, dc_texheight;
 
 // =========================================================================
