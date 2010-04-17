@@ -69,6 +69,35 @@ typedef struct memblock_s
 	struct memblock_s *next, *prev;
 } ATTRPACK memblock_t;
 
+#ifdef ZDEBUG
+#define Ptr2Memblock(s, f) Ptr2Memblock2(s, f, __FILE__, __LINE__)
+static memblock_t *Ptr2Memblock2(void *ptr, const char* func, const char *file, INT32 line)
+#else
+static memblock_t *Ptr2Memblock(void *ptr, const char* func)
+#endif
+{
+	memhdr_t *hdr;
+
+	if (ptr == NULL)
+		return NULL;
+
+#ifdef ZDEBUG2
+	CONS_Printf("%s %s:%d\n", func, file, line);
+#endif
+
+	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
+	if (hdr->id != ZONEID)
+	{
+#ifdef ZDEBUG
+		I_Error("%s: wrong id from %s:%d", func, file, line);
+#else
+		I_Error("%s: wrong id", func);
+#endif
+	}
+	return hdr->block;
+
+}
+
 static memblock_t head;
 
 static void Command_Memfree_f(void);
@@ -92,7 +121,6 @@ void Z_Free2(void *ptr, const char *file, INT32 line)
 void Z_Free(void *ptr)
 #endif
 {
-	memhdr_t *hdr;
 	memblock_t *block;
 
 	if (ptr == NULL)
@@ -102,16 +130,11 @@ void Z_Free(void *ptr)
 	CONS_Printf("Z_Free %s:%d\n", file, line);
 #endif
 
-	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
-	if (hdr->id != ZONEID)
-	{
 #ifdef ZDEBUG
-		I_Error("Z_Free: wrong id from %s:%d", file, line);
+	block = Ptr2Memblock2(ptr, "Z_Free", file, line);
 #else
-		I_Error("Z_Free: wrong id");
+	block = Ptr2Memblock(ptr, "Z_Free");
 #endif
-	}
-	block = hdr->block;
 
 #ifdef ZDEBUG
 	// Write every Z_Free call to a debug file.
@@ -223,7 +246,6 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 #endif
 {
 	void *rez;
-	memhdr_t *hdr;
 	memblock_t *block;
 	size_t copysize;
 
@@ -239,24 +261,19 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 
 	if (!ptr)
 		return Z_CallocAlign(size, tag, user, alignbits);
-	else
-		rez = Z_MallocAlign(size, tag, user, alignbits);
 
-	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
-	if (hdr->id != ZONEID)
-	{
 #ifdef ZDEBUG
-		I_Error("Z_Realloc: wrong id from %s:%d", file, line);
+	block = Ptr2Memblock2(ptr, "Z_Realloc", file, line);
 #else
-		I_Error("Z_Realloc: wrong id");
+	block = Ptr2Memblock(ptr, "Z_Realloc");
 #endif
-	}
-	block = hdr->block;
 
 #ifdef ZDEBUG
 	// Write every Z_Realloc call to a debug file.
 	DEBFILE(va("Z_Realloc at %s:%d\n", file, line));
 #endif
+
+	rez = Z_MallocAlign(size, tag, user, alignbits);
 
 	if (size < block->size)
 		copysize = size;
