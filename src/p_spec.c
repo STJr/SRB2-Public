@@ -68,11 +68,11 @@ static void P_AddSpikeThinker(sector_t *sec, INT32 referrer);
   */
 typedef struct
 {
-	boolean istexture; ///< ::true for a texture, ::false for a flat
-	INT32 picnum;       ///< The end flat number
-	INT32 basepic;      ///< The start flat number
-	INT32 numpics;      ///< Number of frames in the animation
-	tic_t speed;       ///< Number of tics for which each frame is shown
+	SINT8 istexture; ///< ::true for a texture, ::false for a flat
+	INT32 picnum;    ///< The end flat number
+	INT32 basepic;   ///< The start flat number
+	INT32 numpics;   ///< Number of frames in the animation
+	tic_t speed;     ///< Number of tics for which each frame is shown
 } anim_t;
 
 #if defined(_MSC_VER)
@@ -90,7 +90,7 @@ typedef struct
   */
 typedef struct
 {
-	char istexture; ///< True for a texture, false for a flat.
+	SINT8 istexture; ///< True for a texture, false for a flat.
 	char endname[9]; ///< Name of the last frame, null-terminated.
 	char startname[9]; ///< Name of the first frame, null-terminated.
 	INT32 speed ; ///< Number of tics for which each frame is shown.
@@ -246,7 +246,7 @@ void P_InitPicAnims(void)
 	else
 		animdefs = harddefs;
 
-	for (i = 0; animdefs[i].istexture != (char)-1; i++, maxanims++);
+	for (i = 0; animdefs[i].istexture != -1; i++, maxanims++);
 
 	if (anims)
 		free(anims);
@@ -256,7 +256,7 @@ void P_InitPicAnims(void)
 		I_Error("No free memory for ANIMATED data");
 
 	lastanim = anims;
-	for (i = 0; animdefs[i].istexture != (char)-1; i++)
+	for (i = 0; animdefs[i].istexture !=-1; i++)
 	{
 		if (animdefs[i].istexture)
 		{
@@ -275,7 +275,7 @@ void P_InitPicAnims(void)
 			lastanim->basepic = R_FlatNumForName(animdefs[i].startname);
 		}
 
-		lastanim->istexture = (boolean)animdefs[i].istexture;
+		lastanim->istexture = animdefs[i].istexture;
 		lastanim->numpics = lastanim->picnum - lastanim->basepic + 1;
 
 		if (lastanim->numpics < 2)
@@ -348,7 +348,7 @@ void P_SetupLevelFlatAnims(void)
 	INT32 i;
 
 	// the original game flat anim sequences
-	for (i = 0; anims[i].istexture != (boolean)-1; i++)
+	for (i = 0; anims[i].istexture != -1; i++)
 	{
 		if (!anims[i].istexture)
 			P_FindAnimatedFlat(i);

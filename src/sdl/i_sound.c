@@ -461,7 +461,7 @@ static INT32 addsfx(sfxenum_t sfxid, INT32 volume, INT32 step, INT32 seperation)
 	{
 		handlenums++;
 		// Reset current handle number, limited to 0..65535.
-		if (handlenums == (UINT16)-1)
+		if (handlenums == UINT16_MAX)
 			handlenums = 0;
 	}
 
