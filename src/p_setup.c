@@ -1457,7 +1457,7 @@ static void P_CreateBlockMap(void)
 						bmap[b].nalloc = 8;
 					else
 						bmap[b].nalloc *= 2;
-					Z_Realloc(bmap[b].list, bmap[b].nalloc * sizeof (*bmap->list), PU_CACHE, &bmap[b].list);
+					bmap[b].list = Z_Realloc(bmap[b].list, bmap[b].nalloc * sizeof (*bmap->list), PU_CACHE, &bmap[b].list);
 					if (!bmap[b].list)
 						I_Error("Out of Memory in P_CreateBlockMap");
 				}
