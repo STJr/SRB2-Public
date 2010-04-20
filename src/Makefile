@@ -429,7 +429,11 @@ cleandep:
 	$(REMOVE) $(OBJDIR)/depend.dep
 
 pre-build:
+ifdef NOVERSION
+	-../comptime.sh src
+else
 	-@touch comptime.c
+endif
 
 clean:
 	$(REMOVE) *~ *.flc

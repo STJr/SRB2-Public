@@ -831,8 +831,8 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "touch -c $SRCROOT/../../comptime.c";
+			shellPath = "/bin/sh -x";
+			shellScript = "PATH=\"/usr/local/bin:$PATH\" $SRCROOT/../../../comptime.sh $SRCROOT/../../";
 			showEnvVarsInLog = 0;
 		};
 		679B708A102B872300AA9E4C /* ShellScript */ = {

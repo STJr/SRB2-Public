@@ -190,8 +190,8 @@ INT32 I_GetKey(void);
 	#define PATHSEP "/"
 #endif
 
-// Compile date and time.
-extern const char *compdate, *comptime;
+// Compile date and time and revision.
+extern const char *compdate, *comptime, *comprevision;
 
 // Disabled code and code under testing
 

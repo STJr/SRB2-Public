@@ -6,6 +6,12 @@
  *  the timestamp
  *
  */
+ 
+#ifdef COMPVERSION
+#include "comptime.h"
+#else
+const char *comprevision = "Unknown";
+#endif
 
 const char *compdate = __DATE__;
 const char *comptime = __TIME__;
