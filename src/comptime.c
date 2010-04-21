@@ -6,7 +6,7 @@
  *  the timestamp
  *
  */
- 
+
 #ifdef COMPVERSION
 #include "comptime.h"
 #else

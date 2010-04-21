@@ -34,7 +34,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Outputs=""
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
