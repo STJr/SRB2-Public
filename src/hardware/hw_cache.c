@@ -707,7 +707,7 @@ void HWR_GetMappedPatch(GLPatch_t *gpatch, const UINT8 *colormap)
 	//    (...) unfortunately z_malloc fragment alot the memory :(so malloc is better
 	newmip = calloc(1, sizeof (*newmip));
 	if (newmip == NULL)
-		I_Error("%s: Out of memory", HWR_GetMappedPatch);
+		I_Error("%s: Out of memory", "HWR_GetMappedPatch");
 	grmip->nextcolormap = newmip;
 
 	newmip->colormap = colormap;
