@@ -29,6 +29,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -53,7 +55,7 @@
 				Optimization="0"
 				OmitFramePointers="false"
 				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;USEASM;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
@@ -126,6 +128,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -150,7 +154,7 @@
 				Optimization="0"
 				OmitFramePointers="false"
 				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
@@ -225,6 +229,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -252,7 +258,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
-				PreprocessorDefinitions="NDEBUG;_WINDOWS;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				PreprocessorDefinitions="NDEBUG;_WINDOWS;USEASM;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -324,6 +330,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -351,7 +359,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
-				PreprocessorDefinitions="NDEBUG;_WINDOWS;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				PreprocessorDefinitions="NDEBUG;_WINDOWS;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

@@ -29,9 +29,12 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Outputs=""
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -122,6 +125,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -216,6 +221,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -316,6 +323,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Getting revision number from the SCM system"
+				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
