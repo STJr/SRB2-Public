@@ -3248,7 +3248,7 @@ static void Command_Addfile(void)
 	length = strlen(buf)+1;
 
 	{
-		UINT8 md5sum[16+1] = "";
+		UINT8 md5sum[16+1] = {'\0'};
 #ifndef NOMD5
 		FILE *fhandle;
 
@@ -4147,7 +4147,7 @@ static void TeamScramble_OnChange(void)
 		for (i = 0; i < playercount; i++)
 		{
 			if (repick)
-				newteam = (M_Random() % 2) + 1;
+				newteam = (INT16)((M_Random() % 2) + 1);
 
 			// One team has the most players they can get, assign the rest to the other team.
 			if (red == maxcomposition || blue == maxcomposition)
@@ -4192,7 +4192,7 @@ static void TeamScramble_OnChange(void)
 		{
 			if (repick)
 			{
-				newteam = (M_Random() % 2) + 1;
+				newteam = (INT16)((M_Random() % 2) + 1);
 				repick = false;
 			}
 			else

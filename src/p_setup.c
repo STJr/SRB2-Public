@@ -1381,7 +1381,7 @@ static void P_CreateBlockMap(void)
 		bmap_t *bmap = calloc(tot, sizeof (*bmap)); // array of blocklists
 		boolean straight;
 
-		if (bmap == NULL) I_Error("%s: Out of memory making blockmap", __FUNCTION__);
+		if (bmap == NULL) I_Error("%s: Out of memory making blockmap", "P_CreateBlockMap");
 
 		for (i = 0; i < numlines; i++)
 		{

@@ -939,7 +939,7 @@ failure:
 void M_SaveFrame(void)
 {
 #ifdef USE_APNG
-	png_bytep linear = NULL;
+	UINT8 *linear = NULL;
 
 	if (!apng_FILE)
 	{
@@ -957,7 +957,7 @@ void M_SaveFrame(void)
 	else
 		linear = HWR_GetScreenshot();
 #endif
-	M_PNGFrame(apng_ptr, apng_info_ptr, linear);
+	M_PNGFrame(apng_ptr, apng_info_ptr, (png_bytep)linear);
 #ifdef HWRENDER
 	if (rendermode != render_soft && linear)
 		free(linear);
@@ -1016,7 +1016,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 {
 	png_structp png_ptr;
 	png_infop png_info_ptr;
-	PNG_CONST png_byte *PLTE = palette;
+	PNG_CONST png_byte *PLTE = (png_byte *)palette;
 #ifdef PNG_SETJMP_SUPPORTED
 #ifdef USE_FAR_KEYWORD
 	jmp_buf jmpbuf;

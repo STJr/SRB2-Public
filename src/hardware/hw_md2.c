@@ -982,7 +982,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		UINT32 durs = spr->mobj->state->tics;
 		UINT32 tics = spr->mobj->tics;
 		md2_frame_t *curr, *next = NULL;
-		const UINT8 flip = (spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP;
+		const UINT8 flip = (UINT8)((spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP);
 
 		if (spr->mobj->flags2 & MF2_SHADOW)
 		{

@@ -1133,7 +1133,7 @@ void R_PrecacheLevel(void)
 	// no need to precache all software textures in 3D mode
 	// (note they are still used with the reference software view)
 	texturepresent = calloc(numtextures, sizeof (*texturepresent));
-	if (texturepresent == NULL) I_Error("%s, Out of memory looking up textues", __FUNCTION__);
+	if (texturepresent == NULL) I_Error("%s: Out of memory looking up textues", "R_PrecacheLevel");
 
 	for (j = 0; j < numsides; j++)
 	{
@@ -1168,7 +1168,7 @@ void R_PrecacheLevel(void)
 	// Precache sprites.
 	//
 	spritepresent = calloc(numsprites, sizeof (*spritepresent));
-	if (spritepresent == NULL) I_Error("%s: Out of memory looking up sprites", __FUNCTION__);
+	if (spritepresent == NULL) I_Error("%s: Out of memory looking up sprites", "R_PrecacheLevel");
 
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		if (th->function.acp1 == (actionf_p1)P_MobjThinker)

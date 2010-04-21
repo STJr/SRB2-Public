@@ -569,7 +569,7 @@ UINT8 FV_PointOnLineSide(const vector_t *point, const vector_t *line)
 {
 	fixed_t s1 = FixedMul((point->y - line[0].y),(line[1].x - line[0].x));
 	fixed_t s2 = FixedMul((point->x - line[0].x),(line[1].y - line[0].y));
-	return s1 - s2 < 0;
+	return (UINT8)(s1 - s2 < 0);
 }
 
 //

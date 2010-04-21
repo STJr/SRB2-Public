@@ -2358,7 +2358,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 			if ((mo && P_IsLocalPlayer(mo->player)) || (line->flags & ML_NOCLIMB))
 			{
 				if (line->flags & ML_NOCLIMB)
-					globalweather = (UINT8)(line->frontsector->floorheight>>FRACBITS)/10;
+					globalweather = (UINT8)((line->frontsector->floorheight>>FRACBITS)/10);
 
 				P_SwitchWeather((line->frontsector->floorheight>>FRACBITS)/10);
 			}

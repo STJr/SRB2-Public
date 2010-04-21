@@ -42,6 +42,10 @@
 #define	SLASH	"\\"
 #define	S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 
+#ifndef INVALID_FILE_ATTRIBUTES
+#define INVALID_FILE_ATTRIBUTES	((DWORD)-1)
+#endif
+
 struct dirent
 {
 	long		d_ino;		/* Always zero. */
