@@ -205,7 +205,7 @@ const char *text[NUMTEXT] =
 	"   %.2d: %s\n",               //LISTWAD1
 	"*  %.2d: %s\n",               //LISTWAD2
 	"  IWAD: %s\n",                //LISTIWAD
-	"SRB2%s (%s %s)\n",            //VERSIONCMD
+	"SRB2%s (%s %s %s)\n",         //VERSIONCMD
 	"Current gametype is %d\n",    //GAMETYPECMD
 	"jumptoaxis <axisnum>: Jump to axis within current mare.\n", //JUMPTOAXIS_HELP
 	"Levels will end after %s scores %d point%s.\n",             //POINTLIMIT_MESSAGE

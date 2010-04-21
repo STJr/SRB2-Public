@@ -218,14 +218,8 @@ else
 	OBJS+=$(OBJDIR)/hw3sound.o
 endif
 
-ifdef X86_64
-# Need to "sudo apt-get install libc6-dev-i386" to compile as 32 bit (For compiling CFLAGS+=-m32)
-# Need to "sudo cp -T -l /usr/lib32/libSDL-1.2.so /usr/lib32/libSDL.so" to link to 32 bit SDL
-# If not "NOMIXER=1" need to "sudo cp -T -l /usr/lib32/libSDL_mixer-1.2.so /usr/lib32/libSDL_mixer.so"
-#    to link to 32 bit SDL_mixer
-	NONX86=1
-	CFLAGS+=-m32
-	LDFLAGS+=-m32
+ifndef NOVERSION
+OPTS += -DCOMPVERSION
 endif
 
 ifndef NONX86
@@ -429,10 +423,10 @@ cleandep:
 	$(REMOVE) $(OBJDIR)/depend.dep
 
 pre-build:
-ifdef NOVERSION
-	-../comptime.sh src
-else
+ifndef NOVERSION
 	-@touch comptime.c
+else
+	-../comptime.sh
 endif
 
 clean:

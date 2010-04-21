@@ -831,7 +831,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = "/bin/sh -x";
+			shellPath = "/bin/sh";
 			shellScript = "PATH=\"/usr/local/bin:$PATH\" $SRCROOT/../../../comptime.sh $SRCROOT/../../";
 			showEnvVarsInLog = 0;
 		};

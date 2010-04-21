@@ -3474,7 +3474,7 @@ static void Command_ListWADS_f(void)
   */
 static void Command_Version_f(void)
 {
-	CONS_Printf(text[VERSIONCMD], VERSIONSTRING, compdate, comptime);
+	CONS_Printf(text[VERSIONCMD], VERSIONSTRING, compdate, comptime, comprevision);
 }
 
 // Returns current gametype being used.
