@@ -266,7 +266,7 @@ static void P_DoAutobalanceTeams(void)
 	INT32 red=0, blue=0;
 	INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
 
-	NqetPacket.value.l = NetPacket.value.b = 0;
+	NetPacket.value.l = NetPacket.value.b = 0;
 	qmemset(redarray, 0, sizeof(redarray));
 	memset(bluearray, 0, sizeof(bluearray));
 
