@@ -1,6 +1,4 @@
 /data
-/bin/VC
-/objs/VC
 *.ncb
 *.opt
 *.plg
