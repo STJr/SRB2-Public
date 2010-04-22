@@ -267,7 +267,7 @@ static void P_DoAutobalanceTeams(void)
 	INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
 
 	NetPacket.value.l = NetPacket.value.b = 0;
-	qmemset(redarray, 0, sizeof(redarray));
+	memset(redarray, 0, sizeof(redarray));
 	memset(bluearray, 0, sizeof(bluearray));
 
 	// Only do it if we have enough room in the net buffer to send it.
