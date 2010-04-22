@@ -108,6 +108,7 @@
 		6746B1D60E1D5E7500404B3D /* rings.wpn in Resources */ = {isa = PBXBuildFile; fileRef = 6746B1D50E1D5E7500404B3D /* rings.wpn */; };
 		676BB5200E0DE06100C95963 /* m_queue.c in Sources */ = {isa = PBXBuildFile; fileRef = 676BB51C0E0DE06100C95963 /* m_queue.c */; };
 		676BB5220E0DE06100C95963 /* p_polyobj.c in Sources */ = {isa = PBXBuildFile; fileRef = 676BB51E0E0DE06100C95963 /* p_polyobj.c */; };
+		67B2071D1180FA8200E93654 /* vid_copy.s in Sources */ = {isa = PBXBuildFile; fileRef = 67B2071C1180FA8200E93654 /* vid_copy.s */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -341,6 +342,7 @@
 		676BB51D0E0DE06100C95963 /* m_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = m_queue.h; path = ../../m_queue.h; sourceTree = SOURCE_ROOT; };
 		676BB51E0E0DE06100C95963 /* p_polyobj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = p_polyobj.c; path = ../../p_polyobj.c; sourceTree = SOURCE_ROOT; };
 		676BB51F0E0DE06100C95963 /* p_polyobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = p_polyobj.h; path = ../../p_polyobj.h; sourceTree = SOURCE_ROOT; };
+		67B2071C1180FA8200E93654 /* vid_copy.s */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; name = vid_copy.s; path = ../../vid_copy.s; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Srb2mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Srb2mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -438,6 +440,7 @@
 		1E44AE890B67CC4E00BAD059 /* A_Asm */ = {
 			isa = PBXGroup;
 			children = (
+				67B2071C1180FA8200E93654 /* vid_copy.s */,
 				1E44AE8A0B67CC6000BAD059 /* asm_defs.inc */,
 				1E44AF9D0B67CF3D00BAD059 /* tmap.nas */,
 				1E44AF9F0B67CF4900BAD059 /* tmap_mmx.nas */,
@@ -831,7 +834,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = "/bin/sh";
+			shellPath = /bin/sh;
 			shellScript = "PATH=\"/usr/local/bin:$PATH\" $SRCROOT/../../../comptime.sh $SRCROOT/../../";
 			showEnvVarsInLog = 0;
 		};
@@ -946,6 +949,7 @@
 				1E308E720B71172D0015728C /* lzf.c in Sources */,
 				676BB5200E0DE06100C95963 /* m_queue.c in Sources */,
 				676BB5220E0DE06100C95963 /* p_polyobj.c in Sources */,
+				67B2071D1180FA8200E93654 /* vid_copy.s in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
