@@ -17,6 +17,7 @@
 /// \brief cd music interface (uses MCI).
 
 #include "../doomdef.h"
+#ifdef _WINDOWS
 #include "win_main.h"
 #include <mmsystem.h>
 
@@ -527,3 +528,4 @@ boolean I_SetVolumeCD (INT32 volume)
 	UNREFERENCED_PARAMETER(volume);
 	return false;
 }
+#endif

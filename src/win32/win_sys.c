@@ -20,6 +20,9 @@
 ///	Signal handler to trap errors and exit cleanly.
 
 #include "../doomdef.h"
+
+#ifdef _WINDOWS
+
 #include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
@@ -3653,3 +3656,4 @@ void I_RegisterSysCommands(void)
 	GetAffinityFuncs();
 	CV_RegisterVar(&cv_cpuaffinity);
 }
+#endif

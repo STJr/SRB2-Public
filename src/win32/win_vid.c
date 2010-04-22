@@ -18,6 +18,8 @@
 
 #include "../doomdef.h"
 
+#ifdef _WINDOWS
+
 #include <stdlib.h>
 #include <stdarg.h>
 
@@ -1149,3 +1151,4 @@ static void VID_Command_Mode_f(void)
 	else
 		setmodeneeded = modenum + 1; // request vid mode change
 }
+#endif

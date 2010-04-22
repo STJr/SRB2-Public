@@ -20,6 +20,8 @@
 ///	with low latency and low processor overhead.
 #include "../doomdef.h"
 
+#ifdef _WINDOWS
+
 #include "win_main.h"
 #include <mmsystem.h>
 #define DIRECTSOUND_VERSION     0x0600       /* version 6.0 */
@@ -2478,3 +2480,4 @@ static VOID Mid2StreamFreeBuffers(VOID)
 	// Don't free the stream buffers here, but rather allocate them once at startup,
 	// and free them at shutdown.
 }
+#endif

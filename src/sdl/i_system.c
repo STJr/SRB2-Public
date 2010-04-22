@@ -77,6 +77,8 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #pragma warning(disable : 4214 4244)
 #endif
 
+#ifdef SDL
+
 #include "SDL.h"
 
 #ifdef _MSC_VER
@@ -2999,3 +3001,4 @@ void I_RegisterSysCommands(void)
 	CV_RegisterVar(&cv_cpuaffinity);
 #endif
 }
+#endif

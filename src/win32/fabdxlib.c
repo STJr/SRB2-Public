@@ -19,6 +19,9 @@
 ///	- converted to C for Doom Legacy
 
 #include "../doomdef.h"
+
+#ifdef _WINDOWS
+
 //#define WIN32_LEAN_AND_MEAN
 #define RPC_NO_WINDOWS_H
 #include <windows.h>
@@ -672,3 +675,4 @@ VOID RestoreDDPalette(VOID)
 	if (DDPalette)
 		IDirectDrawSurface_SetPalette(ScreenReal, DDPalette);
 }
+#endif

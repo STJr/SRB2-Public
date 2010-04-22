@@ -25,6 +25,8 @@
 #include "../hardware/hw3dsdrv.h"      // get the 3D sound driver DLL export prototypes
 #endif
 
+#ifdef _WINDOWS
+
 #include "win_dll.h"
 #include "win_main.h"       // I_ShowLastError()
 
@@ -223,3 +225,4 @@ VOID Shutdown3DSDriver (VOID)
 	UnloadDLL(&hwsModule);
 }
 #endif
+#endif //_WINDOWS

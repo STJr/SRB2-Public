@@ -27,6 +27,8 @@
 #include <unistd.h>
 #endif
 
+#ifdef SDL
+
 #ifdef SDLMAIN
 #include "SDL_main.h"
 #elif defined(FORCESDLMAIN)
@@ -169,3 +171,4 @@ int main(int argc, char **argv)
 	return 0;
 #endif
 }
+#endif

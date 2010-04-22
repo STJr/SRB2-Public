@@ -24,6 +24,9 @@
 ///	convert the midi data into stream buffers on the fly
 
 #include "../doomdef.h" // warnings
+
+#ifdef _WINDOWS
+
 #include "../i_system.h"
 
 #include <stdio.h>
@@ -1573,3 +1576,4 @@ int Mid2StreamConvertToBuffer(DWORD dwFlags, LPCONVERTINFO lpciInfo)
 }
 
 #endif
+#endif //_WINDOWS

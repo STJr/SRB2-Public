@@ -32,6 +32,8 @@
 
 #include "../i_tcp.h"
 
+#ifdef SDL
+
 #ifdef HAVE_SDLNET
 
 #include "SDL_net.h"
@@ -444,3 +446,4 @@ boolean I_InitNetwork(void)
 	return false;
 #endif
 }
+#endif

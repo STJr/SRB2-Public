@@ -23,6 +23,8 @@
 #pragma warning(disable : 4214 4244)
 #endif
 
+#ifdef SDL
+
 #include "SDL.h"
 
 #ifdef _MSC_VER
@@ -2383,3 +2385,4 @@ static void SDLCALL I_FinishMusic(void)
 	if (Msc_Mutex) SDL_UnlockMutex(Msc_Mutex);
 }
 #endif
+#endif //SDL

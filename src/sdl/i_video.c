@@ -27,6 +27,8 @@
 #pragma warning(disable : 4214 4244)
 #endif
 
+#ifdef SDL
+
 #include "SDL.h"
 
 #ifdef _MSC_VER
@@ -2132,3 +2134,4 @@ void I_ShutdownGraphics(void)
 #endif
 	framebuffer = SDL_FALSE;
 }
+#endif

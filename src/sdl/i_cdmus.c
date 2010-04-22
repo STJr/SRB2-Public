@@ -17,6 +17,8 @@
 /// \brief cd music interface
 ///
 
+#ifdef SDL
+
 #if defined (DC) || defined (_WIN32_WCE) || defined(GP2X)
 #define NOSDLCD
 #endif
@@ -591,3 +593,5 @@ boolean I_SetVolumeCD (INT32 volume)
 #endif
 	return false;
 }
+
+#endif

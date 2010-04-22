@@ -20,6 +20,8 @@
 #include "../m_argv.h"
 #include "../i_net.h"
 
+#ifdef _WINDOWS
+
 //
 // NETWORKING
 //
@@ -37,3 +39,4 @@ boolean I_InitNetwork(void)
 
 	return false;
 }
+#endif

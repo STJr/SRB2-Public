@@ -21,6 +21,8 @@
 #pragma warning(disable : 4214 4244)
 #endif
 
+#ifdef SDL
+
 #include "SDL.h"
 
 #ifdef _MSC_VER
@@ -293,3 +295,4 @@ EXPORT void HWRAPI( OglSdlSetPalette) (RGBA_t *palette, RGBA_t *pgamma)
 }
 
 #endif //HWRENDER
+#endif //SDL

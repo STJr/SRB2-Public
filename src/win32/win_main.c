@@ -26,6 +26,7 @@
 #include "../doomdef.h"
 #include <stdio.h>
 
+#ifdef _WINDOWS
 //#define PHONE_HOME Remove completely for release!
 
 #ifdef PHONE_HOME
@@ -799,3 +800,4 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
 	return Result;
 }
+#endif //_WINDOWS
