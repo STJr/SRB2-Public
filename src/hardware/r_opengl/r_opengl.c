@@ -34,7 +34,7 @@
 #endif
 #include "r_opengl.h"
 
-#ifdef HWRENDER
+#if defined (HWRENDER) && !defined (NOROPENGL)
 // for KOS: GL_TEXTURE_ENV, glAlphaFunc, glColorMask, glPolygonOffset, glReadPixels, GL_ALPHA_TEST, GL_POLYGON_OFFSET_FILL
 
 struct GLRGBAFloat
