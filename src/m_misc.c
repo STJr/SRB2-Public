@@ -27,17 +27,6 @@
 // Extended map support.
 #include <ctype.h>
 
-#ifdef HAVE_PNG
- #include "png.h"
- #ifdef PNG_WRITE_SUPPORTED
-  #define USE_PNG // Only actually use PNG if write is supported.
-  #if defined (PNG_WRITE_APNG_SUPPORTED) //|| !defined(PNG_STATIC)
-   #define USE_APNG
-  #endif
-  // See hardware/hw_draw.c for a similar check to this one.
- #endif
-#endif
-
 #include "doomdef.h"
 #include "g_game.h"
 #include "m_misc.h"
@@ -64,6 +53,30 @@
 
 #ifdef SDL
 #include "sdl/hwsym_sdl.h"
+#endif
+
+#ifdef HAVE_PNG
+
+#ifndef _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE
+#endif
+
+#ifndef _LFS64_LARGEFILE
+#define _LFS64_LARGEFILE
+#endif
+
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 0
+#endif
+
+ #include "png.h"
+ #ifdef PNG_WRITE_SUPPORTED
+  #define USE_PNG // Only actually use PNG if write is supported.
+  #if defined (PNG_WRITE_APNG_SUPPORTED) //|| !defined(PNG_STATIC)
+   #define USE_APNG
+  #endif
+  // See hardware/hw_draw.c for a similar check to this one.
+ #endif
 #endif
 
 static CV_PossibleValue_t screenshot_cons_t[] = {{0, "Default"}, {1, "HOME"}, {2, "SRB2"}, {3, "CUSTOM"}, {0, NULL}};
@@ -1016,7 +1029,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 {
 	png_structp png_ptr;
 	png_infop png_info_ptr;
-	PNG_CONST png_byte *PLTE = (png_byte *)palette;
+	PNG_CONST png_byte *PLTE = (const png_byte *)palette;
 #ifdef PNG_SETJMP_SUPPORTED
 #ifdef USE_FAR_KEYWORD
 	jmp_buf jmpbuf;

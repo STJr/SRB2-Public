@@ -675,6 +675,19 @@ void HWR_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 color)
 }
 
 #ifdef HAVE_PNG
+
+#ifndef _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE
+#endif
+
+#ifndef _LFS64_LARGEFILE
+#define _LFS64_LARGEFILE
+#endif
+
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 0
+#endif
+
  #include "png.h"
  #ifdef PNG_WRITE_SUPPORTED
   #define USE_PNG // PNG is only used if write is supported (see ../m_misc.c)

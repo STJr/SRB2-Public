@@ -23,16 +23,6 @@
 #include <string.h>
 #include <math.h>
 
-#ifdef HAVE_PNG
- #include "png.h"
- #ifndef PNG_READ_SUPPORTED
- #undef HAVE_PNG
- #endif
- #if PNG_LIBPNG_VER < 100207
- //#undef HAVE_PNG
- #endif
-#endif
-
 #include "../doomdef.h"
 
 #ifdef HWRENDER
@@ -44,6 +34,29 @@
 #include "../m_misc.h"
 #include "../w_wad.h"
 #include "../z_zone.h"
+
+#ifdef HAVE_PNG
+
+#ifndef _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE
+#endif
+
+#ifndef _LFS64_LARGEFILE
+#define _LFS64_LARGEFILE
+#endif
+
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 0
+#endif
+
+ #include "png.h"
+ #ifndef PNG_READ_SUPPORTED
+ #undef HAVE_PNG
+ #endif
+ #if PNG_LIBPNG_VER < 100207
+ //#undef HAVE_PNG
+ #endif
+#endif
 
 #define NUMVERTEXNORMALS 162
 float avertexnormals[NUMVERTEXNORMALS][3] = {
