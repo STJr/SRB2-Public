@@ -22,6 +22,7 @@
 # Zlib
 /tools/zlib/contrib/amd64/amd64-match.S -whitespace
 /tools/zlib/contrib/delphi/zlibd32.mak -whitespace -crlf
+/tools/zlib/contrib/dotzlib/DotZLib/*.cs -crlf -whitespace
 /tools/zlib/contrib/gcc_gvmat64/gvmat64.S -whitespace
 /tools/zlib/contrib/minizip/MiniZip64_Changes.txt -whitespace
 /tools/zlib/contrib/minizip/MiniZip64_info.txt -whitespace
