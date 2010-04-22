@@ -423,10 +423,10 @@ cleandep:
 	$(REMOVE) $(OBJDIR)/depend.dep
 
 pre-build:
-ifndef NOVERSION
+ifdef NOVERSION
 	-@touch comptime.c
 else
-	-../comptime.sh
+	-@../comptime.sh
 endif
 
 clean:
