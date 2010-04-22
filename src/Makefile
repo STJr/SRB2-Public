@@ -234,7 +234,7 @@ endif
 
 ifndef NOASM
 ifndef NONX86
-	OBJS+=$(OBJDIR)/tmap.o $(OBJDIR)/tmap_mmx.o $(OBJDIR)/vid_copy.o
+	OBJS+=$(OBJDIR)/tmap.o $(OBJDIR)/tmap_mmx.o
 	OPTS+=-DUSEASM
 endif
 endif
@@ -383,6 +383,7 @@ OBJS:=$(i_main_o) \
 		$(OBJDIR)/mserv.o    \
 		$(OBJDIR)/i_tcp.o    \
 		$(OBJDIR)/lzf.o	     \
+		$(OBJDIR)/vid_copy.o \
 		$(i_cdmus_o)    \
 		$(i_net_o)      \
 		$(i_system_o)   \

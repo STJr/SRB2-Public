@@ -33,8 +33,10 @@
 // VID_BlitLinearScreen( src, dest, width, height, srcwidth, destwidth );
 //         width is given as BYTES
 
-.globl C(VID_BlitLinearScreen)
-C(VID_BlitLinearScreen):
+#ifdef __i386__
+
+.globl C(VID_BlitLinearScreen_ASM)
+C(VID_BlitLinearScreen_ASM):
     pushl   %ebp                // preserve caller's stack frame
     pushl   %edi
     pushl   %esi                // preserve register variables
@@ -64,3 +66,4 @@ LLRowLoop:
     popl    %ebp                // restore the caller's stack frame
 
     ret
+#endif
