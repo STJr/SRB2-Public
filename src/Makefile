@@ -218,6 +218,10 @@ else
 	OBJS+=$(OBJDIR)/hw3sound.o
 endif
 
+ifdef ComSpec
+COMSPEC=$(ComSpec)
+endif
+
 ifndef NOVERSION
 OPTS += -DCOMPVERSION
 endif
@@ -427,7 +431,11 @@ pre-build:
 ifdef NOVERSION
 	-@touch comptime.c
 else
-	-@../comptime.sh
+ifdef COMSPEC
+	-..\comptime.bat .
+else
+	-@../comptime.sh .
+endif
 endif
 
 clean:
