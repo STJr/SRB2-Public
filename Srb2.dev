@@ -11,7 +11,7 @@ CompilerSettings=00000000000010000111e1
 PchHead=-1
 PchSource=-1
 ProfilesCount=10
-ProfileIndex=3
+ProfileIndex=2
 
 [Unit1]
 FileName=src\hardware\hw3dsdrv.h
