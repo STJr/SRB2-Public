@@ -218,12 +218,11 @@ else
 	OBJS+=$(OBJDIR)/hw3sound.o
 endif
 
+ifndef NOVERSION
+OPTS += -DCOMPVERSION
 ifdef ComSpec
 COMSPEC=$(ComSpec)
 endif
-
-ifndef NOVERSION
-OPTS += -DCOMPVERSION
 endif
 
 ifndef NONX86
