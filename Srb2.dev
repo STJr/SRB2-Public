@@ -11,7 +11,7 @@ CompilerSettings=00000000000010000111e1
 PchHead=-1
 PchSource=-1
 ProfilesCount=10
-ProfileIndex=2
+ProfileIndex=3
 
 [Unit1]
 FileName=src\hardware\hw3dsdrv.h
@@ -2056,7 +2056,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
 CppCompiler=-Os_@@_
-Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mwindows_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000000111e1
 Icon=
@@ -2075,7 +2075,7 @@ CompilerType=0
 
 [Profile4]
 ProfileName=Win32/DirectX Debug
-Type=1
+Type=0
 ObjFiles=
 Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
@@ -2083,7 +2083,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
 CppCompiler=-Os_@@_
-Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000010110e1
 Icon=
@@ -2252,7 +2252,7 @@ BuildCmd=$(CC) -c ogl_win.c -o objs/Mingw/SDL/Release/ogl_win.o $(CFLAGS)
 
 [Profile5]
 ProfileName=Win32/SDL Release
-Type=1
+Type=0
 ObjFiles=
 Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
@@ -2260,7 +2260,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
 CppCompiler=-Os_@@_
-Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000000111e1
 Icon=
@@ -2309,7 +2309,7 @@ BuildCmd=$(CC) -c src/comptime.c -o $@ $(CFLAGS) -DCOMPVERSION
 
 [Profile6]
 ProfileName=Win32/SDL Debug
-Type=1
+Type=0
 ObjFiles=
 Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
@@ -2317,7 +2317,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
 CppCompiler=-O0_@@_
-Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000010110e1
 Icon=
@@ -2344,7 +2344,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
 CppCompiler=-Os_@@_
-Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lws2_32_@@_-static_@@_-lpng64_@@_-lz64_@@_
+Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lws2_32_@@_-static_@@_-lpng64_@@_-lz64_@@_-mwindows_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000000111tb
 Icon=
@@ -2363,7 +2363,7 @@ CompilerType=0
 
 [Profile8]
 ProfileName=Win64/DirectX Debug
-Type=1
+Type=0
 ObjFiles=
 Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
@@ -2371,7 +2371,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
 CppCompiler=-Os_@@_
-Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-l-lws2_32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lws2_32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000010110tb
 Icon=
@@ -2390,7 +2390,7 @@ CompilerType=0
 
 [Profile9]
 ProfileName=Win64/SDL Release
-Type=1
+Type=0
 ObjFiles=
 Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
@@ -2398,7 +2398,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
 CppCompiler=-Os_@@_
-Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000000111tb
 Icon=
@@ -2417,7 +2417,7 @@ CompilerType=0
 
 [Profile10]
 ProfileName=Win64/SDL Debug
-Type=1
+Type=0
 ObjFiles=
 Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
@@ -2425,7 +2425,7 @@ ResourceIncludes=src/win32
 MakeIncludes=comptime.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
 CppCompiler=-O0_@@_
-Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_
+Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
 CompilerSettings=00000000000000010110tb
 Icon=
