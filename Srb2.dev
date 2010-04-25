@@ -2,7 +2,7 @@
 FileName=Srb2.dev
 Name=Srb2
 Ver=3
-IsCpp=1
+IsCpp=0
 Type=0
 UnitCount=214
 Folders=A_Asm,D_Doom,F_Frame,G_Game,H_Hud,Hw_Hardware,Hw_Hardware/r_opengl,I_Interface,I_Interface/Dummy,I_Interface/SDL,I_Interface/Win32,M_Misc,P_Play,R_Rend,S_Sounds,W_Wad
