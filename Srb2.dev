@@ -1521,7 +1521,7 @@ CompileCpp=0
 Link=1
 Priority=1000
 OverrideBuildCmd=1
-BuildCmd=$(CC) -g $(CFLAGS) -x assembler-with-cpp -c $< -o $@
+BuildCmd=$(CC) -g $(CFLAGS) -x assembler-with-cpp -c src/vid_copy.s -o $@
 
 [Unit154]
 FileName=src\y_inter.h
@@ -1661,7 +1661,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c i_cdmus.c -o objs/Dummy/Debug/i_cdmus.o $(CFLAGS)
+BuildCmd=
 
 [Unit169]
 FileName=src\dummy\i_main.c
@@ -1671,7 +1671,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c i_main.c -o objs/Dummy/Debug/i_main.o $(CFLAGS)
+BuildCmd=
 
 [Unit170]
 FileName=src\dummy\i_net.c
@@ -1681,7 +1681,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c i_net.c -o objs/Dummy/Debug/i_net.o $(CFLAGS)
+BuildCmd=
 
 [Unit171]
 FileName=src\dummy\i_sound.c
@@ -1691,7 +1691,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c i_sound.c -o objs/Dummy/Debug/i_sound.o $(CFLAGS)
+BuildCmd=
 
 [Unit172]
 FileName=src\dummy\i_system.c
@@ -1701,7 +1701,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c i_system.c -o objs/Dummy/Debug/i_system.o $(CFLAGS)
+BuildCmd=
 
 [Unit173]
 FileName=src\dummy\i_video.c
@@ -1711,7 +1711,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c i_video.c -o objs/Dummy/Debug/i_video.o $(CFLAGS)
+BuildCmd=
 
 [Unit174]
 FileName=src\filesrch.c
@@ -2208,7 +2208,7 @@ Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c IMG_xpm.c -o objs/Mingw/Debug/IMG_xpm.o $(CFLAGS)
+BuildCmd=
 
 [Unit208]
 FileName=src\sdl\ogl_sdl.c
@@ -2248,7 +2248,7 @@ Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
-BuildCmd=$(CC) -c ogl_win.c -o objs/Mingw/SDL/Release/ogl_win.o $(CFLAGS)
+BuildCmd=
 
 [Profile5]
 ProfileName=Win32/SDL Release

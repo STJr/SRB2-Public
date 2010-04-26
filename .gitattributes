@@ -2,12 +2,13 @@
 *.bat -crlf -whitespace
 *.dsp -crlf -whitespace
 *.dsw -crlf -whitespace
+*.mk -crlf -wwhitespace
+*.sln -crlf -whitespace
 *.vcproj -crlf -whitespace
 *.vcxproj -crlf -whitespace
-*.vcxproj.filters -crlf -whitespace
-*.vcxproj.user -crlf -whitespace
-*.sln -crlf -whitespace
 *.manifest -crlf -whitespace
+*.vcxproj.user -crlf -whitespace
+*.vcxproj.filters -crlf -whitespace
 # Patches
 /tools/SDL-1.2.14-gc/SDL-1.2.14-gc.patch -whitespace
 # SRB2Updater
