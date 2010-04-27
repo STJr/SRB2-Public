@@ -303,12 +303,13 @@ ifndef DC
 endif
 ifdef DEBUG
 	CFLAGS+=-g
-endif
 		# -fgcse -fcse-follow-jumps -fcse-skip-blocks -frerun-cse-after-loop -ffunction-cse \
 		# -fexpensive-optimizations -fforce-mem -fstrength-reduce -fthread-jumps  \
 		# -fregmove -fschedule-insns -fschedule-insns2 -fmove-all-movables \
 		# -fcaller-saves -finline-functions -mieee-fp -mfp-ret-in-387 -m80387 -mhard-float -finline
+else
 	LIBS:=-s $(LIBS)
+endif
 endif
 
 ifdef PROFILEMODE
