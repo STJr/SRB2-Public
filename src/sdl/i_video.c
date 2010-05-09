@@ -1439,9 +1439,9 @@ void I_FinishUpdate(void)
 		if (!bufSurface && !vid.direct) //Double-Check
 		{
 			if (vid.bpp == 1) bufSurface = SDL_CreateRGBSurfaceFrom(screens[0],vid.width,vid.height,8,
-				vid.rowbytes,0x00000000,0x00000000,0x00000000,0x00000000); // 256 mode
+				(int)vid.rowbytes,0x00000000,0x00000000,0x00000000,0x00000000); // 256 mode
 			else if (vid.bpp == 2) bufSurface = SDL_CreateRGBSurfaceFrom(screens[0],vid.width,vid.height,15,
-				vid.rowbytes,0x00007C00,0x000003E0,0x0000001F,0x00000000); // 555 mode
+				(int)vid.rowbytes,0x00007C00,0x000003E0,0x0000001F,0x00000000); // 555 mode
 			if (bufSurface) SDL_SetColors(bufSurface, localPalette, 0, 256);
 			else CONS_Printf("No system memory for SDL buffer surface\n");
 		}

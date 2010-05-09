@@ -57,8 +57,10 @@
 
 #ifdef HAVE_PNG
 
+#ifndef _MSC_VER
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 #endif
 
 #ifndef _LFS64_LARGEFILE
