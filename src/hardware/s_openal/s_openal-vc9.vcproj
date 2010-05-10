@@ -20,7 +20,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -55,9 +55,9 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\s_openal.pdb"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="1"
@@ -75,14 +75,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreImportLibrary="true"
 				AdditionalDependencies="OpenAL32.lib"
-				OutputFile="C:\srb2demo2\s_openal.dll"
+				OutputFile="$(OutDir)\s_openal.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal.pdb"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)\s_openal.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=""
+				ImportLibrary="$(IntDir)\s_openal.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,7 +99,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\s_openal.bsc"
+				OutputFile="$(OutDir)\s_openal.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -111,8 +113,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -146,9 +148,9 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\s_openal.pdb"
+				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				CompileAs="1"
@@ -166,14 +168,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreImportLibrary="true"
 				AdditionalDependencies="OpenAL32.lib"
-				OutputFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal.dll"
+				OutputFile="$(OutDir)\s_openal.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal.pdb"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)\s_openal.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=""
+				ImportLibrary="$(IntDir)\s_openal.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -188,7 +192,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\s_openal.bsc"
+				OutputFile="$(OutDir)\s_openal.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -202,7 +206,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -238,9 +242,9 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\s_openal.pdb"
+				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -261,13 +265,14 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalDependencies="OpenAL32.lib"
-				OutputFile="C:\srb2demo2\s_openaldebug.dll"
+				OutputFile="$(OutDir)\s_openal.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal.pdb"
+				ProgramDatabaseFile="$(OutDir)\s_openal.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
+				ImportLibrary="$(IntDir)\s_openal.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -282,7 +287,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\s_openal.bsc"
+				OutputFile="$(OutDir)\s_openal.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -296,8 +301,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -332,9 +337,9 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				AssemblerListingLocation=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ObjectFile=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
-				ProgramDataBaseFileName=".\..\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\s_openal.pdb"
+				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -355,13 +360,14 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalDependencies="OpenAL32.lib"
-				OutputFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal.dll"
+				OutputFile="$(OutDir)\s_openal.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal.pdb"
+				ProgramDatabaseFile="$(OutDir)\s_openal.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
+				ImportLibrary="$(IntDir)\s_openal.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -376,7 +382,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\s_openal\s_openal.bsc"
+				OutputFile="$(OutDir)\s_openal.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

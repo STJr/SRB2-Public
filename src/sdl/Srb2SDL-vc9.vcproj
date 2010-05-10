@@ -20,8 +20,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\..\..\bin\VC\Debug\SDL"
-			IntermediateDirectory=".\..\..\objs\VC\Debug\SDL"
+			OutputDirectory=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -30,7 +30,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -49,14 +49,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
 				WarningLevel="4"
 				WarnAsError="true"
@@ -79,11 +78,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
-				OutputFile="C:\srb2demo2\srb2sdldebug.exe"
+				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2sdldebug.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2sdl.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -101,7 +100,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2sdl.bsc"
+				OutputFile="$(OutDir)\Srb2sdl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -115,8 +114,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -125,7 +124,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -145,14 +144,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
 				WarningLevel="4"
 				WarnAsError="true"
@@ -175,11 +173,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
-				OutputFile="C:\srb2demo2\srb2sdldebug.exe"
+				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2sdldebug.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2sdl.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -197,7 +195,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2sdl.bsc"
+				OutputFile="$(OutDir)\Srb2sdl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -211,8 +209,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\..\..\bin\VC\Release\SDL"
-			IntermediateDirectory=".\..\..\objs\VC\Release\SDL"
+			OutputDirectory=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -221,7 +219,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -248,14 +246,13 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				PrecompiledHeaderFile=".\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -277,11 +274,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
-				OutputFile="C:\srb2demo2\srb2sdl.exe"
+				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2sdl.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2sdl.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -299,7 +296,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2sdl.bsc"
+				OutputFile="$(OutDir)\Srb2sdl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -313,8 +310,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -323,7 +320,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -350,14 +347,13 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				PrecompiledHeaderFile=".\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\SDL\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -379,11 +375,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
-				OutputFile="C:\srb2demo2\srb2sdl.exe"
+				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2sdl.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2sdl.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -401,7 +397,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2sdl.bsc"
+				OutputFile="$(OutDir)\Srb2sdl.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

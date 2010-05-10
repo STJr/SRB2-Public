@@ -30,7 +30,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -54,15 +54,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OmitFramePointers="false"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;USEASM;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
 				AssemblerOutput="2"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2win.pdb"
 				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
@@ -83,11 +82,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
+				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2debug.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2win.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -105,7 +104,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
+				OutputFile="$(OutDir)\Srb2win.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -129,7 +128,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -153,7 +152,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OmitFramePointers="false"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -161,9 +160,8 @@
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
 				AssemblerOutput="2"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2win.pdb"
 				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
@@ -184,11 +182,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
+				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2debug.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2win.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -206,7 +204,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
+				OutputFile="$(OutDir)\Srb2win.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -230,7 +228,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -257,14 +255,13 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USEASM;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2win.pdb"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -285,11 +282,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
+				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2win.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -307,7 +304,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
+				OutputFile="$(OutDir)\Srb2win.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -331,7 +328,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Getting revision number from the SCM system"
-				CommandLine=" $(InputDir)..\..\comptime.bat $(InputDir).."
+				CommandLine="$(ProjectDir)..\..\comptime.bat $(ProjectDir).."
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -358,14 +355,13 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\tools\libpng-src;..\..\tools\zlib"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				AssemblerListingLocation=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ObjectFile=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\..\..\objs\VC9\$(PlatformName)\$(ConfigurationName)\"
+				AssemblerListingLocation="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\Srb2win.pdb"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -386,11 +382,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2win.exe"
+				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\srb2.pdb"
+				ProgramDatabaseFile="$(OutDir)\srb2win.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -408,7 +404,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\..\..\bin\VC9\$(PlatformName)\$(ConfigurationName)\Srb2win.bsc"
+				OutputFile="$(OutDir)\Srb2win.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
