@@ -680,7 +680,7 @@ INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 			continue;
 		if (maskcolor == extra_colormaps[i].maskcolor
 			&& fadecolor == extra_colormaps[i].fadecolor
-			&& maskamt == extra_colormaps[i].maskamt
+			&& (float)maskamt == (float)extra_colormaps[i].maskamt
 			&& fadestart == extra_colormaps[i].fadestart
 			&& fadeend == extra_colormaps[i].fadeend
 			&& fog == extra_colormaps[i].fog)
@@ -827,7 +827,7 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 			continue;
 		if (maskcolor == extra_colormaps[i].maskcolor
 			&& fadecolor == extra_colormaps[i].fadecolor
-			&& maskamt == extra_colormaps[i].maskamt
+			&& (float)maskamt == (float)extra_colormaps[i].maskamt
 			&& fadestart == extra_colormaps[i].fadestart
 			&& fadeend == extra_colormaps[i].fadeend
 			&& fog == extra_colormaps[i].fog)
