@@ -746,7 +746,7 @@ static void Polyobj_moveToSpawnSpot(mapthing_t *anchor)
 static void Polyobj_attachToSubsec(polyobj_t *po)
 {
 	subsector_t  *ss;
-	double center_x = 0.0, center_y = 0.0;
+	double center_x = 0.0l, center_y = 0.0l;
 	size_t i;
 
 	// never attach a bad polyobject
