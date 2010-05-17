@@ -182,7 +182,7 @@ static INT32 musicvol = 62;
 #if SDL_MIXER_VERSION_ATLEAST(1,2,2)
 #define MIXER_POS //Mix_FadeInMusicPos in 1.2.2+
 static void SDLCALL I_FinishMusic(void);
-static double loopstartDig = 0.0l;
+static long double loopstartDig = 0.0l;
 static SDL_bool loopingDig = SDL_FALSE;
 static SDL_bool canlooping = SDL_TRUE;
 #endif
@@ -519,7 +519,7 @@ static inline void I_SetChannels(void)
 
 	// This table provides step widths for pitch parameters.
 	for (i = -128; i < 128; i++)
-		steptablemid[i] = (INT32)(pow(2.0l, (i / 64.0l)) * 65536.0l);
+		steptablemid[i] = (INT32)(pow((double)(2.0l), (double)(i/1024.0l)));
 
 	// Generates volume lookup tables
 	//  which also turn the unsigned samples
@@ -2373,7 +2373,7 @@ static void SDLCALL I_FinishMusic(void)
 	else if (Msc_Mutex) SDL_LockMutex(Msc_Mutex);
 	//I_OutputMsg("I_FinishMusic: Loopping song to %g seconds\n", loopstartDig);
 	if (Mix_FadeInMusicPos(music[1], loopstartDig ? 0 : -1, Digfade,
-		loopstartDig) == 0)
+		(double)loopstartDig) == 0)
 	{
 		Mix_VolumeMusic(musicvol);
 	}

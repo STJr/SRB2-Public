@@ -199,8 +199,8 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 	psi3 = phiDiff(*phiMax, phi1);
 	psi4 = phiDiff(*phiMax, phi2);
 	psi5 = phiDiff(*phiMin, *phiMax);
-	psi6 = 2.0l*M_PIl - psi5; // phiDiff(*phiMax, *phiMin);
-	psi7 = 2.0l*M_PIl - psi2; // phiDiff(phi2, *phiMin);
+	psi6 = (double)(2.0l*M_PIl - psi5); // phiDiff(*phiMax, *phiMin);
+	psi7 = (double)(2.0l*M_PIl - psi2); // phiDiff(phi2, *phiMin);
 
 	// case 1 & 5!
 	if ((psi1 <= psi5) && (psi2 <= psi5))

@@ -633,9 +633,9 @@ INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 		else
 			mask = 24;
 
-		maskamt = mask/24.0l;
+		maskamt = (double)(mask/24.0l);
 
-		othermask = 1.0l - maskamt;
+		othermask = 1 - maskamt;
 		maskamt /= 0xff;
 		cmaskr *= maskamt;
 		cmaskg *= maskamt;
@@ -780,9 +780,9 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 		else
 			mask = 24;
 
-		maskamt = mask/24.0l;
+		maskamt = (double)(mask/24.0l);
 
-		othermask = 1.0l - maskamt;
+		othermask = 1 - maskamt;
 		maskamt /= 0xff;
 		cmaskr *= maskamt;
 		cmaskg *= maskamt;

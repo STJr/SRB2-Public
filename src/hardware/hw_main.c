@@ -4097,7 +4097,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	atransform.fovxangle = fpov; // Tails
 	atransform.fovyangle = fpov; // Tails
 	atransform.splitscreen = splitscreen;
-	gr_fovlud = (float)(1.0l/tan(fpov*M_PIl/360l));
+	gr_fovlud = (float)(1.0l/tan((double)(fpov*M_PIl/360l)));
 
 	//------------------------------------------------------------------------
 	HWR_ClearView();

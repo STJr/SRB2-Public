@@ -3089,7 +3089,7 @@ void I_UpdateMumble(const MumblePos_t *MPos)
 	lm->fPosition[1] = FIXED_TO_FLOAT(MPos->fPosition[1]);
 	lm->fPosition[2] = FIXED_TO_FLOAT(MPos->fPosition[2]);
 	if (MPos->fFront != 0.0l)
-		f_angle = (MPos->fFront) / (180.0l * M_PIl);
+		f_angle = (double)((MPos->fFront) / (180.0l * M_PIl));
 	lm->fFront[0] = (float)cos(f_angle);
 	lm->fFront[1] = 0.0f;
 	lm->fFront[2] = (float)sin(f_angle);
