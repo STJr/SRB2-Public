@@ -549,7 +549,7 @@ static INT32 STRINGY(INT32 y)
 	return y;
 }
 
-static inline INT32 SCX(INT32 x)
+static INT32 SCX(INT32 x)
 {
 	return (INT32)(x * vid.fdupx);
 }
