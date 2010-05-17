@@ -307,10 +307,10 @@ void HWR_DrawPic(INT32 x, INT32 y, lumpnum_t lumpnum)
 //  |/ |
 //  0--1
 
-	v[0].x = v[3].x = (float)2.0 * (float)x/vid.width - 1;
-	v[2].x = v[1].x = (float)2.0 * (float)(x + patch->width*vid.fdupx)/vid.width - 1;
-	v[0].y = v[1].y = 1 - (float)2.0 * (float)y/vid.height;
-	v[2].y = v[3].y = 1 - (float)2.0 * (float)(y + patch->height*vid.fdupy)/vid.height;
+	v[0].x = v[3].x = 2.0f * (float)x/vid.width - 1;
+	v[2].x = v[1].x = 2.0f * (float)(x + patch->width*vid.fdupx)/vid.width - 1;
+	v[0].y = v[1].y = 1.0f - 2.0f * (float)y/vid.height;
+	v[2].y = v[3].y = 1.0f - 2.0f * (float)(y + patch->height*vid.fdupy)/vid.height;
 
 	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 

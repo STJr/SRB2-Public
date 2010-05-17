@@ -804,10 +804,10 @@ void S_UpdateSounds(void)
 	MPos.fPosition[1] = listener.y;
 	MPos.fPosition[2] = listener.z;
 	if (listener.angle == 0)
-		MPos.fFront = (((double)listener.angle*45.0)/(double)ANGLE_45);
+		MPos.fFront = (((double)listener.angle*45.0l)/(double)ANGLE_45);
 	else
-		MPos.fFront = 0.0;
-	MPos.fTop = 0.0;
+		MPos.fFront = 0.0l;
+	MPos.fTop = 0.0l;
 	I_UpdateMumble(&MPos);
 
 #ifdef HW3SOUND

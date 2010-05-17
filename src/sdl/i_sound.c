@@ -182,7 +182,7 @@ static INT32 musicvol = 62;
 #if SDL_MIXER_VERSION_ATLEAST(1,2,2)
 #define MIXER_POS //Mix_FadeInMusicPos in 1.2.2+
 static void SDLCALL I_FinishMusic(void);
-static double loopstartDig = 0.0;
+static double loopstartDig = 0.0l;
 static SDL_bool loopingDig = SDL_FALSE;
 static SDL_bool canlooping = SDL_TRUE;
 #endif
@@ -519,7 +519,7 @@ static inline void I_SetChannels(void)
 
 	// This table provides step widths for pitch parameters.
 	for (i = -128; i < 128; i++)
-		steptablemid[i] = (INT32)(pow(2.0, (i / 64.0)) * 65536.0);
+		steptablemid[i] = (INT32)(pow(2.0l, (i / 64.0l)) * 65536.0l);
 
 	// Generates volume lookup tables
 	//  which also turn the unsigned samples
@@ -1272,7 +1272,7 @@ void I_StartupSound(void)
 	}
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
-	CONS_Printf(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0) / audio.freq));
+	CONS_Printf(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0f) / audio.freq));
 	// Finished initialization.
 	CONS_Printf("I_InitSound: sound module ready\n");
 	//[segabor]
@@ -2187,9 +2187,9 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 
 		if (loopstart > 0)
 		{
-			loopstartDig = (44.1+loopstart) / 44100.0; //8 PCM chucks off and PCM to secs
+			loopstartDig = (44.1l+loopstart) / 44100.0l; //8 PCM chucks off and PCM to secs
 //#ifdef GP2X//#ifdef PARANOIA
-			//I_OutputMsg("I_StartDigSong: setting looping point to %ul PCMs(%g seconds)\n", loopstart, loopstartDig);
+			//I_OutputMsg("I_StartDigSong: setting looping point to %ul PCMs(%f seconds)\n", loopstart, loopstartDig);
 //#endif
 		}
 		else
@@ -2198,7 +2198,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 		}
 	}
 	else
-		loopstartDig = 0.0;
+		loopstartDig = 0.0l;
 #else
 	if (looping && strcmp(data, "OggS")  == 0)
 		I_OutputMsg("I_StartDigSong: SRB2 was not compiled with looping music support(no Mix_FadeInMusicPos)\n");

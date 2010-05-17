@@ -633,9 +633,9 @@ INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 		else
 			mask = 24;
 
-		maskamt = mask/24.0;
+		maskamt = mask/24.0l;
 
-		othermask = 1 - maskamt;
+		othermask = 1.0l - maskamt;
 		maskamt /= 0xff;
 		cmaskr *= maskamt;
 		cmaskg *= maskamt;
@@ -708,18 +708,18 @@ INT32 R_CreateColormap(char *p1, char *p2, char *p3)
 			cbrightness = sqrt((r*r) + (g*g) + (b*b));
 
 			map[i][0] = (cbrightness * cmaskr) + (r * othermask);
-			if (map[i][0] > 255.0)
-				map[i][0] = 255.0;
+			if (map[i][0] > 255.0l)
+				map[i][0] = 255.0l;
 			deltas[i][0] = (map[i][0] - cdestr) / (double)fadedist;
 
 			map[i][1] = (cbrightness * cmaskg) + (g * othermask);
-			if (map[i][1] > 255.0)
-				map[i][1] = 255.0;
+			if (map[i][1] > 255.0l)
+				map[i][1] = 255.0l;
 			deltas[i][1] = (map[i][1] - cdestg) / (double)fadedist;
 
 			map[i][2] = (cbrightness * cmaskb) + (b * othermask);
-			if (map[i][2] > 255.0)
-				map[i][2] = 255.0;
+			if (map[i][2] > 255.0l)
+				map[i][2] = 255.0l;
 			deltas[i][2] = (map[i][2] - cdestb) / (double)fadedist;
 		}
 	}
@@ -780,9 +780,9 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 		else
 			mask = 24;
 
-		maskamt = mask/24.0;
+		maskamt = mask/24.0l;
 
-		othermask = 1 - maskamt;
+		othermask = 1.0l - maskamt;
 		maskamt /= 0xff;
 		cmaskr *= maskamt;
 		cmaskg *= maskamt;
@@ -851,18 +851,18 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 			cbrightness = sqrt((r*r) + (g*g) + (b*b));
 
 			map[i][0] = (cbrightness * cmaskr) + (r * othermask);
-			if (map[i][0] > 255.0)
-				map[i][0] = 255.0;
+			if (map[i][0] > 255.0l)
+				map[i][0] = 255.0l;
 			deltas[i][0] = (map[i][0] - cdestr) / (double)fadedist;
 
 			map[i][1] = (cbrightness * cmaskg) + (g * othermask);
-			if (map[i][1] > 255.0)
-				map[i][1] = 255.0;
+			if (map[i][1] > 255.0l)
+				map[i][1] = 255.0l;
 			deltas[i][1] = (map[i][1] - cdestg) / (double)fadedist;
 
 			map[i][2] = (cbrightness * cmaskb) + (b * othermask);
-			if (map[i][2] > 255.0)
-				map[i][2] = 255.0;
+			if (map[i][2] > 255.0l)
+				map[i][2] = 255.0l;
 			deltas[i][2] = (map[i][2] - cdestb) / (double)fadedist;
 		}
 	}
@@ -947,9 +947,9 @@ static UINT8 NearestColor(UINT8 r, UINT8 g, UINT8 b)
 // Rounds off floating numbers and checks for 0 - 255 bounds
 static int RoundUp(double number)
 {
-	if (number > 255.0)
+	if (number > 255.0l)
 		return 255;
-	if (number < 0)
+	if (number < 0.0l)
 		return 0;
 
 	if ((int)number <= (int)(number - 0.5f))

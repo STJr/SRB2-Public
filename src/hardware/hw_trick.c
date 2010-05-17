@@ -129,8 +129,8 @@ FUNCMATH static double phiDiff(double phiMin, double phiMax)
 
 	result = phiMax-phiMin;
 
-	if (result < 0.0)
-		result += 2.0*M_PI;
+	if (result < 0.0l)
+		result += 2.0l*M_PIl;
 
 	return result;
 }
@@ -140,7 +140,7 @@ FUNCMATH static double phiDiff(double phiMin, double phiMax)
 //
 static void sortPhi(double phi1, double phi2, double *phiMin, double *phiMax)
 {
-	if (phiDiff(phi1, phi2) < M_PI)
+	if (phiDiff(phi1, phi2) < M_PIl)
 	{
 		*phiMin = phi1;
 		*phiMax = phi2;
@@ -158,13 +158,13 @@ static void sortPhi(double phi1, double phi2, double *phiMin, double *phiMax)
 //
 FUNCMATH static boolean biggerThanPi(double phi1, double phi2)
 {
-	if (phiDiff(phi1, phi2) > M_PI)
+	if (phiDiff(phi1, phi2) > M_PIl)
 		return true;
 
 	return false;
 }
 
-#define DELTAPHI (M_PI/100.0) // some small phi << \pi
+#define DELTAPHI (M_PIl/100.0l) // some small phi << \pi
 
 //
 // calculate bounds for minimum angle
@@ -179,7 +179,7 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 	phi2 = phi2Tmp;
 
 	// check start condition
-	if (*phiMin > M_PI || *phiMax > M_PI)
+	if (*phiMin > M_PIl || *phiMax > M_PIl)
 	{
 		*phiMin = phi1;
 		*phiMax = phi2;
@@ -199,8 +199,8 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 	psi3 = phiDiff(*phiMax, phi1);
 	psi4 = phiDiff(*phiMax, phi2);
 	psi5 = phiDiff(*phiMin, *phiMax);
-	psi6 = 2.0*M_PI - psi5; // phiDiff(*phiMax, *phiMin);
-	psi7 = 2.0*M_PI - psi2; // phiDiff(phi2, *phiMin);
+	psi6 = 2.0l*M_PIl - psi5; // phiDiff(*phiMax, *phiMin);
+	psi7 = 2.0l*M_PIl - psi2; // phiDiff(phi2, *phiMin);
 
 	// case 1 & 5!
 	if ((psi1 <= psi5) && (psi2 <= psi5))
@@ -213,7 +213,7 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 		{
 			// create some artificial interval here not to get into numerical trouble
 			// in fact we know now the sector is completely enclosed -> base for computational optimization
-			*phiMax = 0.0;
+			*phiMax = 0.0l;
 			*phiMin = DELTAPHI;
 			return;
 		}
@@ -280,7 +280,7 @@ static inline boolean isVertexInside(vertex_t *vertex, sector_t *sector)
 	double phi1, phi2;
 
 	chain = sector->sectorLines;
-	phiMin = phiMax = 10.0*M_PI; // some value > \pi
+	phiMin = phiMax = 10.0l*M_PIl; // some value > \pi
 
 	while (chain)
 	{

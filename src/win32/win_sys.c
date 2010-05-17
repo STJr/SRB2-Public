@@ -62,9 +62,8 @@
 #define SM_MOUSEWHEELPRESENT 75
 #endif
 
-// Taken from Mingw's math.h, MSVC is dumb...
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
+#ifndef M_PIl
+#define M_PIl 3.1415926535897932384626433832795029L
 #endif
 
 #ifndef MSH_MOUSEWHEEL
@@ -3082,15 +3081,15 @@ void I_SetupMumble(void)
 
 void I_UpdateMumble(const MumblePos_t *MPos)
 {
-	double f_angle = 0.0;
+	double f_angle = 0.0l;
 	if (!lm || !MPos)
 		return;
 
 	lm->fPosition[0] = FIXED_TO_FLOAT(MPos->fPosition[0]);
 	lm->fPosition[1] = FIXED_TO_FLOAT(MPos->fPosition[1]);
 	lm->fPosition[2] = FIXED_TO_FLOAT(MPos->fPosition[2]);
-	if (MPos->fFront != 0.0)
-		f_angle = (MPos->fFront) / (180.0 * M_PI);
+	if (MPos->fFront != 0.0l)
+		f_angle = (MPos->fFront) / (180.0l * M_PIl);
 	lm->fFront[0] = (float)cos(f_angle);
 	lm->fFront[1] = 0.0f;
 	lm->fFront[2] = (float)sin(f_angle);

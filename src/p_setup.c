@@ -589,7 +589,7 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 		ss->virtualCeiling = false;
 		ss->sectorLines = NULL;
 		ss->stackList = NULL;
-		ss->lineoutLength = -1.0;
+		ss->lineoutLength = -1.0l;
 #endif // ----- end special tricks -----
 
 		// Keep players out of secret levels!

@@ -1309,11 +1309,11 @@ EXPORT void HWRAPI(DrawPolygon) (FSurfaceInfo  *pSurf,
 		pgluProject(cx, cy, cz, modelMatrix, projMatrix, viewport, &px, &py, &pz);
 		//DBG_Printf("Projection: (%f, %f, %f)\n", px, py, pz);
 
-		if ((pz <  0.0) ||
-		    (px < -8.0) ||
-		    (py < viewport[1]-8.0) ||
-		    (px > viewport[2]+8.0) ||
-		    (py > viewport[1]+viewport[3]+8.0))
+		if ((pz <  0.0l) ||
+		    (px < -8.0l) ||
+		    (py < viewport[1]-8.0l) ||
+		    (px > viewport[2]+8.0l) ||
+		    (py > viewport[1]+viewport[3]+8.0l))
 			return;
 
 		// the damned slow glReadPixels functions :(
@@ -1683,7 +1683,7 @@ EXPORT void HWRAPI(SetTransform) (FTransform *stransform)
 		pglLoadIdentity();
 		special_splitscreen = (stransform->splitscreen && stransform->fovxangle == 90.0f);
 		if (special_splitscreen)
-			pgluPerspective(53.13, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
+			pgluPerspective(53.13l, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
 			                NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
 		else
 			pgluPerspective(stransform->fovxangle, ASPECT_RATIO, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
@@ -1699,7 +1699,7 @@ EXPORT void HWRAPI(SetTransform) (FTransform *stransform)
 		pglMatrixMode(GL_PROJECTION);
 		pglLoadIdentity();
 		if (special_splitscreen)
-			pgluPerspective(53.13, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
+			pgluPerspective(53.13l, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
 			                NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
 		else
 			//Hurdler: is "fov" correct?
