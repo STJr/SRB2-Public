@@ -521,7 +521,7 @@ static inline void I_SetChannels(void)
 	for (i = -128; i < 128; i++)
 	{
 		const double po = pow((double)(2.0l), (double)((long double)i/1024.0l));
-		steptablemid[i] = po;
+		steptablemid[i] = (INT32)po;
 	}
 
 	// Generates volume lookup tables
