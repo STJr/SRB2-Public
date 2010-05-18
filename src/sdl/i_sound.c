@@ -519,7 +519,10 @@ static inline void I_SetChannels(void)
 
 	// This table provides step widths for pitch parameters.
 	for (i = -128; i < 128; i++)
-		steptablemid[i] = (INT32)(pow((double)(2.0l), (double)(i/1024.0l)));
+	{
+		const double po = pow((double)(2.0l), (double)((long double)i/1024.0l));
+		steptablemid[i] = po;
+	}
 
 	// Generates volume lookup tables
 	//  which also turn the unsigned samples
