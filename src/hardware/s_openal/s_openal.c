@@ -698,7 +698,7 @@ EXPORT void HWRAPI (UpdateListener) (listener_data_t *data, INT32 num)
 	{
 		ALfloat facing[6];
 		ALdouble f_angle = 0.0;
-		if (data->f_angle) f_angle = (data->f_angle) / 180.0 * M_PI;
+		if (data->f_angle) f_angle = (ALdouble)((data->f_angle) / 180.0l * M_PIl);
 		facing[0] = (ALfloat)cos(f_angle);
 		facing[1] = 0.0f;
 		facing[2] = (ALfloat)sin(f_angle);
