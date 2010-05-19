@@ -236,6 +236,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__WIN32__;__MSC__;USE_WGL_SWAP;_CRT_SECURE_NO_WARNINGS"
@@ -330,6 +331,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;__WIN32__;__MSC__;USE_WGL_SWAP;_CRT_SECURE_NO_WARNINGS"
