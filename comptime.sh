@@ -13,7 +13,7 @@ versiongit() {
 //
 const char* comprevision = "$gitversion";
 EOF
-
+exit 0
 }
 
 versionsvn() {
@@ -25,6 +25,7 @@ versionsvn() {
 //
 const char* comprevision = "r$svnrevision";
 EOF
+exit 0
 }
 
 versionfake() {
@@ -42,6 +43,8 @@ touch $path/comptime.c
 versionfake
 test -d $path/.svn && versionsvn
 test -d $path/../.git && versiongit
+exit 1
 }
 
 test -f $path/comptime.c && compversion
+exit 2
