@@ -52,7 +52,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
 				Optimization="0"
 				OmitFramePointers="false"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
