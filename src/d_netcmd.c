@@ -3806,9 +3806,9 @@ void D_GameTypeChanged(INT32 lastgametype)
 			case GT_MATCH:
 				if (!cv_timelimit.changed && !cv_pointlimit.changed) // user hasn't changed limits
 				{
-					// default settings for match: timelimit 10 mins, no pointlimit
+					// default settings for match: timelimit 5 mins, no pointlimit
 					CV_SetValue(&cv_pointlimit, 0);
-					CV_SetValue(&cv_timelimit, 10);
+					CV_SetValue(&cv_timelimit, 5);
 				}
 				if (!cv_itemrespawntime.changed)
 					CV_Set(&cv_itemrespawntime, cv_itemrespawntime.defaultvalue); // respawn normally
@@ -3816,9 +3816,9 @@ void D_GameTypeChanged(INT32 lastgametype)
 			case GT_TAG:
 				if (!cv_timelimit.changed && !cv_pointlimit.changed) // user hasn't changed limits
 				{
-					// default settings for tag: 5 mins, no pointlimit
+					// default settings for tag: 3 mins, no pointlimit
 					// Note that tag mode also uses an alternate timing mechanism in tandem with timelimit.
-					CV_SetValue(&cv_timelimit, 5);
+					CV_SetValue(&cv_timelimit, 3);
 					CV_SetValue(&cv_pointlimit, 0);
 				}
 				if (!cv_itemrespawntime.changed)
