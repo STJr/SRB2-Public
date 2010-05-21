@@ -140,7 +140,7 @@ typedef struct
 {
 	INT32 id;                  ///< Unused?
 	INT32 type;                ///< Type of message.
-	INT32 room;				   ///< Because everyone needs a roomie.
+	INT32 room;                ///< Because everyone needs a roomie.
 	UINT32 length;             ///< Length of the message.
 	char buffer[PACKET_SIZE]; ///< Actual contents of the message.
 } ATTRPACK msg_t;

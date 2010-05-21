@@ -59,7 +59,7 @@ typedef struct
 	char ipend[16];
 	char endstamp[32];
 	char reason[255];
-	boolean hostonly;
+	INT32 hostonly;
 } ATTRPACK msg_ban_t;
 
 #if defined(_MSC_VER)

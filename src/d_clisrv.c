@@ -3356,7 +3356,7 @@ void TryRunTics(tic_t realtics)
 #ifdef NEWPING
 static inline void PingUpdate(void)
 {
-	int i;
+	INT32 i;
 	boolean laggers[MAXPLAYERS];
 	UINT8 numlaggers = 0;
 	memset(laggers, 0, sizeof(boolean) * MAXPLAYERS);
@@ -3407,7 +3407,7 @@ static inline void PingUpdate(void)
 	//send out our ping packets
 	for (i = 0; i < MAXNETNODES; i++)
 		if (playeringame[i])
-			HSendPacket(i, true, 0, sizeof(int) * MAXPLAYERS);
+			HSendPacket(i, true, 0, sizeof(INT32) * MAXPLAYERS);
 
 	pingmeasurecount = 1; //Reset count
 }

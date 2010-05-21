@@ -312,7 +312,7 @@ typedef struct
 	UINT8 drilldelay;
 	UINT8 bonustime;
 	UINT8 mare;
-	short lastsidehit, lastlinehit;
+	INT16 lastsidehit, lastlinehit;
 	INT32 losscount;
 	INT32 onconveyor;
 	UINT8 spectator; //boolean
@@ -379,7 +379,7 @@ typedef struct
 		cons_pak consistency;       //      544 bytes
 		plrinfo playerinfo[MAXPLAYERS]; // 1024 bytes
 #ifdef NEWPING
-		unsigned int pingtable[MAXPLAYERS];//128 bytes
+		UINT32 pingtable[MAXPLAYERS];//128 bytes
 #endif
 	} u; // this is needed to pack diff packet types data together
 } ATTRPACK doomdata_t;

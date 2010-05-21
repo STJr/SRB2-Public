@@ -2702,7 +2702,7 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 		// clip movement
 		if (thiscam->z <= thiscam->floorz) // hit the floor
 		{
-			long cam_height = cv_cam_height.value;
+			fixed_t cam_height = cv_cam_height.value;
 			thiscam->z = thiscam->floorz;
 
 			if (player == &players[secondarydisplayplayer])
