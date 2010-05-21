@@ -1119,7 +1119,7 @@ void D_SRB2Main(void)
 	D_CleanFile();
 
 	// Check MD5s of autoloaded files
-	W_VerifyFileMD5(0, "3cd1d1ce4675f4242eb31d997fdacb3f"); // srb2.srb
+	W_VerifyFileMD5(0, "331b9f1e04b8112648fc45b854362422"); // srb2.srb
 	W_VerifyFileMD5(1, "f699d4702b9b505db621e5ad5af4f352"); // sonic.plr
 	W_VerifyFileMD5(2, "dfbbc38080485c70a84a57bb734ceee9"); // tails.plr
 	W_VerifyFileMD5(3, "1ea958e2aee87b6995226a120ba3eaac"); // knux.plr

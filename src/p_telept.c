@@ -60,7 +60,8 @@ void P_MixUp(mobj_t *thing, fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 		else
 			thing->player->viewz = thing->z + thing->player->viewheight;
 
-		thing->reactiontime = TICRATE/2; // don't move for about half a second
+		if (!thing->tracer)
+			thing->reactiontime = TICRATE/2; // don't move for about half a second
 
 		// absolute angle position
 		if (thing == players[consoleplayer].mo)
@@ -80,7 +81,8 @@ void P_MixUp(mobj_t *thing, fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 		// don't run in place after a teleport
 		thing->player->cmomx = thing->player->cmomy = 0;
 		thing->player->rmomx = thing->player->rmomy = 0;
-		thing->player->speed = 0;
+		if (!thing->tracer)
+			thing->player->speed = 0;
 
 		P_ResetPlayer(thing->player);
 		P_SetPlayerMobjState(thing, S_PLAY_STND);

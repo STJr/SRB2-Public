@@ -160,4 +160,7 @@ void CV_SaveVariables(FILE *f);
 void CV_SaveNetVars(UINT8 **p);
 void CV_LoadNetVars(UINT8 **p);
 
+// reset cheat netvars after cheats is deactivated
+void CV_ResetCheatNetVars(void);
+
 #endif // __COMMAND_H__

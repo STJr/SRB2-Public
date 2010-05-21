@@ -46,6 +46,12 @@ void Command_Numthinkers_f(void)
 	actionf_p1 action;
 	thinker_t *think;
 
+	if (gamestate != GS_LEVEL)
+	{
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
+		return;
+	}
+
 	if (COM_Argc() < 2)
 	{
 		CONS_Printf("numthinkers <#>: Count number of thinkers\n\t1: P_MobjThinker\n\t2: P_RainThinker\n\t3: P_SnowThinker\n\t4: P_NullPrecipThinker\n\t5: T_Friction\n\t6: T_Pusher\n\t7: P_RemoveThinkerDelayed\n");
@@ -105,6 +111,40 @@ void Command_CountMobjs_f(void)
 	thinker_t *th;
 	mobjtype_t i;
 	INT32 count;
+
+	if (gamestate != GS_LEVEL)
+	{
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
+		return;
+	}
+
+	if (COM_Argc() >= 2)
+	{
+		size_t j;
+		for (j = 1; j < COM_Argc(); j++)
+		{
+			i = atoi(COM_Argv(j));
+			if (i >= NUMMOBJTYPES)
+			{
+				CONS_Printf("Object number %d out of range (max %d).\n", i, NUMMOBJTYPES-1);
+				continue;
+			}
+
+			count = 0;
+
+			for (th = thinkercap.next; th != &thinkercap; th = th->next)
+			{
+				if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+					continue;
+
+				if (((mobj_t *)th)->type == i)
+					count++;
+			}
+
+			CONS_Printf("There are %d objects of type %d currently in the level.\n", count, i);
+		}
+		return;
+	}
 
 	CONS_Printf("Count of active objects in level:\n");
 
@@ -265,6 +305,8 @@ static void P_DoAutobalanceTeams(void)
 	INT32 i=0;
 	INT32 red=0, blue=0;
 	INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
+	INT32 redflagcarrier = 0, blueflagcarrier = 0;
+	INT32 totalred = 0, totalblue = 0;
 
 	NetPacket.value.l = NetPacket.value.b = 0;
 	memset(redarray, 0, sizeof(redarray));
@@ -283,20 +325,33 @@ static void P_DoAutobalanceTeams(void)
 		{
 			if (players[i].ctfteam == 1)
 			{
-				redarray[red] = i; //store the player's node.
-				red++;
+				if (!players[i].gotflag)
+				{
+					redarray[red] = i; //store the player's node.
+					red++;
+				}
+				else
+					redflagcarrier++;
 			}
 			else
 			{
-				bluearray[blue] = i; //store the player's node.
-				blue++;
+				if (!players[i].gotflag)
+				{
+					bluearray[blue] = i; //store the player's node.
+					blue++;
+				}
+				else
+					blueflagcarrier++;
 			}
 		}
 	}
 
-	if ((abs(red - blue) > cv_autobalance.value))
+	totalred = red + redflagcarrier;
+	totalblue = blue + blueflagcarrier;
+
+	if ((abs(totalred - totalblue) > cv_autobalance.value))
 	{
-		if (red > blue)
+		if (totalred > totalblue)
 		{
 			i = M_Random() % red;
 			NetPacket.packet.newteam = 2;
@@ -308,7 +363,7 @@ static void P_DoAutobalanceTeams(void)
 			SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 		}
 
-		if (blue > red)
+		if (totalblue > totalred)
 		{
 			i = M_Random() % blue;
 			NetPacket.packet.newteam = 1;
@@ -355,7 +410,7 @@ void P_DoTeamscrambling(void)
 		scramblecount++; //Increment, and get to the next player when we come back here next time.
 	}
 	else
-		CV_StealthSetValue(&cv_teamscramble, 0);
+		CV_SetValue(&cv_teamscramble, 0);
 }
 
 //
@@ -364,6 +419,11 @@ void P_DoTeamscrambling(void)
 void P_Ticker(void)
 {
 	INT32 i;
+
+	//Increment jointime even if paused.
+	for (i = 0; i < MAXPLAYERS; i++)
+		if (playeringame[i])
+			++players[i].jointime;
 
 	// Check for pause or menu up in single player
 	if (paused || (!netgame && menuactive && !demoplayback))

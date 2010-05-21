@@ -103,10 +103,10 @@ typedef struct polyobj_s
 	vertex_t    centerPt;  // center point
 	fixed_t zdist;         // viewz distance for sorting
 	angle_t angle;         // for rotation
-	boolean attached;      // if true, is attached to a subsector
+	UINT8 attached;         // if true, is attached to a subsector
 
 	fixed_t blockbox[4]; // bounding box for clipping
-	boolean linked;      // is linked to blockmap
+	UINT8 linked;         // is linked to blockmap
 	size_t validcount;   // for clipping: prevents multiple checks
 	INT32 damage;        // damage to inflict on stuck things
 	fixed_t thrust;      // amount of thrust to put on blocking objects
@@ -114,7 +114,7 @@ typedef struct polyobj_s
 
 	thinker_t *thinker;  // pointer to a thinker affecting this polyobj
 
-	boolean isBad;      // a bad polyobject: should not be rendered/manipulated
+	UINT8 isBad;         // a bad polyobject: should not be rendered/manipulated
 	INT32 translucency; // index to translucency tables
 } polyobj_t;
 
@@ -159,13 +159,14 @@ typedef struct polywaypoint_s
 
 	INT32 polyObjNum;   // numeric id of polyobject
 	INT32 speed;        // resultant velocity
-	INT32 sequence;	    // waypoint sequence #
+	INT32 sequence;     // waypoint sequence #
 	INT32 pointnum;     // waypoint #
 	INT32 direction;    // 1 for normal, -1 for backwards
-	INT32 comeback;     // reverses and comes back when the end is reached
-	INT32 wrap;         // Wrap around waypoints
-	INT32 continuous;   // continuously move - used with COMEBACK or WRAP
-	INT32 stophere;     // Will stop after it reaches the next waypoint
+	UINT8 comeback;      // reverses and comes back when the end is reached
+	UINT8 wrap;          // Wrap around waypoints
+	UINT8 continuous;    // continuously move - used with COMEBACK or WRAP
+	UINT8 stophere;      // Will stop after it reaches the next waypoint
+
 	// Difference between location of PO and location of waypoint (offset)
 	fixed_t diffx;
 	fixed_t diffy;
@@ -188,7 +189,7 @@ typedef struct polyslidedoor_s
 	UINT32 revAngle;          // reversed angle to avoid roundoff error
 	fixed_t momx;             // x component of speed along angle
 	fixed_t momy;             // y component of speed along angle
-	INT32 closing;            // if true, is closing
+	UINT8 closing;             // if true, is closing
 } polyslidedoor_t;
 
 typedef struct polyswingdoor_s
@@ -202,7 +203,7 @@ typedef struct polyswingdoor_s
 	INT32 speed;         // speed of rotation
 	INT32 initDistance;  // initial distance to travel
 	INT32 distance;      // current distance to travel
-	INT32 closing;       // if true, is closing
+	UINT8 closing;        // if true, is closing
 } polyswingdoor_t;
 
 //
@@ -215,7 +216,7 @@ typedef struct polyrotdata_s
 	INT32 direction;    // direction of rotation
 	INT32 speed;        // angular speed
 	INT32 distance;     // distance to move
-	INT32 overRide;     // if true, will override any action on the object
+	UINT8 overRide;      // if true, will override any action on the object
 } polyrotdata_t;
 
 typedef struct polymovedata_s
@@ -224,18 +225,18 @@ typedef struct polymovedata_s
 	fixed_t distance;   // distance to move
 	fixed_t speed;      // linear speed
 	angle_t angle;      // angle of movement
-	INT32 overRide;     // if true, will override any action on the object
+	UINT8 overRide;   // if true, will override any action on the object
 } polymovedata_t;
 
 typedef struct polywaypointdata_s
 {
-	INT32 polyObjNum; // numeric id of polyobject to affect
-	INT32 sequence;   // waypoint sequence #
-	fixed_t speed;    // linear speed
-	INT32 reverse;    // if true, will go in reverse waypoint order
-	INT32 comeback;   // reverses and comes back when the end is reached
-	INT32 wrap;       // Wrap around waypoints
-	INT32 continuous; // continuously move - used with COMEBACK or WRAP
+	INT32 polyObjNum;   // numeric id of polyobject to affect
+	INT32 sequence;     // waypoint sequence #
+	fixed_t speed;      // linear speed
+	UINT8 reverse;    // if true, will go in reverse waypoint order
+	UINT8 comeback;      // reverses and comes back when the end is reached
+	UINT8 wrap;       // Wrap around waypoints
+	UINT8 continuous; // continuously move - used with COMEBACK or WRAP
 } polywaypointdata_t;
 
 // polyobject door types

@@ -112,6 +112,9 @@ void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string);
 void V_DrawCenteredString(INT32 x, INT32 y, INT32 option, const char *string);
 void V_DrawRightAlignedString(INT32 x, INT32 y, INT32 option, const char *string);
 
+// Draw a tiny number, yay.
+void V_DrawTinyNum(INT32 x, INT32 y, INT32 c, INT32 num);
+
 // Find string width from lt_font chars
 INT32 V_LevelNameWidth(const char *string);
 INT32 V_LevelNameHeight(const char *string);

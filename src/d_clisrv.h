@@ -22,9 +22,10 @@
 #include "d_ticcmd.h"
 #include "d_netcmd.h"
 #include "tables.h"
+#include "d_player.h"
 
 // more precise version number to compare in network
-#define SUBVERSION 004
+#define SUBVERSION 000
 
 // Network play related stuff.
 // There is a data struct that stores network
@@ -57,6 +58,7 @@ typedef enum
 
 	PT_ASKINFO,       // Anyone can ask info of the server.
 	PT_SERVERINFO,    // Send game & server info (gamespy).
+	PT_PLAYERINFO,    // Send information for players in game (gamespy).
 	PT_REQUESTFILE,   // Client requests a file transfer
 	PT_ASKINFOVIAMS,  // Packet from the MS requesting info be sent to new client.
 	                  // If this ID changes, update masterserver definition.
@@ -71,6 +73,10 @@ typedef enum
 	PT_TEXTCMD2,      // Splitscreen text commands.
 	PT_CLIENTJOIN,    // Client wants to join; used in start game.
 	PT_NODETIMEOUT,   // Packet sent to self if the connection times out.
+	PT_CONSISTENCY,   // Packet sent to resync players.
+#ifdef NEWPING
+	PT_PING,          // Packet sent to tell clients the other client's latency to server.
+#endif
 	NUMPACKETTYPE
 } packettype_t;
 
@@ -176,12 +182,19 @@ typedef struct
 	UINT8 maxplayer;
 	UINT8 gametype;
 	UINT8 modifiedgame;
+	UINT8 cheatsenabled;
+	UINT8 isdedicated;
 	UINT8 fileneedednum;
-	SINT8 adminplayer; // needs to be signed
+	SINT8 adminplayer;
 	tic_t time;
+	tic_t leveltime;
 	char servername[MAXSERVERNAME];
 	char mapname[8];
-	UINT8 fileneeded[936]; // is filled with writexxx (byteptr.h)
+	char maptitle[33];
+	unsigned char mapmd5[16];
+	UINT8 actnum;
+	UINT8 iszone;
+	UINT8 fileneeded[915]; // is filled with writexxx (byteptr.h)
 } ATTRPACK serverinfo_pak;
 
 typedef struct
@@ -203,6 +216,142 @@ typedef struct
 	tic_t time; // used for ping evaluation
 } ATTRPACK msaskinfo_pak;
 
+typedef struct
+{
+	UINT8 randomseed;
+
+	//player stuff
+	UINT8 playernum;
+
+	UINT8 playerstate; //playerstate_t
+	ticcmd_t cmd;
+	fixed_t viewz;
+	fixed_t viewheight;
+	fixed_t deltaviewheight;
+	fixed_t bob;
+	angle_t aiming;
+	angle_t awayviewaiming;
+	INT32 phealth;
+	INT32 currentweapon;
+	INT32 ringweapons;
+	fixed_t tossstrength;
+	INT32 powers[NUMPOWERS];
+	UINT32 pflags; //pflags_t
+	INT32 bonuscount;
+	INT32 skincolor;
+	INT32 skin;
+	UINT32 score;
+	INT32 dashspeed;
+	INT32 normalspeed; //INT32
+	INT32 runspeed; //INT32
+	INT32 thrustfactor; //INT32
+	INT32 accelstart; //INT32
+	INT32 acceleration; //INT32
+	INT32 charability; //INT32
+	INT32 charability2; //INT32
+	UINT32 charflags;
+	UINT32 thokitem; //mobjtype_t
+	UINT32 spinitem; //mobjtype_t
+	INT32 actionspd; //INT32
+	INT32 mindash; //INT32
+	INT32 maxdash; //INT32
+	INT32 jumpfactor; //INT32
+#ifndef TRANSFIX
+	INT32 starttranscolor; //INT32
+#endif
+	INT32 prefcolor; //INT32
+	INT32 lives;
+	INT32 continues;
+	INT32 xtralife;
+	INT32 speed;
+	INT32 jumping;
+	UINT8 secondjump;
+	INT32 fly1;
+	UINT32 scoreadd;
+	tic_t glidetime;
+	INT32 climbing;
+	INT32 deadtimer;
+	INT32 splish;
+	tic_t exiting;
+	INT32 blackow;
+	UINT8 homing;
+	fixed_t cmomx;
+	fixed_t cmomy;
+	fixed_t rmomx;
+	fixed_t rmomy;
+	INT32 numboxes;
+	INT32 totalring;
+	tic_t realtime;
+	UINT32 racescore;
+	UINT32 laps;
+	INT32 ctfteam;
+	UINT16 gotflag;
+	INT32 dbginfo;
+	INT32 emeraldhunt;
+	INT32 weapondelay;
+	INT32 tossdelay;
+	INT32 shielddelay;
+	tic_t taunttimer;
+	INT32 starpostx;
+	INT32 starposty;
+	INT32 starpostz;
+	INT32 starpostnum;
+	tic_t starposttime;
+	angle_t starpostangle;
+	UINT32 starpostbit;
+	angle_t angle_pos;
+	angle_t old_angle_pos;
+	tic_t bumpertime;
+	INT32 flyangle;
+	tic_t drilltimer;
+	INT32 linkcount;
+	tic_t linktimer;
+	INT32 anotherflyangle;
+	tic_t nightstime;
+	INT32 drillmeter;
+	UINT8 drilldelay;
+	UINT8 bonustime;
+	UINT8 mare;
+	short lastsidehit, lastlinehit;
+	INT32 losscount;
+	INT32 onconveyor;
+	UINT8 spectator; //boolean
+	tic_t jointime;
+
+	//player->mo stuff
+	UINT8 hasmo; //boolean
+
+	angle_t angle;
+	fixed_t x;
+	fixed_t y;
+	fixed_t z;
+	fixed_t momx;
+	fixed_t momy;
+	fixed_t momz;
+	INT32 friction;
+	INT32 movefactor;
+
+	INT32 tics;
+	statenum_t statenum;
+	INT32 flags;
+	INT32 flags2;
+	UINT32 eflags;
+	INT32 health;
+} ATTRPACK cons_pak;
+
+// Shorter player information for external use.
+typedef struct
+{
+	UINT8 node;
+	char name[MAXPLAYERNAME+1];
+	UINT32 address; // sending another string would run us up against MAXPACKETLENGTH
+	UINT8 team;
+	UINT8 skin;
+	UINT8 data; // Color is first four bits, hasflag, isit and issuper have one bit each, the last is unused.
+	UINT32 score;
+	UINT16 timeinserver; // In seconds.
+} ATTRPACK plrinfo;
+
 //
 // Network packet data.
 //
@@ -223,10 +372,15 @@ typedef struct
 		UINT8 textcmd[MAXTEXTCMD+1]; //   66049 bytes
 		filetx_pak filetxpak;       //      144 bytes
 		clientconfig_pak clientcfg; //      144 bytes
-		serverinfo_pak serverinfo;  // 17338896 bytes
+		serverinfo_pak serverinfo;  //     1024 bytes
 		serverrefuse_pak serverrefuse; // 65025 bytes
 		askinfo_pak askinfo;        //       64 bytes
 		msaskinfo_pak msaskinfo;	//       24 bytes
+		cons_pak consistency;       //      544 bytes
+		plrinfo playerinfo[MAXPLAYERS]; // 1024 bytes
+#ifdef NEWPING
+		unsigned int pingtable[MAXPLAYERS];//128 bytes
+#endif
 	} u; // this is needed to pack diff packet types data together
 } ATTRPACK doomdata_t;
 
@@ -259,6 +413,11 @@ extern consvar_t cv_playdemospeed;
 #define KICK_MSG_PLAYER_QUIT 3
 #define KICK_MSG_TIMEOUT     4
 #define KICK_MSG_BANNED      5
+#ifdef NEWPING
+#define KICK_MSG_PING_HIGH   6
+#endif
+#define KICK_MSG_CUSTOM_KICK 7
+#define KICK_MSG_CUSTOM_BAN  8
 
 extern boolean server;
 extern boolean dedicated; // for dedicated server
@@ -268,6 +427,11 @@ extern SINT8 servernode;
 
 void Command_Ping_f(void);
 extern tic_t connectiontimeout;
+#ifdef NEWPING
+extern UINT16 pingmeasurecount;
+extern UINT32 realpingtable[MAXPLAYERS];
+extern UINT32 playerpingtable[MAXPLAYERS];
+#endif
 
 extern consvar_t cv_joinnextround, cv_allownewplayer, cv_maxplayers, cv_consfailprotect, cv_blamecfail, cv_maxsend;
 
@@ -292,7 +456,7 @@ void CL_AddSplitscreenPlayer(void);
 void CL_RemoveSplitscreenPlayer(void);
 void CL_Reset(void);
 void CL_ClearPlayer(INT32 playernum);
-void CL_UpdateServerList(boolean internetsearch);
+void CL_UpdateServerList(boolean internetsearch, INT32 room);
 // is there a game running
 boolean Playing(void);
 
@@ -313,7 +477,7 @@ void ReadLmpExtraData(UINT8 **demo_pointer, INT32 playernum);
 SINT8 nametonum(const char *name);
 #endif
 
-extern char adminpassword[9], motd[256];
+extern char adminpassword[9], motd[254];
 extern UINT8 playernode[MAXPLAYERS];
 extern UINT8 consfailcount[MAXPLAYERS];
 

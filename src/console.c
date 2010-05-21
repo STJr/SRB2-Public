@@ -311,8 +311,8 @@ static void CON_SetupBackColormap(void)
 	lgreenmap[9] = (UINT8)170;
 	bluemap[3]   = (UINT8)228;
 	bluemap[9]   = (UINT8)238;
-	graymap[3]   = (UINT8)28;
-	graymap[9]   = (UINT8)28;
+	graymap[3]   = (UINT8)10;
+	graymap[9]   = (UINT8)15;
 	redmap[3]    = (UINT8)124;
 	redmap[9]    = (UINT8)127;
 	orangemap[3] = (UINT8)85;

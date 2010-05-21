@@ -590,7 +590,8 @@ static void COM_Exec_f(void)
 		CONS_Printf("executing %s\n", COM_Argv(1));
 
 	// insert text file into the command buffer
-	COM_BufInsertText((char *)buf);
+	COM_BufAddText((char *)buf);
+	COM_BufAddText("\n");
 
 	// free buffer
 	Z_Free(buf);
@@ -900,7 +901,7 @@ static consvar_t *CV_FindNetVar(UINT16 netid)
 	return NULL;
 }
 
-static void Setvalue(consvar_t *var, const char *valstr);
+static void Setvalue(consvar_t *var, const char *valstr, boolean stealth);
 
 /** Registers a variable for later use from the console.
   *
@@ -951,7 +952,7 @@ void CV_RegisterVar(consvar_t *variable)
 	if (variable->flags & CV_NOINIT)
 		variable->flags &= ~CV_CALL;
 
-	Setvalue(variable, variable->defaultvalue);
+	Setvalue(variable, variable->defaultvalue, false);
 
 	if (variable->flags & CV_NOINIT)
 		variable->flags |= CV_CALL;
@@ -1006,7 +1007,7 @@ const char *CV_CompleteVar(char *partial, INT32 skips)
   * \param var    Variable to set.
   * \param valstr String value for the variable.
   */
-static void Setvalue(consvar_t *var, const char *valstr)
+static void Setvalue(consvar_t *var, const char *valstr, boolean stealth)
 {
 	boolean override = false;
 	INT32 overrideval = 0;
@@ -1122,7 +1123,7 @@ finish:
 	DEBFILE(va("%s set to %s\n", var->name, var->string));
 	var->flags |= CV_MODIFIED;
 	// raise 'on change' code
-	if (var->flags & CV_CALL)
+	if (var->flags & CV_CALL && !stealth)
 		var->func();
 }
 
@@ -1139,6 +1140,7 @@ static void Got_NetVar(UINT8 **p, INT32 playernum)
 	consvar_t *cvar;
 	UINT16 netid;
 	char *svalue;
+	UINT8 stealth = false;
 
 	if (playernum != serverplayer && playernum != adminplayer && !serverloading)
 	{
@@ -1159,6 +1161,8 @@ static void Got_NetVar(UINT8 **p, INT32 playernum)
 	cvar = CV_FindNetVar(netid);
 	svalue = (char *)*p;
 	SKIPSTRING(*p);
+	stealth = READUINT8(*p);
+
 	if (!cvar)
 	{
 		CONS_Printf("\2Netvar not found with netid %hu\n", netid);
@@ -1168,7 +1172,8 @@ static void Got_NetVar(UINT8 **p, INT32 playernum)
 	CONS_Printf("Netvar received: %s [netid=%d] value %s\n", cvar->name, netid, svalue);
 #endif
 	DEBFILE(va("Netvar received: %s [netid=%d] value %s\n", cvar->name, netid, svalue));
-	Setvalue(cvar, svalue);
+
+	Setvalue(cvar, svalue, stealth);
 }
 
 // get implicit parameter save_p
@@ -1183,6 +1188,7 @@ void CV_SaveNetVars(UINT8 **p)
 		{
 			WRITEUINT16(*p, cvar->netid);
 			WRITESTRING(*p, cvar->string);
+			WRITEUINT8(*p, false);
 		}
 }
 
@@ -1195,23 +1201,18 @@ void CV_LoadNetVars(UINT8 **p)
 	for (cvar = consvar_vars; cvar; cvar = cvar->next)
 		if (cvar->flags & CV_NETVAR)
 			Got_NetVar(p, 0);
+
 	serverloading = false;
 }
 
-/** Sets a value to a variable without calling its callback function.
-  *
-  * \param var   The variable.
-  * \param value The string value.
-  * \sa CV_Set, CV_StealthSetValue
-  */
-void CV_StealthSet(consvar_t *var, const char *value)
+void CV_ResetCheatNetVars(void)
 {
-	int oldflags;
+	consvar_t *cvar;
 
-	oldflags = var->flags;
-	var->flags &= ~CV_CALL;
-	CV_Set(var, value);
-	var->flags = oldflags;
+	// Stealthset everything back to default.
+	for (cvar = consvar_vars; cvar; cvar = cvar->next)
+		if (cvar->flags & CV_CHEAT)
+			Setvalue(cvar, cvar->defaultvalue, true);
 }
 
 /** Sets a value to a variable, performing some checks and calling the
@@ -1222,7 +1223,7 @@ void CV_StealthSet(consvar_t *var, const char *value)
   * \param value The string value.
   * \sa CV_StealthSet, CV_SetValue
   */
-void CV_Set(consvar_t *var, const char *value)
+static void CV_SetCVar(consvar_t *var, const char *value, boolean stealth)
 {
 #ifdef PARANOIA
 	if (!var)
@@ -1241,16 +1242,6 @@ void CV_Set(consvar_t *var, const char *value)
 		return;
 	}
 
-	// Restrict multiplayer cheat variables from being changed unless cheats is enabled.
-	if (var->flags & CV_CHEAT)
-	{
-		if (!cv_cheats.value && (netgame || multiplayer))
-		{
-			CONS_Printf("%s", text[CHEATS_REQUIRED]);
-			return;
-		}
-	}
-
 	if (var->flags & CV_NETVAR)
 	{
 		// send the value of the variable
@@ -1262,9 +1253,32 @@ void CV_Set(consvar_t *var, const char *value)
 				var->name, var->string);
 			return;
 		}
-		WRITEUINT16(p, var->netid);
-		WRITESTRING(p, value);
-		SendNetXCmd(XD_NETVAR, buf, p-buf);
+		// Restrict multiplayer cheat variables from being changed unless cheats are enabled.
+		if (var->flags & CV_CHEAT)
+		{
+			if (!cv_cheats.value && (netgame || multiplayer))
+			{
+				if (menuactive)
+					M_StartMessage(va("%s", text[CHEATS_ACTIVATE]), M_CheatActivationResponder, MM_YESNO);
+				else
+					CONS_Printf("%s", text[CHEATS_REQUIRED]);
+				return;
+			}
+			else if (!cv_debug && !(netgame || multiplayer)) // Still restrict if you're in single player and not in devmode.
+				return;
+		}
+
+		// Only add to netcmd buffer if in a netgame, otherwise, just change it.
+		if (netgame || multiplayer)
+		{
+			WRITEUINT16(p, var->netid);
+			WRITESTRING(p, value);
+			WRITEUINT8(p, stealth);
+
+			SendNetXCmd(XD_NETVAR, buf, p-buf);
+		}
+		else
+			Setvalue(var, value, stealth);
 	}
 	else
 		if ((var->flags & CV_NOTINNET) && netgame)
@@ -1274,7 +1288,18 @@ void CV_Set(consvar_t *var, const char *value)
 			return;
 		}
 		else
-			Setvalue(var, value);
+			Setvalue(var, value, stealth);
+}
+
+/** Sets a value to a variable without calling its callback function.
+  *
+  * \param var   The variable.
+  * \param value The string value.
+  * \sa CV_Set, CV_StealthSetValue
+  */
+void CV_StealthSet(consvar_t *var, const char *value)
+{
+	CV_SetCVar(var, value, true);
 }
 
 /** Sets a numeric value to a variable without calling its callback
@@ -1286,12 +1311,16 @@ void CV_Set(consvar_t *var, const char *value)
   */
 void CV_StealthSetValue(consvar_t *var, INT32 value)
 {
-	INT32 oldflags;
+	char val[32];
 
-	oldflags = var->flags;
-	var->flags &= ~CV_CALL;
-	CV_SetValue(var, value);
-	var->flags = oldflags;
+	sprintf(val, "%d", value);
+	CV_SetCVar(var, val, true);
+}
+
+// New wrapper for what used to be CV_Set()
+void CV_Set(consvar_t *var, const char *value)
+{
+	CV_SetCVar(var, value, false);
 }
 
 /** Sets a numeric value to a variable, performing some checks and
@@ -1306,7 +1335,7 @@ void CV_SetValue(consvar_t *var, INT32 value)
 	char val[32];
 
 	sprintf(val, "%d", value);
-	CV_Set(var, val);
+	CV_SetCVar(var, val, false);
 }
 
 /** Adds a value to a console variable.

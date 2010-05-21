@@ -89,18 +89,23 @@ const char *text[NUMTEXT] =
 	" - %s",                                                                       //NODESCMDTXT3
 	" (verified admin)",                                                           //NODESCMDADMIN
 	" (spectator)",                                                                //NODESCMDSPEC
-	"Ban <playername> or <playernum>: ban and kick a player\n",                    //BANHELP
+	"Ban <playername> or <playernum> <reason>: ban and kick a player\n",           //BANHELP
 	"Too many bans! Geez, that's a lot of people you're excluding...\n",           //TOOMANYBANS
 	"You are not the server.\n",                                                   //YOUARENOTTHESERVER
-	"Kick <playername> or <playernum>: kick a player\n",                           //KICKHELP
+	"Kick <playername> or <playernum> <reason>: kick a player\n",                  //KICKHELP
 	"Server is being shut down remotely. Goodbye!\n",                              //SERVERREMOTESHUTDOWN
 	"Illegal kick command received from %s for player %d\n",                       //ILLEGALKICKCMD
 	"\2%s ",                                                                       //KICKEDPLAYERNAME
 	"has been kicked (Go away)\n",                                                 //KICKEDGOAWAY
 	"has been kicked (Consistency failure)\n",                                     //KICKEDCONSFAIL
+#ifdef NEWPING
+	"has been kicked (Broke ping limit)\n",                                        //KICKEDPINGTOOHIGH
+#endif
 	"left the game (Connection timeout)\n",                                        //LEFTGAME_TIMEOUT
 	"left the game\n",                                                             //LEFTGAME
-	"has been kicked (Banned)\n",                                                  //KICKEDBANNED
+	"has been banned (Don't come back)\n",                                         //KICKEDBANNED
+	"has been kicked (%s)\n",                                                      //CUSTOMKICKMSG
+	"has been banned (%s)\n",                                                      //CUSTOMBANMSG
 	"Illegal add player command received from %s\n",                               //ILLEGALADDPLRCMD
 	"Player %d has joined the game (node %d)\n",                                   //PLAYERINGAME
 	"Player Address is %s\n",                                                      //PLAYERADDRESS
@@ -122,7 +127,11 @@ const char *text[NUMTEXT] =
 	"Network bandwidth set to %d\n",           //SET_BANDWIDTH
 	"debug output to: %s\n",                   //DEBUG_OUTPUT
 	"\2cannot debug output to file %s!\n",     //NODEBUG_OUTPUT
+#ifdef NEWPING
+	"%.2d : %s\n %d ms\n", //CMD_PING
+#else
 	"%.2d : %s\n %d tics, %d ms.\n", //CMD_PING
+#endif
 
 	"%s renamed to %s\n",                 //RENAMED_TO
 	"Player %d sent a bad name change\n", //ILLEGALNAMECMD
@@ -155,16 +164,16 @@ const char *text[NUMTEXT] =
 	"Game unpaused by %s\n",                    //GAME_UNPAUSED
 	"Illegal clear scores command received from %s\n",                      //ILLEGALCLRSCRCMD
 	"Scores have been reset by the server.\n",                              //SCORESRESET
-	"changeteam <color>: switch to a new team (spectator or playing)\n",    //CHANGETEAM_HELP1
-	"changeteam <color>: switch to a new team (red, blue or spectator)\n",  //CHANGETEAM_HELP2
+	"changeteam <team>: switch to a new team (spectator or playing)\n",    //CHANGETEAM_HELP1
+	"changeteam <team>: switch to a new team (red, blue or spectator)\n",  //CHANGETEAM_HELP2
 	"This command cannot be used outside of Match, Tag or CTF.\n",          //NOMTF
 	"This command cannot be used outside of Team Match or CTF.\n",          //NOTMCTF
-	"changeteam2 <color>: switch to a new team (spectator or playing)\n",   //CHANGETEAM2_HELP1
-	"changeteam2 <color>: switch to a new team (red, blue or spectator)\n", //CHANGETEAM2_HELP2
+	"changeteam2 <team>: switch to a new team (spectator or playing)\n",   //CHANGETEAM2_HELP1
+	"changeteam2 <team>: switch to a new team (red, blue or spectator)\n", //CHANGETEAM2_HELP2
 	"You're not the server. You can't change players' teams.\n",            //SERVER_CHANGETEAM
-	"serverchangeteam <playernum> <color>: switch player to a new team (spectator or playing)\n",             //SERVERCHANGETEAM_HELP1
-	"serverchangeteam <playernum> <color>: switch player to a new team (it, notit, playing, or spectator)\n", //SERVERCHANGETEAM_HELP2
-	"serverchangeteam <playernum> <color>: switch player to a new team (red, blue or spectator)\n",           //SERVERCHANGETEAM_HELP3
+	"serverchangeteam <playernum> <team>: switch player to a new team (spectator or playing)\n",             //SERVERCHANGETEAM_HELP1
+	"serverchangeteam <playernum> <team>: switch player to a new team (it, notit, playing, or spectator)\n", //SERVERCHANGETEAM_HELP2
+	"serverchangeteam <playernum> <team>: switch player to a new team (red, blue or spectator)\n",           //SERVERCHANGETEAM_HELP3
 	"~Eggman~ Teams are going to be scrambled! MUAHAHAHAHA!\n", //TEAMS_SCRAMBLED
 	"That player is already on that team!\n",  //PLAYER_ONTEAM
 	"No tag status changes after hidetime!\n", //NO_TAGCHANGE
@@ -206,6 +215,9 @@ const char *text[NUMTEXT] =
 	"*  %.2d: %s\n",               //LISTWAD2
 	"  IWAD: %s\n",                //LISTIWAD
 	"SRB2%s (%s %s %s)\n",         //VERSIONCMD
+#ifdef UPDATE_ALERT
+	"Mod ID: %d\nMod Version: %d\nCode Base:%d\n",
+#endif
 	"Current gametype is %d\n",    //GAMETYPECMD
 	"jumptoaxis <axisnum>: Jump to axis within current mare.\n", //JUMPTOAXIS_HELP
 	"Levels will end after %s scores %d point%s.\n",             //POINTLIMIT_MESSAGE
@@ -240,6 +252,7 @@ const char *text[NUMTEXT] =
 
 	"Cheats cannot be disabled after they are activated. You must restart the server to disable cheats.\n", //CANNOT_CHANGE_CHEATS
 	"Cheats must be enabled to use this.\n", //CHEATS_REQUIRED
+	"Changing this variable\nrequires cheats to be enabled.\nDo you wish to enable cheats? (Y/N)\n", //CHEATS_ACTIVATE
 	"Cheats have been activated.\n", //CHEATS_ACTIVATED
 
 	"\rDownloading %s...(done)\n", //DOWNLOADING_DONE

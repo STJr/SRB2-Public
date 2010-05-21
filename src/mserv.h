@@ -21,6 +21,8 @@
 
 #define MASTERSERVERS21 // MasterServer v2.1
 
+#define NUM_LIST_ROOMS 32
+
 #if defined(_MSC_VER)
 #pragma pack(1)
 #endif
@@ -38,8 +40,27 @@ typedef struct
 	char ip[16];
 	char port[8];
 	char name[32];
+	INT32 room;
 	char version[8]; // format is: x.yy.z (like 1.30.2 or 1.31)
 } ATTRPACK msg_server_t;
+
+typedef struct
+{
+	msg_header_t header;
+	INT32 id;
+	char name[32];
+	char motd[255];
+} ATTRPACK msg_rooms_t;
+
+typedef struct
+{
+	msg_header_t header;
+	char ipstart[16];
+	char ipend[16];
+	char endstamp[32];
+	char reason[255];
+	boolean hostonly;
+} ATTRPACK msg_ban_t;
 
 #if defined(_MSC_VER)
 #pragma pack()
@@ -62,7 +83,13 @@ void UnregisterServer(void);
 
 void MasterClient_Ticker(void);
 
-const msg_server_t *GetShortServersList(void);
+const msg_server_t *GetShortServersList(INT32 room);
+INT32 GetRoomsList(boolean hosting);
+#ifdef UPDATE_ALERT
+const char *GetMODVersion(void);
+#endif
+INT32 oldroomnum;
+extern msg_rooms_t room_list[NUM_LIST_ROOMS+1];
 
 void AddMServCommands(void);
 

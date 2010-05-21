@@ -699,8 +699,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	{
 		colfunc = transtransfunc;
 		dc_transmap = vis->transmap;
-		dc_translation = defaulttranslationtables - 256 +
-			((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
+		dc_translation = defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
 	}
 	else if (vis->transmap)
 	{
@@ -713,11 +712,15 @@ static void R_DrawVisSprite(vissprite_t *vis)
 		colfunc = transcolfunc;
 
 		// New colormap stuff for skins Tails 06-07-2002
+#ifdef TRANSFIX
+		if (vis->mobj->skin) // This thing is a player!
+			dc_translation = translationtables[(skin_t*)vis->mobj->skin-skins] - 256 +
+				((INT32)vis->mobj->color<<8);
+#else
 		if (vis->mobj->player) // This thing is a player!
 		{
 			if (vis->mobj->player->skincolor)
-				dc_translation = translationtables[vis->mobj->player->skin] - 256 +
-					((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
+				dc_translation = translationtables[vis->mobj->player->skin] - 256 + ((INT32)vis->mobj->color<<8);
 			else
 			{
 				static INT32 firsttime = 1;
@@ -729,15 +732,13 @@ static void R_DrawVisSprite(vissprite_t *vis)
 				}
 			}
 		}
+#endif
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
 		{
 			dc_translation = bosstranslationtables;
 		}
 		else // Use the defaults
-		{
-			dc_translation = defaulttranslationtables - 256 +
-				((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8));
-		}
+			dc_translation = defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
 	}
 
 	if (vis->extra_colormap)
@@ -766,20 +767,34 @@ static void R_DrawVisSprite(vissprite_t *vis)
 		vis->xiscale <<= 1;
 		dc_hires = 1;
 	}
-	else if (vis->mobj->scale > 400)
-	{
-		spryscale = FIXEDSCALE(spryscale,400);
-		vis->scale = FIXEDSCALE(vis->scale,400);
-		dc_iscale = FixedDiv(FRACUNIT,vis->scale);
-		vis->xiscale = FIXEDUNSCALE(vis->xiscale,400);
+	else if (vis->mobj->scale >= 400)
+	{ // Scale > 400%? Software can't handle that! Render it as 400% instead.
+		spryscale *= 4;
+		vis->scale *= 4;
+		dc_iscale /= 4;
+		vis->xiscale /= 4;
+
+		//Oh lordy.  (Fixing scaled sprites messing up if only partway on screen)
+		if (vis->xiscale > 0)
+			frac /= 4;
+		else if (vis->x1 <= 0)
+			frac = (vis->x1 - vis->x2) * vis->xiscale;
+
 		dc_hires = 1;
 	}
 	else if (vis->mobj->scale != 100)
 	{
-		spryscale = FIXEDSCALE(spryscale,vis->mobj->scale);
-		vis->scale = FIXEDSCALE(vis->scale,vis->mobj->scale);
-		dc_iscale = FixedDiv(FRACUNIT, vis->scale);
-		vis->xiscale = FIXEDUNSCALE(vis->xiscale,vis->mobj->scale);
+		spryscale = spryscale*vis->mobj->scale/100;
+		vis->scale = vis->scale*vis->mobj->scale/100;
+		dc_iscale = dc_iscale*100/vis->mobj->scale;
+		vis->xiscale = vis->xiscale*100/vis->mobj->scale;
+
+		//Oh lordy, again.  See above.
+		if (vis->xiscale > 0)
+			frac = frac*100/vis->mobj->scale;
+		else if (vis->x1 <= 0)
+			frac = (vis->x1 - vis->x2) * vis->xiscale;
+
 		dc_hires = 1;
 	}
 
@@ -1116,31 +1131,30 @@ static void R_ProjectSprite(mobj_t *thing)
 	if (x2 < 0)
 		return;
 
-	// Size crash fix hack. :E
-	if (thing->scale > 100 && x1 < 0)
-		return;
-
 	//SoM: 3/17/2000: Disregard sprites that are out of view..
 	if (thing->eflags & MFE_VERTICALFLIP)
 	{
 		if (thing->scale > 400)
 		{
-			gzt = thing->z + spritecachedinfo[lump].topoffset + FIXEDSCALE((spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset)/2,400);
-			gz = gzt - FIXEDSCALE(spritecachedinfo[lump].height,400);
+			gzt = thing->z + thing->height + FIXEDSCALE(spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset, 400);
+			gz = gzt - FIXEDSCALE(spritecachedinfo[lump].height, 400);
 		}
 		else if (thing->scale != 100)
 		{
-			gzt = thing->z + spritecachedinfo[lump].topoffset + FIXEDSCALE((spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset)/2,thing->scale);
+			gzt = thing->z + thing->height + FIXEDSCALE(spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset, thing->scale);
 			gz = gzt - FIXEDSCALE(spritecachedinfo[lump].height,thing->scale);
 		}
 		else if (thing->flags & MF_HIRES)
 		{
-			gzt = thing->z + (spritecachedinfo[lump].topoffset + (spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset)/2)/2;
+			gzt = thing->z + thing->height + (spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset)/2;
 			gz = gzt - spritecachedinfo[lump].height/2;
 		}
 		else
 		{
-			gzt = thing->z + spritecachedinfo[lump].topoffset + (spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset)/2;
+			// When vertical flipped, draw sprites from the top down, at least as far as offsets are concerned.
+			// Visual errors occur from "thing->height" being inexact otherwise, so you have to use it. Duh.
+			// sprite height - sprite topoffset is the proper inverse of the vertical offset, of course.
+			gzt = thing->z + thing->height + spritecachedinfo[lump].height - spritecachedinfo[lump].topoffset;
 			gz = gzt - spritecachedinfo[lump].height;
 		}
 	}
@@ -2467,8 +2481,10 @@ void SetPlayerSkinByNum(INT32 playernum, INT32 skinnum)
 		if (players[playernum].jumpfactor < 0)
 			players[playernum].jumpfactor = 0;
 
+#ifndef TRANSFIX
 		// Set the proper translation tables
 		players[playernum].starttranscolor = atoi(skins[skinnum].starttranscolor);
+#endif
 
 		players[playernum].prefcolor = atoi(skins[skinnum].prefcolor);
 
@@ -2574,8 +2590,10 @@ void SetSavedSkin(INT32 playernum, INT32 skinnum, INT32 skincolor)
 	SetSkinValues(&cv_playercolor, val, sizeof val);
 
 	if (players[playernum].mo)
-		players[playernum].mo->flags = (players[playernum].mo->flags & ~MF_TRANSLATION)
-			| ((players[playernum].skincolor)<<MF_TRANSSHIFT);
+	{
+		players[playernum].mo->flags |= MF_TRANSLATION;
+		players[playernum].mo->color = (UINT8)players[playernum].skincolor;
+	}
 
 	SetPlayerSkinByNum(playernum, skinnum);
 }

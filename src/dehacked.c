@@ -766,11 +766,6 @@ static void readlevelheader(MYFILE *f, INT32 num)
 				DEH_WriteUndoline(word, mapheaderinfo[num-1].runsoc, UNDO_NONE);
 				strlcpy(mapheaderinfo[num-1].runsoc, word2, sizeof (mapheaderinfo[num-1].runsoc));
 			}
-			else if (!strcmp(word, "MAPCREDITS"))
-			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1].mapcredits, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1].mapcredits, word2, sizeof (mapheaderinfo[num-1].mapcredits));
-			}
 			else
 				deh_warning("Level header %d: unknown word '%s'", num, word);
 		}

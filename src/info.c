@@ -1336,7 +1336,7 @@ state_t states[NUMSTATES] =
 	{SPR_SEED, 32768, -1, {NULL}, 0, 0, S_NULL}, // S_SEED
 
 	// Particle sprite
-	{SPR_PRTL, 32768, 1*TICRATE, {NULL}, 0, 0, S_DISS}, // S_PARTICLE
+	{SPR_PRTL, 32768, 2*TICRATE, {NULL}, 0, 0, S_DISS}, // S_PARTICLE
 	{SPR_DISS,     0,         1, {A_ParticleSpawn}, 0, 0, S_PARTICLEGEN}, // S_PARTICLEGEN
 
 	{SPR_SCOR, 0, 32, {A_ScoreRise}, 0, 0, S_DISS}, // S_SCRA
@@ -2269,6 +2269,9 @@ state_t states[NUMSTATES] =
 
 	{SPR_SRBO, 0, 2, {A_Look}, 0, 0, S_SRB1_GENREX1}, // S_SRB1_GENREX1
 	{SPR_SRBO, 0, 2, {A_BuzzFly}, 0, 0, S_SRB1_GENREX2}, // S_SRB1_GENREX2
+#ifdef SEENAMES
+	{SPR_DISS, 0, 1, {NULL}, 0, 0, S_DISS}, // S_NAMECHECK
+#endif
 };
 
 mobjinfo_t mobjinfo[NUMMOBJTYPES] =
@@ -2540,7 +2543,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		1,              // damage
 		0,              // activesound
 		MF_ENEMY|MF_SHOOTABLE|MF_NOGRAVITY|MF_MISSILE, // flags
-		ANGLE_90/6      // raisestate: largest angle to turn in one tic (here, 15 degrees)
+		ANG15           // raisestate: largest angle to turn in one tic (here, 15 degrees)
 	},
 
 	{           // MT_SKIM
@@ -4013,7 +4016,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_NULL,         // xdeathstate
 		sfx_cgot,       // deathsound
 		60*FRACUNIT,    // speed
-		32*FRACUNIT,    // radius
+		16*FRACUNIT,    // radius
 		32*FRACUNIT,    // height
 		0,              // display offset
 		100,            // mass
@@ -4229,7 +4232,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_NULL,         // xdeathstate
 		sfx_None,       // deathsound
 		8,              // speed
-		1*FRACUNIT,     // radius
+		8*FRACUNIT,     // radius
 		42*FRACUNIT,    // height
 		0,              // display offset
 		4,              // mass
@@ -4256,7 +4259,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_NULL,         // xdeathstate
 		sfx_None,       // deathsound
 		8,              // speed
-		1*FRACUNIT,     // radius
+		8*FRACUNIT,     // radius
 		42*FRACUNIT,    // height
 		0,              // display offset
 		4,              // mass
@@ -4853,8 +4856,8 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_NULL,         // xdeathstate
 		sfx_None,       // deathsound
 		0,              // speed
-		16*FRACUNIT,    // radius
-		32*FRACUNIT,    // height
+		8*FRACUNIT,     // radius
+		8*FRACUNIT,     // height
 		0,              // display offset
 		100,            // mass
 		0,              // damage
@@ -6533,7 +6536,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
-		MF_NOBLOCKMAP|MF_NOCLIP|MF_NOGRAVITY|MF_SCENERY|MF_TRANSLATION, // flags
+		MF_NOBLOCKMAP|MF_NOCLIP|MF_NOGRAVITY|MF_SCENERY, // flags
 		S_NULL          // raisestate
 	},
 
@@ -6556,7 +6559,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		pw_watershield, // speed
 		64*FRACUNIT,    // radius
 		64*FRACUNIT,    // height
-		0,              // display offset
+		1,              // display offset
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
@@ -6583,7 +6586,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		pw_ringshield,  // speed
 		64*FRACUNIT,    // radius
 		64*FRACUNIT,    // height
-		0,              // display offset
+		1,              // display offset
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
@@ -6610,7 +6613,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		pw_forceshield, // speed
 		64*FRACUNIT,    // radius
 		64*FRACUNIT,    // height
-		0,              // display offset
+		1,              // display offset
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
@@ -6637,7 +6640,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		pw_bombshield,  // speed
 		64*FRACUNIT,    // radius
 		64*FRACUNIT,    // height
-		0,              // display offset
+		1,              // display offset
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
@@ -6664,7 +6667,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		pw_jumpshield,  // speed
 		64*FRACUNIT,    // radius
 		64*FRACUNIT,    // height
-		0,              // display offset
+		1,              // display offset
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
@@ -9584,7 +9587,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		8,              // speed
 		32*FRACUNIT,    // radius
 		32*FRACUNIT,    // height
-		0,              // display offset
+		1,              // display offset
 		16,             // mass
 		0,              // damage
 		sfx_None,       // activesound
@@ -10861,6 +10864,34 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_NULL          // raisestate
 	},
 
+#ifdef SEENAMES
+	{           // MT_NAMECHECK
+		-1,             // doomednum
+		S_NAMECHECK,    // spawnstate
+		1000,           // spawnhealth
+		S_NULL,         // seestate
+		sfx_None,       // seesound
+		8,              // reactiontime
+		sfx_None,       // attacksound
+		S_NULL,         // painstate
+		0,              // painchance
+		sfx_None,       // painsound
+		S_NULL,         // meleestate
+		S_NULL,         // missilestate
+		S_DISS,         // deathstate
+		S_NULL,         // xdeathstate
+		sfx_None,       // deathsound
+		60*FRACUNIT,    // speed
+		30*FRACUNIT,    // radius
+		40*FRACUNIT,    // height
+		0,              // display offset
+		100,            // mass
+		0,              // damage
+		sfx_None,       // activesound
+		MF_NOBLOCKMAP|MF_MISSILE|MF_NOGRAVITY|MF_NOSECTOR, // flags
+		S_NULL          // raisestate
+	},
+#endif
 };
 
 

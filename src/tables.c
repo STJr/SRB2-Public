@@ -75,9 +75,7 @@ unsigned SlopeDiv(unsigned num, unsigned den)
 #define ANGLE_TO_FIXED(a) (fixed_t)(((a)>>(29-FRACBITS))*45)
 #define FIXED_TO_ANGLE(x) (angle_t)(((x)/45)<<(29-FRACBITS))
 
-#ifdef REMOVE_FOR_205
 #define FIXEDPOINTCONV
-#endif
 
 /*
 Old code that failed if FRACBITS was not 16.

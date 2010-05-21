@@ -62,6 +62,7 @@
 //              heads up font
 //-------------------------------------------
 patch_t *hu_font[HU_FONTSIZE];
+patch_t *tinynum[10]; // 0-9, tiny numbers
 
 // Level title and credits fonts
 patch_t *lt_font[LT_FONTSIZE];
@@ -217,6 +218,13 @@ void HU_LoadGraphics(void)
 		cred_font[i] = (patch_t *)W_CachePatchName(buffer, PU_HUDGFX);
 	}
 
+	//cache tiny numbers too!
+	for (i = 0; i < 10; i++)
+	{
+		sprintf(buffer, "TINYNUM%d", i);
+		tinynum[i] = (patch_t *) W_CachePatchName(buffer, PU_HUDGFX);
+	}
+
 	// cache the crosshairs, don't bother to know which one is being used,
 	// just cache all 3, they're so small anyway.
 	for (i = 0; i < HU_CROSSHAIRS; i++)
@@ -288,13 +296,13 @@ void MatchType_OnChange(void)
 	INT32 i;
 
 	// Do not execute the below code unless absolutely necessary.
-	if (cv_matchtype.value == matchtype)
+	if (gametype != GT_MATCH || gamestate != GS_LEVEL || cv_matchtype.value == matchtype)
 		return;
 
 	// If swapping to team match, ensure that all players that aren't already on a team become
 	// a spectator, or join the team of their color, if availiable. The quirk of this new gamtype
 	// handling causes us to have to do this. -Jazz 3/4/09
-	if (gametype == GT_MATCH && cv_matchtype.value && gamestate == GS_LEVEL)
+	if (cv_matchtype.value)
 	{
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -322,7 +330,7 @@ void MatchType_OnChange(void)
 			}
 		}
 	}
-	else if (gametype == GT_MATCH && !cv_matchtype.value && gamestate == GS_LEVEL)
+	else
 	{
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -509,6 +517,29 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	msg = (char *)*p;
 	SKIPSTRING(*p);
 
+	//check for invalid characters (0x80 or above)
+	{
+		size_t i;
+		const size_t j = strlen(msg);
+		for (i = 0; i < j; i++)
+		{
+			if (msg[i] & 0x80)
+			{
+				CONS_Printf("Illegal say command received from %s containing invalid characters\n",
+					player_names[playernum]);
+				if (server)
+				{
+					XBOXSTATIC char buf[2];
+
+					buf[0] = (char)playernum;
+					buf[1] = KICK_MSG_CON_FAIL;
+					SendNetXCmd(XD_KICK, &buf, 2);
+				}
+				return;
+			}
+		}
+	}
+
 	// If it's a CSAY, just CECHO and be done with it.
 	if(flags & HU_CSAY)
 	{
@@ -660,18 +691,7 @@ void HU_Ticker(void)
 	if ((gamekeydown[gamecontrol[gc_scores][0]] || gamekeydown[gamecontrol[gc_scores][1]]))
 		hu_showscores = !chat_on;
 	else
-	{
-		if (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF
-#ifdef CHAOSISNOTDEADYET
-			|| gametype == GT_CHAOS
-#endif
-			)
-		{
-			hu_showscores = playerdeadview;
-		}
-		else
-			hu_showscores = false;
-	}
+		hu_showscores = false;
 }
 
 #define QUEUESIZE 256
@@ -879,7 +899,7 @@ static inline void HU_DrawCrosshair(void)
 	if (!i)
 		return;
 
-	if (netgame && players[displayplayer].spectator)
+	if ((netgame || multiplayer) && players[displayplayer].spectator)
 		return;
 
 #ifdef HWRENDER
@@ -900,7 +920,7 @@ static inline void HU_DrawCrosshair2(void)
 	if (!i)
 		return;
 
-	if (netgame && players[secondarydisplayplayer].spectator)
+	if ((netgame || multiplayer) && players[secondarydisplayplayer].spectator)
 		return;
 
 #ifdef HWRENDER
@@ -959,6 +979,8 @@ static void HU_drawGametype(void)
 		V_DrawString(4, 192, 0, gametype_cons_t[i].strvalue);
 }
 
+#define MAXCECHOLINES 16
+
 // Heads up displays drawer, call each frame
 //
 void HU_Drawer(void)
@@ -1008,7 +1030,7 @@ void HU_Drawer(void)
 
 		while (cechotext[i] != '\0')
 		{
-			if (cechotext[i] == '\\')
+			if (cechotext[i] == '\\' && pnumlines < MAXCECHOLINES)
 				pnumlines++;
 
 			i++;
@@ -1116,8 +1138,8 @@ void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, I
 	INT32 i;
 	const UINT8 *colormap;
 
-	//this function is designed for 10 or less score lines only
-	I_Assert(scorelines <= 10);
+	//this function is designed for 9 or less score lines only
+	I_Assert(scorelines <= 9);
 
 	V_DrawFill(1, 26, 318, 1, 0); //Draw a horizontal line because it looks nice!
 
@@ -1200,8 +1222,9 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 	const UINT8 *colormap;
 	char name[MAXPLAYERNAME+1];
 
-	V_DrawFill(160, 26, 1, 173, 0); //Draw a vertical line to separate the two teams.
+	V_DrawFill(160, 26, 1, 154, 0); //Draw a vertical line to separate the two teams.
 	V_DrawFill(1, 26, 318, 1, 0); //And a horizontal line to make a T.
+	V_DrawFill(1, 180, 318, 1, 0); //And a horizontal line near the bottom.
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -1210,14 +1233,14 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 
 		if (tab[i].color == 6) //red
 		{
-			if (redplayers++ > 9)
+			if (redplayers++ > 8)
 				continue;
 			x = 32 + (BASEVIDWIDTH/2);
 			y = (redplayers * 16) + 16;
 		}
 		else if (tab[i].color == 7) //blue
 		{
-			if (blueplayers++ > 9)
+			if (blueplayers++ > 8)
 				continue;
 			x = 32;
 			y = (blueplayers * 16) + 16;
@@ -1272,8 +1295,9 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 	const UINT8 *colormap;
 	char name[MAXPLAYERNAME+1];
 
-	V_DrawFill(160, 26, 1, 173, 0); //Draw a vertical line to separate the two sides.
+	V_DrawFill(160, 26, 1, 154, 0); //Draw a vertical line to separate the two sides.
 	V_DrawFill(1, 26, 318, 1, 0); //And a horizontal line to make a T.
+	V_DrawFill(1, 180, 318, 1, 0); //And a horizontal line near the bottom.
 
 	if (gametype == GT_RACE || gametype == GT_COOP)
 		x -= 32; //we need more room!
@@ -1345,7 +1369,7 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 			V_DrawRightAlignedString(x+120, y, ((players[tab[i].num].health > 0) ? 0 : V_TRANSLUCENT), va("%u", tab[i].count));
 
 		y += 16;
-		if (y > 176)
+		if (y > 160)
 		{
 			y = 32;
 			x += BASEVIDWIDTH/2;
@@ -1379,6 +1403,65 @@ void HU_DrawEmeralds(INT32 x, INT32 y, INT32 pemeralds)
 
 	if (pemeralds & EMERALD7)
 		V_DrawSmallScaledPatch(x,   y,   0, tinyemeraldpics[6]);
+}
+
+//
+// HU_DrawSpectatorTicker
+//
+static inline void HU_DrawSpectatorTicker(void)
+{
+	int i;
+	int length = 0, height = 174;
+	int totallength = 0, templength = 0;
+
+	for (i = 0; i < MAXPLAYERS; i++)
+		if (playeringame[i] && players[i].spectator)
+			totallength += (signed)strlen(player_names[i]) * 8 + 16;
+
+	length -= (leveltime % (totallength + BASEVIDWIDTH));
+	length += BASEVIDWIDTH;
+
+	for (i = 0; i < MAXPLAYERS; i++)
+		if (playeringame[i] && players[i].spectator)
+		{
+			char *pos;
+			char initial[MAXPLAYERNAME+1];
+			char current[MAXPLAYERNAME+1];
+
+			strcpy(initial, player_names[i]);
+			pos = initial;
+
+			if (length >= -((signed)strlen(player_names[i]) * 8 + 16) && length <= BASEVIDWIDTH)
+			{
+				if (length < 0)
+				{
+					UINT8 eatenchars = (UINT8)(abs(length) / 8 + 1);
+
+					if (eatenchars <= strlen(initial))
+					{
+						// Eat one letter off the left side,
+						// then compensate the drawing position.
+						pos += eatenchars;
+						strcpy(current, pos);
+						templength = length % 8 + 8;
+					}
+					else
+					{
+						strcpy(current, " ");
+						templength = length;
+					}
+				}
+				else
+				{
+					strcpy(current, initial);
+					templength = length;
+				}
+
+				V_DrawString(templength, height + 8, V_TRANSLUCENT, current);
+			}
+
+			length += (signed)strlen(player_names[i]) * 8 + 16;
+		}
 }
 
 //
@@ -1487,12 +1570,12 @@ static void HU_DrawRankings(void)
 
 	for (j = 0; j < MAXPLAYERS; j++)
 	{
-		if (!playeringame[j])
+		if (!playeringame[j] || players[j].spectator)
 			continue;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
-			if (playeringame[i])
+			if (playeringame[i] && !players[i].spectator)
 			{
 				if (gametype == GT_TAG)
 				{
@@ -1501,7 +1584,6 @@ static void HU_DrawRankings(void)
 						tab[scorelines].count = players[i].score;
 						tab[scorelines].num = i;
 						tab[scorelines].color = players[i].skincolor;
-						tab[scorelines].spectator = players[i].spectator;
 						tab[scorelines].name = player_names[i];
 					}
 				}
@@ -1535,7 +1617,6 @@ static void HU_DrawRankings(void)
 						tab[scorelines].count = players[i].score;
 						tab[scorelines].num = i;
 						tab[scorelines].color = players[i].skincolor;
-						tab[scorelines].spectator = players[i].spectator;
 						tab[scorelines].name = player_names[i];
 						tab[scorelines].emeralds = players[i].powers[pw_emeralds];
 					}
@@ -1551,10 +1632,14 @@ static void HU_DrawRankings(void)
 
 	if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
 		HU_DrawTeamTabRankings(tab, whiteplayer); //separate function for Spazzo's silly request
-	else if (scorelines <= 10)
+	else if (scorelines <= 9)
 		HU_DrawTabRankings(40, 32, tab, scorelines, whiteplayer);
 	else
 		HU_DrawDualTabRankings(32, 32, tab, scorelines, whiteplayer);
+
+	// draw spectators in a ticker across the bottom
+	if (!splitscreen && (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF))
+		HU_DrawSpectatorTicker();
 }
 
 static void HU_DrawCoopOverlay(void)
@@ -1577,19 +1662,19 @@ static void HU_DrawCoopOverlay(void)
 	}
 
 	if (emeralds & EMERALD1)
-		V_DrawScaledPatch(124, 64, V_TRANSLUCENT, emeraldpics[0]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8   , (BASEVIDHEIGHT/3)-32, V_TRANSLUCENT, emeraldpics[0]);
 	if (emeralds & EMERALD2)
-		V_DrawScaledPatch(180, 64, V_TRANSLUCENT, emeraldpics[1]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8+24, (BASEVIDHEIGHT/3)-16, V_TRANSLUCENT, emeraldpics[1]);
 	if (emeralds & EMERALD3)
-		V_DrawScaledPatch(124, 96, V_TRANSLUCENT, emeraldpics[2]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8+24, (BASEVIDHEIGHT/3)+16, V_TRANSLUCENT, emeraldpics[2]);
 	if (emeralds & EMERALD4)
-		V_DrawScaledPatch(180, 96, V_TRANSLUCENT, emeraldpics[3]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8   , (BASEVIDHEIGHT/3)+32, V_TRANSLUCENT, emeraldpics[3]);
 	if (emeralds & EMERALD5)
-		V_DrawScaledPatch(152, 48, V_TRANSLUCENT, emeraldpics[4]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8-24, (BASEVIDHEIGHT/3)+16, V_TRANSLUCENT, emeraldpics[4]);
 	if (emeralds & EMERALD6)
-		V_DrawScaledPatch(152, 120, V_TRANSLUCENT, emeraldpics[5]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8-24, (BASEVIDHEIGHT/3)-16, V_TRANSLUCENT, emeraldpics[5]);
 	if (emeralds & EMERALD7)
-		V_DrawScaledPatch(152, 88, V_TRANSLUCENT, emeraldpics[6]);
+		V_DrawScaledPatch((BASEVIDWIDTH/2)-8   , (BASEVIDHEIGHT/3)   , V_TRANSLUCENT, emeraldpics[6]);
 }
 
 

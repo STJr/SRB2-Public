@@ -2016,7 +2016,7 @@ void T_EachTimeThinker(levelspecthink_t *eachtime)
 					if (players[j].mo->health <= 0)
 						continue;
 
-					if (netgame && players[j].spectator)
+					if ((netgame || multiplayer) && players[j].spectator)
 						continue;
 
 					if (players[j].mo->subsector->sector != targetsec)
@@ -2051,7 +2051,7 @@ void T_EachTimeThinker(levelspecthink_t *eachtime)
 				if (players[i].mo->health <= 0)
 					continue;
 
-				if (netgame && players[i].spectator)
+				if ((netgame || multiplayer) && players[i].spectator)
 					continue;
 
 				if (players[i].mo->subsector->sector != sec)
@@ -2109,6 +2109,10 @@ void T_RaiseSector(levelspecthink_t *raise)
 			thing = node->m_thing;
 
 			if (!thing->player)
+				continue;
+
+			// Ignore spectators.
+			if (thing->player && thing->player->spectator)
 				continue;
 
 			// Option to require spindashing.

@@ -403,6 +403,10 @@ consvar_t cv_firenaxis2 = {"joyaxis2_firenormal", "None", CV_SAVE, joyaxis_cons_
 #error "please update player_name table using the new value for MAXPLAYERS"
 #endif
 
+#ifdef SEENAMES
+player_t *seenplayer; // player we're aiming at right now
+#endif
+
 char player_names[MAXPLAYERS][MAXPLAYERNAME+1] =
 {
 	"Player 1",
@@ -881,11 +885,13 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 
 	// Camera Controls
 	if ((gamekeydown[gamecontrol[gc_camleft][0]] ||
-		gamekeydown[gamecontrol[gc_camleft][1]]) && (cv_debug || cv_analog.value || cv_objectplace.value))
+		gamekeydown[gamecontrol[gc_camleft][1]]) &&
+		(cv_debug || cv_analog.value || cv_objectplace.value || players[consoleplayer].pflags & PF_NIGHTSMODE))
 		cmd->buttons |= BT_CAMLEFT;
 
 	if ((gamekeydown[gamecontrol[gc_camright][0]] ||
-		gamekeydown[gamecontrol[gc_camright][1]]) && (cv_debug || cv_analog.value || cv_objectplace.value))
+		gamekeydown[gamecontrol[gc_camright][1]]) &&
+		(cv_debug || cv_analog.value || cv_objectplace.value || players[consoleplayer].pflags & PF_NIGHTSMODE))
 		cmd->buttons |= BT_CAMRIGHT;
 
 	if (gamekeydown[gamecontrol[gc_camreset][0]] ||
@@ -927,8 +933,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 		gamekeydown[gamecontrol[gc_lookup][1]] ||
 		(gamepadjoystickmove && axis < 0))
 	{
-		if (players[consoleplayer].mo &&
-			players[consoleplayer].mo->eflags & MFE_VERTICALFLIP)
+		if (players[consoleplayer].mo && players[consoleplayer].mo->eflags & MFE_VERTICALFLIP && !cv_chasecam.value)
 			localaiming -= KB_LOOKSPEED;
 		else
 			localaiming += KB_LOOKSPEED;
@@ -938,8 +943,7 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 		gamekeydown[gamecontrol[gc_lookdown][1]] ||
 		(gamepadjoystickmove && axis > 0))
 	{
-		if (players[consoleplayer].mo &&
-			players[consoleplayer].mo->eflags & MFE_VERTICALFLIP)
+		if (players[consoleplayer].mo && players[consoleplayer].mo->eflags & MFE_VERTICALFLIP && !cv_chasecam.value)
 			localaiming += KB_LOOKSPEED;
 		else
 			localaiming -= KB_LOOKSPEED;
@@ -976,11 +980,24 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	else if (side < -MAXPLMOVE)
 		side = -MAXPLMOVE;
 
+	//Silly hack to make 2d mode *somewhat* playable with no chasecam.
+	if ((twodlevel || (players[consoleplayer].mo && players[consoleplayer].mo->flags2 & MF2_TWOD)) && !cv_chasecam.value)
+	{
+		INT32 temp = forward;
+		forward = side;
+		side = temp;
+	}
+
 	cmd->forwardmove = (SINT8)(cmd->forwardmove + forward);
 	cmd->sidemove = (SINT8)(cmd->sidemove + side);
 
 	localangle += (cmd->angleturn<<16);
 	cmd->angleturn = (INT16)(localangle >> 16);
+
+	//Reset away view if a command is given.
+	if ((cmd->forwardmove || cmd->sidemove || cmd->buttons)
+		&& displayplayer != consoleplayer)
+		displayplayer = consoleplayer;
 }
 
 // like the g_buildticcmd 1 but using mouse2, gamcontrolbis, ...
@@ -1206,11 +1223,13 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 
 	// Camera Controls
 	if ((gamekeydown[gamecontrolbis[gc_camleft][0]] ||
-		gamekeydown[gamecontrolbis[gc_camleft][1]]) && (cv_debug || cv_analog2.value || cv_objectplace.value))
+		gamekeydown[gamecontrolbis[gc_camleft][1]]) &&
+		(cv_debug || cv_analog2.value || cv_objectplace.value || players[secondarydisplayplayer].pflags & PF_NIGHTSMODE))
 		cmd->buttons |= BT_CAMLEFT;
 
 	if ((gamekeydown[gamecontrolbis[gc_camright][0]] ||
-		gamekeydown[gamecontrolbis[gc_camright][1]]) && (cv_debug || cv_analog2.value || cv_objectplace.value))
+		gamekeydown[gamecontrolbis[gc_camright][1]]) &&
+		(cv_debug || cv_analog2.value || cv_objectplace.value || players[secondarydisplayplayer].pflags & PF_NIGHTSMODE))
 		cmd->buttons |= BT_CAMRIGHT;
 
 	if (gamekeydown[gamecontrolbis[gc_camreset][0]] ||
@@ -1253,14 +1272,20 @@ void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
 		gamekeydown[gamecontrolbis[gc_lookup][1]] ||
 		(gamepadjoystickmove && axis < 0))
 	{
-		localaiming2 += KB_LOOKSPEED;
+		if (players[secondarydisplayplayer].mo && players[secondarydisplayplayer].mo->eflags & MFE_VERTICALFLIP && !cv_chasecam.value)
+			localaiming2 -= KB_LOOKSPEED;
+		else
+			localaiming2 += KB_LOOKSPEED;
 		keyboard_look = true;
 	}
 	else if (gamekeydown[gamecontrolbis[gc_lookdown][0]] ||
 		gamekeydown[gamecontrolbis[gc_lookdown][1]] ||
 		(gamepadjoystickmove && axis > 0))
 	{
-		localaiming2 -= KB_LOOKSPEED;
+		if (players[secondarydisplayplayer].mo && players[secondarydisplayplayer].mo->eflags & MFE_VERTICALFLIP && !cv_chasecam.value)
+			localaiming2 += KB_LOOKSPEED;
+		else
+			localaiming2 -= KB_LOOKSPEED;
 		keyboard_look = true;
 	}
 	else if (gamekeydown[gamecontrolbis[gc_centerview][0]] ||
@@ -1457,6 +1482,9 @@ boolean G_Responder(event_t *ev)
 					|| players[consoleplayer].spectator))
 					continue;
 
+				if (players[displayplayer].spectator && displayplayer != consoleplayer)
+					continue;
+
 				break;
 			}
 
@@ -1549,7 +1577,6 @@ boolean G_Responder(event_t *ev)
 				if (!pausedelay)
 				{
 					// don't let busy scripts prevent pausing
-					UINT8 buf = (UINT8)(!paused);
 					pausedelay = TICRATE/7;
 
 					if (cv_pause.value == 1 || server || (adminplayer == consoleplayer))
@@ -1560,7 +1587,7 @@ boolean G_Responder(event_t *ev)
 							return true;
 						}
 
-						SendNetXCmd(XD_PAUSE, &buf, 1);
+						COM_ImmedExecute("pause");
 					}
 					else
 						CONS_Printf("%s", text[SERVERPAUSE]);
@@ -1787,7 +1814,9 @@ void G_PlayerReborn(INT32 player)
 	INT32 actionspd;
 	INT32 mindash;
 	INT32 maxdash;
+#ifndef TRANSFIX
 	INT32 starttrans;
+#endif
 	INT32 prefcolor;
 	INT32 ctfteam;
 	INT32 starposttime;
@@ -1837,7 +1866,9 @@ void G_PlayerReborn(INT32 player)
 	accelstart = players[player].accelstart;
 	acceleration = players[player].acceleration;
 	charflags = players[player].charflags;
+#ifndef TRANSFIX
 	starttrans = players[player].starttranscolor;
+#endif
 	prefcolor = players[player].prefcolor;
 
 	starposttime = players[player].starposttime;
@@ -1879,7 +1910,9 @@ void G_PlayerReborn(INT32 player)
 	p->accelstart = accelstart;
 	p->acceleration = acceleration;
 	p->charflags = charflags;
+#ifndef TRANSFIX
 	p->starttranscolor = starttrans;
+#endif
 	p->prefcolor = prefcolor;
 	p->thokitem = thokitem;
 	p->spinitem = spinitem;
@@ -2004,34 +2037,20 @@ void G_DeathMatchSpawnPlayer(INT32 playernum)
 {
 	INT32 i, j;
 
-	if (gametype == GT_TAG && (players[playernum].pflags & PF_TAGIT))//the chosen one spawns all by his lonesome.
+	// In all cases except the tagging player in tag, spawn at deathmatch spawns.
+	if (!(gametype == GT_TAG && (players[playernum].pflags & PF_TAGIT)))
 	{
-		if (numtagstarts)
-		{
-			for (j = 0; j < 32; j++)
-				{
-					i = P_Random() % numtagstarts;
-					if (G_CheckSpot(playernum, tagstarts[i]))
-					{
-						P_SpawnPlayer(tagstarts[i], playernum);
-						return;
-					}
-				}
-		}
-		else
-			CONS_Printf("No tagger start in this map - shifting to deathmatch starts to avoid crash...\n");
-	}
-
-	if (numdmstarts)
-		for (j = 0; j < 64; j++)
-		{
-			i = P_Random() % numdmstarts;
-			if (G_CheckSpot(playernum, deathmatchstarts[i]))
+		if (numdmstarts)
+			for (j = 0; j < 64; j++)
 			{
-				P_SpawnPlayer(deathmatchstarts[i], playernum);
-				return;
+				i = P_Random() % numdmstarts;
+				if (G_CheckSpot(playernum, deathmatchstarts[i]))
+				{
+					P_SpawnPlayer(deathmatchstarts[i], playernum);
+					return;
+				}
 			}
-		}
+	}
 
 	// Use a coop start dependent on playernum
 	CONS_Printf("No deathmatch start in this map - shifting to player starts to avoid crash...\n");

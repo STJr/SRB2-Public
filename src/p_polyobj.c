@@ -746,24 +746,24 @@ static void Polyobj_moveToSpawnSpot(mapthing_t *anchor)
 static void Polyobj_attachToSubsec(polyobj_t *po)
 {
 	subsector_t  *ss;
-	double center_x = 0.0l, center_y = 0.0l;
+	fixed_t center_x = 0, center_y = 0;
+	fixed_t numVertices;
 	size_t i;
 
 	// never attach a bad polyobject
 	if (po->isBad)
 		return;
 
+	numVertices = (fixed_t)(po->numVertices*FRACUNIT);
+
 	for (i = 0; i < po->numVertices; ++i)
 	{
-		center_x += (double)(po->vertices[i]->x) / FRACUNIT;
-		center_y += (double)(po->vertices[i]->y) / FRACUNIT;
+		center_x += FixedDiv(po->vertices[i]->x, numVertices);
+		center_y += FixedDiv(po->vertices[i]->y, numVertices);
 	}
 
-	center_x /= po->numVertices;
-	center_y /= po->numVertices;
-
-	po->centerPt.x = (fixed_t)(center_x * FRACUNIT);
-	po->centerPt.y = (fixed_t)(center_y * FRACUNIT);
+	po->centerPt.x = center_x;
+	po->centerPt.y = center_y;
 
 	ss = R_PointInSubsector(po->centerPt.x, po->centerPt.y);
 
@@ -2155,7 +2155,7 @@ INT32 EV_DoPolyObjRotate(polyrotdata_t *prdata)
 	else if (prdata->distance == 0) // 0 means 360 degrees
 		th->distance = 0xffffffff - 1;
 	else
-		th->distance = prdata->distance * ANG1;
+		th->distance = FixedAngle(prdata->distance*FRACUNIT);
 
 	// set polyobject's thrust
 	po->thrust = abs(th->speed) >> 8;
@@ -2461,7 +2461,7 @@ static void Polyobj_doSwingDoor(polyobj_t *po, polydoordata_t *doordata)
 	th->closing      = false;
 	th->delay        = doordata->delay;
 	th->delayCount   = 0;
-	th->distance     = th->initDistance = doordata->distance * ANG1;
+	th->distance     = th->initDistance = FixedAngle(doordata->distance*FRACUNIT);
 	th->speed        = Polyobj_AngSpeed(doordata->speed);
 	th->initSpeed    = th->speed;
 

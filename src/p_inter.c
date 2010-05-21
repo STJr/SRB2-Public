@@ -203,10 +203,20 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 	if (heightcheck)
 	{
-		if (toucher->z > (special->z + special->height))
-			return;
-		if (special->z > (toucher->z + toucher->height))
-			return;
+		if (special->type == MT_FLINGEMERALD) // little hack here...
+		{ // flingemerald sprites are low to the ground, so extend collision radius down some.
+			if (toucher->z > (special->z + special->height))
+				return;
+			if (special->z - special->height > (toucher->z + toucher->height))
+				return;
+		}
+		else
+		{
+			if (toucher->z > (special->z + special->height))
+				return;
+			if (special->z > (toucher->z + toucher->height))
+				return;
+		}
 	}
 
 	if (special->health <= 0)
@@ -218,7 +228,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 	if (!player) // Only players can touch stuff!
 		return;
 
-	if (netgame && player->spectator)
+	if ((netgame || multiplayer) && player->spectator)
 		return;
 
 	if (special->state == &states[S_DISS]) // Don't collect if in "disappearing" mode
@@ -247,7 +257,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 		       )
 		   ) // Do you possess the ability to subdue the object?
 		{
-			if (toucher->momz < 0)
+			if ((toucher->momz < 0 && !(toucher->eflags & MFE_VERTICALFLIP)) || (toucher->momz > 0 && (toucher->eflags & MFE_VERTICALFLIP)))
 				toucher->momz = -toucher->momz;
 			toucher->momx = -toucher->momx;
 			toucher->momy = -toucher->momy;
@@ -292,7 +302,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 		         && (((toucher->player->pflags & PF_NIGHTSMODE) && (toucher->player->pflags & PF_DRILLING)) || (toucher->player->pflags & PF_JUMPED) || (toucher->player->pflags & PF_SPINNING)
 		             || toucher->player->powers[pw_invulnerability] || toucher->player->powers[pw_super])) // Do you possess the ability to subdue the object?
 		{
-			if (toucher->momz < 0)
+			if ((toucher->momz < 0 && !(toucher->eflags & MFE_VERTICALFLIP)) || (toucher->momz > 0 && (toucher->eflags & MFE_VERTICALFLIP)))
 				toucher->momz = -toucher->momz;
 
 			P_DamageMobj(special, toucher, toucher, 1);
@@ -513,7 +523,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					player->mo->z = special->z+(special->height/4);
 
 					if (special->threshold > 0)
-						fa = FINEANGLE_C((special->threshold*30)-1);
+						fa = (FixedAngle(((special->threshold*30)-1)*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
 					else
 						fa = 0;
 
@@ -954,8 +964,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			if (!mariomode)
 				return;
 			toucher->player->powers[pw_fireflower] = true;
-			toucher->flags =  (toucher->flags & ~MF_TRANSLATION)
-			                | ((13)<<MF_TRANSSHIFT);
+			toucher->flags |= MF_TRANSLATION;
+			toucher->color =  13;
 			sound = sfx_shield;
 			break;
 			// coins
@@ -1291,6 +1301,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			if (ALL7EMERALDS(emeralds)) // Got all 7
 			{
 				P_GivePlayerRings(player, 50, false);
+				nummaprings += 50; // no cheating towards Perfect!
 			}
 			break;
 
@@ -1387,6 +1398,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				    || special->z>>FRACBITS != spawnheight)
 				{
 					special->fuse = 1;
+					special->flags2 |= MF2_JUSTATTACKED;
 
 					if (!P_PlayerTouchingSectorSpecial(player, 4, 3))
 					{
@@ -1438,6 +1450,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				    || special->z>>FRACBITS != spawnheight)
 					{
 						special->fuse = 1;
+						special->flags2 |= MF2_JUSTATTACKED;
 
 						if (!P_PlayerTouchingSectorSpecial(player, 4, 4))
 						{
@@ -1828,6 +1841,7 @@ void P_CheckSurvivors(void)
 	INT32 survivors = 0;
 	INT32 taggers = 0;
 	INT32 spectators = 0;
+	INT32 survivorarray[MAXPLAYERS];
 
 	if (!D_NumPlayers()) //no players in the game, no check performed.
 		return;
@@ -1842,41 +1856,50 @@ void P_CheckSurvivors(void)
 				taggers++;
 			else if (!(players[i].pflags & PF_TAGGED))
 			{
+				survivorarray[survivors] = i;
 				survivors++;
 			}
 		}
 	}
 
-	if (!taggers) //If there are no taggers, try to find one that can become it.
+	if (!taggers) //If there are no taggers, pick a survivor at random to be it.
 	{
-		for (i=0; i < MAXPLAYERS; i++)
+		// Exception for hide and seek. If a round has started and the IT player leaves, end the round.
+		if (cv_tagtype.value && (leveltime >= (hidetime * TICRATE)))
 		{
-			//Do not pick someone who is already tagged, or a spectator.
-			if (!(players[i].pflags & PF_TAGGED) && !players[i].spectator && playeringame[i])
+			CONS_Printf("The IT player has left the game.\n");
+			if (server)
+				SendNetXCmd(XD_EXITLEVEL, NULL, 0);
+
+			return;
+		}
+
+		if (survivors)
+		{
+			INT32 newtagger = survivorarray[P_Random() % survivors];
+
+			CONS_Printf("%s is it!\n", player_names[newtagger]); // Tell everyone who is it!
+			players[newtagger].pflags |= PF_TAGIT;
+
+			survivors--; //Get rid of the guy we just made IT.
+
+			//Yeah, we have an eligible tagger, but we may not have anybody for him to tag!
+			//If there is only one guy waiting on the game to fill or spectators to enter game, don't bother.
+			if (!survivors && (D_NumPlayers() - spectators) > 1)
 			{
-				CONS_Printf("%s is it!\n", player_names[i]); // Tell everyone who is it!
-				players[i].pflags |= PF_TAGIT;
-
-				survivors--; //Get rid of the guy we just made IT.
-
-				//Yeah, we have an eligible tagger, but we may not have anybody for him to tag!
-				//If there is only one guy waiting on the game to fill or spectators to enter game, don't bother.
-				if ((!survivors && !spectators) && D_NumPlayers() > 1)
-				{
-					CONS_Printf("All players have been tagged!\n");
-					if (server)
-						SendNetXCmd(XD_EXITLEVEL, NULL, 0);
-				}
-
-				return;
+				CONS_Printf("All players have been tagged!\n");
+				if (server)
+					SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 			}
+
+			return;
 		}
 
 		//If we reach this point, no player can replace the one that was IT.
 		//Unless it is one player waiting on a game, end the round.
-		if (D_NumPlayers() > 1)
+		if ((D_NumPlayers() - spectators) > 1)
 		{
-			CONS_Printf("There are no players able to become IT. Ending the round.\n");
+			CONS_Printf("There are no players able to become IT.\n");
 			if (server)
 				SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 		}
@@ -1959,8 +1982,13 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 #endif
 		if ((gametype == GT_MATCH || gametype == GT_TAG)
 			&& ((target == source) || (source == NULL && inflictor == NULL) || (source && !source->player))
-			&& target->player->score >= 50 && cv_match_scoring.value == 0) // Suicide penalty
-			target->player->score -= 50;
+			&& cv_match_scoring.value == 0) // Suicide penalty
+		{
+			if (target->player->score >= 50)
+				target->player->score -= 50;
+			else
+				target->player->score = 0;
+		}
 
 		P_DeathMessages(target, inflictor, source);
 
@@ -2110,19 +2138,22 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 				}
 				else
 				{
-					//otherwise, increment the tagger's score.
-					//in hide and seek, suiciding players are counted as found.
-					int w;
-
-					for (w=0; w < MAXPLAYERS; w++)
+					if (!(target->player->pflags & PF_TAGGED))
 					{
-						if (players[w].pflags & PF_TAGIT)
-							P_AddPlayerScore(&players[w], 100);
-					}
+						//otherwise, increment the tagger's score.
+						//in hide and seek, suiciding players are counted as found.
+						INT32 w;
 
-					target->player->pflags |= PF_TAGGED;
-					CONS_Printf("%s was found!\n", player_names[target->player-players]);
-					P_CheckSurvivors();
+						for (w=0; w < MAXPLAYERS; w++)
+						{
+							if (players[w].pflags & PF_TAGIT)
+								P_AddPlayerScore(&players[w], 100);
+						}
+
+						target->player->pflags |= PF_TAGGED;
+						CONS_Printf("%s was found!\n", player_names[target->player-players]);
+						P_CheckSurvivors();
+					}
 				}
 			}
 		}
@@ -2205,6 +2236,8 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 		}
 
 		mo = P_SpawnMobj(target->x, target->y, target->z + (target->height / 2), item);
+		mo->destscale = target->scale;
+		P_SetScale(mo, mo->destscale);
 	}
 }
 
@@ -2367,8 +2400,8 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 	player_t *player = target->player;
 	(void)damage; //unused parm
 
-	// If flashing, or in the tag zone, or invulnerable, ignore the tag,
-	if (player->powers[pw_flashing] || player->tagzone || player->powers[pw_invulnerability])
+	// If flashing or invulnerable, ignore the tag,
+	if (player->powers[pw_flashing] || player->powers[pw_invulnerability])
 		return false;
 
 	// Ignore IT players shooting each other, unless friendlyfire is on.
@@ -2510,8 +2543,8 @@ static void P_KillPlayer(player_t *player, mobj_t *source, INT32 damage)
 	player->powers[pw_emeralds] = 0;
 
 	player->powers[pw_fireflower] = false;
-	player->mo->flags =  (player->mo->flags & ~MF_TRANSLATION)
-	                   | ((player->skincolor)<<MF_TRANSSHIFT);
+	player->mo->flags |= MF_TRANSLATION;
+	player->mo->color = (UINT8)player->skincolor;
 
 	if (player->powers[pw_underwater] != 1) // Don't jump up when drowning
 		P_SetObjectMomZ(player->mo, 18*FRACUNIT, false);
@@ -2625,6 +2658,7 @@ static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *s
 		player->powers[pw_forceshield]--;
 
 		if ((inflictor && inflictor->flags & MF_MISSILE) && !(inflictor->flags2 & MF2_REFLECTED) &&
+			inflictor->type != MT_SPINFIRE && // don't reflect firetrails
 			!(inflictor->flags2 & MF2_RAILRING || inflictor->flags2 & MF2_GRENADE || inflictor->flags2 & MF2_DEBRIS))
 		{
 			// Return to sender!
@@ -2656,8 +2690,8 @@ static inline void P_ShieldDamage(player_t *player, mobj_t *inflictor, mobj_t *s
 	P_DoPlayerPain(player, source, inflictor);
 
 	player->powers[pw_fireflower] = false;
-	player->mo->flags = (player->mo->flags & ~MF_TRANSLATION)
-						| ((player->skincolor)<<MF_TRANSSHIFT);
+	player->mo->flags |= MF_TRANSLATION;
+	player->mo->color = (UINT8)player->skincolor;
 
 	if (source && (source->type == MT_DISS || source->type == MT_FLOORSPIKE || source->type == MT_CEILINGSPIKE) && source->threshold == 43) // spikes
 		S_StartSound(player->mo, sfx_spkdth);
@@ -2681,8 +2715,8 @@ static void P_RingDamage(player_t *player, mobj_t *inflictor, mobj_t *source, IN
 	if (!(inflictor && ((inflictor->flags & MF_MISSILE) || inflictor->player) && player->powers[pw_super] && ALL7EMERALDS(player->powers[pw_emeralds])))
 	{
 		player->powers[pw_fireflower] = false;
-		player->mo->flags =  (player->mo->flags & ~MF_TRANSLATION)
-							| ((player->skincolor)<<MF_TRANSSHIFT);
+		player->mo->flags |= MF_TRANSLATION;
+		player->mo->color =  (UINT8)player->skincolor;
 
 		P_DoPlayerPain(player, source, inflictor);
 
@@ -3214,16 +3248,17 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 			mo->flags &= ~MF_NOCLIPHEIGHT;
 			P_SetTarget(&mo->target, player->mo);
 			mo->fuse = 12*TICRATE;
+			mo->destscale = player->mo->scale;
+			P_SetScale(mo, player->mo->scale);
 
 			randomangle = P_Random();
-
 			fa = (randomangle+(i*amt)*FINEANGLES/16) & FINEMASK;
 
 			// Make rings spill out around the player in 16 directions like SA, but spill like Sonic 2.
 			// Technically a non-SA way of spilling rings. They just so happen to be a little similar.
 			if (player->pflags & PF_NIGHTSFALL)
 			{
-				ns = ((i*FRACUNIT)/16)+2*FRACUNIT;
+				ns = FIXEDSCALE(((i*FRACUNIT)/16)+2*FRACUNIT, mo->scale);
 				mo->momx = FixedMul(FINESINE(fa),ns);
 
 				if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3236,7 +3271,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 			{
 				if (i > 15)
 				{
-					ns = 3 * FRACUNIT;
+					ns = FIXEDSCALE(3 * FRACUNIT, mo->scale);
 					mo->momx = FixedMul(FINESINE(fa),ns);
 
 					if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3249,7 +3284,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 				}
 				else
 				{
-					ns = 2 * FRACUNIT;
+					ns = FIXEDSCALE(2 * FRACUNIT, mo->scale);
 					mo->momx = FixedMul(FINESINE(fa), ns);
 
 					if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3372,6 +3407,8 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 		else
 			break; // All done!
 
+		mo->destscale = player->mo->scale;
+		P_SetScale(mo, player->mo->scale);
 
 		randomangle = P_Random();
 		fa = (randomangle+(i*amt)*FINEANGLES/16) & FINEMASK;
@@ -3380,7 +3417,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 		// Technically a non-SA way of spilling rings. They just so happen to be a little similar.
 		if (player->pflags & PF_NIGHTSFALL)
 		{
-			ns = ((i*FRACUNIT)/16)+2*FRACUNIT;
+			ns = FIXEDSCALE(((i*FRACUNIT)/16)+2*FRACUNIT, mo->scale);
 			mo->momx = FixedMul(FINESINE(fa),ns);
 
 			if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3393,7 +3430,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 		{
 			if (i > 15)
 			{
-				ns = 3 * FRACUNIT;
+				ns = FIXEDSCALE(3 * FRACUNIT, mo->scale);
 				mo->momx = FixedMul(FINESINE(fa),ns);
 
 				if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3406,7 +3443,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 			}
 			else
 			{
-				ns = 2 * FRACUNIT;
+				ns = FIXEDSCALE(2 * FRACUNIT, mo->scale);
 				mo->momx = FixedMul(FINESINE(fa), ns);
 
 				if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3457,6 +3494,8 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 			P_SetTarget(&mo->target, player->mo);
 		}
 
+		mo->destscale = player->mo->scale;
+		P_SetScale(mo,player->mo->scale);
 
 		randomangle = P_Random();
 		fa = (randomangle+i*FINEANGLES/16) & FINEMASK;
@@ -3465,7 +3504,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 		// Technically a non-SA way of spilling rings. They just so happen to be a little similar.
 		if (player->pflags & PF_NIGHTSFALL)
 		{
-			ns = ((i*FRACUNIT)/16)+2*FRACUNIT;
+			ns = FIXEDSCALE(((i*FRACUNIT)/16)+2*FRACUNIT, mo->scale);
 			mo->momx = FixedMul(FINESINE(fa),ns);
 
 			if (!(twodlevel || (player->mo->flags2 & MF2_TWOD)))
@@ -3478,7 +3517,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 		{
 			if (i > 15)
 			{
-				ns = 3 * FRACUNIT;
+				ns = FIXEDSCALE(3 * FRACUNIT, mo->scale);
 
 				if (maptol & TOL_ERZ3)
 					ns >>= 2;
@@ -3495,7 +3534,7 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 			}
 			else
 			{
-				ns = 2 * FRACUNIT;
+				ns = FIXEDSCALE(2 * FRACUNIT, mo->scale);
 
 				if (maptol & TOL_ERZ3)
 					ns >>= 2;
@@ -3732,7 +3771,7 @@ void P_PlayerFlagBurst(player_t *player, boolean toss)
 	P_SetTarget(&flag->target, player->mo);
 
 	if (toss)
-		;//CONS_Printf(PLAYERTOSSFLAG, player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
+		CONS_Printf(text[PLAYERTOSSFLAG], player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
 	else
 		CONS_Printf(text[PLAYERDROPFLAG], player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
 

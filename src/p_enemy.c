@@ -629,7 +629,7 @@ boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed
 		if (!P_CheckSight(actor, player->mo))
 			continue; // out of sight
 
-		if (netgame && player->spectator)
+		if ((netgame || multiplayer) && player->spectator)
 			continue;
 
 		if (dist > 0
@@ -1103,7 +1103,7 @@ void A_ArrowCheck(mobj_t *actor)
 
 	if (angle > ANG20 && angle <= ANGLE_180)
 		P_SetMobjStateNF(actor, actor->info->raisestate);
-	else if (angle < ANGLE_MAX-ANG20 && angle > ANGLE_180)
+	else if (angle < ANG340 && angle > ANGLE_180)
 		P_SetMobjStateNF(actor, actor->info->xdeathstate);
 	else
 		P_SetMobjStateNF(actor, actor->info->spawnstate);
@@ -1424,7 +1424,7 @@ void A_LobShot(mobj_t *actor)
 	dist = P_AproxDistance(actor->target->x - shot->x, actor->target->y - shot->y);
 
 	horizontal = dist / airtime;
-	vertical = (gravity*airtime)/2;
+	vertical = FIXEDSCALE((gravity*airtime)/2, shot->scale);
 
 	shot->momx = FixedMul(horizontal, FINECOSINE(an));
 	shot->momy = FixedMul(horizontal, FINESINE(an));
@@ -1714,7 +1714,7 @@ void A_BossScream(mobj_t *actor)
 
 	actor->movecount += actor->info->speed*16;
 	actor->movecount %= 360;
-	fa = FINEANGLE_C(actor->movecount);
+	fa = (FixedAngle(actor->movecount*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK;
 	x = actor->x + FixedMul(FINECOSINE(fa),actor->radius);
 	y = actor->y + FixedMul(FINESINE(fa),actor->radius);
 
@@ -1862,7 +1862,7 @@ void A_MonitorPop(mobj_t *actor)
 	actor->flags |= MF_NOCLIP;
 	P_SetThingPosition(actor);
 
-	remains = P_SpawnMobj(actor->x, actor->y, actor->eflags & MFE_VERTICALFLIP ? actor->z + actor->height - mobjinfo[actor->info->speed].height : actor->z, actor->info->speed);
+	remains = P_SpawnMobj(actor->x, actor->y, actor->z, actor->info->speed);
 	remains->type = actor->type; // Transfer type information
 	P_UnsetThingPosition(remains);
 	if (sector_list)
@@ -2632,8 +2632,8 @@ void A_ParticleSpawn(mobj_t *actor)
 
 	spawn = P_SpawnMobj(actor->x, actor->y, actor->z, type);
 	spawn->momz = speed;
-//	spawn->destscale = 1;
-//	spawn->scalespeed = (UINT8)((actor->spawnpoint->angle >> 8) & 63);
+	spawn->destscale = 1;
+	spawn->scalespeed = (UINT8)((actor->spawnpoint->angle >> 8) & 63);
 	actor->tics = actor->spawnpoint->extrainfo + 1;
 }
 
@@ -2684,6 +2684,12 @@ void A_BubbleSpawn(mobj_t *actor)
 		bubble = P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_SMALLBUBBLE);
 	else if (prandom < 128 && prandom > 96)
 		bubble = P_SpawnMobj(actor->x, actor->y, actor->z + (actor->height / 2), MT_MEDIUMBUBBLE);
+
+	if (bubble)
+	{
+		bubble->destscale = actor->scale;
+		P_SetScale(bubble,actor->scale);
+	}
 }
 
 // Function: A_BubbleRise
@@ -2857,7 +2863,7 @@ void A_FishJump(mobj_t *actor)
 		if (locvar1)
 			jumpval = var1;
 		else
-			jumpval = (actor->angle/(ANGLE_45/45))*(FRACUNIT/4);
+			jumpval = AngleFixed(actor->angle)/4;
 
 		if (!jumpval) jumpval = 44*(FRACUNIT/4);
 		actor->momz = jumpval;
@@ -2898,7 +2904,7 @@ void A_ThrownRing(mobj_t *actor)
 /*		if (ring)
 		{
 			P_SetTarget(&ring->target, actor);
-			ring->flags = (ring->flags & ~MF_TRANSLATION) | (actor->flags & MF_TRANSLATION); //copy color
+			ring->color = actor->color; //copy color
 		}*/
 	}
 
@@ -2974,7 +2980,7 @@ void A_ThrownRing(mobj_t *actor)
 		if (player->mo->health <= 0)
 			continue; // dead
 
-		if (netgame && player->spectator)
+		if ((netgame || multiplayer) && player->spectator)
 			continue; // spectator
 
 		if (actor->target && actor->target->player)
@@ -4065,7 +4071,7 @@ void A_CrawlaCommanderThink(mobj_t *actor)
 		{
 			UINT8 prandom = P_Random();
 			actor->angle = R_PointToAngle2(actor->x, actor->y, actor->target->x, actor->target->y) + (P_Random() & 1 ? -prandom : +prandom);
-			P_InstaThrust(actor, actor->angle, locvar2/3*2);
+			P_InstaThrust(actor, actor->angle, FixedDiv(locvar2, 3*FRACUNIT/2));
 			actor->momz = locvar2; // Bounce up in air
 		}
 	}
@@ -4118,16 +4124,35 @@ void A_RingExplode(mobj_t *actor)
 			{
 				player_t *jumpingplayer;
 				angle_t jumpangle;
+				fixed_t horizdist, vertdist;
+				fixed_t horizmom, vertmom;
 
 				jumpingplayer = actor->target->player;
 				jumpangle = R_PointToAngle2(actor->x, actor->y, jumpingplayer->mo->x, jumpingplayer->mo->y);
 
-				// Horizontal momentum.
-				P_InstaThrust(jumpingplayer->mo, jumpangle, 20 * FRACUNIT);
+				// Scale force based on distance from explosive.
+				horizdist = P_AproxDistance(actor->x - jumpingplayer->mo->x, actor->y - jumpingplayer->mo->y);
+				vertdist = abs(actor->z - jumpingplayer->mo->z);
+				horizmom = FixedMul(20*FRACUNIT, FixedDiv(actor->info->painchance - horizdist, actor->info->painchance));
+				vertmom = FixedMul(20*FRACUNIT, FixedDiv(actor->info->painchance - vertdist, actor->info->painchance));
 
-				// If above the floor, give a vertical hop.
-				if (jumpingplayer->mo->z > jumpingplayer->mo->floorz)
-					jumpingplayer->mo->momz += 20 * FRACUNIT;
+				//Minimum force
+				if (horizmom < 8*FRACUNIT)
+					horizmom = 8*FRACUNIT;
+				if (vertmom < 8*FRACUNIT)
+					vertmom = 8*FRACUNIT;
+
+				// Horizontal momentum.
+				P_InstaThrust(jumpingplayer->mo, jumpangle, horizmom);
+
+				// If off the ground, apply vertical momentum.
+				if (!P_IsObjectOnGround(jumpingplayer->mo))
+				{
+					if (actor->z > jumpingplayer->mo->z)
+						jumpingplayer->mo->momz -= vertmom;
+					else
+						jumpingplayer->mo->momz += vertmom;
+				}
 			}
 			else
 #endif
@@ -4177,10 +4202,11 @@ void A_OldRingExplode(mobj_t *actor) {
 
 		if (changecolor)
 		{
+			mo->flags |= MF_TRANSLATION;
 			if (gametype != GT_CTF)
-				mo->flags = (mo->flags & ~MF_TRANSLATION) | (actor->target->flags & MF_TRANSLATION); //copy color
+				mo->color = actor->target->color; //copy color
 			else if (actor->target->player->ctfteam == 2)
-				mo->flags = (mo->flags & ~MF_TRANSLATION) | (8<<MF_TRANSSHIFT);
+				mo->color = 8;
 		}
 	}
 
@@ -4193,10 +4219,11 @@ void A_OldRingExplode(mobj_t *actor) {
 
 	if (changecolor)
 	{
+		mo->flags |= MF_TRANSLATION;
 		if (gametype != GT_CTF)
-			mo->flags = (mo->flags & ~MF_TRANSLATION) | (actor->target->flags & MF_TRANSLATION); //copy color
+			mo->color = actor->target->color; //copy color
 		else if (actor->target->player->ctfteam == 2)
-			mo->flags = (mo->flags & ~MF_TRANSLATION) | (8<<MF_TRANSSHIFT);
+			mo->color = 8;
 	}
 
 	mo = P_SpawnMobj(actor->x, actor->y, actor->z, locvar1);
@@ -4208,10 +4235,11 @@ void A_OldRingExplode(mobj_t *actor) {
 
 	if (changecolor)
 	{
+		mo->flags |= MF_TRANSLATION;
 		if (gametype != GT_CTF)
-			mo->flags = (mo->flags & ~MF_TRANSLATION) | (actor->target->flags & MF_TRANSLATION); //copy color
+			mo->color = actor->target->color; //copy color
 		else if (actor->target->player->ctfteam == 2)
-			mo->flags = (mo->flags & ~MF_TRANSLATION) | (8<<MF_TRANSSHIFT);
+			mo->color = 8;
 	}
 }
 
@@ -4243,9 +4271,9 @@ void A_MixUp(mobj_t *actor)
 	// and grab their xyz coords
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] && players[i].mo && players[i].mo->health > 0 && players[i].playerstate == PST_LIVE
-			&& !players[i].exiting)
+			&& !players[i].exiting && !players[i].powers[pw_super])
 		{
-			if (netgame && players[i].spectator) // Ignore spectators
+			if ((netgame || multiplayer) && players[i].spectator) // Ignore spectators
 				continue;
 
 			numplayers++;
@@ -4258,11 +4286,17 @@ void A_MixUp(mobj_t *actor)
 		fixed_t x, y, z;
 		angle_t angle;
 		INT32 one = -1, two = 0; // default value 0 to make the compiler shut up
+
+		// Zoom tube stuff
+		mobj_t *tempthing = NULL; //tracer
+		pflags_t flags1,flags2;   //player pflags
+		INT32 transspeed;          //player speed
+
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i] && players[i].mo && players[i].mo->health > 0 && players[i].playerstate == PST_LIVE
-				&& !players[i].exiting)
+				&& !players[i].exiting && !players[i].powers[pw_super])
 			{
-				if (netgame && players[i].spectator) // Ignore spectators
+				if ((netgame || multiplayer) && players[i].spectator) // Ignore spectators
 					continue;
 
 				if (one == -1)
@@ -4274,6 +4308,20 @@ void A_MixUp(mobj_t *actor)
 				}
 			}
 
+		//get this done first!
+		tempthing = players[one].mo->tracer;
+		P_SetTarget(&players[one].mo->tracer, players[two].mo->tracer);
+		P_SetTarget(&players[two].mo->tracer, tempthing);
+
+		//zoom tubes use player->speed to determine direction and speed
+		transspeed = players[one].speed;
+		players[one].speed = players[two].speed;
+		players[two].speed = transspeed;
+
+		//set flags variables now but DON'T set them.
+		flags1 = (players[one].pflags & (PF_ITEMHANG|PF_MACESPIN|PF_ROPEHANG|PF_MINECART));
+		flags2 = (players[two].pflags & (PF_ITEMHANG|PF_MACESPIN|PF_ROPEHANG|PF_MINECART));
+
 		x = players[one].mo->x;
 		y = players[one].mo->y;
 		z = players[one].mo->z;
@@ -4284,6 +4332,13 @@ void A_MixUp(mobj_t *actor)
 
 		P_MixUp(players[two].mo, x, y, z, angle);
 
+		//flags set after mixup.  Stupid P_ResetPlayer() takes away some of the flags we look for...
+		//but not all of them!  So we need to make sure they aren't set wrong or anything.
+		players[one].pflags &= ~(PF_ITEMHANG|PF_MACESPIN|PF_ROPEHANG|PF_MINECART);
+		players[one].pflags |= flags2;
+		players[two].pflags &= ~(PF_ITEMHANG|PF_MACESPIN|PF_ROPEHANG|PF_MINECART);
+		players[two].pflags |= flags1;
+
 		teleported[one] = true;
 		teleported[two] = true;
 	}
@@ -4292,6 +4347,11 @@ void A_MixUp(mobj_t *actor)
 		fixed_t position[MAXPLAYERS][3];
 		angle_t anglepos[MAXPLAYERS];
 		INT32 pindex[MAXPLAYERS], counter = 0, teleportfrom = 0;
+
+		// Zoom tube stuff
+		mobj_t *transtracer[MAXPLAYERS]; //tracer
+		pflags_t transflag[MAXPLAYERS];  //player pflags
+		INT32 transspeed[MAXPLAYERS];     //player speed
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -4302,9 +4362,9 @@ void A_MixUp(mobj_t *actor)
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].playerstate == PST_LIVE
-				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting)
+				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super])
 			{
-				if (netgame && players[i].spectator)// Ignore spectators
+				if ((netgame || multiplayer) && players[i].spectator)// Ignore spectators
 					continue;
 
 				position[counter][0] = players[i].mo->x;
@@ -4315,6 +4375,11 @@ void A_MixUp(mobj_t *actor)
 				players[i].mo->momx = players[i].mo->momy = players[i].mo->momz =
 					players[i].rmomx = players[i].rmomy = 1;
 				players[i].cmomx = players[i].cmomy = 0;
+
+				transflag[counter] = (players[i].pflags & (PF_ITEMHANG|PF_MACESPIN|PF_ROPEHANG|PF_MINECART));
+				transspeed[counter] = players[i].speed;
+				transtracer[counter] = players[i].mo->tracer;
+
 				counter++;
 			}
 		}
@@ -4338,17 +4403,26 @@ void A_MixUp(mobj_t *actor)
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].playerstate == PST_LIVE
-				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting)
+				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super])
 			{
-				if (netgame && players[i].spectator)// Ignore spectators
+				if ((netgame || multiplayer) && players[i].spectator)// Ignore spectators
 					continue;
 
 				teleportfrom = (counter + prandom) % numplayers;
+
+				//speed and tracer come before...
+				players[i].speed = transspeed[teleportfrom];
+				P_SetTarget(&players[i].mo->tracer, transtracer[teleportfrom]);
+
 				P_MixUp(players[i].mo,
 					position[teleportfrom][0],
 					position[teleportfrom][1],
 					position[teleportfrom][2],
 					anglepos[teleportfrom]);
+
+				//...flags after.  same reasoning.
+				players[i].pflags &= ~(PF_ITEMHANG|PF_MACESPIN|PF_ROPEHANG|PF_MINECART);
+				players[i].pflags |= transflag[teleportfrom];
 
 				teleported[i] = true;
 				counter++;
@@ -4361,9 +4435,9 @@ void A_MixUp(mobj_t *actor)
 		if (teleported[i])
 		{
 			if (playeringame[i] && players[i].playerstate == PST_LIVE
-				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting)
+				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super])
 			{
-				if (netgame && players[i].spectator)// Ignore spectators
+				if ((netgame || multiplayer) && players[i].spectator)// Ignore spectators
 					continue;
 
 				P_SetThingPosition(players[i].mo);
@@ -4400,7 +4474,7 @@ void A_RecyclePowers(mobj_t *actor)
 	// Count the number of players in the game
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] && players[i].mo && players[i].mo->health > 0 && players[i].playerstate == PST_LIVE
-			&& !players[i].exiting && !(netgame && players[i].spectator))
+			&& !players[i].exiting && !players[i].powers[pw_super] && !((netgame || multiplayer) && players[i].spectator))
 			numplayers++;
 
 	if (numplayers <= 1)
@@ -4416,7 +4490,7 @@ void A_RecyclePowers(mobj_t *actor)
 
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i] && players[i].mo && players[i].mo->health > 0 && players[i].playerstate == PST_LIVE
-				&& !players[i].exiting && !(netgame && players[i].spectator))
+				&& !players[i].exiting && !players[i].powers[pw_super] && !((netgame || multiplayer) && players[i].spectator))
 			{
 				if (one == -1)
 					one = i;
@@ -4457,8 +4531,8 @@ void A_RecyclePowers(mobj_t *actor)
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].playerstate == PST_LIVE
-				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting
-				&& !(netgame && players[i].spectator))
+				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super]
+				&& !((netgame || multiplayer) && players[i].spectator))
 			{
 				pindex[counter] = i;
 				for (j = 0; j < NUMPOWERS; j++)
@@ -4488,8 +4562,8 @@ void A_RecyclePowers(mobj_t *actor)
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].playerstate == PST_LIVE
-				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting
-				&& !(netgame && players[i].spectator))
+				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super]
+				&& !((netgame || multiplayer) && players[i].spectator))
 			{
 				recyclefrom = (counter + prandom) % numplayers;
 				for (j = 0; j < NUMPOWERS; j++)
@@ -4511,8 +4585,8 @@ void A_RecyclePowers(mobj_t *actor)
 	}
 	for (i = 0; i < MAXPLAYERS; i++) //just for sneakers/invinc.
 		if (playeringame[i] && players[i].playerstate == PST_LIVE
-			&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting
-			&& !(netgame && players[i].spectator))
+			&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super]
+			&& !((netgame || multiplayer) && players[i].spectator))
 			if (P_IsLocalPlayer(players[i].mo->player))
 				P_RestoreMusic(players[i].mo->player);
 
@@ -4639,7 +4713,7 @@ void A_Boss2Chase(mobj_t *actor)
 	else
 		speedvar = actor->info->spawnhealth;
 
-	actor->target->angle += FixedAngle(FixedMul(actor->watertop,(actor->info->spawnhealth*(FRACUNIT/4)*3)/speedvar)); // Don't use FixedAngleC?
+	actor->target->angle += FixedAngle(FixedDiv(FixedMul(actor->watertop, (actor->info->spawnhealth*(FRACUNIT/4)*3)), speedvar*FRACUNIT)); // Don't use FixedAngleC!
 
 	P_UnsetThingPosition(actor);
 	{
@@ -4993,11 +5067,7 @@ void A_BuzzFly(mobj_t *actor)
 		if (P_LookForPlayers(actor, true, false, 0))
 			return; // got a new target
 
-#ifdef REMOVE_FOR_205
 		actor->momz = actor->momy = actor->momx = 0;
-#else
-		actor->momz = actor->momy = 0;
-#endif
 		P_SetMobjState(actor, actor->info->spawnstate);
 		return;
 	}
@@ -5310,7 +5380,9 @@ void A_SpawnObjectAbsolute(mobj_t *actor)
 	type = (mobjtype_t)(locvar2&65535);
 
 	mo = P_SpawnMobj(x<<FRACBITS, y<<FRACBITS, z<<FRACBITS, type);
-	actor = NULL;
+
+	if (actor->eflags & MFE_VERTICALFLIP)
+		mo->flags2 |= MF2_OBJECTFLIP;
 }
 
 // Function: A_SpawnObjectRelative
@@ -5341,6 +5413,9 @@ void A_SpawnObjectRelative(mobj_t *actor)
 	type = (mobjtype_t)(locvar2&65535);
 
 	mo = P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), actor->z + (z<<FRACBITS), type);
+
+	if (actor->eflags & MFE_VERTICALFLIP)
+		mo->flags2 |= MF2_OBJECTFLIP;
 }
 
 // Function: A_ChangeAngleRelative
@@ -5354,12 +5429,9 @@ void A_ChangeAngleRelative(mobj_t *actor)
 {
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
-	angle_t angle = P_Random()+1;
+	angle_t angle = (P_Random()+1)<<24;
 	const angle_t amin = FixedAngle(locvar1*FRACUNIT);
 	const angle_t amax = FixedAngle(locvar2*FRACUNIT);
-	angle *= (P_Random()+1);
-	angle *= (P_Random()+1);
-	angle *= (P_Random()+1);
 
 #ifdef PARANOIA
 	if (amin > amax)
@@ -5385,12 +5457,9 @@ void A_ChangeAngleAbsolute(mobj_t *actor)
 {
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
-	angle_t angle = P_Random()+1;
+	angle_t angle = (P_Random()+1)<<24;
 	const angle_t amin = FixedAngle(locvar1*FRACUNIT);
 	const angle_t amax = FixedAngle(locvar2*FRACUNIT);
-	angle *= (P_Random()+1);
-	angle *= (P_Random()+1);
-	angle *= (P_Random()+1);
 
 #ifdef PARANOIA
 	if (amin > amax)
@@ -5587,14 +5656,15 @@ void A_ChangeColorRelative(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
+	actor->flags |= MF_TRANSLATION;
 	if (locvar1)
 	{
 		// Have you ever seen anything so hideous?
 		if (actor->target)
-			actor->flags = (actor->flags & ~MF_TRANSLATION) | ((((((actor->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8))/256)+(((actor->target->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8))/256))<<MF_TRANSSHIFT));
+			actor->color = (UINT8)(actor->color + actor->target->color);
 	}
 	else
-		actor->flags = (actor->flags & ~MF_TRANSLATION) | (((((actor->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8))/256)+locvar2)<<MF_TRANSSHIFT);
+		actor->color = (UINT8)(actor->color + locvar2);
 }
 
 // Function: A_ChangeColorAbsolute
@@ -5609,13 +5679,14 @@ void A_ChangeColorAbsolute(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
+	actor->flags |= MF_TRANSLATION;
 	if (locvar1)
 	{
 		if (actor->target)
-			actor->flags = (actor->flags & ~MF_TRANSLATION) | (((((actor->target->flags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8))/256)<<MF_TRANSSHIFT));
+			actor->color = actor->target->color;
 	}
 	else
-		actor->flags = (actor->flags & ~MF_TRANSLATION) | (locvar2<<MF_TRANSSHIFT);
+		actor->color = (UINT8)locvar2;
 }
 
 // Function: A_MoveRelative
@@ -5630,7 +5701,7 @@ void A_MoveRelative(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
-	P_Thrust(actor, actor->angle+(locvar1*(ANGLE_45/45)), locvar2*FRACUNIT);
+	P_Thrust(actor, actor->angle+FixedAngle(locvar1*FRACUNIT), locvar2*FRACUNIT);
 }
 
 // Function: A_MoveAbsolute
@@ -5645,7 +5716,7 @@ void A_MoveAbsolute(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
-	P_InstaThrust(actor, (locvar1*(ANGLE_45/45)), locvar2*FRACUNIT);
+	P_InstaThrust(actor, FixedAngle(locvar1*FRACUNIT), locvar2*FRACUNIT);
 }
 
 // Function: A_Thrust
@@ -5872,10 +5943,7 @@ void A_RandomStateRange(mobj_t *actor)
 	INT32 difference = locvar2 - locvar1;
 
 	// Scale P_Random() to the difference.
-	statenum = P_Random();
-	statenum = statenum/difference;
-
-	statenum += locvar1;
+	statenum = locvar1 + (P_Random() % (difference + 1));
 
 	P_SetMobjState(actor, statenum);
 }

@@ -59,7 +59,6 @@ typedef struct
 	UINT32 count;
 	INT32 num;
 	INT32 color;
-	boolean spectator;
 	INT32 emeralds;
 	const char *name;
 } playersort_t;
@@ -70,6 +69,7 @@ typedef struct
 #define HU_MAXMSGLEN 224
 
 extern patch_t *hu_font[HU_FONTSIZE];
+extern patch_t *tinynum[10];
 extern patch_t *lt_font[LT_FONTSIZE];
 extern patch_t *cred_font[CRED_FONTSIZE];
 extern patch_t *emeraldpics[7];

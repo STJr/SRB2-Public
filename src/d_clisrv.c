@@ -46,6 +46,7 @@
 #include "y_inter.h"
 #include "r_local.h"
 #include "m_argv.h"
+#include "p_setup.h"
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -66,16 +67,24 @@
 
 #define PREDICTIONQUEUE BACKUPTICS
 #define PREDICTIONMASK (PREDICTIONQUEUE-1)
+#define MAX_REASONLENGTH 30
 
 boolean server = true; // true or false but !server == client
 boolean nodownload = false;
 static boolean serverrunning = false;
 INT32 serverplayer = 0;
-char adminpassword[9], motd[256]; // Password And Message of the Day
+char adminpassword[9], motd[254]; // Password And Message of the Day
 
 // server specific vars
 UINT8 playernode[MAXPLAYERS];
 UINT8 consfailcount[MAXPLAYERS];
+UINT8 consfailstatus[MAXPLAYERS];
+
+#ifdef NEWPING
+UINT16 pingmeasurecount = 1;
+UINT32 realpingtable[MAXPLAYERS]; //the base table of ping where an average will be sent to everyone.
+UINT32 playerpingtable[MAXPLAYERS]; //table of player latency values.
+#endif
 SINT8 nodetoplayer[MAXNETNODES];
 SINT8 nodetoplayer2[MAXNETNODES]; // say the numplayer for this node if any (splitscreen)
 UINT8 playerpernode[MAXNETNODES]; // used specialy for scplitscreen
@@ -248,7 +257,7 @@ static void ExtraDataTicker(void)
 				{
 					const UINT8 id = *curpos;
 					curpos++;
-					DEBFILE(va("executing x_cmd %d ply %d ", id, i));
+					DEBFILE(va("executing x_cmd %u ply %u ", id, i));
 					(listnetxcmd[id])(&curpos, i);
 					DEBFILE("done\n");
 				}
@@ -388,27 +397,118 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 	netbuffer->u.serverinfo.subversion = SUBVERSION;
 	// return back the time value so client can compute their ping
 	netbuffer->u.serverinfo.time = (tic_t)LONG(servertime);
+	netbuffer->u.serverinfo.leveltime = (tic_t)LONG(leveltime);
 
 	netbuffer->u.serverinfo.numberofplayer = (UINT8)D_NumPlayers();
 	netbuffer->u.serverinfo.maxplayer = (UINT8)cv_maxplayers.value;
 	netbuffer->u.serverinfo.gametype = (UINT8)gametype;
 	netbuffer->u.serverinfo.modifiedgame = (UINT8)modifiedgame;
-	netbuffer->u.serverinfo.adminplayer = (SINT8)adminplayer;
+	netbuffer->u.serverinfo.cheatsenabled = (UINT8)cv_cheats.value;
+	netbuffer->u.serverinfo.isdedicated = (UINT8)dedicated;
 	strncpy(netbuffer->u.serverinfo.servername, cv_servername.string,
 		MAXSERVERNAME);
 	strncpy(netbuffer->u.serverinfo.mapname, G_BuildMapName(gamemap), 7);
+
+	M_Memcpy(netbuffer->u.serverinfo.mapmd5, mapmd5, 16);
+
+	if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
+		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1].lvlttl, 33);
+	else
+		strncpy(netbuffer->u.serverinfo.maptitle, "UNKNOWN", 33);
+
+	netbuffer->u.serverinfo.maptitle[32] = '\0';
+
+	if (!mapheaderinfo[gamemap-1].nozone)
+		netbuffer->u.serverinfo.iszone = 1;
+	else
+		netbuffer->u.serverinfo.iszone = 0;
+
+	netbuffer->u.serverinfo.actnum = mapheaderinfo[gamemap-1].actnum;
 
 	p = PutFileNeeded();
 
 	HSendPacket(node, false, 0, p - ((UINT8 *)&netbuffer->u));
 }
 
-static boolean SV_SendPlayerInfo(INT32 node)
+static void SV_SendPlayerInfo(INT32 node)
 {
-	int i;
-	UINT32 playermask = 0;
+	UINT8 i;
+	netbuffer->packettype = PT_PLAYERINFO;
+
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		if (!playeringame[i])
+		{
+			netbuffer->u.playerinfo[i].node = 255; // This slot is empty.
+			continue;
+		}
+
+		netbuffer->u.playerinfo[i].node = (UINT8)playernode[i];
+		strncpy(netbuffer->u.playerinfo[i].name, (const char *)&player_names[i], MAXPLAYERNAME+1);
+		netbuffer->u.playerinfo[i].name[MAXPLAYERNAME] = '\0';
+
+		//fetch IP address
+		{
+			const char *claddress;
+			UINT32 numericaddress[4];
+
+			if (playernode[i] == 0)
+				netbuffer->u.playerinfo[i].address = 2130706433; //127.0.0.1
+			else if (playernode[i] > 0 && I_GetNodeAddress && (claddress = I_GetNodeAddress(playernode[i])) != NULL)
+			{
+				if (sscanf(claddress, "%d.%d.%d.%d", &numericaddress[0], &numericaddress[1], &numericaddress[2], &numericaddress[3]) < 4)
+					goto badaddress;
+				netbuffer->u.playerinfo[i].address = ((numericaddress[0]%256) << 24) + ((numericaddress[1]%256) << 16) +
+				                                     ((numericaddress[2]%256) <<  8) +  (numericaddress[3]%256);
+			}
+			else
+			{
+				badaddress:
+				netbuffer->u.playerinfo[i].address = 0;
+			}
+		}
+
+		if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+		{
+			if (!players[i].ctfteam)
+				netbuffer->u.playerinfo[i].team = 255;
+			else
+				netbuffer->u.playerinfo[i].team = (UINT8)players[i].ctfteam;
+		}
+		else
+		{
+			if (players[i].spectator)
+				netbuffer->u.playerinfo[i].team = 255;
+			else
+				netbuffer->u.playerinfo[i].team = 0;
+		}
+
+		netbuffer->u.playerinfo[i].score = players[i].score;
+		netbuffer->u.playerinfo[i].timeinserver = (UINT16)(players[i].jointime / TICRATE);
+		netbuffer->u.playerinfo[i].skin = (UINT8)players[i].skin;
+
+		// Extra data
+		netbuffer->u.playerinfo[i].data = (UINT8)players[i].skincolor;
+
+		if (players[i].pflags & PF_TAGIT)
+			netbuffer->u.playerinfo[i].data |= 32;
+
+		if (players[i].gotflag)
+			netbuffer->u.playerinfo[i].data |= 64;
+
+		if (players[i].powers[pw_super])
+			netbuffer->u.playerinfo[i].data |= 128;
+	}
+
+	HSendPacket(node, false, 0, sizeof(plrinfo) * MAXPLAYERS);
+}
+
+static boolean SV_SendServerConfig(INT32 node)
+{
+	INT32 i;
 	UINT8 *p, *op;
 	boolean waspacketsent;
+	UINT32 playermask = 0;
 
 	netbuffer->packettype = PT_SERVERCFG;
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -711,7 +811,7 @@ static void SL_InsertServer(serverinfo_pak* info, SINT8 node)
 	} while (moved);
 }
 
-void CL_UpdateServerList(boolean internetsearch)
+void CL_UpdateServerList(boolean internetsearch, INT32 room)
 {
 	SL_ClearServerList(0);
 
@@ -733,8 +833,7 @@ void CL_UpdateServerList(boolean internetsearch)
 	{
 		const msg_server_t *server_list;
 		INT32 i = -1;
-
-		server_list = GetShortServersList();
+		server_list = GetShortServersList(room);
 		if (server_list)
 		{
 			char version[8] = "";
@@ -768,7 +867,6 @@ void CL_UpdateServerList(boolean internetsearch)
 		}
 	}
 }
-
 
 // use adaptive send using net_bandwidth and stat.sendbytes
 static void CL_ConnectToServer(boolean viams)
@@ -1323,9 +1421,12 @@ static void CL_RemovePlayer(INT32 playernum)
 		displayplayer = consoleplayer; // don't look through someone's view who isn't there
 
 	consfailcount[playernum] = 0;
+	consfailstatus[playernum] = 0;
 
 	if (gametype == GT_TAG)//Check if you still have a game. Location flexible. =P
 		P_CheckSurvivors();
+	else if (gametype == GT_RACE)
+		P_CheckRacers();
 }
 
 void CL_Reset(void)
@@ -1444,25 +1545,48 @@ static void Command_Ban(void)
 
 	if (server || adminplayer == consoleplayer)
 	{
-		XBOXSTATIC UINT8 buf[3];
+		XBOXSTATIC UINT8 buf[3 + MAX_REASONLENGTH];
+		UINT8 *p = buf;
 		const SINT8 pn = nametonum(COM_Argv(1));
 		const INT32 node = playernode[(INT32)pn];
 
 		if (pn == -1 || pn == 0)
 			return;
 		else
-			buf[0] = pn;
+			WRITEUINT8(p, pn);
 		if (I_Ban && !I_Ban(node))
 		{
 			CONS_Printf("%s", text[TOOMANYBANS]);
-			buf[1] = KICK_MSG_GO_AWAY;
+			WRITEUINT8(p, KICK_MSG_GO_AWAY);
+			SendNetXCmd(XD_KICK, &buf, 2);
 		}
 		else
 		{
 			Ban_Add(COM_Argv(2));
-			buf[1] = KICK_MSG_BANNED;
+
+			if (COM_Argc() == 2)
+			{
+				WRITEUINT8(p, KICK_MSG_BANNED);
+				SendNetXCmd(XD_KICK, &buf, 2);
+			}
+			else
+			{
+				size_t i, j = COM_Argc();
+				char message[MAX_REASONLENGTH];
+
+				//Steal from the motd code so you don't have to put the reason in quotes.
+				strlcpy(message, COM_Argv(2), sizeof message);
+				for (i = 3; i < j; i++)
+				{
+					strlcat(message, " ", sizeof message);
+					strlcat(message, COM_Argv(i), sizeof message);
+				}
+
+				WRITEUINT8(p, KICK_MSG_CUSTOM_BAN);
+				WRITESTRINGN(p, message, MAX_REASONLENGTH);
+				SendNetXCmd(XD_KICK, &buf, p - buf);
+			}
 		}
-		SendNetXCmd(XD_KICK, &buf, 2);
 	}
 	else
 		CONS_Printf("%s", text[YOUARENOTTHESERVER]);
@@ -1471,9 +1595,10 @@ static void Command_Ban(void)
 
 static void Command_Kick(void)
 {
-	XBOXSTATIC UINT8 buf[3];
+	XBOXSTATIC UINT8 buf[3 + MAX_REASONLENGTH];
+	UINT8 *p = buf;
 
-	if (COM_Argc() != 2)
+	if (COM_Argc() == 1)
 	{
 		CONS_Printf("%s", text[KICKHELP]);
 		return;
@@ -1482,11 +1607,31 @@ static void Command_Kick(void)
 	if (server || adminplayer == consoleplayer)
 	{
 		const SINT8 pn = nametonum(COM_Argv(1));
+		WRITESINT8(p, pn);
 		if (pn == -1 || pn == 0)
 			return;
-		buf[0] = (UINT8)pn;
-		buf[1] = KICK_MSG_GO_AWAY;
-		SendNetXCmd(XD_KICK, &buf, 2);
+		if (COM_Argc() == 2)
+		{
+			WRITEUINT8(p, KICK_MSG_GO_AWAY);
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		else
+		{
+			size_t i, j = COM_Argc();
+			char message[MAX_REASONLENGTH];
+
+			//Steal from the motd code so you don't have to put the reason in quotes.
+			strlcpy(message, COM_Argv(2), sizeof message);
+			for (i = 3; i < j; i++)
+			{
+				strlcat(message, " ", sizeof message);
+				strlcat(message, COM_Argv(i), sizeof message);
+			}
+
+			WRITEUINT8(p, KICK_MSG_CUSTOM_KICK);
+			WRITESTRINGN(p, message, MAX_REASONLENGTH);
+			SendNetXCmd(XD_KICK, &buf, p - buf);
+		}
 	}
 	else
 		CONS_Printf("%s", text[YOUARENOTTHESERVER]);
@@ -1495,8 +1640,9 @@ static void Command_Kick(void)
 
 static void Got_KickCmd(UINT8 **p, INT32 playernum)
 {
-	INT32 pnum;
-	INT16 msg;
+	INT32 pnum, msg;
+	XBOXSTATIC char buf[3 + MAX_REASONLENGTH];
+	char *reason = buf;
 
 	pnum = READUINT8(*p);
 	msg = READUINT8(*p);
@@ -1563,7 +1709,9 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 
 	CONS_Printf(text[KICKEDPLAYERNAME], player_names[pnum]);
 
-	if (server && msg == KICK_MSG_BANNED)
+	// If a verified admin banned someone, the server needs to know about it.
+	// If the playernum isn't zero (the server) then the server needs to record the ban.
+	if (server && playernum && msg == KICK_MSG_BANNED)
 	{
 		if (I_Ban && !I_Ban(playernode[(INT32)pnum]))
 		{
@@ -1576,6 +1724,11 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 		case KICK_MSG_GO_AWAY:
 			CONS_Printf("%s", text[KICKEDGOAWAY]);
 			break;
+#ifdef NEWPING
+		case KICK_MSG_PING_HIGH:
+			CONS_Printf("%s", text[KICKEDPINGTOOHIGH]);
+			break;
+#endif
 		case KICK_MSG_CON_FAIL:
 			CONS_Printf("%s", text[KICKEDCONSFAIL]);
 
@@ -1605,6 +1758,14 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 		case KICK_MSG_BANNED:
 			CONS_Printf("%s", text[KICKEDBANNED]);
 			break;
+		case KICK_MSG_CUSTOM_KICK:
+			READSTRINGN(*p, reason, MAX_REASONLENGTH+1);
+			CONS_Printf(text[CUSTOMKICKMSG], reason);
+			break;
+		case KICK_MSG_CUSTOM_BAN:
+			READSTRINGN(*p, reason, MAX_REASONLENGTH+1);
+			CONS_Printf(text[CUSTOMBANMSG], reason);
+			break;
 	}
 
 	if (pnum == consoleplayer)
@@ -1618,8 +1779,16 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 			M_StartMessage("You have been kicked\n(consistency failure)\nPress ESC\n", NULL,
 				MM_NOTHING);
 		}
+#ifdef NEWPING
+		else if (msg == KICK_MSG_PING_HIGH)
+			M_StartMessage("You have been kicked\n(Broke ping limit)\nPress ESC\n", NULL, MM_NOTHING);
+#endif
 		else if (msg == KICK_MSG_BANNED)
 			M_StartMessage("You have been banned by the server\n\nPress ESC\n", NULL, MM_NOTHING);
+		else if (msg == KICK_MSG_CUSTOM_KICK)
+			M_StartMessage(va("You have been kicked\n(%s)\nPress ESC\n", reason), NULL, MM_NOTHING);
+		else if (msg == KICK_MSG_CUSTOM_BAN)
+			M_StartMessage(va("You have been banned\n(%s)\nPress ESC\n", reason), NULL, MM_NOTHING);
 		else
 			M_StartMessage("You have been kicked by the server\n\nPress ESC\n", NULL, MM_NOTHING);
 	}
@@ -1627,8 +1796,8 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 		CL_RemovePlayer(pnum);
 }
 
-consvar_t cv_allownewplayer = {"allowjoin", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL	};
-consvar_t cv_joinnextround = {"joinnextround", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL}; /// \todo not done
+consvar_t cv_allownewplayer = {"allowjoin", "On", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL	};
+consvar_t cv_joinnextround = {"joinnextround", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL}; /// \todo not done
 static CV_PossibleValue_t maxplayers_cons_t[] = {{2, "MIN"}, {32, "MAX"}, {0, NULL}};
 consvar_t cv_maxplayers = {"maxplayers", "8", CV_SAVE, maxplayers_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 static CV_PossibleValue_t consfailprotect_cons_t[] = {{0, "MIN"}, {20, "MAX"}, {0, NULL}};
@@ -1710,12 +1879,7 @@ void SV_ResetServer(void)
 	{
 		playeringame[i] = false;
 		playernode[i] = UINT8_MAX;
-
-		// keep your name, but clear everything else.
-		if (!i && cv_playername.string)
-			strcpy(player_names[i], cv_playername.string);
-		else
-			sprintf(player_names[i], "Player %d", i);
+		sprintf(player_names[i], "Player %d", i + 1);
 	}
 
 	mynode = 0;
@@ -1980,8 +2144,6 @@ boolean SV_SpawnServer(void)
 		if (!dedicated)
 			CL_ConnectToServer(false);
 		else doomcom->numslots = 1;
-
-		motd[0] = '\0';
 	}
 
 	return SV_AddWaitingPlayers();
@@ -2030,6 +2192,295 @@ static void SV_SendRefuse(INT32 node, const char *reason)
 	netbuffer->packettype = PT_SERVERREFUSE;
 	HSendPacket(node, true, 0, strlen(netbuffer->u.serverrefuse.reason) + 1);
 	Net_CloseConnection(node);
+}
+
+static inline void writeconplayer(cons_pak *con, const size_t i)
+{
+	size_t j;
+
+	con->playernum = (UINT8)i;
+
+	con->playerstate = (UINT8)players[i].playerstate;
+	G_MoveTiccmd(&con->cmd, &players[i].cmd, 1);
+	con->viewz = LONG(players[i].viewz);
+	con->viewheight = LONG(players[i].viewheight);
+	con->deltaviewheight = LONG(players[i].deltaviewheight);
+	con->bob = LONG(players[i].bob);
+	con->aiming = (angle_t)LONG(players[i].aiming);
+	con->awayviewaiming = (angle_t)LONG(players[i].awayviewaiming);
+	con->phealth = LONG(players[i].health);
+	con->currentweapon = LONG(players[i].currentweapon);
+	con->ringweapons = LONG(players[i].ringweapons);
+	con->tossstrength = LONG(players[i].tossstrength);
+
+	for (j = 0; j < NUMPOWERS; j++)
+		con->powers[j] = LONG(players[i].powers[j]);
+
+	con->pflags = (UINT32)LONG(players[i].pflags);
+	con->bonuscount = LONG(players[i].bonuscount);
+	con->skincolor = LONG(players[i].skincolor);
+	con->skin = LONG(players[i].skin);
+	con->score = (UINT32)LONG(players[i].score);
+	con->dashspeed = LONG(players[i].dashspeed);
+	con->normalspeed = LONG(players[i].normalspeed);
+	con->runspeed = LONG(players[i].runspeed);
+	con->thrustfactor = LONG(players[i].thrustfactor);
+	con->accelstart = LONG(players[i].accelstart);
+	con->acceleration = LONG(players[i].acceleration);
+	con->charability = LONG(players[i].charability);
+	con->charability2 = LONG(players[i].charability2);
+	con->charflags = (UINT32)LONG(players[i].charflags);
+	con->thokitem = (UINT32)LONG(players[i].thokitem);
+	con->spinitem = (UINT32)LONG(players[i].spinitem);
+	con->actionspd = LONG(players[i].actionspd);
+	con->mindash = LONG(players[i].mindash);
+	con->maxdash = LONG(players[i].maxdash);
+	con->jumpfactor = LONG(players[i].jumpfactor);
+#ifndef TRANSFIX
+	con->starttranscolor = LONG(players[i].starttranscolor);
+#endif
+	con->prefcolor = LONG(players[i].prefcolor);
+	con->lives = LONG(players[i].lives);
+	con->continues = LONG(players[i].continues);
+	con->xtralife = LONG(players[i].xtralife);
+	con->speed = LONG(players[i].speed);
+	con->jumping = LONG(players[i].jumping);
+	con->secondjump =players[i].secondjump;
+	con->fly1 = LONG(players[i].fly1);
+	con->scoreadd = (UINT32)LONG(players[i].scoreadd);
+	con->glidetime = (tic_t)LONG(players[i].glidetime);
+	con->climbing = LONG(players[i].climbing);
+	con->deadtimer = LONG(players[i].deadtimer);
+	con->splish = LONG(players[i].splish);
+	con->exiting = (tic_t)LONG(players[i].exiting);
+	con->blackow = LONG(players[i].blackow);
+	con->homing = players[i].homing;
+	con->cmomx = LONG(players[i].cmomx);
+	con->cmomy = LONG(players[i].cmomy);
+	con->rmomx = LONG(players[i].rmomx);
+	con->rmomy = LONG(players[i].rmomy);
+	con->numboxes = LONG(players[i].numboxes);
+	con->totalring = LONG(players[i].totalring);
+	con->realtime = (tic_t)LONG(players[i].realtime);
+	con->racescore = (UINT32)LONG(players[i].racescore);
+	con->laps = (UINT32)LONG(players[i].laps);
+	con->ctfteam = LONG(players[i].ctfteam);
+	con->gotflag = (UINT16)SHORT(players[i].gotflag);
+	con->dbginfo = LONG(players[i].dbginfo);
+	con->emeraldhunt = LONG(players[i].emeraldhunt);
+	con->weapondelay = LONG(players[i].weapondelay);
+	con->tossdelay = LONG(players[i].tossdelay);
+	con->shielddelay = LONG(players[i].shielddelay);
+	con->taunttimer = (tic_t)LONG(players[i].taunttimer);
+	con->starpostx = LONG(players[i].starpostx);
+	con->starposty = LONG(players[i].starposty);
+	con->starpostz = LONG(players[i].starpostz);
+	con->starpostnum = LONG(players[i].starpostnum);
+	con->starposttime = (tic_t)LONG(players[i].starposttime);
+	con->starpostangle = (angle_t)LONG(players[i].starpostangle);
+	con->starpostbit = (UINT32)LONG(players[i].starpostbit);
+	con->angle_pos = (angle_t)LONG(players[i].angle_pos);
+	con->old_angle_pos = (angle_t)LONG(players[i].old_angle_pos);
+	con->bumpertime = (tic_t)LONG(players[i].bumpertime);
+	con->flyangle = LONG(players[i].flyangle);
+	con->drilltimer = (tic_t)LONG(players[i].drilltimer);
+	con->linkcount = LONG(players[i].linkcount);
+	con->linktimer = (tic_t)LONG(players[i].linktimer);
+	con->anotherflyangle = LONG(players[i].anotherflyangle);
+	con->nightstime = (tic_t)LONG(players[i].nightstime);
+	con->drillmeter = LONG(players[i].drillmeter);
+	con->drilldelay = players[i].drilldelay;
+	con->bonustime = players[i].bonustime;
+	con->mare = players[i].mare;
+	con->lastsidehit = SHORT(players[i].lastsidehit);
+	con->lastlinehit = SHORT(players[i].lastlinehit);
+	con->losscount = LONG(players[i].losscount);
+	con->onconveyor = LONG(players[i].onconveyor);
+	con->spectator = players[i].spectator;
+	con->jointime = (tic_t)LONG(players[i].jointime);
+
+	con->hasmo = false;
+	//Transfer important mo information if the player has a body.
+	//This lets us resync players even if they are dead.
+	if (!players[i].mo)
+		return;
+
+	con->hasmo = true;
+	con->angle = (angle_t)LONG(players[i].mo->angle);
+	con->eflags = (UINT32)LONG(players[i].mo->eflags);
+	con->flags = LONG(players[i].mo->flags);
+	con->flags2 = LONG(players[i].mo->flags2);
+	con->friction = LONG(players[i].mo->friction);
+	con->health = LONG(players[i].mo->health);
+	con->momx = LONG(players[i].mo->momx);
+	con->momy = LONG(players[i].mo->momy);
+	con->momz = LONG(players[i].mo->momz);
+	con->movefactor = LONG(players[i].mo->movefactor);
+	con->tics = LONG(players[i].mo->tics);
+	con->statenum = (statenum_t)(players[i].mo->state-states); // :(
+	con->x = LONG(players[i].mo->x);
+	con->y = LONG(players[i].mo->y);
+	con->z = LONG(players[i].mo->z);
+}
+
+static inline void readconplayer(cons_pak *con, const INT32 playernum)
+{
+	size_t i;
+	mobj_t *savedmo = players[playernum].mo;
+
+	//We get a packet for each player in game.
+	P_SetRandIndex(con->randomseed); // New random index
+
+	if (!playeringame[playernum])
+		return;
+
+	//Tranfer player information.
+	players[playernum].playerstate = (playerstate_t)con->playerstate;
+	G_MoveTiccmd(&players[playernum].cmd, &con->cmd, 1);
+	players[playernum].viewz = LONG(con->viewz);
+	players[playernum].viewheight = LONG(con->viewheight);
+	players[playernum].deltaviewheight = LONG(con->deltaviewheight);
+	players[playernum].bob = LONG(con->bob);
+	players[playernum].aiming = (angle_t)LONG(con->aiming);
+	players[playernum].awayviewaiming = (angle_t)LONG(con->awayviewaiming);
+	players[playernum].health = LONG(con->phealth);
+	players[playernum].currentweapon = LONG(con->currentweapon);
+	players[playernum].ringweapons = LONG(con->ringweapons);
+	players[playernum].tossstrength = LONG(con->tossstrength);
+
+	for (i = 0; i < NUMPOWERS; i++)
+		players[playernum].powers[i] = LONG(con->powers[i]);
+
+	players[playernum].pflags = (pflags_t)LONG(con->pflags);
+	players[playernum].bonuscount = LONG(con->bonuscount);
+	players[playernum].skincolor = LONG(con->skincolor);
+	players[playernum].skin = LONG(con->skin);
+	players[playernum].score = (UINT32)LONG(con->score);
+	players[playernum].dashspeed = LONG(con->dashspeed);
+	players[playernum].normalspeed = LONG(con->normalspeed);
+	players[playernum].runspeed = LONG(con->runspeed);
+	players[playernum].thrustfactor = LONG(con->thrustfactor);
+	players[playernum].accelstart = LONG(con->accelstart);
+	players[playernum].acceleration = LONG(con->acceleration);
+	players[playernum].charability = LONG(con->charability);
+	players[playernum].charability2 = LONG(con->charability2);
+	players[playernum].charflags = (UINT32)LONG(con->charflags);
+	players[playernum].thokitem = (mobjtype_t)LONG(con->thokitem);
+	players[playernum].spinitem = (mobjtype_t)LONG(con->spinitem);
+	players[playernum].actionspd = LONG(con->actionspd);
+	players[playernum].mindash = LONG(con->mindash);
+	players[playernum].maxdash = LONG(con->maxdash);
+	players[playernum].jumpfactor = LONG(con->jumpfactor);
+#ifndef TRANSFIX
+	players[playernum].starttranscolor = LONG(con->starttranscolor);
+#endif
+	players[playernum].prefcolor = LONG(con->prefcolor);
+	players[playernum].lives = LONG(con->lives);
+	players[playernum].continues = LONG(con->continues);
+	players[playernum].xtralife = LONG(con->xtralife);
+	players[playernum].speed = LONG(con->speed);
+	players[playernum].jumping = LONG(con->jumping);
+	players[playernum].secondjump = con->secondjump;
+	players[playernum].fly1 = LONG(con->fly1);
+	players[playernum].scoreadd = (UINT32)LONG(con->scoreadd);
+	players[playernum].glidetime = (tic_t)LONG(con->glidetime);
+	players[playernum].climbing = LONG(con->climbing);
+	players[playernum].deadtimer = LONG(con->deadtimer);
+	players[playernum].splish = LONG(con->splish);
+	players[playernum].exiting = (tic_t)LONG(con->exiting);
+	players[playernum].blackow = LONG(con->blackow);
+	players[playernum].homing = con->homing;
+	players[playernum].cmomx = LONG(con->cmomx);
+	players[playernum].cmomy = LONG(con->cmomy);
+	players[playernum].rmomx = LONG(con->rmomx);
+	players[playernum].rmomy = LONG(con->rmomy);
+	players[playernum].numboxes = LONG(con->numboxes);
+	players[playernum].totalring = LONG(con->totalring);
+	players[playernum].realtime = (tic_t)LONG(con->realtime);
+	players[playernum].racescore = (UINT32)LONG(con->racescore);
+	players[playernum].laps = (UINT32)LONG(con->laps);
+	players[playernum].ctfteam = LONG(con->ctfteam);
+	players[playernum].gotflag = (UINT16)SHORT(con->gotflag);
+	players[playernum].dbginfo = LONG(con->dbginfo);
+	players[playernum].emeraldhunt = LONG(con->emeraldhunt);
+	players[playernum].weapondelay = LONG(con->weapondelay);
+	players[playernum].tossdelay = LONG(con->tossdelay);
+	players[playernum].shielddelay = LONG(con->shielddelay);
+	players[playernum].taunttimer = (tic_t)LONG(con->taunttimer);
+	players[playernum].starpostx = LONG(con->starpostx);
+	players[playernum].starposty = LONG(con->starposty);
+	players[playernum].starpostz = LONG(con->starpostz);
+	players[playernum].starpostnum = LONG(con->starpostnum);
+	players[playernum].starposttime = (tic_t)LONG(con->starposttime);
+	players[playernum].starpostangle = (angle_t)LONG(con->starpostangle);
+	players[playernum].starpostbit = (UINT32)LONG(con->starpostbit);
+	players[playernum].angle_pos = (angle_t)LONG(con->angle_pos);
+	players[playernum].old_angle_pos = (angle_t)LONG(con->old_angle_pos);
+	players[playernum].bumpertime = (tic_t)LONG(con->bumpertime);
+	players[playernum].flyangle = LONG(con->flyangle);
+	players[playernum].drilltimer = (tic_t)LONG(con->drilltimer);
+	players[playernum].linkcount = LONG(con->linkcount);
+	players[playernum].linktimer = (tic_t)LONG(con->linktimer);
+	players[playernum].anotherflyangle = LONG(con->anotherflyangle);
+	players[playernum].nightstime = (tic_t)LONG(con->nightstime);
+	players[playernum].drillmeter = LONG(con->drillmeter);
+	players[playernum].drilldelay = con->drilldelay;
+	players[playernum].bonustime = con->bonustime;
+	players[playernum].mare = con->mare;
+	players[playernum].lastsidehit = SHORT(con->lastsidehit);
+	players[playernum].lastlinehit = SHORT(con->lastlinehit);
+	players[playernum].losscount = LONG(con->losscount);
+	players[playernum].onconveyor = LONG(con->onconveyor);
+	players[playernum].spectator = con->spectator;
+	players[playernum].jointime = (tic_t)LONG(con->jointime);
+
+	//...but keep old mo even if it is corrupt or null!
+	players[playernum].mo = savedmo;
+
+	//Transfer important mo information if they have a valid mo.
+	if (!con->hasmo)
+		return;
+	//server thinks player has a body.
+	//Give them a new body that can be then manipulated by the server's info.
+	if (!players[playernum].mo) //client thinks it has no body.
+		P_SpawnPlayer(playerstarts[0], playernum);
+
+	//At this point, the player should have a body, whether they were respawned or not.
+	P_UnsetThingPosition(players[playernum].mo);
+	players[playernum].mo->angle = (angle_t)LONG(con->angle);
+	players[playernum].mo->eflags = (UINT32)LONG(con->eflags);
+	players[playernum].mo->flags = LONG(con->flags);
+	players[playernum].mo->flags2 = LONG(con->flags2);
+	players[playernum].mo->friction = LONG(con->friction);
+	players[playernum].mo->health = LONG(con->health);
+	players[playernum].mo->momx = LONG(con->momx);
+	players[playernum].mo->momy = LONG(con->momy);
+	players[playernum].mo->momz = LONG(con->momz);
+	players[playernum].mo->movefactor = LONG(con->movefactor);
+	players[playernum].mo->tics = LONG(con->tics);
+	P_SetPlayerMobjState(players[playernum].mo, con->statenum);
+	players[playernum].mo->x = LONG(con->x);
+	players[playernum].mo->y = LONG(con->y);
+	players[playernum].mo->z = LONG(con->z);
+	P_SetThingPosition(players[playernum].mo);
+}
+
+static void SV_SendConsistency(INT32 node)
+{
+	INT32 i;
+
+	netbuffer->packettype = PT_CONSISTENCY;
+	netbuffer->u.consistency.randomseed = P_GetRandIndex();
+
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		if (playeringame[i])
+		{
+			writeconplayer(&netbuffer->u.consistency, i);
+
+			HSendPacket(node, true, 0, (sizeof(cons_pak)));
+		}
+	}
 }
 
 // used at txtcmds received to check packetsize bound
@@ -2090,7 +2541,7 @@ FILESTAMP
 					SV_AddNode(node);
 					if (cv_joinnextround.value && gameaction == ga_nothing)
 						G_SetGamestate(GS_WAITINGPLAYERS);
-					if (!SV_SendPlayerInfo(node))
+					if (!SV_SendServerConfig(node))
 					{
 						G_SetGamestate(backupstate);
 						ResetNode(node);
@@ -2148,6 +2599,9 @@ FILESTAMP
 			continue;
 		}
 
+		if (netbuffer->packettype == PT_PLAYERINFO)
+			continue; // We do nothing with PLAYERINFO, that's for the MS browser.
+
 		if (!nodeingame[node])
 		{
 			if (node != servernode)
@@ -2161,6 +2615,7 @@ FILESTAMP
 					{
 						INT32 clientnode = I_NetMakeNode(netbuffer->u.msaskinfo.clientaddr);
 						SV_SendServerInfo(clientnode, (tic_t)LONG(netbuffer->u.msaskinfo.time));
+						SV_SendPlayerInfo(clientnode); // send extra info
 						Net_CloseConnection(clientnode);
 						// Don't close connection to MS.
 					}
@@ -2170,6 +2625,7 @@ FILESTAMP
 					if (server && serverrunning)
 					{
 						SV_SendServerInfo(node, (tic_t)LONG(netbuffer->u.askinfo.time));
+						SV_SendPlayerInfo(node); // send extra info
 						Net_CloseConnection(node);
 					}
 					break;
@@ -2302,87 +2758,59 @@ FILESTAMP
 					|| netbuffer->packettype == PT_NODEKEEPALIVEMIS)
 					break;
 
-				// check consistancy
-				if (realstart <= gametic && realstart > gametic - BACKUPTICS+1
-					&& consistancy[realstart%BACKUPTICS] != SHORT(netbuffer->u.clientpak.consistancy))
+				// copy ticcmd
+				G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][netconsole], &netbuffer->u.clientpak.cmd, 1);
+
+				// check ticcmd for "speed hacks"
+				if (netcmds[maketic%BACKUPTICS][netconsole].forwardmove > MAXPLMOVE || netcmds[maketic%BACKUPTICS][netconsole].forwardmove < -MAXPLMOVE
+					|| netcmds[maketic%BACKUPTICS][netconsole].sidemove > MAXPLMOVE || netcmds[maketic%BACKUPTICS][netconsole].sidemove < -MAXPLMOVE)
 				{
-					boolean sentconsrestore = false;
+					XBOXSTATIC char buf[2];
+					CONS_Printf("Illegal movement value recieved from node %d\n", netconsole);
+					//D_Clearticcmd(k);
 
-					if (cv_consfailprotect.value && players[netconsole].mo && consfailcount[netconsole] < cv_consfailprotect.value)
+					buf[0] = (char)netconsole;
+					buf[1] = KICK_MSG_CON_FAIL;
+					SendNetXCmd(XD_KICK, &buf, 2);
+				}
+
+				// splitscreen cmd
+				if (netbuffer->packettype == PT_CLIENT2CMD && nodetoplayer2[node] >= 0)
+					G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][(UINT8)nodetoplayer2[node]],
+						&netbuffer->u.client2pak.cmd2, 1);
+
+				// check player consistancy during the level
+				// Careful: When a consistency packet is sent, it overwrites the incoming packet containing the ticcmd.
+				//          Keep this in mind when changing the code that responds to these packets.
+				if (realstart <= gametic && realstart > gametic - BACKUPTICS+1
+					&& consistancy[realstart%BACKUPTICS] != SHORT(netbuffer->u.clientpak.consistancy)
+					&& gamestate == GS_LEVEL)
+				{
+					if (cv_consfailprotect.value && playeringame[netconsole] && consfailcount[netconsole] < cv_consfailprotect.value)
 					{
-						XBOXSTATIC UINT8 buf[255];
-						UINT8 *cp = buf;
-//						player_t *player = &players[netconsole];
-						INT32 count = 0;
-						INT32 numbytes = 0;
-						INT32 fakenumbytes = 0;
-						INT32 i;
-						INT32 xcmdfree = GetFreeXCmdSize();
-
-						if (cv_blamecfail.value)
-							CONS_Printf(text[CONSFAILRESTORE], netconsole);
-
-						DEBFILE(va("Restoring player %d (consistency failure) [%u] %d!=%d\n",
-							netconsole, realstart, consistancy[realstart%BACKUPTICS],
-							SHORT(netbuffer->u.clientpak.consistancy)));
-
-						WRITEUINT8(cp, P_GetRandIndex());
-						//WRITEUINT8(cp, (UINT8)netconsole);
-
-						numbytes += 1;
-
-						fakenumbytes = numbytes + 1; // Include the byte we are about to write
-
-						for (i = 0; i < MAXPLAYERS; i++)
+						if (!consfailstatus[netconsole])
 						{
-							if (!playeringame[i] || !players[i].mo)
-								continue;
+							if (cv_blamecfail.value)
+								CONS_Printf(text[CONSFAILRESTORE], netconsole);
 
-							if (fakenumbytes + 25 > xcmdfree)
-								break;
+							DEBFILE(va("Restoring player %d (consistency failure) [%update] %d!=%d\n",
+								netconsole, realstart, consistancy[realstart%BACKUPTICS],
+								SHORT(netbuffer->u.clientpak.consistancy)));
 
-							fakenumbytes += 25;
-
-							count++;
+							SV_SendConsistency(netconsole);
+							consfailstatus[netconsole] = 1;
+							consfailcount[netconsole]++;
 						}
-
-						WRITEUINT8(cp, count); // # of players we are sending info about
-						numbytes++;
-
-						for (i = 0; i < MAXPLAYERS; i++)
+						else
 						{
-							if (!playeringame[i] || !players[i].mo)
-								continue;
-
-							if (numbytes + 25 > xcmdfree)
-								break;
-
-							WRITEUINT8(cp, i);
-							WRITEFIXED(cp, players[i].mo->x);
-							WRITEFIXED(cp, players[i].mo->y);
-							WRITEFIXED(cp, players[i].mo->z);
-							WRITEFIXED(cp, players[i].mo->momx);
-							WRITEFIXED(cp, players[i].mo->momy);
-							WRITEFIXED(cp, players[i].mo->momz);
-
-							numbytes += 25;
+							//We don't want to send any more packets than we have to.
+							//If the client doesn't resync in a certain time,
+							//assume they didn't get the packet. Send another.
+							if (consfailstatus[netconsole] < 10)
+								consfailstatus[netconsole]++;
+							else
+								consfailstatus[netconsole] = 0;
 						}
-
-						// Only send full restoration packets.
-						if (i >= MAXPLAYERS)
-						{
-							SendNetXCmd(XD_CONSISTENCY, &buf, numbytes);
-							sentconsrestore = true;
-						}
-
-/*
-						buf[0] = (UINT8)netconsole;
-						buf[1] = P_GetRandIndex();
-						M_Memcpy(&buf[2], players[netconsole].mo, sizeof(mobj_t));
-
-						consfailcount[netconsole]++;
-
-						SendNetXCmd(XD_CONSISTENCY, &buf, sizeof(mobj_t)+2);*/
 					}
 					else
 					{
@@ -2390,20 +2818,14 @@ FILESTAMP
 
 						buf[0] = (UINT8)netconsole;
 						buf[1] = KICK_MSG_CON_FAIL;
-//						SV_SavedGame();
 						SendNetXCmd(XD_KICK, &buf, 2);
 						DEBFILE(va("player %d kicked (consistency failure) [%u] %d!=%d\n",
 							netconsole, realstart, consistancy[realstart%BACKUPTICS],
 							SHORT(netbuffer->u.clientpak.consistancy)));
 					}
 				}
-
-				// copy ticcmd
-				G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][netconsole], &netbuffer->u.clientpak.cmd, 1);
-
-				if (netbuffer->packettype == PT_CLIENT2CMD && nodetoplayer2[node] >= 0)
-					G_MoveTiccmd(&netcmds[maketic%BACKUPTICS][(UINT8)nodetoplayer2[node]],
-						&netbuffer->u.client2pak.cmd2, 1);
+				else
+					consfailstatus[netconsole] = 0;
 
 				break;
 			case PT_TEXTCMD2: // splitscreen special
@@ -2537,6 +2959,59 @@ FILESTAMP
 				else
 					DEBFILE(va("frame not in bound: %u\n", neededtic));
 				break;
+			case PT_CONSISTENCY:
+				// Only accept PT_CONSISTENCY from the server.
+				if (node != servernode)
+				{
+					DEBFILE(va("PT_CONSISTENCY recieved from non-host %d\n", node));
+
+					if (server)
+					{
+						XBOXSTATIC char buf[2];
+						CONS_Printf("PT_CONSISTENCY recieved from non-host %d\n", node);
+
+						buf[0] = (char)node;
+						buf[1] = KICK_MSG_CON_FAIL;
+						SendNetXCmd(XD_KICK, &buf, 2);
+					}
+
+					break;
+				}
+
+				readconplayer(&netbuffer->u.consistency, netbuffer->u.consistency.playernum);
+
+				break;
+#ifdef NEWPING
+			case PT_PING:
+				// Only accept PT_PING from the server.
+				if (node != servernode)
+				{
+					DEBFILE(va("PT_PING recieved from non-host %d\n", node));
+
+					if (server)
+					{
+						XBOXSTATIC char buf[2];
+						CONS_Printf("PT_PING recieved from non-host %d\n", node);
+
+						buf[0] = (char)node;
+						buf[1] = KICK_MSG_CON_FAIL;
+						SendNetXCmd(XD_KICK, &buf, 2);
+					}
+
+					break;
+				}
+
+				//Update client ping table from the server.
+				if (!server)
+				{
+					INT32 i;
+					for (i = 0; i < MAXNETNODES; i++)
+						if (playeringame[i])
+							playerpingtable[i] = (tic_t)netbuffer->u.pingtable[i];
+				}
+
+				break;
+#endif
 			case PT_SERVERCFG:
 				break;
 			case PT_FILEFRAGMENT:
@@ -2878,6 +3353,66 @@ void TryRunTics(tic_t realtics)
 	}
 }
 
+#ifdef NEWPING
+static inline void PingUpdate(void)
+{
+	int i;
+	boolean laggers[MAXPLAYERS];
+	UINT8 numlaggers = 0;
+	memset(laggers, 0, sizeof(boolean) * MAXPLAYERS);
+
+	netbuffer->packettype = PT_PING;
+
+	//check for ping limit breakage.
+	if (cv_maxping.value)
+	{
+		for (i = 1; i < MAXNETNODES; i++)
+		{
+			if (playeringame[i] && (realpingtable[i] / pingmeasurecount > (unsigned)cv_maxping.value))
+			{
+				if (players[i].jointime > 30 * TICRATE)
+					laggers[i] = true;
+				numlaggers++;
+			}
+		}
+
+		//kick lagging players... unless everyone but the server's ping sucks.
+		//in that case, it is probably the server's fault.
+		if (numlaggers < D_NumPlayers() - 1)
+		{
+			for (i = 1; i < MAXNETNODES; i++)
+			{
+				if (playeringame[i] && laggers[i])
+				{
+					XBOXSTATIC char buf[2];
+
+					buf[0] = (char)i;
+					buf[1] = KICK_MSG_PING_HIGH;
+					SendNetXCmd(XD_KICK, &buf, 2);
+				}
+			}
+		}
+	}
+
+	//make the ping packet and clear server data for next one
+	for (i = 0; i < MAXNETNODES; i++)
+	{
+		netbuffer->u.pingtable[i] = realpingtable[i] / pingmeasurecount;
+		//server takes a snapshot of the real ping for display.
+		//otherwise, pings fluctuate a lot and would be odd to look at.
+		playerpingtable[i] = realpingtable[i] / pingmeasurecount;
+		realpingtable[i] = 0; //Reset each as we go.
+	}
+
+	//send out our ping packets
+	for (i = 0; i < MAXNETNODES; i++)
+		if (playeringame[i])
+			HSendPacket(i, true, 0, sizeof(int) * MAXPLAYERS);
+
+	pingmeasurecount = 1; //Reset count
+}
+#endif
+
 void NetUpdate(void)
 {
 	static tic_t gametime = 0;
@@ -2900,8 +3435,23 @@ void NetUpdate(void)
 
 	gametime = nowtime;
 
-	if (gametime & 255)
-		memset(consfailcount, 0, sizeof(consfailcount));
+	if (!(gametime % 255) && netgame && server)
+	{
+#ifdef NEWPING
+		PingUpdate();
+#endif
+	}
+
+#ifdef NEWPING
+	if (server)
+	{
+		// update node latency values so we can take an average later.
+		for (i = 0; i < MAXNETNODES; i++)
+			if (playeringame[i])
+				realpingtable[i] += G_TicsToMilliseconds(GetLag(i));
+		pingmeasurecount++;
+	}
+#endif
 
 	if (!server)
 		maketic = neededtic;

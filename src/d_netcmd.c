@@ -74,7 +74,6 @@ static void Got_Pause(UINT8 **cp, INT32 playernum);
 static void Got_RandomSeed(UINT8 **cp, INT32 playernum);
 static void Got_PizzaOrder(UINT8 **cp, INT32 playernum);
 static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum);
-static void Got_Consistency(UINT8 **cp, INT32 playernum);
 static void Got_Teamchange(UINT8 **cp, INT32 playernum);
 static void Got_Clearscores(UINT8 **cp, INT32 playernum);
 
@@ -134,6 +133,9 @@ static void Command_RunSOC(void);
 static void Command_Pause(void);
 
 static void Command_Version_f(void);
+#ifdef UPDATE_ALERT
+static void Command_ModDetails_f(void);
+#endif
 static void Command_ShowGametype_f(void);
 static void Command_JumpToAxis_f(void);
 FUNCNORETURN static ATTRNORETURN void Command_Quit_f(void);
@@ -235,6 +237,12 @@ consvar_t cv_dummyscramble = {"dummyscramble", "Random", CV_HIDEN, dummyscramble
 consvar_t cv_allowteamchange = {"allowteamchange", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_racetype = {"racetype", "Normal", CV_NETVAR, racetype_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_raceitemboxes = {"race_itemboxes", "Random", CV_NETVAR, raceitemboxes_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+
+#ifdef SEENAMES
+static CV_PossibleValue_t seenames_cons_t[] = {{0, "Off"}, {1, "Colorless"}, {2, "Team"}, {3, "Ally/Foe"}, {0, NULL}};
+consvar_t cv_seenames = {"seenames", "Ally/Foe", CV_SAVE, seenames_cons_t, 0, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_allowseenames = {"allowseenames", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
+#endif
 
 // these two are just meant to be saved to the config
 consvar_t cv_playername = {"name", "Sonic", CV_SAVE|CV_CALL|CV_NOINIT, NULL, Name_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -341,6 +349,7 @@ static CV_PossibleValue_t minitimelimit_cons_t[] = {{15, "MIN"}, {9999, "MAX"}, 
 consvar_t cv_countdowntime = {"countdowntime", "60", CV_NETVAR, minitimelimit_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_tagtype = {"tagtype", "Normal", CV_NETVAR|CV_CALL, tagtype_cons_t, Tagtype_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_touchtag = {"touchtag", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_hidetime = {"hidetime", "30", CV_NETVAR|CV_CALL, minitimelimit_cons_t, Hidetime_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_autobalance = {"autobalance", "0", CV_NETVAR|CV_CALL, autobalance_cons_t, AutoBalance_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -388,7 +397,9 @@ consvar_t cv_killingdead = {"killingdead", "Off", CV_NETVAR, CV_OnOff, NULL, 0, 
 consvar_t cv_netstat = {"netstat", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL}; // show bandwidth statistics
 static CV_PossibleValue_t nettimeout_cons_t[] = {{TICRATE/7, "MIN"}, {60*TICRATE, "MAX"}, {0, NULL}};
 consvar_t cv_nettimeout = {"nettimeout", "525", CV_CALL|CV_SAVE, nettimeout_cons_t, NetTimeout_OnChange, 0, NULL, NULL, 0, 0, NULL};
-
+#ifdef NEWPING
+consvar_t cv_maxping = {"maxping", "0", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
+#endif
 // Intermission time Tails 04-19-2002
 static CV_PossibleValue_t inttime_cons_t[] = {{0, "MIN"}, {3600, "MAX"}, {0, NULL}};
 consvar_t cv_inttime = {"inttime", "15", CV_NETVAR, inttime_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -433,7 +444,6 @@ void D_RegisterServerCommands(void)
 #endif
 	RegisterNetXCmd(XD_PAUSE, Got_Pause);
 	RegisterNetXCmd(XD_RUNSOC, Got_RunSOCcmd);
-	RegisterNetXCmd(XD_CONSISTENCY, Got_Consistency);
 
 	// Remote Administration
 	COM_AddCommand("password", Command_Changepassword_f);
@@ -468,6 +478,9 @@ void D_RegisterServerCommands(void)
 	COM_AddCommand("gametype", Command_ShowGametype_f);
 	COM_AddCommand("jumptoaxis", Command_JumpToAxis_f);
 	COM_AddCommand("version", Command_Version_f);
+#ifdef UPDATE_ALERT
+	COM_AddCommand("mod_details", Command_ModDetails_f);
+#endif
 	COM_AddCommand("quit", Command_Quit_f);
 
 	COM_AddCommand("saveconfig", Command_SaveConfig_f);
@@ -503,6 +516,7 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_scrambleonchange);
 
 	CV_RegisterVar(&cv_tagtype);
+	CV_RegisterVar(&cv_touchtag);
 	CV_RegisterVar(&cv_hidetime);
 
 	CV_RegisterVar(&cv_inttime);
@@ -584,6 +598,13 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_skipmapcheck);
 
 	CV_RegisterVar(&cv_sleep);
+#ifdef NEWPING
+	CV_RegisterVar(&cv_maxping);
+#endif
+
+#ifdef SEENAMES
+	 CV_RegisterVar(&cv_allowseenames);
+#endif
 
 	CV_RegisterVar(&cv_dummyconsvar);
 }
@@ -604,8 +625,11 @@ void D_RegisterClientCommands(void)
 
 	for (i = 0; i < MAXSKINCOLORS; i++)
 	{
+		Color_cons_t[i].value = i;
 		Color_cons_t[i].strvalue = Color_Names[i];
 	}
+	Color_cons_t[MAXSKINCOLORS].value = 0;
+	Color_cons_t[MAXSKINCOLORS].strvalue = NULL;
 
 	if (dedicated)
 		return;
@@ -652,7 +676,9 @@ void D_RegisterClientCommands(void)
 		cv_playername.defaultvalue =  username;
 	CV_RegisterVar(&cv_playername);
 	CV_RegisterVar(&cv_playercolor);
-
+#ifdef SEENAMES
+	CV_RegisterVar(&cv_seenames);
+#endif
 	CV_RegisterVar(&cv_realnames);
 	CV_RegisterVar(&cv_netstat);
 
@@ -755,13 +781,21 @@ void D_RegisterClientCommands(void)
 	// add cheat commands
 	COM_AddCommand("noclip", Command_CheatNoClip_f);
 	COM_AddCommand("god", Command_CheatGod_f);
+	COM_AddCommand("getallemeralds", Command_Getallemeralds_f);
 	COM_AddCommand("resetemeralds", Command_Resetemeralds_f);
+#ifdef _DEBUG
+	COM_AddCommand("unlockall", Command_Unlockall_f);
+#endif
 	COM_AddCommand("devmode", Command_Devmode_f);
 	COM_AddCommand("savecheckpoint", Command_Savecheckpoint_f);
 	COM_AddCommand("scale", Command_Scale_f);
 	COM_AddCommand("gravflip", Command_Gravflip_f);
 	COM_AddCommand("hurtme", Command_Hurtme_f);
 	COM_AddCommand("charability", Command_Charability_f);
+	COM_AddCommand("charspeed", Command_Charspeed_f);
+#ifdef _DEBUG
+	COM_AddCommand("causecfail", Command_CauseCfail_f);
+#endif
 
 	// hacks for menu system.
 	CV_RegisterVar(&cv_dummyteam);
@@ -1100,9 +1134,10 @@ static void SendNameAndColor(void)
 		players[consoleplayer].skincolor = (cv_playercolor.value&31) % MAXSKINCOLORS;
 
 		if (players[consoleplayer].mo)
-			players[consoleplayer].mo->flags =
-				(players[consoleplayer].mo->flags & ~MF_TRANSLATION)
-				| ((players[consoleplayer].skincolor) << MF_TRANSSHIFT);
+		{
+			players[consoleplayer].mo->flags |= MF_TRANSLATION;
+			players[consoleplayer].mo->color = (UINT8)players[consoleplayer].skincolor;
+		}
 
 		if (cv_mute.value && !(server || adminplayer == consoleplayer)) //server doesn't want name changes.
 		{
@@ -1162,9 +1197,10 @@ static void SendNameAndColor(void)
 				players[consoleplayer].skincolor = (cv_playercolor.value&31) % MAXSKINCOLORS;
 
 				if (players[consoleplayer].mo)
-					players[consoleplayer].mo->flags =
-						(players[consoleplayer].mo->flags & ~MF_TRANSLATION)
-						| ((players[consoleplayer].skincolor) << MF_TRANSSHIFT);
+				{
+					players[consoleplayer].mo->flags |= MF_TRANSLATION;
+					players[consoleplayer].mo->color = (UINT8)players[consoleplayer].skincolor;
+				}
 			}
 		}
 
@@ -1183,8 +1219,8 @@ static void SendNameAndColor(void)
 	}
 	else
 	{
-		// CleanupPlayerName truncates the string if it was too long,
-		// so we don't have to check.
+		// As before, CleanupPlayerName truncates the string for us if need be,
+		// so no need to check here.
 		CleanupPlayerName(consoleplayer, cv_playername.zstring);
 		WRITESTRING(p, cv_playername.string);
 	}
@@ -1265,8 +1301,10 @@ static void SendNameAndColor2(void)
 		// don't use secondarydisplayplayer: the second player must be 1
 		players[1].skincolor = cv_playercolor2.value;
 		if (players[1].mo)
-			players[1].mo->flags = (players[1].mo->flags & ~MF_TRANSLATION)	|
-			((players[1].skincolor) << MF_TRANSSHIFT);
+		{
+			players[1].mo->flags |= MF_TRANSLATION;
+			players[1].mo->color = (UINT8)players[1].skincolor;
+		}
 
 		if (cv_mute.value) //server doesn't want name changes.
 		{
@@ -1303,9 +1341,10 @@ static void SendNameAndColor2(void)
 				players[1].skincolor = (cv_playercolor2.value&31) % MAXSKINCOLORS;
 
 				if (players[1].mo)
-					players[1].mo->flags =
-						(players[1].mo->flags & ~MF_TRANSLATION)
-						| ((players[1].skincolor) << MF_TRANSSHIFT);
+				{
+					players[1].mo->flags |= MF_TRANSLATION;
+					players[1].mo->color = (UINT8)players[1].skincolor;
+				}
 			}
 		}
 		return;
@@ -1433,7 +1472,10 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 
 		// a copy of color
 		if (p->mo)
-			p->mo->flags = (p->mo->flags & ~MF_TRANSLATION) | ((p->skincolor)<<MF_TRANSSHIFT);
+		{
+			p->mo->flags |= MF_TRANSLATION;
+			p->mo->color = (UINT8)p->skincolor;
+		}
 	}
 
 	// normal player colors
@@ -1476,8 +1518,7 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 
 	str = (char *)*cp; // moving players cannot change skins
 	SKIPSTRING(*cp);
-	if (P_PlayerMoving(playernum)
-		&& strcasecmp(skins[players[playernum].skin].name, str) != 0)
+	if ((P_PlayerMoving(playernum) && strcasecmp(skins[players[playernum].skin].name, str) != 0))
 	{
 		if (playernum == consoleplayer)
 			CV_StealthSet(&cv_skin, skins[players[consoleplayer].skin].name);
@@ -2171,17 +2212,27 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 
 		// a copy of color
 		if (players[0].mo)
-			players[0].mo->flags = (players[0].mo->flags & ~MF_TRANSLATION) | ((players[0].skincolor)<<MF_TRANSSHIFT);
+		{
+			players[0].mo->flags |= MF_TRANSLATION;
+			players[0].mo->color = (UINT8)players[0].skincolor;
+		}
 	}
 }
 
 static void Command_Pause(void)
 {
-	XBOXSTATIC UINT8 buf;
+	XBOXSTATIC UINT8 buf[2];
+	UINT8 *cp = buf;
+
 	if (COM_Argc() > 1)
-		buf = (UINT8)(atoi(COM_Argv(1)) != 0);
+		WRITEUINT8(cp, (char)(atoi(COM_Argv(1)) != 0));
 	else
-		buf = (UINT8)(!paused);
+		WRITEUINT8(cp, (char)(!paused));
+
+	if (dedicated)
+		WRITEUINT8(cp, 1);
+	else
+		WRITEUINT8(cp, 0);
 
 	if (cv_pause.value || server || (adminplayer == consoleplayer))
 	{
@@ -2190,7 +2241,7 @@ static void Command_Pause(void)
 			CONS_Printf("%s",text[PAUSEINFO]);
 			return;
 		}
-		SendNetXCmd(XD_PAUSE, &buf, 1);
+		SendNetXCmd(XD_PAUSE, &buf, 2);
 	}
 	else
 		CONS_Printf("%s",text[SERVERPAUSE]);
@@ -2216,6 +2267,7 @@ static void Got_Pause(UINT8 **cp, INT32 playernum)
 	}
 
 	paused = READUINT8(*cp);
+	dedicatedpause = READUINT8(*cp);
 
 	if (!demoplayback)
 	{
@@ -2396,6 +2448,16 @@ static void Command_Teamchange_f(void)
 		return;
 	}
 
+	//additional check for hide and seek. Don't allow change of status after hidetime ends.
+	if (gametype == GT_TAG && cv_tagtype.value && leveltime >= (hidetime * TICRATE))
+	{
+		if (NetPacket.packet.newteam)
+		{
+			CONS_Printf("%s", text[NO_TAGCHANGE]);
+			return;
+		}
+	}
+
 	usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
 	SendNetXCmd(XD_TEAMCHANGE, &usvalue, sizeof(usvalue));
 }
@@ -2481,6 +2543,16 @@ static void Command_Teamchange2_f(void)
 	{
 		CONS_Printf("%s",text[NOTEAMCHANGE]);
 		return;
+	}
+
+	//additional check for hide and seek. Don't allow change of status after hidetime ends.
+	if (gametype == GT_TAG && cv_tagtype.value && leveltime >= (hidetime * TICRATE))
+	{
+		if (NetPacket.packet.newteam)
+		{
+			CONS_Printf("%s", text[NO_TAGCHANGE]);
+			return;
+		}
 	}
 
 	usvalue = SHORT(NetPacket.value.l|NetPacket.value.b);
@@ -2597,8 +2669,8 @@ static void Command_ServerTeamChange_f(void)
 		return;
 	}
 
-	//additional check for tag. Don't allow change of status after hidetime ends.
-	if (gametype == GT_TAG && leveltime >= (hidetime * TICRATE))
+	//additional check for hide and seek. Don't allow change of status after hidetime ends.
+	if (gametype == GT_TAG && cv_tagtype.value && leveltime >= (hidetime * TICRATE))
 	{
 		if (NetPacket.packet.newteam)
 		{
@@ -2710,7 +2782,8 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 				error = true; //Only admin can change player's IT status' in tag.
 			break;
 		case 3: //Join game via console.
-			if (!cv_allowteamchange.value || leveltime >= (hidetime * TICRATE)) //no status changes after hidetime
+			//no status changes after hidetime in hide and seek.
+			if (!cv_allowteamchange.value || (cv_tagtype.value && (leveltime >= (hidetime * TICRATE))))
 				error = true;
 			break;
 		}
@@ -2777,7 +2850,16 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 				players[playernum].pflags &= ~PF_TAGIT;
 		}
 		else // Just join the game.
+		{
 			players[playernum].spectator = false;
+
+			//If joining after hidetime in normal tag, default to being IT.
+			if (!cv_tagtype.value && (leveltime > (hidetime * TICRATE)))
+			{
+				NetPacket.packet.newteam = 1; //minor hack, causes the "is it" message to be printed later.
+				players[playernum].pflags |= PF_TAGIT; //make the player IT.
+			}
+		}
 	}
 
 	if (NetPacket.packet.autobalance)
@@ -2993,7 +3075,13 @@ static void Command_MotD_f(void)
 		if (!isprint(mymotd[i]) || mymotd[i] == ';')
 			return;
 
-	SendNetXCmd(XD_SETMOTD, mymotd, strlen(mymotd));
+	if ((netgame || multiplayer) && !server)
+		SendNetXCmd(XD_SETMOTD, mymotd, sizeof(mymotd));
+	else
+	{
+		strcpy(motd, mymotd);
+		CONS_Printf("%s", text[MOTD_SET]);
+	}
 }
 
 static void Got_MotD_f(UINT8 **cp, INT32 playernum)
@@ -3111,94 +3199,6 @@ static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 	}
 
 	P_RunSOC(filename);
-}
-
-//
-// Got_Consistency
-//
-// If you consfailed, this tries
-// to restore your state.
-//
-static void Got_Consistency(UINT8 **cp, INT32 playernum)
-{
-//	INT16 affectedplayer;
-	INT16 numplayers;
-	player_t *player;
-	INT32 i;
-	INT16 j;
-	fixed_t x, y, z, momx, momy, momz;
-//	mobj_t* mo;
-//	player_t *playstruct;
-//	void *oldskin;
-
-	if (playernum != serverplayer) //server only
-	{
-		CONS_Printf(text[ILLEGALCONSCMD], player_names[playernum]);
-		if (server)
-		{
-			XBOXSTATIC UINT8 buf[2];
-
-			buf[0] = (UINT8)playernum;
-			buf[1] = KICK_MSG_CON_FAIL;
-			SendNetXCmd(XD_KICK, &buf, 2);
-		}
-		return;
-	}
-
-	P_SetRandIndex(READUINT8(*cp)); // New random index
-
-//	affectedplayer = READUINT8(*cp);
-
-	numplayers = READUINT8(*cp);
-
-	for (i = 0; i < numplayers; i++)
-	{
-		j = READUINT8(*cp);
-		x = READFIXED(*cp);
-		y = READFIXED(*cp);
-		z = READFIXED(*cp);
-		momx = READFIXED(*cp);
-		momy = READFIXED(*cp);
-		momz = READFIXED(*cp);
-
-		if (!playeringame[j] || !players[j].mo)
-			continue; // ...huh?!
-
-		player = &players[j];
-		P_UnsetThingPosition(player->mo);
-
-		player->mo->x = x;
-		player->mo->y = y;
-		player->mo->z = z;
-		player->mo->momx = momx;
-		player->mo->momy = momy;
-		player->mo->momz = momz;
-
-		P_SetThingPosition(player->mo);
-	}
-
-/*
-	// Reload player/mobj
-	P_UnsetThingPosition(players[affectedplayer].mo);
-
-	playstruct = &players[affectedplayer];
-	mo = players[affectedplayer].mo;
-	oldskin = mo->skin;
-	P_SetTarget(&mo->target, NULL);
-	P_SetTarget(&mo->tracer, NULL);
-
-	READMEM(*cp, mo, sizeof(mobj_t));
-
-	mo->info = &mobjinfo[MT_PLAYER];
-	mo->target = mo->tracer = mo->hnext = mo->hprev = NULL;
-	mo->player = playstruct;
-	P_SetThingPosition(mo);
-	P_SetMobjState(mo, mo->info->spawnstate);
-*/
-/*	oldmo = players[affectedplayer].mo;
-	// Reset player_t
-	G_PlayerReborn(affectedplayer);
-	players[affectedplayer].mo = oldmo;*/
 }
 
 /** Adds a pwad at runtime.
@@ -3477,6 +3477,12 @@ static void Command_Version_f(void)
 	CONS_Printf(text[VERSIONCMD], VERSIONSTRING, compdate, comptime, comprevision);
 }
 
+#ifdef UPDATE_ALERT
+static void Command_ModDetails_f(void)
+{
+	CONS_Printf(text[MODDETAILSCMD], MODID, MODVERSION, CODEBASE);
+}
+#endif
 // Returns current gametype being used.
 //
 static void Command_ShowGametype_f(void)
@@ -3800,9 +3806,9 @@ void D_GameTypeChanged(INT32 lastgametype)
 			case GT_MATCH:
 				if (!cv_timelimit.changed && !cv_pointlimit.changed) // user hasn't changed limits
 				{
-					// default settings for match: timelimit 5 mins, no pointlimit
+					// default settings for match: timelimit 10 mins, no pointlimit
 					CV_SetValue(&cv_pointlimit, 0);
-					CV_SetValue(&cv_timelimit, 5);
+					CV_SetValue(&cv_timelimit, 10);
 				}
 				if (!cv_itemrespawntime.changed)
 					CV_Set(&cv_itemrespawntime, cv_itemrespawntime.defaultvalue); // respawn normally
@@ -3810,9 +3816,9 @@ void D_GameTypeChanged(INT32 lastgametype)
 			case GT_TAG:
 				if (!cv_timelimit.changed && !cv_pointlimit.changed) // user hasn't changed limits
 				{
-					// default settings for tag: 3 mins, no pointlimit
+					// default settings for tag: 5 mins, no pointlimit
 					// Note that tag mode also uses an alternate timing mechanism in tandem with timelimit.
-					CV_SetValue(&cv_timelimit, 3);
+					CV_SetValue(&cv_timelimit, 5);
 					CV_SetValue(&cv_pointlimit, 0);
 				}
 				if (!cv_itemrespawntime.changed)
@@ -3858,15 +3864,17 @@ void D_GameTypeChanged(INT32 lastgametype)
 #ifdef CHAOSISNOTDEADYET
 			lastgametype == GT_CHAOS ||
 #endif
-			lastgametype == GT_MATCH) &&
-			(gametype == GT_TAG || gametype == GT_CTF))
+			lastgametype == GT_MATCH ||
+			lastgametype == GT_TAG) &&
+			gametype == GT_CTF)
 			CV_SetValue(&cv_pointlimit, cv_pointlimit.value / 500);
-		else if ((lastgametype == GT_TAG || lastgametype == GT_CTF) &&
+		else if (lastgametype == GT_CTF &&
 			(
 #ifdef CHAOSISNOTDEADYET
 			gametype == GT_CHAOS ||
 #endif
-			gametype == GT_MATCH))
+			gametype == GT_MATCH ||
+			gametype == GT_TAG))
 			CV_SetValue(&cv_pointlimit, cv_pointlimit.value * 500);
 	}
 
@@ -3884,12 +3892,19 @@ void D_GameTypeChanged(INT32 lastgametype)
 	}
 
 	// don't retain teams in other modes or between changes from ctf to team match.
+	// also, stop any and all forms of team scrambling that might otherwise take place.
 	if (lastgametype == GT_CTF || lastgametype == GT_MATCH)
 	{
 		INT32 i;
 		for (i = 0; i < MAXPLAYERS; i++)
 			if (playeringame[i])
 				players[i].ctfteam = 0;
+
+		if (server || (adminplayer == consoleplayer))
+		{
+			CV_StealthSetValue(&cv_teamscramble, 0);
+			teamscramble = 0;
+		}
 	}
 
 	// make sure no players retain the color yellow if swapping to match or CTF.
@@ -4097,29 +4112,36 @@ static void TeamScramble_OnChange(void)
 	INT32 blue = 0, red = 0;
 	INT32 maxcomposition = 0;
 	INT16 newteam = 0;
+	INT32 retries = 0;
+	boolean success = false;
 
 	// Don't trigger outside level or intermission!
 	if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
 		return;
 
-	if ((gametype != GT_MATCH && !cv_matchtype.value) && gametype != GT_CTF)
+	if (!cv_teamscramble.value)
+		teamscramble = 0;
+
+	if (((gametype != GT_MATCH && !cv_matchtype.value) && gametype != GT_CTF) &&
+		(server || (consoleplayer == adminplayer)))
 	{
 		CONS_Printf("%s", text[NOTMCTF]);
 		CV_StealthSetValue(&cv_teamscramble, 0);
 		return;
 	}
 
-	if (!cv_teamscramble.value)
-		teamscramble = 0;
-
 	// If a team scramble is already in progress, do not allow another one to be started!
 	if (teamscramble)
 		return;
 
-	// Clear related global variables. These will get used again in p_tick.c as the teams are scrambled.
+retryscramble:
+
+	// Clear related global variables. These will get used again in p_tick.c/y_inter.c as the teams are scrambled.
 	memset(&scrambleplayers, 0, sizeof(scrambleplayers));
 	memset(&scrambleteams, 0, sizeof(scrambleplayers));
 	scrambletotal = scramblecount = 0;
+	blue = red = maxcomposition = newteam = playercount = 0;
+	repick = true;
 
 	// Put each player's node in the array.
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -4209,12 +4231,28 @@ static void TeamScramble_OnChange(void)
 		}
 	}
 
+	// Check to see if our random selection actually
+	// changed anybody. If not, we run through and try again.
+	for (i = 0; i < playercount; i++)
+	{
+		if (players[scrambleplayers[i]].ctfteam != scrambleteams[i])
+			success = true;
+	}
+
+	if (!success && retries < 5)
+	{
+		retries++;
+		goto retryscramble; //try again
+	}
+
 	// Display a witty message, but only during scrambles specifically triggered by an admin.
-	if (cv_teamscramble.value && !(gamestate == GS_INTERMISSION && cv_scrambleonchange.value))
+	if (cv_teamscramble.value)
 	{
 		scrambletotal = playercount;
-		CONS_Printf("%s", text[TEAMS_SCRAMBLED]);
 		teamscramble = (INT16)cv_teamscramble.value;
+
+		if (!(gamestate == GS_INTERMISSION && cv_scrambleonchange.value))
+			CONS_Printf("%s", text[TEAMS_SCRAMBLED]);
 	}
 }
 
@@ -4238,11 +4276,16 @@ static void Cheats_OnChange(void)
 	if (gamestate == GS_WAITINGPLAYERS && !(netgame || multiplayer))
 		CV_StealthSetValue(&cv_cheats, 0);
 
+	// Display console and hud message.
 	if (cv_cheats.value && !cheats)
 	{
 		HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
 		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
 	}
+
+	// When deactivated, restore all variables governed by cheats to their starting values.
+	if (!cv_cheats.value && cheats)
+		CV_ResetCheatNetVars();
 
 	cheats = cv_cheats.value;
 }
@@ -4252,13 +4295,13 @@ static void Tagtype_OnChange(void)
 	INT32 i, j;
 
 	// Do not execute the below code unless absolutely necessary.
-	if (cv_tagtype.value == tagtype)
+	if (gametype != GT_TAG || gamestate != GS_LEVEL || cv_tagtype.value == tagtype)
 		return;
 
 	// Changing from normal tag to hide and seek.
 	// Pick the highest scoring IT player to remain it,
 	// the rest become frozen as though they were tagged.
-	if (gametype == GT_TAG && cv_tagtype.value && gametype == GS_LEVEL)
+	if (cv_tagtype.value)
 	{
 		INT32 tempplayer;
 		INT32 playerarray[MAXPLAYERS];
@@ -4289,26 +4332,24 @@ static void Tagtype_OnChange(void)
 		}
 
 		//Top IT player remains it, the rest become frozen.
-		for (i = 0; i < MAXPLAYERS; i++)
+		for (i = 1; i < playercount; i++) //start at 1 since 0 is the top score.
 		{
-			if (playeringame[i] && (players[i].pflags & PF_TAGIT) && !(players[i].score == players[playerarray[0]].score))
-			{
-				players[i].pflags &= ~PF_TAGIT;
-				players[i].pflags |= PF_TAGGED;
-			}
+			players[playerarray[i]].pflags &= ~PF_TAGIT;
+			players[playerarray[i]].pflags |= PF_TAGGED;
+			players[playerarray[i]].pflags |= PF_STASIS;
 		}
 	}
-	else if (gametype == GT_TAG && !cv_tagtype.value && gametype == GS_LEVEL)
+	else
 	{
 		//When going from hide and seek to normal tag,
 		//Make the tagged players IT and let them move.
-
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && players[i].pflags & PF_TAGGED)
 			{
 				players[i].pflags |= PF_TAGIT;
 				players[i].pflags &= ~PF_TAGGED;
+				players[i].pflags &= ~PF_STASIS;
 			}
 		}
 	}

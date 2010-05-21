@@ -195,7 +195,6 @@ typedef struct
 	boolean levelselect;  ///< Does it appear in the level select?
 	boolean noperfectbns; ///< Is the perfect bonus allowed to be obtained?
 	char runsoc[64];      ///< SOC to execute at start of level
-	char mapcredits[32];  ///< Specifics on who made this map
 } mapheader_t;
 
 extern mapheader_t mapheaderinfo[NUMMAPS];

@@ -243,6 +243,22 @@ static void ST_overlayDrawer(void);
 
 void ST_Drawer(boolean refresh)
 {
+#ifdef SEENAMES
+	if (cv_seenames.value && cv_allowseenames.value && displayplayer == consoleplayer && seenplayer && seenplayer->mo)
+	{
+		if (cv_seenames.value == 1)
+			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2 + 15, V_TRANSLUCENT, player_names[seenplayer-players]);
+		else if (cv_seenames.value == 2)
+			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2 + 15, V_TRANSLUCENT,
+			va("%s%s", (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+			           ? ((seenplayer->ctfteam == 1) ? "\x85" : "\x84") : "", player_names[seenplayer-players]));
+		else //if (cv_seenames.value == 3)
+			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2 + 15, V_TRANSLUCENT,
+			va("%s%s", (gametype == GT_COOP || gametype == GT_RACE) || ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+			           && players[consoleplayer].ctfteam == seenplayer->ctfteam) ? "\x83" : "\x85", player_names[seenplayer-players]));
+	}
+#endif
+
 	// force a set of the palette by using doPaletteStuff()
 	refresh = 0; //?
 	if (vid.recalc)
@@ -598,17 +614,13 @@ static void ST_DrawNightsOverlayNum(INT32 x /* right border */, INT32 y, INT32 n
 {
 	INT32 w = SHORT(numpat[0]->width);
 	const UINT8 *colormap;
-	int flags = 0;
 
 	if (colornum == 0)
 		colormap = colormaps;
 	else
 	{
 		// Uses the player colors.
-		flags = (flags & ~MF_TRANSLATION) | (colornum<<MF_TRANSSHIFT);
-
-		colormap = (const UINT8 *)defaulttranslationtables - 256
-			+ ((flags & MF_TRANSLATION)>>(MF_TRANSSHIFT-8));
+		colormap = (UINT8 *)defaulttranslationtables - 256 + (colornum<<8);
 	}
 
 	// special case for 0
@@ -670,7 +682,11 @@ static void ST_drawDebugInfo(void)
 	sprintf(scability2, "%d", stplyr->charability2);
 	sprintf(scharsped, "%d", stplyr->normalspeed);
 	sprintf(scharflags, "%d", stplyr->charflags);
+#ifdef TRANSFIX
+	sprintf(sstrcolor, "%d", atoi(skins[stplyr->skin].starttranscolor));
+#else
 	sprintf(sstrcolor, "%d", stplyr->starttranscolor);
+#endif
 	sprintf(sdedtimer, "%d", stplyr->deadtimer);
 	sprintf(sjumpfact, "%d", stplyr->jumpfactor);
 	sprintf(sx, "%d", stplyr->mo->x>>FRACBITS);
@@ -735,7 +751,6 @@ static void ST_drawLevelTitle(void)
 {
 	char *lvlttl = mapheaderinfo[gamemap-1].lvlttl;
 	char *subttl = mapheaderinfo[gamemap-1].subttl;
-	char *mapcredits = mapheaderinfo[gamemap-1].mapcredits;
 	INT32 lvlttlxpos;
 	INT32 subttlxpos = BASEVIDWIDTH/2;
 	INT32 ttlnumxpos;
@@ -772,9 +787,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 200, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(20, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		V_DrawCenteredString(subttlxpos, 0+48, 0, subttl);
 	}
 	else if (timeinmap == 3)
@@ -785,9 +797,6 @@ static void ST_drawLevelTitle(void)
 
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 188, 0, text[ZONE]);
-
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(40, 140, V_YELLOWMAP, va("by: %s", mapcredits));
 
 		V_DrawCenteredString(subttlxpos, 12+48, 0, subttl);
 	}
@@ -800,9 +809,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 176, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(60, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		V_DrawCenteredString(subttlxpos, 24+48, 0, subttl);
 	}
 	else if (timeinmap == 5)
@@ -813,9 +819,6 @@ static void ST_drawLevelTitle(void)
 
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 164, 0, text[ZONE]);
-
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(80, 140, V_YELLOWMAP, va("by: %s", mapcredits));
 
 		V_DrawCenteredString(subttlxpos, 36+48, 0, subttl);
 	}
@@ -828,9 +831,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 152, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(100, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		V_DrawCenteredString(subttlxpos, 48+48, 0, subttl);
 	}
 	else if (timeinmap == 7)
@@ -841,9 +841,6 @@ static void ST_drawLevelTitle(void)
 
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 140, 0, text[ZONE]);
-
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(120, 140, V_YELLOWMAP, va("by: %s", mapcredits));
 
 		V_DrawCenteredString(subttlxpos, 60+48, 0, subttl);
 	}
@@ -856,9 +853,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 128, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(140, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		V_DrawCenteredString(subttlxpos, 72+48, 0, subttl);
 	}
 	else if (timeinmap == 106)
@@ -869,9 +863,6 @@ static void ST_drawLevelTitle(void)
 
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 80, 0, text[ZONE]);
-
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(190, 140, V_YELLOWMAP, va("by: %s", mapcredits));
 
 		V_DrawCenteredString(subttlxpos, 104+48, 0, subttl);
 	}
@@ -884,9 +875,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 56, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(220, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		V_DrawCenteredString(subttlxpos, 128+48, 0, subttl);
 	}
 	else if (timeinmap == 108)
@@ -897,9 +885,6 @@ static void ST_drawLevelTitle(void)
 
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 32, 0, text[ZONE]);
-
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(250, 140, V_YELLOWMAP, va("by: %s", mapcredits));
 
 //		V_DrawCenteredString(subttlxpos, 152+48, 0, subttl);
 	}
@@ -912,9 +897,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 8, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(280, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		//V_DrawCenteredString(subttlxpos, 176+48, 0, subttl);
 	}
 	else if (timeinmap == 110)
@@ -926,9 +908,6 @@ static void ST_drawLevelTitle(void)
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 0, 0, text[ZONE]);
 
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(300, 140, V_YELLOWMAP, va("by: %s", mapcredits));
-
 		//V_DrawCenteredString(subttlxpos, 200+48, 0, subttl);
 	}
 	else
@@ -939,9 +918,6 @@ static void ST_drawLevelTitle(void)
 
 		if (!mapheaderinfo[gamemap-1].nozone)
 			V_DrawLevelTitle(zonexpos, 104, 0, text[ZONE]);
-
-		if(mapheaderinfo[gamemap-1].mapcredits[0] != '\0')
-			V_DrawCenteredString(160, 140, V_YELLOWMAP, va("by: %s", mapcredits));
 
 		V_DrawCenteredString(subttlxpos, 80+48, 0, subttl);
 	}
@@ -1038,15 +1014,13 @@ static void ST_drawNiGHTSHUD(void)
 		{
 			ST_DrawNightsOverlayNum(SCX(256), SCY(160), (stplyr->linkcount-1), nightsnum, colornum);
 			V_DrawMappedPatch(SCX(264), SCY(160), V_NOSCALESTART, nightslink,
-				colornum == 0 ? colormaps : (const UINT8 *)defaulttranslationtables - 256 + ((((0 & ~MF_TRANSLATION)
-				| (colornum<<MF_TRANSSHIFT)) & MF_TRANSLATION) >> (MF_TRANSSHIFT-8)));
+				colornum == 0 ? colormaps : (UINT8 *)defaulttranslationtables - 256 + (colornum<<8));
 		}
 		else
 		{
 			ST_DrawNightsOverlayNum(SCX(160), SCY(176), (stplyr->linkcount-1), nightsnum, colornum);
 			V_DrawMappedPatch(SCX(168), SCY(176), V_NOSCALESTART, nightslink,
-				colornum == 0 ? colormaps : (const UINT8 *)defaulttranslationtables - 256 + ((((0 & ~MF_TRANSLATION)
-				| (colornum<<MF_TRANSSHIFT)) & MF_TRANSLATION) >> (MF_TRANSSHIFT-8)));
+				colornum == 0 ? colormaps : (UINT8 *)defaulttranslationtables - 256 + (colornum<<8));
 		}
 	}
 
@@ -1251,7 +1225,7 @@ static void ST_drawNiGHTSHUD(void)
 				nightsnum, 6); // Red
 		else
 			ST_DrawNightsOverlayNum(SCX(160) + numbersize, SCY(32), stplyr->nightstime,
-				nightsnum, MAXSKINCOLORS-1); // Yellow
+				nightsnum, 15); // Yellow
 	}
 }
 
@@ -1275,7 +1249,6 @@ static void ST_drawMatchHUD(void)
 
 	if (stplyr->powers[pw_automaticring])
 	{
-		char automaticringpower[4];
 		INT32 yelflag = 0;
 
 		if (stplyr->powers[pw_automaticring] >= MAX_AUTOMATIC)
@@ -1287,11 +1260,11 @@ static void ST_drawMatchHUD(void)
 			V_DrawTranslucentPatch(8 + offset, STRINGY(162), V_SNAPTOLEFT|V_8020TRANS, autoring);
 
 		if (stplyr->powers[pw_automaticring] > 99)
-			sprintf(automaticringpower, "**");
+			V_DrawTinyNum(8 + offset + 1, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				stplyr->powers[pw_automaticring]);
 		else
-			sprintf(automaticringpower, "%d", stplyr->powers[pw_automaticring]);
-
-		V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag, automaticringpower);
+			V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				va("%d", stplyr->powers[pw_automaticring]));
 
 		if (stplyr->currentweapon == WEP_AUTO)
 			V_DrawScaledPatch(6 + offset, STRINGY(162 - (splitscreen ? 4 : 2)), V_SNAPTOLEFT, curweapon);
@@ -1303,7 +1276,6 @@ static void ST_drawMatchHUD(void)
 
 	if (stplyr->powers[pw_bouncering])
 	{
-		char bounceringpower[4];
 		INT32 yelflag = 0;
 
 		if (stplyr->powers[pw_bouncering] >= MAX_BOUNCE)
@@ -1315,11 +1287,11 @@ static void ST_drawMatchHUD(void)
 			V_DrawTranslucentPatch(8 + offset, STRINGY(162), V_SNAPTOLEFT|V_8020TRANS, bouncering);
 
 		if (stplyr->powers[pw_bouncering] > 99)
-			sprintf(bounceringpower, "**");
+			V_DrawTinyNum(8 + offset + 1, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				stplyr->powers[pw_bouncering]);
 		else
-			sprintf(bounceringpower, "%d", stplyr->powers[pw_bouncering]);
-
-		V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag, bounceringpower);
+			V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				va("%d", stplyr->powers[pw_bouncering]));
 
 		if (stplyr->currentweapon == WEP_BOUNCE)
 			V_DrawScaledPatch(6 + offset, STRINGY(162 - (splitscreen ? 4 : 2)), V_SNAPTOLEFT, curweapon);
@@ -1331,7 +1303,6 @@ static void ST_drawMatchHUD(void)
 
 	if (stplyr->powers[pw_scatterring])
 	{
-		char scatterringpower[4];
 		INT32 yelflag = 0;
 
 		if (stplyr->powers[pw_scatterring] >= MAX_SCATTER)
@@ -1343,11 +1314,11 @@ static void ST_drawMatchHUD(void)
 			V_DrawTranslucentPatch(8 + offset, STRINGY(162), V_SNAPTOLEFT|V_8020TRANS, scatterring);
 
 		if (stplyr->powers[pw_scatterring] > 99)
-			sprintf(scatterringpower, "**");
+			V_DrawTinyNum(8 + offset + 1, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				stplyr->powers[pw_scatterring]);
 		else
-			sprintf(scatterringpower, "%d", stplyr->powers[pw_scatterring]);
-
-		V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag, scatterringpower);
+			V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				va("%d", stplyr->powers[pw_scatterring]));
 
 		if (stplyr->currentweapon == WEP_SCATTER)
 			V_DrawScaledPatch(6 + offset, STRINGY(162 - (splitscreen ? 4 : 2)), V_SNAPTOLEFT, curweapon);
@@ -1359,7 +1330,6 @@ static void ST_drawMatchHUD(void)
 
 	if (stplyr->powers[pw_grenadering])
 	{
-		char grenaderingpower[4];
 		INT32 yelflag = 0;
 
 		if (stplyr->powers[pw_grenadering] >= MAX_GRENADE)
@@ -1371,11 +1341,11 @@ static void ST_drawMatchHUD(void)
 			V_DrawTranslucentPatch(8 + offset, STRINGY(162), V_SNAPTOLEFT|V_8020TRANS, grenadering);
 
 		if (stplyr->powers[pw_grenadering] > 99)
-			sprintf(grenaderingpower, "**");
+			V_DrawTinyNum(8 + offset + 1, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				stplyr->powers[pw_grenadering]);
 		else
-			sprintf(grenaderingpower, "%d", stplyr->powers[pw_grenadering]);
-
-		V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag, grenaderingpower);
+			V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				va("%d", stplyr->powers[pw_grenadering]));
 
 		if (stplyr->currentweapon == WEP_GRENADE)
 			V_DrawScaledPatch(6 + offset, STRINGY(162 - (splitscreen ? 4 : 2)), V_SNAPTOLEFT, curweapon);
@@ -1387,7 +1357,6 @@ static void ST_drawMatchHUD(void)
 
 	if (stplyr->powers[pw_explosionring])
 	{
-		char explosionringpower[4];
 		INT32 yelflag = 0;
 
 		if (stplyr->powers[pw_explosionring] >= MAX_EXPLOSION)
@@ -1399,11 +1368,11 @@ static void ST_drawMatchHUD(void)
 			V_DrawTranslucentPatch(8 + offset, STRINGY(162), V_SNAPTOLEFT|V_8020TRANS, explosionring);
 
 		if (stplyr->powers[pw_explosionring] > 99)
-			sprintf(explosionringpower, "**");
+			V_DrawTinyNum(8 + offset + 1, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				stplyr->powers[pw_explosionring]);
 		else
-			sprintf(explosionringpower, "%d", stplyr->powers[pw_explosionring]);
-
-		V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag, explosionringpower);
+			V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				va("%d", stplyr->powers[pw_explosionring]));
 
 		if (stplyr->currentweapon == WEP_EXPLODE)
 			V_DrawScaledPatch(6 + offset, STRINGY(162 - (splitscreen ? 4 : 2)), V_SNAPTOLEFT, curweapon);
@@ -1415,7 +1384,6 @@ static void ST_drawMatchHUD(void)
 
 	if (stplyr->powers[pw_railring])
 	{
-		char railringpower[4];
 		INT32 yelflag = 0;
 
 		if (stplyr->powers[pw_railring] >= MAX_RAIL)
@@ -1427,11 +1395,11 @@ static void ST_drawMatchHUD(void)
 			V_DrawTranslucentPatch(8 + offset, STRINGY(162), V_SNAPTOLEFT|V_8020TRANS, railring);
 
 		if (stplyr->powers[pw_railring] > 99)
-			sprintf(railringpower, "**");
+			V_DrawTinyNum(8 + offset + 1, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				stplyr->powers[pw_railring]);
 		else
-			sprintf(railringpower, "%d", stplyr->powers[pw_railring]);
-
-		V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag, railringpower);
+			V_DrawString(8 + offset, STRINGY(162), V_TRANSLUCENT | V_SNAPTOLEFT | yelflag,
+				va("%d", stplyr->powers[pw_railring]));
 
 		if (stplyr->currentweapon == WEP_RAIL)
 			V_DrawScaledPatch(6 + offset, STRINGY(162 - (splitscreen ? 4 : 2)), V_SNAPTOLEFT, curweapon);
@@ -1550,39 +1518,6 @@ static void ST_drawTagHUD(void)
 			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, pstime);
 		else
 			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, pstime);
-	}
-
-
-	if (stplyr->tagzone)
-	{
-		char stagzone[33];
-		sprintf(stagzone, "%u", stplyr->tagzone/TICRATE);
-		if (splitscreen)
-		{
-			V_DrawString(201, STRINGY(168), 0, "IN NO-TAG ZONE");
-			V_DrawString(254 - (V_StringWidth(stagzone))/2, STRINGY(184), 0, stagzone);
-		}
-		else
-		{
-			V_DrawString(104, STRINGY(160), 0, "IN NO-TAG ZONE");
-			V_DrawString(158 - (V_StringWidth(stagzone))/2, STRINGY(168), 0, stagzone);
-		}
-	}
-	else if (stplyr->taglag)
-	{
-		char staglag[33];
-		sprintf(staglag, "%u", stplyr->taglag/TICRATE);
-
-		if (splitscreen)
-		{
-			V_DrawString(30, STRINGY(168), 0, "NO-TAG LAG");
-			V_DrawString(62 - (V_StringWidth(staglag))/2, STRINGY(184), 0, staglag);
-		}
-		else
-		{
-			V_DrawString(120, STRINGY(160), 0, "NO-TAG LAG");
-			V_DrawString(158 - (V_StringWidth(staglag))/2, STRINGY(168), 0, staglag);
-		}
 	}
 }
 
@@ -1721,10 +1656,6 @@ static void ST_drawCTFHUD(void)
 	}
 	else
 	{
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), V_TRANSLUCENT, "You are a spectator.");
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), V_TRANSLUCENT, "Press Fire to be assigned to a team.");
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "(Press F12 to watch another player.)");
-
 		if (splitscreen)
 			V_DrawString(244, STRINGY(184), V_TRANSLUCENT, "SPECTATOR");
 		else
@@ -1732,23 +1663,18 @@ static void ST_drawCTFHUD(void)
 	}
 
 	// Display a countdown timer showing how much time left until the flag your team dropped returns to base.
-	if ((redflagloose || blueflagloose) && !splitscreen) // No sense displaying this when you only have two players.
 	{
 		char timeleft[33];
-
-		if (redflagloose && stplyr->ctfteam == 2)
+		if (redflagloose)
 		{
-			sprintf(timeleft, "%d", (redflagloose / TICRATE));
-
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "RED FLAG RETURNS:");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, timeleft);
+			sprintf(timeleft, "%u", (redflagloose / TICRATE));
+			V_DrawCenteredString(268, STRINGY(184), V_YELLOWMAP, timeleft);
 		}
-		else if (blueflagloose && stplyr->ctfteam == 1)
-		{
-			sprintf(timeleft, "%d", (blueflagloose / TICRATE));
 
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "BLUE FLAG RETURNS:");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(192), 0, timeleft);
+		if (blueflagloose)
+		{
+			sprintf(timeleft, "%u", (blueflagloose / TICRATE));
+			V_DrawCenteredString(300, STRINGY(184), V_YELLOWMAP, timeleft);
 		}
 	}
 }
@@ -1774,10 +1700,6 @@ static void ST_drawTeamMatchHUD(void)
 			V_DrawString(248, STRINGY(192), V_TRANSLUCENT, "BLUE TEAM");
 		break;
 	default: //spectators have no team.
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), V_TRANSLUCENT, "You are a spectator.");
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), V_TRANSLUCENT, "Press Fire to be assigned to a team.");
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "(Press F12 to watch another player.)");
-
 		if (splitscreen)
 			V_DrawString(244, STRINGY(184), V_TRANSLUCENT, "SPECTATOR");
 		else
@@ -1796,26 +1718,26 @@ static void ST_drawChaosHUD(void)
 
 static void ST_drawSpecialStageHUD(void)
 {
-	if (!(hu_showscores && (netgame || multiplayer)))
-	{
-		if (totalrings > 0)
-		{
-			if (splitscreen)
-				ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS_SPLIT].x), SCY(hudinfo[HUD_SS_TOTALRINGS_SPLIT].y), totalrings, tallnum);
-			else
-				ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS].x), SCY(hudinfo[HUD_SS_TOTALRINGS].y), totalrings, tallnum);
-		}
+	if (hu_showscores && (netgame || multiplayer))
+		return; //hide in netplay only
 
-		if (leveltime < 5*TICRATE && totalrings > 0)
-		{
-			V_DrawScaledPatch(hudinfo[HUD_GETRINGS].x, (INT32)(SCY(hudinfo[HUD_GETRINGS].y)/vid.fdupy), V_TRANSLUCENT, getall);
-			ST_DrawOverlayNum(SCX(hudinfo[HUD_GETRINGSNUM].x), SCY(hudinfo[HUD_GETRINGSNUM].y), totalrings, tallnum);
-		}
+	if (totalrings > 0)
+	{
+		if (splitscreen)
+			ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS_SPLIT].x), SCY(hudinfo[HUD_SS_TOTALRINGS_SPLIT].y), totalrings, tallnum);
+		else
+			ST_DrawOverlayNum(SCX(hudinfo[HUD_SS_TOTALRINGS].x), SCY(hudinfo[HUD_SS_TOTALRINGS].y), totalrings, tallnum);
+	}
+
+	if (leveltime < 5*TICRATE && totalrings > 0)
+	{
+		V_DrawScaledPatch(hudinfo[HUD_GETRINGS].x, (INT32)(SCY(hudinfo[HUD_GETRINGS].y)/vid.fdupy), V_TRANSLUCENT, getall);
+		ST_DrawOverlayNum(SCX(hudinfo[HUD_GETRINGSNUM].x), SCY(hudinfo[HUD_GETRINGSNUM].y), totalrings, tallnum);
 	}
 
 	if (sstimer)
 	{
-		V_DrawString(hudinfo[HUD_TIMELEFT].x, STRINGY(hudinfo[HUD_TIMELEFT].y), V_TRANSLUCENT, "TIME LEFT");
+		V_DrawString(hudinfo[HUD_TIMELEFT].x, STRINGY(hudinfo[HUD_TIMELEFT].y), 0, "TIME LEFT");
 		ST_DrawNightsOverlayNum(SCX(hudinfo[HUD_TIMELEFTNUM].x), SCY(hudinfo[HUD_TIMELEFTNUM].y), sstimer/TICRATE, tallnum, 13);
 	}
 	else
@@ -2141,7 +2063,7 @@ static void ST_overlayDrawer(void)
 	}
 
 	// GAME OVER pic
-	if ((gametype == GT_COOP || gametype == GT_RACE) && stplyr->lives <= 0)
+	if ((gametype == GT_COOP || gametype == GT_RACE) && stplyr->lives <= 0 && !(hu_showscores && (netgame || multiplayer)))
 	{
 		patch_t *p;
 
@@ -2176,79 +2098,87 @@ static void ST_overlayDrawer(void)
 		V_DrawString(16+48, 148, 0, cv_snapto.string);
 	}
 
-	// Countdown timer for Race Mode
-	if (countdown)
+	if (!hu_showscores) // hide the following if TAB is held
 	{
-		char scountdown[33];
-		sprintf(scountdown, "%d", countdown/TICRATE);
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(176), 0, scountdown);
-	}
+		// Countdown timer for Race Mode
+		if (countdown)
+		{
+			char scountdown[33];
+			sprintf(scountdown, "%d", countdown/TICRATE);
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(176), 0, scountdown);
+		}
 
-	// If you are in overtime, put a big honkin' flashin' message on the screen.
-	if ((gametype == GT_MATCH || gametype == GT_CTF) && cv_overtime.value
-		&& (leveltime > (timelimitintics + TICRATE/2)) && cv_timelimit.value && (leveltime/TICRATE % 2 == 0))
-	{
-		if (splitscreen)
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "OVERTIME!");
-		else
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "OVERTIME!");
-	}
+		// If you are in overtime, put a big honkin' flashin' message on the screen.
+		if ((gametype == GT_MATCH || gametype == GT_CTF) && cv_overtime.value
+			&& (leveltime > (timelimitintics + TICRATE/2)) && cv_timelimit.value && (leveltime/TICRATE % 2 == 0))
+		{
+			if (splitscreen)
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "OVERTIME!");
+			else
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "OVERTIME!");
+		}
 
-	// Draw Match-related stuff
-	//\note Match HUD is drawn no matter what gametype.
-	ST_drawMatchHUD();
+		// Draw Match-related stuff
+		//\note Match HUD is drawn no matter what gametype.
+		// ... just not if you're a spectator.
+		if (!((((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG) && stplyr->spectator)
+		 || (((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF) && !stplyr->ctfteam)))
+			ST_drawMatchHUD();
 
-	// Race HUD Stuff
-	if (gametype == GT_RACE)
-		ST_drawRaceHUD();
-	// Tag HUD Stuff
-	else if (gametype == GT_TAG)
-		ST_drawTagHUD();
-	// CTF HUD Stuff
-	else if (gametype == GT_CTF)
-		ST_drawCTFHUD();
-	// Team Match HUD Stuff
-	else if (gametype == GT_MATCH && cv_matchtype.value)
-		ST_drawTeamMatchHUD();
-	// Chaos HUD Stuff
+		// Race HUD Stuff
+		if (gametype == GT_RACE)
+			ST_drawRaceHUD();
+		// Tag HUD Stuff
+		else if (gametype == GT_TAG)
+			ST_drawTagHUD();
+		// CTF HUD Stuff
+		else if (gametype == GT_CTF)
+			ST_drawCTFHUD();
+		// Team Match HUD Stuff
+		else if (gametype == GT_MATCH && cv_matchtype.value)
+			ST_drawTeamMatchHUD();
+		// Chaos HUD Stuff
 #ifdef CHAOSISNOTDEADYET
-	else if (gametype == GT_CHAOS)
-		ST_drawChaosHUD();
+		else if (gametype == GT_CHAOS)
+			ST_drawChaosHUD();
 #endif
+	}
 
 	// Special Stage HUD
 	if (!useNightsSS && gamemap >= sstage_start && gamemap <= sstage_end)
 		ST_drawSpecialStageHUD();
 
-	// Emerald Hunt Indicators
-	if (hunt1 && hunt1->health)
-		ST_drawEmeraldHuntIcon(hunt1, HUD_HUNTPIC1);
-	if (hunt2 && hunt2->health)
-		ST_drawEmeraldHuntIcon(hunt2, HUD_HUNTPIC2);
-	if (hunt3 && hunt3->health)
-		ST_drawEmeraldHuntIcon(hunt3, HUD_HUNTPIC3);
-
-	if (stplyr->powers[pw_gravityboots] > 3*TICRATE || (stplyr->powers[pw_gravityboots]
-		&& leveltime & 1))
-		V_DrawScaledPatch(hudinfo[HUD_GRAVBOOTSICO].x, STRINGY(hudinfo[HUD_GRAVBOOTSICO].y), V_SNAPTORIGHT, gravboots);
-
-	if(!P_IsLocalPlayer(stplyr) && !(hu_showscores))
+	if (!hu_showscores) // again, hide the following if TAB is held
 	{
-		char name[MAXPLAYERNAME+1];
-		// shorten the name if its more than twelve characters.
-		strlcpy(name, player_names[stplyr-players], 13);
+		// Emerald Hunt Indicators
+		if (hunt1 && hunt1->health)
+			ST_drawEmeraldHuntIcon(hunt1, HUD_HUNTPIC1);
+		if (hunt2 && hunt2->health)
+			ST_drawEmeraldHuntIcon(hunt2, HUD_HUNTPIC2);
+		if (hunt3 && hunt3->health)
+			ST_drawEmeraldHuntIcon(hunt3, HUD_HUNTPIC3);
 
-		// Show name of player being displayed
-		V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-80, 0, "Viewpoint:");
-		V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-64, V_ALLOWLOWERCASE, name);
-	}
+		if (stplyr->powers[pw_gravityboots] > 3*TICRATE || (stplyr->powers[pw_gravityboots] && leveltime & 1))
+			V_DrawScaledPatch(hudinfo[HUD_GRAVBOOTSICO].x, STRINGY(hudinfo[HUD_GRAVBOOTSICO].y), V_SNAPTORIGHT, gravboots);
 
-	// This is where we draw all the fun cheese if you have the chasecam off!
-	if ((stplyr == &players[consoleplayer] && !cv_chasecam.value)
-		|| ((splitscreen && stplyr == &players[secondarydisplayplayer]) && !cv_chasecam2.value)
-		|| (stplyr == &players[displayplayer] && !cv_chasecam.value))
-	{
-		ST_drawFirstPersonHUD();
+		if(!P_IsLocalPlayer(stplyr))
+		{
+			char name[MAXPLAYERNAME+1];
+			// shorten the name if its more than twelve characters.
+			strlcpy(name, player_names[stplyr-players], 13);
+
+			// Show name of player being displayed
+			V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-80, 0, "Viewpoint:");
+			V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-64, V_ALLOWLOWERCASE, name);
+		}
+
+		// This is where we draw all the fun cheese if you have the chasecam off!
+		if ((stplyr == &players[consoleplayer] && !cv_chasecam.value)
+			|| ((splitscreen && stplyr == &players[secondarydisplayplayer]) && !cv_chasecam2.value)
+			|| (stplyr == &players[displayplayer] && !cv_chasecam.value))
+		{
+			ST_drawFirstPersonHUD();
+		}
 	}
 
 	if (!(netgame || multiplayer) && !modifiedgame && gamemap == 11 && ALL7EMERALDS(emeralds)
@@ -2311,31 +2241,38 @@ static void ST_overlayDrawer(void)
 	}
 
 	// draw level title Tails
-	if (*mapheaderinfo[gamemap-1].lvlttl != '\0')
+	if (*mapheaderinfo[gamemap-1].lvlttl != '\0' && !(hu_showscores && (netgame || multiplayer)))
 		ST_drawLevelTitle();
 
-	if (netgame && (gametype == GT_RACE || gametype == GT_COOP) && stplyr->lives <= 0 && displayplayer == consoleplayer && countdown != 1)
+	if (!hu_showscores && netgame && (gametype == GT_RACE || gametype == GT_COOP) && stplyr->lives <= 0 && displayplayer == consoleplayer && countdown != 1)
 		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/3, 0, "Press F12 to watch another player.");
 
-	if (netgame && (gametype == GT_TAG && cv_tagtype.value) && displayplayer == consoleplayer &&
+	if (!hu_showscores && netgame && (gametype == GT_TAG && cv_tagtype.value) && displayplayer == consoleplayer &&
 		(!stplyr->spectator && !(stplyr->pflags & PF_TAGIT)) && (leveltime > hidetime * TICRATE))
 	{
 		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), 0, "You cannot move while hiding.");
 		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), 0, "Press F12 to watch another player.");
 	}
 
-	if ((netgame || splitscreen) && ((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG))
+	if (!hu_showscores && (netgame || splitscreen))
 	{
-		if(stplyr->spectator)
+		if ((gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)
+			&& stplyr->playerstate == PST_DEAD && stplyr->lives) //Death overrides spectator text.
 		{
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), V_TRANSLUCENT, "You are a spectator");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), V_TRANSLUCENT, "Press Fire to enter the game");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "(Press F12 to watch another player.)");
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "Press Jump to respawn.");
+			if (((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG) && !stplyr->spectator)
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(148), V_TRANSLUCENT, "Press 'Toss Flag' to Spectate.");
 		}
-		else if (stplyr->playerstate == PST_DEAD && stplyr->lives)
+		else if ((((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG) && stplyr->spectator)
+		 || (((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF) && !stplyr->ctfteam))
 		{
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), V_TRANSLUCENT, "Press Jump to respawn");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), V_TRANSLUCENT, "(Press 'Toss Flag' to Spectate)");
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(60), V_TRANSLUCENT, "You are a spectator.");
+			if ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "Press Fire to be assigned to a team.");
+			else
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "Press Fire to enter the game.");
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(148), V_TRANSLUCENT, "Press F12 to watch another player.");
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(164), V_TRANSLUCENT, "Press Jump to float and Spin to sink.");
 		}
 	}
 

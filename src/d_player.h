@@ -293,7 +293,9 @@ typedef struct player_s
 
 	INT32 jumpfactor; // How high can the player jump?
 
+#ifndef TRANSFIX
 	INT32 starttranscolor; // Start position for the changeable color of a skin
+#endif
 
 	INT32 prefcolor; // forced color in single player, default in multi
 
@@ -334,12 +336,6 @@ typedef struct player_s
 	tic_t realtime; // integer replacement for leveltime
 	UINT32 racescore; // Total of won categories
 	UINT32 laps; // Number of laps (optional)
-
-	////////////////////
-	// Tag Mode Stuff //
-	////////////////////
-	INT32 tagzone; // Tag Zone timer
-	INT32 taglag; // Don't go back in the tag zone too early
 
 	////////////////////
 	// CTF Mode Stuff //

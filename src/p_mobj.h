@@ -159,12 +159,10 @@ typedef enum
 	MF_SCENERY          = 0x2000000,
 	// Player sprites in multiplayer modes are modified
 	//  using an internal color lookup table for re-indexing.
-	// If 0x4 0x8 or 0xc,
-	//  use a translation table for player colormaps
-	// 0xc000000, original 4color
-	MF_TRANSLATION      = 0x3c000000,
-	// Hmm ???.
-	MF_TRANSSHIFT       = 26,
+	// This flag merely signals to use the proper drawing function for mobj->color.
+	// As this got changed from containing the color in the flags itself,
+	// some FREE FLAGS opened up: 0x8000000 0x10000000 and 0x20000000
+	MF_TRANSLATION      = 0x4000000,
 	// for chase camera, don't be blocked by things (partial clipping)
 	// (need comma at end of this for SOC editor)
 	MF_NOCLIPTHING      = 0x40000000,
@@ -229,10 +227,6 @@ typedef enum
 	MFE_VERTICALFLIP      = 32,
 } mobjeflag_t;
 
-#if MAXSKINCOLORS > 16
-"MAXSKINCOLORS has changed. Change MF_TRANSLATION to take effect of the change"
-#endif
-
 // Map Object definition.
 typedef struct mobj_s
 {
@@ -272,6 +266,7 @@ typedef struct mobj_s
 	INT32 flags; // flags from mobjinfo tables
 
 	void *skin; // overrides 'sprite' when non-NULL (for player bodies to 'remember' the skin)
+	UINT8 color; // MF_TRANSLATION
 
 	// Interaction info, by BLOCKMAP.
 	// Links in blocks (if needed).

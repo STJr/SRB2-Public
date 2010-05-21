@@ -28,11 +28,17 @@ void cht_Init(void);
 void Command_CheatNoClip_f(void);
 void Command_CheatGod_f(void);
 void Command_Savecheckpoint_f(void);
+void Command_Getallemeralds_f(void);
 void Command_Resetemeralds_f(void);
+void Command_Unlockall_f(void);
 void Command_Devmode_f(void);
 void Command_Scale_f(void);
 void Command_Gravflip_f(void);
 void Command_Hurtme_f(void);
 void Command_Charability_f(void);
+void Command_Charspeed_f(void);
+#ifdef _DEBUG
+void Command_CauseCfail_f(void);
+#endif
 
 #endif

@@ -321,9 +321,9 @@ void Command_Scale_f(void)
 		return;
 	}
 
-	if (!(scale >= 25 && scale <= 250)) //COM_Argv(1) will return a null string if they did not give a paramater, so...
+	if (!(scale >= 5 && scale <= 400)) //COM_Argv(1) will return a null string if they did not give a paramater, so...
 	{
-		CONS_Printf("SCALE <value> (25-250): Set player scale size.\n");
+		CONS_Printf("SCALE <value> (5-400): Set player scale size.\n");
 		return;
 	}
 
@@ -424,6 +424,68 @@ void Command_Charability_f(void)
 		CONS_Printf("charability <1/2> <value>\n");
 }
 
+void Command_Charspeed_f(void)
+{
+	if (gamestate != GS_LEVEL || demoplayback)
+	{
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
+		return;
+	}
+
+	if (!cv_debug)
+	{
+		CONS_Printf("%s", text[NEED_DEVMODE]);
+		return;
+	}
+
+	if (COM_Argc() < 3)
+	{
+		CONS_Printf("charspeed <normalspeed/runspeed/thrustfactor/accelstart/acceleration/actionspd> <value>\n");
+		return;
+	}
+
+	if (netgame || multiplayer)
+	{
+		CONS_Printf("%s", text[CANTUSEMULTIPLAYER]);
+		return;
+	}
+
+	if (!strcasecmp(COM_Argv(1), "normalspeed"))
+		players[consoleplayer].normalspeed = atoi(COM_Argv(2));
+	else if (!strcasecmp(COM_Argv(1), "runspeed"))
+		players[consoleplayer].runspeed = atoi(COM_Argv(2));
+	else if (!strcasecmp(COM_Argv(1), "thrustfactor"))
+		players[consoleplayer].thrustfactor = atoi(COM_Argv(2));
+	else if (!strcasecmp(COM_Argv(1), "accelstart"))
+		players[consoleplayer].accelstart = atoi(COM_Argv(2));
+	else if (!strcasecmp(COM_Argv(1), "acceleration"))
+		players[consoleplayer].acceleration = atoi(COM_Argv(2));
+	else if (!strcasecmp(COM_Argv(1), "actionspd"))
+		players[consoleplayer].actionspd = atoi(COM_Argv(2));
+	else
+		CONS_Printf("charspeed <normalspeed/runspeed/thrustfactor/accelstart/acceleration/actionspd> <value>\n");
+}
+
+#ifdef _DEBUG
+// You never thought you needed this, did you? >=D
+// Yes, this has the specific purpose of completely screwing you up
+// to see if the consistency restoration code can fix you.
+// Don't enable this for normal builds...
+void Command_CauseCfail_f(void)
+{
+	P_UnsetThingPosition(players[consoleplayer].mo);
+	P_Random();
+	P_Random();
+	P_Random();
+	players[consoleplayer].mo->x = 0;
+	players[consoleplayer].mo->y = 123311; //cfail cansuled kthxbye
+	players[consoleplayer].mo->z = 123311;
+	players[consoleplayer].score = 1337;
+	players[consoleplayer].health = 1337;
+	P_SetThingPosition(players[consoleplayer].mo);
+}
+#endif
+
 void Command_Savecheckpoint_f(void)
 {
 	if (!cv_debug)
@@ -447,8 +509,34 @@ void Command_Savecheckpoint_f(void)
 	CONS_Printf("Temporary checkpoint created at %d, %d, %d\n", players[consoleplayer].starpostx, players[consoleplayer].starposty, players[consoleplayer].starpostz);
 }
 
+// Like M_GetAllEmeralds() but for console devmode junkies.
+void Command_Getallemeralds_f(void)
+{
+	if (!cv_debug)
+	{
+		CONS_Printf("%s", text[NEED_DEVMODE]);
+		return;
+	}
+
+	if (netgame || multiplayer)
+	{
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
+		return;
+	}
+
+	emeralds = ((EMERALD7)*2)-1;
+
+	CONS_Printf("You now have all 7 emeralds.\n");
+}
+
 void Command_Resetemeralds_f(void)
 {
+	if (!cv_debug)
+	{
+		CONS_Printf("%s", text[NEED_DEVMODE]);
+		return;
+	}
+
 	if (netgame || multiplayer)
 	{
 		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
@@ -458,6 +546,25 @@ void Command_Resetemeralds_f(void)
 	emeralds = 0;
 
 	CONS_Printf("Emeralds reset to zero.\n");
+}
+
+void Command_Unlockall_f(void)
+{
+	if (!cv_debug)
+	{
+		CONS_Printf("%s", text[NEED_DEVMODE]);
+		return;
+	}
+
+	if (netgame || multiplayer)
+	{
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
+		return;
+	}
+
+	grade |= 4095;
+
+	CONS_Printf("All secrets unlocked.\n");
 }
 
 void Command_Devmode_f(void)

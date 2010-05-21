@@ -80,6 +80,8 @@
 #include "i_tcp.h"
 #include "i_system.h"
 #include "byteptr.h"
+#include "m_menu.h"
+#include "m_argv.h" // Alam is going to kill me <3
 
 #ifdef _WIN32_WCE
 #include "sdl/SRB2CE/cehelp.h"
@@ -112,8 +114,15 @@
 #define ANSWER_ASK_SERVER_MSG    207
 #define GET_MOTD_MSG             208
 #define SEND_MOTD_MSG            209
+#define GET_ROOMS_MSG			 210
+#define SEND_ROOMS_MSG			 211
+#define GET_ROOMS_HOST_MSG		 212
+#define GET_VERSION_MSG			 213
+#define SEND_VERSION_MSG		 214
+#define GET_BANNED_MSG			 215 // Someone's been baaaaaad!
+#define PING_SERVER_MSG			 216
 
-#define HEADER_SIZE (sizeof (INT32)*3)
+#define HEADER_SIZE (sizeof (INT32)*4)
 
 #define HEADER_MSG_POS    0
 #define IP_MSG_POS       16
@@ -129,9 +138,10 @@
   */
 typedef struct
 {
-	INT32 id;                 ///< Unused?
-	INT32 type;               ///< Type of message.
-	UINT32 length;            ///< Length of the message.
+	INT32 id;                  ///< Unused?
+	INT32 type;                ///< Type of message.
+	INT32 room;				   ///< Because everyone needs a roomie.
+	UINT32 length;             ///< Length of the message.
 	char buffer[PACKET_SIZE]; ///< Actual contents of the message.
 } ATTRPACK msg_t;
 
@@ -189,9 +199,11 @@ static void MasterServer_OnChange(void);
 static void ServerName_OnChange(void);
 
 #define DEF_PORT "28900"
-consvar_t cv_internetserver = {"internetserver", "No", 0, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_internetserver = {"internetserver", "No", CV_CALL, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_masterserver = {"masterserver", "ms.srb2.org:"DEF_PORT, CV_SAVE, NULL, MasterServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_servername = {"servername", "SRB2 server", CV_SAVE, NULL, ServerName_OnChange, 0, NULL, NULL, 0, 0, NULL};
+
+INT32 oldroomnum = 0;
 
 static enum { MSCS_NONE, MSCS_WAITING, MSCS_REGISTERED, MSCS_FAILED } con_state = MSCS_NONE;
 
@@ -223,6 +235,10 @@ static struct timeval select_timeout;
 static fd_set wset;
 static size_t recvfull(SOCKET_TYPE s, char *buf, size_t len, int flags);
 #endif
+
+// Room list is an external variable now.
+// Avoiding having to get info ten thousand times...
+msg_rooms_t room_list[NUM_LIST_ROOMS+1]; // +1 for easy test
 
 /** Adds variables and commands relating to the master server.
   *
@@ -267,6 +283,7 @@ static INT32 MS_Write(msg_t *msg)
 
 	msg->type = htonl(msg->type);
 	msg->length = htonl(msg->length);
+	msg->room = htonl(msg->room);
 
 	if ((size_t)send(socket_fd, (char *)msg, (int)len, 0) != len)
 		return MS_WRITE_ERROR;
@@ -288,6 +305,7 @@ static INT32 MS_Read(msg_t *msg)
 
 	msg->type = ntohl(msg->type);
 	msg->length = ntohl(msg->length);
+	msg->room = ntohl(msg->room);
 
 	if (!msg->length) // fix a bug in Windows 2000
 		return 0;
@@ -307,6 +325,7 @@ static INT32 GetServersList(void)
 
 	msg.type = GET_SERVER_MSG;
 	msg.length = 0;
+	msg.room = 0;
 	if (MS_Write(&msg) < 0)
 		return MS_WRITE_ERROR;
 
@@ -315,7 +334,7 @@ static INT32 GetServersList(void)
 		if (!msg.length)
 		{
 			if (!count)
-				CONS_Printf("No server currently running.\n");
+				CONS_Printf("No servers currently running.\n");
 			return MS_NO_ERROR;
 		}
 		count++;
@@ -342,7 +361,7 @@ static inline INT32 GetMSMOTD(void)
 		if (!msg.length)
 		{
 			if (!count)
-				CONS_Printf("No server currently running.\n");
+				CONS_Printf("No servers currently running.\n");
 			return MS_NO_ERROR;
 		}
 		count++;
@@ -431,21 +450,26 @@ static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 }
 
 #define NUM_LIST_SERVER MAXSERVERLIST
-const msg_server_t *GetShortServersList(void)
+const msg_server_t *GetShortServersList(INT32 room)
 {
 	static msg_server_t server_list[NUM_LIST_SERVER+1]; // +1 for easy test
 	msg_t msg;
 	INT32 i;
 
+	// updated now
+	oldroomnum = room;
+
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
 		CONS_Printf("cannot connect to the master server\n");
+		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
 		return NULL;
 	}
 
 	msg.type = GET_SHORT_SERVER_MSG;
 	msg.length = 0;
+	msg.room = room;
 	if (MS_Write(&msg) < 0)
 		return NULL;
 
@@ -469,6 +493,105 @@ const msg_server_t *GetShortServersList(void)
 	else
 		return NULL;
 }
+
+INT32 GetRoomsList(boolean hosting)
+{
+	static msg_ban_t banned_info[1];
+	msg_t msg;
+	INT32 i;
+
+	// we must be connected to the master server before writing to it
+	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
+	{
+		CONS_Printf("cannot connect to the master server\n");
+		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
+		return -1;
+	}
+
+	if (hosting)
+		msg.type = GET_ROOMS_HOST_MSG;
+	else
+		msg.type = GET_ROOMS_MSG;
+	msg.length = 0;
+	msg.room = 0;
+	if (MS_Write(&msg) < 0)
+	{
+		room_list[0].id = 1;
+		strcpy(room_list[0].motd,"Master Server Offline.");
+		strcpy(room_list[0].name,"Offline");
+		return -1;
+	}
+
+	for (i = 0; i < NUM_LIST_ROOMS && MS_Read(&msg) >= 0; i++)
+	{
+		if(msg.type == GET_BANNED_MSG)
+		{
+			char banmsg[1000];
+			M_Memcpy(&banned_info[0], msg.buffer, sizeof (msg_ban_t));
+			if (hosting)
+				sprintf(banmsg, "You have been banned from\nhosting netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s",banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
+			else
+				sprintf(banmsg, "You have been banned from\njoining netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s",banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
+			M_StartMessage(banmsg, NULL, MM_NOTHING);
+			cv_internetserver.value = false;
+			return -2;
+		}
+		if (!msg.length)
+		{
+			room_list[i].header.buffer[0] = 0;
+			CloseConnection();
+			return 1;
+		}
+		M_Memcpy(&room_list[i], msg.buffer, sizeof (msg_rooms_t));
+		room_list[i].header.buffer[0] = 1;
+	}
+	CloseConnection();
+	if (i == NUM_LIST_ROOMS)
+	{
+		room_list[i].header.buffer[0] = 0;
+		return 1;
+	}
+	else
+	{
+		room_list[0].id = 1;
+		strcpy(room_list[0].motd,"Master Server Offline.");
+		strcpy(room_list[0].name,"Offline");
+		return -1;
+	}
+}
+
+#ifdef UPDATE_ALERT
+const char *GetMODVersion(void)
+{
+	static msg_t msg;
+
+
+	// we must be connected to the master server before writing to it
+	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
+	{
+		CONS_Printf("cannot connect to the master server\n");
+		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
+		return NULL;
+	}
+
+	msg.type = GET_VERSION_MSG;
+	msg.length = sizeof MODVERSION;
+	msg.room = MODID; // Might as well use it for something.
+	sprintf(msg.buffer,"%d",MODVERSION);
+	if (MS_Write(&msg) < 0)
+		return NULL;
+
+	MS_Read(&msg);
+	CloseConnection();
+
+	if(strcmp(msg.buffer,"NULL") != 0)
+	{
+		return msg.buffer;
+	}
+	else
+		return NULL;
+}
+#endif
 
 /** Gets a list of game servers. Called from console.
   */
@@ -519,14 +642,17 @@ static INT32 ConnectionFailed(void)
 
 /** Tries to register the local game server on the master server.
   */
-static INT32 AddToMasterServer(void)
+static INT32 AddToMasterServer(boolean firstadd)
 {
-#ifndef NONET
+#ifdef NONET
+	(void)firstadd;
+#else
 	static INT32 retry = 0;
 	int i, res;
 	socklen_t j;
 	msg_t msg;
-	msg_server_t *info = (void *)msg.buffer;
+	msg_server_t *info = (msg_server_t *)msg.buffer;
+	INT32 room = -1;
 	fd_set tset;
 	time_t timestamp = time(NULL);
 	UINT32 signature, tmp;
@@ -567,6 +693,17 @@ static INT32 AddToMasterServer(void)
 		return ConnectionFailed();
 	}
 
+	if (dedicated && (M_CheckParm("-room") && M_IsNextParm()))
+	{
+		room = atoi(M_GetNextParm());
+		if(room == 0)
+			room = -1;
+	}
+	else if(dedicated)
+		room = -1;
+	else
+		room = cv_chooseroom.value;
+
 	for(signature = 0, insname = cv_servername.string; *insname; signature += *insname++);
 	tmp = (UINT32)(signature * (size_t)&MSLastPing);
 	signature *= tmp;
@@ -576,11 +713,17 @@ static INT32 AddToMasterServer(void)
 	strcpy(info->ip, "");
 	strcpy(info->port, int2str(current_port));
 	strcpy(info->name, cv_servername.string);
+	M_Memcpy(&info->room, & room, sizeof (INT32));
 	sprintf(info->version, "%d.%d.%d", VERSION/100, VERSION%100, SUBVERSION);
 	strcpy(registered_server.name, cv_servername.string);
 
-	msg.type = ADD_SERVER_MSG;
+	if(firstadd)
+		msg.type = ADD_SERVER_MSG;
+	else
+		msg.type = PING_SERVER_MSG;
+
 	msg.length = (UINT32)sizeof (msg_server_t);
+	msg.room = 0;
 	if (MS_Write(&msg) < 0)
 	{
 		MSLastPing = timestamp;
@@ -610,6 +753,7 @@ static INT32 RemoveFromMasterSever(void)
 
 	msg.type = REMOVE_SERVER_MSG;
 	msg.length = (UINT32)sizeof (msg_server_t);
+	msg.room = 0;
 	if (MS_Write(&msg) < 0)
 		return MS_WRITE_ERROR;
 
@@ -642,6 +786,7 @@ const char *GetMasterServerIP(void)
 
 	if (strstr(cv_masterserver.string, "srb2.ssntails.org:28910")
 	 || strstr(cv_masterserver.string, "srb2.servegame.org:28910")
+	 || strstr(cv_masterserver.string, "srb2.servegame.org:28900")
 	   )
 	{
 		// replace it with the current default one
@@ -741,7 +886,10 @@ static inline void SendPingToMasterServer(void)
 	if(time(NULL) > (MSLastPing+(60*2)) && con_state != MSCS_NONE)
 	{
 		//CONS_Printf("%ld (current time) is greater than %d (Last Ping Time)\n", time(NULL), MSLastPing);
-		AddToMasterServer();
+		if(MSLastPing < 1)
+			AddToMasterServer(true);
+		else
+			AddToMasterServer(false);
 	}
 }
 
@@ -818,10 +966,20 @@ static void ServerName_OnChange(void)
 
 static void InternetServer_OnChange(void)
 {
-	if (cv_internetserver.value)
+/*	if (cv_internetserver.value)
 		RegisterServer();
 	else
-		UnregisterServer();
+		UnregisterServer(); */
+	if(cv_internetserver.value && Playing())
+	{
+		CV_StealthSetValue(&cv_internetserver, 0);
+		CONS_Printf("You cannot register on the Master Server mid-game, please end your current session and re-host if you wish to advertise your server on the Master Server.\n");
+		return;
+	}
+#ifndef NONET
+	if (!Playing() && !dedicated)
+		M_AlterRoomOptions();
+#endif
 }
 
 static void MasterServer_OnChange(void)

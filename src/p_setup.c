@@ -58,6 +58,8 @@
 
 #include "p_polyobj.h"
 
+#include "md5.h" // map MD5
+
 #if defined (_WIN32) || defined (_WIN32_WCE)
 #include <malloc.h>
 #include <math.h>
@@ -66,6 +68,12 @@
 #include "hardware/hw_main.h"
 #include "hardware/hw_light.h"
 #endif
+
+//
+// Map MD5, calculated on level load.
+// Sent to clients in PT_SERVERINFO.
+//
+unsigned char mapmd5[16];
 
 //
 // MAP related Lookup tables.
@@ -111,7 +119,7 @@ mobj_t **blocklinks;
 UINT8 *rejectmatrix;
 
 // Maintain single and multi player starting spots.
-INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
+INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts;
 
 mapthing_t *deathmatchstarts[MAX_DM_STARTS];
 mapthing_t *playerstarts[MAXPLAYERS];
@@ -201,8 +209,6 @@ static void P_ClearSingleMapHeaderInfo(INT16 i)
 	DEH_WriteUndoline("RUNSOC", mapheaderinfo[num].runsoc, UNDO_NONE);
 	mapheaderinfo[num].runsoc[0] = '#';
 	DEH_WriteUndoline(va("# uload for map %d", i), NULL, UNDO_DONE);
-	DEH_WriteUndoline("MAPCREDITS", mapheaderinfo[num].mapcredits, UNDO_NONE);
-	mapheaderinfo[num].mapcredits[0] = '\0';
 }
 
 /** Clears the data from the map headers for all levels.
@@ -821,10 +827,11 @@ static void P_SpawnEmblems(void)
 
 		// Absorb the color of the player you belong to.
 		// Note: "Everyone" emblems use Sonic's color.
+		emblemmobj->flags |= MF_TRANSLATION;
 		if (emblemlocations[i].player < numskins)
-			emblemmobj->flags = (emblemmobj->flags & ~MF_TRANSLATION) | (atoi(skins[emblemlocations[i].player].prefcolor)<<MF_TRANSSHIFT);
+			emblemmobj->color = (UINT8)atoi(skins[emblemlocations[i].player].prefcolor);
 		else
-			emblemmobj->flags = (emblemmobj->flags & ~MF_TRANSLATION) | (atoi(skins[0].prefcolor)<<MF_TRANSSHIFT);
+			emblemmobj->color = (UINT8)atoi(skins[0].prefcolor);
 
 		if (emblemlocations[i].collected
 			|| (emblemlocations[i].player != players[0].skin && emblemlocations[i].player != 255))
@@ -1869,6 +1876,71 @@ void P_LoadThingsOnly(void)
 	P_SpawnSecretItems(true);
 }
 
+/** Compute MD5 message digest for bytes read from memory source
+  *
+  * The resulting message digest number will be written into the 16 bytes
+  * beginning at RESBLOCK.
+  *
+  * \param filename path of file
+  * \param resblock resulting MD5 checksum
+  * \return 0 if MD5 checksum was made, and is at resblock, 1 if error was found
+  */
+static INT32 P_MakeBufferMD5(const char *buffer, size_t len, void *resblock)
+{
+#ifdef NOMD5
+	(void)buffer;
+	(void)len;
+	memset(resblock, 0x00, 16);
+	return 1;
+#else
+	tic_t t = I_GetTime();
+#ifndef _arch_dreamcast
+	if (devparm)
+#endif
+	CONS_Printf("Making MD5\n");
+	if (md5_buffer(buffer, len, resblock) == NULL)
+		return 1;
+#ifndef _arch_dreamcast
+	if (devparm)
+#endif
+	CONS_Printf("MD5 calc took %f seconds\n",
+		(float)(I_GetTime() - t)/TICRATE);
+	return 0;
+#endif
+}
+
+static void P_MakeMapMD5(lumpnum_t maplumpnum, void *dest)
+{
+	unsigned char linemd5[16];
+	unsigned char sectormd5[16];
+	unsigned char thingmd5[16];
+	unsigned char sidedefmd5[16];
+	unsigned char resmd5[16];
+	UINT8 i;
+
+	// Create a hash for the current map
+	// get the actual lumps!
+	UINT8 *datalines   = W_CacheLumpNum(maplumpnum + ML_LINEDEFS, PU_CACHE);
+	UINT8 *datasectors = W_CacheLumpNum(maplumpnum + ML_SECTORS, PU_CACHE);
+	UINT8 *datathings  = W_CacheLumpNum(maplumpnum + ML_THINGS, PU_CACHE);
+	UINT8 *datasides   = W_CacheLumpNum(maplumpnum + ML_SIDEDEFS, PU_CACHE);
+
+	P_MakeBufferMD5((char*)datalines,   W_LumpLength(maplumpnum + ML_LINEDEFS), linemd5);
+	P_MakeBufferMD5((char*)datasectors, W_LumpLength(maplumpnum + ML_SECTORS),  sectormd5);
+	P_MakeBufferMD5((char*)datathings,  W_LumpLength(maplumpnum + ML_THINGS),   thingmd5);
+	P_MakeBufferMD5((char*)datasides,   W_LumpLength(maplumpnum + ML_SIDEDEFS), sidedefmd5);
+
+	Z_Free(datalines);
+	Z_Free(datasectors);
+	Z_Free(datathings);
+	Z_Free(datasides);
+
+	for (i = 0; i < 16; i++)
+		resmd5[i] = (linemd5[i] + sectormd5[i] + thingmd5[i] + sidedefmd5[i]) & 0xFF;
+
+	M_Memcpy(dest, &resmd5, 16);
+}
+
 /** Loads a level from a lump or external wad.
   *
   * \param map     Map number.
@@ -1965,7 +2037,10 @@ noscript:
 
 					// a copy of color
 					if (players[secondarydisplayplayer].mo)
-						players[secondarydisplayplayer].mo->flags = (players[secondarydisplayplayer].mo->flags & ~MF_TRANSLATION) | ((players[secondarydisplayplayer].skincolor)<<MF_TRANSSHIFT);
+					{
+						players[secondarydisplayplayer].mo->flags |= MF_TRANSLATION;
+						players[secondarydisplayplayer].mo->color = (UINT8)players[secondarydisplayplayer].skincolor;
+					}
 				}
 			}
 
@@ -1978,7 +2053,10 @@ noscript:
 
 				// a copy of color
 				if (players[consoleplayer].mo)
-					players[consoleplayer].mo->flags = (players[consoleplayer].mo->flags & ~MF_TRANSLATION) | ((players[consoleplayer].skincolor)<<MF_TRANSSHIFT);
+				{
+					players[consoleplayer].mo->flags |= MF_TRANSLATION;
+					players[consoleplayer].mo->color = (UINT8)(players[consoleplayer].skincolor);
+				}
 			}
 		}
 	}
@@ -2059,6 +2137,8 @@ noscript:
 	else
 		globallevelskynum = levelskynum = mapheaderinfo[gamemap-1].skynum;
 
+	P_MakeMapMD5(lastloadedmaplumpnum, &mapmd5);
+
 	// note: most of this ordering is important
 	loadedbm = P_LoadBlockMap(lastloadedmaplumpnum + ML_BLOCKMAP);
 
@@ -2080,7 +2160,7 @@ noscript:
 	rejectmatrix = W_CacheLumpNum(lastloadedmaplumpnum + ML_REJECT, PU_LEVEL);
 	P_GroupLines();
 
-	numdmstarts = numredctfstarts = numbluectfstarts = numtagstarts = 0;
+	numdmstarts = numredctfstarts = numbluectfstarts = 0;
 
 	// reset the player starts
 	for (i = 0; i < MAXPLAYERS; i++)

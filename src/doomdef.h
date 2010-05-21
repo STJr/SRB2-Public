@@ -95,8 +95,15 @@
 extern FILE *logstream;
 #endif
 
-#define VERSION 200 // Game version
-#define VERSIONSTRING " v2.0.4"
+#define VERSION 000 // Game version
+#define VERSIONSTRING " Trunk"
+#define CODEBASE 205 // For future use, the codebase is the version of SRB2 that the modification is based on, and should not be changed unless you have merged changes between versions of SRB2 (such as 2.0.4 to 2.0.5, etc) into your working copy. Will always resemble the versionstring, 205 = 2.0.5, 210 = 2.1, etc.
+
+// HIGHLY IMPORTANT Modification Options, MUST be changed when creating a modification (or updating SRB2), else a lot of errors will occur when trying to access the Master Server. If you are just making clientside fixes for private use, that will not break netplay, these options are not important, but any builds not compatible with the normal SRB2 release must change these options accordingly, if they are compatible with normal releases but you would still like to enable the updating feature, you must still change these values.
+#define MODID 1 // The Modification ID (1 = Official Build), must be obtained directly from Cue (http://mb.srb2.org/private.php?do=newpm&u=758), DO NOT try to set this without speaking to Cue, it will cause a lot of problems and your modification will be unplayable through the Master Server.
+#define MODVERSION 205 // The Modification Version, starting from 1, do not follow your version string for this, it's only for detection of the version the player is using so the MS can alert them of an update accordingly. Only set it higher, not lower, obviously.
+#define UPDATE_ALERT // Comment out this line to completely disable update alerts (recommended for testing, but not for release)
+#define UPDATE_ALERT_STRING "New updates are available for SRB2\nPlease visit SRB2.org to download them.\n\nYou will not be able to connect to the\nMaster Server until you have updated to\nthe latest version!\n\nCurrent Version: %s\nLatest Version: %s" // The string used in the alert that pops up in the event of an update being available. Please change to apply to your modification (we don't want everyone asking where your mod is on SRB2.org!).
 
 // some tests, enable or disable it if it run or not
 #define SPLITSCREEN
@@ -111,6 +118,7 @@ extern FILE *logstream;
 #define PLAYERSMASK (MAXPLAYERS-1)
 #define MAXPLAYERNAME 21
 #define MAXSKINCOLORS 16
+#define MAXROOMS 32
 
 // State updates, number of tics / second.
 // NOTE: used to setup the timer rate, see I_StartupTimer().
@@ -203,6 +211,9 @@ extern const char *compdate, *comptime, *comprevision;
 //#define CHAOSISNOTDEADYET // Pre-1.08 Chaos gametype code
 //#define POLYOBJECTS_PLANES // Polyobject fake flat code
 //#define BLUE_SPHERES // Blue spheres for future use.
+#define NEWPING //Improved way of dealing with ping values and a ping limit.
+#define SEENAMES // See name of player in your crosshair
+#define TRANSFIX //Gets translation table from mobj->skin rather than player->skin. Ported from SRB2JTE.
 
 #ifdef SHUFFLE
 #define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.

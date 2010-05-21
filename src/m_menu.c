@@ -172,6 +172,7 @@ static void M_OpenGLOption(INT32 choice);
 #ifndef NONET
 static void M_NextServerPage(void);
 static void M_PrevServerPage(void);
+static void M_RoomInfoMenu(INT32 choice);
 #endif
 static void M_SortServerList(void);
 
@@ -664,26 +665,29 @@ menu_t SinglePlayerDef =
 //===========================================================================
 // Connect Menu
 //===========================================================================
-
-#ifndef NONET
-static CV_PossibleValue_t serversearch_cons_t[] = {
-	{0,"Local Lan"},
-	{1,"Internet"},
-	{0,NULL}};
-#endif
-
 static CV_PossibleValue_t serversort_cons_t[] = {
 	{0,"Ping"},
 	{1,"Players"},
 	{2,"Gametype"},
 	{0,NULL}};
 
-#ifndef NONET
-static consvar_t cv_serversearch = {"serversearch", "Internet", CV_HIDEN, serversearch_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-#endif
 consvar_t cv_serversort = {"serversort", "Ping", CV_HIDEN | CV_CALL, serversort_cons_t, M_SortServerList, 0, NULL, NULL, 0, 0, NULL};
 
-#define FIRSTSERVERLINE 6
+#ifndef NONET
+static CV_PossibleValue_t serversearch_cons_t[] = {
+	{0,"Local Lan"},
+	{1,"Internet"},
+	{0,NULL}};
+
+static consvar_t cv_serversearch = {"serversearch", "Internet", CV_HIDEN, serversearch_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+static void M_Chooseroom_Onchange(void);
+static CV_PossibleValue_t rooms_cons_t[MAXROOMS+1] = {{1, "Offline"}};
+consvar_t cv_chooseroom = {"chooseroom", "Offline", CV_HIDEN | CV_CALL, rooms_cons_t, M_Chooseroom_Onchange, 0, NULL, NULL, 0, 0, NULL};
+const char *cv_chosenroom_motd;
+#endif
+
+#define FIRSTSERVERLINE 7
+#define FIRSTLANSERVERLINE 5
 
 #ifndef NONET
 static void M_Connect(INT32 choice)
@@ -722,7 +726,7 @@ static UINT32 localservercount;
 static void M_Refresh(INT32 choice)
 {
 	(void)choice;
-	CL_UpdateServerList(cv_serversearch.value);
+	CL_UpdateServerList(cv_serversearch.value, cv_chooseroom.value);
 
 	// first page of servers
 	serverlistpage = 0;
@@ -730,13 +734,38 @@ static void M_Refresh(INT32 choice)
 
 static menuitem_t  ConnectMenu[] =
 {
-	{IT_STRING | IT_CVAR,  NULL, "Search On",      &cv_serversearch, 0},
+	{IT_STRING | IT_CVAR,  NULL, "Room",		   &cv_chooseroom,	 0},
+	{IT_STRING | IT_CALL,  NULL, "Room Info",	   M_RoomInfoMenu,	 0},
 	{IT_STRING | IT_CVAR,  NULL, "Sort By",        &cv_serversort,   0},
 	{IT_STRING | IT_CALL,  NULL, "Next Page",      M_NextServerPage, 0},
 	{IT_STRING | IT_CALL,  NULL, "Previous Page",  M_PrevServerPage, 0},
 	{IT_STRING | IT_CALL,  NULL, "Refresh",        M_Refresh,        0},
 	{IT_WHITESTRING | IT_SPACE,
-	                       NULL, "Server Name                      ping  plys gt",
+	                       NULL, "Server Name",
+	                                              NULL,              0}, // Tails 01-18-2001
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
+};
+
+static menuitem_t  ConnectLANMenu[] =
+{
+	{IT_STRING | IT_CVAR,  NULL, "Sort By",        &cv_serversort,   0},
+	{IT_STRING | IT_CALL,  NULL, "Next Page",      M_NextServerPage, 0},
+	{IT_STRING | IT_CALL,  NULL, "Previous Page",  M_PrevServerPage, 0},
+	{IT_STRING | IT_CALL,  NULL, "Refresh",        M_Refresh,        0},
+	{IT_WHITESTRING | IT_SPACE,
+	                       NULL, "Server Name",
 	                                              NULL,              0}, // Tails 01-18-2001
 	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
 	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
@@ -763,7 +792,7 @@ static void M_DisplayMSMOTD(void)
 
 static void M_DrawConnectMenu(void)
 {
-	UINT32 i;
+	UINT16 i;
 	char *p;
 	char cgametype;
 	char servername[21];
@@ -771,21 +800,31 @@ static void M_DrawConnectMenu(void)
 	for (i = FIRSTSERVERLINE; i < min(localservercount, SERVERS_PER_PAGE)+FIRSTSERVERLINE; i++)
 		ConnectMenu[i].status = IT_STRING | IT_SPACE;
 
-	if (serverlistcount <= 0)
+	V_DrawRightAlignedString(currentMenu->x+284, currentMenu->y+((FIRSTSERVERLINE-1)*STRINGHEIGHT), V_YELLOWMAP, "PING   PLYS  GT");
+
+	if (rooms_cons_t[0].value < 0)
+		V_DrawCenteredString(BASEVIDWIDTH/2,currentMenu->y+FIRSTSERVERLINE*STRINGHEIGHT,0,"Error contacting the Master Server");
+	else if (serverlistcount <= 0)
 		V_DrawString (currentMenu->x,currentMenu->y+FIRSTSERVERLINE*STRINGHEIGHT,0,"No servers found");
 	else
 	for (i = 0; i < min(serverlistcount - serverlistpage * SERVERS_PER_PAGE, SERVERS_PER_PAGE); i++)
 	{
 		INT32 slindex = i + serverlistpage * SERVERS_PER_PAGE;
+		UINT32 globalflags = (serverlist[slindex].info.numberofplayer >= serverlist[slindex].info.maxplayer) ? V_TRANSLUCENT : 0
+			| (itemOn == FIRSTSERVERLINE+i) ? V_YELLOWMAP : 0;
 
 		strlcpy(servername, serverlist[slindex].info.servername, sizeof (servername));
 		servername[20] = '\0';
+
+		V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags | V_ALLOWLOWERCASE, servername);
+
 		if (serverlist[slindex].info.modifiedgame)
-			V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,V_TRANSLUCENT|V_ALLOWLOWERCASE,servername);
-		else
-			V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,V_ALLOWLOWERCASE,servername);
+			V_DrawString(currentMenu->x+164,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, 0, "\x85" "M");
+		if (serverlist[slindex].info.cheatsenabled)
+			V_DrawString(currentMenu->x+172,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, 0, "\x83" "C");
+
 		p = va("%u", (UINT32)LONG(serverlist[slindex].info.time));
-		V_DrawString (currentMenu->x+200-V_StringWidth(p),currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,0,p);
+		V_DrawCenteredString (currentMenu->x+200,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags, p);
 
 		switch (serverlist[slindex].info.gametype)
 		{
@@ -810,17 +849,102 @@ static void M_DrawConnectMenu(void)
 				break;
 		}
 
-		p = va("%d/%d  %c", serverlist[slindex].info.numberofplayer,
-		                    serverlist[slindex].info.maxplayer,
-		                    cgametype); // Tails 01-18-2001
-		V_DrawString (currentMenu->x+260-V_StringWidth(p),currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT,0,p);
+		p = va("%02d/%02d", serverlist[slindex].info.numberofplayer,
+		                    serverlist[slindex].info.maxplayer); // Tails 01-18-2001
+		V_DrawRightAlignedString(currentMenu->x+264,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags, p);
+
+		p = va("%c", cgametype);
+		V_DrawString(currentMenu->x+272,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags, p);
+
 
 		ConnectMenu[i+FIRSTSERVERLINE].status = IT_STRING | IT_CALL;
 	}
 
 	M_DisplayMSMOTD();
 
-	V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-16, V_YELLOWMAP, "Translucent games are modified.");
+	if (cv_chooseroom.value != oldroomnum)
+	{
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-20, V_YELLOWMAP, "Warning: Room has been changed");
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-12, V_YELLOWMAP, "since the last refresh.");
+	}
+	else
+	{
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-20, 0, "\x85" "M" "\x82" " = Game is modified.    ");
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-12, 0, "\x83" "C" "\x82" " = Cheats are enabled.");
+	}
+
+	localservercount = serverlistcount;
+
+	M_DrawGenericMenu();
+}
+
+static void M_DrawConnectLANMenu(void)
+{
+	UINT16 i;
+	char *p;
+	char cgametype;
+	char servername[21];
+
+	for (i = FIRSTLANSERVERLINE; i < min(localservercount, SERVERS_PER_PAGE)+FIRSTLANSERVERLINE; i++)
+		ConnectLANMenu[i].status = IT_STRING | IT_SPACE;
+
+	if (serverlistcount <= 0)
+		V_DrawString (currentMenu->x,currentMenu->y+FIRSTLANSERVERLINE*STRINGHEIGHT,0,"No servers found");
+	else
+	for (i = 0; i < min(serverlistcount - serverlistpage * SERVERS_PER_PAGE, SERVERS_PER_PAGE); i++)
+	{
+		INT32 slindex = i + serverlistpage * SERVERS_PER_PAGE;
+		UINT32 globalflags = (serverlist[slindex].info.numberofplayer >= serverlist[slindex].info.maxplayer) ? V_TRANSLUCENT : 0
+			| (itemOn == FIRSTSERVERLINE+i) ? V_YELLOWMAP : 0;
+
+		strlcpy(servername, serverlist[slindex].info.servername, sizeof (servername));
+		servername[20] = '\0';
+
+		V_DrawString(currentMenu->x,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags | V_ALLOWLOWERCASE, servername);
+
+		if (serverlist[slindex].info.modifiedgame)
+			V_DrawString(currentMenu->x+164,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, 0, "\x85" "M");
+		if (serverlist[slindex].info.cheatsenabled)
+			V_DrawString(currentMenu->x+172,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, 0, "\x83" "C");
+
+		p = va("%u", (UINT32)LONG(serverlist[slindex].info.time));
+		V_DrawCenteredString (currentMenu->x+200,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags, p);
+
+		switch (serverlist[slindex].info.gametype)
+		{
+			case GT_COOP:
+				cgametype = 'C';
+				break;
+			case GT_MATCH:
+				cgametype = 'M';
+				break;
+			case GT_RACE:
+				cgametype = 'R';
+				break;
+			case GT_TAG:
+				cgametype = 'T';
+				break;
+			case GT_CTF:
+				cgametype = 'F';
+				break;
+			default:
+				cgametype = 'U';
+				CONS_Printf("M_DrawConnectLANMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype);
+				break;
+		}
+
+		p = va("%02d/%02d", serverlist[slindex].info.numberofplayer,
+		                    serverlist[slindex].info.maxplayer); // Tails 01-18-2001
+		V_DrawRightAlignedString(currentMenu->x+264,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags, p);
+
+		p = va("%c", cgametype);
+		V_DrawString(currentMenu->x+272,currentMenu->y+(FIRSTSERVERLINE+i)*STRINGHEIGHT, globalflags, p);
+
+		ConnectLANMenu[i+FIRSTLANSERVERLINE].status = IT_STRING | IT_CALL;
+	}
+
+	V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-20, 0, "\x85" "M" "\x82" " = Game is modified.    ");
+	V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-12, 0, "\x83" "C" "\x82" " = Cheats are enabled.");
 
 	localservercount = serverlistcount;
 
@@ -846,11 +970,29 @@ menu_t Connectdef =
 	M_CancelConnect
 };
 
+menu_t ConnectLANdef =
+{
+	0,
+	"Connect LAN Server",
+	sizeof (ConnectLANMenu)/sizeof (menuitem_t),
+	&MultiPlayerDef,
+	ConnectLANMenu,
+	M_DrawConnectLANMenu,
+	27,40,
+	0,
+	M_CancelConnect
+};
+
 // Connect using IP address Tails 11-19-2002
 static void M_HandleConnectIP(INT32 choice);
 static menuitem_t  ConnectIPMenu[] =
 {
 	{IT_KEYHANDLER | IT_STRING, NULL, "  IP Address:", M_HandleConnectIP, 0},
+};
+
+static menuitem_t  RoomInfoMenu[] =
+{
+	{IT_STRING | IT_CVAR,  NULL, "Room", &cv_chooseroom,	 0},
 };
 
 static void M_DrawConnectIPMenu(void);
@@ -867,6 +1009,91 @@ menu_t ConnectIPdef =
 	0,
 	M_CancelConnect
 };
+
+static void M_DrawRoomInfoMenu(void)
+{
+	// use generic drawer for cursor, items and title
+	M_DrawGenericMenu();
+	M_DrawTextBox(0, 56, 38, 12);
+#ifndef NONET
+	V_DrawString(8, 64, V_WORDWRAP|V_ALLOWLOWERCASE, cv_chosenroom_motd);
+#endif
+}
+
+menu_t RoomInfodef =
+{
+	0,
+	"Room Info",
+	sizeof (RoomInfoMenu)/sizeof (menuitem_t),
+	&Connectdef,
+	RoomInfoMenu,
+	M_DrawRoomInfoMenu,
+	27,40,
+	0,
+	NULL
+};
+
+static void M_Chooseroom_Onchange(void)
+{
+#ifndef NONET
+	if (currentMenu == &RoomInfodef)
+	{
+		M_AlterRoomInfo();
+	}
+#endif
+}
+
+//
+// M_PatchRoomsTable
+//
+// Like M_PatchSkinNameTable, but for cv_chooseroom.
+//
+
+static int M_PatchRoomsTable(boolean hosting)
+{
+	INT32 i = -1;
+	memset(rooms_cons_t, 0, sizeof (rooms_cons_t));
+
+	if(GetRoomsList(hosting) < 0)
+	{
+		return false;
+	}
+
+	for (i = 0; room_list[i].header.buffer[0]; i++)
+	{
+		if(room_list[i].name != '\0')
+		{
+			rooms_cons_t[i].strvalue = room_list[i].name;
+			rooms_cons_t[i].value = room_list[i].id;
+		}
+		else
+		{
+			rooms_cons_t[i].strvalue = NULL;
+			rooms_cons_t[i].value = 0;
+		}
+	}
+
+	CV_SetValue(&cv_chooseroom, rooms_cons_t[0].value);
+	CV_AddValue(&cv_chooseroom, 1);
+	CV_AddValue(&cv_chooseroom, -1);
+
+	return true;
+}
+
+#ifdef UPDATE_ALERT
+static int M_CheckMODVersion(void)
+{
+	char updatestring[500];
+	const char *updatecheck = GetMODVersion();
+	if(updatecheck)
+	{
+		sprintf(updatestring, UPDATE_ALERT_STRING, VERSIONSTRING, updatecheck);
+		M_StartMessage(updatestring, NULL, MM_NOTHING);
+		return false;
+	} else
+		return true;
+}
+#endif
 
 static void M_ConnectMenu(INT32 choice)
 {
@@ -894,8 +1121,48 @@ static void M_ConnectMenu(INT32 choice)
 
 	// first page of servers
 	serverlistpage = 0;
+	cv_serversearch.value = 1;
+	if(!M_PatchRoomsTable(false))
+		return;
+#ifdef UPDATE_ALERT
+	if(M_CheckMODVersion())
+	{
+#endif
+		M_SetupNextMenu(&Connectdef);
+		M_Refresh(0);
+#ifdef UPDATE_ALERT
+	}
+#endif
+}
 
-	M_SetupNextMenu(&Connectdef);
+static void M_ConnectLANMenu(INT32 choice)
+{
+	(void)choice;
+	if (modifiedgame)
+	{
+		M_StartMessage("You have wad files loaded and/or\nmodified the game in some way.\nPlease restart SRB2 before\nconnecting.", NULL, MM_NOTHING);
+		return;
+	}
+
+	if (Playing())
+	{
+		M_StartMessage(ALREADYPLAYING,M_ExitGameResponse,MM_YESNO);
+		return;
+	}
+
+	// Display a little "please wait" message.
+	M_DrawTextBox(52, BASEVIDHEIGHT/2-10, 25, 3);
+	V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2, 0, "Searching Local Network for Servers...");
+	V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2)+12, 0, "Please wait.");
+	I_OsPolling();
+	I_UpdateNoBlit();
+	if (rendermode == render_soft)
+		I_FinishUpdate(); // page flip or blit buffer
+
+	// first page of servers
+	cv_serversearch.value = 0;
+	serverlistpage = 0;
+	M_SetupNextMenu(&ConnectLANdef);
 	M_Refresh(0);
 }
 
@@ -916,6 +1183,31 @@ static void M_ConnectIPMenu(INT32 choice)
 	}
 
 	M_SetupNextMenu(&ConnectIPdef);
+}
+
+static void M_RoomInfoMenu(INT32 choice)
+{
+	(void)choice;
+
+	M_AlterRoomInfo();
+
+	RoomInfodef.prevMenu = currentMenu;
+
+	M_SetupNextMenu(&RoomInfodef);
+}
+
+void M_AlterRoomInfo(void)
+{
+	INT32 i = -1;
+
+	for (i = 0; room_list[i].header.buffer[0]; i++)
+	{
+		if(cv_chooseroom.value == room_list[i].id)
+		{
+			cv_chosenroom_motd = room_list[i].motd;
+			break;
+		}
+	}
 }
 #endif
 
@@ -2067,7 +2359,7 @@ static void M_ConfirmSpectate(INT32 choice)
 {
 	(void)choice;
 	M_ClearMenus(true);
-	COM_BufAddText("changeteam spectator");
+	COM_ImmedExecute("changeteam spectator");
 }
 
 static void M_ConfirmTeamScramble(INT32 choice)
@@ -2078,10 +2370,10 @@ static void M_ConfirmTeamScramble(INT32 choice)
 	switch (cv_dummyscramble.value)
 	{
 		case 0:
-			COM_BufAddText("teamscramble 1");
+			COM_ImmedExecute("teamscramble 1");
 			break;
 		case 1:
-			COM_BufAddText("teamscramble 2");
+			COM_ImmedExecute("teamscramble 2");
 			break;
 	}
 }
@@ -2100,13 +2392,13 @@ static void M_ConfirmTeamChange(INT32 choice)
 	switch (cv_dummyteam.value)
 	{
 		case 0:
-			COM_BufAddText("changeteam spectator");
+			COM_ImmedExecute("changeteam spectator");
 			break;
 		case 1:
-			COM_BufAddText("changeteam red");
+			COM_ImmedExecute("changeteam red");
 			break;
 		case 2:
-			COM_BufAddText("changeteam blue");
+			COM_ImmedExecute("changeteam blue");
 			break;
 	}
 }
@@ -2132,6 +2424,10 @@ static void M_StartServer(INT32 choice)
 		CV_SetValue(&cv_racetype, 0);
 	else if (cv_newgametype.value == GT_TAG)
 		CV_SetValue(&cv_tagtype, 0);
+
+	// Just in case you were in devmode before starting the server.
+	if (!cv_cheats.value)
+		CV_ResetCheatNetVars();
 
 	if (!StartSplitScreenGame)
 	{
@@ -2178,18 +2474,22 @@ static void M_DrawServerMenu(void)
 	else
 		PictureOfLevel = W_CachePatchName("BLANKLVL", PU_CACHE);
 
-	V_DrawSmallScaledPatch((BASEVIDWIDTH*3/4)-(SHORT(PictureOfLevel->width)/4), (BASEVIDHEIGHT*3/4)-(SHORT(PictureOfLevel->height)/4), 0, PictureOfLevel);
+	V_DrawSmallScaledPatch((BASEVIDWIDTH*3/4)-(SHORT(PictureOfLevel->width)/4), ((BASEVIDHEIGHT*3/4)-(SHORT(PictureOfLevel->height)/4)+10), 0, PictureOfLevel);
 }
 
 static menuitem_t ServerMenu[] =
 {
 	{IT_STRING|IT_CVAR,              NULL, "Game Type",             &cv_newgametype,    10},
 	{IT_STRING|IT_CVAR,              NULL, "Advertise on Internet", &cv_internetserver, 20},
-	{IT_STRING|IT_CVAR|IT_CV_STRING, NULL, "Server Name",           &cv_servername,     40},
+#ifndef NONET
+	{IT_STRING|IT_CVAR,              NULL, "Room",					&cv_chooseroom,		30},
+	{IT_STRING|IT_CALL,              NULL, "Room Info",             M_RoomInfoMenu,     40},
+#endif
+	{IT_STRING|IT_CVAR|IT_CV_STRING, NULL, "Server Name",           &cv_servername,     50},
 
-	{IT_STRING|IT_CVAR,              NULL, "Level",                 &cv_nextmap,        70},
+	{IT_STRING|IT_CVAR,              NULL, "Level",                 &cv_nextmap,        80},
 
-	{IT_WHITESTRING|IT_CALL,         NULL, "Start",                 M_StartServer,     120},
+	{IT_WHITESTRING|IT_CALL,         NULL, "Start",                 M_StartServer,     130},
 };
 
 menu_t Serverdef =
@@ -2477,7 +2777,9 @@ static inline void M_StartSplitServerMenu(void)
 	M_PatchLevelNameTable(0);
 	StartSplitScreenGame = true;
 	ServerMenu[1].status = IT_DISABLED; // No advertise on Internet option.
-	ServerMenu[2].status = IT_DISABLED; // No server name.
+	ServerMenu[2].status = IT_DISABLED; // No room.
+	ServerMenu[3].status = IT_DISABLED; // No room info.
+	ServerMenu[4].status = IT_DISABLED; // No server name.
 	M_SetupNextMenu(&Serverdef);
 }
 
@@ -2495,8 +2797,42 @@ static void M_StartServerMenu(INT32 choice)
 	M_PatchLevelNameTable(0);
 	StartSplitScreenGame = false;
 	ServerMenu[1].status = IT_STRING|IT_CVAR; // Make advertise on Internet option available.
-	ServerMenu[2].status = IT_STRING|IT_CVAR|IT_CV_STRING; // Server name too.
+	M_AlterRoomOptions();
+	ServerMenu[4].status = IT_STRING|IT_CVAR|IT_CV_STRING; // Server name too.
 	M_SetupNextMenu(&Serverdef);
+
+}
+
+void M_AlterRoomOptions(void)
+{
+	if (cv_internetserver.value)
+	{
+		ServerMenu[2].status = IT_STRING|IT_CVAR; // Make room option available.
+		ServerMenu[3].status = IT_STRING|IT_CALL; // Make room info option available.
+#ifdef UPDATE_ALERT
+		if(M_CheckMODVersion())
+		{
+#endif
+			if(!M_PatchRoomsTable(true))
+			{
+				ServerMenu[2].status = IT_DISABLED; // Make room option unavailable.
+				ServerMenu[3].status = IT_DISABLED; // Same for Room info.
+				CV_SetValue(&cv_internetserver, 0);
+				return;
+			}
+#ifdef UPDATE_ALERT
+		} else {
+			ServerMenu[2].status = IT_DISABLED; // Make room option unavailable.
+			ServerMenu[3].status = IT_DISABLED; // Same for Room info.
+			CV_SetValue(&cv_internetserver, 0);
+		}
+#endif
+	}
+	else
+	{
+		ServerMenu[2].status = IT_DISABLED; // No room.
+		ServerMenu[3].status = IT_DISABLED; // Same for Room info.
+	}
 }
 #endif
 
@@ -2514,6 +2850,7 @@ typedef enum
 #else
 	startserver = 0,
 	connectmultiplayermenu,
+	connectlanmenu,
 	connectip,
 	startsplitscreengame,
 #endif
@@ -2528,11 +2865,12 @@ static menuitem_t MultiPlayerMenu[] =
 {
 #ifndef NONET
 	{IT_CALL | IT_STRING, NULL, "HOST GAME",              M_StartServerMenu,      10},
-	{IT_CALL | IT_STRING, NULL, "JOIN GAME (Search)",     M_ConnectMenu,          20},
-	{IT_CALL | IT_STRING, NULL, "JOIN GAME (Specify IP)", M_ConnectIPMenu,        30},
+	{IT_CALL | IT_STRING, NULL, "JOIN GAME (Internet)",	  M_ConnectMenu,		  20},
+	{IT_CALL | IT_STRING, NULL, "JOIN GAME (LAN)",		  M_ConnectLANMenu,       30},
+	{IT_CALL | IT_STRING, NULL, "JOIN GAME (Specify IP)", M_ConnectIPMenu,        40},
 #endif
-	{IT_CALL | IT_STRING, NULL, "TWO PLAYER GAME",        M_Splitscreen,          50},
-	{IT_CALL | IT_STRING, NULL, "NETWORK OPTIONS",        M_NetOption,            70},
+	{IT_CALL | IT_STRING, NULL, "TWO PLAYER GAME",        M_Splitscreen,          60},
+	{IT_CALL | IT_STRING, NULL, "NETWORK OPTIONS",        M_NetOption,            80},
 	{IT_CALL | IT_STRING, NULL, "SETUP PLAYER",           M_SetupMultiPlayer,     90},
 	{IT_CALL | IT_STRING | IT_DISABLED, NULL, "SETUP PLAYER 2",         M_SetupMultiPlayerBis, 100},
 	{IT_CALL | IT_STRING, NULL, "END GAME",               M_EndGame,             120},
@@ -5061,11 +5399,15 @@ static menuitem_t GameOptionsMenu[] =
 {
 	// Tails
 	{IT_STRING | IT_CVAR, NULL, "Show HUD",    &cv_showhud,       20},
-	{IT_STRING | IT_CVAR, NULL, "High Resolution Timer",    &cv_timetic,       30},
-	{IT_STRING | IT_CVAR, NULL, "Console Color", &cons_backcolor, 50},
-	{IT_STRING | IT_CVAR, NULL, "Uppercase Console", &cv_allcaps, 60},
+#ifdef SEENAMES
+	{IT_STRING | IT_CVAR, NULL, "HUD Player Names",    &cv_seenames,       30},
+#endif
+	{IT_STRING | IT_CVAR, NULL, "High Resolution Timer",    &cv_timetic,       40},
 
-	{IT_STRING | IT_SUBMENU, NULL, "Data Options...", &DataOptionsDef, 80},
+	{IT_STRING | IT_CVAR, NULL, "Console Color", &cons_backcolor, 60},
+	{IT_STRING | IT_CVAR, NULL, "Uppercase Console", &cv_allcaps, 70},
+
+	{IT_STRING | IT_SUBMENU, NULL, "Data Options...", &DataOptionsDef, 90},
 };
 
 menu_t GameOptionDef =
@@ -5084,11 +5426,6 @@ menu_t GameOptionDef =
 static void M_GameOption(INT32 choice)
 {
 	(void)choice;
-	if (!(server || (adminplayer == consoleplayer)))
-	{
-		M_StartMessage("You are not the server\nYou can't change the options\n",NULL,MM_NOTHING);
-		return;
-	}
 	M_SetupNextMenu(&GameOptionDef);
 }
 
@@ -7048,7 +7385,6 @@ static void M_DrawMessageMenu(void)
 					i = (size_t)-1; //added : 07-02-98 : damned!
 					start++;
 				}
-
 				break;
 			}
 		}
@@ -7312,7 +7648,7 @@ boolean M_Responder(event_t *ev)
 				return true;
 
 			case KEY_F8: // Screenshot
-				COM_BufAddText("screenshot\n");
+				COM_ImmedExecute("screenshot\n");
 				return true;
 
 			case KEY_F9: // Empty
@@ -7812,6 +8148,7 @@ void M_Init(void)
 #ifndef NONET
 	CV_RegisterVar(&cv_serversearch);
 	CV_RegisterVar(&cv_serversort);
+	CV_RegisterVar(&cv_chooseroom);
 #endif
 	//todo put this somewhere better...
 	CV_RegisterVar(&cv_allcaps);
@@ -8016,7 +8353,6 @@ static void M_HandleFogColor(INT32 choice)
 #endif
 
 #ifndef NONET
-
 static void M_NextServerPage(void)
 {
 	if ((serverlistpage + 1) * SERVERS_PER_PAGE < serverlistcount) serverlistpage++;
@@ -8054,5 +8390,15 @@ static void M_SortServerList(void)
 		qsort(serverlist, serverlistcount, sizeof(serverelem_t), ServerListEntryComparator_gametype);
 		break;
 	}
+}
+
+// Message responder for turning on
+// cheats through the menu system.
+void M_CheatActivationResponder(INT32 ch)
+{
+	if (ch != 'y' && ch != KEY_ENTER)
+		return;
+
+	CV_SetValue(&cv_cheats, 1);
 }
 

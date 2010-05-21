@@ -200,10 +200,21 @@ boolean M_GotEnoughEmblems(INT32 number);
 extern description_t description[15];
 
 extern consvar_t cv_newgametype, cv_nextmap, cv_chooseskin, cv_serversort;
+#ifndef NONET
+extern consvar_t cv_chooseroom;
+#endif
 extern CV_PossibleValue_t gametype_cons_t[];
 
 extern INT16 startmap;
 extern INT32 ultmode;
 
 extern boolean StartSplitScreenGame;
+
+void M_CheatActivationResponder(INT32 ch);
+
+#ifndef NONET
+void M_AlterRoomOptions(void);
+void M_AlterRoomInfo(void);
+#endif
+
 #endif

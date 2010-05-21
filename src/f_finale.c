@@ -412,6 +412,8 @@ void F_StartCredits(void)
 	strcpy(credits[i].fakenames[j++], "ST218\n");
 	strcpy(credits[i].fakenames[j++], "Tets\n");
 	strcpy(credits[i].fakenames[j++], "Torgo\n");
+	strcpy(credits[i].fakenames[j++], "Blade\n");
+	strcpy(credits[i].fakenames[j++], "KO.T.E\n");
 	strcpy(credits[i].fakenames[j++], "Chaos Zero 64\n");
 	strcpy(credits[i].fakenames[j++], "Prime 2\n");
 	j = 0;
@@ -430,6 +432,8 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Nick Molina\n");		// ST218
 	strcpy(credits[i].realnames[j++], "Bill Reed\n");		// Tets
 	strcpy(credits[i].realnames[j++], "Erik Nielsen\n");	// Torgo
+	strcpy(credits[i].realnames[j++], "Desmond D.\n");      // Blade
+	strcpy(credits[i].realnames[j++], "Sherman D.\n");      // KO.T.E.
 	strcpy(credits[i].realnames[j++], "Julio Guir\n");      // Chaos Zero 64
 	strcpy(credits[i].realnames[j++], "Samuel Peters\n");   // Prime 2
 	credits[i].numnames = (UINT8)j;
@@ -1621,7 +1625,7 @@ static void F_DrawCreditScreen(credit_t *creditpassed)
 					x = ((BASEVIDWIDTH/4)*3) - (V_StringWidth(creditpassed->realnames[i])/2);
 
 				V_DrawString(x,
-					height + y, 0, creditpassed->realnames[i]);
+					height + y - 8, 0, creditpassed->realnames[i]); //shifted up to prevent cutoff. -Spazzo
 			}
 			else
 			{
@@ -1631,7 +1635,7 @@ static void F_DrawCreditScreen(credit_t *creditpassed)
 					x = ((BASEVIDWIDTH/4)*3) - (V_StringWidth(creditpassed->fakenames[i])/2);
 
 				V_DrawString(x,
-					height + y, 0, creditpassed->fakenames[i]);
+					height + y - 8, 0, creditpassed->fakenames[i]);
 			}
 			y += 16;
 

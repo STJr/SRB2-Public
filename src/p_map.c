@@ -113,6 +113,10 @@ boolean P_TeleportMove(mobj_t *thing, fixed_t x, fixed_t y, fixed_t z)
 
 static void P_DoSpring(mobj_t *spring, mobj_t *object)
 {
+	// Spectators don't trigger springs.
+	if (object->player && object->player->spectator)
+		return;
+
 	if (object->player && (object->player->pflags & PF_NIGHTSMODE))
 	{
 		/*Someone want to make these work like bumpers?*/
@@ -135,18 +139,23 @@ static void P_DoSpring(mobj_t *spring, mobj_t *object)
 	else
 		object->z = spring->z - object->height - 1;
 
-	object->momz = spring->info->speed;
+	// You could have a non-ceiling spring flipped upside down, if you really wanted to...
+	if (!(spring->eflags & MFE_VERTICALFLIP))
+		object->momz = FIXEDSCALE(spring->info->speed,(object->scale+spring->scale)/2);
+	else
+	{
+		object->momz = FIXEDSCALE(-(spring->info->speed),(object->scale+spring->scale)/2);
+		object->z -= FIXEDSCALE(spring->height, spring->scale) + object->height;
+	}
+
+	object->momz = FIXEDSCALE(object->momz, spring->scale);
 
 	P_TryMove(object, object->x, object->y, true);
 
 	if (spring->info->damage)
-	{
-		P_InstaThrustEvenIn2D(object, spring->angle, spring->info->damage);
-	}
+		P_InstaThrustEvenIn2D(object, spring->angle, FIXEDSCALE(spring->info->damage,(object->scale+spring->scale)/2));
 
-	// Don't play animation or sound if the player is a spectator.
-	if (!(object->player && object->player->spectator))
-		P_SetMobjState(spring, spring->info->seestate);
+	P_SetMobjState(spring, spring->info->seestate);
 
 	spring->flags |= MF_SOLID; // Re-solidify
 	if (object->player)
@@ -280,7 +289,15 @@ static boolean PIT_CheckThing(mobj_t *thing)
 
 		if (tmthing->type == MT_SHELL && tmthing->threshold > TICRATE)
 			return true;
-
+#ifdef SEENAMES
+		if (tmthing->type == MT_NAMECHECK)
+		{
+			if (thing->player && tmthing->target->player && thing->player != tmthing->target->player) // Don't hit yourself
+				if (!thing->player->spectator) // Can't see spectators
+					seenplayer = thing->player;
+			return false;
+		}
+#endif
 		// damage / explode
 		if (tmthing->flags & MF_ENEMY) // An actual ENEMY! (Like the deton, for example)
 			P_DamageMobj(thing, tmthing, tmthing, 1);
@@ -470,13 +487,24 @@ static boolean PIT_CheckThing(mobj_t *thing)
 			if ((tmthing->player->powers[pw_invulnerability] || tmthing->player->powers[pw_super])
 				&& !thing->player->powers[pw_super])
 				P_DamageMobj(thing, tmthing, tmthing, 1);
-			else if ((thing->player->powers[pw_invulnerability] || tmthing->player->powers[pw_super])
-				&& !thing->player->powers[pw_super])
+			else if ((thing->player->powers[pw_invulnerability] || thing->player->powers[pw_super])
+				&& !tmthing->player->powers[pw_super])
 				P_DamageMobj(tmthing, thing, thing, 1);
+		}
+
+		// If players are using touch tag, seekers damage hiders.
+		if (gametype == GT_TAG && cv_touchtag.value &&
+			((thing->player->pflags & PF_TAGIT) != (tmthing->player->pflags & PF_TAGIT)))
+		{
+			if ((tmthing->player->pflags & PF_TAGIT) && !(thing->player->pflags & PF_TAGIT))
+				P_DamageMobj(thing, tmthing, tmthing, 1);
+			else if ((thing->player->pflags & PF_TAGIT) && !(tmthing->player->pflags & PF_TAGIT))
+				P_DamageMobj(tmthing, thing, tmthing, 1);
 		}
 	}
 
-	if (cv_tailspickup.value)
+	// Force solid players in hide and seek to avoid corner stacking.
+	if (cv_tailspickup.value && !(gametype == GT_TAG && cv_tagtype.value))
 	{
 		if (tmthing->player && thing->player)
 		{
@@ -505,7 +533,9 @@ static boolean PIT_CheckThing(mobj_t *thing)
 				{
 					if (gametype == GT_RACE
 						|| (netgame && (tmthing->player->spectator || thing->player->spectator))
-						|| (gametype == GT_TAG && (!(tmthing->player->pflags & PF_TAGIT) != !(thing->player->pflags & PF_TAGIT))))
+						|| (gametype == GT_TAG && (!(tmthing->player->pflags & PF_TAGIT) != !(thing->player->pflags & PF_TAGIT)))
+						|| (gametype == GT_MATCH && !cv_matchtype.value)
+						|| ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) && tmthing->player->ctfteam != thing->player->ctfteam))
 						thing->player->pflags &= ~PF_CARRIED;
 					else
 					{
@@ -1977,7 +2007,7 @@ static boolean PTR_SlideCameraTraverse(intercept_t *in)
 	if (opentop - mapcampointer->z < mapcampointer->height)
 		goto isblocking; // mobj is too high
 
-	if (openbottom - mapcampointer->z > 24*FRACUNIT)
+	if (openbottom - mapcampointer->z > 0) // We don't want to make the camera step up.
 		goto isblocking; // too big a step up
 
 	// this line doesn't block movement
@@ -2008,8 +2038,8 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 	subsector_t *glidesector;
 	boolean climb = true;
 
-	platx = P_ReturnThrustX(player->mo, angle, player->mo->radius + 8*FRACUNIT);
-	platy = P_ReturnThrustY(player->mo, angle, player->mo->radius + 8*FRACUNIT);
+	platx = P_ReturnThrustX(player->mo, angle, player->mo->radius + FIXEDSCALE(8*FRACUNIT, player->mo->scale));
+	platy = P_ReturnThrustY(player->mo, angle, player->mo->radius + FIXEDSCALE(8*FRACUNIT, player->mo->scale));
 
 	glidesector = R_PointInSubsector(player->mo->x + platx, player->mo->y + platy);
 
@@ -2027,22 +2057,45 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 
 				floorclimb = true;
 
-				if ((*rover->bottomheight > player->mo->z) && ((player->mo->z - player->mo->momz) > *rover->bottomheight))
+				if (player->mo->eflags & MFE_VERTICALFLIP)
 				{
-					floorclimb = true;
-					boostup = false;
+					if ((*rover->topheight < player->mo->z + player->mo->height) && ((player->mo->z + player->mo->height + player->mo->momz) < *rover->topheight))
+					{
+						floorclimb = true;
+						boostup = false;
+					}
+					if (*rover->topheight < player->mo->z) // Waaaay below the ledge.
+					{
+						floorclimb = false;
+						boostup = false;
+						thrust = false;
+					}
+					if (*rover->bottomheight > player->mo->z + player->mo->height - FIXEDSCALE(16*FRACUNIT,player->mo->scale))
+					{
+						floorclimb = false;
+						thrust = true;
+						boostup = true;
+					}
 				}
-				if (*rover->bottomheight > player->mo->z + player->mo->height) // Waaaay below the ledge.
+				else
 				{
-					floorclimb = false;
-					boostup = false;
-					thrust = false;
-				}
-				if (*rover->topheight < player->mo->z + 16*FRACUNIT)
-				{
-					floorclimb = false;
-					thrust = true;
-					boostup = true;
+					if ((*rover->bottomheight > player->mo->z) && ((player->mo->z - player->mo->momz) > *rover->bottomheight))
+					{
+						floorclimb = true;
+						boostup = false;
+					}
+					if (*rover->bottomheight > player->mo->z + player->mo->height) // Waaaay below the ledge.
+					{
+						floorclimb = false;
+						boostup = false;
+						thrust = false;
+					}
+					if (*rover->topheight < player->mo->z + FIXEDSCALE(16*FRACUNIT,player->mo->scale))
+					{
+						floorclimb = false;
+						thrust = true;
+						boostup = true;
+					}
 				}
 
 				if (floorclimb)
@@ -2050,27 +2103,54 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 			}
 		}
 
-		if ((glidesector->sector->ceilingheight >= player->mo->z)
-			&& ((player->mo->z - player->mo->momz) >= glidesector->sector->ceilingheight))
-			floorclimb = true;
-
-		if (!floorclimb && glidesector->sector->floorheight < player->mo->z + 16*FRACUNIT
-			&& (glidesector->sector->ceilingpic == skyflatnum
-			|| glidesector->sector->ceilingheight
-			> (player->mo->z + player->mo->height + 8*FRACUNIT)))
+		if (player->mo->eflags & MFE_VERTICALFLIP)
 		{
-			thrust = true;
-			boostup = true;
-			// Play climb-up animation here
+			if ((glidesector->sector->floorheight <= player->mo->z + player->mo->height)
+				&& ((player->mo->z + player->mo->momz) <= glidesector->sector->floorheight))
+				floorclimb = true;
+
+			if (!floorclimb && glidesector->sector->ceilingheight > player->mo->z - FIXEDSCALE(16*FRACUNIT,player->mo->scale)
+				&& (glidesector->sector->floorpic == skyflatnum
+				|| glidesector->sector->floorheight
+				< (player->mo->z - FIXEDSCALE(8*FRACUNIT,player->mo->scale))))
+			{
+				thrust = true;
+				boostup = true;
+				// Play climb-up animation here
+			}
+
+			if ((glidesector->sector->floorheight > player->mo->z)
+				&& glidesector->sector->floorpic == skyflatnum)
+				return false;
+
+			if ((player->mo->z + player->mo->height - FIXEDSCALE(16*FRACUNIT,player->mo->scale) > glidesector->sector->ceilingheight)
+				|| (player->mo->z + player->mo->height <= glidesector->sector->floorheight))
+				floorclimb = true;
 		}
+		else
+		{
+			if ((glidesector->sector->ceilingheight >= player->mo->z)
+				&& ((player->mo->z - player->mo->momz) >= glidesector->sector->ceilingheight))
+				floorclimb = true;
 
-		if ((glidesector->sector->ceilingheight < player->mo->z+player->mo->height)
-			&& glidesector->sector->ceilingpic == skyflatnum)
-			return false;
+			if (!floorclimb && glidesector->sector->floorheight < player->mo->z + FIXEDSCALE(16*FRACUNIT,player->mo->scale)
+				&& (glidesector->sector->ceilingpic == skyflatnum
+				|| glidesector->sector->ceilingheight
+				> (player->mo->z + player->mo->height + FIXEDSCALE(8*FRACUNIT,player->mo->scale))))
+			{
+				thrust = true;
+				boostup = true;
+				// Play climb-up animation here
+			}
 
-		if ((player->mo->z + 16*FRACUNIT < glidesector->sector->floorheight)
-			|| (player->mo->z >= glidesector->sector->ceilingheight))
-			floorclimb = true;
+			if ((glidesector->sector->ceilingheight < player->mo->z+player->mo->height)
+				&& glidesector->sector->ceilingpic == skyflatnum)
+				return false;
+
+			if ((player->mo->z + FIXEDSCALE(16*FRACUNIT,player->mo->scale) < glidesector->sector->floorheight)
+				|| (player->mo->z >= glidesector->sector->ceilingheight))
+				floorclimb = true;
+		}
 
 		climb = false;
 
@@ -2110,7 +2190,7 @@ static boolean PTR_SlideTraverse(intercept_t *in)
 	if (opentop - slidemo->z < slidemo->height)
 		goto isblocking; // mobj is too high
 
-	if (openbottom - slidemo->z > 24*FRACUNIT)
+	if (openbottom - slidemo->z > FIXEDSCALE(MAXSTEPMOVE, slidemo->scale))
 		goto isblocking; // too big a step up
 
 	// this line doesn't block movement
@@ -2554,8 +2634,8 @@ bounceback:
 	}
 	else if (mo->type == MT_THROWNBOUNCE)
 	{
-		tmxmove = FixedMul(mmomx, (FRACUNIT - (FRACUNIT>>3) - (FRACUNIT>>4)));
-		tmymove = FixedMul(mmomy, (FRACUNIT - (FRACUNIT>>3) - (FRACUNIT>>4)));
+		tmxmove = FixedMul(mmomx, (FRACUNIT - (FRACUNIT>>6) - (FRACUNIT>>5)));
+		tmymove = FixedMul(mmomy, (FRACUNIT - (FRACUNIT>>6) - (FRACUNIT>>5)));
 	}
 	else
 	{

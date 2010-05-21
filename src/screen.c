@@ -112,7 +112,7 @@ void SCR_SetMode(void)
 	//
 	//  setup the right draw routines for either 8bpp or 16bpp
 	//
-	if (vid.bpp == 1)
+	if (true)//vid.bpp == 1) //Always run in 8bpp. todo: remove all 16bpp code?
 	{
 		basespanfunc = R_DrawSpan_8;
 		spanfunc = basespanfunc;
@@ -149,7 +149,7 @@ void SCR_SetMode(void)
 		}*/
 #endif
 	}
-	else if (vid.bpp > 1)
+/*	else if (vid.bpp > 1)
 	{
 		CONS_Printf("using highcolor mode\n");
 		spanfunc = basespanfunc = R_DrawSpan_16;
@@ -160,7 +160,7 @@ void SCR_SetMode(void)
 		shadecolfunc = NULL; // detect error if used somewhere..
 		fuzzcolfunc = R_DrawTranslucentColumn_16;
 		walldrawerfunc = R_DrawWallColumn_16;
-	}
+	}*/
 	else
 		I_Error("unknown bytes per pixel mode %d\n", vid.bpp);
 #ifndef DC

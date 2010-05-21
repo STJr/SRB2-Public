@@ -1127,10 +1127,10 @@ static boolean PolyWaypoint(line_t *line)
 	pwd.polyObjNum = line->tag;
 	pwd.speed      = sides[line->sidenum[0]].textureoffset / 8;
 	pwd.sequence   = sides[line->sidenum[0]].rowoffset >> FRACBITS; // Sequence #
-	pwd.reverse    = (line->flags & ML_EFFECT1); // Reverse?
-	pwd.comeback   = (line->flags & ML_EFFECT2); // Return when reaching end?
-	pwd.wrap       = (line->flags & ML_EFFECT3); // Wrap around waypoints
-	pwd.continuous = (line->flags & ML_EFFECT4); // Continuously move - used with COMEBACK or WRAP
+	pwd.reverse    = (line->flags & ML_EFFECT1) == ML_EFFECT1; // Reverse?
+	pwd.comeback   = (line->flags & ML_EFFECT2) == ML_EFFECT2; // Return when reaching end?
+	pwd.wrap       = (line->flags & ML_EFFECT3) == ML_EFFECT3; // Wrap around waypoints
+	pwd.continuous = (line->flags & ML_EFFECT4) == ML_EFFECT4; // Continuously move - used with COMEBACK or WRAP
 
 	return EV_DoPolyObjWaypoint(&pwd);
 }
@@ -2295,7 +2295,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 			break;
 
 		case 420: // Fade light levels in tagged sectors to new value
-			P_FadeLight(line->tag, sectors[secnum].lightlevel, P_AproxDistance(line->dx, line->dy));
+			P_FadeLight(line->tag, line->frontsector->lightlevel, P_AproxDistance(line->dx, line->dy)>>FRACBITS);
 			break;
 
 		case 421: // Stop lighting effect in tagged sectors
@@ -2791,9 +2791,8 @@ void P_ProcessSpecialSector(player_t *player, sector_t *sector, sector_t *rovers
 	section3 = GETSECSPECIAL(sector->special, 3);
 	section4 = GETSECSPECIAL(sector->special, 4);
 
-	// CTF Spectators can't activate any sector specials... except when stepping on a base.
-	if (gametype == GT_CTF && player->spectator
-		&& !(section4 == 3 || section4 == 4))
+	// Ignore spectators
+	if (player->spectator)
 		return;
 
 	// Conveyor stuff
@@ -2873,8 +2872,8 @@ void P_ProcessSpecialSector(player_t *player, sector_t *sector, sector_t *rovers
 				player->powers[pw_flashing] = flashingtics;
 
 				player->powers[pw_fireflower] = false;
-				player->mo->flags = (player->mo->flags & ~MF_TRANSLATION)
-					| ((player->skincolor)<<MF_TRANSSHIFT);
+				player->mo->flags |= MF_TRANSLATION;
+				player->mo->color = (UINT8)player->skincolor;
 
 				P_ResetPlayer(player);
 
@@ -3080,7 +3079,7 @@ DoneSection2:
 			break;
 		}
 
-		case 2: // Special stage GOAL sector / No Tag Zone / Exit Sector / CTF Flag Return
+		case 2: // Special stage GOAL sector / Exit Sector / CTF Flag Return
 			if (!useNightsSS && sstimer > 6 && gamemap >= sstage_start && gamemap <= sstage_end)
 				sstimer = 6; // Just let P_Ticker take care of the rest.
 
@@ -3126,13 +3125,11 @@ DoneSection2:
 				{
 					if (player == &players[consoleplayer])
 					{
-						COM_BufAddText("changeteam red");
-						COM_BufExecute();
+						COM_ImmedExecute("changeteam red");
 					}
 					else if (splitscreen && player == &players[secondarydisplayplayer])
 					{
-						COM_BufAddText("changeteam2 red");
-						COM_BufExecute();
+						COM_ImmedExecute("changeteam2 red");
 					}
 					break;
 				}
@@ -3217,13 +3214,11 @@ DoneSection2:
 				{
 					if (player == &players[consoleplayer])
 					{
-						COM_BufAddText("changeteam blue");
-						COM_BufExecute();
+						COM_ImmedExecute("changeteam blue");
 					}
 					else if (splitscreen && player == &players[secondarydisplayplayer])
 					{
-						COM_BufAddText("changeteam2 blue");
-						COM_BufExecute();
+						COM_ImmedExecute("changeteam2 blue");
 					}
 					break;
 				}
@@ -4082,7 +4077,7 @@ static void P_RunSpecialSectorCheck(player_t *player, sector_t *sector)
 	// Check Section 4
 	switch(GETSECSPECIAL(sector->special, 4))
 	{
-		case 2: // Level Exit / GOAL Sector / No Tag Zone / Flag Return
+		case 2: // Level Exit / GOAL Sector / Flag Return
 			if (!useNightsSS && gamemap >= sstage_start && gamemap <= sstage_end)
 			{
 				// Special stage GOAL sector
@@ -4338,6 +4333,9 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 	friction_t *f;
 	pusher_t *p;
 	levelspecthink_t *lst;
+
+	if (sec == sec2)
+		return false; //Don't need a fake floor on a control sector.
 
 	if (sec2->ceilingheight < sec2->floorheight)
 		I_Error("One of your FOFs with a tag of %d has a top height less than that of the bottom.\n", master->tag);
@@ -4807,10 +4805,8 @@ void T_LaserFlash(laserthink_t *flash)
 	ffloor_t *ffloor = flash->ffloor;
 	sector_t *sector = flash->sector;
 
-#ifdef REMOVE_FOR_205
 	if (!ffloor)
 		flash->ffloor = ffloor = P_AddFakeFloor(sector, flash->sec, flash->sourceline, laserflags);
-#endif
 
 	if (!ffloor || !(ffloor->flags & FF_EXISTS))
 		return;
@@ -4866,10 +4862,8 @@ static inline void EV_AddLaserThinker(sector_t *sec, sector_t *sec2, line_t *lin
 	flash->thinker.function.acp1 = (actionf_p1)T_LaserFlash;
 	flash->ffloor = ffloor;
 	flash->sector = sec; // For finding mobjs
-#ifdef REMOVE_FOR_205
-	flash->sec = sec2; // For finding mobjs
+	flash->sec = sec2;
 	flash->sourceline = line;
-#endif
 }
 
 //
@@ -6275,7 +6269,7 @@ static void P_SpawnScrollers(void)
 			special -= 2;
 			control = (INT32)(sides[*l->sidenum].sector - sectors);
 		}
-		else if (special == 514 || special == 511 || special == 521 || special == 531 || special == 504) // accelerative scrollers
+		else if (special == 514 || special == 511 || special == 521 || special == 531 || special == 503) // accelerative scrollers
 		{
 			special--;
 			accel = 1;
@@ -6636,7 +6630,7 @@ static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *
 	{
 		// where force goes to zero
 		if (type == p_push)
-			p->radius = (source->angle / (ANGLE_45 / 90))<<(FRACBITS+1);
+			p->radius = AngleFixed(source->angle);
 		else
 			p->radius = (p->magnitude)<<(FRACBITS+1);
 
@@ -6895,7 +6889,9 @@ void T_Pusher(pusher_t *p)
 		if (!(thing->flags & MF_PUSHABLE) && !(thing->type == MT_PLAYER
 											|| thing->type == MT_SMALLBUBBLE
 											|| thing->type == MT_MEDIUMBUBBLE
-											|| thing->type == MT_EXTRALARGEBUBBLE))
+											|| thing->type == MT_EXTRALARGEBUBBLE
+											|| thing->type == MT_LITTLETUMBLEWEED
+											|| thing->type == MT_BIGTUMBLEWEED))
 			continue;
 
 		if (thing->flags2 & MF2_PUSHED)
@@ -7028,6 +7024,10 @@ void T_Pusher(pusher_t *p)
 				thing->player->cmomx = FixedMul(thing->player->cmomx, ORIG_FRICTION);
 				thing->player->cmomy = FixedMul(thing->player->cmomy, ORIG_FRICTION);
 			}
+
+			// Tumbleweeds bounce a bit...
+			if (thing->type == MT_LITTLETUMBLEWEED || thing->type == MT_BIGTUMBLEWEED)
+				thing->momz += P_AproxDistance(xspeed<<(FRACBITS-PUSH_FACTOR), yspeed<<(FRACBITS-PUSH_FACTOR)) >> 2;
 		}
 
 		if (moved)

@@ -23,10 +23,13 @@
 #include "doomdata.h"
 #include "r_defs.h"
 
+// map md5, sent to players via PT_SERVERINFO
+extern unsigned char mapmd5[16];
+
 // Player spawn spots for deathmatch.
 #define MAX_DM_STARTS 64
 extern mapthing_t *deathmatchstarts[MAX_DM_STARTS];
-extern INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts, numtagstarts;
+extern INT32 numdmstarts, numcoopstarts, numredctfstarts, numbluectfstarts;
 
 extern boolean levelloading;
 

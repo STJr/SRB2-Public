@@ -29,6 +29,9 @@ extern char timeattackfolder[64];
 extern char customversionstring[32];
 #define GAMEDATASIZE (1*8192)
 
+#ifdef SEENAMES
+extern player_t *seenplayer;
+#endif
 extern char player_names[MAXPLAYERS][MAXPLAYERNAME+1];
 
 extern player_t players[MAXPLAYERS];

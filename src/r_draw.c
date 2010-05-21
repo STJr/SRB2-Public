@@ -146,9 +146,7 @@ const char *Color_Names[MAXSKINCOLORS] =
 	"Yellow", // By insane popular demand
 };
 
-CV_PossibleValue_t Color_cons_t[] = {{0, NULL}, {1, NULL}, {2, NULL}, {3, NULL},
-	{4, NULL}, {5, NULL}, {6, NULL}, {7, NULL}, {8, NULL}, {9, NULL}, {10, NULL},
-	{11, NULL}, {12, NULL}, {13, NULL}, {14, NULL}, {15, NULL}, {0,NULL}};
+CV_PossibleValue_t Color_cons_t[MAXSKINCOLORS+1];
 
 /**	\brief the R_LoadSkinTable
 
@@ -203,6 +201,7 @@ void R_InitTranslationTables(void)
 		{
 			bi = (UINT8)(i & 0xf);
 
+			// todo: Is there any particular reason why every color in the palette cannot become a player color?
 			defaulttranslationtables[i      ] = (UINT8)(0xd0 + bi); // Cyan
 			defaulttranslationtables[i+  256] = (UINT8)(0x40 + bi); // Peach // Tails 02-19-2000
 			defaulttranslationtables[i+2*256] = (UINT8)(0xf8 + bi/2); // Lavender
@@ -267,8 +266,8 @@ void R_InitTranslationTables(void)
 		}
 		else // Keep other colors as is.
 		{
-			for (j = 0; j < MAXSKINCOLORS*256; j += 256)
-				defaulttranslationtables[i+j] = (UINT8)i;
+			for (j = 0; j < MAXSKINCOLORS; j++)
+				defaulttranslationtables[i+j*256] = (UINT8)i;
 		}
 	}
 

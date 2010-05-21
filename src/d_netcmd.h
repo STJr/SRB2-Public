@@ -26,6 +26,9 @@
 // console vars
 extern consvar_t cv_playername;
 extern consvar_t cv_playercolor;
+#ifdef SEENAMES
+extern consvar_t cv_seenames, cv_allowseenames;
+#endif
 extern consvar_t cv_usemouse;
 extern consvar_t cv_usejoystick;
 extern consvar_t cv_usejoystick2;
@@ -64,6 +67,7 @@ extern consvar_t cv_playercolor2;
 extern consvar_t cv_skin2;
 
 extern consvar_t cv_tagtype;
+extern consvar_t cv_touchtag;
 extern consvar_t cv_hidetime;
 
 extern consvar_t cv_matchtype;
@@ -122,6 +126,10 @@ extern consvar_t cv_chaos_crawlacommander, cv_chaos_jettysynbomber, cv_chaos_jet
 extern consvar_t cv_chaos_eggmobile1, cv_chaos_eggmobile2, cv_chaos_skim;
 #endif
 
+#ifdef NEWPING
+extern consvar_t cv_maxping;
+#endif
+
 // hacks for menu system.
 extern consvar_t cv_dummyteam, cv_dummyscramble;
 
@@ -157,7 +165,6 @@ typedef enum
 	XD_REQADDFILE,  // 18
 	XD_DELFILE,     // 19
 	XD_SETMOTD,     // 20
-	XD_CONSISTENCY, // 21
 	MAXNETXCMD
 } netxcmd_t;
 

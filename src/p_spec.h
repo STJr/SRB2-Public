@@ -96,10 +96,8 @@ typedef struct
 	thinker_t thinker; ///< Thinker structure for laser.
 	ffloor_t *ffloor;  ///< 3Dfloor that is a laser.
 	sector_t *sector;  ///< Sector in which the effect takes place.
-#ifdef REMOVE_FOR_205
 	sector_t *sec;
 	line_t *sourceline;
-#endif
 } laserthink_t;
 
 /** Strobe light action structure..
@@ -202,16 +200,14 @@ typedef struct
 	fixed_t oldspeed;
 	fixed_t delay;
 	fixed_t delaytimer;
-	INT32 crush;          ///< Whether to crush things or not.
+	UINT8 crush;           ///< Whether to crush things or not.
+
 	INT32 texture;        ///< The number of a flat to use when done.
 	INT32 direction;      ///< 1 = up, 0 = waiting, -1 = down.
 
 	// ID
 	INT32 tag;
 	INT32 olddirection;
-#ifndef REMOVE_FOR_205
-	struct ceilinglist *list;
-#endif
 	fixed_t origspeed;    ///< The original, "real" speed.
 	INT32 sourceline;     ///< Index of the source linedef
 } ceiling_t;
@@ -266,7 +262,7 @@ typedef struct
 {
 	thinker_t thinker;
 	floor_e type;
-	INT32 crush;
+	UINT8 crush;
 	sector_t *sector;
 	INT32 direction;
 	INT32 texture;
@@ -299,20 +295,10 @@ typedef struct
 	line_t *sourceline;
 } elevator_t;
 
-// Generic thinker for various level specials
-typedef enum
-{
-	lt_spikes,
-} levelspec_e;
-
 typedef struct
 {
 	thinker_t thinker;
-	levelspec_e type;
 	fixed_t vars[16];   // Misc. variables
-#ifndef REMOVE_FOR_205
-	mobj_t *activator;  // Mobj that activated this thinker
-#endif
 	line_t *sourceline; // Source line of the thinker
 	sector_t *sector;   // Sector the thinker is from
 } levelspecthink_t;

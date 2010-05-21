@@ -61,8 +61,8 @@
 #define MISSILERANGE (32*64*FRACUNIT)
 
 #define AIMINGTOSLOPE(aiming) FINESINE((aiming>>ANGLETOFINESHIFT) & FINEMASK)
-#define FIXEDSCALE(x,y) FixedDiv(FixedMul((y)<<FRACBITS,(x)),100<<FRACBITS)
-#define FIXEDUNSCALE(x,y) ((y) == 0 ? 0 : FixedDiv(FixedMul((100<<FRACBITS),(x)),(y)<<FRACBITS))
+#define FIXEDSCALE(x,y) FixedMul(FixedDiv((y)<<FRACBITS,100<<FRACBITS),(x))
+#define FIXEDUNSCALE(x,y) ((y) == 0 ? 0 : FixedMul(FixedDiv((100<<FRACBITS),(y)<<FRACBITS),(x)))
 
 #define mariomode (maptol & TOL_MARIO)
 #define twodlevel (maptol & TOL_2D)
@@ -202,9 +202,12 @@ mobj_t *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type);
 mobj_t *P_SpawnXYZMissile(mobj_t *source, mobj_t *dest, mobjtype_t type, fixed_t x, fixed_t y, fixed_t z);
 mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, boolean noaiming, boolean noautoaim, INT32 flags2, boolean reflected);
 #define P_SpawnPlayerMissile(s,t,f,r) P_SPMAngle(s,t,s->angle,false,false,f,r)
+#ifdef SEENAMES
+#define P_SpawnNameFinder(s,t) P_SPMAngle(s,t,s->angle,false, true, false, false)
+#endif
 void P_ColorTeamMissile(mobj_t *missile, player_t *source);
 
-void P_CameraThinker(camera_t *thiscam);
+void P_CameraThinker(player_t *player, camera_t *thiscam);
 
 void P_Attract(mobj_t *source, mobj_t *enemy, boolean nightsgrab);
 mobj_t *P_GetClosestAxis(mobj_t *source);
@@ -345,7 +348,6 @@ boolean P_Teleport(mobj_t *thing, fixed_t x, fixed_t y, fixed_t z, angle_t angle
 boolean P_SetMobjStateNF(mobj_t *mobj, statenum_t state);
 boolean P_CheckMissileSpawn(mobj_t *th);
 void P_Thrust(mobj_t *mo, angle_t angle, fixed_t move);
-fixed_t P_ScaleMomentum(UINT16 scale, fixed_t momentum);
 void P_DoSuperTransformation(player_t *player, boolean giverings);
 void P_ExplodeMissile(mobj_t *mo);
 void P_CheckGravity(mobj_t *mo, boolean affect);

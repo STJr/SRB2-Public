@@ -1448,7 +1448,9 @@ Private Sub LoadObjectInfo(ThingNum As Integer)
         line = FindPowerNum(line) & " - " & line
     End If
     txtHeight.Text = line
-    
+
+    line = ts.ReadLine 'Display order offset (add support, please!)
+
     line = ts.ReadLine
     Do While InStr(line, "mass") = 0
     Loop

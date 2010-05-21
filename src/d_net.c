@@ -184,17 +184,22 @@ typedef struct
 	UINT8 nextacknum;
 
 	UINT8 flags;
+#ifndef NEWPING
 	// jacobson tcp timeout evaluation algorithm (Karn variation)
 	fixed_t ping;
 	fixed_t varping;
 	INT32 timeout; // computed with ping and varping
+#endif
 } node_t;
 
 static node_t nodes[MAXNETNODES];
-
+#ifndef NEWPING
 #define PINGDEFAULT ((200*TICRATE*FRACUNIT)/1000)
 #define VARPINGDEFAULT ((50*TICRATE*FRACUNIT)/1000)
 #define TIMEOUT(p,v) (p+4*v+FRACUNIT/2)>>FRACBITS;
+#else
+#define NODETIMEOUT 14 //What the above boiled down to...
+#endif
 
 // return <0 if a < b (mod 256)
 //         0 if a = n (mod 256)
@@ -274,6 +279,7 @@ static UINT8 GetAcktosend(INT32 node)
 static void Removeack(INT32 i)
 {
 	INT32 node = ackpak[i].destinationnode;
+#ifndef NEWPING
 	fixed_t trueping = (I_GetTime() - ackpak[i].senttime)<<FRACBITS;
 	if (ackpak[i].resentnum)
 	{
@@ -283,6 +289,9 @@ static void Removeack(INT32 i)
 		nodes[node].timeout = TIMEOUT(nodes[node].ping,nodes[node].varping);
 	}
 	DEBFILE(va("Remove ack %d trueping %d ping %f var %f timeout %d\n",ackpak[i].acknum,trueping>>FRACBITS,(double)FIXED_TO_FLOAT(nodes[node].ping),(double)FIXED_TO_FLOAT(nodes[node].varping),nodes[node].timeout));
+#else
+	DEBFILE(va("Remove ack %d\n",ackpak[i].acknum));
+#endif
 	ackpak[i].acknum = 0;
 	if (nodes[node].flags & CLOSE)
 		Net_CloseConnection(node);
@@ -457,7 +466,11 @@ void Net_AckTicker(void)
 	{
 		const INT32 nodei = ackpak[i].destinationnode;
 		node_t *node = &nodes[nodei];
+#ifdef NEWPING
+		if (ackpak[i].acknum && ackpak[i].senttime + NODETIMEOUT < I_GetTime())
+#else
 		if (ackpak[i].acknum && ackpak[i].senttime + node->timeout < I_GetTime())
+#endif
 		{
 			if (ackpak[i].resentnum > 10 && (node->flags & CLOSE))
 			{
@@ -468,8 +481,13 @@ void Net_AckTicker(void)
 				ackpak[i].acknum = 0;
 				continue;
 			}
+#ifdef NEWPING
+			DEBFILE(va("Resend ack %d, %u<%d at %u\n", ackpak[i].acknum, ackpak[i].senttime,
+				NODETIMEOUT, I_GetTime()));
+#else
 			DEBFILE(va("Resend ack %d, %u<%d at %u\n", ackpak[i].acknum, ackpak[i].senttime,
 				node->timeout, I_GetTime()));
+#endif
 			M_Memcpy(netbuffer, ackpak[i].pak.raw, ackpak[i].length);
 			ackpak[i].senttime = I_GetTime();
 			ackpak[i].resentnum++;
@@ -567,9 +585,11 @@ void Net_WaitAllAckReceived(UINT32 timeout)
 static void InitNode(INT32 node)
 {
 	nodes[node].acktosend_head = nodes[node].acktosend_tail = 0;
+#ifndef NEWPING
 	nodes[node].ping = PINGDEFAULT;
 	nodes[node].varping = VARPINGDEFAULT;
 	nodes[node].timeout = TIMEOUT(nodes[node].ping,nodes[node].varping);
+#endif
 	nodes[node].firstacktosend = 0;
 	nodes[node].nextacknum = 1;
 	nodes[node].remotefirstack = 0;
@@ -735,6 +755,18 @@ static void DebugPrintpacket(const char *header)
 			fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(size_t)(
 				&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			break;
+		case PT_CONSISTENCY:
+			fprintf(debugfile, "    randomseed %d playernum %d hasmo %d\n",
+				netbuffer->u.consistency.randomseed, netbuffer->u.consistency.playernum, netbuffer->u.consistency.hasmo);
+			fprintf(debugfile, "    x %d y %d z %d momx %d momy %d momz %d\n",
+				netbuffer->u.consistency.x, netbuffer->u.consistency.y, netbuffer->u.consistency.z,
+				netbuffer->u.consistency.momx, netbuffer->u.consistency.momy, netbuffer->u.consistency.momz);
+			fprintf(debugfile, "    angle %d health %d eflags %d flags %d flags2 %d\n",
+				netbuffer->u.consistency.angle, netbuffer->u.consistency.health, netbuffer->u.consistency.eflags,
+				netbuffer->u.consistency.flags, netbuffer->u.consistency.flags2);
+			fprintf(debugfile, "    friction %d movefactor %d tics %d statenum %d\n",
+				netbuffer->u.consistency.friction, netbuffer->u.consistency.movefactor,
+				netbuffer->u.consistency.tics, (INT32)netbuffer->u.consistency.statenum);
 		case PT_CLIENTCMD:
 		case PT_CLIENT2CMD:
 		case PT_CLIENTMIS:
@@ -1090,18 +1122,27 @@ boolean D_CheckNetGame(void)
 
 void Command_Ping_f(void)
 {
+#ifndef NEWPING
 	if(server)
 	{
+#endif
 		INT32 i;
 		for (i = 0; i < MAXPLAYERS;i++)
 		{
+#ifndef NEWPING
 			const INT32 node = playernode[i];
 			if (playeringame[i] && node != 0)
 				CONS_Printf(text[CMD_PING], i, player_names[i],
 				GetLag(node), G_TicsToMilliseconds(GetLag(node)));
+#else
+			if (playeringame[i] && i != 0)
+				CONS_Printf(text[CMD_PING], i, player_names[i], playerpingtable[i]);
+#endif
 		}
+#ifndef NEWPING
 	}
 	else CONS_Printf("%s", text[YOUARENOTTHESERVER]);
+#endif
 }
 
 void D_CloseConnection(void)

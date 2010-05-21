@@ -2010,10 +2010,61 @@ void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed)
 // Write a string using the hu_font
 // NOTE: the text is centered for screens larger than the base width
 //
+static void V_DrawWordWrapString(INT32 x, INT32 y, INT32 option, const char *string)
+{
+	char newstring[1024];
+	int c;
+	size_t nx = x, i, lastusablespace = 0;
+
+	strncpy(newstring, string, 1024);
+
+	for (i = 0; i < strlen(newstring); i++)
+	{
+		c = newstring[i];
+		if ((UINT8)c >= 0x80 && (UINT8)c <= 0x89) //color parsing! -Inuyasha 2.16.09
+			continue;
+
+		c = toupper(c) - HU_FONTSTART;
+		if (c < 0 || (c >= HU_REALFONTSIZE && c != '~' - HU_FONTSTART && c != '`' - HU_FONTSTART)
+			|| hu_font[c] == NULL)
+		{
+			nx += 4;
+			lastusablespace = i;
+		}
+		else
+			nx += 8;
+
+		if (lastusablespace != 0 && nx > BASEVIDWIDTH-8)
+		{
+			newstring[lastusablespace] = '\n';
+			nx = x + ((i-lastusablespace)*8);
+			lastusablespace = 0;
+		}
+	}
+
+	//Oh the hilarity.
+	//Just call V_DrawString with the new string...
+	//Clear word wrap flag, first, though.  Obvious reasons.
+	option &= ~V_WORDWRAP;
+	V_DrawString(x, y, option, newstring);
+}
+
+//
+// Write a string using the hu_font
+// NOTE: the text is centered for screens larger than the base width
+//
 void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 {
-	INT32 r, w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
-	const char *ch = string, *q;
+	INT32 w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
+	const char *ch = string;
+	UINT8 lastcolorchar = 0x80; //for dynamic colors
+	const UINT8 *colormap = NULL;
+
+	if (option & V_WORDWRAP)
+	{
+		V_DrawWordWrapString(x, y, option, string);
+		return;
+	}
 
 	if (option & V_NOSCALESTART)
 	{
@@ -2029,6 +2080,11 @@ void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 		c = *ch++;
 		if (!c)
 			break;
+		if ((UINT8)c >= 0x80 && (UINT8)c <= 0x89) //color parsing -x 2.16.09
+		{
+			lastcolorchar = (UINT8)c;
+			continue;
+		}
 		if (c == '\n')
 		{
 			cx = x;
@@ -2054,43 +2110,38 @@ void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 		w = SHORT(hu_font[c]->width) * dupx;
 		if (cx + w > scrwidth)
 			break;
-
-		if (option & V_WORDWRAP)
+		if (cx < 0) //left boundary check
 		{
-			q = ch-1;
-			r = 0;
-
-			while (q[r] != 0 && q[r] != 0x20)
-			{
-				r++;
-				if ((q[r] == 0x20 || q[r] == 0x00) && (cx + w*r > scrwidth)) // Encountered a space
-				{
-					if (option & V_RETURN8)
-						cy += 8*dupy;
-					else
-						cy += 12*dupy;
-
-					cx = x;
-					break;
-				}
-			}
+			cx += w;
+			continue;
 		}
 
-		if ((option & V_YELLOWMAP) && ((option & V_TRANSLUCENT)
-			|| (option & V_8020TRANS)))
-			V_DrawTranslucentMappedPatch(cx, cy, option, hu_font[c], yellowmap);
-		else if ((option & V_GREENMAP) && ((option & V_TRANSLUCENT)
-			|| (option & V_8020TRANS)))
-			V_DrawTranslucentMappedPatch(cx, cy, option, hu_font[c], lgreenmap);
-		else if (option & V_YELLOWMAP)
-			V_DrawMappedPatch(cx, cy, option, hu_font[c], yellowmap);
-		else if (option & V_GREENMAP)
-			V_DrawMappedPatch(cx, cy, option, hu_font[c], lgreenmap);
-		else if ((option & V_TRANSLUCENT)
-			|| (option & V_8020TRANS))
+		if ((option & V_YELLOWMAP) || lastcolorchar == 0x82)
+			colormap = yellowmap;
+		else if ((option & V_GREENMAP) || lastcolorchar == 0x83)
+			colormap = lgreenmap;
+		else if (lastcolorchar == 0x81)
+			colormap = purplemap;
+		else if (lastcolorchar == 0x84)
+			colormap = bluemap;
+		else if (lastcolorchar == 0x85)
+			colormap = redmap;
+		else if (lastcolorchar == 0x86)
+			colormap = graymap;
+		else if (lastcolorchar == 0x87)
+			colormap = orangemap;
+		else if (lastcolorchar == 0x80)
+			colormap = NULL;
+
+		if (colormap != NULL && ((option & V_TRANSLUCENT) || (option & V_8020TRANS)))
+			V_DrawTranslucentMappedPatch(cx, cy, option, hu_font[c], colormap);
+		else if (colormap != NULL)
+			V_DrawMappedPatch(cx, cy, option, hu_font[c], colormap);
+		else if ((option & V_TRANSLUCENT) || (option & V_8020TRANS))
 			V_DrawTranslucentPatch(cx, cy, option & ~V_TRANSLUCENT, hu_font[c]);
 		else
 			V_DrawScaledPatch(cx, cy, option, hu_font[c]);
+
 		cx += w;
 	}
 }
@@ -2105,6 +2156,62 @@ void V_DrawRightAlignedString(INT32 x, INT32 y, INT32 option, const char *string
 {
 	x -= V_StringWidth(string);
 	V_DrawString(x, y, option, string);
+}
+
+// Draw a tiny number, yay.
+//
+void V_DrawTinyNum(INT32 x, INT32 y, INT32 c, INT32 num)
+{
+	INT32 w = SHORT(tinynum[0]->width);
+	INT32 tempnum = num;
+
+	// special case for 0
+	if (!num)
+	{
+		if ((c & V_YELLOWMAP) && ((c & V_TRANSLUCENT) || (c & V_8020TRANS)))
+			V_DrawTranslucentMappedPatch(x, y, c, tinynum[0], yellowmap);
+		else if ((c & V_GREENMAP) && ((c & V_TRANSLUCENT) || (c & V_8020TRANS)))
+			V_DrawTranslucentMappedPatch(x, y, c, tinynum[0], lgreenmap);
+		else if (c & V_YELLOWMAP)
+			V_DrawMappedPatch(x, y, c, tinynum[0], yellowmap);
+		else if (c & V_GREENMAP)
+			V_DrawMappedPatch(x, y, c, tinynum[0], lgreenmap);
+		else if ((c & V_TRANSLUCENT) || (c & V_8020TRANS))
+			V_DrawTranslucentPatch(x, y, c & ~V_TRANSLUCENT, tinynum[0]);
+		else
+			V_DrawScaledPatch(x, y, c, tinynum[0]);
+		return;
+	}
+
+	I_Assert(num >= 0); // this function does not draw negative numbers
+
+	// Position the string correctly.
+	while (tempnum)
+	{
+		x += w;
+		tempnum /= 10;
+	}
+
+	// draw the number
+	while (num)
+	{
+		x -= w;
+
+		if ((c & V_YELLOWMAP) && ((c & V_TRANSLUCENT) || (c & V_8020TRANS)))
+			V_DrawTranslucentMappedPatch(x, y, c, tinynum[num % 10], yellowmap);
+		else if ((c & V_GREENMAP) && ((c & V_TRANSLUCENT) || (c & V_8020TRANS)))
+			V_DrawTranslucentMappedPatch(x, y, c, tinynum[num % 10], lgreenmap);
+		else if (c & V_YELLOWMAP)
+			V_DrawMappedPatch(x, y, c, tinynum[num % 10], yellowmap);
+		else if (c & V_GREENMAP)
+			V_DrawMappedPatch(x, y, c, tinynum[num % 10], lgreenmap);
+		else if ((c & V_TRANSLUCENT) || (c & V_8020TRANS))
+			V_DrawTranslucentPatch(x, y, c & ~V_TRANSLUCENT, tinynum[num % 10]);
+		else
+			V_DrawScaledPatch(x, y, c, tinynum[num % 10]);
+
+		num /= 10;
+	}
 }
 
 // Write a string using the credit font
@@ -2268,7 +2375,11 @@ INT32 V_StringWidth(const char *string)
 
 	for (i = 0; i < strlen(string); i++)
 	{
-		c = toupper(string[i]) - HU_FONTSTART;
+		c = string[i];
+		if ((UINT8)c >= 0x80 && (UINT8)c <= 0x89) //color parsing! -Inuyasha 2.16.09
+			continue;
+
+		c = toupper(c) - HU_FONTSTART;
 		if (c < 0 || (c >= HU_REALFONTSIZE && c != '~' - HU_FONTSTART && c != '`' - HU_FONTSTART)
 			|| hu_font[c] == NULL)
 		{
