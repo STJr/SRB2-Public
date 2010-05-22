@@ -182,7 +182,7 @@ static INT32 musicvol = 62;
 #if SDL_MIXER_VERSION_ATLEAST(1,2,2)
 #define MIXER_POS //Mix_FadeInMusicPos in 1.2.2+
 static void SDLCALL I_FinishMusic(void);
-static long double loopstartDig = 0.0l;
+static double loopstartDig = 0.0l;
 static SDL_bool loopingDig = SDL_FALSE;
 static SDL_bool canlooping = SDL_TRUE;
 #endif
@@ -520,7 +520,7 @@ static inline void I_SetChannels(void)
 	// This table provides step widths for pitch parameters.
 	for (i = -128; i < 128; i++)
 	{
-		const double po = pow((double)(2.0l), (double)((long double)i/1024.0l));
+		const double po = pow((double)(2.0l), (double)((double)i/1024.0l));
 		steptablemid[i] = (INT32)po;
 	}
 
