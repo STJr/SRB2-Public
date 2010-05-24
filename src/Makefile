@@ -557,6 +557,9 @@ $(OBJDIR)/v_video.o: v_video.c doomdef.h doomtype.h g_state.h m_swap.h r_local.h
 	$(CC) $(CFLAGS) -fno-omit-frame-pointer $(WFLAGS) -c $< -o $@
 endif
 
+$(OBJDIR)/comptime.o: comptime.c pre-build
+	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
+
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 
