@@ -52,7 +52,7 @@ static void OnTop_OnChange(void);
 // synchronize page flipping with screen refresh
 static CV_PossibleValue_t CV_NeverOnOff[] = {{-1, "Never"}, {0, "Off"}, {1, "On"}, {0, NULL}};
 consvar_t cv_vidwait = {"vid_wait", "On", CV_SAVE, CV_OnOff, OnTop_OnChange, 0, NULL, NULL, 0, 0, NULL};
-static consvar_t cv_stretch = {"stretch", "Off", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+static consvar_t cv_stretch = {"stretch", "On", CV_SAVE|CV_NOSHOWHELP, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 static consvar_t cv_ontop = {"ontop", "Never", 0, CV_NeverOnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 boolean highcolor;
