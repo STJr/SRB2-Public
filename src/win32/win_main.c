@@ -110,6 +110,11 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 		case WM_ACTIVATEAPP:           // Handle task switching
 			appActive = (int)wParam;
+
+			//coming back from alt-tab?  reset the palette.
+			if (appActive)
+				vid.recalc = true;
+
 			// pause music when alt-tab
 			if (appActive  && !paused)
 				I_ResumeSong(0);
@@ -143,8 +148,6 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				EndPaint (hWnd, &ps);
 				return 0;
 			}
-			else
-				RestoreDDPalette();
 
 			break;
 
