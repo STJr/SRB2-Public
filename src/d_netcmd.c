@@ -4521,6 +4521,7 @@ void Command_ExitGame_f(void)
 	splitscreen = false;
 	SplitScreen_OnChange();
 	cv_debug = 0;
+	emeralds = 0;
 
 	if (!timeattacking)
 		D_StartTitle();
