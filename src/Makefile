@@ -451,6 +451,9 @@ $(BIN)/$(EXENAME): $(OBJS)
 	-@mkdir -p $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
+	$(OBJCOPY) --only-keep-debug $(BIN)/$(EXENAME) $(BIN)/$(EXENAME).debug
+	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
+	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(EXENAME).debug $(BIN)/$(EXENAME)
 
 $(OBJDIR):
 	-@mkdir -p $(OBJDIR)
