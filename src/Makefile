@@ -297,19 +297,7 @@ else
 
 	# build a normal optimised version
 	WINDRESFLAGS = -DNDEBUG
-	CFLAGS+=$(OPTS) $(M5) -Os $(WINDRESFLAGS)
-ifndef DC
-	CFLAGS+=-fomit-frame-pointer
-endif
-ifdef DEBUG
-	CFLAGS+=-g
-		# -fgcse -fcse-follow-jumps -fcse-skip-blocks -frerun-cse-after-loop -ffunction-cse \
-		# -fexpensive-optimizations -fforce-mem -fstrength-reduce -fthread-jumps  \
-		# -fregmove -fschedule-insns -fschedule-insns2 -fmove-all-movables \
-		# -fcaller-saves -finline-functions -mieee-fp -mfp-ret-in-387 -m80387 -mhard-float -finline
-else
-	LIBS:=-s $(LIBS)
-endif
+	CFLAGS+=-g $(OPTS) $(M5) -Os $(WINDRESFLAGS)
 endif
 
 ifdef PROFILEMODE
