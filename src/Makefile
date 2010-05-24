@@ -309,6 +309,7 @@ endif
 
 # default EXENAME if all else fails
 EXENAME?=srb2
+DGBNAME?=$(EXENAME).debug
 
 # not too sophisticated dependency
 OBJS:=$(i_main_o) \
@@ -453,9 +454,9 @@ $(BIN)/$(EXENAME): $(OBJS)
 	-@mkdir -p $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
-	$(OBJCOPY) --only-keep-debug $(BIN)/$(EXENAME) $(BIN)/$(EXENAME).debug
+	$(OBJCOPY) --only-keep-debug $(BIN)/$(EXENAME) $(BIN)/$(DGBNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
-	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(EXENAME).debug $(BIN)/$(EXENAME)
+	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DGBNAME) $(BIN)/$(EXENAME)
 
 $(OBJDIR):
 	-@mkdir -p $(OBJDIR)
