@@ -183,6 +183,8 @@ ifndef ECHO
 	REMOVE:=@$(REMOVE)
 	CC:=@$(CC)
 	CXX:=@$(CXX)
+	OBJCOPY:=@$(OBJCOPY)
+	STRIP:=@$(STRIP)
 	WINDRES:=@$(WINDRES)
 	DLLWRAP:=@$(DLLWRAP)
 	CP:=@$(CP)
