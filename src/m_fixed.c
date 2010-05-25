@@ -23,7 +23,7 @@
 #ifndef _arch_dreamcast // Alam: if you want hypot(), use -lm
 #define HAVE_HYPOT
 #endif
-#ifndef _WIN32 // MSVCRT does not have *f() functions
+#if 0 //#ifndef _WIN32 // MSVCRT does not have *f() functions
 #define HAVE_HYPOTF
 #define HAVE_SQRTF
 #endif
