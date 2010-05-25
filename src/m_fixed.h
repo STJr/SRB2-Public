@@ -314,7 +314,7 @@ fixed_t FV_PlaneIntersection(const vector_t *pOrigin, const vector_t *pNormal, c
 fixed_t FV_IntersectRaySphere(const vector_t *rO, const vector_t *rV, const vector_t *sO, fixed_t sR);
 vector_t *FV_IntersectionPoint(const vector_t *vNormal, const vector_t *vLine, fixed_t distance, vector_t *ReturnVec);
 UINT8 FV_PointOnLineSide(const vector_t *point, const vector_t *line);
-boolean PointInsideBox(const vector_t *point, const vector_t *box);
+boolean FV_PointInsideBox(const vector_t *point, const vector_t *box);
 
 typedef struct
 {

@@ -579,7 +579,7 @@ UINT8 FV_PointOnLineSide(const vector_t *point, const vector_t *line)
 // determines if the supplied point is
 // inside the box or not.
 //
-boolean PointInsideBox(const vector_t *point, const vector_t *box)
+boolean FV_PointInsideBox(const vector_t *point, const vector_t *box)
 {
 	vector_t lastLine[2];
 
