@@ -782,14 +782,6 @@ static menuitem_t  ConnectLANMenu[] =
 	{IT_STRING | IT_SPACE, NULL, "",              M_Connect,         0},
 };
 
-static void M_DisplayMSMOTD(void)
-{
-#if 0
-	M_DrawTextBox (32, 0, 28, 3);
-	V_DrawCenteredString(BASEVIDWIDTH/2, 8, 0, "Master Server MOTD");
-#endif
-}
-
 static void M_DrawConnectMenu(void)
 {
 	UINT16 i;
@@ -859,8 +851,6 @@ static void M_DrawConnectMenu(void)
 
 		ConnectMenu[i+FIRSTSERVERLINE].status = IT_STRING | IT_CALL;
 	}
-
-	M_DisplayMSMOTD();
 
 	if (cv_chooseroom.value != oldroomnum)
 	{
@@ -2460,11 +2450,6 @@ static void M_DrawServerMenu(void)
 	patch_t *PictureOfLevel;
 
 	M_DrawGenericMenu();
-
-#ifndef NONET
-	if (!StartSplitScreenGame)
-		M_DisplayMSMOTD();
-#endif
 
 	//  A 160x100 image of the level as entry MAPxxP
 	lumpnum = W_CheckNumForName(va("%sP", G_BuildMapName(cv_nextmap.value)));
