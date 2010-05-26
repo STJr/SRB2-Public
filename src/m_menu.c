@@ -802,8 +802,8 @@ static void M_DrawConnectMenu(void)
 	for (i = 0; i < min(serverlistcount - serverlistpage * SERVERS_PER_PAGE, SERVERS_PER_PAGE); i++)
 	{
 		INT32 slindex = i + serverlistpage * SERVERS_PER_PAGE;
-		UINT32 globalflags = (serverlist[slindex].info.numberofplayer >= serverlist[slindex].info.maxplayer) ? V_TRANSLUCENT : 0
-			| (itemOn == FIRSTSERVERLINE+i) ? V_YELLOWMAP : 0;
+		UINT32 globalflags = ((serverlist[slindex].info.numberofplayer >= serverlist[slindex].info.maxplayer) ? V_TRANSLUCENT : 0)
+			| ((itemOn == FIRSTSERVERLINE+i) ? V_YELLOWMAP : 0);
 
 		strlcpy(servername, serverlist[slindex].info.servername, sizeof (servername));
 		servername[20] = '\0';
@@ -884,8 +884,8 @@ static void M_DrawConnectLANMenu(void)
 	for (i = 0; i < min(serverlistcount - serverlistpage * SERVERS_PER_PAGE, SERVERS_PER_PAGE); i++)
 	{
 		INT32 slindex = i + serverlistpage * SERVERS_PER_PAGE;
-		UINT32 globalflags = (serverlist[slindex].info.numberofplayer >= serverlist[slindex].info.maxplayer) ? V_TRANSLUCENT : 0
-			| (itemOn == FIRSTSERVERLINE+i) ? V_YELLOWMAP : 0;
+		UINT32 globalflags = ((serverlist[slindex].info.numberofplayer >= serverlist[slindex].info.maxplayer) ? V_TRANSLUCENT : 0)
+			| ((itemOn == FIRSTSERVERLINE+i) ? V_YELLOWMAP : 0);
 
 		strlcpy(servername, serverlist[slindex].info.servername, sizeof (servername));
 		servername[20] = '\0';
