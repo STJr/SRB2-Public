@@ -520,8 +520,8 @@ static inline void I_SetChannels(void)
 	// This table provides step widths for pitch parameters.
 	for (i = -128; i < 128; i++)
 	{
-		const double po = pow((double)(2.0l), (double)((double)i/1024.0l));
-		steptablemid[i] = (INT32)po;
+		const double po = pow((double)(2.0l), (double)(i / 64.0l));
+		steptablemid[i] = (INT32)(po * 65536.0l);
 	}
 
 	// Generates volume lookup tables
@@ -2376,7 +2376,7 @@ static void SDLCALL I_FinishMusic(void)
 	else if (Msc_Mutex) SDL_LockMutex(Msc_Mutex);
 	//I_OutputMsg("I_FinishMusic: Loopping song to %g seconds\n", loopstartDig);
 	if (Mix_FadeInMusicPos(music[1], loopstartDig ? 0 : -1, Digfade,
-		(double)loopstartDig) == 0)
+		loopstartDig) == 0)
 	{
 		Mix_VolumeMusic(musicvol);
 	}
