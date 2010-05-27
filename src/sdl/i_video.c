@@ -55,6 +55,14 @@
 
 #ifdef HAVE_IMAGE
 #include "SDL_image.h"
+#elseif !(defined (DC) || defined (_WIN32_WCE) || defined (PSP) || defined(GP2X))
+#define LOAD_XPM //I want XPM!
+#include "IMG_xpm.c" //Alam: I don't want to add SDL_Image.dll/so
+#define HAVE_IMAGE //I have SDL_Image, sortof
+#endif
+
+#ifdef HAVE_IMAGE
+#include "SDL_icon.xpm"
 #endif
 
 #include "../doomdef.h"
@@ -103,16 +111,6 @@
 #ifdef HAVE_FILTER
 #define FILTERS
 #include "filter/filters.h"
-#endif
-
-#if !defined (HAVE_IMAGE) && !(defined (DC) || defined (_WIN32_WCE) || defined (PSP) || defined(GP2X))
-#define LOAD_XPM //I want XPM!
-#include "IMG_xpm.c" //Alam: I don't want to add SDL_Image.dll/so
-#define HAVE_IMAGE //I have SDL_Image, sortof
-#endif
-
-#ifdef HAVE_IMAGE
-#include "SDL_icon.xpm"
 #endif
 
 // maximum number of windowed modes (see windowedModes[][])
