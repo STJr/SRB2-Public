@@ -2190,7 +2190,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 
 		if (loopstart > 0)
 		{
-			loopstartDig = (44.1l+loopstart) / 44100.0l; //8 PCM chucks off and PCM to secs
+			loopstartDig = (double)((44.1l+loopstart) / 44100.0l); //8 PCM chucks off and PCM to secs
 //#ifdef GP2X//#ifdef PARANOIA
 			//I_OutputMsg("I_StartDigSong: setting looping point to %ul PCMs(%f seconds)\n", loopstart, loopstartDig);
 //#endif
