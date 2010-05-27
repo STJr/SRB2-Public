@@ -597,9 +597,9 @@ static void M_PNGhdr(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_
 static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_byte movie)
 {
 #ifdef PNG_TEXT_SUPPORTED
-#define SRB2PNGTXT 5
+#define SRB2PNGTXT 8
 	png_text png_infotext[SRB2PNGTXT];
-	char keytxt[SRB2PNGTXT][12] = {"Title", "Author", "Description", "Playername", "Interface"}; //PNG_KEYWORD_MAX_LENGTH(79) is the max
+	char keytxt[SRB2PNGTXT][12] = {"Title", "Author", "Description", "Playername", "Mapnum", "Mapname", "Location", "Interface"}; //PNG_KEYWORD_MAX_LENGTH(79) is the max
 	char titletxt[] = "Sonic Robo Blast 2"VERSIONSTRING;
 	png_charp authortxt = I_GetUserName();
 	png_charp playertxt =  cv_playername.zstring;
@@ -616,6 +616,28 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 #else
 	 "Unknown";
 #endif
+	char maptext[8];
+	char lvlttltext[48];
+	char locationtxt[24];
+
+	if (gamestate == GS_LEVEL)
+		snprintf(maptext, 8, "%s", G_BuildMapName(gamemap));
+	else
+		snprintf(maptext, 8, "Unknown");
+
+	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1].lvlttl)
+		snprintf(lvlttltext, 48, "%s%s%s",
+			mapheaderinfo[gamemap-1].lvlttl,
+			(mapheaderinfo[gamemap-1].nozone) ? "" : " ZONE",
+			(mapheaderinfo[gamemap-1].actnum > 0) ? va(" %d",mapheaderinfo[gamemap-1].actnum) : "");
+	else
+		snprintf(lvlttltext, 48, "Unknown");
+
+	if (gamestate == GS_LEVEL && &players[displayplayer] && players[displayplayer].mo)
+		snprintf(locationtxt, 24, "%d, %d, %d", players[displayplayer].mo->x>>FRACBITS, players[displayplayer].mo->y>>FRACBITS, players[displayplayer].mo->z>>FRACBITS);
+	else
+		snprintf(locationtxt, 24, "Unknown");
+
 	png_memset(png_infotext,0x00,sizeof (png_infotext));
 
 	for (i = 0; i < SRB2PNGTXT; i++)
@@ -628,7 +650,10 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	else
 		png_infotext[2].text = desctxt;
 	png_infotext[3].text = playertxt;
-	png_infotext[4].text = interfacetxt;
+	png_infotext[4].text = maptext;
+	png_infotext[5].text = lvlttltext;
+	png_infotext[6].text = locationtxt;
+	png_infotext[7].text = interfacetxt;
 
 	png_set_text(png_ptr, png_info_ptr, png_infotext, SRB2PNGTXT);
 #undef SRB2PNGTXT
