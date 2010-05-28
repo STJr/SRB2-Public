@@ -88,7 +88,7 @@ INT32 GetRoomsList(boolean hosting);
 #ifdef UPDATE_ALERT
 const char *GetMODVersion(void);
 #endif
-INT32 oldroomnum;
+extern INT32 oldroomnum;
 extern msg_rooms_t room_list[NUM_LIST_ROOMS+1];
 
 void AddMServCommands(void);
