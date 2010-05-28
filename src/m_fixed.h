@@ -157,7 +157,7 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t DMulScale16(fixed_t a, fixed_t b, 
 	}
 
 	#define __USE_C_FIXEDDIV__ // no double or asm div in ARM land
-#elif defined (__GNUC__) && defined (__ppc__) && !defined(NOASM) // WII: PPC CPU
+#elif defined (__GNUC__) && defined (__ppc__) && !defined(NOASM) && 0 // WII: PPC CPU
 	FUNCMATH FUNCINLINE static inline fixed_t FixedMul(fixed_t a, fixed_t b) // asm
 	{
 		fixed_t ret, hi, lo;
