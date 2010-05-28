@@ -618,7 +618,7 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 #endif
 	char maptext[8];
 	char lvlttltext[48];
-	char locationtxt[24];
+	char locationtxt[40];
 
 	if (gamestate == GS_LEVEL)
 		snprintf(maptext, 8, "%s", G_BuildMapName(gamemap));
@@ -634,9 +634,13 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 		snprintf(lvlttltext, 48, "Unknown");
 
 	if (gamestate == GS_LEVEL && &players[displayplayer] && players[displayplayer].mo)
-		snprintf(locationtxt, 24, "%d, %d, %d", players[displayplayer].mo->x>>FRACBITS, players[displayplayer].mo->y>>FRACBITS, players[displayplayer].mo->z>>FRACBITS);
+		snprintf(locationtxt, 40, "X:%d Y:%d Z:%d A:%d",
+			players[displayplayer].mo->x>>FRACBITS,
+			players[displayplayer].mo->y>>FRACBITS,
+			players[displayplayer].mo->z>>FRACBITS,
+			FixedInt(AngleFixed(players[displayplayer].mo->angle)));
 	else
-		snprintf(locationtxt, 24, "Unknown");
+		snprintf(locationtxt, 40, "Unknown");
 
 	png_memset(png_infotext,0x00,sizeof (png_infotext));
 
