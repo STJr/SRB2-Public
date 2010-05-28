@@ -20,11 +20,9 @@
 #ifndef __M_SWAP__
 #define __M_SWAP__
 
-#include "doomtype.h"
-
 // Endianess handling.
 // WAD files are stored little endian.
-#ifdef __BIG_ENDIAN__
+#ifdef _BIG_ENDIAN
 
 #define SHORT(x) ((INT16)(\
 (((UINT16)(x) & (UINT16)0x00ffU) << 8) \

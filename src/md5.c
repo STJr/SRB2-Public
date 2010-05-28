@@ -43,7 +43,6 @@
 #endif
 
 #include "md5.h"
-#include "doomtype.h"
 
 #ifdef _LIBC
  #include <endian.h>
@@ -52,7 +51,7 @@
  #endif
 #endif
 
-#if defined (WORDS_BIGENDIAN) || defined (__BIG_ENDIAN__)
+#if defined (WORDS_BIGENDIAN) || defined (_BIG_ENDIAN)
  #define SWAP(n)							\
     (((n) << 24) | (((n) & 0xff00) << 8) | (((n) >> 8) & 0xff00) | ((n) >> 24))
 #else

@@ -17,13 +17,11 @@
 /// \brief Macros to read/write from/to a UINT8 *,
 ///        used for packet creation and such
 
-#include "doomtype.h"
-
 #if defined (__arm__) || defined (__mips__)
 #define DEALIGNED
 #endif
 
-#ifndef __BIG_ENDIAN__
+#ifndef _BIG_ENDIAN
 //
 // Little-endian machines
 //
@@ -83,7 +81,7 @@
 #define READANGLE(p)        *((angle_t *)p)++
 #endif
 
-#else //__BIG_ENDIAN__
+#else //_BIG_ENDIAN
 //
 // definitions for big-endian machines with alignment constraints.
 //
@@ -152,7 +150,7 @@ FUNCINLINE static ATTRINLINE UINT32 readulong(void *ptr)
 #define READCHAR(p)         ({    char *p_tmp = (   char *)p;    char b =        *p_tmp; p_tmp++; p = (void *)p_tmp; b; })
 #define READFIXED(p)        ({ fixed_t *p_tmp = (fixed_t *)p; fixed_t b =   readlong(p); p_tmp++; p = (void *)p_tmp; b; })
 #define READANGLE(p)        ({ angle_t *p_tmp = (angle_t *)p; angle_t b =  readulong(p); p_tmp++; p = (void *)p_tmp; b; })
-#endif //__BIG_ENDIAN__
+#endif //_BIG_ENDIAN
 
 #undef DEALIGNED
 

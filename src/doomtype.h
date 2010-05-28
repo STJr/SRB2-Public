@@ -88,9 +88,6 @@ typedef long ssize_t;
 #define HWRENDER
 #define NOIPX
 #define SHUFFLE
-#if defined (__ppc__) | defined (__ppc64__)
-#define __BIG_ENDIAN__
-#endif
 #endif
 
 #if defined (_MSC_VER) || defined (__OS2__)
@@ -254,7 +251,7 @@ typedef UINT32 lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 typedef UINT32 tic_t;
 #define INFTICS UINT32_MAX
 
-#ifdef __BIG_ENDIAN__
+#ifdef _BIG_ENDIAN
 #define UINT2RGBA(a) a
 #else
 #define UINT2RGBA(a) (UINT32)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((UINT32)a&0xff000000)>>24)
