@@ -34,6 +34,7 @@ SHARED_MODE=0
 
 #LOC = -DASMV
 #LOC = -DDEBUG -g
+LOC = -pipe -g
 
 PREFIX =
 CC = $(PREFIX)gcc
@@ -48,6 +49,8 @@ LDFLAGS = $(LOC)
 
 AR = $(PREFIX)ar
 ARFLAGS = rcs
+
+RANLIB = $(PREFIX)ranlib
 
 RC = $(PREFIX)windres
 RCFLAGS = --define GCC_WINDRES
@@ -84,6 +87,7 @@ testdll: example_d.exe minigzip_d.exe
 
 $(STATICLIB): $(OBJS) $(OBJA)
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(OBJA)
+	$(RANLIB) $(STATICLIB)
 
 $(IMPLIB): $(SHAREDLIB)
 
