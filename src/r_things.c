@@ -1774,33 +1774,45 @@ static void R_CreateDrawNodes(void)
 				if (rover->szt > r2->plane->low || rover->sz < r2->plane->high)
 					continue;
 
-				if ((r2->plane->height < viewz && rover->pz < r2->plane->height) ||
-				    (r2->plane->height > viewz && rover->pzt > r2->plane->height))
+				if (rover->mobjflags & MF_NOCLIPHEIGHT)
 				{
-					// SoM: NOTE: Because a visplane's shape and scale is not directly
-					// bound to any single linedef, a simple poll of it's frontscale is
-					// not adequate. We must check the entire frontscale array for any
-					// part that is in front of the sprite.
-
-					x1 = rover->x1;
-					x2 = rover->x2;
-					if (x1 < r2->plane->minx) x1 = r2->plane->minx;
-					if (x2 > r2->plane->maxx) x2 = r2->plane->maxx;
-
-					for (i = x1; i <= x2; i++)
-					{
-						if (r2->seg->frontscale[i] > rover->scale)
-							break;
-					}
-					if (i > x2)
+					//Objects with NOCLIPHEIGHT can appear halfway in.
+					if (r2->plane->height < viewz && rover->pz+(rover->thingheight/2) >= r2->plane->height)
 						continue;
-
-					entry = R_CreateDrawNode(NULL);
-					(entry->prev = r2->prev)->next = entry;
-					(entry->next = r2)->prev = entry;
-					entry->sprite = rover;
-					break;
+					if (r2->plane->height > viewz && rover->pzt-(rover->thingheight/2) <= r2->plane->height)
+						continue;
 				}
+				else
+				{
+					if (r2->plane->height < viewz && rover->pz >= r2->plane->height)
+						continue;
+					if (r2->plane->height > viewz && rover->pzt <= r2->plane->height)
+						continue;
+				}
+
+				// SoM: NOTE: Because a visplane's shape and scale is not directly
+				// bound to any single linedef, a simple poll of it's frontscale is
+				// not adequate. We must check the entire frontscale array for any
+				// part that is in front of the sprite.
+
+				x1 = rover->x1;
+				x2 = rover->x2;
+				if (x1 < r2->plane->minx) x1 = r2->plane->minx;
+				if (x2 > r2->plane->maxx) x2 = r2->plane->maxx;
+
+				for (i = x1; i <= x2; i++)
+				{
+					if (r2->seg->frontscale[i] > rover->scale)
+						break;
+				}
+				if (i > x2)
+					continue;
+
+				entry = R_CreateDrawNode(NULL);
+				(entry->prev = r2->prev)->next = entry;
+				(entry->next = r2)->prev = entry;
+				entry->sprite = rover;
+				break;
 			}
 			else if (r2->thickseg)
 			{
