@@ -140,7 +140,8 @@ int main(int argc, char **argv)
 
 	//CONS_Printf ("I_StartupSystem() ...\n");
 	I_StartupSystem();
-#if defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
+#if defined (_WIN32) && !defined (_XBOX)
+#ifndef _WIN32_WCE
 	{
 		p_IsDebuggerPresent pfnIsDebuggerPresent = (p_IsDebuggerPresent)GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsDebuggerPresent");
 		if ((!pfnIsDebuggerPresent || !pfnIsDebuggerPresent())
@@ -152,7 +153,11 @@ int main(int argc, char **argv)
 			LoadLibraryA("exchndl.dll");
 		}
 	}
+#endif
+	prevExceptionFilter = SetUnhandledExceptionFilter(RecordExceptionInfo);
+#ifndef _WIN32_WCE
 	MakeCodeWritable();
+#endif
 #endif
 	// startup SRB2
 	CONS_Printf ("Setting up SRB2...\n");

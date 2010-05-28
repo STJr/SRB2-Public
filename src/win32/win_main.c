@@ -785,15 +785,9 @@ int WINAPI WinMain (HINSTANCE hInstance,
 		if (!pfnIsDebuggerPresent || !pfnIsDebuggerPresent())
 			LoadLibraryA("exchndl.dll");
 
-		__try
-		{
-			Result = HandledWinMain(hInstance);
-		}
-		__except (RecordExceptionInfo(GetExceptionInformation()))
-		{
-			SetUnhandledExceptionFilter(EXCEPTION_CONTINUE_SEARCH); //Do nothing here.
-		}
+		prevExceptionFilter = SetUnhandledExceptionFilter(RecordExceptionInfo);
 
+		Result = HandledWinMain(hInstance);
 #ifdef BUGTRAP
 	}	// BT failure clause.
 

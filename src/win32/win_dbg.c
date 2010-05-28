@@ -25,6 +25,8 @@
 #include "win_dbg.h"
 #include "../m_argv.h" //print the parameter in the log
 
+LPTOP_LEVEL_EXCEPTION_FILTER prevExceptionFilter = NULL;
+
 #ifdef BUGTRAP
 
 
@@ -377,10 +379,10 @@ static VOID RecordSystemInformation(HANDLE fileHandle)
 // the debugger will hopefully coexist peacefully with the structured exception
 // handler.
 // --------------------------------------------------------------------------
-int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPSTR lpCmdLine*/)
+LONG WINAPI RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPSTR lpCmdLine*/)
 {
-	PEXCEPTION_RECORD   Exception;
-	PCONTEXT            Context;
+	PEXCEPTION_RECORD   Exception = NULL;
+	PCONTEXT            Context = NULL;
 	TCHAR               ModuleName[MAX_PATH];
 	TCHAR               FileName[MAX_PATH] = TEXT("Unknown");
 	LPTSTR              FilePart, lastperiod;
@@ -397,11 +399,17 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 		Exception = data->ExceptionRecord;
 		Context = data->ContextRecord;
 	}
+	else if (prevExceptionFilter)
+		prevExceptionFilter(data);
 	else
 		return EXCEPTION_CONTINUE_SEARCH;
 
 	if (BeenHere)       // Going recursive! That must mean this routine crashed!
+	{
+		if (prevExceptionFilter)
+			return prevExceptionFilter(data);
 		return EXCEPTION_CONTINUE_SEARCH;
+	}
 	BeenHere = TRUE;
 
 #ifdef _X86_
@@ -429,6 +437,8 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	if (fileHandle == INVALID_HANDLE_VALUE)
 	{
 		OutputDebugString(TEXT("Error creating exception report"));
+		if (prevExceptionFilter)
+			prevExceptionFilter(data);
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
@@ -654,5 +664,7 @@ int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 	// actually handle the exception - so that things will proceed as per
 	// normal.
 	//BP: should put message for end user to send this file to fix any bug
+	if (prevExceptionFilter)
+		return prevExceptionFilter(data);
 	return EXCEPTION_CONTINUE_SEARCH;
 }
