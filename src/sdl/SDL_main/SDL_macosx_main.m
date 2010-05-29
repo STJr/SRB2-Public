@@ -287,7 +287,7 @@ static void CustomApplicationMain (int argc, char **argv)
     [self fixMenu:[NSApp mainMenu] withAppName:getApplicationName()];
 #endif
 
-    if (!getenv("SRB2WADPATH"))
+    if (!getenv("SRB2WADDIR"))
         setenv("SRB2WADDIR", [[[NSBundle mainBundle] resourcePath] UTF8String], 1);
 
     /* Hand off to main application code */
