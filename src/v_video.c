@@ -2025,7 +2025,13 @@ static void V_DrawWordWrapString(INT32 x, INT32 y, INT32 option, const char *str
 			continue;
 
 		c = toupper(c) - HU_FONTSTART;
-		if (c < 0 || (c >= HU_REALFONTSIZE && c != '~' - HU_FONTSTART && c != '`' - HU_FONTSTART)
+		if (c == '\n')
+		{
+			nx = x;
+			lastusablespace = 0;
+			continue;
+		}
+		else if (c < 0 || (c >= HU_REALFONTSIZE && c != '~' - HU_FONTSTART && c != '`' - HU_FONTSTART)
 			|| hu_font[c] == NULL)
 		{
 			nx += 4;
