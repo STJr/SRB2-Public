@@ -5797,20 +5797,20 @@ static void M_ToggleSFX(void)
 		I_StartupSound();
 		if (nosound) return;
 		S_Init(cv_soundvolume.value, cv_digmusicvolume.value, cv_midimusicvolume.value);
-		M_StartMessage("SFX Enabled", NULL, MM_NOTHING);
+		M_StartMessage("SFX Enabled\n", NULL, MM_NOTHING);
 	}
 	else
 	{
 		if (sound_disabled)
 		{
 			sound_disabled = false;
-			M_StartMessage("SFX Enabled", NULL, MM_NOTHING);
+			M_StartMessage("SFX Enabled\n", NULL, MM_NOTHING);
 		}
 		else
 		{
 			sound_disabled = true;
 			S_StopSounds();
-			M_StartMessage("SFX Disabled", NULL, MM_NOTHING);
+			M_StartMessage("SFX Disabled\n", NULL, MM_NOTHING);
 		}
 	}
 }
@@ -5825,20 +5825,20 @@ static void M_ToggleDigital(void)
 		S_Init(cv_soundvolume.value, cv_digmusicvolume.value, cv_midimusicvolume.value);
 		S_StopMusic();
 		S_ChangeMusic(mus_lclear, false);
-		M_StartMessage("Digital Music Enabled", NULL, MM_NOTHING);
+		M_StartMessage("Digital Music Enabled\n", NULL, MM_NOTHING);
 	}
 	else
 	{
 		if (digital_disabled)
 		{
 			digital_disabled = false;
-			M_StartMessage("Digital Music Enabled", NULL, MM_NOTHING);
+			M_StartMessage("Digital Music Enabled\n", NULL, MM_NOTHING);
 		}
 		else
 		{
 			digital_disabled = true;
 			S_StopMusic();
-			M_StartMessage("Digital Music Disabled", NULL, MM_NOTHING);
+			M_StartMessage("Digital Music Disabled\n", NULL, MM_NOTHING);
 		}
 	}
 }
@@ -5852,20 +5852,20 @@ static void M_ToggleMIDI(void)
 		if (nomidimusic) return;
 		S_Init(cv_soundvolume.value, cv_digmusicvolume.value, cv_midimusicvolume.value);
 		S_ChangeMusic(mus_lclear, false);
-		M_StartMessage("MIDI Music Enabled", NULL, MM_NOTHING);
+		M_StartMessage("MIDI Music Enabled\n", NULL, MM_NOTHING);
 	}
 	else
 	{
 		if (music_disabled)
 		{
 			music_disabled = false;
-			M_StartMessage("MIDI Music Enabled", NULL, MM_NOTHING);
+			M_StartMessage("MIDI Music Enabled\n", NULL, MM_NOTHING);
 		}
 		else
 		{
 			music_disabled = true;
 			S_StopMusic();
-			M_StartMessage("MIDI Music Disabled", NULL, MM_NOTHING);
+			M_StartMessage("MIDI Music Disabled\n", NULL, MM_NOTHING);
 		}
 	}
 }
