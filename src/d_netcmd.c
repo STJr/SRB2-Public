@@ -3136,16 +3136,15 @@ static void Command_RunSOC(void)
 		return;
 	}
 
-	if (!modifiedgame)
-	{
-		modifiedgame = true;
-		if (!(netgame || multiplayer))
-			CONS_Printf("%s", text[GAMEMODIFIED]);
-	}
-
 	if (!(netgame || multiplayer))
 	{
-		P_RunSOC(fn);
+		if (!P_RunSOC(fn))
+			CONS_Printf("Could not find SOC.\n");
+		else if (!modifiedgame)
+		{
+			modifiedgame = true;
+			CONS_Printf("%s", text[GAMEMODIFIED]);
+		}
 		return;
 	}
 
@@ -3199,6 +3198,7 @@ static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 	}
 
 	P_RunSOC(filename);
+	modifiedgame = true;
 }
 
 /** Adds a pwad at runtime.
