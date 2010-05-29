@@ -2667,6 +2667,8 @@ void EV_CrumbleChain(sector_t *sec, ffloor_t *rover)
 	fixed_t topz;
 	fixed_t a, b, c;
 
+	// soundorg z height never gets set normally, so MEH.
+	sec->soundorg.z = sec->floorheight;
 	S_StartSound(&sec->soundorg, sfx_crumbl);
 
 	// Find the leftmost vertex in the subsector.

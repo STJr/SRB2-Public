@@ -1227,6 +1227,10 @@ mobj_t *P_SpawnGhostMobj(mobj_t *mobj)
 	P_SetScale(ghost, mobj->scale);
 	ghost->destscale = mobj->scale;
 
+#ifndef NORMALSRB2 //remove for 2.0.6
+	ghost->height = FIXEDSCALE(mobj->height, mobj->scale);
+#endif
+
 	return ghost;
 }
 
