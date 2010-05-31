@@ -383,7 +383,7 @@ static void sortStacklist(sector_t *sector)
 	sector_t **list;
 	sector_t *sec1, *sec2;
 	boolean finished;
-	int i;
+	size_t i;
 
 	list = sector->stackList;
 	finished = false;
@@ -452,11 +452,8 @@ static double calcLineoutLength(sector_t *sector)
 //
 static void calcLineouts(sector_t *sector)
 {
-	sector_t *encSector;
-	int secCount;
-
-	secCount = 0;
-	encSector = *(sector->stackList);
+	size_t secCount = 0;
+	sector_t *encSector = *(sector->stackList);
 
 	while (NULL != encSector)
 	{
@@ -492,13 +489,10 @@ static void freeStacklists(void)
 //
 static boolean areToptexturesMissing(sector_t *thisSector)
 {
-	linechain_t *thisElem, *nextElem;
+	linechain_t *thisElem, *nextElem = thisSector->sectorLines;
 	sector_t *frontSector, *backSector;
-	int nomiss = 0;
+	size_t nomiss = 0;
 	side_t *sdl, *sdr;
-
-	thisElem = NULL;
-	nextElem = thisSector->sectorLines;
 
 	while (nextElem) // walk through chain
 	{
@@ -547,13 +541,10 @@ static boolean areToptexturesMissing(sector_t *thisSector)
 //
 static boolean areBottomtexturesMissing(sector_t *thisSector)
 {
-	linechain_t *thisElem, *nextElem;
+	linechain_t *thisElem, *nextElem = thisSector->sectorLines;
 	sector_t *frontSector, *backSector;
-	int nomiss = 0;
+	size_t nomiss = 0;
 	side_t *sdl, *sdr;
-
-	thisElem = NULL;
-	nextElem = thisSector->sectorLines;
 
 	while (nextElem) // walk through chain
 	{
@@ -603,15 +594,13 @@ static boolean areBottomtexturesMissing(sector_t *thisSector)
 //
 static boolean isCeilingFloating(sector_t *thisSector)
 {
-	sector_t *adjSector, *refSector, *frontSector, *backSector;
+	sector_t *adjSector, *refSector = NULL, *frontSector, *backSector;
 	boolean floating = true;
 	linechain_t *thisElem, *nextElem;
 
 	if (!thisSector)
 		return false;
 
-	refSector = NULL;
-	thisElem  = NULL;
 	nextElem  = thisSector->sectorLines;
 
 	while (NULL != nextElem) // walk through chain
@@ -665,15 +654,13 @@ static boolean isCeilingFloating(sector_t *thisSector)
 //
 static boolean isFloorFloating(sector_t *thisSector)
 {
-	sector_t *adjSector, *refSector, *frontSector, *backSector;
+	sector_t *adjSector, *refSector = NULL, *frontSector, *backSector;
 	boolean floating = true;
 	linechain_t *thisElem, *nextElem;
 
 	if (!thisSector)
 		return false;
 
-	refSector = NULL;
-	thisElem  = NULL;
 	nextElem  = thisSector->sectorLines;
 
 	while (nextElem) // walk through chain
