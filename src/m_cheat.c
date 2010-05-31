@@ -473,6 +473,12 @@ void Command_Charspeed_f(void)
 // Don't enable this for normal builds...
 void Command_CauseCfail_f(void)
 {
+	if (consoleplayer == serverplayer)
+	{
+		CONS_Printf("Your reality is everyone's reality. Therefore, you should not use this command.\n");
+		return;
+	}
+
 	P_UnsetThingPosition(players[consoleplayer].mo);
 	P_Random();
 	P_Random();
@@ -482,6 +488,7 @@ void Command_CauseCfail_f(void)
 	players[consoleplayer].mo->z = 123311;
 	players[consoleplayer].score = 1337;
 	players[consoleplayer].health = 1337;
+	players[consoleplayer].mo->destscale = 25;
 	P_SetThingPosition(players[consoleplayer].mo);
 }
 #endif
