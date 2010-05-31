@@ -121,6 +121,33 @@ static void releaseLineChains(void)
 }
 
 //
+// check if a pseudo sector is valid by checking all its linedefs
+//
+static boolean isPSectorValid(sector_t *sector)
+{
+	linechain_t *thisElem, *nextElem;
+
+	if (!sector->pseudoSector) // check only pseudosectors, others dont care
+	{
+#ifdef PARANOIA
+		CONS_Printf("Alert! non-pseudosector fed to isPSectorClosed()\n");
+#endif
+		return false;
+	}
+
+	nextElem = sector->sectorLines;
+
+	while (nextElem)
+	{
+		thisElem = nextElem;
+		nextElem = thisElem->next;
+		if (thisElem->line->frontsector != thisElem->line->backsector)
+			return false;
+	}
+	return true;
+}
+
+//
 // angles are always phiMax-phiMin [0...2\pi)
 //
 FUNCMATH static double phiDiff(double phiMin, double phiMax)
@@ -303,6 +330,146 @@ static inline boolean isVertexInside(vertex_t *vertex, sector_t *sector)
 	return biggerThanPi(phiMin, phiMax);
 }
 
+
+#define MAXSTACK 256 // Not more than 256 polys in each other?
+//
+// generate a list of sectors which enclose the given sector
+//
+static void generateStacklist(sector_t *thisSector)
+{
+	size_t i, stackCnt = 0;
+	sector_t *locStacklist[MAXSTACK];
+	sector_t *checkSector;
+
+	for (i = 0; i < numsectors; i++)
+	{
+		checkSector = &sectors[i];
+
+		if (checkSector == thisSector) // dont check self
+			continue;
+
+		// buggy sector?
+		if (!thisSector->sectorLines)
+			continue;
+
+		// check if an arbitrary vertex of thisSector lies inside the checkSector
+		if (isVertexInside(thisSector->sectorLines->line->v1, checkSector))
+		{
+			// if so, the thisSector lies inside the checkSector
+			locStacklist[stackCnt] = checkSector;
+			stackCnt++;
+
+			if (MAXSTACK-1 == stackCnt) // beware of the SIGSEGV! and consider terminating NULL!
+				break;
+		}
+	}
+
+	thisSector->stackList = malloc(sizeof (sector_t *) * (stackCnt+1));
+	if (NULL == thisSector->stackList)
+	{
+		I_Error("Out of memory error in generateStacklist()");
+	}
+
+	locStacklist[stackCnt] = NULL; // terminating NULL
+
+	memcpy(thisSector->stackList, locStacklist, sizeof (sector_t *) * (stackCnt+1));
+}
+
+//
+// Bubble sort the stacklist with rising lineoutlengths
+//
+static void sortStacklist(sector_t *sector)
+{
+	sector_t **list;
+	sector_t *sec1, *sec2;
+	boolean finished;
+	int i;
+
+	list = sector->stackList;
+	finished = false;
+
+	if (!*list)
+		return; // nothing to sort
+
+	while (!finished)
+	{
+		i = 0;
+		finished = true;
+
+		while (NULL != *(list+i+1))
+		{
+			sec1 = *(list+i);
+			sec2 = *(list+i+1);
+
+			if (sec1->lineoutLength > sec2->lineoutLength)
+			{
+				*(list+i) = sec2;
+				*(list+i+1) = sec1;
+				finished = false;
+			}
+			i++;
+		}
+	}
+}
+
+//
+// length of a line in euclidian sense
+//
+static double lineLength(line_t *line)
+{
+	double dx, dy, length;
+
+	dx = (double) line->v1->x - (double) line->v2->x;
+	dy = (double) line->v1->y - (double) line->v2->y;
+
+	length = sqrt(dx*dx + dy*dy);
+
+	return length;
+}
+
+
+//
+// length of the sector lineout
+//
+static double calcLineoutLength(sector_t *sector)
+{
+	linechain_t *chain;
+	double length;
+
+	length = 0.0;
+	chain = sector->sectorLines;
+
+	while (NULL != chain) // sum up lengths of all lines
+	{
+		length += lineLength(chain->line);
+		chain = chain->next;
+	}
+	return length;
+}
+
+//
+// Calculate length of the sectors lineout
+//
+static void calcLineouts(sector_t *sector)
+{
+	sector_t *encSector;
+	int secCount;
+
+	secCount = 0;
+	encSector = *(sector->stackList);
+
+	while (NULL != encSector)
+	{
+		if (encSector->lineoutLength < 0.0) // if length has not yet been calculated
+		{
+			encSector->lineoutLength = calcLineoutLength(encSector);
+		}
+
+		secCount++;
+		encSector = *((sector->stackList) + secCount);
+	}
+}
+
 //
 // Free Stacklists of all sectors
 //
@@ -320,6 +487,286 @@ static void freeStacklists(void)
 	}
 }
 
+//
+// if more than half of the toptextures are missing
+//
+static boolean areToptexturesMissing(sector_t *thisSector)
+{
+	linechain_t *thisElem, *nextElem;
+	sector_t *frontSector, *backSector;
+	int nomiss = 0;
+	side_t *sdl, *sdr;
+
+	thisElem = NULL;
+	nextElem = thisSector->sectorLines;
+
+	while (nextElem) // walk through chain
+	{
+		thisElem = nextElem;
+		nextElem = thisElem->next;
+
+		frontSector = thisElem->line->frontsector;
+		backSector  = thisElem->line->backsector;
+
+		if (frontSector == backSector) // skip damn renderer tricks here
+		{
+			continue;
+		}
+
+		if (!frontSector || !backSector)
+		{
+			continue;
+		}
+
+		sdr = &sides[thisElem->line->sidenum[0]];
+		sdl = &sides[thisElem->line->sidenum[1]];
+
+		if (backSector->ceilingheight < frontSector->ceilingheight)
+		{
+			if (sdr->toptexture != 0)
+			{
+				nomiss++;
+				break; // we can stop here if decision criterium is ==0
+			}
+		}
+		else if (backSector->ceilingheight > frontSector->ceilingheight)
+		{
+			if (sdl->toptexture != 0)
+			{
+				nomiss++;
+				break; // we can stop here if decision criterium is ==0
+			}
+		}
+	}
+
+	return nomiss == 0;
+}
+
+//
+// are more textures missing than present?
+//
+static boolean areBottomtexturesMissing(sector_t *thisSector)
+{
+	linechain_t *thisElem, *nextElem;
+	sector_t *frontSector, *backSector;
+	int nomiss = 0;
+	side_t *sdl, *sdr;
+
+	thisElem = NULL;
+	nextElem = thisSector->sectorLines;
+
+	while (nextElem) // walk through chain
+	{
+		thisElem = nextElem;
+		nextElem = thisElem->next;
+
+		frontSector = thisElem->line->frontsector;
+		backSector  = thisElem->line->backsector;
+
+		if (frontSector == backSector) // skip damn renderer tricks here
+		{
+			continue;
+		}
+
+		if (frontSector == NULL || backSector == NULL)
+		{
+			continue;
+		}
+		sdr = &sides[thisElem->line->sidenum[0]];
+		sdl = &sides[thisElem->line->sidenum[1]];
+
+		if (backSector->floorheight > frontSector->floorheight)
+		{
+			if (sdr->bottomtexture != 0)
+			{
+				nomiss++;
+				break; // we can stop here if decision criterium is ==0
+			}
+		}
+
+		else if (backSector->floorheight < frontSector->floorheight)
+		{
+			if (sdl->bottomtexture != 0)
+			{
+				nomiss++;
+				break; // we can stop here if decision criterium is ==0
+			}
+		}
+	}
+
+	//    return missing >= nomiss;
+	return nomiss == 0;
+}
+
+//
+// check if no adjacent sector has same ceiling height
+//
+static boolean isCeilingFloating(sector_t *thisSector)
+{
+	sector_t *adjSector, *refSector, *frontSector, *backSector;
+	boolean floating = true;
+	linechain_t *thisElem, *nextElem;
+
+	if (!thisSector)
+		return false;
+
+	refSector = NULL;
+	thisElem  = NULL;
+	nextElem  = thisSector->sectorLines;
+
+	while (NULL != nextElem) // walk through chain
+	{
+		thisElem = nextElem;
+		nextElem = thisElem->next;
+
+		frontSector = thisElem->line->frontsector;
+		backSector  = thisElem->line->backsector;
+
+		if (frontSector == thisSector)
+			adjSector = backSector;
+		else
+			adjSector = frontSector;
+
+		if (!adjSector) // assume floating sectors have surrounding sectors
+		{
+			floating = false;
+			break;
+		}
+
+		if (!refSector)
+		{
+			refSector = adjSector;
+			continue;
+		}
+
+		// if adjacent sector has same height or more than one adjacent sector exists -> stop
+		if (thisSector->ceilingheight == adjSector->ceilingheight ||
+		   refSector != adjSector)
+		{
+			floating = false;
+			break;
+		}
+	}
+
+	// now check for walltextures
+	if (floating)
+	{
+		if (!areToptexturesMissing(thisSector))
+		{
+			floating = false;
+		}
+	}
+	return floating;
+}
+
+//
+// check if no adjacent sector has same ceiling height
+// FIXME: throw that together with isCeilingFloating??
+//
+static boolean isFloorFloating(sector_t *thisSector)
+{
+	sector_t *adjSector, *refSector, *frontSector, *backSector;
+	boolean floating = true;
+	linechain_t *thisElem, *nextElem;
+
+	if (!thisSector)
+		return false;
+
+	refSector = NULL;
+	thisElem  = NULL;
+	nextElem  = thisSector->sectorLines;
+
+	while (nextElem) // walk through chain
+	{
+		thisElem = nextElem;
+		nextElem = thisElem->next;
+
+		frontSector = thisElem->line->frontsector;
+		backSector  = thisElem->line->backsector;
+
+		if (frontSector == thisSector)
+			adjSector = backSector;
+		else
+			adjSector = frontSector;
+
+		if (NULL == adjSector) // assume floating sectors have surrounding sectors
+		{
+			floating = false;
+			break;
+		}
+
+		if (NULL == refSector)
+		{
+			refSector = adjSector;
+			continue;
+		}
+
+		// if adjacent sector has same height or more than one adjacent sector exists -> stop
+		if (thisSector->floorheight == adjSector->floorheight ||
+		   refSector != adjSector)
+		{
+			floating = false;
+			break;
+		}
+	}
+
+	// now check for walltextures
+	if (floating)
+	{
+		if (!areBottomtexturesMissing(thisSector))
+		{
+			floating = false;
+		}
+	}
+	return floating;
+}
+
+//
+// estimate ceilingheight according to height of adjacent sector
+//
+static fixed_t estimateCeilHeight(sector_t *thisSector)
+{
+	sector_t *adjSector;
+
+	if (!thisSector ||
+	 !thisSector->sectorLines ||
+	  !thisSector->sectorLines->line)
+		return 0;
+
+	adjSector = thisSector->sectorLines->line->frontsector;
+	if (adjSector == thisSector)
+	adjSector = thisSector->sectorLines->line->backsector;
+
+	if (!adjSector)
+		return 0;
+
+	return adjSector->ceilingheight;
+}
+
+//
+// estimate ceilingheight according to height of adjacent sector
+//
+static fixed_t estimateFloorHeight(sector_t *thisSector)
+{
+	sector_t *adjSector;
+
+	if (!thisSector ||
+	 !thisSector->sectorLines ||
+	  !thisSector->sectorLines->line)
+	return 0;
+
+	adjSector = thisSector->sectorLines->line->frontsector;
+	if (adjSector == thisSector)
+	adjSector = thisSector->sectorLines->line->backsector;
+
+	if (NULL == adjSector)
+	return 0;
+
+	return adjSector->floorheight;
+}
+
+#define CORRECT_FLOAT_EXPERIMENTAL
+
 // --------------------------------------------------------------------------
 // Some levels have missing sidedefs, which produces HOM, so lets try to compensate for that
 // and some levels have deep water trick, invisible staircases etc.
@@ -328,9 +775,15 @@ static void freeStacklists(void)
 void HWR_CorrectSWTricks(void)
 {
 	size_t i;
+	size_t k;
 	line_t *ld;
 	side_t *sdl = NULL, *sdr;
 	sector_t *secl, *secr;
+	sector_t **sectorList;
+	sector_t *outSector;
+
+	if ((0 == cv_grcorrecttricks.value))
+		return;
 
 	// determine lines for sectors
 	for (i = 0; i < numlines; i++)
@@ -350,6 +803,85 @@ void HWR_CorrectSWTricks(void)
 			addLineToChain(secl, ld);
 		}
 	}
+
+	// preprocessing
+	for (i = 0; i < numsectors; i++)
+	{
+		sector_t *checkSector;
+
+		checkSector = &sectors[i];
+
+		// identify real pseudosectors first
+		if (checkSector->pseudoSector)
+		{
+			if (!isPSectorValid(checkSector)) // drop invalid pseudo sectors
+			{
+				checkSector->pseudoSector = false;
+			}
+		}
+
+		// determine enclosing sectors for pseudosectors ... used later
+		if (checkSector->pseudoSector)
+		{
+			generateStacklist(checkSector);
+			calcLineouts(checkSector);
+			sortStacklist(checkSector);
+		}
+	}
+
+	// set virtual floor heights for pseudo sectors
+	// required for deep water effect e.g.
+	for (i = 0; i < numsectors; i++)
+	{
+		if (sectors[i].pseudoSector)
+		{
+			sectorList = sectors[i].stackList;
+			k = 0;
+			while (*(sectorList+k))
+			{
+				outSector = *(sectorList+k);
+				if (!outSector->pseudoSector)
+				{
+					sectors[i].virtualFloorheight = outSector->floorheight;
+					sectors[i].virtualCeilingheight = outSector->ceilingheight;
+					break;
+				}
+				k++;
+			}
+			if (*(sectorList+k) == NULL) // sorry, did not work :(
+			{
+				sectors[i].virtualFloorheight = sectors[i].floorheight;
+				sectors[i].virtualCeilingheight = sectors[i].ceilingheight;
+			}
+		}
+	}
+#ifdef CORRECT_FLOAT_EXPERIMENTAL
+	// correct ceiling/floor heights of totally floating sectors
+	for (i = 0; i < numsectors; i++)
+	{
+		sector_t *floatSector;
+
+		floatSector = &sectors[i];
+
+		// correct height of floating sectors
+		if (isCeilingFloating(floatSector))
+		{
+			fixed_t corrheight;
+
+			corrheight = estimateCeilHeight(floatSector);
+			floatSector->virtualCeilingheight = corrheight;
+			floatSector->virtualCeiling = true;
+		}
+		if (isFloorFloating(floatSector))
+		{
+			fixed_t corrheight;
+
+			corrheight = estimateFloorHeight(floatSector);
+			floatSector->virtualFloorheight = corrheight;
+			floatSector->virtualFloor = true;
+		}
+	}
+#endif
 
 	// now for the missing textures
 	for (i = 0; i < numlines; i++)

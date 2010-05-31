@@ -82,6 +82,7 @@ extern consvar_t cv_grgammagreen;
 extern consvar_t cv_grgammablue;
 extern consvar_t cv_grfiltermode;
 extern consvar_t cv_granisotropicmode;
+extern consvar_t cv_grcorrecttricks;
 extern consvar_t cv_grfovchange;
 extern consvar_t cv_grsolvetjoin;
 
