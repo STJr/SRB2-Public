@@ -766,6 +766,11 @@ static void readlevelheader(MYFILE *f, INT32 num)
 				DEH_WriteUndoline(word, mapheaderinfo[num-1].runsoc, UNDO_NONE);
 				strlcpy(mapheaderinfo[num-1].runsoc, word2, sizeof (mapheaderinfo[num-1].runsoc));
 			}
+			else if (!strcmp(word, "PALETTE"))
+			{
+				DEH_WriteUndoline(word, va("%u", mapheaderinfo[num-1].palette), UNDO_NONE);
+				mapheaderinfo[num-1].palette = (UINT16)i;
+			}
 			else
 				deh_warning("Level header %d: unknown word '%s'", num, word);
 		}

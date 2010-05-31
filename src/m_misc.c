@@ -962,7 +962,7 @@ boolean M_StartMovie(void)
 		goto failure;
 
 	if (rendermode == render_soft)
-		ret = M_SetupaPNG(va(pandf,pathname,freename), W_CacheLumpName("PLAYPAL", PU_CACHE));
+		ret = M_SetupaPNG(va(pandf,pathname,freename), W_CacheLumpName(GetPalette(), PU_CACHE));
 	else
 		ret = M_SetupaPNG(va(pandf,pathname,freename), NULL);
 
@@ -1283,10 +1283,10 @@ void M_ScreenShot(void)
 	{
 #ifdef USE_PNG
 		ret = M_SavePNG(va(pandf,pathname,freename), linear, vid.width, vid.height,
-			W_CacheLumpName("PLAYPAL", PU_CACHE));
+			W_CacheLumpName(GetPalette(), PU_CACHE));
 #else
 		ret = WritePCXfile(va(pandf,pathname,freename), linear, vid.width, vid.height,
-			W_CacheLumpName("PLAYPAL", PU_CACHE));
+			W_CacheLumpName(GetPalette(), PU_CACHE));
 #endif
 	}
 

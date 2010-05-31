@@ -25,7 +25,7 @@
 #include "d_player.h"
 
 // more precise version number to compare in network
-#define SUBVERSION 005
+#define SUBVERSION 006
 
 // Network play related stuff.
 // There is a data struct that stores network
@@ -220,6 +220,20 @@ typedef struct
 {
 	UINT8 randomseed;
 
+	//ctf flag stuff
+	UINT8 rflagloose;
+	UINT8 bflagloose;
+	INT32 rfuse;
+	INT32 bfuse;
+	INT32 rflags2;
+	INT32 bflags2;
+	INT16 rflagx;
+	INT16 rflagy;
+	INT16 rflagz;
+	INT16 bflagx;
+	INT16 bflagy;
+	INT16 bflagz;
+
 	//player stuff
 	UINT8 playernum;
 
@@ -337,6 +351,12 @@ typedef struct
 	INT32 flags2;
 	UINT32 eflags;
 	INT32 health;
+
+	fixed_t radius;
+	fixed_t height;
+	UINT16 scale;
+	UINT16 destscale;
+	UINT8 scalespeed;
 } ATTRPACK cons_pak;
 
 // Shorter player information for external use.

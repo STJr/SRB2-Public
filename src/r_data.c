@@ -534,6 +534,24 @@ static void R_InitColormaps(void)
 	R_InitExtraColormaps();
 }
 
+void R_ReInitColormaps(UINT16 num)
+{
+	char colormap[9] = "COLORMAP";
+	lumpnum_t lump;
+
+	if (num <= 9999)
+		snprintf(colormap, 8, "CLM%04u", num-1);
+
+	// Load in the light tables, now 64k aligned for smokie...
+	lump = W_GetNumForName(colormap);
+	if (lump == LUMPERROR)
+		lump = W_GetNumForName("COLORMAP");
+	W_ReadLump(lump, colormaps);
+
+	// Init Boom colormaps.
+	R_ClearColormaps();
+}
+
 static lumpnum_t foundcolormaps[MAXCOLORMAPS];
 
 static char colormapFixingArray[MAXCOLORMAPS][3][9];

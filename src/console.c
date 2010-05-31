@@ -253,6 +253,26 @@ UINT8 *cbluemap;
 UINT8 *cgreenmap;
 UINT8 *cgraymap;
 UINT8 *credmap;
+
+void CON_ReSetupBackColormap(UINT16 num)
+{
+	UINT16 i, j;
+	UINT8 k;
+	UINT8 *pal = W_CacheLumpName(R_GetPalname(num), PU_CACHE);
+
+	// setup the green translucent background colormaps
+	for (i = 0, k = 0; i < 768; i += 3, k++)
+	{
+		j = pal[i] + pal[i+1] + pal[i+2];
+		cwhitemap[k] = (UINT8)(15 - (j>>6));
+		corangemap[k] = (UINT8)(95 - (j>>6));
+		cbluemap[k] = (UINT8)(239 - (j>>6));
+		cgreenmap[k] = (UINT8)(175 - (j>>6));
+		cgraymap[k] = (UINT8)(31 - (j>>6));
+		credmap[k] = (UINT8)(143 - (j>>6));
+	}
+}
+
 static void CON_SetupBackColormap(void)
 {
 	INT32 i, j, k;

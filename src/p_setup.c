@@ -209,6 +209,8 @@ static void P_ClearSingleMapHeaderInfo(INT16 i)
 	DEH_WriteUndoline("RUNSOC", mapheaderinfo[num].runsoc, UNDO_NONE);
 	mapheaderinfo[num].runsoc[0] = '#';
 	DEH_WriteUndoline(va("# uload for map %d", i), NULL, UNDO_DONE);
+	DEH_WriteUndoline("PALLETE", va("%u", mapheaderinfo[num].palette), UNDO_NONE);
+	mapheaderinfo[num].palette = UINT16_MAX;
 }
 
 /** Clears the data from the map headers for all levels.
@@ -2119,7 +2121,8 @@ noscript:
 	// internal game map
 	lastloadedmaplumpnum = W_GetNumForName(maplumpname = G_BuildMapName(map));
 
-	R_ClearColormaps();
+	R_ReInitColormaps(mapheaderinfo[map-1].palette);
+	CON_ReSetupBackColormap(mapheaderinfo[map-1].palette);
 
 	// Start the music!
 	S_Start();

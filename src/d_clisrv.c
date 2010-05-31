@@ -2321,6 +2321,11 @@ static inline void writeconplayer(cons_pak *con, const size_t i)
 	con->x = LONG(players[i].mo->x);
 	con->y = LONG(players[i].mo->y);
 	con->z = LONG(players[i].mo->z);
+	con->radius = LONG(players[i].mo->radius);
+	con->height = LONG(players[i].mo->height);
+	con->scale = (UINT16)SHORT(players[i].mo->scale);
+	con->destscale = (UINT16)SHORT(players[i].mo->destscale);
+	con->scalespeed = players[i].mo->scalespeed;
 }
 
 static inline void readconplayer(cons_pak *con, const INT32 playernum)
@@ -2330,6 +2335,43 @@ static inline void readconplayer(cons_pak *con, const INT32 playernum)
 
 	//We get a packet for each player in game.
 	P_SetRandIndex(con->randomseed); // New random index
+
+	//Restore CTF information
+	if (gametype == GT_CTF)
+	{
+		// Remove old flags.
+		if (redflag)
+		{
+			P_SetMobjState(redflag, S_DISS);
+			redflag = NULL;
+		}
+		if (blueflag)
+		{
+			P_SetMobjState(blueflag, S_DISS);
+			blueflag = NULL;
+		}
+
+		// Spawn the flags if players aren't carrying them.
+		if (con->rflagloose != 2)
+		{
+			mobj_t *newflag = P_SpawnMobj(con->rflagx << FRACBITS, con->rflagy << FRACBITS, con->rflagz << FRACBITS, MT_REDFLAG);
+			newflag->flags |= MF_SPECIAL;
+			newflag->flags2 = con->rflags2;
+			newflag->fuse = con->rfuse;
+			newflag->spawnpoint = rflagpoint;
+			redflag = newflag;
+		}
+
+		if (con->bflagloose != 2)
+		{
+			mobj_t *newflag = P_SpawnMobj(con->bflagx << FRACBITS, con->bflagy << FRACBITS, con->bflagz << FRACBITS, MT_BLUEFLAG);
+			newflag->flags |= MF_SPECIAL;
+			newflag->flags2 = con->bflags2;
+			newflag->fuse = con->bfuse;
+			newflag->spawnpoint = bflagpoint;
+			blueflag = newflag;
+		}
+	}
 
 	if (!playeringame[playernum])
 		return;
@@ -2462,7 +2504,67 @@ static inline void readconplayer(cons_pak *con, const INT32 playernum)
 	players[playernum].mo->x = LONG(con->x);
 	players[playernum].mo->y = LONG(con->y);
 	players[playernum].mo->z = LONG(con->z);
+	players[playernum].mo->radius = LONG(con->radius);
+	players[playernum].mo->height = LONG(con->height);
+	// P_SetScale is redundant for this, as all related variables are already restored properly.
+	players[playernum].mo->scale = (UINT16)SHORT(con->scale);
+	players[playernum].mo->destscale = (UINT16)SHORT(con->destscale);
+	players[playernum].mo->scalespeed = con->scalespeed;
+
 	P_SetThingPosition(players[playernum].mo);
+}
+
+static inline void handlectfconstuff(cons_pak *con)
+{
+	if (redflag)
+	{
+		// Flag is loose
+		if (redflag->fuse)
+		{
+			con->rflagloose = 1;
+			con->rflagx = SHORT(redflag->x >> FRACBITS);
+			con->rflagy = SHORT(redflag->y >> FRACBITS);
+			con->rflagz = SHORT(redflag->z >> FRACBITS);
+			con->rflags2 = LONG(redflag->flags2);
+			con->rfuse = LONG(redflag->fuse);
+		}
+		else // flag is at base
+		{
+			con->rflagloose = 0;
+			con->rflagx = SHORT(rflagpoint->x);
+			con->rflagy = SHORT(rflagpoint->y);
+			con->rflagz = SHORT(rflagpoint->z);
+			con->rflags2 = 0;
+			con->rfuse = 0;
+		}
+	}
+	else // player has flag
+		con->rflagloose = 2;
+
+	if (blueflag)
+	{
+		// Flag is loose
+		if (blueflag->fuse)
+		{
+			con->bflagloose = 1;
+			con->bflagx = SHORT(blueflag->x >> FRACBITS);
+			con->bflagy = SHORT(blueflag->y >> FRACBITS);
+			con->bflagz = SHORT(blueflag->z >> FRACBITS);
+			con->bflags2 = LONG(blueflag->flags2);
+			con->bfuse = LONG(blueflag->fuse);
+		}
+		else // flag is at base
+		{
+			con->bflagloose = 0;
+			con->bflagx = SHORT(bflagpoint->x);
+			con->bflagy = SHORT(bflagpoint->y);
+			con->bflagz = SHORT(bflagpoint->z);
+			con->bflags2 = 0;
+			con->bfuse = 0;
+		}
+	}
+	else // player has flag
+		con->bflagloose = 2;
 }
 
 static void SV_SendConsistency(INT32 node)
@@ -2471,6 +2573,9 @@ static void SV_SendConsistency(INT32 node)
 
 	netbuffer->packettype = PT_CONSISTENCY;
 	netbuffer->u.consistency.randomseed = P_GetRandIndex();
+
+	if (gametype == GT_CTF)
+		handlectfconstuff(&netbuffer->u.consistency);
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{

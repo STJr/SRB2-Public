@@ -106,6 +106,7 @@
 		1E66921C0B690C5B00B7313A /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E66921B0B690C5B00B7313A /* SDL_mixer.framework */; };
 		1E66921D0B690C6B00B7313A /* SDL_mixer.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1E66921B0B690C5B00B7313A /* SDL_mixer.framework */; };
 		6746B1D60E1D5E7500404B3D /* rings.wpn in Resources */ = {isa = PBXBuildFile; fileRef = 6746B1D50E1D5E7500404B3D /* rings.wpn */; };
+		6766C0AF11B057E50065F389 /* zones.dta in Resources */ = {isa = PBXBuildFile; fileRef = 6766C0AE11B057E50065F389 /* zones.dta */; };
 		676BB5200E0DE06100C95963 /* m_queue.c in Sources */ = {isa = PBXBuildFile; fileRef = 676BB51C0E0DE06100C95963 /* m_queue.c */; };
 		676BB5220E0DE06100C95963 /* p_polyobj.c in Sources */ = {isa = PBXBuildFile; fileRef = 676BB51E0E0DE06100C95963 /* p_polyobj.c */; };
 		67B2071D1180FA8200E93654 /* vid_copy.s in Sources */ = {isa = PBXBuildFile; fileRef = 67B2071C1180FA8200E93654 /* vid_copy.s */; };
@@ -338,6 +339,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		6746B1D50E1D5E7500404B3D /* rings.wpn */ = {isa = PBXFileReference; lastKnownFileType = file; name = rings.wpn; path = ../../../bin/Resources/rings.wpn; sourceTree = SOURCE_ROOT; };
+		6766C0AE11B057E50065F389 /* zones.dta */ = {isa = PBXFileReference; lastKnownFileType = file; name = zones.dta; path = ../../../bin/Resources/zones.dta; sourceTree = SOURCE_ROOT; };
 		676BB51C0E0DE06100C95963 /* m_queue.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = m_queue.c; path = ../../m_queue.c; sourceTree = SOURCE_ROOT; };
 		676BB51D0E0DE06100C95963 /* m_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = m_queue.h; path = ../../m_queue.h; sourceTree = SOURCE_ROOT; };
 		676BB51E0E0DE06100C95963 /* p_polyobj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = p_polyobj.c; path = ../../p_polyobj.c; sourceTree = SOURCE_ROOT; };
@@ -738,6 +740,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6766C0AE11B057E50065F389 /* zones.dta */,
 				6746B1D50E1D5E7500404B3D /* rings.wpn */,
 				1E44AE400B67CBE800BAD059 /* drill.dta */,
 				1E44AE410B67CBE800BAD059 /* knux.plr */,
@@ -817,6 +820,7 @@
 				1E44AE580B67CBE800BAD059 /* srb2.wad in Resources */,
 				1E44AFEA0B67D06200BAD059 /* Srb2mac.icns in Resources */,
 				6746B1D60E1D5E7500404B3D /* rings.wpn in Resources */,
+				6766C0AF11B057E50065F389 /* zones.dta in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -970,7 +974,7 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CURRENT_PROJECT_VERSION = 2.00.5;
+				CURRENT_PROJECT_VERSION = 2.00.6;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					NORMALSRB2,
@@ -983,7 +987,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2.00.5;
+				CURRENT_PROJECT_VERSION = 2.00.6;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (

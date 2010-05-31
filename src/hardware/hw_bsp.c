@@ -631,8 +631,34 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *b
 			//HWR_SubsecPoly(0, NULL);
 		}
 		else
+		{
 			HWR_SubsecPoly(bspnum&(~NF_SUBSECTOR), poly);
+			//Hurdler: implement a loading status
 
+			if (ls_count-- <= 0)
+			{
+				char s[16];
+				int x, y;
+
+				I_OsPolling();
+				ls_count = numsubsectors/50;
+				CON_Drawer();
+				sprintf(s, "%d%%", (++ls_percent)<<1);
+				x = BASEVIDWIDTH/2;
+				y = BASEVIDHEIGHT/2;
+				V_DrawPatchFill(W_CachePatchName("SRB2BACK",PU_CACHE));
+				M_DrawTextBox(x-58, y-8, 13, 1);
+				V_DrawString(x-50, y, V_YELLOWMAP, "Loading...");
+				V_DrawString(x+50-V_StringWidth(s), y, V_YELLOWMAP, s);
+
+				V_DrawCenteredString(BASEVIDWIDTH/2, 40, V_YELLOWMAP, "OPENGL MODE IS INCOMPLETE");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "AND MAY CRASH YOUR");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 60, V_YELLOWMAP, "COMPUTER.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 80, V_YELLOWMAP, "USE AT OWN RISK.");
+
+				I_UpdateNoVsync();
+			}
+		}
 		M_ClearBox(bbox);
 		poly = extrasubsectors[bspnum&~NF_SUBSECTOR].planepoly;
 

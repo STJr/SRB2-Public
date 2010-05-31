@@ -613,12 +613,6 @@ void P_Ticker(void)
 		}
 	}
 
-	if (redflagloose)
-		redflagloose--;
-
-	if (blueflagloose)
-		blueflagloose--;
-
 	if (countdowntimer)
 	{
 		countdowntimer--;

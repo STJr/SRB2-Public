@@ -231,7 +231,7 @@ void ST_doPaletteStuff(void)
 			if (palette >= STARTBONUSPALS && palette <= STARTBONUSPALS + NUMBONUSPALS)
 				V_SetPaletteLump("FLASHPAL");
 			else
-				V_SetPaletteLump("PLAYPAL");
+				V_SetPaletteLump(GetPalette());
 
 			if (!splitscreen || !palette)
 				V_SetPalette(palette);
@@ -1665,15 +1665,15 @@ static void ST_drawCTFHUD(void)
 	// Display a countdown timer showing how much time left until the flag your team dropped returns to base.
 	{
 		char timeleft[33];
-		if (redflagloose)
+		if (redflag && redflag->fuse)
 		{
-			sprintf(timeleft, "%u", (redflagloose / TICRATE));
+			sprintf(timeleft, "%u", (redflag->fuse / TICRATE));
 			V_DrawCenteredString(268, STRINGY(184), V_YELLOWMAP, timeleft);
 		}
 
-		if (blueflagloose)
+		if (blueflag && blueflag->fuse)
 		{
-			sprintf(timeleft, "%u", (blueflagloose / TICRATE));
+			sprintf(timeleft, "%u", (blueflag->fuse / TICRATE));
 			V_DrawCenteredString(300, STRINGY(184), V_YELLOWMAP, timeleft);
 		}
 	}

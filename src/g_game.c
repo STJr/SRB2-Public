@@ -125,7 +125,10 @@ INT16 nextmapoverride;
 INT32 nextmapgametype;
 boolean skipstats;
 
-// Original flag spawn locations
+// Pointers to each CTF flag
+mobj_t *redflag;
+mobj_t *blueflag;
+// Pointers to CTF spawn location
 mapthing_t *rflagpoint;
 mapthing_t *bflagpoint;
 
@@ -195,7 +198,6 @@ timeattack_t timedata[NUMMAPS];
 UINT8 mapvisited[NUMMAPS];
 
 UINT32 bluescore, redscore; // CTF and Team Match team scores
-UINT32 blueflagloose, redflagloose; // Store the timer of a loose CTF flag.
 
 // Elminates unnecessary searching.
 boolean CheckForBustableBlocks;
@@ -1786,7 +1788,7 @@ static inline void G_PlayerFinishLevel(INT32 player)
 	p->starpostbit = 0;
 
 	if (rendermode == render_soft)
-		V_SetPaletteLump("PLAYPAL"); // Reset the palette
+		V_SetPaletteLump(GetPalette()); // Reset the palette
 }
 
 //

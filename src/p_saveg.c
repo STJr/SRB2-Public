@@ -43,8 +43,8 @@ UINT8 *save_p;
 // than an UINT16
 typedef enum
 {
-	RFLAGPOINT = 0x01,
-	BFLAGPOINT = 0x02,
+//	RFLAGPOINT = 0x01,
+//	BFLAGPOINT = 0x02,
 	CAPSULE    = 0x04,
 	AWAYVIEW   = 0x08,
 	FIRSTAXIS  = 0x10,
@@ -86,7 +86,7 @@ static inline void P_NetArchivePlayers(void)
 {
 	INT32 i, j;
 	UINT16 flags;
-	size_t q;
+//	size_t q;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
@@ -208,27 +208,6 @@ static inline void P_NetArchivePlayers(void)
 
 		WRITEUINT32(save_p, players[i].jointime);
 
-		if (i == 0)
-		{
-			for (q = 0; q < nummapthings; q++)
-			{
-				if (&mapthings[q] == rflagpoint)
-				{
-					flags |= RFLAGPOINT;
-					break;
-				}
-			}
-
-			for (q = 0; q < nummapthings; q++)
-			{
-				if (&mapthings[q] == bflagpoint)
-				{
-					flags |= BFLAGPOINT;
-					break;
-				}
-			}
-		}
-
 		WRITEUINT16(save_p, flags);
 
 		if (flags & CAPSULE)
@@ -242,26 +221,6 @@ static inline void P_NetArchivePlayers(void)
 
 		if (flags & AWAYVIEW)
 			WRITEUINT32(save_p, players[i].awayviewmobj->mobjnum);
-
-		if (flags & RFLAGPOINT)
-			for (q = 0; q < nummapthings; q++)
-			{
-				if (&mapthings[q] == rflagpoint)
-				{
-					WRITEUINT32(save_p, q);
-					break;
-				}
-			}
-
-		if (flags & BFLAGPOINT)
-			for (q = 0; q < nummapthings; q++)
-			{
-				if (&mapthings[q] == bflagpoint)
-				{
-					WRITEUINT32(save_p, q);
-					break;
-				}
-			}
 	}
 }
 
@@ -392,15 +351,6 @@ static inline void P_NetUnArchivePlayers(void)
 
 		if (flags & AWAYVIEW)
 			players[i].awayviewmobj = (mobj_t *)(size_t)READUINT32(save_p);
-
-		if (i == 0)
-		{
-			if (flags & RFLAGPOINT)
-				rflagpoint = &mapthings[READUINT32(save_p)];
-
-			if (flags & BFLAGPOINT)
-				bflagpoint = &mapthings[READUINT32(save_p)];
-		}
 
 		players[i].viewheight = cv_viewheight.value<<FRACBITS;
 
@@ -775,6 +725,8 @@ typedef enum
 	MD_WATERBOTTOM = 0x4000000,
 	MD_SCALE       = 0x8000000,
 	MD_DSCALE      = 0x10000000,
+	MD_BLUEFLAG    = 0x20000000,
+	MD_REDFLAG     = 0x40000000,
 } mobj_diff_t;
 
 typedef enum
@@ -1329,6 +1281,10 @@ static void P_NetArchiveThinkers(void)
 				diff |= MD_SCALE;
 			if (mobj->destscale != mobj->scale)
 				diff |= MD_DSCALE;
+			if (mobj == redflag)
+				diff |= MD_REDFLAG;
+			if (mobj == blueflag)
+				diff |= MD_BLUEFLAG;
 
 			WRITEUINT8(save_p, tc_mobj);
 			WRITEUINT32(save_p, diff);
@@ -2301,6 +2257,17 @@ static void P_NetUnArchiveThinkers(void)
 				else
 					mobj->destscale = mobj->scale;
 
+				if (diff & MD_REDFLAG)
+				{
+					redflag = mobj;
+					rflagpoint = mobj->spawnpoint;
+				}
+				if (diff & MD_BLUEFLAG)
+				{
+					blueflag = mobj;
+					bflagpoint = mobj->spawnpoint;
+				}
+
 				mobj->scalespeed = READUINT8(save_p);
 
 				// now set deductable field
@@ -2789,8 +2756,6 @@ static void P_NetArchiveMisc(void)
 	WRITEINT32(save_p, sstimer);
 	WRITEUINT32(save_p, bluescore);
 	WRITEUINT32(save_p, redscore);
-	WRITEUINT32(save_p, blueflagloose);
-	WRITEUINT32(save_p, redflagloose);
 
 	WRITEINT16(save_p, autobalance);
 	WRITEINT16(save_p, teamscramble);
@@ -2863,8 +2828,6 @@ static inline boolean P_NetUnArchiveMisc(void)
 	sstimer = READINT32(save_p);
 	bluescore = READUINT32(save_p);
 	redscore = READUINT32(save_p);
-	blueflagloose = READUINT32(save_p);
-	redflagloose = READUINT32(save_p);
 
 	autobalance = READINT16(save_p);
 	teamscramble = READINT16(save_p);

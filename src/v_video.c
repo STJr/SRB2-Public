@@ -180,6 +180,30 @@ static void LoadPalette(const char *lumpname)
 	}
 }
 
+const char *R_GetPalname(UINT16 num)
+{
+	static char palname[9];
+	char newpal[9] = "PLAYPAL";
+
+	if (num <= 9999)
+		snprintf(newpal, 8, "PAL%04u", num-1);
+
+	strncpy(palname, newpal, 8);
+	return palname;
+}
+
+const char *GetPalette(void)
+{
+	if (gamestate == GS_LEVEL)
+		return R_GetPalname(mapheaderinfo[gamemap-1].palette);
+	return "PLAYPAL";
+}
+
+static void LoadMapPalette(void)
+{
+	LoadPalette(GetPalette());
+}
+
 // -------------+
 // V_SetPalette : Set the current palette to use for palettized graphics
 //              :
@@ -187,7 +211,7 @@ static void LoadPalette(const char *lumpname)
 void V_SetPalette(INT32 palettenum)
 {
 	if (!pLocalPalette)
-		LoadPalette("PLAYPAL");
+		LoadMapPalette();
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
@@ -217,7 +241,7 @@ void V_SetPaletteLump(const char *pal)
 static void CV_usegamma_OnChange(void)
 {
 	// reload palette
-	LoadPalette("PLAYPAL");
+	LoadMapPalette();
 	V_SetPalette(0);
 }
 
@@ -2569,7 +2593,7 @@ void V_Init(void)
 	UINT8 *base = vid.buffer;
 	const INT32 screensize = vid.width * vid.height * vid.bpp;
 
-	LoadPalette("PLAYPAL");
+	LoadMapPalette();
 	// hardware modes do not use screens[] pointers
 	for (i = 0; i < NUMSCREENS; i++)
 		screens[i] = NULL;

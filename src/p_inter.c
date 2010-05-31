@@ -1415,11 +1415,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					return;
 
 				player->gotflag |= MF_REDFLAG;
-				rflagpoint = special->spawnpoint;
 				S_StartSound (player->mo, sfx_lvpass);
 				P_SetMobjState(special, S_DISS);
 				CONS_Printf(text[REDFLAG_PICKUP], player_names[player-players]);
-				redflagloose = 0;
+				redflag = NULL;
 				player->pflags &= ~PF_GLIDING;
 				player->climbing = 0;
 				if (player->powers[pw_tailsfly])
@@ -1467,11 +1466,10 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 					return;
 
 				player->gotflag |= MF_BLUEFLAG;
-				bflagpoint = special->spawnpoint;
 				S_StartSound (player->mo, sfx_lvpass);
 				P_SetMobjState(special, S_DISS);
 				CONS_Printf(text[BLUEFLAG_PICKUP], player_names[player-players]);
-				blueflagloose = 0;
+				blueflag = NULL;
 				player->pflags &= ~PF_GLIDING;
 				player->climbing = 0;
 				if (player->powers[pw_tailsfly])
@@ -3757,15 +3755,9 @@ void P_PlayerFlagBurst(player_t *player, boolean toss)
 		flag->momz = -flag->momz;
 
 	if (type == MT_REDFLAG)
-	{
 		flag->spawnpoint = rflagpoint;
-		rflagpoint = NULL;
-	}
 	else
-	{
 		flag->spawnpoint = bflagpoint;
-		bflagpoint = NULL;
-	}
 
 	flag->fuse = cv_flagtime.value * TICRATE;
 	P_SetTarget(&flag->target, player->mo);
@@ -3777,12 +3769,11 @@ void P_PlayerFlagBurst(player_t *player, boolean toss)
 
 	player->gotflag = 0;
 
-	// redflagloose and blueflagloose don't determine when the flag is returned.
-	// They just give the CTF HUD the correct value to display.
+	// Pointers set for displaying time value and for consistency restoration.
 	if (type == MT_REDFLAG)
-		redflagloose = flag->fuse;
+		redflag = flag;
 	else
-		blueflagloose = flag->fuse;
+		blueflag = flag;
 
 	if (toss)
 		player->tossdelay = 2*TICRATE;

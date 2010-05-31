@@ -85,6 +85,7 @@ lumpnum_t R_GetFlatNumForName(const char *name);
 INT32 R_TextureNumForName(const char *name, UINT16 sidenum);
 INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum);
 
+void R_ReInitColormaps(UINT16 num);
 void R_ClearColormaps(void);
 INT32 R_ColormapNumForName(char *name);
 INT32 R_CreateColormap(char *p1, char *p2, char *p3);

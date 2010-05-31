@@ -825,6 +825,9 @@ static void IdentifyVersion(void)
 	// if you change the ordering of this or add/remove a file, be sure to update the md5
 	// checking in D_SRB2Main
 
+	// Add the maps
+	D_AddFile(va(pandf,srb2waddir,"zones.dta")); //zones.dta
+
 	// Add the players
 	D_AddFile(va(pandf,srb2waddir,text[SONICPLR])); //sonic.plr
 	D_AddFile(va(pandf,srb2waddir,text[TAILSPLR])); //tails.plr
@@ -1119,13 +1122,14 @@ void D_SRB2Main(void)
 	D_CleanFile();
 
 	// Check MD5s of autoloaded files
-	W_VerifyFileMD5(0, "331b9f1e04b8112648fc45b854362422"); // srb2.srb
-	W_VerifyFileMD5(1, "f699d4702b9b505db621e5ad5af4f352"); // sonic.plr
-	W_VerifyFileMD5(2, "dfbbc38080485c70a84a57bb734ceee9"); // tails.plr
-	W_VerifyFileMD5(3, "1ea958e2aee87b6995226a120ba3eaac"); // knux.plr
-	W_VerifyFileMD5(4, "8f702416c15060cd3c53c71b91116914"); // rings.wpn
-	W_VerifyFileMD5(5, "6b1cf9b41e41a46ac58606dc6e7c9e05"); // drill.dta
-	W_VerifyFileMD5(6, "8d080c050ecf03691562aa7b60156fec"); // soar.dta
+	W_VerifyFileMD5(0, "1f698dd35bcedb04631568a84a97d72b"); // srb2.srb
+	W_VerifyFileMD5(1, "86ae3f9179c64358d1c88060e41bd415"); // zones.dta
+	W_VerifyFileMD5(2, "f699d4702b9b505db621e5ad5af4f352"); // sonic.plr
+	W_VerifyFileMD5(3, "dfbbc38080485c70a84a57bb734ceee9"); // tails.plr
+	W_VerifyFileMD5(4, "1ea958e2aee87b6995226a120ba3eaac"); // knux.plr
+	W_VerifyFileMD5(5, "8f702416c15060cd3c53c71b91116914"); // rings.wpn
+	W_VerifyFileMD5(6, "6b1cf9b41e41a46ac58606dc6e7c9e05"); // drill.dta
+	W_VerifyFileMD5(7, "8d080c050ecf03691562aa7b60156fec"); // soar.dta
 
 	// don't check music.dta because people like to modify it, and it doesn't matter if they do
 	// ...except it does if they slip maps in there, and that's what W_VerifyNMUSlumps is for.

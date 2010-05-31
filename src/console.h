@@ -48,6 +48,7 @@ extern UINT8 *yellowmap, *purplemap, *lgreenmap, *bluemap, *graymap, *redmap, *o
 extern UINT8 *cwhitemap, *corangemap, *cbluemap, *cgreenmap, *cgraymap,
 	*credmap;
 
+void CON_ReSetupBackColormap(UINT16 num);
 void CON_ClearHUD(void); // clear heads up messages
 
 void CON_Ticker(void);

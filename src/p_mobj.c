@@ -3978,6 +3978,8 @@ RetryAttack:
 	}
 	else if (mobj->state == &states[S_BLACKEGG_MISSILE3] && mobj->tics == states[S_BLACKEGG_MISSILE3].tics)
 	{
+		mobj_t dummymo;
+
 		if (!mobj->target)
 		{
 			P_SetMobjState(mobj, mobj->info->spawnstate);
@@ -3986,22 +3988,27 @@ RetryAttack:
 
 		A_FaceTarget(mobj);
 
-		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
+		// set dummymo's coordinates
+		dummymo.x = mobj->target->x;
+		dummymo.y = mobj->target->y;
+		dummymo.z = mobj->target->z + 16*FRACUNIT; // raised height
+
+		P_SpawnXYZMissile(mobj, &dummymo, MT_BLACKEGGMAN_MISSILE,
 			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->z + FixedDiv(mobj->height, 3*FRACUNIT/2));
 
-		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
+		P_SpawnXYZMissile(mobj, &dummymo, MT_BLACKEGGMAN_MISSILE,
 			mobj->x + P_ReturnThrustX(mobj, mobj->angle+ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->y + P_ReturnThrustY(mobj, mobj->angle+ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->z + FixedDiv(mobj->height, 3*FRACUNIT/2));
 
-		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
+		P_SpawnXYZMissile(mobj, &dummymo, MT_BLACKEGGMAN_MISSILE,
 			mobj->x + P_ReturnThrustX(mobj, mobj->angle-ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->y + P_ReturnThrustY(mobj, mobj->angle-ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->z + mobj->height/2);
 
-		P_SpawnXYZMissile(mobj, mobj->target, MT_BLACKEGGMAN_MISSILE,
+		P_SpawnXYZMissile(mobj, &dummymo, MT_BLACKEGGMAN_MISSILE,
 			mobj->x + P_ReturnThrustX(mobj, mobj->angle+ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->y + P_ReturnThrustY(mobj, mobj->angle+ANGLE_90, FixedDiv(mobj->radius, 3*FRACUNIT/2)+(4*FRACUNIT)),
 			mobj->z + mobj->height/2);
@@ -5706,7 +5713,7 @@ void P_MobjThinker(mobj_t *mobj)
 							if (players[consoleplayer].ctfteam == 1)
 								S_StartSound(NULL, sfx_hoop1);
 
-							redflagloose = 0;
+							redflag = NULL;
 						}
 						else // MT_BLUEFLAG
 						{
@@ -5716,7 +5723,7 @@ void P_MobjThinker(mobj_t *mobj)
 							if (players[consoleplayer].ctfteam == 2)
 								S_StartSound(NULL, sfx_hoop1);
 
-							blueflagloose = 0;
+							blueflag = NULL;
 						}
 					}
 					P_SetMobjState(mobj, S_DISS);
@@ -6993,8 +7000,7 @@ void P_RespawnSpecials(void)
 		mo->spawnpoint = mthing;
 		mo->angle = ANGLE_45 * (mthing->angle/45);
 
-		// Clunky. :(
-		// One more reason why this junk needs to be cleaned up. -Jazz
+		// todo: Clean this garbage up.
 		if (mthing->options & MTF_OBJECTFLIP)
 		{
 			if (mthing->options & MTF_AMBUSH &&
@@ -7240,6 +7246,9 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	if (!mthing->type)
 		return; // Ignore type-0 things as NOPs
 
+	// clear ctf pointers
+	redflag = blueflag = NULL;
+
 	// count deathmatch start positions
 	if (mthing->type == 33)
 	{
@@ -7462,7 +7471,9 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	y = mthing->y << FRACBITS;
 	ss = R_PointInSubsector(x, y);
 
-	if (mthing->type != 1700 && mthing->type != 1701 && mthing->type != 1702) //todo: use doomednum
+	if (i == MT_NIGHTSBUMPER)
+		z = ss->sector->floorheight + ((mthing->options >> ZSHIFT) << FRACBITS);
+	else if (i != MT_AXIS && i != MT_AXISTRANSFER && i != MT_AXISTRANSFERLINE)
 	{
 		if (i == MT_SPECIALSPIKEBALL
 			|| i == MT_BOUNCERING || i == MT_RAILRING
@@ -7488,7 +7499,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 				z = ss->sector->ceilingheight;
 
 				if (mthing->options & MTF_AMBUSH) // Special flag for rings
-					z -= 48*FRACUNIT;
+					z -= 32*FRACUNIT;
 				if (mthing->options >> ZSHIFT)
 					z -= (mthing->options >> ZSHIFT)*FRACUNIT;
 
@@ -7697,8 +7708,11 @@ ML_NOCLIMB : Direction not controllable
 	{
 		// Lower 4 bits specify the angle of
 		// the bumper in 30 degree increments.
-		mobj->threshold = (mthing->options & 15);
+		mobj->threshold = (mthing->options & 15) % 12; // It loops over, etc
 		P_SetMobjState(mobj, mobj->info->spawnstate+mobj->threshold);
+
+		// you can shut up now, OBJECTFLIP.  And all of the other options, for that matter.
+		mthing->options &= ~0xF;
 	}
 
 	if (mobj->flags & MF_BOSS)
@@ -7740,7 +7754,7 @@ ML_NOCLIMB : Direction not controllable
 #endif
 	}
 
-	if (mthing->type == 1700 || mthing->type == 1701 || mthing->type == 1702) // Axis Points
+	if (i == MT_AXIS || i == MT_AXISTRANSFER || i == MT_AXISTRANSFERLINE) // Axis Points
 	{
 		// Mare it belongs to
 		if (mthing->options >> 10)
@@ -7853,6 +7867,28 @@ ML_NOCLIMB : Direction not controllable
 				mobj->momy += 16*FRACUNIT;
 			else
 				mobj->momy -= 16*FRACUNIT;
+		}
+	}
+
+	// CTF flag pointers
+	if (i == MT_REDFLAG)
+	{
+		if (redflag)
+			I_Error("Only one flag per team allowed in CTF!");
+		else
+		{
+			redflag = mobj;
+			rflagpoint = mobj->spawnpoint;
+		}
+	}
+	if (i == MT_BLUEFLAG)
+	{
+		if (blueflag)
+			I_Error("Only one flag per team allowed in CTF!");
+		else
+		{
+			blueflag = mobj;
+			bflagpoint = mobj->spawnpoint;
 		}
 	}
 
@@ -8193,7 +8229,7 @@ void P_SpawnHoopsAndRings(mapthing_t *mthing)
 				if (!(mthing->options & MTF_OBJECTFLIP))
 					mthing->z += 32;
 				else
-					mthing->z -= 64;
+					mthing->z -= 56;
 			}
 
 			// Handle all of this in one block so we don't need individual blocks for every ring type.

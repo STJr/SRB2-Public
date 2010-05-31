@@ -422,7 +422,7 @@ static double lineLength(line_t *line)
 	dx = (double) line->v1->x - (double) line->v2->x;
 	dy = (double) line->v1->y - (double) line->v2->y;
 
-	length = sqrt(dx*dx + dy*dy);
+	length = hypot(dx, dy);
 
 	return length;
 }

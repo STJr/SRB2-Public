@@ -490,6 +490,19 @@ void Command_CauseCfail_f(void)
 	players[consoleplayer].health = 1337;
 	players[consoleplayer].mo->destscale = 25;
 	P_SetThingPosition(players[consoleplayer].mo);
+
+	// CTF consistency test
+	if (gametype == GT_CTF)
+	{
+		if (blueflag)
+			P_SetMobjState(blueflag, S_DISS);
+		if (redflag)
+		{
+			redflag->x = 423423;
+			redflag->y = 666;
+			redflag->z = 123311;
+		}
+	}
 }
 #endif
 

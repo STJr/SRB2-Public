@@ -1199,7 +1199,7 @@ mobj_t *P_SpawnGhostMobj(mobj_t *mobj)
 		ghost->eflags |= MFE_VERTICALFLIP;
 		// grr, height changes
 		P_UnsetThingPosition(ghost);
-		ghost->z += FixedDiv(FixedMul(mobj->height,3),4);
+		ghost->z -= FixedDiv(mobj->height, 4*FRACUNIT);
 		P_SetThingPosition(ghost);
 	}
 
@@ -1227,9 +1227,7 @@ mobj_t *P_SpawnGhostMobj(mobj_t *mobj)
 	P_SetScale(ghost, mobj->scale);
 	ghost->destscale = mobj->scale;
 
-#ifndef NORMALSRB2 //remove for 2.0.6
 	ghost->height = FIXEDSCALE(mobj->height, mobj->scale);
-#endif
 
 	return ghost;
 }

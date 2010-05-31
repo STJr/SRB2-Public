@@ -157,7 +157,8 @@ extern UINT32 totalrings; //  Total # of rings in a level
 
 // Fun extra stuff
 extern INT16 lastmap; // Last level you were at (returning from special stages).
-extern mapthing_t *rflagpoint, *bflagpoint; // Original flag spawn locations
+extern mobj_t *redflag, *blueflag; // Pointers to physical flags
+extern mapthing_t *rflagpoint, *bflagpoint; // Pointers to the flag spawn locations
 #define MF_REDFLAG 1
 #define MF_BLUEFLAG 2
 
@@ -195,6 +196,7 @@ typedef struct
 	boolean levelselect;  ///< Does it appear in the level select?
 	boolean noperfectbns; ///< Is the perfect bonus allowed to be obtained?
 	char runsoc[64];      ///< SOC to execute at start of level
+	UINT16 palette;      ///< PAL lump to use on this map
 } mapheader_t;
 
 extern mapheader_t mapheaderinfo[NUMMAPS];
@@ -282,8 +284,6 @@ extern INT32 tokenbits; ///< Used for setting token bits
 extern INT32 sstimer; ///< Time allotted in the special stage
 extern UINT32 bluescore; ///< Blue Team Scores
 extern UINT32 redscore;  ///< Red Team Scores
-extern UINT32 redflagloose; ///< Red's flag is on the ground.
-extern UINT32 blueflagloose; ///< Blue's flag is on the ground.
 
 // Eliminates unnecessary searching.
 extern boolean CheckForBustableBlocks;
