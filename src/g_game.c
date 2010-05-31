@@ -2050,10 +2050,10 @@ void G_DeathMatchSpawnPlayer(INT32 playernum)
 					return;
 				}
 			}
-	}
 
-	// Use a coop start dependent on playernum
-	CONS_Printf("No deathmatch start in this map - shifting to player starts to avoid crash...\n");
+		// Use a coop start dependent on playernum
+		CONS_Printf("No deathmatch start in this map - shifting to player starts to avoid crash...\n");
+	}
 
 	if (!numcoopstarts)
 		I_Error("There aren't enough starts in this map!\n");
