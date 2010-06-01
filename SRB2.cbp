@@ -36,6 +36,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 				</Compiler>
 				<Linker>
 					<Add option="`sdl-config --libs`" />
@@ -54,6 +55,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DDIRECTFULLSCREEN" />
 					<Add option="-DSDL" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 				</Compiler>
 				<Linker>
 					<Add option="`sdl-config --libs`" />
@@ -78,6 +80,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 				</Compiler>
 				<Linker>
 					<Add option="`sdl-config --libs`" />
@@ -103,6 +106,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHW3SOUND" />
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 				</Compiler>
 				<Linker>
 					<Add option="`sdl-config --libs`" />
@@ -131,6 +135,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -167,6 +172,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHW3SOUND" />
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -198,6 +204,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -235,6 +242,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHW3SOUND" />
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -265,6 +273,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 				</Compiler>
 			</Target>
 			<Target title="Release Any/Dummy">
@@ -276,6 +285,7 @@ HW3SOUND for 3D hardware sound  support
 				<Compiler>
 					<Add option="-Os" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 				</Compiler>
 			</Target>
 			<Target title="Debug Mingw R_OpenGL">
@@ -491,6 +501,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -526,6 +537,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHW3SOUND" />
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -556,6 +568,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DPARANOIA" />
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
@@ -592,6 +605,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHW3SOUND" />
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
+					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
 					<Add directory="tools/zlib" />
 				</Compiler>
