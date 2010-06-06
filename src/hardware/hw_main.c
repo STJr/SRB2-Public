@@ -2955,7 +2955,33 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 #endif
 	}
 
-	// Draw shadow BEFORE SPRITE.
+	noshadow:
+
+		/// \todo do the test earlier
+		if (!cv_grmd2.value || (md2_models[spr->mobj->sprite].scale < 0.0f))
+		{
+			FBITFIELD blend = 0;
+			if (spr->mobj->flags2 & MF2_SHADOW)
+			{
+				Surf.FlatColor.s.alpha = 0x40;
+				blend = PF_Translucent;
+			}
+			else if (spr->mobj->frame & FF_TRANSMASK)
+				blend = HWR_TranstableToAlpha((spr->mobj->frame & FF_TRANSMASK)>>FF_TRANSSHIFT, &Surf);
+			else
+			{
+				// BP: i agree that is little better in environement but it don't
+				//     work properly under glide nor with fogcolor to ffffff :(
+				// Hurdler: PF_Environement would be cool, but we need to fix
+				//          the issue with the fog before
+				Surf.FlatColor.s.alpha = 0xFF;
+				blend = PF_Translucent|PF_Occlude;
+			}
+
+			HWD.pfnDrawPolygon(&Surf, wallVerts, 4, blend|PF_Modulated|PF_Clip);
+		}
+	}
+	// Draw shadow AFTER sprite
 	if (cv_shadow.value // Shadows enabled
 		&& !(spr->mobj->flags & MF_SCENERY && spr->mobj->flags & MF_SPAWNCEILING && spr->mobj->flags & MF_NOGRAVITY) // Ceiling scenery have no shadow.
 		&& !(spr->mobj->flags2 & MF2_DEBRIS) // Debris have no corona or shadow.
@@ -3081,11 +3107,9 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		else
 			swallVerts[0].tow = swallVerts[1].tow = gpatch->max_t;
 
-#if 0
-		Surf.FlatColor.s.red = 0x00;
-		Surf.FlatColor.s.blue = 0x00;
-		Surf.FlatColor.s.green = 0x00;
-#endif
+		sSurf.FlatColor.s.red = 0x00;
+		sSurf.FlatColor.s.blue = 0x00;
+		sSurf.FlatColor.s.green = 0x00;
 
 		if (spr->mobj->frame & FF_TRANSMASK || spr->mobj->flags2 & MF2_SHADOW)
 		{
@@ -3146,32 +3170,6 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		}
 	}
 
-noshadow:
-
-	/// \todo do the test earlier
-	if (!cv_grmd2.value || (md2_models[spr->mobj->sprite].scale < 0.0f))
-	{
-		FBITFIELD blend = 0;
-		if (spr->mobj->flags2 & MF2_SHADOW)
-		{
-			Surf.FlatColor.s.alpha = 0x40;
-			blend = PF_Translucent;
-		}
-		else if (spr->mobj->frame & FF_TRANSMASK)
-			blend = HWR_TranstableToAlpha((spr->mobj->frame & FF_TRANSMASK)>>FF_TRANSSHIFT, &Surf);
-		else
-		{
-			// BP: i agree that is little better in environement but it don't
-			//     work properly under glide nor with fogcolor to ffffff :(
-			// Hurdler: PF_Environement would be cool, but we need to fix
-			//          the issue with the fog before
-			Surf.FlatColor.s.alpha = 0xFF;
-			blend = PF_Translucent|PF_Occlude;
-		}
-
-		HWD.pfnDrawPolygon(&Surf, wallVerts, 4, blend|PF_Modulated|PF_Clip);
-	}
-}
 
 #ifdef HWPRECIP
 // Sprite drawer for precipitation
