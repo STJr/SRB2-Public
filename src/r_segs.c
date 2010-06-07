@@ -1160,121 +1160,121 @@ static void R_RenderSegLoop (void)
 			}
 		}
 
-	//SoM: Calculate offsets for Thick fake floors.
-	// calculate texture offset
-	angle = (rw_centerangle + xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
-	texturecolumn = rw_offset-FixedMul(FINETANGENT(angle),rw_distance);
-	texturecolumn >>= FRACBITS;
+		//SoM: Calculate offsets for Thick fake floors.
+		// calculate texture offset
+		angle = (rw_centerangle + xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
+		texturecolumn = rw_offset-FixedMul(FINETANGENT(angle),rw_distance);
+		texturecolumn >>= FRACBITS;
 
-	// texturecolumn and lighting are independent of wall tiers
-	if (segtextured)
-	{
-		// calculate lighting
-		pindex = rw_scale>>LIGHTSCALESHIFT;
-
-		if (pindex >=  MAXLIGHTSCALE)
-			pindex = MAXLIGHTSCALE-1;
-
-		dc_colormap = walllights[pindex];
-		dc_x = rw_x;
-		dc_iscale = 0xffffffffu / (unsigned)rw_scale;
-
-		if (frontsector->extra_colormap)
-			dc_colormap = frontsector->extra_colormap->colormap + (dc_colormap - colormaps);
-	}
-
-	if (dc_numlights)
-	{
-		lighttable_t **xwalllights;
-		for (i = 0; i < dc_numlights; i++)
+		// texturecolumn and lighting are independent of wall tiers
+		if (segtextured)
 		{
-			INT32 lightnum;
-			lightnum = (dc_lightlist[i].lightlevel >> LIGHTSEGSHIFT);
-
-			if (dc_lightlist[i].extra_colormap)
-				;
-			else if (curline->v1->y == curline->v2->y)
-				lightnum--;
-			else if (curline->v1->x == curline->v2->x)
-				lightnum++;
-
-			if (lightnum < 0)
-				xwalllights = scalelight[0];
-			else if (lightnum >= LIGHTLEVELS)
-				xwalllights = scalelight[LIGHTLEVELS-1];
-			else
-				xwalllights = scalelight[lightnum];
-
+			// calculate lighting
 			pindex = rw_scale>>LIGHTSCALESHIFT;
 
 			if (pindex >=  MAXLIGHTSCALE)
 				pindex = MAXLIGHTSCALE-1;
 
-			if (dc_lightlist[i].extra_colormap)
-				dc_lightlist[i].rcolormap = dc_lightlist[i].extra_colormap->colormap + (xwalllights[pindex] - colormaps);
-			else
-				dc_lightlist[i].rcolormap = xwalllights[pindex];
+			dc_colormap = walllights[pindex];
+			dc_x = rw_x;
+			dc_iscale = 0xffffffffu / (unsigned)rw_scale;
 
-			colfunc = R_DrawColumnShadowed_8;
+			if (frontsector->extra_colormap)
+				dc_colormap = frontsector->extra_colormap->colormap + (dc_colormap - colormaps);
 		}
-	}
 
-	frontscale[rw_x] = rw_scale;
-
-	// draw the wall tiers
-	if (midtexture && yl <= yh && yh < vid.height && yh > 0)
-	{
-		// single sided line
-		dc_yl = yl;
-		dc_yh = yh;
-		dc_texturemid = rw_midtexturemid;
-		dc_source = R_GetColumn(midtexture,texturecolumn);
-		dc_texheight = textureheight[midtexture]>>FRACBITS;
-
-		//profile stuff ---------------------------------------------------------
-#ifdef TIMING
-		ProfZeroTimer();
-#endif
-		colfunc();
-#ifdef TIMING
-		RDMSR(0x10,&mycount);
-		mytotal += mycount;      //64bit add
-
-		if (nombre--==0)
-			I_Error("R_DrawColumn CPU Spy reports: 0x%d %d\n", *((INT32 *)&mytotal+1),
-				(INT32)mytotal);
-#endif
-		//profile stuff ---------------------------------------------------------
-
-		// dont draw anything more for this column, since
-		// a midtexture blocks the view
-		ceilingclip[rw_x] = (INT16)viewheight;
-		floorclip[rw_x] = -1;
-	}
-	else
-	{
-		// two sided line
-		if (toptexture)
+		if (dc_numlights)
 		{
-			// top wall
-			mid = pixhigh>>HEIGHTBITS;
-			pixhigh += pixhighstep;
-
-			if (mid >= floorclip[rw_x])
-				mid = floorclip[rw_x]-1;
-
-			if (mid >= yl && yh < vid.height && yh > 0)
+			lighttable_t **xwalllights;
+			for (i = 0; i < dc_numlights; i++)
 			{
-				dc_yl = yl;
-				dc_yh = mid;
-				dc_texturemid = rw_toptexturemid;
-				dc_source = R_GetColumn(toptexture,texturecolumn);
-				dc_texheight = textureheight[toptexture]>>FRACBITS;
-				colfunc();
-				ceilingclip[rw_x] = (INT16)mid;
+				INT32 lightnum;
+				lightnum = (dc_lightlist[i].lightlevel >> LIGHTSEGSHIFT);
+
+				if (dc_lightlist[i].extra_colormap)
+					;
+				else if (curline->v1->y == curline->v2->y)
+					lightnum--;
+				else if (curline->v1->x == curline->v2->x)
+					lightnum++;
+
+				if (lightnum < 0)
+					xwalllights = scalelight[0];
+				else if (lightnum >= LIGHTLEVELS)
+					xwalllights = scalelight[LIGHTLEVELS-1];
+				else
+					xwalllights = scalelight[lightnum];
+
+				pindex = rw_scale>>LIGHTSCALESHIFT;
+
+				if (pindex >=  MAXLIGHTSCALE)
+					pindex = MAXLIGHTSCALE-1;
+
+				if (dc_lightlist[i].extra_colormap)
+					dc_lightlist[i].rcolormap = dc_lightlist[i].extra_colormap->colormap + (xwalllights[pindex] - colormaps);
+				else
+					dc_lightlist[i].rcolormap = xwalllights[pindex];
+
+				colfunc = R_DrawColumnShadowed_8;
 			}
-			else
-				ceilingclip[rw_x] = (INT16)((INT16)yl - 1);
+		}
+
+		frontscale[rw_x] = rw_scale;
+
+		// draw the wall tiers
+		if (midtexture && yl <= yh && yh < vid.height && yh > 0)
+		{
+			// single sided line
+			dc_yl = yl;
+			dc_yh = yh;
+			dc_texturemid = rw_midtexturemid;
+			dc_source = R_GetColumn(midtexture,texturecolumn);
+			dc_texheight = textureheight[midtexture]>>FRACBITS;
+
+			//profile stuff ---------------------------------------------------------
+#ifdef TIMING
+			ProfZeroTimer();
+#endif
+			colfunc();
+#ifdef TIMING
+			RDMSR(0x10,&mycount);
+			mytotal += mycount;      //64bit add
+
+			if (nombre--==0)
+				I_Error("R_DrawColumn CPU Spy reports: 0x%d %d\n", *((INT32 *)&mytotal+1),
+					(INT32)mytotal);
+#endif
+			//profile stuff ---------------------------------------------------------
+
+			// dont draw anything more for this column, since
+			// a midtexture blocks the view
+			ceilingclip[rw_x] = (INT16)viewheight;
+			floorclip[rw_x] = -1;
+		}
+		else
+		{
+			// two sided line
+			if (toptexture)
+			{
+				// top wall
+				mid = pixhigh>>HEIGHTBITS;
+				pixhigh += pixhighstep;
+
+				if (mid >= floorclip[rw_x])
+					mid = floorclip[rw_x]-1;
+
+				if (mid >= yl && yh < vid.height && yh > 0)
+				{
+					dc_yl = yl;
+					dc_yh = mid;
+					dc_texturemid = rw_toptexturemid;
+					dc_source = R_GetColumn(toptexture,texturecolumn);
+					dc_texheight = textureheight[toptexture]>>FRACBITS;
+					colfunc();
+					ceilingclip[rw_x] = (INT16)mid;
+				}
+				else
+					ceilingclip[rw_x] = (INT16)((INT16)yl - 1);
 			}
 			else if (markceiling) // no top wall
 				ceilingclip[rw_x] = (INT16)((INT16)yl - 1);
