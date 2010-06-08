@@ -99,10 +99,12 @@ boolean drawsky = true;
 static consvar_t cv_grclipwalls = {"gr_clipwalls", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 //development variables for diverse uses
+static consvar_t cv_gralpha = {"gr_alpha", "160", 0, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 static consvar_t cv_grbeta = {"gr_beta", "0", 0, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 #ifdef SHUFFLE
 static float HWRWipeCounter = 1.0f;
+consvar_t cv_grrounddown = {"gr_rounddown", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
 consvar_t cv_grfov = {"gr_fov", "90", CV_FLOAT|CV_CALL, grfov_cons_t, CV_grFov_OnChange, 0, NULL, NULL, 0, 0, NULL};
 #ifndef HARDWAREFIX
@@ -123,6 +125,7 @@ consvar_t cv_grfiltermode = {"gr_filtermode", "Bilinear", CV_CALL, grfiltermode_
 #endif
 consvar_t cv_granisotropicmode = {"gr_anisotropicmode", "1", CV_CALL, granisotropicmode_cons_t,
                              CV_anisotropic_ONChange, 0, NULL, NULL, 0, 0, NULL};
+//static consvar_t cv_grzbuffer = {"gr_zbuffer", "On", 0, CV_OnOff};
 consvar_t cv_grcorrecttricks = {"gr_correcttricks", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grsolvetjoin = {"gr_solvetjoin", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
@@ -329,6 +332,9 @@ static angle_t gr_xtoviewangle[MAXVIDWIDTH+1];
 // test of drawing sky by polygons like in software with visplane, unfortunately
 // this doesn't work since we must have z for pixel and z for texture (not like now with z = oow)
 //#define POLYSKY
+
+// test change fov when looking up/down but bsp projection messup :(
+//#define NOCRAPPYMLOOK
 
 /// \note crappy
 #define drawtextured true
@@ -674,6 +680,11 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 		HWD.pfnDrawPolygon(&Surf, planeVerts, nrPlaneVerts,
 		                   PolyFlags|PF_Masked|PF_Modulated|PF_Clip);
 	}
+
+#ifdef ALAM_LIGHTING
+	// add here code for dynamic lighting on planes
+	HWR_PlaneLighting(planeVerts, nrPlaneVerts);
+#endif
 }
 
 #ifdef POLYSKY
@@ -894,6 +905,14 @@ static void HWR_ProjectWall(wallVert3D   * wallVerts,
 #ifdef WALLSPLATS
 	if (gr_curline->linedef->splats && cv_splats.value)
 		HWR_DrawSegsSplats(pSurf);
+#endif
+#ifdef ALAM_LIGHTING
+	//Hurdler: TDOD: do static lighting using gr_curline->lm
+	HWR_WallLighting(trVerts);
+
+	//Hurdler: for better dynamic light in dark area, we should draw the light first
+	//         and then the wall all that with the right blending func
+	//HWD.pfnDrawPolygon(pSurf, trVerts, 4, PF_Additive|PF_Modulated|PF_Occlude|PF_Clip);
 #endif
 }
 
@@ -2828,6 +2847,12 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 
 	gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
 
+#ifdef ALAM_LIGHTING
+	if (!(spr->mobj->flags2 & MF2_DEBRIS) && (spr->mobj->sprite != SPR_PLAY ||
+	 (spr->mobj->player && spr->mobj->player->powers[pw_super])))
+		HWR_DL_AddLight(spr, gpatch);
+#endif
+
 	// create the sprite billboard
 	//
 	//  3--2
@@ -2985,6 +3010,10 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 	if (cv_shadow.value // Shadows enabled
 		&& !(spr->mobj->flags & MF_SCENERY && spr->mobj->flags & MF_SPAWNCEILING && spr->mobj->flags & MF_NOGRAVITY) // Ceiling scenery have no shadow.
 		&& !(spr->mobj->flags2 & MF2_DEBRIS) // Debris have no corona or shadow.
+#ifdef ALAM_LIGHTING
+		&& !(t_lspr[spr->mobj->sprite]->type // Things with dynamic lights have no shadow.
+		&& (!spr->mobj->player || spr->mobj->player->powers[pw_super])) // Except for non-super players.
+#endif
 		&& (spr->mobj->z >= spr->mobj->floorz)) // Without this, your shadow shows on the floor, even after you die and fall through the ground.
 	{
 		////////////////////
@@ -3169,6 +3198,8 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 			}
 		}
 	}
+
+noshadow:
 
 
 #ifdef HWPRECIP
@@ -4055,6 +4086,9 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 		stplyr = player;
 		ST_doPaletteStuff();
 		stplyr = saved_player;
+#ifdef ALAM_LIGHTING
+		HWR_SetLights(viewnumber);
+#endif
 	}
 
 	// note: sets viewangle, viewx, viewy, viewz
@@ -4217,6 +4251,12 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	// Check for new console commands.
 	NetUpdate();
 
+#ifdef ALAM_LIGHTING
+	//14/11/99: Hurdler: moved here because it doesn't work with
+	// subsector, see other comments;
+	HWR_ResetLights();
+#endif
+
 	// Draw MD2 and sprites
 #ifdef SORTING
 	HWR_SortVisSprites();
@@ -4342,6 +4382,7 @@ static void Command_GrStats_f(void)
 void HWR_AddCommands(void)
 {
 	CV_RegisterVar(&cv_grmd2);
+	CV_RegisterVar(&cv_grrounddown);
 	CV_RegisterVar(&cv_grfov);
 	CV_RegisterVar(&cv_grfogdensity);
 	CV_RegisterVar(&cv_grfiltermode);
@@ -4353,10 +4394,14 @@ void HWR_AddCommands(void)
 static inline void HWR_AddEngineCommands(void)
 {
 	// engine state variables
+	//CV_RegisterVar(&cv_grsky);
+	//CV_RegisterVar(&cv_grzbuffer);
 	CV_RegisterVar(&cv_grclipwalls);
+	//CV_RegisterVar(&cv_voodoocompatibility);
 
 	// engine development mode variables
 	// - usage may vary from version to version..
+	CV_RegisterVar(&cv_gralpha);
 	CV_RegisterVar(&cv_grbeta);
 
 	// engine commands
@@ -4393,6 +4438,10 @@ void HWR_Startup(void)
 			doomwaterflat = W_GetNumForName("WATER0");
 
 		HWR_InitMD2();
+
+#ifdef ALAM_LIGHTING
+		HWR_InitLight();
+#endif
 	}
 
 	if (rendermode == render_opengl)
@@ -4612,6 +4661,11 @@ static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIE
 #ifdef WALLSPLATS
 	if (gr_curline->linedef->splats && cv_splats.value)
 		HWR_DrawSegsSplats(pSurf);
+
+#ifdef ALAM_LIGHTING
+	//Hurdler: TODO: do static lighting using gr_curline->lm
+	HWR_WallLighting(trVerts);
+#endif
 #endif
 }
 

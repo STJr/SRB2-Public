@@ -221,23 +221,77 @@ static void HWR_ResizeBlock(INT32 originalwidth, INT32 originalheight,
 	INT32     max,min;
 
 	// find a power of 2 width/height
-	//size up to nearest power of 2
-	blockwidth = 1;
-	while (blockwidth < originalwidth)
-		blockwidth <<= 1;
-	// scale down the original graphics to fit in 256
-	if (blockwidth > 2048)
-		blockwidth = 2048;
-		//I_Error("3D GenerateTexture : too big");
+	if (cv_grrounddown.value)
+	{
+		blockwidth = 256;
+		while (originalwidth < blockwidth)
+			blockwidth >>= 1;
+		if (blockwidth < 1)
+			I_Error("3D GenerateTexture : too small");
 
-	//size up to nearest power of 2
-	blockheight = 1;
-	while (blockheight < originalheight)
-		blockheight <<= 1;
-	// scale down the original graphics to fit in 256
-	if (blockheight > 2048)
-		blockheight = 2048;
-		//I_Error("3D GenerateTexture : too big");
+		blockheight = 256;
+		while (originalheight < blockheight)
+			blockheight >>= 1;
+		if (blockheight < 1)
+			I_Error("3D GenerateTexture : too small");
+	}
+	else if (cv_voodoocompatibility.value)
+	{
+		if (originalwidth > 256 || originalheight > 256)
+		{
+			blockwidth = 256;
+			while (originalwidth < blockwidth)
+				blockwidth >>= 1;
+			if (blockwidth < 1)
+				I_Error("3D GenerateTexture : too small");
+
+			blockheight = 256;
+			while (originalheight < blockheight)
+				blockheight >>= 1;
+			if (blockheight < 1)
+				I_Error("3D GenerateTexture : too small");
+		}
+		else
+		{
+			//size up to nearest power of 2
+			blockwidth = 1;
+			while (blockwidth < originalwidth)
+				blockwidth <<= 1;
+			// scale down the original graphics to fit in 256
+			if (blockwidth > 256)
+				blockwidth = 256;
+				//I_Error("3D GenerateTexture : too big");
+
+			//size up to nearest power of 2
+			blockheight = 1;
+			while (blockheight < originalheight)
+				blockheight <<= 1;
+			// scale down the original graphics to fit in 256
+			if (blockheight > 256)
+				blockheight = 255;
+				//I_Error("3D GenerateTexture : too big");
+		}
+	}
+	else
+	{
+		//size up to nearest power of 2
+		blockwidth = 1;
+		while (blockwidth < originalwidth)
+			blockwidth <<= 1;
+		// scale down the original graphics to fit in 256
+		if (blockwidth > 2048)
+			blockwidth = 2048;
+			//I_Error("3D GenerateTexture : too big");
+
+		//size up to nearest power of 2
+		blockheight = 1;
+		while (blockheight < originalheight)
+			blockheight <<= 1;
+		// scale down the original graphics to fit in 256
+		if (blockheight > 2048)
+			blockheight = 2048;
+			//I_Error("3D GenerateTexture : too big");
+	}
 
 	// do the boring LOD stuff.. blech!
 	if (blockwidth >= blockheight)
@@ -450,9 +504,30 @@ void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipm
 
 	block = MakeBlock(grMipmap);
 
-	// no rounddown, do not size up patches, so they don't look 'scaled'
-	newwidth  = min(SHORT(patch->width), blockwidth);
-	newheight = min(SHORT(patch->height), blockheight);
+	// if rounddown, rounddown patches as well as textures
+	if (cv_grrounddown.value)
+	{
+		newwidth = blockwidth;
+		newheight = blockheight;
+	}
+	else if (cv_voodoocompatibility.value) // Only scales down textures that exceed 256x256.
+	{
+		// no rounddown, do not size up patches, so they don't look 'scaled'
+		newwidth  = min(SHORT(patch->width), blockwidth);
+		newheight = min(SHORT(patch->height), blockheight);
+
+		if (newwidth > 256 || newheight > 256)
+		{
+			newwidth = blockwidth;
+			newheight = blockheight;
+		}
+	}
+	else
+	{
+		// no rounddown, do not size up patches, so they don't look 'scaled'
+		newwidth  = min(SHORT(patch->width), blockwidth);
+		newheight = min(SHORT(patch->height), blockheight);
+	}
 
 	HWR_DrawPatchInCache(grMipmap,
 	                     newwidth, newheight,
@@ -828,9 +903,31 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 		// allocate block
 		block = MakeBlock(&grpatch->mipmap);
 
-		// no rounddown, do not size up patches, so they don't look 'scaled'
-		newwidth  = min(SHORT(pic->width),blockwidth);
-		newheight = min(SHORT(pic->height),blockheight);
+		// if rounddown, rounddown patches as well as textures
+		if (cv_grrounddown.value)
+		{
+			newwidth = blockwidth;
+			newheight = blockheight;
+		}
+		else if (cv_voodoocompatibility.value) // Only scales down textures that exceed 256x256.
+		{
+			// no rounddown, do not size up patches, so they don't look 'scaled'
+			newwidth  = min(SHORT(pic->width),blockwidth);
+			newheight = min(SHORT(pic->height),blockheight);
+
+			if (newwidth > 256 || newheight > 256)
+			{
+				newwidth = blockwidth;
+				newheight = blockheight;
+			}
+		}
+		else
+		{
+			// no rounddown, do not size up patches, so they don't look 'scaled'
+			newwidth  = min(SHORT(pic->width),blockwidth);
+			newheight = min(SHORT(pic->height),blockheight);
+		}
+
 
 		if (grpatch->width  == blockwidth &&
 			grpatch->height == blockheight &&

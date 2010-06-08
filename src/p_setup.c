@@ -2192,6 +2192,10 @@ noscript:
 #ifdef HWRENDER // not win32 only 19990829 by Kin
 	if (rendermode != render_soft && rendermode != render_none)
 	{
+#ifdef ALAM_LIGHTING
+		// BP: reset light between levels (we draw preview frame lights on current frame)
+		HWR_ResetLights();
+#endif
 		// Correct missing sidedefs & deep water trick
 		HWR_CorrectSWTricks();
 		HWR_CreatePlanePolygons((INT32)numnodes - 1);

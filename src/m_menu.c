@@ -8161,9 +8161,22 @@ static menuitem_t OpenGLOptionsMenu[] =
 #endif
 	{IT_STRING|IT_CVAR|IT_CV_SLIDER,
 	                            NULL, "Translucent HUD", &cv_grtranslucenthud, 60},
+#ifdef ALAM_LIGHTING
+	{IT_SUBMENU|IT_WHITESTRING, NULL, "Lighting...",     &OGL_LightingDef,     70},
+#endif
 	{IT_SUBMENU|IT_WHITESTRING, NULL, "Fog...",          &OGL_FogDef,          80},
 	{IT_SUBMENU|IT_WHITESTRING, NULL, "Gamma...",        &OGL_ColorDef,        90},
 };
+
+#ifdef ALAM_LIGHTING
+static menuitem_t OGL_LightingMenu[] =
+{
+	{IT_STRING|IT_CVAR, NULL, "Coronas",          &cv_grcoronas,          0},
+	{IT_STRING|IT_CVAR, NULL, "Coronas size",     &cv_grcoronasize,      10},
+	{IT_STRING|IT_CVAR, NULL, "Dynamic lighting", &cv_grdynamiclighting, 20},
+	{IT_STRING|IT_CVAR, NULL, "Static lighting",  &cv_grstaticlighting,  30},
+};
+#endif
 
 static menuitem_t OGL_FogMenu[] =
 {
@@ -8192,6 +8205,20 @@ menu_t OpenGLOptionDef =
 	NULL
 };
 
+#ifdef ALAM_LIGHTING
+menu_t OGL_LightingDef =
+{
+	"M_OPTTTL",
+	"OPTIONS",
+	sizeof (OGL_LightingMenu)/sizeof (menuitem_t),
+	&OpenGLOptionDef,
+	OGL_LightingMenu,
+	M_DrawGenericMenu,
+	60, 40,
+	0,
+	NULL
+};
+#endif
 
 menu_t OGL_FogDef =
 {

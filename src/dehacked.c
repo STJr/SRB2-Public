@@ -235,7 +235,7 @@ static INT32 searchvalue(const char *s)
 	}
 }
 
-#if 0
+#ifdef HWRENDER
 static float searchfvalue(const char *s)
 {
 	while (s[0] != '=' && s[0])
@@ -599,6 +599,119 @@ static void readthing(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 }
+
+#ifdef HWRENDER
+static void readlight(MYFILE *f, INT32 num)
+{
+	XBOXSTATIC char s[MAXLINELEN];
+	char *word;
+	char *tmp;
+	INT32 value;
+	float fvalue;
+
+	do
+	{
+		if (myfgets(s, sizeof (s), f))
+		{
+			if (s[0] == '\n')
+				break;
+
+			tmp = strchr(s, '#');
+			if (tmp)
+				*tmp = '\0';
+
+			fvalue = searchfvalue(s);
+			value = searchvalue(s);
+
+			word = strtok(s, " ");
+			if (word)
+				strupr(word);
+			else
+				break;
+
+			if (!strcmp(word, "TYPE"))
+			{
+				DEH_WriteUndoline(word, va("%d", lspr[num].type), UNDO_NONE);
+				lspr[num].type = (UINT16)value;
+			}
+			else if (!strcmp(word, "OFFSETX"))
+			{
+				DEH_WriteUndoline(word, va("%f", lspr[num].light_xoffset), UNDO_NONE);
+				lspr[num].light_xoffset = fvalue;
+			}
+			else if (!strcmp(word, "OFFSETY"))
+			{
+				DEH_WriteUndoline(word, va("%f", lspr[num].light_yoffset), UNDO_NONE);
+				lspr[num].light_yoffset = fvalue;
+			}
+			else if (!strcmp(word, "CORONACOLOR"))
+			{
+				DEH_WriteUndoline(word, va("%u", lspr[num].corona_color), UNDO_NONE);
+				lspr[num].corona_color = value;
+			}
+			else if (!strcmp(word, "CORONARADIUS"))
+			{
+				DEH_WriteUndoline(word, va("%f", lspr[num].corona_radius), UNDO_NONE);
+				lspr[num].corona_radius = fvalue;
+			}
+			else if (!strcmp(word, "DYNAMICCOLOR"))
+			{
+				DEH_WriteUndoline(word, va("%u", lspr[num].dynamic_color), UNDO_NONE);
+				lspr[num].dynamic_color = value;
+			}
+			else if (!strcmp(word, "DYNAMICRADIUS"))
+			{
+				DEH_WriteUndoline(word, va("%f", lspr[num].dynamic_radius), UNDO_NONE);
+				lspr[num].dynamic_radius = fvalue;
+
+				/// \note Update the sqrradius! unnecessary?
+				lspr[num].dynamic_sqrradius = fvalue * fvalue;
+			}
+			else
+				deh_warning("Light %d: unknown word '%s'", num, word);
+		}
+	} while (!myfeof(f)); // finish when the line is empty
+}
+
+static void readspritelight(MYFILE *f, INT32 num)
+{
+	XBOXSTATIC char s[MAXLINELEN];
+	char *word;
+	char *tmp;
+	INT32 value;
+
+	do
+	{
+		if (myfgets(s, sizeof (s), f))
+		{
+			if (s[0] == '\n')
+				break;
+
+			tmp = strchr(s, '#');
+			if (tmp)
+				*tmp = '\0';
+
+			value = searchvalue(s);
+
+			word = strtok(s, " ");
+			if (word)
+				strupr(word);
+			else
+				break;
+
+			if (!strcmp(word, "LIGHTTYPE"))
+			{
+				INT32 oldvar;
+				for (oldvar = 0; t_lspr[num] != &lspr[oldvar]; oldvar++);
+				DEH_WriteUndoline(word, va("%d", oldvar), UNDO_NONE);
+				t_lspr[num] = &lspr[value];
+			}
+			else
+				deh_warning("Sprite %d: unknown word '%s'", num, word);
+		}
+	} while (!myfeof(f)); // finish when the line is empty
+}
+#endif // HWRENDER
 
 static void readlevelheader(MYFILE *f, INT32 num)
 {
@@ -2038,9 +2151,23 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				}
 				else if (!strcmp(word, "LIGHT"))
 				{
+#ifdef HWRENDER
+					if (i > 0 && i < NUMLIGHTS)
+						readlight(f, i);
+					else
+						deh_warning("Light number %d out of range", i);
+					DEH_WriteUndoline(word, word2, UNDO_HEADER);
+#endif
 				}
 				else if (!strcmp(word, "SPRITE"))
 				{
+#ifdef HWRENDER
+					if (i < NUMSPRITES && i >= 0)
+						readspritelight(f, i);
+					else
+						deh_warning("Sprite number %d out of range", i);
+					DEH_WriteUndoline(word, word2, UNDO_HEADER);
+#endif
 				}
 				else if (!strcmp(word, "LEVEL"))
 				{
