@@ -147,8 +147,8 @@ light_t *t_lspr[NUMSPRITES] =
 	&lspr[NOLIGHT],     // SPR_POSS
 	&lspr[NOLIGHT],     // SPR_SPOS
 	&lspr[NOLIGHT],     // SPR_FISH
-	&lspr[NOLIGHT],     // SPR_BUZZ
-	&lspr[NOLIGHT],     // SPR_EBUZ
+	&lspr[NOLIGHT],     // SPR_BUZZ Graue 03-10-2004
+	&lspr[NOLIGHT],     // SPR_EBUZ Graue 03-10-2004
 	&lspr[NOLIGHT],     // SPR_JETB
 	&lspr[NOLIGHT],     // SPR_JETG
 	&lspr[NOLIGHT],     // SPR_CCOM
@@ -226,7 +226,7 @@ light_t *t_lspr[NUMSPRITES] =
 	&lspr[NOLIGHT],     // SPR_SIGN
 	&lspr[NOLIGHT],     // SPR_STEM
 	&lspr[NOLIGHT],     // SPR_SPIK
-	&lspr[REDSMALL_L],  // SPR_SFLM
+	&lspr[NOLIGHT],     // SPR_SFLM
 	&lspr[NOLIGHT],     // SPR_DSPK
 	&lspr[NOLIGHT],     // SPR_USPK
 	&lspr[NOLIGHT],     // SPR_STPT
@@ -326,7 +326,7 @@ light_t *t_lspr[NUMSPRITES] =
 	// Springs
 	&lspr[NOLIGHT],     // SPR_SPRY
 	&lspr[NOLIGHT],     // SPR_SPRR
-	&lspr[NOLIGHT],     // SPR_SPRB
+	&lspr[NOLIGHT],     // SPR_SPRB Graue
 	&lspr[NOLIGHT],     // SPR_SPRY
 	&lspr[NOLIGHT],     // SPR_SUDR
 	&lspr[NOLIGHT],     // SPR_YSPR
