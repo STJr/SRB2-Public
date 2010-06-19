@@ -122,7 +122,7 @@ void R_DrawViewBorder(void);
 // -----------------
 
 void R_DrawColumn_8(void);
-void R_DrawWallColumn_8(void);
+#define R_DrawWallColumn_8	R_DrawColumn_8
 void R_DrawShadeColumn_8(void);
 void R_DrawTranslucentColumn_8(void);
 

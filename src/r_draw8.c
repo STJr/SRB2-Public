@@ -33,7 +33,7 @@ void R_DrawColumn_8(void)
 {
 	INT32 count;
 	register UINT8 *dest;
-	register INT64 frac;
+	register fixed_t frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -65,106 +65,29 @@ void R_DrawColumn_8(void)
 	{
 		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register INT64 heightmask = dc_texheight-1;
+		register INT32 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
+			register INT64 frac64 = frac;
+
 			heightmask++;
 			heightmask <<= FRACBITS;
 
-			if (frac < 0)
-				while ((frac += heightmask) <  0);
+			if (frac64 < 0)
+				while ((frac64 += heightmask) <  0);
 			else
-				while (frac >= heightmask)
-					frac -= heightmask;
+				while (frac64 >= heightmask)
+					frac64 -= heightmask;
 
 			do
 			{
 				// Re-map color indices from wall texture column
 				//  using a lighting/special effects LUT.
 				// heightmask is the Tutti-Frutti fix
-				*dest = colormap[source[frac>>FRACBITS]];
+				*dest = colormap[source[frac64>>FRACBITS]];
 				dest += vid.width;
-				if ((frac += fracstep) >= heightmask)
-					frac -= heightmask;
-			} while (--count);
-		}
-		else
-		{
-			while ((count -= 2) >= 0) // texture height is a power of 2
-			{
-				*dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-				dest += vid.width;
-				frac += fracstep;
-				*dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-				dest += vid.width;
-				frac += fracstep;
-			}
-			if (count & 1)
-				*dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-		}
-	}
-}
-
-/**	\brief The R_DrawWallColumn_8 function
-	Experiment to make software go faster. Taken from the Boom source
-*/
-void R_DrawWallColumn_8(void)
-{
-	INT32 count;
-	register UINT8 *dest;
-	register INT64 frac;
-	fixed_t fracstep;
-
-	count = dc_yh - dc_yl;
-
-	if (count < 0) // Zero length, column does not exceed a pixel.
-		return;
-
-#ifdef RANGECHECK
-	if ((unsigned)dc_x >= (unsigned)vid.width || dc_yl < 0 || dc_yh >= vid.height)
-		return;
-#endif
-
-	// Framebuffer destination address.
-	// Use ylookup LUT to avoid multiply with ScreenWidth.
-	// Use columnofs LUT for subwindows?
-
-	//dest = ylookup[dc_yl] + columnofs[dc_x];
-	dest = &topleft[dc_yl*vid.width + dc_x];
-
-	count++;
-
-	// Determine scaling, which is the only mapping to be done.
-	fracstep = dc_iscale;
-	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
-	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
-
-	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
-	// This is as fast as it gets.
-	{
-		register const UINT8 *source = dc_source;
-		register const lighttable_t *colormap = dc_colormap;
-		register INT64 heightmask = dc_texheight-1;
-		if (dc_texheight & heightmask)   // not a power of 2 -- killough
-		{
-			heightmask++;
-			heightmask <<= FRACBITS;
-
-			if (frac < 0)
-				while ((frac += heightmask) <  0);
-			else
-				while (frac >= heightmask)
-					frac -= heightmask;
-
-			do
-			{
-				// Re-map color indices from wall texture column
-				//  using a lighting/special effects LUT.
-				// heightmask is the Tutti-Frutti fix
-				*dest = colormap[source[frac>>FRACBITS]];
-				dest += vid.width;
-				if ((frac += fracstep) >= heightmask)
-					frac -= heightmask;
+				if ((frac64 += fracstep) >= heightmask)
+					frac64 -= heightmask;
 			} while (--count);
 		}
 		else
@@ -190,7 +113,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 {
 	INT32 count;
 	register UINT8 *dest;
-	register INT64 frac;
+	register fixed_t frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -222,32 +145,34 @@ void R_Draw2sMultiPatchColumn_8(void)
 	{
 		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register INT64 heightmask = dc_texheight-1;
+		register INT32 heightmask = dc_texheight-1;
 		register UINT8 val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
+			register INT64 frac64 = frac;
+
 			heightmask++;
 			heightmask <<= FRACBITS;
 
-			if (frac < 0)
-				while ((frac += heightmask) <  0);
+			if (frac64 < 0)
+				while ((frac64 += heightmask) <  0);
 			else
-				while (frac >= heightmask)
-					frac -= heightmask;
+				while (frac64 >= heightmask)
+					frac64 -= heightmask;
 
 			do
 			{
 				// Re-map color indices from wall texture column
 				//  using a lighting/special effects LUT.
 				// heightmask is the Tutti-Frutti fix
-				val = source[frac>>FRACBITS];
+				val = source[frac64>>FRACBITS];
 
 				if (val != TRANSPARENTPIXEL)
 					*dest = colormap[val];
 
 				dest += vid.width;
-				if ((frac += fracstep) >= heightmask)
-					frac -= heightmask;
+				if ((frac64 += fracstep) >= heightmask)
+					frac64 -= heightmask;
 			} while (--count);
 		}
 		else
