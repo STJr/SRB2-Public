@@ -93,6 +93,7 @@ D_FILES=$(D_DIR)/srb2.srb \
 	$(D_DIR)/rings.wpn \
 	$(D_DIR)/drill.dta \
 	$(D_DIR)/soar.dta \
+	$(D_DIR)/zones.dta \
 	$(D_DIR)/music.dta \
 
 ifdef WIILINUX
