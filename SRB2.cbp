@@ -798,10 +798,8 @@ HW3SOUND for 3D hardware sound  support
 			<Add option="-g" />
 		</Linker>
 		<ExtraCommands>
-			<Add before="./comptime.sh $(PROJECT_DIR)src" />
-			<Add after="#objcopy $(TAGET_OUTPUT_FILE) $(TAGET_OUTPUT_FILE).debug" />
-			<Add after="#objcopy --strip-debug $(TAGET_OUTPUT_FILE)" />
-			<Add after="#objcopy --add-gnu-debuglink=$(TAGET_OUTPUT_FILE) $(TAGET_OUTPUT_FILE).debug" />
+			<Add before="make -f comptime.mk all-before" />
+			<Add after="make -f cpdebug.mk all-after BIN=$(TARGET_OUTPUT_FILE)" />
 			<Mode after="always" />
 		</ExtraCommands>
 		<Unit filename="src/am_map.c">
