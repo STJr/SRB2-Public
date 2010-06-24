@@ -3,9 +3,9 @@ ifdef ComSpec
 COMSPEC=$(ComSpec)
 endif
 ifdef COMSPEC
-OBJCOPY="objcopy.exe"
+OBJCOPY=objcopy.exe
 else
-OBJCOPY="objcopy"
+OBJCOPY=objcopy
 endif
 DGB=$(BIN).debug
 
