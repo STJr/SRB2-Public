@@ -1501,7 +1501,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=1
-BuildCmd=nasm.exe -o $@ -f win32 src/tmap.nas
+BuildCmd=nasm.exe -g -o $@ -f win32 src/tmap.nas
 
 [Unit152]
 FileName=src\asm_defs.inc
@@ -1571,7 +1571,7 @@ CompileCpp=0
 Link=0
 Priority=1000
 OverrideBuildCmd=1
-BuildCmd=nasm.exe -o $@ -f win32 src/tmap_mmx.nas
+BuildCmd=nasm.exe -g -o $@ -f win32 src/tmap_mmx.nas
 
 [Unit160]
 FileName=src\string.c

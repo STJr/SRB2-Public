@@ -303,6 +303,8 @@ else
 	CFLAGS+=-g $(OPTS) $(M5) -Os $(WINDRESFLAGS)
 endif
 
+	NASMOPTS = -g
+
 ifdef PROFILEMODE
 	# build with profiling information
 	CFLAGS:=-pg $(CFLAGS)
@@ -565,7 +567,7 @@ $(OBJDIR)/%.o: hardware/%.c
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: %.nas
-	$(NASM) -o $@ -f $(NASMFORMAT) $<
+	$(NASM) $(NASMOPTS) -o $@ -f $(NASMFORMAT) $<
 
 $(OBJDIR)/vid_copy.o: vid_copy.s asm_defs.inc
 	$(CC) $(OPTS) -x assembler-with-cpp -c $< -o $@

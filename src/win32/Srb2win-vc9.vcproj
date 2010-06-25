@@ -998,7 +998,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1009,7 +1009,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1019,7 +1019,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1030,7 +1030,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1044,7 +1044,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1055,7 +1055,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1065,7 +1065,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1076,7 +1076,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1090,7 +1090,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1101,7 +1101,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1111,7 +1111,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1122,7 +1122,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>

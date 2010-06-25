@@ -257,7 +257,7 @@ InputPath=..\tmap.nas
 InputName=tmap
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -270,7 +270,7 @@ InputPath=..\tmap.nas
 InputName=tmap
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -290,7 +290,7 @@ InputPath=..\tmap_mmx.nas
 InputName=tmap_mmx
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -303,7 +303,7 @@ InputPath=..\tmap_mmx.nas
 InputName=tmap_mmx
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -322,7 +322,7 @@ InputPath=..\tmap_vc.nas
 InputName=tmap_vc
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -334,7 +334,7 @@ InputPath=..\tmap_vc.nas
 InputName=tmap_vc
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
