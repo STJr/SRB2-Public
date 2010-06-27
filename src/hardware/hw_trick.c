@@ -434,9 +434,7 @@ static double lineLength(line_t *line)
 static double calcLineoutLength(sector_t *sector)
 {
 	linechain_t *chain;
-	double length;
-
-	length = 0.0;
+	double length = 0.0L;
 	chain = sector->sectorLines;
 
 	while (NULL != chain) // sum up lengths of all lines
@@ -457,7 +455,7 @@ static void calcLineouts(sector_t *sector)
 
 	while (NULL != encSector)
 	{
-		if (encSector->lineoutLength < 0.0) // if length has not yet been calculated
+		if (encSector->lineoutLength < 0.0L) // if length has not yet been calculated
 		{
 			encSector->lineoutLength = calcLineoutLength(encSector);
 		}
