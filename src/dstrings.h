@@ -20,6 +20,8 @@
 #ifndef __DSTRINGS__
 #define __DSTRINGS__
 
+#include "doomdef.h"
+
 // Misc. other strings.
 #define SAVEGAMENAME "srb2sav"
 
@@ -42,7 +44,7 @@ extern char savegamename[256];
 //
 typedef enum
 {
-	D_DEVSTR,
+	D_DEVSTR = 0,
 	D_CDROM,
 	PRESSKEY,
 	PRESSYN,
