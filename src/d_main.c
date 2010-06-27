@@ -1141,7 +1141,7 @@ void D_SRB2Main(void)
 	// ...except it does if they slip maps in there, and that's what W_VerifyNMUSlumps is for.
 
 
-	mainwads = 7; // there 7 wads not to unload
+	mainwads = 8; // there are 8 wads not to unload
 
 	// Check and print which version is executed.
 	CONS_Printf("%s",text[COMERCIAL]);
