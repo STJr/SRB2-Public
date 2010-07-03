@@ -1050,10 +1050,6 @@ void I_GetEvent(void)
 					SDLdoUngrabMouse();
 					break;
 				}
-				else
-				{
-					 SDLdoGrabMouse();
-				}
 				if ((SDL_APPMOUSEFOCUS&inputEvent.active.state) && USE_MOUSEINPUT && inputEvent.active.gain)
 					HalfWarpMouse(realwidth, realheight);
 				break;
