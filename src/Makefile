@@ -533,8 +533,9 @@ ifndef DUMMY
 -include $(OBJDIR)/depend.dep
 endif
 
-$(OBJDIR)/depend.dep: pre-build
+$(OBJDIR)/depend.dep:
 	@echo "Creating dependency file, depend.dep"
+	@echo > comptime.h
 	$(CC) $(CFLAGS) -MM *.c > $(OBJDIR)/depend.ped
 	$(CC) $(CFLAGS) -MM $(INTERFACE)/*.c >> $(OBJDIR)/depend.ped
 ifndef NOHW
