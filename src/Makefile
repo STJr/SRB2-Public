@@ -533,7 +533,7 @@ ifndef DUMMY
 -include $(OBJDIR)/depend.dep
 endif
 
-$(OBJDIR)/depend.dep:
+$(OBJDIR)/depend.dep: pre-build
 	@echo "Creating dependency file, depend.dep"
 	$(CC) $(CFLAGS) -MM *.c > $(OBJDIR)/depend.ped
 	$(CC) $(CFLAGS) -MM $(INTERFACE)/*.c >> $(OBJDIR)/depend.ped
