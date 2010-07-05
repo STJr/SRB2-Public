@@ -507,15 +507,6 @@ static INT32 SDLatekey(SDLKey sym)
 	return rc;
 }
 
-static void SDLdoGrabMouse(void)
-{
-	if (SDL_GRAB_OFF == SDL_WM_GrabInput(SDL_GRAB_QUERY))
-	{
-		if (mousegrabok)
-			SDL_WM_GrabInput(SDL_GRAB_ON);
-	}
-}
-
 static void SDLdoUngrabMouse(void)
 {
 	if (SDL_GRAB_ON == SDL_WM_GrabInput(SDL_GRAB_QUERY))
@@ -1238,7 +1229,7 @@ void I_StartupMouse(void)
 	else
 		firsttimeonmouse = SDL_FALSE;
 	if (cv_usemouse.value)
-		SDLdoGrabMouse();
+		return;
 	else
 		SDLdoUngrabMouse();
 }
