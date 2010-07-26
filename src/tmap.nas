@@ -142,9 +142,9 @@ R_DrawColumn_8_ASM:
         shrd    eax,edx,FRACBITS
         add     eax,[dc_texturemid]
         mov     ebp,eax                 ;; ebp = frac
-        
+
         mov     ebx,[dc_colormap]
-        
+
         mov     esi,[dc_source]
 ;;
 ;; if (dc_hires) frac = 0;
@@ -161,10 +161,10 @@ R_DrawColumn_8_ASM:
         sub     edx,1                   ;; edx = heightmask
         test    edx,[dc_texheight]
         jnz     .notpowertwo
-        
+
         test    ecx,0x01                ;; Test for odd no. pixels
         jnz     .odd
-        
+
 ;;
 ;; Texture height is a power of two, so we get modular arithmetic by
 ;; masking
@@ -179,7 +179,7 @@ R_DrawColumn_8_ASM:
         mov     [edi],al                ;; Write pixel
                                         ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
-      
+
 .odd:
         mov     eax,ebp                 ;; eax = frac
         sar     eax,FRACBITS            ;; Integer part
@@ -190,29 +190,29 @@ R_DrawColumn_8_ASM:
         mov     [edi],al                ;; Write pixel
                                         ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
-        
-        
+
+
         sub     ecx,2                   ;; count -= 2
         jg      .powertwo
-        
+
         jmp     .done
-       
+
 .notpowertwo:
         add     edx,1
         shl     edx,FRACBITS
         test    ebp,ebp
         jns     .notpowtwoloop
-        
+
 .makefracpos:
         add     ebp,edx                 ;; frac is negative; make it positive
         js      .makefracpos
-        
+
 .notpowtwoloop:
         cmp     ebp,edx                 ;; Reduce mod height
         jl      .writenonpowtwo
         sub     ebp,edx
         jmp     .notpowtwoloop
-        
+
 .writenonpowtwo:
         mov     eax,ebp                 ;; eax = frac
         sar     eax,FRACBITS            ;; Integer part.
@@ -222,10 +222,10 @@ R_DrawColumn_8_ASM:
         mov     [edi],al                ;; Write pixel
                                         ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
-        
+
         sub     ecx,1
         jnz     .notpowtwoloop
-        
+
 ;;
 
 .done:

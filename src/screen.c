@@ -245,7 +245,7 @@ void SCR_Recalc(void)
 	vid.dupy = vid.height / BASEVIDHEIGHT;
 	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
 	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
-	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);	
+	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 
 	// toggle off automap because some screensize-dependent values will
 	// be calculated next time the automap is activated.
