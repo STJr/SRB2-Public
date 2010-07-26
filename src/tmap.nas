@@ -52,7 +52,7 @@
 struc viddef_s
         resb 12
 .width: resb 4
-		resb 44
+        resb 44
 endstruc
 
 ;; externs
@@ -137,14 +137,14 @@ R_DrawColumn_8_ASM:
 ;;
         mov     eax,ebp                 ;; dc_yl
         shl     eax,FRACBITS
-		sub     eax,[centeryfrac]
-		imul    dword [dc_iscale]
-		shrd    eax,edx,FRACBITS
-		add     eax,[dc_texturemid]
-		mov     ebp,eax                 ;; ebp = frac
-		
-		mov     ebx,[dc_colormap]
-		
+        sub     eax,[centeryfrac]
+        imul    dword [dc_iscale]
+        shrd    eax,edx,FRACBITS
+        add     eax,[dc_texturemid]
+        mov     ebp,eax                 ;; ebp = frac
+        
+        mov     ebx,[dc_colormap]
+        
         mov     esi,[dc_source]
 ;;
 ;; if (dc_hires) frac = 0;
@@ -173,22 +173,22 @@ R_DrawColumn_8_ASM:
         mov     eax,ebp                 ;; eax = frac
         sar     eax,FRACBITS            ;; Integer part
         and     eax,edx                 ;; eax &= heightmask
-        mov     bl,[esi + eax]          ;; ebx = colormap + texel
+        movzx   eax,byte [esi + eax]    ;; eax = texel
         add     ebp,[dc_iscale]         ;; frac += fracstep
-        mov     eax,[ebx]               ;; Map through colormap
+        movzx   eax,byte [ebx+eax]      ;; Map through colormap
         mov     [edi],al                ;; Write pixel
-		                                ;; dest += vid.width
+                                        ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
       
 .odd:
         mov     eax,ebp                 ;; eax = frac
         sar     eax,FRACBITS            ;; Integer part
         and     eax,edx                 ;; eax &= heightmask
-        mov     bl,[esi + eax]          ;; ebx = colormap + texel
+        movzx   eax,byte [esi + eax]    ;; eax = texel
         add     ebp,[dc_iscale]         ;; frac += fracstep
-        movzx   eax,byte [ebx]          ;; Map through colormap
+        movzx   eax,byte [ebx+eax]      ;; Map through colormap
         mov     [edi],al                ;; Write pixel
-		                                ;; dest += vid.width
+                                        ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
         
         
@@ -204,11 +204,11 @@ R_DrawColumn_8_ASM:
         jns     .notpowtwoloop
         
 .makefracpos:
-		add     ebp,edx                 ;; frac is negative; make it positive
+        add     ebp,edx                 ;; frac is negative; make it positive
         js      .makefracpos
         
 .notpowtwoloop:
-		cmp     ebp,edx                 ;; Reduce mod height
+        cmp     ebp,edx                 ;; Reduce mod height
         jl      .writenonpowtwo
         sub     ebp,edx
         jmp     .notpowtwoloop
@@ -220,7 +220,7 @@ R_DrawColumn_8_ASM:
         add     ebp,[dc_iscale]         ;; frac += fracstep
         movzx   eax,byte [ebx]          ;; Map through colormap
         mov     [edi],al                ;; Write pixel
-		                                ;; dest += vid.width
+                                        ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
         
         sub     ecx,1
