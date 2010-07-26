@@ -906,6 +906,10 @@ void SendAskInfoViaMS(INT32 node, tic_t asktime)
 	// static buffer.
 	address = I_GetNodeAddress(node);
 
+	// no address?
+	if (!address)
+		return;
+
 	// Copy the IP address into the buffer.
 	inip = mshpp.ip;
 	while(*address && *address != ':') *inip++ = *address++;
