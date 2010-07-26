@@ -68,26 +68,31 @@ void R_DrawColumn_8(void)
 		register INT32 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
-			register INT64 frac64 = frac;
-
 			heightmask++;
 			heightmask <<= FRACBITS;
 
-			if (frac64 < 0)
-				while ((frac64 += heightmask) <  0);
+			if (frac < 0)
+				while ((frac += heightmask) <  0);
 			else
-				while (frac64 >= heightmask)
-					frac64 -= heightmask;
+				while (frac >= heightmask)
+					frac -= heightmask;
 
 			do
 			{
 				// Re-map color indices from wall texture column
 				//  using a lighting/special effects LUT.
 				// heightmask is the Tutti-Frutti fix
-				*dest = colormap[source[frac64>>FRACBITS]];
+				*dest = colormap[source[frac>>FRACBITS]];
 				dest += vid.width;
-				if ((frac64 += fracstep) >= heightmask)
-					frac64 -= heightmask;
+
+				// Avoid overflow.
+				if (fracstep > 0x7FFFFFFF - frac)
+					frac += fracstep - heightmask;
+				else
+					frac += fracstep;
+
+				while (frac >= heightmask)
+					frac -= heightmask;
 			} while (--count);
 		}
 		else
