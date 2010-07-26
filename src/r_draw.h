@@ -128,7 +128,7 @@ void R_DrawTranslucentColumn_8(void);
 
 #ifdef USEASM
 void ASMCALL R_DrawColumn_8_ASM(void);
-void ASMCALL R_DrawWallColumn_8_ASM(void);
+#define R_DrawWallColumn_8_ASM	R_DrawColumn_8_ASM
 void ASMCALL R_DrawShadeColumn_8_ASM(void);
 void ASMCALL R_DrawTranslucentColumn_8_ASM(void);
 

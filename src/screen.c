@@ -79,12 +79,6 @@ UINT8 *scr_borderpatch; // flat used to fill the reduced view borders set at ST_
 
 // =========================================================================
 
-#ifdef RUSEASM
-// tell asm code the new rowbytes value.
-void ASMCALL ASM_PatchRowBytes(INT32 rowbytes);
-void ASMCALL MMX_PatchRowBytes(INT32 rowbytes);
-#endif
-
 //  Short and Tall sky drawer, for the current color mode
 void (*walldrawerfunc)(void);
 
@@ -127,10 +121,10 @@ void SCR_SetMode(void)
 #ifdef RUSEASM
 		if (R_ASM)
 		{
-			//colfunc = basecolfunc = R_DrawColumn_8_ASM;
+			colfunc = basecolfunc = R_DrawColumn_8_ASM;
 			shadecolfunc = R_DrawShadeColumn_8_ASM;
 //			fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
-			//walldrawerfunc = R_DrawWallColumn_8_ASM;
+			walldrawerfunc = R_DrawWallColumn_8_ASM;
 		}
 /*		if (R_486)
 		{
@@ -192,11 +186,6 @@ void SCR_Startup(void)
 			R_MMXExt = true;
 		if (RCpuInfo->SSE2)
 			R_SSE2 = true;
-
-		if (RCpuInfo->CPUs > 1)
-		{
-			R_ASM = false; //with more than 1 CPU, ASM go BOOM!
-		}
 		CONS_Printf("CPU Info: 486: %i, 586: %i, MMX: %i, 3DNow: %i, MMXExt: %i, SSE2: %i\n",
 		            R_486, R_586, R_MMX, R_3DNow, R_MMXExt, R_SSE2);
 	}
@@ -216,18 +205,6 @@ void SCR_Startup(void)
 	if (M_CheckParm("-SSE2"))
 		R_SSE2 = true;
 
-#if defined (_WIN32) && !defined (_WIN32_WCE) && !defined (_XBOX)
-	if (!RCpuInfo || !RCpuInfo->CPUs) //bad CPUID code?
-	{
-		LPCSTR cNOP = I_GetEnv("NUMBER_OF_PROCESSORS");
-		if (cNOP && atoi(cNOP) > 1 && !M_CheckParm("-ASM"))
-		{
-			R_ASM = false;
-			CONS_Printf("Disabling ASM code\n");
-		}
-	}
-#endif
-
 	M_SetupMemcpy();
 
 	if (dedicated)
@@ -245,13 +222,6 @@ void SCR_Startup(void)
 	vid.dupy = (INT32)vid.fdupy;
 
 	vid.baseratio = FRACUNIT;
-
-#ifdef RUSEASM
-	if (R_ASM)
-		ASM_PatchRowBytes(vid.rowbytes);
-//	if (R_486 || R_586 || R_MMX)
-//		MMX_PatchRowBytes(vid.rowbytes);
-#endif
 
 	V_Init();
 	CV_RegisterVar(&cv_ticrate);
@@ -275,15 +245,7 @@ void SCR_Recalc(void)
 	vid.dupy = vid.height / BASEVIDHEIGHT;
 	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
 	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
-	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
-
-	// patch the asm code depending on vid buffer rowbytes
-#ifdef RUSEASM
-	if (R_ASM)
-		ASM_PatchRowBytes(vid.rowbytes);
-//	if (R_486 || R_586 || R_MMX)
-//		MMX_PatchRowBytes(vid.rowbytes);
-#endif
+	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);	
 
 	// toggle off automap because some screensize-dependent values will
 	// be calculated next time the automap is activated.

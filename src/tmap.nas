@@ -21,6 +21,8 @@
 
 [BITS 32]
 
+%define FRACBITS 16
+
 %ifdef LINUX
 %macro cextern 1
 [extern %1]
@@ -30,7 +32,6 @@
 [global %1]
 %endmacro
 
-%define CODE_WSEG .data
 %define CODE_SEG .data
 %else
 %macro cextern 1
@@ -43,10 +44,16 @@
 [global %1]
 %endmacro
 
-%define CODE_SEG .data
-%define CODE_WSEG .text write
+%define CODE_SEG .text
 %endif
 
+
+; The viddef_s structure. We only need the width field.
+struc viddef_s
+        resb 12
+.width: resb 4
+		resb 44
+endstruc
 
 ;; externs
 ;; columns
@@ -57,12 +64,19 @@ cextern ylookup
 cextern columnofs
 cextern dc_source
 cextern dc_texturemid
+cextern dc_texheight
 cextern dc_iscale
 cextern dc_hires
 cextern centery
+cextern centeryfrac
 cextern dc_colormap
 cextern dc_transmap
 cextern colormaps
+cextern vid
+cextern topleft
+
+; DELME
+cextern R_DrawColumn_8
 
 ; polygon edge rasterizer
 cextern prastertab
@@ -76,61 +90,24 @@ tystep          dd      0
 
 [SECTION CODE_SEG]
 
-;----------------------------------------------------------------------------
-; void  ASM_PatchRowBytes (int rowbytes);
-;----------------------------------------------------------------------------
-cglobal ASM_PatchRowBytes
-;       align   16
-ASM_PatchRowBytes:
-        mov     eax,[esp+4]
-        mov     [p1+2],eax
-        mov     [p2+2],eax
-        mov     [p3+2],eax
-        mov     [p4+2],eax
-        mov     [p5+2],eax
-        mov     [p6+2],eax
-        mov     [p7+2],eax
-        mov     [p8+2],eax
-        mov     [p9+2],eax
-        mov     [pa+2],eax
-        mov     [pb+2],eax
-        mov     [pc+2],eax
-        mov     [pd+2],eax
-        mov     [pe+2],eax
-        mov     [pf+2],eax
-        mov     [pg+2],eax
-        mov     [ph+2],eax
-        mov     [pi+2],eax
-        mov     [pj+2],eax
-        mov     [pk+2],eax
-        mov     [pl+2],eax
-        mov     [pm+2],eax
-        mov     [pn+2],eax
-        mov     [po+2],eax
-        mov     [pp+2],eax
-        mov     [pq+2],eax
-        add     eax,eax
-        mov     [q1+2],eax
-        mov     [q2+2],eax
-        mov     [q3+2],eax
-        mov     [q4+2],eax
-        mov     [q5+2],eax
-        mov     [q6+2],eax
-        mov     [q7+2],eax
-        mov     [q8+2],eax
-        ret
-
-[SECTION CODE_WSEG]
-
 ;;----------------------------------------------------------------------
 ;;
 ;; R_DrawColumn : 8bpp column drawer
 ;;
 ;; New  optimised version 10-01-1998 by D.Fabrice and P.Boris
-;; TO DO: optimise it much farther... should take at most 3 cycles/pix
-;;      once it's fixed, add code to patch the offsets so that it
-;;      works in every screen width.
+;; Revised by G. Dick July 2010 to support the intervening twelve years'
+;; worth of changes to the renderer. Since I only vaguely know what I'm
+;; doing, this is probably rather suboptimal. Help appreciated!
 ;;
+;;----------------------------------------------------------------------
+;; fracstep, vid.width in memory
+;; eax = accumulator
+;; ebx = colormap
+;; ecx = count
+;; edx = heightmask
+;; esi = source
+;; edi = dest
+;; ebp = frac
 ;;----------------------------------------------------------------------
 
 cglobal R_DrawColumn_8_ASM
@@ -144,296 +121,118 @@ R_DrawColumn_8_ASM:
 ;; dest = ylookup[dc_yl] + columnofs[dc_x];
 ;;
         mov     ebp,[dc_yl]
-        mov     ebx,ebp
-        mov     edi,[ylookup+ebx*4]
+        mov     edi,[ylookup+ebp*4]
         mov     ebx,[dc_x]
         add     edi,[columnofs+ebx*4]  ;; edi = dest
 ;;
 ;; pixelcount = yh - yl + 1
 ;;
-        mov     eax,[dc_yh]
-        inc     eax
-        sub     eax,ebp                 ;; pixel count
-        mov     [pixelcount],eax        ;; save for final pixel
-        jle     near vdone                   ;; nothing to scale
+        mov     ecx,[dc_yh]
+        add     ecx,1
+        sub     ecx,ebp                 ;; pixel count
+        jle     near .done              ;; nothing to scale
 ;;
-;; frac = dc_texturemid - (centery-dc_yl)*fracstep;
+;; fracstep = dc_iscale;	// But we just use [dc_iscale]
+;; frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep));
 ;;
-        mov     ecx,[dc_iscale]        ;; fracstep
-        mov     eax,[centery]
-        sub     eax,ebp
-        imul    eax,ecx
-        mov     edx,[dc_texturemid]
-        sub     edx,eax
-        mov     ebx,edx
-        shr     ebx,16                  ;; frac int.
-        and     ebx,0x7f
-        shl     edx,16                  ;; y frac up
-
-        mov     ebp,ecx
-        shl     ebp,16                  ;; fracstep f. up
-        shr     ecx,16                  ;; fracstep i. ->cl
-        and     cl,0x7f
+        mov     eax,ebp                 ;; dc_yl
+        shl     eax,FRACBITS
+		sub     eax,[centeryfrac]
+		imul    dword [dc_iscale]
+		shrd    eax,edx,FRACBITS
+		add     eax,[dc_texturemid]
+		mov     ebp,eax                 ;; ebp = frac
+		
+		mov     ebx,[dc_colormap]
+		
         mov     esi,[dc_source]
 ;;
 ;; if (dc_hires) frac = 0;
 ;;
-        test byte [dc_hires],0x01
-        mov ebx,0x00
-;;
-;; lets rock :) !
-;;
-        mov     eax,[pixelcount]
-        mov     dh,al
-        shr     eax,2
-        mov     ch,al                   ;; quad count
-        mov     eax,[dc_colormap]
-        test    dh,0x3
-        je      near v4quadloop
-;;
-;;  do un-even pixel
-;;
-        test    dh,0x1
-        je      two_uneven
+        test    byte [dc_hires],0x01
+        jz      .texheightcheck
+        xor     ebp,ebp
 
-        mov     al,[esi+ebx]            ;; prep un-even loops
-        add     edx,ebp                 ;; ypos f += ystep f
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     dl,[eax]                ;; colormap texel
-        and     bl,0x7f                 ;; mask 0-127 texture index
-        mov     [edi],dl                ;; output pixel
-p1:     add     edi,0x12345678
 ;;
-;;  do two non-quad-aligned pixels
+;; Check for power of two
 ;;
-two_uneven:
-        test    dh,0x2
-        je      f3
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp                 ;; ypos f += ystep f
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     dl,[eax]                ;; colormap texel
-        and     bl,0x7f                 ;; mask 0-127 texture index
-        mov     [edi],dl                ;; output pixel
-        mov     al,[esi+ebx]
-        add     edx,ebp                 ;; fetch source texel
-        adc     bl,cl                   ;; ypos f += ystep f
-        mov     dl,[eax]                ;; ypos i += ystep i
-        and     bl,0x7f                 ;; colormap texel
-p2:     add     edi,0x12345678          ;; mask 0-127 texture index
-        mov     [edi],dl
-p3:     add     edi,0x12345678          ;; output pixel
+.texheightcheck:
+        mov     edx,[dc_texheight]
+        sub     edx,1                   ;; edx = heightmask
+        test    edx,[dc_texheight]
+        jnz     .notpowertwo
+        
+        test    ecx,0x01                ;; Test for odd no. pixels
+        jnz     .odd
+        
 ;;
-;;  test if there was at least 4 pixels
+;; Texture height is a power of two, so we get modular arithmetic by
+;; masking
 ;;
-f3:
-        test    ch,0xff                 ;; test quad count
-        je      near vdone
+.powertwo:
+        mov     eax,ebp                 ;; eax = frac
+        sar     eax,FRACBITS            ;; Integer part
+        and     eax,edx                 ;; eax &= heightmask
+        mov     bl,[esi + eax]          ;; ebx = colormap + texel
+        add     ebp,[dc_iscale]         ;; frac += fracstep
+        mov     eax,[ebx]               ;; Map through colormap
+        mov     [edi],al                ;; Write pixel
+		                                ;; dest += vid.width
+        add     edi,[vid + viddef_s.width]
+      
+.odd:
+        mov     eax,ebp                 ;; eax = frac
+        sar     eax,FRACBITS            ;; Integer part
+        and     eax,edx                 ;; eax &= heightmask
+        mov     bl,[esi + eax]          ;; ebx = colormap + texel
+        add     ebp,[dc_iscale]         ;; frac += fracstep
+        movzx   eax,byte [ebx]          ;; Map through colormap
+        mov     [edi],al                ;; Write pixel
+		                                ;; dest += vid.width
+        add     edi,[vid + viddef_s.width]
+        
+        
+        sub     ecx,2                   ;; count -= 2
+        jg      .powertwo
+        
+        jmp     .done
+       
+.notpowertwo:
+        add     edx,1
+        shl     edx,FRACBITS
+        test    ebp,ebp
+        jns     .notpowtwoloop
+        
+.makefracpos:
+		add     ebp,edx                 ;; frac is negative; make it positive
+        js      .makefracpos
+        
+.notpowtwoloop:
+		cmp     ebp,edx                 ;; Reduce mod height
+        jl      .writenonpowtwo
+        sub     ebp,edx
+        jmp     .notpowtwoloop
+        
+.writenonpowtwo:
+        mov     eax,ebp                 ;; eax = frac
+        sar     eax,FRACBITS            ;; Integer part.
+        mov     bl,[esi + eax]          ;; ebx = colormap + texel
+        add     ebp,[dc_iscale]         ;; frac += fracstep
+        movzx   eax,byte [ebx]          ;; Map through colormap
+        mov     [edi],al                ;; Write pixel
+		                                ;; dest += vid.width
+        add     edi,[vid + viddef_s.width]
+        
+        sub     ecx,1
+        jnz     .notpowtwoloop
+        
 ;;
-;; ebp : ystep frac. upper 16 bits
-;; edx : y     frac. upper 16 bits
-;; ebx : y     i.    lower 7 bits,  masked for index
-;; ecx : ch = counter, cl = y step i.
-;; eax : colormap aligned 256
-;; esi : source texture column
-;; edi : dest screen
-;;
-v4quadloop:
-        mov     dh,0x7f                 ;; prep mask
-align 4
-vquadloop:
-        mov     al,[esi+ebx]            ;; prep loop
-        add     edx,ebp                 ;; ypos f += ystep f
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     dl,[eax]                ;; colormap texel
-        mov     [edi],dl                ;; output pixel
-        and     bl,0x7f                 ;; mask 0-127 texture index
 
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp
-        adc     bl,cl
-p4:     add     edi,0x12345678
-        mov     dl,[eax]
-        and     bl,0x7f
-        mov     [edi],dl
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp
-        adc     bl,cl
-p5:     add     edi,0x12345678
-        mov     dl,[eax]
-        and     bl,0x7f
-        mov     [edi],dl
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp
-        adc     bl,cl
-p6:     add     edi,0x12345678
-        mov     dl,[eax]
-        and     bl,0x7f
-        mov     [edi],dl
-
-p7:     add     edi,0x12345678
-
-        dec     ch
-        jne     vquadloop
-
-vdone:
+.done:
         pop     ebx                     ;; restore register variables
         pop     edi
         pop     esi
         pop     ebp                     ;; restore caller's stack frame pointer
-        ret
-
-;;----------------------------------------------------------------------
-;;13-02-98:
-;;      R_DrawSkyColumn : same as R_DrawColumn but:
-;;
-;;      - wrap around 256 instead of 127.
-;;      this is needed because we have a higher texture for mouselook,
-;;      we need at least 200 lines for the sky.
-;;
-;;      NOTE: the sky should never wrap, so it could use a faster method.
-;;            for the moment, we'll still use a wrapping method...
-;;
-;;      IT S JUST A QUICK CUT N PASTE, WAS NOT OPTIMISED AS IT SHOULD BE !!!
-;;
-;;----------------------------------------------------------------------
-
-cglobal R_DrawWallColumn_8_ASM
-;       align   16
-R_DrawWallColumn_8_ASM:
-        push    ebp
-        push    esi
-        push    edi
-        push    ebx
-;;
-;; dest = ylookup[dc_yl] + columnofs[dc_x];
-;;
-        mov     ebp,[dc_yl]
-        mov     ebx,ebp
-        mov     edi,[ylookup+ebx*4]
-        mov     ebx,[dc_x]
-        add     edi,[columnofs+ebx*4]   ;; edi = dest
-;;
-;; pixelcount = yh - yl + 1
-;;
-        mov     eax,[dc_yh]
-        inc     eax
-        sub     eax,ebp                 ;; pixel count
-        mov     [pixelcount],eax        ;; save for final pixel
-        jle     near    vskydone        ;; nothing to scale
-;;
-;; frac = dc_texturemid - (centery-dc_yl)*fracstep;
-;;
-        mov     ecx,[dc_iscale]        ;; fracstep
-        mov     eax,[centery]
-        sub     eax,ebp
-        imul    eax,ecx
-        mov     edx,[dc_texturemid]
-        sub     edx,eax
-        mov     ebx,edx
-        shr     ebx,16                  ;; frac int.
-        and     ebx,0xff
-        shl     edx,16                  ;; y frac up
-        mov     ebp,ecx
-        shl     ebp,16                  ;; fracstep f. up
-        shr     ecx,16                  ;; fracstep i. ->cl
-        mov     esi,[dc_source]
-;;
-;; lets rock :) !
-;;
-        mov     eax,[pixelcount]
-        mov     dh,al
-        shr     eax,0x2
-        mov     ch,al                   ;; quad count
-        mov     eax,[dc_colormap]
-        test    dh,0x3
-        je      vskyquadloop
-;;
-;;  do un-even pixel
-;;
-        test    dh,0x1
-        je      f2
-        mov     al,[esi+ebx]            ;; prep un-even loops
-        add     edx,ebp                 ;; ypos f += ystep f
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     dl,[eax]                ;; colormap texel
-        mov     [edi],dl                ;; output pixel
-p8:     add     edi,0x12345678
-;;
-;;  do two non-quad-aligned pixels
-;;
-f2:     test    dh,0x2
-        je      skyf3
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp                 ;; ypos f += ystep f
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     dl,[eax]                ;; colormap texel
-        mov     [edi],dl                ;; output pixel
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp                 ;; ypos f += ystep f
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     dl,[eax]                ;; colormap texel
-p9:     add     edi,0x12345678
-        mov     [edi],dl                ;; output pixel
-
-pa:     add     edi,0x12345678
-;;
-;;  test if there was at least 4 pixels
-;;
-skyf3:  test    ch,0xff                 ;; test quad count
-        je      vskydone
-;;
-;; ebp : ystep frac. upper 24 bits
-;; edx : y     frac. upper 24 bits
-;; ebx : y     i.    lower 7 bits,  masked for index
-;; ecx : ch = counter, cl = y step i.
-;; eax : colormap aligned 256
-;; esi : source texture column
-;; edi : dest screen
-;;
-align 4
-vskyquadloop:
-        mov     al,[esi+ebx]            ;; prep loop
-        add     edx,ebp                 ;; ypos f += ystep f
-        mov     dl,[eax]                ;; colormap texel
-        adc     bl,cl                   ;; ypos i += ystep i
-        mov     [edi],dl                ;; output pixel
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp
-        adc     bl,cl
-pb:     add     edi,0x12345678
-        mov     dl,[eax]
-        mov     [edi],dl
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp
-        adc     bl,cl
-pc:     add     edi,0x12345678
-        mov     dl,[eax]
-        mov     [edi],dl
-
-        mov     al,[esi+ebx]            ;; fetch source texel
-        add     edx,ebp
-        adc     bl,cl
-pd:     add     edi,0x12345678
-        mov     dl,[eax]
-        mov     [edi],dl
-
-pe:     add     edi,0x12345678
-
-        dec     ch
-        jne     vskyquadloop
-vskydone:
-        pop     ebx
-        pop     edi
-        pop     esi
-        pop     ebp
         ret
 
 ;;----------------------------------------------------------------------
