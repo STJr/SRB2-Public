@@ -303,7 +303,15 @@ else
 	CFLAGS+=-g $(OPTS) $(M5) -Os $(WINDRESFLAGS)
 endif
 
-	NASMOPTS = -g
+ifdef YASM
+ifdef STABS
+	NASMOPTS?= -g stabs
+else
+	NASMOPTS?= -g dwarf2
+endif
+else
+	NASMOPTS?= -g
+endif
 
 ifdef PROFILEMODE
 	# build with profiling information
