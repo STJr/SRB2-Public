@@ -867,10 +867,8 @@ void P_ResetPlayer(player_t *player)
 //
 void P_GivePlayerRings(player_t *player, INT32 num_rings, boolean flingring)
 {
-#ifdef PARANOIA
 	if (!player->mo)
 		return;
-#endif
 
 	player->mo->health += num_rings;
 	player->health += num_rings;
