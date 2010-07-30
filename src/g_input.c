@@ -639,7 +639,7 @@ static keyname_t keynames[] =
 	{KEY_2JOY1+8,  "SEC_JOYCC"},
 	{KEY_2JOY1+9,  "SEC_JOYXX"},
 	{KEY_2JOY1+10, "SEC_JOYYY"},
-	{KEY_2JOY1+11, "SEC_JOYz"},
+	{KEY_2JOY1+11, "SEC_JOYZZ"},
 	{KEY_2JOY1+12, "SEC_JOYL"},
 	{KEY_2JOY1+13, "SEC_JOYR"},
 	{KEY_2JOY1+14, "SEC_JOYZL"},
