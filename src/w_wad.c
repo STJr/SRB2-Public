@@ -407,6 +407,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	return wadfile->numlumps;
 }
 
+#ifdef DELFILE
 void W_UnloadWadFile(UINT16 num)
 {
 	INT32 i;
@@ -440,6 +441,7 @@ void W_UnloadWadFile(UINT16 num)
 	Z_Free(delwad);
 	CONS_Printf(" done unloading WAD\n");
 }
+#endif
 
 /** Tries to load a series of files.
   * All files are wads unless they have an extension of ".soc".

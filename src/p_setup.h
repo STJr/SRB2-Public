@@ -62,7 +62,9 @@ void P_LoadThingsOnly(void);
 void P_RehitStarposts(void);
 boolean P_SetupLevel(INT32 map, boolean skipprecip);
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname);
+#ifdef DELFILE
 boolean P_DelWadFile(void);
+#endif
 boolean P_RunSOC(const char *socfilename);
 void P_WriteThings(lumpnum_t lump);
 size_t P_PrecacheLevelFlats(void);

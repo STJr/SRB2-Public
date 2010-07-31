@@ -55,8 +55,6 @@
 #define CV_JOHNNY 0
 #endif
 
-//#define DELFILE
-
 // ------
 // protos
 // ------

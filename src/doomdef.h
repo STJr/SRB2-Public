@@ -215,6 +215,8 @@ extern const char *compdate, *comptime, *comprevision;
 #define NEWPING //Improved way of dealing with ping values and a ping limit.
 #define SEENAMES // See name of player in your crosshair
 #define TRANSFIX //Gets translation table from mobj->skin rather than player->skin. Ported from SRB2JTE.
+//#define DELFILE // delfile command.  This is used ALL over the source now to get rid of extraneous functions,
+                  // so if you really want to enable DELFILE, do it here.
 
 #ifdef SHUFFLE
 #define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.

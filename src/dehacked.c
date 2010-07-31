@@ -45,6 +45,7 @@ int	vsnprintf(char *str, size_t n, const char *fmt, va_list ap);
 boolean deh_loaded = false;
 boolean modcredits = false; // Whether a mod creator's name will show in the credits.
 
+#ifdef DELFILE
 typedef struct undehacked_s
 {
 	char *undata;
@@ -133,6 +134,7 @@ void DEH_WriteUndoline(const char *value, const char *data, undotype_f flags)
 	newdata->next = unsocdata[unsocwad];
 	unsocdata[unsocwad] = newdata;
 }
+#endif
 
 char *myfgets(char *buf, size_t bufsize, MYFILE *f)
 {
@@ -398,11 +400,13 @@ static void readPlayer(MYFILE *f, INT32 num)
 			}
 			else if (!strcmp(word, "MENUPOSITION"))
 			{
+#ifdef DELFILE
 				if (disableundo) // NO SCREWING UP MY MENU, FOOL!
 				{
 					slotfound = true;
 					num = i;
 				}
+#endif
 			}
 			else if (!strcmp(word, "PICNAME"))
 			{
@@ -444,8 +448,10 @@ static void readPlayer(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
+#ifdef DELFILE
 	if (slotfound)
 		DEH_WriteUndoline("MENUPOSITION", va("%d", num), UNDO_NONE);
+#endif
 }
 
 static void readthing(MYFILE *f, INT32 num)
@@ -1206,7 +1212,9 @@ static void readcutscene(MYFILE *f, INT32 num)
 	char *word2;
 	char *tmp;
 	INT32 value;
+#ifdef DELFILE
 	const INT32 oldnumscenes = cutscenes[num].numscenes;
+#endif
 
 	do
 	{
@@ -1760,7 +1768,11 @@ static boolean GoodDataFileName(const char *s)
 	p = s + strlen(s) - strlen(tail);
 	if (p <= s) return false; // too short
 	if (stricmp(p, tail) != 0) return false; // doesn't end in .dat
+#ifdef DELFILE
 	if (stricmp(s, "gamedata.dat") == 0 && !disableundo) return false;
+#else
+	if (stricmp(s, "gamedata.dat") == 0) return false;
+#endif
 
 	return true;
 }
@@ -2308,7 +2320,9 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 void DEH_LoadDehackedLumpPwad(UINT16 wad, UINT16 lump)
 {
 	MYFILE f;
+#ifdef DELFILE
 	unsocwad = wad;
+#endif
 	f.size = W_LumpLengthPwad(wad,lump);
 	f.data = Z_Malloc(f.size + 1, PU_STATIC, NULL);
 	W_ReadLumpPwad(wad, lump, f.data);
@@ -2324,6 +2338,7 @@ void DEH_LoadDehackedLump(lumpnum_t lumpnum)
 	DEH_LoadDehackedLumpPwad(WADFILENUM(lumpnum),LUMPNUM(lumpnum));
 }
 
+#ifdef DELFILE
 #define DUMPUNDONE
 
 // read (un)dehacked lump in wad's memory
@@ -2380,3 +2395,4 @@ void DEH_UnloadDehackedWad(UINT16 wad)
 	disableundo = false;
 	Z_Free(f.data);
 }
+#endif //DELFILE

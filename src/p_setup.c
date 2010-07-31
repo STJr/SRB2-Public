@@ -2540,6 +2540,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 	return true;
 }
 
+#ifdef DELFILE
 boolean P_DelWadFile(void)
 {
 	sfxenum_t i;
@@ -2565,3 +2566,5 @@ boolean P_DelWadFile(void)
 	R_LoadTextures();
 	return false;
 }
+#endif
+
