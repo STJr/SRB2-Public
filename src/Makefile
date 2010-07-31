@@ -236,6 +236,9 @@ OPTS += -DCOMPVERSION
 ifdef ComSpec
 COMSPEC=$(ComSpec)
 endif
+ifeq ($(OSTYPE),cygwin)
+undef COMSPEC
+endif
 endif
 
 ifndef NONX86
