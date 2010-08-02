@@ -233,11 +233,13 @@ endif
 
 ifndef NOVERSION
 OPTS += -DCOMPVERSION
+ifndef OSTYPE
 ifdef ComSpec
-COMSPEC=$(ComSpec)
+WINDOWSHELL=1
 endif
-ifeq ($(OSTYPE),cygwin)
-undef COMSPEC
+ifdef COMSPEC
+WINDOWSHELL=1
+endif
 endif
 endif
 
@@ -446,7 +448,7 @@ pre-build:
 ifdef NOVERSION
 	-@touch comptime.c
 else
-ifdef COMSPEC
+ifdef WINDOWSHELL
 	-..\comptime.bat .
 else
 	-@../comptime.sh .
