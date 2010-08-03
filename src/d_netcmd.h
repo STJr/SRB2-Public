@@ -102,6 +102,9 @@ extern consvar_t cv_allowteamchange;
 extern consvar_t cv_teleporters, cv_superring, cv_supersneakers, cv_invincibility;
 extern consvar_t cv_jumpshield, cv_watershield, cv_ringshield, cv_forceshield, cv_bombshield;
 extern consvar_t cv_1up, cv_eggmanbox;
+#ifndef REMOVE_FOR_207
+extern consvar_t cv_questionbox;
+#endif
 extern consvar_t cv_recycler;
 
 extern consvar_t cv_objectplace, cv_objflags, cv_mapthingnum, cv_speed, cv_snapto, cv_grid;
