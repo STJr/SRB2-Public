@@ -327,10 +327,6 @@ consvar_t cv_bombshield = {"bombshield", "Medium", CV_NETVAR|CV_CHEAT, chances_c
 consvar_t cv_1up = {"1up", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_eggmanbox = {"eggmantv", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-// Question boxes aren't spawned by randomly respawning monitors, so there is no need
-// for chances. Rather, a simple on/off is used.
-consvar_t cv_questionbox = {"randomtv", "On", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-
 consvar_t cv_ringslinger = {"ringslinger", "No", CV_NETVAR|CV_NOSHOWHELP|CV_CALL|CV_CHEAT, CV_YesNo,
 	Ringslinger_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_setrings = {"setrings", "0", CV_NETVAR|CV_NOSHOWHELP|CV_CALL|CV_CHEAT, ringlimit_cons_t,
@@ -555,7 +551,6 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_bombshield);
 	CV_RegisterVar(&cv_1up);
 	CV_RegisterVar(&cv_eggmanbox);
-	CV_RegisterVar(&cv_questionbox);
 
 	CV_RegisterVar(&cv_ringslinger);
 	CV_RegisterVar(&cv_setrings);
