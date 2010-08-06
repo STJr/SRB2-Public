@@ -251,9 +251,11 @@ static inline void Snd_UnlockAudio(void) //Alam: Unlock audio data and reinstall
 FUNCMATH static inline SDL_bool Snd_Convert(Uint16 sr)
 {
 #if 1
+	(void)sr;
 	return SDL_FALSE;
-#endif
+#else
 	return (sr > audio.freq) || (sr % 11025); // more samples then needed or odd samplerate
+#endif
 }
 
 #ifdef _MSC_VER
