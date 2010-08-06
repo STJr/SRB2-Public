@@ -2567,4 +2567,3 @@ boolean P_DelWadFile(void)
 	return false;
 }
 #endif
-
