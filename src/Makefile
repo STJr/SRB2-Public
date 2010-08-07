@@ -233,14 +233,6 @@ endif
 
 ifndef NOVERSION
 OPTS += -DCOMPVERSION
-ifndef OSTYPE
-ifdef ComSpec
-WINDOWSHELL=1
-endif
-ifdef COMSPEC
-WINDOWSHELL=1
-endif
-endif
 endif
 
 ifndef NONX86
