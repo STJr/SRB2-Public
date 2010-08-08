@@ -8772,9 +8772,14 @@ boolean P_LookForEnemies(player_t *player)
 		if (mo->flags & MF_MONITOR && mo->state == &states[S_MONITOREXPLOSION5])
 			continue;
 
+#ifdef REMOVE_FOR_207
+		if (((mo->z > player->mo->z+MAXSTEPMOVE) && !(player->mo->eflags & MFE_VERTICALFLIP))
+			|| ((mo->z < player->mo->z) && (player->mo->eflags & MFE_VERTICALFLIP)) // Reverse gravity check - Flame.
+			continue; // Don't home upwards!
+#else
 		if (mo->z > player->mo->z+MAXSTEPMOVE)
 			continue; // Don't home upwards!
-
+#endif
 		if (P_AproxDistance(P_AproxDistance(player->mo->x-mo->x, player->mo->y-mo->y),
 			player->mo->z-mo->z) > RING_DIST)
 			continue; // out of range
