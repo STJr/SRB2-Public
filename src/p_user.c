@@ -8780,6 +8780,7 @@ boolean P_LookForEnemies(player_t *player)
 		if (mo->z > player->mo->z+MAXSTEPMOVE)
 			continue; // Don't home upwards!
 #endif
+
 		if (P_AproxDistance(P_AproxDistance(player->mo->x-mo->x, player->mo->y-mo->y),
 			player->mo->z-mo->z) > RING_DIST)
 			continue; // out of range
