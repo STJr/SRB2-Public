@@ -8774,7 +8774,7 @@ boolean P_LookForEnemies(player_t *player)
 
 #ifdef REMOVE_FOR_207
 		if (((mo->z > player->mo->z+MAXSTEPMOVE) && !(player->mo->eflags & MFE_VERTICALFLIP))
-			|| ((mo->z < player->mo->z) && (player->mo->eflags & MFE_VERTICALFLIP)) // Reverse gravity check - Flame.
+			|| ((mo->z < player->mo->z) && (player->mo->eflags & MFE_VERTICALFLIP))) // Reverse gravity check - Flame.
 			continue; // Don't home upwards!
 #else
 		if (mo->z > player->mo->z+MAXSTEPMOVE)
