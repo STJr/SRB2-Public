@@ -340,7 +340,6 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 #endif
 				toucher->momz = -toucher->momz/2;
 
-
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
 		else
