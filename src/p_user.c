@@ -10288,16 +10288,32 @@ void P_PlayerAfterThink(player_t *player)
 	{
 		player->mo->height = FixedDiv(P_GetPlayerHeight(player), FixedDiv(14*FRACUNIT,10*FRACUNIT));
 
+#ifdef REMOVE_FOR_207
+		// State check for the carrier - Flame
+		if (player->mo->tracer->player
+			&& !(player->mo->tracer->state >= &states[S_PLAY_SPC1]
+			&& player->mo->tracer->state <= &states[S_PLAY_SPC4]))
+				player->pflags &= ~PF_CARRIED;
+#endif
+
 		if (player->mo->eflags & MFE_VERTICALFLIP)
 		{
-			if ((player->mo->tracer->z + player->mo->tracer->height + player->mo->height + FRACUNIT) <= player->mo->tracer->ceilingz)
+			if ((player->mo->tracer->z + player->mo->tracer->height + player->mo->height + FRACUNIT) <= player->mo->tracer->ceilingz
+#ifdef REMOVE_FOR_207
+				&& (player->mo->tracer->eflags & MFE_VERTICALFLIP) // Reverse gravity check for the carrier - Flame
+#endif
+			)
 				player->mo->z = player->mo->tracer->z + player->mo->height + FRACUNIT;
 			else
 				player->pflags &= ~PF_CARRIED;
 		}
 		else
 		{
-			if ((player->mo->tracer->z - player->mo->height - FRACUNIT) >= player->mo->tracer->floorz)
+			if ((player->mo->tracer->z - player->mo->height - FRACUNIT) >= player->mo->tracer->floorz
+#ifdef REMOVE_FOR_207
+				&& !(player->mo->tracer->eflags & MFE_VERTICALFLIP) // Correct gravity check for the carrier - Flame
+#endif
+				)
 				player->mo->z = player->mo->tracer->z - player->mo->height - FRACUNIT;
 			else
 				player->pflags &= ~PF_CARRIED;
