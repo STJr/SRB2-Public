@@ -263,13 +263,16 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			toucher->momy = -toucher->momy;
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
-		else if (((toucher->z + toucher->height >= special->z
-		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
+		else if (
 #ifdef REMOVE_FOR_207
-				 || (toucher->z <= special->z + special->height
-		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP)) // Reverse gravity check - Flame
+				((toucher->z + toucher->height >= special->z
+		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
+				|| (toucher->z <= special->z + special->height
+		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP))) // Reverse gravity check - Flame
+#else
+				toucher->z + toucher->height >= special->z
+		         && toucher->z < special->z
 #endif
-				)
 		         && toucher->player->charability == CA_FLY
 		         && (toucher->player->powers[pw_tailsfly]
 		             || toucher->state == &states[S_PLAY_SPC1]
@@ -312,13 +315,16 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
-		else if (((toucher->z + toucher->height >= special->z
-		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
+		else if (
 #ifdef REMOVE_FOR_207
-				 || (toucher->z <= special->z + special->height
-		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP)) // Reverse gravity check - Flame
+				((toucher->z + toucher->height >= special->z
+		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
+				|| (toucher->z <= special->z + special->height
+		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP))) // Reverse gravity check - Flame
+#else
+				toucher->z + toucher->height >= special->z
+		         && toucher->z < special->z
 #endif
-				)
 		         && toucher->player->charability == CA_FLY
 		         && (toucher->player->powers[pw_tailsfly]
 		             || toucher->state == &states[S_PLAY_SPC1]
