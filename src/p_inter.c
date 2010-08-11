@@ -263,8 +263,13 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			toucher->momy = -toucher->momy;
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
-		else if (toucher->z + toucher->height >= special->z
-		         && toucher->z < special->z
+		else if (((toucher->z + toucher->height >= special->z
+		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
+#ifdef REMOVE_FOR_207
+				 || (toucher->z <= special->z + special->height
+		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP)) // Reverse gravity check - Flame
+#endif
+				)
 		         && toucher->player->charability == CA_FLY
 		         && (toucher->player->powers[pw_tailsfly]
 		             || toucher->state == &states[S_PLAY_SPC1]
@@ -307,8 +312,13 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
-		else if (toucher->z + toucher->height >= special->z
-		         && toucher->z < special->z
+		else if (((toucher->z + toucher->height >= special->z
+		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
+#ifdef REMOVE_FOR_207
+				 || (toucher->z <= special->z + special->height
+		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP)) // Reverse gravity check - Flame
+#endif
+				)
 		         && toucher->player->charability == CA_FLY
 		         && (toucher->player->powers[pw_tailsfly]
 		             || toucher->state == &states[S_PLAY_SPC1]
@@ -316,8 +326,14 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 		             || toucher->state == &states[S_PLAY_SPC3]
 		             || toucher->state == &states[S_PLAY_SPC4])) // Tails can shred stuff with his propeller.
 		{
+#ifdef REMOVE_FOR_207
+			if ((toucher->momz < 0 && !(toucher->eflags & MFE_VERTICALFLIP))
+				|| (toucher->momz > 0 && (toucher->eflags & MFE_VERTICALFLIP)))
+#else
 			if (toucher->momz < 0)
+#endif
 				toucher->momz = -toucher->momz/2;
+
 
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
