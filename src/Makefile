@@ -195,6 +195,7 @@ ifndef ECHO
 	CC:=@$(CC)
 	CXX:=@$(CXX)
 	OBJCOPY:=@$(OBJCOPY)
+	OBJDUMP:=@$(OBJDUMP)
 	STRIP:=@$(STRIP)
 	WINDRES:=@$(WINDRES)
 	DLLWRAP:=@$(DLLWRAP)
@@ -472,6 +473,7 @@ $(BIN)/$(EXENAME): $(OBJS)
 	-@mkdir -p $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
+	$(OBJDUMP) -S -l $(BIN)/$(EXENAME) > $(BIN)/$(DGBNAME).txt
 	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DGBNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
 	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DGBNAME) $(BIN)/$(EXENAME)
