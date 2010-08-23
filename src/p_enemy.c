@@ -5413,8 +5413,9 @@ void A_SpawnObjectRelative(mobj_t *actor)
 	type = (mobjtype_t)(locvar2&65535);
 
 #ifdef REMOVE_FOR_207
-	// Spawn objects correctly in reverse gravity - Flame
-	mo = P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), (actor->eflags & MFE_VERTICALFLIP) ? (actor->z + -(z<<FRACBITS) : (actor->z + (z<<FRACBITS)), type);
+	// Spawn objects correctly in reverse gravity.
+	// NOTE: Doing actor->z + actor->height is the bottom of the object while the object has reverse gravity. - Flame
+	mo = P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), (actor->eflags & MFE_VERTICALFLIP) ? ((actor->z + actor->height) + -(z<<FRACBITS) : (actor->z + (z<<FRACBITS)), type);
 #else
 	mo = P_SpawnMobj(actor->x + (x<<FRACBITS), actor->y + (y<<FRACBITS), actor->z + (z<<FRACBITS), type);
 #endif

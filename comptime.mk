@@ -2,7 +2,6 @@
 SRCDIR=src
 ifdef ComSpec
 COMSPEC=$(ComSpec)
-RM=del.exe /f /q
 endif
 
 all-before:
