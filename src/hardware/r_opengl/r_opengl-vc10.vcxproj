@@ -85,7 +85,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -129,7 +129,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -173,7 +173,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC9\Release\r_opengl/r_opengl.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -219,7 +219,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC9\Release\r_opengl/r_opengl.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>

@@ -89,7 +89,7 @@
       <Command>"$(ProjectDir)..\..\comptime.bat" "$(ProjectDir).."</Command>
     </PreBuildEvent>
     <Midl>
-      <TypeLibraryName>.\..\..\bin\VC\Debug\SDL/Srb2SDL-vc9.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -138,7 +138,7 @@
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC\Debug\SDL/Srb2SDL-vc9.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -190,7 +190,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC\Release\SDL/Srb2SDL-vc9.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -205,7 +205,7 @@
       <PreprocessorDefinitions>NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\..\..\objs\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)Srb2SDL.pdb</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>
@@ -246,7 +246,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC\Release\SDL/Srb2SDL-vc9.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -261,7 +261,7 @@
       <PreprocessorDefinitions>NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PrecompiledHeaderOutputFile>.\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>.\..\..\objs\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch</PrecompiledHeaderOutputFile>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ProgramDataBaseFileName>$(IntDir)Srb2SDL.pdb</ProgramDataBaseFileName>
       <BrowseInformation>true</BrowseInformation>

@@ -47,7 +47,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\bin\VC9\Debug\Win32/Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -145,7 +145,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC9\Debug\Win32/Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -244,7 +244,7 @@
 				PreprocessorDefinitions="NDEBUG"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\bin\VC9\Release\Win32/Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -344,7 +344,7 @@
 				PreprocessorDefinitions="NDEBUG"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC9\Release\Win32/Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool

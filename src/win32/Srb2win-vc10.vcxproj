@@ -93,7 +93,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC9\Debug\Win32/Srb2win.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\Srb2win.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -146,7 +146,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC9\Debug\Win32/Srb2win.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\Srb2win.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -200,7 +200,7 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC9\Release\Win32/Srb2win.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\Srb2win.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -254,7 +254,7 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\bin\VC9\Release\Win32/Srb2win.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\bin\VC10\$(Platform)\$(Configuration)\Srb2win.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>

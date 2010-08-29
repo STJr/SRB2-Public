@@ -86,7 +86,7 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC\Release\s_openal/s_openal.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\s_openal\s_openal.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -131,7 +131,7 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC\Release\s_openal/s_openal.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\s_openal\s_openal.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -177,7 +177,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC\Debug\s_openal/s_openal.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\s_openal\s_openal.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
@@ -223,7 +223,7 @@
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>X64</TargetEnvironment>
-      <TypeLibraryName>.\..\..\..\bin\VC\Debug\s_openal/s_openal.tlb</TypeLibraryName>
+      <TypeLibraryName>.\..\..\..\bin\VC10\$(Platform)\$(Configuration)\s_openal\s_openal.tlb</TypeLibraryName>
       <HeaderFileName>
       </HeaderFileName>
     </Midl>
