@@ -135,6 +135,9 @@ void ASMCALL R_DrawTranslucentColumn_8_ASM(void);
 void ASMCALL R_DrawColumn_8_Pentium(void); // Optimised for Pentium
 void ASMCALL R_DrawColumn_8_NOMMX(void);   // DOSDoom original
 void ASMCALL R_DrawColumn_8_K6_MMX(void);  // MMX asm version, optimised for K6
+
+void ASMCALL R_DrawColumn_8_SSE(void);
+#define R_DrawWallColumn_8_SSE	R_DrawColumn_8_SSE
 #endif
 
 void R_DrawTranslatedColumn_8(void);

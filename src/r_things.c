@@ -607,8 +607,7 @@ void R_DrawMaskedColumn(column_t *column)
 				colfunc();
 			else if (colfunc == R_DrawColumn_8
 #ifdef USEASM
-			|| colfunc == R_DrawColumn_8_ASM || colfunc == R_DrawColumn_8_Pentium
-			|| colfunc == R_DrawColumn_8_NOMMX || colfunc == R_DrawColumn_8_K6_MMX
+			|| colfunc == R_DrawColumn_8_ASM || colfunc == R_DrawColumn_8_SSE
 #endif
 			)
 			{

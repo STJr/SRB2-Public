@@ -82,10 +82,11 @@ UINT8 *scr_borderpatch; // flat used to fill the reduced view borders set at ST_
 //  Short and Tall sky drawer, for the current color mode
 void (*walldrawerfunc)(void);
 
-boolean R_ASM = true;  //R_DrawColumn8_ASM
-boolean R_486 = false; //R_DrawColumn8_NOMMX
-boolean R_586 = false; //R_DrawColumn8_Pentium
-boolean R_MMX = false; //R_DrawColumn8_K6_MMX
+boolean R_ASM = true;
+boolean R_486 = false;
+boolean R_586 = false;
+boolean R_MMX = false;
+boolean R_SSE = false;
 boolean R_3DNow = false;
 boolean R_MMXExt = false;
 boolean R_SSE2 = false;
@@ -122,8 +123,8 @@ void SCR_SetMode(void)
 		if (R_ASM)
 		{
 			colfunc = basecolfunc = R_DrawColumn_8_ASM;
-			shadecolfunc = R_DrawShadeColumn_8_ASM;
-//			fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
+			//shadecolfunc = R_DrawShadeColumn_8_ASM;
+			//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
 			walldrawerfunc = R_DrawWallColumn_8_ASM;
 		}
 /*		if (R_486)
@@ -141,6 +142,13 @@ void SCR_SetMode(void)
 			colfunc = basecolfunc = R_DrawColumn_8_K6_MMX;
 			CONS_Printf("now using cool MMX code\n");
 		}*/
+		if (R_SSE)
+		{
+			colfunc = basecolfunc = R_DrawColumn_8_SSE;
+			//shadecolfunc = R_DrawShadeColumn_8_ASM;
+			//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
+			walldrawerfunc = R_DrawWallColumn_8_SSE;
+		}
 #endif
 	}
 /*	else if (vid.bpp > 1)
@@ -184,6 +192,8 @@ void SCR_Startup(void)
 			R_3DNow = true;
 		if (RCpuInfo->MMXExt)
 			R_MMXExt = true;
+		if (RCpuInfo->SSE)
+			R_SSE = true;
 		if (RCpuInfo->SSE2)
 			R_SSE2 = true;
 		CONS_Printf("CPU Info: 486: %i, 586: %i, MMX: %i, 3DNow: %i, MMXExt: %i, SSE2: %i\n",
@@ -202,6 +212,12 @@ void SCR_Startup(void)
 		R_3DNow = true;
 	if (M_CheckParm("-MMXExt"))
 		R_MMXExt = true;
+
+	if (M_CheckParm("-SSE"))
+		R_SSE = true;
+	if (M_CheckParm("-noSSE"))
+		R_SSE = false;
+
 	if (M_CheckParm("-SSE2"))
 		R_SSE2 = true;
 
