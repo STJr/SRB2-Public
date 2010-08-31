@@ -7320,6 +7320,9 @@ void P_SpawnMapThing(mapthing_t *mthing)
 
 	if (i >= MT_EMERALD1 && i <= MT_EMERALD7) // Pickupable Emeralds
 	{
+		if (gametype != GT_COOP) // Don't place emeralds in non-coop modes
+			return;
+
 		if (emeralds & mobjinfo[i].speed) // You already have this emerald!
 			return;
 	}
@@ -7347,20 +7350,12 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		}
 	}
 
-	// Hunt should only work in Cooperative.
-	if (gametype != GT_COOP)
-	{
-		switch (i)
-		{
-			case MT_EMERHUNT:
-				return;
-			default:
-				break;
-		}
-	}
-
 	if (i == MT_EMERHUNT)
 	{
+		// Emerald Hunt is Coop only.
+		if (gametype != GT_COOP)
+			return;
+
 		ss = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS);
 		mthing->z = (INT16)((ss->sector->floorheight>>FRACBITS) + (mthing->options >> ZSHIFT));
 
@@ -7380,12 +7375,6 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		runemeraldmanager = true;
 	}
 
-	// No outright emerald placement in match, CTF or tag.
-	if ((mthing->type >= mobjinfo[MT_EMERALD1].doomednum &&
-	     mthing->type <= mobjinfo[MT_EMERALD7].doomednum) &&
-	    (gametype == GT_MATCH || gametype == GT_CTF || gametype == GT_TAG))
-		return;
-
 	if (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF) // No enemies in match or CTF modes
 		if ((mobjinfo[i].flags & MF_ENEMY) || (mobjinfo[i].flags & MF_BOSS) || i == MT_EGGGUARD)
 			return;
@@ -7393,17 +7382,14 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	// Set powerup boxes to user settings for race.
 	if (gametype == GT_RACE)
 	{
-		if (cv_raceitemboxes.value) // not Normal
+		if ((mobjinfo[i].flags & MF_MONITOR) && cv_raceitemboxes.value) // not Normal
 		{
-			if (mobjinfo[i].flags & MF_MONITOR)
-			{
-				if (cv_raceitemboxes.value == 1) // Random
-					i = MT_QUESTIONBOX;
-				else if (cv_raceitemboxes.value == 2) // Teleports
-					i = MT_MIXUPBOX;
-				else if (cv_raceitemboxes.value == 3) // None
-					return; // Don't spawn!
-			}
+			if (cv_raceitemboxes.value == 1) // Random
+				i = MT_QUESTIONBOX;
+			else if (cv_raceitemboxes.value == 2) // Teleports
+				i = MT_MIXUPBOX;
+			else if (cv_raceitemboxes.value == 3) // None
+				return; // Don't spawn!
 		}
 	}
 
@@ -7414,54 +7400,44 @@ void P_SpawnMapThing(mapthing_t *mthing)
 #endif
 		)
 	{
-		if (cv_matchboxes.value) // not Normal
+		if ((mobjinfo[i].flags & MF_MONITOR) && cv_matchboxes.value) // not Normal
 		{
 			if (cv_matchboxes.value == 1) // Random
-			{
-				if (mobjinfo[i].flags & MF_MONITOR)
-					i = MT_QUESTIONBOX;
-			}
+				i = MT_QUESTIONBOX;
 			else if (cv_matchboxes.value == 3) // Don't spawn
-			{
-				if (mobjinfo[i].flags & MF_MONITOR)
-					return;
-			}
+				return;
 			else // cv_matchboxes.value == 2, Non-Random
 			{
-				if (i == MT_QUESTIONBOX) return; // don't spawn in Non-Random
+				if (i == MT_QUESTIONBOX)
+					return; // don't spawn in Non-Random
 
-				if (mobjinfo[i].flags & MF_MONITOR)
-					mthing->options &= ~(MTF_AMBUSH + MTF_OBJECTSPECIAL); // no random respawning!
+				mthing->options &= ~(MTF_AMBUSH + MTF_OBJECTSPECIAL); // no random respawning!
 			}
 		}
 	}
 
-	if (i == MT_SIGN && gametype != GT_COOP && gametype != GT_RACE)
-		return; // Don't spawn the level exit sign when it isn't needed.
-
-#ifdef BLUE_SPHERES
-	// Spawn rings as blue spheres in special stages.
-	if (G_IsSpecialStage(gamemap))
-		if (i == MT_RING)
-			i = MT_BLUEBALL;
-#endif
-
-	if ((i == MT_BLUETEAMRING || i == MT_REDTEAMRING) && gametype != GT_CTF)
-		i = MT_RING; //spawn team rings as regular rings in non-CTF modes
-
-	if ((i == MT_BLUERINGBOX || i == MT_REDRINGBOX) && gametype != GT_CTF)
-		i = MT_SUPERRINGBOX; //spawn team boxes as regular boxes in non-CTF modes
-
-	if ((i == MT_SUPERRINGBOX || i == MT_GREENTV
-		|| i == MT_YELLOWTV || i == MT_BLUETV || i == MT_BLACKTV || i == MT_WHITETV)
-		&& ultimatemode && !G_IsSpecialStage(gamemap))
+	if (gametype != GT_CTF) // CTF specific things
 	{
-		// Don't have rings/shields in Ultimate mode
-		return;
+		if (i == MT_BLUETEAMRING || i == MT_REDTEAMRING)
+			i = MT_RING;
+		else if (i == MT_BLUERINGBOX || i == MT_REDRINGBOX)
+			i = MT_SUPERRINGBOX;
+		else if (i == MT_BLUEFLAG || i == MT_REDFLAG)
+			return; // No flags in non-CTF modes!
 	}
 
-	if ((i == MT_BLUEFLAG || i == MT_REDFLAG) && gametype != GT_CTF)
-		return; // Don't spawn flags if you aren't in CTF Mode!
+#ifdef REMOVE_FOR_207
+	if (gametype != GT_COOP && gametype != GT_RACE
+	    && (i == MT_SIGN || i == MT_STARPOST))
+		return; // Don't spawn exit signs or starposts in wrong game modes
+#else
+	if (i == MT_SIGN && gametype != GT_COOP && gametype != GT_RACE)
+		return; // Don't spawn the level exit sign when it isn't needed.
+#endif
+
+	if (ultimatemode && !G_IsSpecialStage(gamemap)
+	    && (i == MT_SUPERRINGBOX || i == MT_GREENTV || i == MT_YELLOWTV || i == MT_BLUETV || i == MT_BLACKTV || i == MT_WHITETV))
+		return; // No rings/shields in Ultimate mode
 
 	if (i == MT_EMMY && (tokenbits == 30 || tokenlist & (1<<tokenbits) || gametype != GT_COOP || ultimatemode))
 		return; // you already got this token, or there are too many, or the gametype's not right
