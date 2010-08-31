@@ -118,7 +118,7 @@ R_DrawColumn_8_SSE:
 		push		esi						;; preserve register variables
 		push		edi
 		push		ebx
-		
+
 ;;
 ;; Our algorithm requires that the texture height be a power of two.
 ;; If not, fall back to the non-MMX drawer.
@@ -128,7 +128,7 @@ R_DrawColumn_8_SSE:
 		sub			edx, 1					;; edx = heightmask
 		test		edx, [dc_texheight]
 		jnz			near .usenonMMX
-		
+
 		mov			ebp, edx				;; Keep a copy of heightmask in a
 											;; GPR for the time being.
 
@@ -145,8 +145,8 @@ R_DrawColumn_8_SSE:
 		mov			edi, [ylookup+eax*4]
 		mov			ebx, [dc_x]
 		add			edi, [columnofs+ebx*4]	;; edi = dest
-		
-		
+
+
 ;;
 ;; pixelcount = yh - yl + 1
 ;;
@@ -159,10 +159,10 @@ R_DrawColumn_8_SSE:
 ;;
 		movd		mm2, [dc_iscale]		;; fracstep in low dword
 		punpckldq	mm2, mm2				;; copy to high dword
-		
+
 		mov			ebx, [dc_colormap]
 		mov			esi, [dc_source]
-		
+
 ;;
 ;; frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep));
 ;;
@@ -172,7 +172,7 @@ R_DrawColumn_8_SSE:
 		imul		dword [dc_iscale]
 		shrd		eax, edx, FRACBITS
 		add			eax, [dc_texturemid]
-		
+
 ;;
 ;; if (dc_hires) frac = 0;
 ;;
@@ -194,12 +194,12 @@ R_DrawColumn_8_SSE:
 		movzx		edx, byte [esi + edx]
 		movzx		edx, byte [ebx + edx]
 		mov			[edi], dl
-		
+
 		add			edi, [vid + viddef_s.width]
 		sub			ecx, 1
 		jz			.done
 
-.pairprepare:		
+.pairprepare:
 ;;
 ;; Prepare for the main loop.
 ;;
@@ -208,12 +208,12 @@ R_DrawColumn_8_SSE:
 		paddd		mm4, mm2				;; dwords of mm4 += fracstep
 		punpckldq	mm3, mm4				;; Low dword = first frac, high = second
 		pslld		mm2, 1					;; fracstep *= 2
-				
+
 ;;
 ;; ebp = vid.width
 ;;
 		mov			ebp, [vid + viddef_s.width]
-		
+
 		align		16
 .pairloop:
 		movq		mm0, mm3				;; 3B 1u.
@@ -222,15 +222,15 @@ R_DrawColumn_8_SSE:
 		paddd		mm3, mm2				;; 3B 1u. frac += fracstep
 
 		movd		eax, mm0				;; 3B 1u. Get first frac
-;; IFETCH boundary	
+;; IFETCH boundary
 		movzx		eax, byte [esi + eax]	;; 4B 1u. Texture map
 		movzx		eax, byte [ebx + eax]	;; 4B 1u. Colormap
-		
+
 		pshufw		mm0, mm0, 0x0e			;; 4B 1u. low dword = high dword
 		movd		edx, mm0				;; 3B 1u. Get second frac
 ;; IFETCH boundary
 		mov			[edi], al				;; 2B 1(2)u. First pixel
-		
+
 		movzx		edx, byte [esi + edx]	;; 4B 1u. Texture map
 		movzx		edx, byte [ebx + edx]	;; 4B 1u. Colormap
 		mov			[edi + 1*ebp], dl		;; 3B 1(2)u. Second pixel
@@ -241,12 +241,12 @@ R_DrawColumn_8_SSE:
 		jnz			.pairloop				;; 2B 1u. if(count != 0) goto .pairloop
 
 
-.done:				
+.done:
 ;;
 ;; Clear MMX state, or else FPU operations will go badly awry.
 ;;
 		emms
-		
+
 		pop			ebx
 		pop			edi
 		pop			esi
