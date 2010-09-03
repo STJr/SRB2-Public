@@ -164,7 +164,7 @@ typedef struct sockaddr_ipx
 #ifdef HAVE_IP6
 #include <netinet/in.h>
 #elif defined (_WIN32) || defined (__DJGPP__) || defined (__HAIKU__)
-#if !defined (_SA_FAMILY_T)
+#if !defined (_SA_FAMILY_T) && !defined (__libsocket_sa_family_t)
 typedef UINT16 sa_family_t;
 #endif
 #endif
