@@ -463,7 +463,7 @@ void I_ResumeSong (INT32 handle)
 	midi_resume();
 }
 
-void I_StopSong(int handle)
+void I_StopSong(INT32 handle)
 {
 	handle = 0;
 	if (nomidimusic)
