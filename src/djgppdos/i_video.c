@@ -115,18 +115,22 @@ static void displayticrate(fixed_t value)
 	if (value == 1)
 		return;
 
-	// draw dots
-	for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+	if (rendermode == render_soft)
 	{
-		l=(vid.height-1-j)*vid.width*vid.bpp;
-		for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
-			screens[0][l+i]=0xff;
-	}
+		int k;
+		// draw dots
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		{
+			l=(vid.height-1-j)*vid.width*vid.bpp;
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+				screens[0][l+i]=0xff;
+		}
 
-	// draw the graph
-	for (i=0;i<OLDTICRATE;i++)
-		for (k=0;k<SCALE*vid.dupx;k++)
-			PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
+		// draw the graph
+		for (i=0;i<OLDTICRATE;i++)
+			for (k=0;k<SCALE*vid.dupx;k++)
+				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
+	}
 }
 #undef SCALE
 #undef PUTDOT
