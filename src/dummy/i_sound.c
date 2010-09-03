@@ -21,7 +21,7 @@ void I_ShutdownSound(void){}
 //  SFX I/O
 //
 
-int I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority)
+INT32 I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority)
 {
 	(void)id;
 	(void)vol;
@@ -36,7 +36,7 @@ void I_StopSound(INT32 handle)
 	(void)handle;
 }
 
-int I_SoundIsPlaying(int handle)
+INT32 I_SoundIsPlaying(INT32 handle)
 {
 	(void)handle;
 	return false;

@@ -534,7 +534,7 @@ static float recalc_pitch(int doom_pitch)
 // --------------------------------------------------------------------------
 // Start the given S_sfx[id] sound with given properties (panning, volume..)
 // --------------------------------------------------------------------------
-int I_StartSound (sfxenum_t      id,
+INT32 I_StartSound (sfxenum_t      id,
                   INT32          vol,
                   INT32          sep,
                   INT32          pitch,
@@ -744,7 +744,7 @@ void I_StopSound (INT32 handle)
 // --------------------------------------------------------------------------
 // Returns whether the sound is currently playing or not
 // --------------------------------------------------------------------------
-int I_SoundIsPlaying(INT32 handle)
+INT32 I_SoundIsPlaying(INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 	DWORD   dwStatus;

@@ -161,7 +161,7 @@ void I_SetMIDIMusicVolume(INT32 volume)
 // Pitching (that is, increased speed of playback)
 //  is set, but currently not used by mixing.
 //
-int I_StartSound ( sfxenum_t     id,
+INT32 I_StartSound ( sfxenum_t     id,
                    INT32         vol,
                    INT32         sep,
                    INT32         pitch,
@@ -197,7 +197,7 @@ void I_StopSound (INT32 handle)
 		deallocate_voice(voice);
 }
 
-int I_SoundIsPlaying(INT32 handle)
+INT32 I_SoundIsPlaying(INT32 handle)
 {
 	if (nosound)
 		return FALSE;
