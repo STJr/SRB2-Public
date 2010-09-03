@@ -54,7 +54,7 @@ static void External_Driver_Get(void);
 static void External_Driver_Send(void);
 static void External_Driver_FreeNode(int nodenum);
 
-static inline boolean External_Driver_OpenSocket()
+static inline boolean External_Driver_OpenSocket(void)
 {
 	I_NetGet  = External_Driver_Get;
 	I_NetSend = External_Driver_Send;
