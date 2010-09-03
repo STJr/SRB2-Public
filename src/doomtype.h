@@ -259,7 +259,7 @@ typedef UINT32 tic_t;
 
 #if defined (_WIN32)
 #define PRIdS "Iu"
-#elif defined (_PSP) || defined (_arch_dreamcast)
+#elif defined (_PSP) || defined (_arch_dreamcast) || defined (DJGPP)
 #define PRIdS "u"
 #else
 #define PRIdS "zu"
