@@ -47,7 +47,7 @@ extern INT32 msg_id;
 // 3D Sound Interface
 #include "hardware/hw3sound.h"
 #else
-static int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, int *vol, int *sep, int *pitch, sfxinfo_t *sfxinfo);
+static INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *vol, INT32 *sep, INT32 *pitch, sfxinfo_t *sfxinfo);
 #endif
 
 CV_PossibleValue_t soundvolume_cons_t[] = {{0, "MIN"}, {31, "MAX"}, {0, NULL}};
