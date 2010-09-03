@@ -468,6 +468,7 @@ asm:
 	$(REMOVE) $(OBJDIR)/tmp.exe
 
 # executable
+# NOTE: DJGPP's objcopy do not have --add-gnu-debuglink
 
 $(BIN)/$(EXENAME): $(OBJS)
 	-@mkdir -p $(BIN)
@@ -476,7 +477,9 @@ $(BIN)/$(EXENAME): $(OBJS)
 	$(OBJDUMP) -S -l $(BIN)/$(EXENAME) > $(BIN)/$(DGBNAME).txt
 	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DGBNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
+ifndef DJGPPDOS
 	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DGBNAME) $(BIN)/$(EXENAME)
+ebduf
 
 $(OBJDIR):
 	-@mkdir -p $(OBJDIR)
