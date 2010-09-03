@@ -85,7 +85,7 @@
 
 #define STD_STRING_LEN 256 // Just some standard length for a char string
 
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
 	#include <sys/time.h>
 	#ifdef __GLIBC__
 		#include <netipx/ipx.h>
@@ -235,7 +235,7 @@ typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
 #else
-#if defined (__unix__) || defined (__APPLE__) || defined (__HAIKU__)
+#if (defined (__unix__) && !defined (MSDOS)) || defined (__APPLE__) || defined (__HAIKU__)
 typedef int SOCKET_TYPE;
 #else
 typedef unsigned long SOCKET_TYPE;
@@ -280,7 +280,7 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 	}
 #ifdef USEIPX
 	else
-#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
+#if ((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
 	if (sk->sa_family == AF_IPX)
 	{
 #ifdef FREEBSD
@@ -368,7 +368,7 @@ static const char *SOCK_GetBanMask(size_t ban)
 static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
 {
 	(void)mask;
-#if (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
+#if ((defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
 #ifdef FREEBSD
 	return ipx_neteq(a->ipx.sipx_addr, b->ipx.sipx_addr)
 		&& ipx_hosteq(a->ipx.sipx_addr, b->ipx.sipx_addr);
@@ -777,7 +777,7 @@ static SOCKET_TYPE IPX_Socket(void)
 		I_Error("IPX_socket error #%u: Can't create socket: %s", errno, strerror(errno));
 
 	memset(&address, 0, sizeof (address));
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
+#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
 	address.sipx_family = AF_IPX;
 	address.sipx_port = htons(sock_port);
 #else
@@ -815,7 +815,7 @@ static SOCKET_TYPE IPX_Socket(void)
 	packetheaderlength = 30; // for stats
 
 	// setup broadcast adress to BROADCASTADDR entry
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
+#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
 	clientaddress[BROADCASTADDR].sa_family = AF_IPX;
 	clientaddress[BROADCASTADDR].ipx.sipx_port = htons(sock_port);
 #ifndef FREEBSD

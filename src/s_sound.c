@@ -726,7 +726,7 @@ void S_PauseSound(void)
 	}
 
 	// pause cd music
-#if (defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)) && !defined (PC_DOS)
+#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
 	I_PauseCD();
 #else
 	I_StopCD();

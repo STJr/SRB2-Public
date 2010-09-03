@@ -21,7 +21,7 @@
 ///	plus functions to parse command line parameters, configure game
 ///	parameters, and call the startup functions.
 
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -770,7 +770,7 @@ static void IdentifyVersion(void)
 	char *srb2wad1, *srb2wad2;
 	const char *srb2waddir = NULL;
 
-#if (defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)) && !defined (PC_DOS)
+#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
 	// change to the directory where 'srb2.srb' is found
 	srb2waddir = I_LocateWad();
 #endif
@@ -997,7 +997,7 @@ void D_SRB2Main(void)
 
 		if (!userhome)
 		{
-#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
+#if ((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
 			I_Error("Please set $HOME to your home directory\n");
 #elif defined (_WIN32_WCE) && 0
 			if (dedicated)
@@ -1178,7 +1178,7 @@ void D_SRB2Main(void)
 	if (!M_CheckParm("-resetdata"))
 		G_LoadGameData();
 
-#if (defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)) && !defined (PC_DOS)
+#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
 	VID_PrepareModeList(); // Regenerate Modelist according to cv_fullscreen
 #endif
 
@@ -1382,7 +1382,7 @@ const char *D_Home(void)
 #ifdef GP2X
 		usehome = false; //let use the CWD
 		return NULL;
-#elif !(defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__APPLE__) && !defined(_WIN32_WCE)
+#elif !((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__APPLE__) && !defined(_WIN32_WCE)
 		if (FIL_FileOK(CONFIGFILENAME))
 			usehome = false; // Let's NOT use home
 		else
