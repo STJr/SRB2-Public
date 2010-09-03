@@ -412,7 +412,7 @@ void I_FreeSfx (sfxinfo_t *sfx)
 // --------------------------------------------------------------------------
 // Set the global volume for sound effects
 // --------------------------------------------------------------------------
-void I_SetSfxVolume(int volume)
+void I_SetSfxVolume(INT32 volume)
 {
 	int     vol;
 	HRESULT hr;
@@ -534,11 +534,11 @@ static float recalc_pitch(int doom_pitch)
 // --------------------------------------------------------------------------
 // Start the given S_sfx[id] sound with given properties (panning, volume..)
 // --------------------------------------------------------------------------
-int I_StartSound (int            id,
-                  int            vol,
-                  int            sep,
-                  int            pitch,
-                  int            priority)
+int I_StartSound (sfxenum_t      id,
+                  INT32          vol,
+                  INT32          sep,
+                  INT32          pitch,
+                  INT32          priority)
 {
 	HRESULT     hr;
 	LPDIRECTSOUNDBUFFER     dsbuffer;
@@ -706,7 +706,7 @@ int I_StartSound (int            id,
 // Stop a sound if it is playing,
 // free the corresponding 'playing sound slot' in StackSounds[]
 // --------------------------------------------------------------------------
-void I_StopSound (int handle)
+void I_StopSound (INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 	HRESULT hr;
@@ -744,7 +744,7 @@ void I_StopSound (int handle)
 // --------------------------------------------------------------------------
 // Returns whether the sound is currently playing or not
 // --------------------------------------------------------------------------
-int I_SoundIsPlaying(int handle)
+int I_SoundIsPlaying(INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 	DWORD   dwStatus;
@@ -767,10 +767,10 @@ int I_SoundIsPlaying(int handle)
 // --------------------------------------------------------------------------
 // Update properties of a sound currently playing
 // --------------------------------------------------------------------------
-void I_UpdateSoundParams(int    handle,
-                         int        vol,
-                         int        sep,
-                         int        pitch)
+void I_UpdateSoundParams(INT32    handle,
+                         INT32    vol,
+                         INT32    sep,
+                         INT32    pitch)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
 #ifdef SURROUND
@@ -1460,7 +1460,7 @@ static void SetAllChannelVolumes(DWORD dwVolumePercent)
 // I_SetMusicVolume
 // Set the midi output volume
 // ----------------
-void I_SetMIDIMusicVolume(int volume)
+void I_SetMIDIMusicVolume(INT32 volume)
 {
 	MMRESULT    mmrRetVal;
 	int         iVolume;
@@ -1487,7 +1487,7 @@ void I_SetMIDIMusicVolume(int volume)
 	}
 }
 
-void I_SetDigMusicVolume(int volume)
+void I_SetDigMusicVolume(INT32 volume)
 {
 #ifdef FMODSOUND
 	if (volume != -1)
@@ -1524,7 +1524,7 @@ void I_SetDigMusicVolume(int volume)
 // Note: doesn't use the handle, would be useful to switch between mid's after
 //       some trigger (would do several RegisterSong, then PlaySong the chosen one)
 // ----------
-boolean I_PlaySong(int handle, int bLooping)
+boolean I_PlaySong(INT32 handle, INT32 bLooping)
 {
 	MMRESULT        mmrRetVal;
 
@@ -1564,7 +1564,7 @@ boolean I_PlaySong(int handle, int bLooping)
 // I_PauseSong
 // calls midiStreamPause() to pause the midi playback
 // -----------
-void I_PauseSong (int handle)
+void I_PauseSong (INT32 handle)
 {
 	(void)handle;
 #ifdef FMODSOUND
@@ -1606,7 +1606,7 @@ void I_PauseSong (int handle)
 // I_ResumeSong
 // un-pause the midi song with midiStreamRestart
 // ------------
-void I_ResumeSong (int handle)
+void I_ResumeSong (INT32 handle)
 {
 	(void)handle;
 #ifdef FMODSOUND
@@ -1649,7 +1649,7 @@ void I_ResumeSong (int handle)
 // ----------
 // faB: -1999 is a special handle here, it means we stop the midi when exiting
 //      Legacy, this will do a midiOutReset() for a more 'sure' midi off.
-void I_StopSong(int handle)
+void I_StopSong(INT32 handle)
 {
 	MMRESULT        mmrRetVal;
 
@@ -1754,7 +1754,7 @@ void I_StopDigSong(void)
 #endif
 }
 
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong(INT32 handle)
 {
 	handle = 0;
 	if (nomidimusic)
@@ -1810,7 +1810,7 @@ int I_SetSongSpeed(unsigned int speed)
 }
 
 // Special FMOD support Tails 11-21-2002
-boolean I_StartDigSong(const char *musicname, int looping)
+boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 #ifdef FMODSOUND
 	char filename[9];
@@ -2068,7 +2068,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 //   which will continually fill the buffers with new data
 // --------------
 
-int I_RegisterSong(void *data, int len)
+INT32 I_RegisterSong(void *data, int len)
 {
 	char *pMidiFileData = NULL; // MIDI music buffer to be played or NULL
 

@@ -72,7 +72,7 @@
 //    +2 : sample rate, either 11025 or 22050.
 //    +4 : number of samples, each sample is a single byte since it's 8bit
 //    +6 : value 0
-static inline SAMPLE *raw2SAMPLE(UBYTE *dsdata, size_t len)
+static inline SAMPLE *raw2SAMPLE(UINT8 *dsdata, size_t len)
 {
 	SAMPLE *spl;
 
@@ -132,7 +132,7 @@ static inline int Volset(int vol)
 }
 
 
-void I_SetSfxVolume(int volume)
+void I_SetSfxVolume(INT32 volume)
 {
 	if (nosound)
 		return;
@@ -140,7 +140,7 @@ void I_SetSfxVolume(int volume)
 	set_volume (Volset(volume),-1);
 }
 
-void I_SetMIDIMusicVolume(int volume)
+void I_SetMIDIMusicVolume(INT32 volume)
 {
 	if (nomidimusic)
 		return;
@@ -162,10 +162,10 @@ void I_SetMIDIMusicVolume(int volume)
 //  is set, but currently not used by mixing.
 //
 int I_StartSound ( sfxenum_t     id,
-                   int           vol,
-                   int           sep,
-                   int           pitch,
-                   int           priority )
+                   INT32         vol,
+                   INT32         sep,
+                   INT32         pitch,
+                   INT32         priority )
 {
 	int voice;
 
@@ -182,7 +182,7 @@ int I_StartSound ( sfxenum_t     id,
 	return (id<<VOICESSHIFT)+voice;
 }
 
-void I_StopSound (int handle)
+void I_StopSound (INT32 handle)
 {
 	// You need the handle returned by StartSound.
 	// Would be looping all channels,
@@ -197,7 +197,7 @@ void I_StopSound (int handle)
 		deallocate_voice(voice);
 }
 
-int I_SoundIsPlaying(int handle)
+int I_SoundIsPlaying(INT32 handle)
 {
 	if (nosound)
 		return FALSE;
@@ -217,10 +217,10 @@ static inline int absolute_freq(int freq, SAMPLE *spl)
 		return (spl->freq * freq) / 1000;
 }
 
-void I_UpdateSoundParams( int   handle,
-                          int   vol,
-                          int   sep,
-                          int   pitch)
+void I_UpdateSoundParams( INT32 handle,
+                          INT32 vol,
+                          INT32 sep,
+                          INT32 pitch)
 {
 	// I fail too see that this is used.
 	// Would be using the handle to identify
@@ -432,7 +432,7 @@ void I_ShutdownMusic(void)
 	I_ShutdownDigMusic();
 }
 
-boolean I_PlaySong(int handle, int looping)
+boolean I_PlaySong(INT32 handle, INT32 looping)
 {
 	handle = 0;
 	if (nomidimusic)
@@ -445,7 +445,7 @@ boolean I_PlaySong(int handle, int looping)
 	return false;
 }
 
-void I_PauseSong (int handle)
+void I_PauseSong (INT32 handle)
 {
 	handle = 0;
 	if (nomidimusic)
@@ -454,7 +454,7 @@ void I_PauseSong (int handle)
 	midi_pause();
 }
 
-void I_ResumeSong (int handle)
+void I_ResumeSong (INT32 handle)
 {
 	handle = 0;
 	if (nomidimusic)
@@ -486,7 +486,7 @@ int I_QrySongPlaying(int handle)
 }
 #endif
 
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong(INT32 handle)
 {
 	handle = 0;
 	if (nomidimusic)
@@ -495,7 +495,7 @@ void I_UnRegisterSong(int handle)
 	//destroy_midi(currsong);
 }
 
-int I_RegisterSong(void *data, size_t len)
+INT32 I_RegisterSong(void *data, size_t len)
 {
 	int e = len; //Alam: For error
 	if (nomidimusic)
@@ -521,7 +521,7 @@ int I_RegisterSong(void *data, size_t len)
 }
 
 /// \todo Add OGG/MP3 support for dos
-boolean I_StartDigSong(const char *musicname, int looping)
+boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 	musicname = NULL;
 	looping = 0;
@@ -534,7 +534,7 @@ void I_StopDigSong(void)
 //	CONS_Printf("I_StopDigSong: Not yet supported under DOS.\n");
 }
 
-void I_SetDigMusicVolume(int volume)
+void I_SetDigMusicVolume(INT32 volume)
 {
 	volume = 0;
 	if (nodigimusic)

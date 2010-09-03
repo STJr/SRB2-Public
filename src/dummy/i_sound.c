@@ -21,7 +21,7 @@ void I_ShutdownSound(void){}
 //  SFX I/O
 //
 
-int I_StartSound(sfxenum_t id, int vol, int sep, int pitch, int priority)
+int I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority)
 {
 	(void)id;
 	(void)vol;
@@ -31,7 +31,7 @@ int I_StartSound(sfxenum_t id, int vol, int sep, int pitch, int priority)
 	return -1;
 }
 
-void I_StopSound(int handle)
+void I_StopSound(INT32 handle)
 {
 	(void)handle;
 }
@@ -42,7 +42,7 @@ int I_SoundIsPlaying(int handle)
 	return false;
 }
 
-void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
+void I_UpdateSoundParams(INT32 handle, INT32 vol, INT32 sep, INT32 pitch)
 {
 	(void)handle;
 	(void)vol;
@@ -50,7 +50,7 @@ void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
 	(void)pitch;
 }
 
-void I_SetSfxVolume(int volume)
+void I_SetSfxVolume(INT32 volume)
 {
 	(void)volume;
 }
@@ -64,12 +64,12 @@ void I_InitMusic(void){}
 
 void I_ShutdownMusic(void){}
 
-void I_PauseSong(int handle)
+void I_PauseSong(INT32 handle)
 {
 	(void)handle;
 }
 
-void I_ResumeSong(int handle)
+void I_ResumeSong(INT32 handle)
 {
 	(void)handle;
 }
@@ -84,31 +84,31 @@ void I_InitMIDIMusic(void){}
 
 void I_ShutdownMIDIMusic(void){}
 
-void I_SetMIDIMusicVolume(int volume)
+void I_SetMIDIMusicVolume(INT32 volume)
 {
 	(void)volume;
 }
 
-int I_RegisterSong(void *data, size_t len)
+INT32 I_RegisterSong(void *data, size_t len)
 {
 	(void)data;
 	(void)len;
 	return -1;
 }
 
-boolean I_PlaySong(int handle, int looping)
+boolean I_PlaySong(INT32 handle, INT32 looping)
 {
 	(void)handle;
 	(void)looping;
 	return false;
 }
 
-void I_StopSong(int handle)
+void I_StopSong(INT32 handle)
 {
 	(void)handle;
 }
 
-void I_UnRegisterSong(int handle)
+void I_UnRegisterSong(INT32 handle)
 {
 	(void)handle;
 }
@@ -123,7 +123,7 @@ void I_InitDigMusic(void){}
 
 void I_ShutdownDigMusic(void){}
 
-boolean I_StartDigSong(const char *musicname, int looping)
+boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 	(void)musicname;
 	(void)looping;
@@ -132,7 +132,7 @@ boolean I_StartDigSong(const char *musicname, int looping)
 
 void I_StopDigSong(void){}
 
-void I_SetDigMusicVolume(int volume)
+void I_SetDigMusicVolume(INT32 volume)
 {
 	(void)volume;
 }
