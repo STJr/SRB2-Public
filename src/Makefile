@@ -479,7 +479,7 @@ $(BIN)/$(EXENAME): $(OBJS)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
 ifndef DJGPPDOS
 	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DGBNAME) $(BIN)/$(EXENAME)
-ebduf
+endif
 
 $(OBJDIR):
 	-@mkdir -p $(OBJDIR)
