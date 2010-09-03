@@ -6521,7 +6521,7 @@ static void M_DrawVideoMode(void)
 	// draw title
 	M_DrawMenuTitle();
 
-#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
+#if defined ((__unix__) || defined (UNIXCOMMON) || defined (SDL)) && !defined(PC_DOS)
 	VID_PrepareModeList(); // FIXME: hack
 #endif
 	vidm_nummodes = 0;

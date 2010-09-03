@@ -770,7 +770,7 @@ static void IdentifyVersion(void)
 	char *srb2wad1, *srb2wad2;
 	const char *srb2waddir = NULL;
 
-#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
+#if defined ((__unix__) || defined (UNIXCOMMON) || defined (SDL)) && !defined(PC_DOS)
 	// change to the directory where 'srb2.srb' is found
 	srb2waddir = I_LocateWad();
 #endif
@@ -1178,7 +1178,7 @@ void D_SRB2Main(void)
 	if (!M_CheckParm("-resetdata"))
 		G_LoadGameData();
 
-#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
+#if defined ((__unix__) || defined (UNIXCOMMON) || defined (SDL)) && !defined(PC_DOS)
 	VID_PrepareModeList(); // Regenerate Modelist according to cv_fullscreen
 #endif
 
