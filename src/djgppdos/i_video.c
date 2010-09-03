@@ -95,7 +95,6 @@ static void displayticrate(fixed_t value)
 	int j,l,i;
 	static tic_t lasttic;
 	tic_t tics,t;
-	int k;
 
 	t = I_GetTime();
 	tics = (t - lasttic)/NEWTICRATERATIO;

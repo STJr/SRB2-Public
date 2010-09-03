@@ -39,7 +39,7 @@
 static vmode_t *VID_GetModePtr (int modenum);
 static int  VID_VesaGetModeInfo (int modenum);
 static void VID_VesaGetExtraModes (void);
-static int  VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode);
+static INT32  VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode);
 
 static void VID_Command_NumModes_f (void);
 static void VID_Command_ModeInfo_f (void);
@@ -170,7 +170,7 @@ static inline void VGA_Init(void)
 
 
 //added:30-01-98: return number of video modes in pvidmodes list
-int VID_NumModes(void)
+INT32 VID_NumModes(void)
 {
 	return numvidmodes;
 }
@@ -200,7 +200,7 @@ static inline const char *VID_ModeInfo (int modenum, char **ppheader)
 
 
 //added:03-02-98: return a video mode number from the dimensions
-int VID_GetModeForSize( int w, int h)
+INT32 VID_GetModeForSize( INT32 w, INT32 h)
 {
 	vmode_t *pv;
 	int modenum;
@@ -288,7 +288,7 @@ vmode_t *VID_GetModePtr (int modenum)
 
 
 //added:30-01-98:return the name of a video mode
-const char *VID_GetModeName (int modenum)
+const char *VID_GetModeName (INT32 modenum)
 {
 	return (VID_GetModePtr(modenum))->name;
 }
@@ -297,7 +297,7 @@ const char *VID_GetModeName (int modenum)
 // ========================================================================
 // Sets a video mode
 // ========================================================================
-int VID_SetMode (int modenum)  //, UINT8 *palette)
+INT32 VID_SetMode (INT32 modenum)  //, UINT8 *palette)
 {
 	int     stat;
 	vmode_t *pnewmode, *poldmode;
@@ -749,7 +749,7 @@ static int VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 //      0 hardware could not set mode,
 //     -1 no mem
 // ========================================================================
-int VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode)
+INT32 VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 {
 	vesa_extra_t    *pextra;
 	__dpmi_regs     regs;

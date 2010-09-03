@@ -380,14 +380,14 @@ void I_SetPalette(RGBA_t *palette)
 //
 // return number of video modes in pvidmodes list
 //
-int VID_NumModes(void)
+INT32 VID_NumModes(void)
 {
 	return numvidmodes - NUMSPECIALMODES; //faB: dont accept the windowed mode 0
 }
 
 // return a video mode number from the dimensions
 // returns any available video mode if the mode was not found
-int VID_GetModeForSize(int w, int h)
+INT32 VID_GetModeForSize(INT32 w, INT32 h)
 {
 	vmode_t *pv;
 	int modenum;
@@ -706,7 +706,7 @@ vmode_t *VID_GetModePtr(int modenum)
 //
 // return the name of a video mode
 //
-const char *VID_GetModeName(int modenum)
+const char *VID_GetModeName(INT32 modenum)
 {
 	return (VID_GetModePtr(modenum))->name;
 }
@@ -714,7 +714,7 @@ const char *VID_GetModeName(int modenum)
 // ========================================================================
 // Sets a video mode
 // ========================================================================
-int VID_SetMode(int modenum)
+INT32 VID_SetMode(INT32 modenum)
 {
 	int stat;
 	vmode_t *pnewmode;
