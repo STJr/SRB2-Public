@@ -244,7 +244,7 @@ typedef unsigned long SOCKET_TYPE;
 #define ERRSOCKET (-1)
 #endif
 
-#if defined (WATTCP) || defined (_WIN32)
+#if (defined (WATTCP) && !defined (__libsocket_socklen_t)) || defined (_WIN32)
 typedef int socklen_t;
 #endif
 
