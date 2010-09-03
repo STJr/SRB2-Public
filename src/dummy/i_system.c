@@ -63,12 +63,12 @@ void I_InitJoystick(void){}
 
 void I_InitJoystick2(void){}
 
-int I_NumJoys(void)
+INT32 I_NumJoys(void)
 {
 	return 0;
 }
 
-const char *I_GetJoyName(int joyindex)
+const char *I_GetJoyName(INT32 joyindex)
 {
 	(void)joyindex;
 	return NULL;
@@ -94,7 +94,7 @@ void I_StartupMouse2(void){}
 
 void I_StartupKeyboard(void){}
 
-int I_GetKey(void)
+INT32 I_GetKey(void)
 {
 	return 0;
 }
@@ -111,7 +111,7 @@ void I_RemoveExitFunc(void (*func)())
 	(void)func;
 }
 
-int I_StartupSystem(void)
+INT32 I_StartupSystem(void)
 {
 	return -1;
 }
@@ -128,7 +128,7 @@ char *I_GetUserName(void)
 	return NULL;
 }
 
-int I_mkdir(const char *dirname, int unixright)
+INT32 I_mkdir(const char *dirname, INT32 unixright)
 {
 	(void)dirname;
 	(void)unixright;
@@ -157,7 +157,7 @@ char *I_GetEnv(const char *name)
 	return NULL;
 }
 
-int I_PutEnv(char *variable)
+INT32 I_PutEnv(char *variable)
 {
 	(void)variable;
 	return -1;

@@ -649,7 +649,7 @@ void I_Quit (void)
 
 
 //added:12-02-98: does want to work!!!! rhaaahahha
-void I_WaitVBL(int count)
+void I_WaitVBL(INT32 count)
 {
 	while (count-->0);
 	{
@@ -1248,12 +1248,12 @@ void I_GetEvent (void)
 	I_GetJoystick2Events();
 }
 
-int I_NumJoys(void)
+INT32 I_NumJoys(void)
 {
 	return MAX_JOYSTICKS;
 }
 
-const char *I_GetJoyName(int joyindex)
+const char *I_GetJoyName(INT32 joyindex)
 {
 #if MAX_JOYSTICKS > 8
 "More Joystick Names?"
@@ -1441,7 +1441,7 @@ static END_OF_FUNCTION(I_KeyboardHandler);
 //  Return a key that has been pushed, or 0
 //  (replace getchar() at game startup)
 //
-int I_GetKey (void)
+INT32 I_GetKey (void)
 {
 	int rc=0;
 	if ( keyboard_started )
@@ -1632,7 +1632,7 @@ static char msg[] = "Oh no! Back to reality!\r\n";
 // This stuff should get rid of the exception and page faults when
 // SRB2 bugs out with an error. Now it should exit cleanly.
 //
-int I_StartupSystem(void)
+INT32 I_StartupSystem(void)
 {
 	I_DetectOS();
 	check_cpu();
@@ -1703,7 +1703,7 @@ char *I_GetUserName(void)
 	return username;
 }
 
-int I_mkdir(const char *dirname, int unixright)
+INT32 I_mkdir(const char *dirname, INT32 unixright)
 {
 	return mkdir(dirname,unixright);
 }
@@ -1713,7 +1713,7 @@ char * I_GetEnv(const char *name)
 	return getenv(name);
 }
 
-int I_PutEnv(char *variable)
+INT32 I_PutEnv(char *variable)
 {
 	return putenv(variable);
 }

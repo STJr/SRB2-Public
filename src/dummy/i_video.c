@@ -51,7 +51,7 @@ void I_FinishUpdate(void){}
 
 void I_UpdateNoVsync(void) {}
 
-void I_WaitVBL(int count)
+void I_WaitVBL(INT32 count)
 {
 	(void)count;
 }
