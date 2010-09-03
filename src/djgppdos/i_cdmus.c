@@ -418,7 +418,7 @@ void I_PlayCD (UINT8 track, UINT8 looping)
 
 
 // volume : logical cd audio volume 0-31 (hardware is 0-255)
-boolean I_SetVolumeCD (int volume)
+boolean I_SetVolumeCD (INT32 volume)
 {
 	int  hardvol;
 
