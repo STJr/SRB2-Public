@@ -97,9 +97,9 @@ const char *text[NUMTEXT] =
 	"Illegal kick command received from %s for player %d\n",                       //ILLEGALKICKCMD
 	"\2%s ",                                                                       //KICKEDPLAYERNAME
 	"has been kicked (Go away)\n",                                                 //KICKEDGOAWAY
-	"has been kicked (Consistency failure)\n",                                     //KICKEDCONSFAIL
+	"left the game (Consistency failure)\n",                                       //KICKEDCONSFAIL
 #ifdef NEWPING
-	"has been kicked (Broke ping limit)\n",                                        //KICKEDPINGTOOHIGH
+	"left the game (Broke ping limit)\n",                                          //KICKEDPINGTOOHIGH
 #endif
 	"left the game (Connection timeout)\n",                                        //LEFTGAME_TIMEOUT
 	"left the game\n",                                                             //LEFTGAME

@@ -1776,12 +1776,12 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 		D_StartTitle();
 		if (msg == KICK_MSG_CON_FAIL)
 		{
-			M_StartMessage("You have been kicked\n(consistency failure)\nPress ESC\n", NULL,
+			M_StartMessage("Server closed connection\n(consistency failure)\nPress ESC\n", NULL,
 				MM_NOTHING);
 		}
 #ifdef NEWPING
 		else if (msg == KICK_MSG_PING_HIGH)
-			M_StartMessage("You have been kicked\n(Broke ping limit)\nPress ESC\n", NULL, MM_NOTHING);
+			M_StartMessage("Server closed connection\n(Broke ping limit)\nPress ESC\n", NULL, MM_NOTHING);
 #endif
 		else if (msg == KICK_MSG_BANNED)
 			M_StartMessage("You have been banned by the server\n\nPress ESC\n", NULL, MM_NOTHING);
