@@ -65,7 +65,7 @@ static vesa_extra_t vesa_extra[MAX_VESA_MODES];
 
 //this is the only supported non-vesa mode : standard 320x200x256c.
 #define NUMVGAVIDMODES  1
-static int VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode);
+static INT32 VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode);
 static char vgamode1[] ="320x200";
 static vmode_t      vgavidmodes[NUMVGAVIDMODES] = {
   {
@@ -719,7 +719,7 @@ static boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
 //      0 hardware could not set mode,
 //     -1 no mem
 // ========================================================================
-static int VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode)
+static INT32 VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 {
 	__dpmi_regs   regs;
 
