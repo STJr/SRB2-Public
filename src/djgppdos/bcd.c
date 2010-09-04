@@ -229,7 +229,11 @@ int bcd_now_playing(void) {
     _bcd_error = "Audio not playing";
     return 0;
   }
-  if (tracks == NULL && !bcd_get_audio_info())
+  if (
+#ifndef STATIC_TRACKS
+  tracks == NULL && 
+#endif
+   !bcd_get_audio_info())
     return 0;
   for (i = lowest_track; i <= highest_track; i++) {
     if (loc >= tracks[i].start && loc <= tracks[i].end) return i;
