@@ -201,7 +201,7 @@ static void bcd_ioctl(IOCTLI *ioctli, void *command, int len) {
 }
 
 /* no command block */
-static inline void bcd_ioctl2(void *cmd, int len) {
+FUNCINLINE static ATTRINLINE void bcd_ioctl2(void *cmd, int len) {
   __dpmi_regs regs;
   memset(&regs, 0, sizeof regs);
   regs.x.es = (__tb >> 4) & 0xffff;
@@ -218,7 +218,7 @@ static inline void bcd_ioctl2(void *cmd, int len) {
   RESET_ERROR;
 }
 
-static inline int red2hsg(char *r) {
+FUNCINLINE static ATTRINLINE int red2hsg(char *r) {
   return r[0] + r[1]*75 + r[2]*4500 - 150;
 }
 

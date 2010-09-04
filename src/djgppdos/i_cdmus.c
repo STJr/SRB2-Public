@@ -60,7 +60,7 @@ consvar_t cdUpdate  = {"cd_update","1",CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0,
 
 
 // hour,minutes,seconds
-static inline char *hms(int hsg)
+FUNCINLINE static ATTRINLINE char *hms(int hsg)
 {
 	int hours, minutes, seconds;
 	static char s[9];
