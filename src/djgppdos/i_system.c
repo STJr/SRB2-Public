@@ -339,7 +339,7 @@ static UINT8 joystick2_detected = false;
 //
 
 
-static inline int I_WaitJoyButton (int js)
+FUNCINLINE static ATTRINLINE int I_WaitJoyButton (int js)
 {
 	CON_Drawer ();
 	I_FinishUpdate ();        // page flip or blit buffer
@@ -734,7 +734,7 @@ static END_OF_FUNCTION(I_MicrosoftMouseIntHandler);
 #endif
 
 // wait ms milliseconde
-static inline void I_Delay(int ms)
+FUNCINLINE static ATTRINLINE void I_Delay(int ms)
 {
 	tic_t  starttime;
 
@@ -751,7 +751,7 @@ static inline void I_Delay(int ms)
 //
 //  Removes the mouse2 handler.
 //
-static inline void I_ShutdownMouse2(void)
+static void I_ShutdownMouse2(void)
 {
 	event_t event;
 	int i;

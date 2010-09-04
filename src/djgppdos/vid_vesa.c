@@ -128,7 +128,7 @@ static vesamodeinfo_t vesamodeinfo;
 // ------------------------------------------------------------------------
 static unsigned long conventional_memory = (unsigned long)-1;
 
-static inline void map_in_conventional_memory(void)
+FUNCINLINE static ATTRINLINE void map_in_conventional_memory(void)
 {
 	if (conventional_memory == (unsigned long)-1)
 	{
@@ -149,7 +149,7 @@ unsigned int ptr2real(void *ptr)
 #endif
 
 // Converts 0x12345 (seg<<4+offs) realmode ptr to a flat 32bit ptr
-static inline void *real2ptr(unsigned int real)
+FUNCINLINE static ATTRINLINE void *real2ptr(unsigned int real)
 {
 	map_in_conventional_memory();
 	return (void *) (real + conventional_memory);
@@ -176,7 +176,7 @@ INT32 VID_NumModes(void)
 }
 
 //added:21-03-98: return info on video mode
-static inline const char *VID_ModeInfo (int modenum, char **ppheader)
+FUNCINLINE static ATTRINLINE const char *VID_ModeInfo (int modenum, char **ppheader)
 {
 	static const char *badmodestr = "Bad video mode number\n";
 	vmode_t     *pv;
@@ -687,7 +687,7 @@ no_vesa:
 // Free the video buffer of the last video mode,
 // allocate a new buffer for the video mode to set.
 // ========================================================================
-static inline boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
+static boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
 {
 	int  vidbuffersize;
 

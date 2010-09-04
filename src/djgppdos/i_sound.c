@@ -126,7 +126,7 @@ void I_FreeSfx (sfxinfo_t *sfx)
 	sfx->lumpnum = LUMPERROR;
 }
 
-static inline int Volset(int vol)
+FUNCINLINE static ATTRINLINE int Volset(int vol)
 {
 	return (vol*255/31);
 }
