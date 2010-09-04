@@ -66,6 +66,17 @@ typedef long ssize_t;
 #define UINT32 unsigned int
 #define INT64  int64
 #define UINT64 uint64
+#elif defined (__DJGPP__)
+#define UINT8 unsigned char
+#define SINT8 signed char
+
+#define UINT16 unsigned short int
+#define INT16 signed short int
+
+#define INT32 signed long
+#define UINT32 unsigned long
+#define INT64  signed long long
+#define UINT64 unsigned long long
 #else
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
