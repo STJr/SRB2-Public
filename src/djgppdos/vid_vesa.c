@@ -531,7 +531,7 @@ void VID_VesaGetExtraModes (void)
 
 	dosmemget(MASK_LINEAR(__tb), sizeof (vbeinfoblock_t), &vesainfo);
 
-	if (strncmp(vesainfo.VESASignature, "VESA", 4) != 0)
+	if (strncmp((void *)vesainfo.VESASignature, "VESA", 4) != 0)
 	{
 no_vesa:
 		CONS_Printf ("No VESA driver\n");

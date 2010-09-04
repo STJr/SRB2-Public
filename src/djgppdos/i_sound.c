@@ -332,11 +332,11 @@ static MIDI *load_midi_mem(char *mempointer,int *e)
 {
 	int c = *e;
 	long data=0;
-	char *fp;
+	unsigned char *fp;
 	MIDI *midi;
 	int num_tracks=0;
 
-	fp = mempointer;
+	fp = (void *)mempointer;
 	if (!fp)
 		return NULL;
 
@@ -381,7 +381,7 @@ static MIDI *load_midi_mem(char *mempointer,int *e)
 
 		midi->track[c].len = data;
 
-		midi->track[c].data=fp;
+		midi->track[c].data = fp;
 		fp+=data;
 	}
 
