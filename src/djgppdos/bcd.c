@@ -48,83 +48,83 @@ const char *_bcd_error = NULL;
 
 /* I know 'typedef struct {} bleh' is a bad habit, but... */
 typedef struct {
-  unsigned char len		ATTRPACK;
-  unsigned char unit		ATTRPACK;
-  unsigned char command		ATTRPACK;
-  unsigned short status		ATTRPACK;
-  unsigned char reserved[8]	ATTRPACK;
-} RequestHeader;
+  unsigned char len;
+  unsigned char unit;
+  unsigned char command;
+  unsigned short status;
+  unsigned char reserved[8];
+} ATTRPACK RequestHeader;
 
 typedef struct {
-  RequestHeader request_header	ATTRPACK;
-  unsigned char descriptor	ATTRPACK;
-  unsigned long address		ATTRPACK;
-  unsigned short len		ATTRPACK;
-  unsigned short secnum		/*ATTRPACK*/;
-  unsigned long ptr		ATTRPACK;
-} IOCTLI;
+  RequestHeader request_header;
+  unsigned char descriptor;
+  unsigned long address;
+  unsigned short len;
+  unsigned short secnum;
+  unsigned long ptr;
+} ATTRPACK IOCTLI;
 
 typedef struct {
-  unsigned char control		ATTRPACK;
-  unsigned char lowest		ATTRPACK;
-  unsigned char highest		ATTRPACK;
-  unsigned char total[4]	ATTRPACK;
-} DiskInfo;
+  unsigned char control;
+  unsigned char lowest;
+  unsigned char highest;
+  char total[4];
+} ATTRPACK DiskInfo;
 
 typedef struct {
-  unsigned char control		ATTRPACK;
-  unsigned char track_number	ATTRPACK;
-  unsigned char start[4]	ATTRPACK;
-  unsigned char info		ATTRPACK;
-} TrackInfo;
+  unsigned char control;
+  unsigned char track_number;
+  char start[4];
+  unsigned char info;
+} ATTRPACK TrackInfo;
 
 typedef struct {
-  RequestHeader request	ATTRPACK;
-  unsigned char mode	ATTRPACK;
-  unsigned long start	ATTRPACK;
-  unsigned long len	ATTRPACK;
-} PlayRequest;
+  RequestHeader request;
+  unsigned char mode;
+  unsigned long start;
+  unsigned long len;
+} ATTRPACK PlayRequest;
 
 typedef struct {
-  RequestHeader request	ATTRPACK;
-} StopRequest;
+  RequestHeader request;
+} ATTRPACK StopRequest;
 
 typedef struct {
-  RequestHeader request	ATTRPACK;
-} ResumeRequest;
+  RequestHeader request;
+} ATTRPACK ResumeRequest;
 
 typedef struct {
-  unsigned char control	ATTRPACK;
-  unsigned char input0	ATTRPACK;
-  unsigned char volume0	ATTRPACK;
-  unsigned char input1	ATTRPACK;
-  unsigned char volume1	ATTRPACK;
-  unsigned char input2	ATTRPACK;
-  unsigned char volume2	ATTRPACK;
-  unsigned char input3	ATTRPACK;
-  unsigned char volume3	ATTRPACK;
-} VolumeRequest;
+  unsigned char control;
+  unsigned char input0;
+  unsigned char volume0;
+  unsigned char input1;
+  unsigned char volume1;
+  unsigned char input2;
+  unsigned char volume2;
+  unsigned char input3;
+  unsigned char volume3;
+} ATTRPACK VolumeRequest;
 
 typedef struct {
-  unsigned char control	ATTRPACK;
-  unsigned char fn	ATTRPACK;
-} LockRequest;
+  unsigned char control;
+  unsigned char fn;
+} ATTRPACK LockRequest;
 
 typedef struct {
-  unsigned char control	ATTRPACK;
-  unsigned char mbyte	ATTRPACK;
-} MediaChangedRequest;
+  unsigned char control;
+  unsigned char mbyte;
+} ATTRPACK MediaChangedRequest;
 
 typedef struct {
-  unsigned char control	ATTRPACK;
-  unsigned long status	ATTRPACK;
-} StatusRequest;
+  unsigned char control;
+  unsigned long status;
+} ATTRPACK StatusRequest;
 
 typedef struct {
-  unsigned char control	ATTRPACK;
-  unsigned char mode	ATTRPACK;
-  unsigned long loc	ATTRPACK;
-} PositionRequest;
+  unsigned char control;
+  unsigned char mode;
+  unsigned long loc;
+} ATTRPACK PositionRequest;
 
 #pragma pack()
 
