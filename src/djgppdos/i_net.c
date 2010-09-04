@@ -52,7 +52,7 @@ typedef enum
 
 static void External_Driver_Get(void);
 static void External_Driver_Send(void);
-static void External_Driver_FreeNode(int nodenum);
+static void External_Driver_FreeNode(INT32 nodenum);
 
 static inline boolean External_Driver_OpenSocket(void)
 {
@@ -106,7 +106,7 @@ FUNCNORETURN static ATTRNORETURN void External_Driver_Send(void)
 	I_Error("External_Driver_Send not supported at this time");
 }
 
-FUNCNORETURN static ATTRNORETURN void External_Driver_FreeNode(int nodenum)
+FUNCNORETURN static ATTRNORETURN void External_Driver_FreeNode(INT32 nodenum)
 {
 	nodenum = 0;
 	I_Error("External_Driver_FreeNode not supported at this time");
