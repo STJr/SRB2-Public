@@ -16,7 +16,6 @@
 
 typedef struct {
   int is_audio;
-  int start, end, len;
 } Track;
 
 static int mscdex_version;
@@ -231,7 +230,7 @@ int bcd_now_playing(void) {
   }
   if (
 #ifndef STATIC_TRACKS
-  tracks == NULL && 
+  tracks == NULL &&
 #endif
    !bcd_get_audio_info())
     return 0;

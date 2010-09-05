@@ -1300,7 +1300,7 @@ struct png_struct_def
    png_uint_32 num_rows PNG_DEPSTRUCT;      /* number of rows in current pass */
    png_uint_32 usr_width PNG_DEPSTRUCT;     /* width of row at start of write */
    png_uint_32 rowbytes PNG_DEPSTRUCT;      /* size of row in bytes */
-#if 0 /* Replaced with the following in libpng-1.2.43 */
+#if 1 /* Replaced with the following in libpng-1.2.43 */
    png_size_t irowbytes PNG_DEPSTRUCT;
 #endif
 /* Added in libpng-1.2.43 */

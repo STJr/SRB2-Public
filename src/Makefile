@@ -474,7 +474,9 @@ $(BIN)/$(EXENAME): $(OBJS)
 	-@mkdir -p $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
+ifndef WATTCP
 	$(OBJDUMP) -S -l $(BIN)/$(EXENAME) > $(BIN)/$(DGBNAME).txt
+endif
 	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DGBNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
 ifndef DJGPPDOS
