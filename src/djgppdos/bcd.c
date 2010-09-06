@@ -16,6 +16,7 @@
 
 typedef struct {
   int is_audio;
+  int start, end, len;
 } Track;
 
 static int mscdex_version;
