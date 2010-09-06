@@ -116,7 +116,7 @@ void I_Error(const char *error, ...)
   char logbuf[8192];
 
   va_start(argptr, error);
-  vsprintf(logbuf, error, argptr);
+  vsnprintf(logbuf, sizeof logbuf, error, argptr);
   va_end(argptr);
 
   LOGE(logbuf);
@@ -169,7 +169,7 @@ void I_OutputMsg(const char *fmt, ...)
   char logbuf[8192];
 
   va_start(argptr, fmt);
-  vsprintf(logbuf, fmt, argptr);
+  vsnprintf(logbuf, sizeof logbuf, fmt, argptr);
   va_end(argptr);
 
   LOGD(logbuf);

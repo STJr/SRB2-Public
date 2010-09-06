@@ -98,7 +98,7 @@ static VOID FPrintf (HANDLE fileHandle, LPCSTR lpFmt, ...)
 	DWORD   bytesWritten;
 
 	va_start (arglist, lpFmt);
-	vsprintf (str, lpFmt, arglist);
+	vnsprintf (str, sizeof str, lpFmt, arglist);
 	va_end   (arglist);
 
 	WriteFile (fileHandle, str, (DWORD)strlen(str), &bytesWritten, NULL);

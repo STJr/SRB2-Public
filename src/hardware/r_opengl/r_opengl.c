@@ -170,7 +170,7 @@ FUNCPRINTF void DBG_Printf(const char *lpFmt, ...)
 	va_list arglist;
 
 	va_start (arglist, lpFmt);
-	vsnprintf (str, 4096, lpFmt, arglist);
+	vsnprintf (str, sizeof str, lpFmt, arglist);
 	va_end   (arglist);
 #ifdef _WINDOWS
 	{

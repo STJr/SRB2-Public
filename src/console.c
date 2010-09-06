@@ -1014,7 +1014,7 @@ void CONS_Printf(const char *fmt, ...)
 	XBOXSTATIC char txt[8192];
 
 	va_start(argptr, fmt);
-	vsprintf(txt, fmt, argptr);
+	vsnprintf(txt, sizeof txt, fmt, argptr);
 	va_end(argptr);
 
 	// echo console prints to log file

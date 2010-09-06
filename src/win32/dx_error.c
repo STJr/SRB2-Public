@@ -40,7 +40,7 @@
 /*
 VOID DXErrorMessageBox (HRESULT error) LPSTR fmt, ...)
 {
-	char buff[256];
+	char buff[1025];
 	va_list args;
 
 	va_start(args, fmt);
