@@ -54,6 +54,7 @@ void (*spanfunc)(void); // span drawer, use a 64x64 tile
 void (*splatfunc)(void); // span drawer w/ transparency
 void (*basespanfunc)(void); // default span func for color mode
 void (*transtransfunc)(void); // translucent translated column drawer
+void (*twosmultipatchfunc)(void); // for cols with transparent pixels
 
 // ------------------
 // global video state
@@ -119,35 +120,27 @@ void SCR_SetMode(void)
 		shadecolfunc = R_DrawShadeColumn_8;
 		fuzzcolfunc = R_DrawTranslucentColumn_8;
 		walldrawerfunc = R_DrawWallColumn_8;
+		twosmultipatchfunc = R_Draw2sMultiPatchColumn_8;
 #ifdef RUSEASM
 		if (R_ASM)
 		{
-			colfunc = basecolfunc = R_DrawColumn_8_ASM;
-			//shadecolfunc = R_DrawShadeColumn_8_ASM;
-			//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
-			walldrawerfunc = R_DrawWallColumn_8_ASM;
-		}
-/*		if (R_486)
-		{
-			colfunc = basecolfunc = R_DrawColumn_8_NOMMX;
-			CONS_Printf("using 486 code\n");
-		}
-		if (R_586)
-		{
-			colfunc = basecolfunc = R_DrawColumn_8_Pentium;
-			CONS_Printf("upgrading to 586 code\n");
-		}
-		if (R_MMX)
-		{
-			colfunc = basecolfunc = R_DrawColumn_8_K6_MMX;
-			CONS_Printf("now using cool MMX code\n");
-		}*/
-		if (R_SSE)
-		{
-			colfunc = basecolfunc = R_DrawColumn_8_SSE;
-			//shadecolfunc = R_DrawShadeColumn_8_ASM;
-			//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
-			walldrawerfunc = R_DrawWallColumn_8_SSE;
+			if (R_MMX)
+			{
+				colfunc = basecolfunc = R_DrawColumn_8_MMX;
+				//shadecolfunc = R_DrawShadeColumn_8_ASM;
+				//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
+				walldrawerfunc = R_DrawWallColumn_8_MMX;
+				twosmultipatchfunc = R_Draw2sMultiPatchColumn_8_MMX;
+				spanfunc = basespanfunc = R_DrawSpan_8_MMX;
+			}
+			else
+			{
+				colfunc = basecolfunc = R_DrawColumn_8_ASM;
+				//shadecolfunc = R_DrawShadeColumn_8_ASM;
+				//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
+				walldrawerfunc = R_DrawWallColumn_8_ASM;
+				twosmultipatchfunc = R_Draw2sMultiPatchColumn_8_ASM;
+			}
 		}
 #endif
 	}

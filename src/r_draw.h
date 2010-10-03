@@ -131,13 +131,13 @@ void ASMCALL R_DrawColumn_8_ASM(void);
 #define R_DrawWallColumn_8_ASM	R_DrawColumn_8_ASM
 void ASMCALL R_DrawShadeColumn_8_ASM(void);
 void ASMCALL R_DrawTranslucentColumn_8_ASM(void);
+void ASMCALL R_Draw2sMultiPatchColumn_8_ASM(void);
 
-void ASMCALL R_DrawColumn_8_Pentium(void); // Optimised for Pentium
-void ASMCALL R_DrawColumn_8_NOMMX(void);   // DOSDoom original
-void ASMCALL R_DrawColumn_8_K6_MMX(void);  // MMX asm version, optimised for K6
+void ASMCALL R_DrawColumn_8_MMX(void);
+#define R_DrawWallColumn_8_MMX	R_DrawColumn_8_MMX
 
-void ASMCALL R_DrawColumn_8_SSE(void);
-#define R_DrawWallColumn_8_SSE	R_DrawColumn_8_SSE
+void ASMCALL R_Draw2sMultiPatchColumn_8_MMX(void);
+void ASMCALL R_DrawSpan_8_MMX(void);
 #endif
 
 void R_DrawTranslatedColumn_8(void);

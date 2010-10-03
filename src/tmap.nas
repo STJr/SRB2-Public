@@ -22,6 +22,7 @@
 [BITS 32]
 
 %define FRACBITS 16
+%define TRANSPARENTPIXEL 247
 
 %ifdef LINUX
 %macro cextern 1
@@ -32,7 +33,6 @@
 [global %1]
 %endmacro
 
-%define CODE_SEG .data
 %else
 %macro cextern 1
 %define %1 _%1
@@ -44,7 +44,6 @@
 [global %1]
 %endmacro
 
-%define CODE_SEG .text
 %endif
 
 
@@ -88,7 +87,7 @@ loopcount       dd      0
 pixelcount      dd      0
 tystep          dd      0
 
-[SECTION CODE_SEG]
+[SECTION .text]
 
 ;;----------------------------------------------------------------------
 ;;
@@ -220,6 +219,162 @@ R_DrawColumn_8_ASM:
         add     ebp,[dc_iscale]         ;; frac += fracstep
         movzx   eax,byte [ebx]          ;; Map through colormap
         mov     [edi],al                ;; Write pixel
+                                        ;; dest += vid.width
+        add     edi,[vid + viddef_s.width]
+
+        sub     ecx,1
+        jnz     .notpowtwoloop
+
+;;
+
+.done:
+        pop     ebx                     ;; restore register variables
+        pop     edi
+        pop     esi
+        pop     ebp                     ;; restore caller's stack frame pointer
+        ret
+
+
+;;----------------------------------------------------------------------
+;;
+;; R_Draw2sMultiPatchColumn : Like R_DrawColumn, but omits transparent
+;;                            pixels.
+;;
+;; New  optimised version 10-01-1998 by D.Fabrice and P.Boris
+;; Revised by G. Dick July 2010 to support the intervening twelve years'
+;; worth of changes to the renderer. Since I only vaguely know what I'm
+;; doing, this is probably rather suboptimal. Help appreciated!
+;;
+;;----------------------------------------------------------------------
+;; fracstep, vid.width in memory
+;; eax = accumulator
+;; ebx = colormap
+;; ecx = count
+;; edx = heightmask
+;; esi = source
+;; edi = dest
+;; ebp = frac
+;;----------------------------------------------------------------------
+
+cglobal R_Draw2sMultiPatchColumn_8_ASM
+;       align   16
+R_Draw2sMultiPatchColumn_8_ASM:
+        push    ebp                     ;; preserve caller's stack frame pointer
+        push    esi                     ;; preserve register variables
+        push    edi
+        push    ebx
+;;
+;; dest = ylookup[dc_yl] + columnofs[dc_x];
+;;
+        mov     ebp,[dc_yl]
+        mov     edi,[ylookup+ebp*4]
+        mov     ebx,[dc_x]
+        add     edi,[columnofs+ebx*4]  ;; edi = dest
+;;
+;; pixelcount = yh - yl + 1
+;;
+        mov     ecx,[dc_yh]
+        add     ecx,1
+        sub     ecx,ebp                 ;; pixel count
+        jle     near .done              ;; nothing to scale
+;;
+;; fracstep = dc_iscale;	// But we just use [dc_iscale]
+;; frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep));
+;;
+        mov     eax,ebp                 ;; dc_yl
+        shl     eax,FRACBITS
+        sub     eax,[centeryfrac]
+        imul    dword [dc_iscale]
+        shrd    eax,edx,FRACBITS
+        add     eax,[dc_texturemid]
+        mov     ebp,eax                 ;; ebp = frac
+
+        mov     ebx,[dc_colormap]
+
+        mov     esi,[dc_source]
+;;
+;; if (dc_hires) frac = 0;
+;;
+        test    byte [dc_hires],0x01
+        jz      .texheightcheck
+        xor     ebp,ebp
+
+;;
+;; Check for power of two
+;;
+.texheightcheck:
+        mov     edx,[dc_texheight]
+        sub     edx,1                   ;; edx = heightmask
+        test    edx,[dc_texheight]
+        jnz     .notpowertwo
+
+        test    ecx,0x01                ;; Test for odd no. pixels
+        jnz     .odd
+
+;;
+;; Texture height is a power of two, so we get modular arithmetic by
+;; masking
+;;
+.powertwo:
+        mov     eax,ebp                 ;; eax = frac
+        sar     eax,FRACBITS            ;; Integer part
+        and     eax,edx                 ;; eax &= heightmask
+        movzx   eax,byte [esi + eax]    ;; eax = texel
+        add     ebp,[dc_iscale]         ;; frac += fracstep
+        movzx   eax,byte [ebx+eax]      ;; Map through colormap
+        cmp     al,TRANSPARENTPIXEL     ;; Is pixel transparent?
+        je      .nextpowtwoeven         ;; If so, advance.
+        mov	    [edi],al                ;; Write pixel
+.nextpowtwoeven:
+                                        ;; dest += vid.width
+        add     edi,[vid + viddef_s.width]
+
+.odd:
+        mov     eax,ebp                 ;; eax = frac
+        sar     eax,FRACBITS            ;; Integer part
+        and     eax,edx                 ;; eax &= heightmask
+        movzx   eax,byte [esi + eax]    ;; eax = texel
+        add     ebp,[dc_iscale]         ;; frac += fracstep
+        movzx   eax,byte [ebx+eax]      ;; Map through colormap
+        cmp     al,TRANSPARENTPIXEL     ;; Is pixel transparent?
+        je      .nextpowtwoodd          ;; If so, advance.
+        mov     [edi],al                ;; Write pixel
+.nextpowtwoodd:
+                                        ;; dest += vid.width
+        add     edi,[vid + viddef_s.width]
+
+
+        sub     ecx,2                   ;; count -= 2
+        jg      .powertwo
+
+        jmp     .done
+
+.notpowertwo:
+        add     edx,1
+        shl     edx,FRACBITS
+        test    ebp,ebp
+        jns     .notpowtwoloop
+
+.makefracpos:
+        add     ebp,edx                 ;; frac is negative; make it positive
+        js      .makefracpos
+
+.notpowtwoloop:
+        cmp     ebp,edx                 ;; Reduce mod height
+        jl      .writenonpowtwo
+        sub     ebp,edx
+        jmp     .notpowtwoloop
+
+.writenonpowtwo:
+        mov     eax,ebp                 ;; eax = frac
+        sar     eax,FRACBITS            ;; Integer part.
+        mov     bl,[esi + eax]          ;; ebx = colormap + texel
+        add     ebp,[dc_iscale]         ;; frac += fracstep
+        movzx   eax,byte [ebx]          ;; Map through colormap
+        cmp     al,TRANSPARENTPIXEL     ;; Is pixel transparent?
+        je      .nextnonpowtwo          ;; If so, advance.
+        mov     [edi],al                ;; Write pixel
+.nextnonpowtwo:
                                         ;; dest += vid.width
         add     edi,[vid + viddef_s.width]
 
@@ -584,7 +739,6 @@ shdone:
         pop     ebp                     ;; restore caller's stack frame pointer
         ret
 
-[SECTION CODE_SEG]
 
 ;; ========================================================================
 ;;  Rasterization of the segments of a LINEAR polygne textur of manire.

@@ -262,7 +262,7 @@ static void R_Render2sidedMultiPatchColumn(column_t *column)
 		dc_source = (UINT8 *)column + 3;
 
 		if (colfunc == wallcolfunc)
-			R_Draw2sMultiPatchColumn_8();
+			twosmultipatchfunc();
 		else
 			colfunc();
 	}

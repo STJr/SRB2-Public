@@ -154,30 +154,35 @@ void R_Draw2sMultiPatchColumn_8(void)
 		register UINT8 val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
-			register INT64 frac64 = frac;
-
 			heightmask++;
 			heightmask <<= FRACBITS;
 
-			if (frac64 < 0)
-				while ((frac64 += heightmask) <  0);
+			if (frac < 0)
+				while ((frac += heightmask) <  0);
 			else
-				while (frac64 >= heightmask)
-					frac64 -= heightmask;
+				while (frac >= heightmask)
+					frac -= heightmask;
 
 			do
 			{
 				// Re-map color indices from wall texture column
 				//  using a lighting/special effects LUT.
 				// heightmask is the Tutti-Frutti fix
-				val = source[frac64>>FRACBITS];
+				val = source[frac>>FRACBITS];
 
 				if (val != TRANSPARENTPIXEL)
 					*dest = colormap[val];
 
 				dest += vid.width;
-				if ((frac64 += fracstep) >= heightmask)
-					frac64 -= heightmask;
+
+				// Avoid overflow.
+				if (fracstep > 0x7FFFFFFF - frac)
+					frac += fracstep - heightmask;
+				else
+					frac += fracstep;
+
+				while (frac >= heightmask)
+					frac -= heightmask;
 			} while (--count);
 		}
 		else
@@ -934,7 +939,7 @@ void R_DrawColumnShadowed_8(void)
 
 		if (dc_yh > realyh)
 			dc_yh = realyh;
-		R_DrawColumn_8();
+		basecolfunc();		// R_DrawColumn_8 for the appropriate architecture
 		if (solid)
 			dc_yl = bheight;
 		else
@@ -944,5 +949,5 @@ void R_DrawColumnShadowed_8(void)
 	}
 	dc_yh = realyh;
 	if (dc_yl <= realyh)
-		R_DrawWallColumn_8();
+		walldrawerfunc();		// R_DrawWallColumn_8 for the appropriate architecture
 }
