@@ -259,7 +259,7 @@ int  InitDirectDrawe (HWND appWin, int width, int height, int bpp, int fullScr)
 		// for fullscreen we use page flipping, for windowed mode, we blit the hidden surface to
 		// the visible surface, in both cases we have a visible (or 'real') surface, and a hidden
 		// (or 'virtual', or 'backbuffer') surface.
-		ddsd.dwBackBufferCount = 1;
+		ddsd.dwBackBufferCount = 2;
 
 		ddrval = IDirectDraw2_CreateSurface(DDr2,&ddsd, &ScreenReal, NULL);
 		if (ddrval != DD_OK)
