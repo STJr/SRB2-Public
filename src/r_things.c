@@ -737,7 +737,12 @@ static void R_DrawVisSprite(vissprite_t *vis)
 			dc_translation = bosstranslationtables;
 		}
 		else // Use the defaults
-			dc_translation = defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
+		{
+			if (vis->mobj->color)
+				dc_translation = defaulttranslationtables - 256 + ((long)vis->mobj->color<<8);
+			else
+				dc_translation = defaulttranslationtables;
+		}
 	}
 
 	if (vis->extra_colormap)

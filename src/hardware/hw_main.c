@@ -3829,7 +3829,12 @@ static void HWR_ProjectSprite(mobj_t *thing)
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
 			vis->colormap = (UINT8 *)bosstranslationtables;
 		else
-			vis->colormap = (UINT8 *)defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
+		{
+			if (vis->mobj->color)
+				vis->colormap = (UINT8 *)defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
+			else
+				vis->colormap = (UINT8 *)defaulttranslationtables;
+		}
 	}
 	else
 		vis->colormap = colormaps;
