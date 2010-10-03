@@ -436,13 +436,12 @@ BOOL ScreenFlip(int waitflip)
 	HRESULT hr;
 	RECT rect;
 
-	UNREFERENCED_PARAMETER(waitflip);
 	if (bAppFullScreen)
 	{
 		//hr = IDirectDrawSurface_GetFlipStatus (ScreenReal, DDGFS_);
 
 		// In full-screen exclusive mode, do a hardware flip.
-		hr = IDirectDrawSurface_Flip(ScreenReal, NULL, DDFLIP_WAIT);   //return immediately
+		hr = IDirectDrawSurface_Flip(ScreenReal, NULL, DDFLIP_WAIT | (waitflip ? DDFLIP_NOVSYNC : 0));   //return immediately
 
 		// If the surface was lost, restore it.
 		if (hr == DDERR_SURFACELOST)
@@ -450,7 +449,7 @@ BOOL ScreenFlip(int waitflip)
 			IDirectDrawSurface_Restore(ScreenReal);
 
 			// The restore worked, so try the flip again.
-			hr = IDirectDrawSurface_Flip(ScreenReal, 0, DDFLIP_WAIT);
+			hr = IDirectDrawSurface_Flip(ScreenReal, 0, DDFLIP_WAIT | (waitflip ? DDFLIP_NOVSYNC : 0));
 		}
 	}
 	else
