@@ -1085,7 +1085,7 @@ VOID I_OutputMsg(LPSTR fmt, ...)
 	char        txt[8192];
 
 	va_start (argptr,fmt);
-	vsnprintf (txt, sizeof txt, fmt, argptr);
+	vsprintf (txt,fmt,argptr);
 	va_end   (argptr);
 
 	fprintf  (stderr,"%s", txt);

@@ -1332,7 +1332,7 @@ char *va(const char *format, ...)
 	static char string[1024];
 
 	va_start(argptr, format);
-	vsnprintf(string, sizeof string, format, argptr);
+	vsprintf(string, format, argptr);
 	va_end(argptr);
 
 	return string;

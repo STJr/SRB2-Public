@@ -526,7 +526,7 @@ void I_OutputMsg(const char *fmt, ...)
 	char txt[128];
 
 	va_start(argptr,fmt);
-	vsnprintf(txt, sizeof txt, fmt, argptr);
+	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
 
 	OutputDebugStringA(txt);
@@ -593,7 +593,7 @@ void I_OutputMsg(const char *fmt, ...)
 void I_Error(const char *error, ...)
 {
 	va_list argptr;
-	char txt[1025];
+	char txt[8192];
 
 	// added 11-2-98 recursive error detecting
 	if (shutdowning)
@@ -613,7 +613,7 @@ void I_Error(const char *error, ...)
 		{
 			// Don't print garbage
 			va_start(argptr,error);
-			vsnprintf(txt, sizeof txt, error, argptr);
+			vsprintf(txt, error, argptr);
 			va_end(argptr);
 
 			MessageBoxA(hWndMain, txt, "SRB2 Recursive Error", MB_OK|MB_ICONERROR);

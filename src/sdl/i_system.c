@@ -725,7 +725,7 @@ void I_OutputMsg(const char *fmt, ...)
 #endif
 
 	va_start(argptr,fmt);
-	vsnprintf(txt, sizeof txt, fmt, argptr);
+	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
 
 #if defined (_WIN32) && !defined (_XBOX)
@@ -2268,13 +2268,13 @@ void I_Error(const char *error, ...)
 		{
 #ifdef MAC_ALERT
 			va_start(argptr, error);
-			vsnprintf(buffer, sizeof buffer, error, argptr);
+			vsprintf(buffer, error, argptr);
 			va_end(argptr);
 			// 2004-03-03 AJR Since the Mac user is most likely double clicking to run the game, give them a panel.
 			MacShowAlert("Recursive Error", buffer, "Quit", NULL, NULL);
 #elif (defined (_WIN32) || (defined (_WIN32_WCE)) && !defined (__GNUC__)) && !defined (_XBOX)
 			va_start(argptr,error);
-			vsnprintf(buffer, sizeof buffer, error, argptr);
+			vsprintf(buffer, error, argptr);
 			va_end(argptr);
 #ifndef _WIN32_WCE
 			{
@@ -2345,7 +2345,7 @@ void I_Error(const char *error, ...)
 #endif
 #ifdef MAC_ALERT
 	va_start(argptr, error);
-	vsnprintf(buffer, sizeof buffer, error, argptr);
+	vsprintf(buffer, error, argptr);
 	va_end(argptr);
 	// 2004-03-03 AJR Since the Mac user is most likely double clicking to run the game, give them a panel.
 	MacShowAlert("Critical Error", buffer, "Quit", NULL, NULL);
