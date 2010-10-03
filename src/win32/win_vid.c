@@ -560,24 +560,27 @@ void I_SetPalette(RGBA_t *palette)
 //
 INT32 VID_NumModes(void)
 {
-	return numvidmodes - NUMSPECIALMODES; //faB: dont accept the windowed mode 0
+	return numvidmodes;
 }
 
 // return a video mode number from the dimensions
 // returns any available video mode if the mode was not found
 INT32 VID_GetModeForSize(INT32 w, INT32 h)
 {
-	vmode_t *pv;
+	vmode_t *pv = pvidmodes;
 	int modenum;
 
-#if NUMSPECIALMODES > 1
-"fix this: pv must point the first fullscreen mode in vidmodes list"
-#endif
+	// skip windowed modes
+	for (modenum = 0; pv && modenum < NUMSPECIALMODES; modenum++)
+		pv = pv->pnext;
 
-	// skip the 1st special mode so that it finds only fullscreen modes
-	pv = pvidmodes->pnext;
+	// try fullscreen modes
+	for (modenum = NUMSPECIALMODES; pv; pv = pv->pnext, modenum++)
+		if (pv->width == (unsigned)w && pv->height == (unsigned)h)
+			return modenum;
 
-	for (modenum = 1; pv; pv = pv->pnext, modenum++)
+	// didn't find full-screen mode; try windowed
+	for (pv = pvidmodes, modenum = 0; pv && modenum < NUMSPECIALMODES; pv = pv->pnext, modenum++)
 		if (pv->width == (unsigned)w && pv->height == (unsigned)h)
 			return modenum;
 
@@ -586,7 +589,7 @@ INT32 VID_GetModeForSize(INT32 w, INT32 h)
 	if (numvidmodes > NUMSPECIALMODES)
 	{
 		// Try default video mode first
-		if (w != cv_scr_width.value && h != cv_scr_height.value)
+		if (w != cv_scr_width.value || h != cv_scr_height.value)
 			return VID_GetModeForSize(cv_scr_width.value, cv_scr_height.value);
 
 		return NUMSPECIALMODES; // use first full screen mode
@@ -660,7 +663,7 @@ static BOOL GetExtraModesCallback(int width, int height, int bpp)
 	extra_modes[nummodes].pextradata = NULL;
 	extra_modes[nummodes].setmode = VID_SetDirectDrawMode;
 
-	extra_modes[nummodes].numpages = 2; // double-buffer (but this value is unused)
+	extra_modes[nummodes].numpages = 3; // triple-buffer (but this value is unused)
 
 	extra_modes[nummodes].bytesperpixel = (bpp+1)>>3;
 
@@ -693,18 +696,13 @@ static inline VOID VID_GetExtraModes(VOID)
 // ---------------
 static VOID WindowMode_Init(VOID)
 {
-	int reqx = 0;
+	int modenum;
 
+	for (modenum = 0; modenum < NUMSPECIALMODES - 1; modenum++)
+		specialmodes[modenum].pnext = &specialmodes[modenum + 1];
 	specialmodes[NUMSPECIALMODES-1].pnext = pvidmodes;
 
-	if (M_CheckParm("-width") && M_IsNextParm())
-		reqx = atoi(M_GetNextParm());
-
-	if (reqx > BASEVIDWIDTH)
-		pvidmodes = &specialmodes[1];
-	else
-		pvidmodes = &specialmodes[0];
-
+	pvidmodes = specialmodes;
 	numvidmodes += NUMSPECIALMODES;
 }
 
@@ -860,10 +858,14 @@ static INT32 WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *currentm
 	bmiMain->bmiHeader.biCompression = BI_RGB;
 
 	// center window on the desktop
-	GetWindowRect(hWndMain, &bounds);
-	AdjustWindowRectEx(&bounds, GetWindowLong(hWndMain, GWL_STYLE), 0, 0);
-	w = bounds.right-bounds.left; //lvid->width
-	h = bounds.bottom-bounds.top; //lvid->height
+	bounds.left = 0;
+	bounds.right = lvid->width;
+	bounds.top = 0;
+	bounds.bottom = lvid->height;
+	AdjustWindowRectEx(&bounds, GetWindowLong(hWndMain, GWL_STYLE), FALSE, GetWindowLong(hWndMain, GWL_EXSTYLE));
+
+	w = bounds.right-bounds.left;
+	h = bounds.bottom-bounds.top;
 	x = (GetSystemMetrics(SM_CXSCREEN)-w)/2;
 	y = (GetSystemMetrics(SM_CYSCREEN)-h)/2;
 
@@ -926,7 +928,7 @@ INT32 VID_SetMode(INT32 modenum)
 
 	// if mode 0 (windowed) we must not be fullscreen already,
 	// if other mode, check it is not mode 0 and existing
-	if (modenum || bAppFullScreen)
+	if ((modenum >= NUMSPECIALMODES) || bAppFullScreen)
 	{
 		if (modenum > numvidmodes || modenum < NUMSPECIALMODES)
 		{
@@ -1120,7 +1122,7 @@ static void VID_Command_ModeList_f(void)
 	vmode_t *pv;
 
 	numodes = VID_NumModes();
-	for (i = NUMSPECIALMODES; i <= numodes; i++)
+	for (i = NUMSPECIALMODES; i < numodes; i++)
 	{
 		pv = VID_GetModePtr(i);
 		pinfo = VID_GetModeName(i);
@@ -1146,7 +1148,7 @@ static void VID_Command_Mode_f(void)
 
 	modenum = atoi(COM_Argv(1));
 
-	if (modenum > VID_NumModes() || modenum < 1) // don't accept the windowed mode 0
+	if (modenum > VID_NumModes() || modenum < NUMSPECIALMODES) // don't accept the windowed mode 0
 		CONS_Printf("No such video mode\n");
 	else
 		setmodeneeded = modenum + 1; // request vid mode change

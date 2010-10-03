@@ -276,8 +276,8 @@ int  InitDirectDrawe (HWND appWin, int width, int height, int bpp, int fullScr)
 	{
 		rect.top = 0;
 		rect.left = 0;
-		rect.bottom = height-1;
-		rect.right = width-1;
+		rect.bottom = height;
+		rect.right = width;
 
 		// Change window attributes
 
@@ -441,7 +441,7 @@ BOOL ScreenFlip(int waitflip)
 		//hr = IDirectDrawSurface_GetFlipStatus (ScreenReal, DDGFS_);
 
 		// In full-screen exclusive mode, do a hardware flip.
-		hr = IDirectDrawSurface_Flip(ScreenReal, NULL, DDFLIP_WAIT | (waitflip ? DDFLIP_NOVSYNC : 0));   //return immediately
+		hr = IDirectDrawSurface_Flip(ScreenReal, NULL, DDFLIP_WAIT | (waitflip ? 0 : DDFLIP_NOVSYNC));   //return immediately
 
 		// If the surface was lost, restore it.
 		if (hr == DDERR_SURFACELOST)
@@ -449,7 +449,7 @@ BOOL ScreenFlip(int waitflip)
 			IDirectDrawSurface_Restore(ScreenReal);
 
 			// The restore worked, so try the flip again.
-			hr = IDirectDrawSurface_Flip(ScreenReal, 0, DDFLIP_WAIT | (waitflip ? DDFLIP_NOVSYNC : 0));
+			hr = IDirectDrawSurface_Flip(ScreenReal, 0, DDFLIP_WAIT | (waitflip ? 0 : DDFLIP_NOVSYNC));
 		}
 	}
 	else

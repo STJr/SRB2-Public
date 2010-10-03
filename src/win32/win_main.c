@@ -410,14 +410,16 @@ static inline VOID OpenTextConsole(VOID)
 		CONS_Printf("Could not get a CONOUT$ HANDLE\n");
 }
 
+
 //
 // Do that Windows initialization stuff...
 //
 static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 {
+	const LONG	styles = WS_CAPTION|WS_POPUP|WS_SYSMENU, exstyles = 0;
 	HWND        hWnd;
 	WNDCLASSEXA wc;
-	int specialmode = 0;
+	RECT		bounds;
 
 	// Set up and register window class
 	ZeroMemory(&wc, sizeof(wc));
@@ -441,23 +443,22 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 	// Create a window
 	// CreateWindowEx - seems to create just the interior, not the borders
 
-	if (M_CheckParm("-width") && M_IsNextParm())
-		specialmode = atoi(M_GetNextParm());
+	bounds.left = 0;
+	bounds.right = dedicated ? 0 : specialmodes[0].width;
+	bounds.top = 0;
+	bounds.bottom = dedicated ? 0 : specialmodes[0].height;
 
-	if (specialmode > BASEVIDWIDTH)
-		specialmode = 1;
-	else
-		specialmode = 0;
+	AdjustWindowRectEx(&bounds, styles, FALSE, exstyles);
 
 	hWnd = CreateWindowExA(
-	       0,                                 //ExStyle
+	       exstyles,                                 //ExStyle
 	       wClassName,                        //Classname
 	       wTitle,                            //Windowname
-	       WS_CAPTION|WS_POPUP|WS_SYSMENU,    //dwStyle       //WS_VISIBLE|WS_POPUP for bAppFullScreen
+	       styles,    //dwStyle       //WS_VISIBLE|WS_POPUP for bAppFullScreen
 	       0,
 	       0,
-	       dedicated ? 0:specialmodes[specialmode].width,        //GetSystemMetrics(SM_CXSCREEN),
-	       dedicated ? 0:specialmodes[specialmode].height,       //GetSystemMetrics(SM_CYSCREEN),
+	       bounds.right - bounds.left,        //GetSystemMetrics(SM_CXSCREEN),
+	       bounds.bottom - bounds.top,        //GetSystemMetrics(SM_CYSCREEN),
 	       NULL,                              //hWnd Parent
 	       NULL,                              //hMenu Menu
 	       hInstance,

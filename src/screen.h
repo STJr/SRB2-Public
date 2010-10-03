@@ -115,8 +115,8 @@ typedef struct vmode_s
 	INT32 misc; // misc for display driver (r_opengl.dll etc)
 } vmode_t;
 
-#define NUMSPECIALMODES  1
-extern vmode_t specialmodes[2];
+#define NUMSPECIALMODES  2
+extern vmode_t specialmodes[NUMSPECIALMODES];
 
 // ---------------------------------------------
 // color mode dependent drawer function pointers
