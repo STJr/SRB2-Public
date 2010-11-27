@@ -54,10 +54,11 @@ BINNAME = $(shell cat $(DIR)/src/sdl/MakeNIX.cfg | grep 'EXENAME?=lsdl' | sed -e
 DBGBIN	= $(BINNAME).debug
 PKGDIR	= usr/games/srb2
 DBGDIR	= usr/lib/debug/$(PKGDIR)
+PREFIX	= $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "PREFIX=$(CROSS_COMPILE)")
 LINUX	= $(shell test "$(CROSS_COMPILE_HOST)" = "x86_64-linux-gnu" && echo "LINUX64=1" || echo "LINUX=1")
 NONX86	= $(shell if test "$(CROSS_COMPILE_HOST)" != "i686-linux-gnu"; then test "$(CROSS_COMPILE_HOST)" = "x86_64-linux-gnu" || echo "NONX86=1"; fi)
 ARCHTYPE = $(shell if test "$(CROSS_COMPILE_HOST)" != "i686-linux-gnu"; then if test "$(CROSS_COMPILE_HOST)" != "x86_64-linux-gnu"; then test "`echo $(CROSS_COMPILE_HOST) | grep 'powerpc'`" && echo "ARCHTYPE=PPC" || echo "ARCHTYPE=`echo $(CROSS_COMPILE_HOST) | tr 'a-z' 'A-Z' | cut -f 1,1 -d'-'`"; fi; fi)
-MAKEARGS = $(LINUX) $(NONX86) $(ARCHTYPE)
+MAKEARGS = $(LINUX) $(NONX86) $(ARCHTYPE) $(PREFIX)
 MENUFILE1 = ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
 MENUFILE2 = title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
 
