@@ -67,7 +67,8 @@ void P_RunCachedActions(void)
 	{
 		var1 = states[ac->statenum].var1;
 		var2 = states[ac->statenum].var2;
-		states[ac->statenum].action.acp1(ac->mobj);
+		if (ac->mobj) // just in case...
+			states[ac->statenum].action.acp1(ac->mobj);
 		next = ac->next;
 		Z_Free(ac);
 	}
