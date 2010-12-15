@@ -6873,7 +6873,7 @@ void P_RespawnSpecials(void)
 			{
 				sector_t *ss = sectors;
 
-				for (i = 0; i <= numsectors; i++, ss++)
+				for (i = 0; i < numsectors; i++, ss++)
 					if (ss->ceilingpic == skyflatnum) // Only for the sky.
 						P_SpawnLightningFlash(ss); // Spawn a quick flash thinker
 			}
