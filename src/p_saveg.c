@@ -2345,7 +2345,7 @@ static void P_NetUnArchiveThinkers(void)
 				LoadSpecialLevelThinker((actionf_p1)T_RaiseSector, 0);
 				break;
 
-			/// \todo rewrite all the shit that uses an elevator_t but isn't an elevator
+			/// \todo rewrite all the code that uses an elevator_t but isn't an elevator
 			/// \note working on it!
 			case tc_camerascanner:
 				LoadElevatorThinker((actionf_p1)T_CameraScanner, 0);

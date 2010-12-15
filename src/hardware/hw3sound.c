@@ -292,7 +292,7 @@ static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean spli
 
 		if (snum == num_sources)
 		{
-			// FUCK!  No lower priority.  Sorry, Charlie.
+			// No lower priority. Sorry, Charlie.
 			return -1;
 		}
 		else

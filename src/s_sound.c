@@ -216,7 +216,7 @@ static INT32 S_getChannel(const void *origin, sfxinfo_t *sfxinfo)
 
 		if (cnum == numofchannels)
 		{
-			// FUCK! No lower priority. Sorry, Charlie.
+			// No lower priority. Sorry, Charlie.
 			return -1;
 		}
 		else
