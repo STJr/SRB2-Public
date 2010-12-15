@@ -699,8 +699,8 @@ static INT32 AddToMasterServer(boolean firstadd)
 		if(room == 0)
 			room = -1;
 	}
-	else if(dedicated)
-		room = -1;
+	else if(dedicated) // This isn't much better than room = -1, but at least it doesn't leave you wondering why nobody is joining.
+		I_Error("Dedicated internet servers must use the -room parameter!");
 	else
 		room = cv_chooseroom.value;
 
