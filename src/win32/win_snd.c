@@ -1896,7 +1896,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 #ifdef FMODSOUND
 	char lumpname[9];
-	static void *data = NULL;
+	static UINT8 *data = NULL;
 	size_t len;
 	lumpnum_t lumpnum = LUMPERROR;
 
@@ -1947,10 +1947,10 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 	Z_Free(data);
 #endif
 	len = W_LumpLength(lumpnum);
-	data = W_CacheLumpNum(lumpnum, PU_MUSIC);
+	data = (UINT8*)W_CacheLumpNum(lumpnum, PU_MUSIC);
 
 #ifdef FMODMEMORY
-	mod = fmod375->FMUSIC_LoadSongEx(data, 0, (int)len, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, NULL, 0);
+	mod = fmod375->FMUSIC_LoadSongEx((const char *)data, 0, (int)len, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, NULL, 0);
 #else
 	I_SaveMemToFile(data, len, "fmod.tmp");
 
@@ -1992,7 +1992,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 	else
 	{
 #ifdef FMODMEMORY
-		fmus = fmod375->FSOUND_Stream_Open(data, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, 0, (int)len);
+		fmus = fmod375->FSOUND_Stream_Open((const char *)data, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, 0, (int)len);
 #else
 		fmus = fmod375->FSOUND_Stream_Open("fmod.tmp", ((looping) ? (FSOUND_LOOP_NORMAL) : (0)), 0, len);
 #endif
@@ -2006,74 +2006,28 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 	// Scan the Ogg Vorbis file for the COMMENT= field for a custom loop point
 	if (fmus && looping)
 	{
-		const char *dataum = data;
+		const char key[] = "COMMENT=LOOPPOINT=";
+		const INT32 keylen = sizeof(key) - 1;
 		size_t scan;
 		unsigned int loopstart = 0;
 		UINT8 newcount = 0;
 		char looplength[64];
 
-		for (scan = 0;scan < len; scan++)
+
+		for (scan = 0; scan < len - keylen; scan++)
 		{
-			if (*dataum++ == 'C'){
-			if (*dataum++ == 'O'){
-			if (*dataum++ == 'M'){
-			if (*dataum++ == 'M'){
-			if (*dataum++ == 'E'){
-			if (*dataum++ == 'N'){
-			if (*dataum++ == 'T'){
-			if (*dataum++ == '='){
-			if (*dataum++ == 'L'){
-			if (*dataum++ == 'O'){
-			if (*dataum++ == 'O'){
-			if (*dataum++ == 'P'){
-			if (*dataum++ == 'P'){
-			if (*dataum++ == 'O'){
-			if (*dataum++ == 'I'){
-			if (*dataum++ == 'N'){
-			if (*dataum++ == 'T'){
-			if (*dataum++ == '=')
+			if (memcmp(&data[scan], key, keylen) == 0)
 			{
-				while (*dataum != 1 && newcount != 63)
+				const UINT8 *dataum = &data[scan + keylen];
+				while ((UINT32)(dataum - data) < len && *dataum != 1 && newcount != 63)
 					looplength[newcount++] = *dataum++;
 
 				looplength[newcount] = '\0';
 
 				loopstart = atoi(looplength);
+
+				break;
 			}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
-			else
-				dataum--;}
 		}
 
 		if (loopstart > 0)
