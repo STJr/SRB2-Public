@@ -342,7 +342,7 @@ static struct termios tty_tc;
 //   so we provide tty_Clear and tty_Show to be called before and after a stdout or stderr output
 // =============================================================
 
-// flush stdin, I suspect some terminals are sending a LOT of garbage
+// flush stdin, I suspect some terminals are sending a LOT of shit
 // FIXME TTimo relevant?
 #if 0
 static inline void tty_FlushIn(void)

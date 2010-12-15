@@ -203,8 +203,8 @@ static void relset(INT32 which)
 	}
 	else
 	{
-		memset(&rellistener[0], 0, sizeof (rellistener_s_t));
-		memset(&rellistener[1], 0, sizeof (rellistener_s_t));
+		memset(&rellistener[0], 0, sizeof (rellistener_s_t));// Bullshit!
+		memset(&rellistener[1], 0, sizeof (rellistener_s_t));// Bullshit!
 	}
 }
 
