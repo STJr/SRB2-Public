@@ -467,6 +467,19 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
+	if (modcredits)
+	{
+		strcpy(&credits[i].header[0], text[MOD_BY]);
+		j = 0;
+		strcpy(credits[i].fakenames[j++], modcreditname);
+		strcpy(credits[i].fakenames[j++], "\n");
+		strcpy(credits[i].fakenames[j++], "\n");
+		j = 0;
+		strcpy(credits[i].realnames[j++], modcreditname);
+		strcpy(credits[i].realnames[j++], "\n");
+		strcpy(credits[i].realnames[j++], "\n");
+		credits[i].numnames = (UINT8)j;
+	}
 }
 
 static INT32 scenenum, cutnum;

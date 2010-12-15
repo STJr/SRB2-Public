@@ -42,6 +42,7 @@ void DEH_LoadDehackedLump(lumpnum_t lumpnum);
 void DEH_LoadDehackedLumpPwad(UINT16 wad, UINT16 lump);
 
 extern boolean deh_loaded, modcredits;
+extern char modcreditname[32];
 
 #define MAXLINELEN 1024
 

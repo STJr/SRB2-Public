@@ -44,6 +44,7 @@ int	vsnprintf(char *str, size_t n, const char *fmt, va_list ap);
 
 boolean deh_loaded = false;
 boolean modcredits = false; // Whether a mod creator's name will show in the credits.
+char modcreditname[32];
 
 #ifdef DELFILE
 typedef struct undehacked_s
@@ -2142,11 +2143,8 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				}
 				else if (!strcmp(word, "MODBY"))
 				{
-					const INT32 mod = 18;
-					strcpy(credits[mod].fakenames[0], origpos+6);
-					strcpy(credits[mod].realnames[0], origpos+6);
-					credits[mod].numnames = 1;
-					strcpy(&credits[mod].header[0], text[MOD_BY]);
+					memset(modcreditname, 0, sizeof(char) * 32);
+					strcpy(modcreditname, origpos+6);
 					modcredits = true;
 				}
 /*				else if (!strcmp(word, "ANIMTEX"))
