@@ -61,6 +61,7 @@
 #     Compile with GCC 4.0x version, add 'GCC40=1'
 #     Compile with GCC 4.1x version, add 'GCC41=1' (and GCC 4.2)
 #     Compile with GCC 4.3x version, add 'GCC43=1'
+#     Compile with GCC 4.4x version, add 'GCC44=1'
 #     Compile a profile version, add 'PROFILEMODE=1'
 #     Compile a debug version, add 'DEBUGMODE=1'
 #     Compile with extra warnings, add 'WARNINGMODE=1'
