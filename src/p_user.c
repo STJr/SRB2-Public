@@ -9174,7 +9174,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 	if (!thiscam->chase)
 		P_ResetCamera(player, thiscam);
 
-	if (!player)
+	if (!player || !player->mo)
 		return;
 
 	mo = player->mo;
