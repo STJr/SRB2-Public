@@ -1964,8 +1964,6 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated) // to prevent dedicated server error.
 		I_Error("You have to unlock this level first!");
 
-	HU_clearChatChars();
-
 	CON_Drawer(); // let the user know what we are going to do
 	I_FinishUpdate(); // page flip or blit buffer
 
