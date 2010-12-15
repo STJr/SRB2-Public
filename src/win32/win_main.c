@@ -563,37 +563,6 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 	myargv = myWargv;
 }
 
-static inline VOID MakeCodeWritable(VOID)
-{
-#ifdef USEASM // Disable write-protection of code segment
-	DWORD OldRights;
-	const DWORD NewRights = PAGE_EXECUTE_READWRITE;
-	PBYTE pBaseOfImage = (PBYTE)GetModuleHandle(NULL);
-	PIMAGE_DOS_HEADER dosH =(PIMAGE_DOS_HEADER)pBaseOfImage;
-	PIMAGE_NT_HEADERS ntH = (PIMAGE_NT_HEADERS)(pBaseOfImage + dosH->e_lfanew);
-	PIMAGE_OPTIONAL_HEADER oH = (PIMAGE_OPTIONAL_HEADER)
-		((PBYTE)ntH + sizeof (IMAGE_NT_SIGNATURE) + sizeof (IMAGE_FILE_HEADER));
-	LPVOID pA = pBaseOfImage+oH->BaseOfCode;
-	SIZE_T pS = oH->SizeOfCode;
-#if 1 // try to find the text section
-	PIMAGE_SECTION_HEADER ntS = IMAGE_FIRST_SECTION (ntH);
-	WORD s;
-	for (s = 0; s < ntH->FileHeader.NumberOfSections; s++)
-	{
-		if (memcmp (ntS[s].Name, ".text\0\0", 8) == 0)
-		{
-			pA = pBaseOfImage+ntS[s].VirtualAddress;
-			pS = ntS[s].Misc.VirtualSize;
-			break;
-		}
-	}
-#endif
-
-	if (!VirtualProtect(pA,pS,NewRights,&OldRights))
-		I_Error("Could not make code writable\n");
-#endif
-}
-
 #ifdef PHONE_HOME
 static inline SOCKET ConnectSocket(const char* IPAddress)
 {
@@ -745,7 +714,6 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 	// currently starts DirectInput
 	CONS_Printf("I_StartupSystem() ...\n");
 	I_StartupSystem();
-	MakeCodeWritable();
 
 	// startup SRB2
 	CONS_Printf("D_SRB2Main() ...\n");
