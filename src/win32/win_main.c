@@ -27,11 +27,6 @@
 #include <stdio.h>
 
 #ifdef _WINDOWS
-//#define PHONE_HOME Remove completely for release!
-
-#ifdef PHONE_HOME
-#include <winsock.h>
-#endif
 
 #include "../doomstat.h"  // netgame
 #include "resource.h"
@@ -563,51 +558,6 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 	myargv = myWargv;
 }
 
-#ifdef PHONE_HOME
-static inline SOCKET ConnectSocket(const char* IPAddress)
-{
-	DWORD dwDestAddr;
-	SOCKADDR_IN sockAddrDest;
-	int sockDest;
-
-	// Create socket
-	sockDest = socket(AF_INET, SOCK_STREAM, 0);
-
-	if(sockDest == SOCKET_ERROR)
-		return INVALID_SOCKET;
-
-	// Convert address to in_addr (binary) format
-	dwDestAddr = inet_addr(IPAddress);
-
-	if(dwDestAddr == INADDR_NONE)
-	{
-		// It's not a xxx.xxx.xxx.xxx IP, so resolve through DNS
-		struct hostent* pHE = gethostbyname(IPAddress);
-		if(pHE == 0)
-			return INVALID_SOCKET;
-
-		dwDestAddr = *((u_long*)pHE->h_addr_list[0]);
-	}
-
-	// Initialize SOCKADDR_IN with IP address, port number and address family
-	memcpy(&sockAddrDest.sin_addr, &dwDestAddr, sizeof(DWORD));
-
-	sockAddrDest.sin_port = htons(4242);
-	sockAddrDest.sin_family = AF_INET;
-
-	// Attempt to connect to server
-	if(connect(sockDest, (LPSOCKADDR)&sockAddrDest, sizeof(sockAddrDest)) == SOCKET_ERROR)
-	{
-		closesocket(sockDest);
-		MessageBox(NULL, "Unable to connect for verification.", "Oops!", MB_OK|MB_APPLMODAL);
-
-		return INVALID_SOCKET;
-	}
-
-	return sockDest;
-}
-#endif
-
 // -----------------------------------------------------------------------------
 // HandledWinMain : called by exception handler
 // -----------------------------------------------------------------------------
@@ -615,81 +565,11 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 {
 	int             i;
 	LPSTR          args;
-#ifdef PHONE_HOME
-	WSADATA wsaData;
-	char szBuffer[100];
-	SOCKET sock;
-#endif
 
 #ifdef LOGMESSAGES
 	// DEBUG!!! - set logstream to NULL to disable debug log
 	logstream = CreateFile (TEXT("log.txt"), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
 	                        FILE_ATTRIBUTE_NORMAL, NULL);  //file flag writethrough?
-#endif
-
-#ifdef PHONE_HOME
-	// Initialize WinSock
-	if(WSAStartup(MAKEWORD(1, 1), &wsaData) != 0)
-	{
-		MessageBox(NULL, "Could not initialize sockets.", "Error", MB_OK|MB_APPLMODAL);
-		return FALSE;
-	}
-
-	// Create socket and connect to server
-	sock = ConnectSocket("ssntails.isa-geek.net");
-	if(sock == INVALID_SOCKET)
-	{
-		MessageBox(NULL, "Invalid socket error.", "Error", MB_OK|MB_APPLMODAL);
-		return FALSE;
-	}
-
-	// We're connected!
-	// Now send information to server
-	{
-		int nSent, nToSend, nRecv, nReceived;
-		strcpy(szBuffer, "SRB2");
-		strcat(szBuffer, VERSIONSTRING);
-		nToSend = strlen(szBuffer) + 1;
-		// send this line to the server
-		nSent = send(sock, szBuffer, nToSend, 0);
-
-		if(nSent == SOCKET_ERROR)
-		{
-			MessageBox(NULL, "Connection broken.", "Error", MB_OK|MB_APPLMODAL);
-			return FALSE;
-		}
-
-		// Now read back the number of chars received.
-		nRecv = recv(sock, (char*)&nReceived, sizeof(nReceived), 0);
-
-		if(nRecv != sizeof(nReceived))
-		{
-			MessageBox(NULL, "You aren't allowed to have this.", "Error", MB_OK|MB_APPLMODAL);
-			return FALSE;
-		}
-
-		if(nReceived != 42)
-		{
-			MessageBox(NULL, "You aren't allowed to have this.", "Error", MB_OK|MB_APPLMODAL);
-			return FALSE;
-		}
-	}
-
-	if (shutdown(sock, 2) == SOCKET_ERROR)
-	{
-		MessageBox(NULL, "shutdown(): Error cleaning up sockets.", "Error", MB_OK|MB_APPLMODAL);
-		return FALSE;
-	}
-
-	// close socket
-	closesocket(sock);
-
-	// Clean up WinSock
-	if(WSACleanup() == SOCKET_ERROR)
-	{
-		MessageBox(NULL, "WSACleanup(): Error cleaning up sockets.", "Error", MB_OK|MB_APPLMODAL);
-		return FALSE;
-	}
 #endif
 
 	// fill myargc,myargv for m_argv.c retrieval of cmdline arguments
