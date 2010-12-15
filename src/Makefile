@@ -77,8 +77,8 @@
 #     Compile without BSD API, add 'NONET=1'
 #     Compile without IPX/SPX, add 'NOIPX=1'
 #     Compile Mingw/SDL with S_DS3S, add 'DS3D=1'
-#     Comple with S_FMOD3D, add 'FMOD=1' (WIP)
-#     Comple with S_OPENAL, add 'OPENAL=1' (WIP)
+#     Compile with S_FMOD3D, add 'FMOD=1' (WIP)
+#     Compile with S_OPENAL, add 'OPENAL=1' (WIP)
 #     To link with the whole SDL_Image lib to load Icons, add 'SDL_IMAGE=1' but it isn't not realy needed
 #     To link with SDLMain to hide console or make on a console-less binary, add 'SDLMAIN=1'
 #
