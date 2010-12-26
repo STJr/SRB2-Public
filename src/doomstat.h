@@ -146,7 +146,7 @@ typedef struct
 	INT32 numscenes; // Number of scenes in this cutscene
 } cutscene_t;
 
-extern cutscene_t cutscenes[128];
+extern cutscene_t *cutscenes[128];
 
 // For the Custom Exit linedef.
 extern INT16 nextmapoverride;

@@ -914,14 +914,6 @@ static inline void D_MakeTitleString(char *s)
 	strcpy(s, temp);
 }
 
-static inline void D_InitCutsceneInfo(void)
-{
-	INT32 i,j;
-
-	for (i = 0; i < 128; i++)
-		for (j = 0; j < 128; j++)
-			cutscenes[i].scene[j].text = NULL;
-}
 
 //
 // D_SRB2Main
@@ -987,7 +979,6 @@ void D_SRB2Main(void)
 		CONS_Printf("%s",text[D_DEVSTR]);
 
 	P_ClearMapHeaderInfo();
-	D_InitCutsceneInfo();
 
 	// default savegame
 	strcpy(savegamename,text[NORM_SAVEI]);

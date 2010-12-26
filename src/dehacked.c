@@ -905,7 +905,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 	INT32 i;
 	UINT16 usi;
 
-	DEH_WriteUndoline("SCENETEXT", cutscenes[num].scene[scenenum].text, UNDO_ENDTEXT);
+	DEH_WriteUndoline("SCENETEXT", cutscenes[num]->scene[scenenum].text, UNDO_ENDTEXT);
 
 	do
 	{
@@ -935,8 +935,8 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 				if (!scenetext)
 				{
-					Z_Free(cutscenes[num].scene[scenenum].text);
-					cutscenes[num].scene[scenenum].text = NULL;
+					Z_Free(cutscenes[num]->scene[scenenum].text);
+					cutscenes[num]->scene[scenenum].text = NULL;
 					continue;
 				}
 
@@ -957,9 +957,9 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 					- strlen(buffer) - 1, f));
 
 				// A cutscene overwriting another one...
-				Z_Free(cutscenes[num].scene[scenenum].text);
+				Z_Free(cutscenes[num]->scene[scenenum].text);
 
-				cutscenes[num].scene[scenenum].text = Z_StrDup(buffer);
+				cutscenes[num]->scene[scenenum].text = Z_StrDup(buffer);
 
 				continue;
 			}
@@ -977,228 +977,228 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 			if (!strcmp(word, "NUMBEROFPICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].numpics), UNDO_NONE);
-				cutscenes[num].scene[scenenum].numpics = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].numpics), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].numpics = (UINT8)i;
 			}
 			else if (!strcmp(word, "PIC1NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[0], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[0], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[0], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[0], word2, 8);
 			}
 			else if (!strcmp(word, "PIC2NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[1], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[1], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[1], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[1], word2, 8);
 			}
 			else if (!strcmp(word, "PIC3NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[2], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[2], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[2], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[2], word2, 8);
 			}
 			else if (!strcmp(word, "PIC4NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[3], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[3], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[3], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[3], word2, 8);
 			}
 			else if (!strcmp(word, "PIC5NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[4], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[4], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[4], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[4], word2, 8);
 			}
 			else if (!strcmp(word, "PIC6NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[5], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[5], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[5], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[5], word2, 8);
 			}
 			else if (!strcmp(word, "PIC7NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[6], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[6], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[6], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[6], word2, 8);
 			}
 			else if (!strcmp(word, "PIC8NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[7], UNDO_NONE);
-				strncpy(cutscenes[num].scene[scenenum].picname[7], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[7], UNDO_NONE);
+				strncpy(cutscenes[num]->scene[scenenum].picname[7], word2, 8);
 			}
 			else if (!strcmp(word, "PIC1HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[0]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[0] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[0]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[0] = i;
 			}
 			else if (!strcmp(word, "PIC2HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[1]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[1] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[1]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[1] = i;
 			}
 			else if (!strcmp(word, "PIC3HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[2]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[2] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[2]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[2] = i;
 			}
 			else if (!strcmp(word, "PIC4HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[3]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[3] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[3]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[3] = i;
 			}
 			else if (!strcmp(word, "PIC5HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[4]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[4] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[4]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[4] = i;
 			}
 			else if (!strcmp(word, "PIC6HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[5]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[5] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[5]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[5] = i;
 			}
 			else if (!strcmp(word, "PIC7HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[6]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[6] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[6]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[6] = i;
 			}
 			else if (!strcmp(word, "PIC8HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[7]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].pichires[7] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[7]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].pichires[7] = i;
 			}
 			else if (!strcmp(word, "PIC1DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[0]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[0] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[0]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[0] = usi;
 			}
 			else if (!strcmp(word, "PIC2DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[1]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[1] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[1]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[1] = usi;
 			}
 			else if (!strcmp(word, "PIC3DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[2]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[2] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[2]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[2] = usi;
 			}
 			else if (!strcmp(word, "PIC4DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[3]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[3] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[3]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[3] = usi;
 			}
 			else if (!strcmp(word, "PIC5DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[4]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[4] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[4]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[4] = usi;
 			}
 			else if (!strcmp(word, "PIC6DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[5]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[5] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[5]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[5] = usi;
 			}
 			else if (!strcmp(word, "PIC7DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[6]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[6] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[6]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[6] = usi;
 			}
 			else if (!strcmp(word, "PIC8DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[7]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].picduration[7] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[7]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].picduration[7] = usi;
 			}
 			else if (!strcmp(word, "PIC1XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[0]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[0] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[0]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[0] = usi;
 			}
 			else if (!strcmp(word, "PIC2XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[1]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[1] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[1]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[1] = usi;
 			}
 			else if (!strcmp(word, "PIC3XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[2]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[2] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[2]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[2] = usi;
 			}
 			else if (!strcmp(word, "PIC4XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[3]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[3] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[3]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[3] = usi;
 			}
 			else if (!strcmp(word, "PIC5XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[4]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[4] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[4]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[4] = usi;
 			}
 			else if (!strcmp(word, "PIC6XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[5]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[5] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[5]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[5] = usi;
 			}
 			else if (!strcmp(word, "PIC7XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[6]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[6] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[6]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[6] = usi;
 			}
 			else if (!strcmp(word, "PIC8XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[7]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].xcoord[7] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[7]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].xcoord[7] = usi;
 			}
 			else if (!strcmp(word, "PIC1YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[0]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[0] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[0]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[0] = usi;
 			}
 			else if (!strcmp(word, "PIC2YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[1]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[1] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[1]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[1] = usi;
 			}
 			else if (!strcmp(word, "PIC3YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[2]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[2] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[2]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[2] = usi;
 			}
 			else if (!strcmp(word, "PIC4YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[3]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[3] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[3]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[3] = usi;
 			}
 			else if (!strcmp(word, "PIC5YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[4]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[4] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[4]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[4] = usi;
 			}
 			else if (!strcmp(word, "PIC6YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[5]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[5] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[5]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[5] = usi;
 			}
 			else if (!strcmp(word, "PIC7YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[6]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[6] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[6]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[6] = usi;
 			}
 			else if (!strcmp(word, "PIC8YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[7]), UNDO_NONE);
-				cutscenes[num].scene[scenenum].ycoord[7] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[7]), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].ycoord[7] = usi;
 			}
 			else if (!strcmp(word, "MUSICSLOT"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].musicslot), UNDO_NONE);
-				cutscenes[num].scene[scenenum].musicslot = (musicenum_t)i;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].musicslot), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].musicslot = (musicenum_t)i;
 			}
 			else if (!strcmp(word, "MUSICLOOP"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].musicloop), UNDO_NONE);
-				cutscenes[num].scene[scenenum].musicloop = i;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].musicloop), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].musicloop = i;
 			}
 			else if (!strcmp(word, "TEXTXPOS"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].textxpos), UNDO_NONE);
-				cutscenes[num].scene[scenenum].textxpos = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].textxpos), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].textxpos = usi;
 			}
 			else if (!strcmp(word, "TEXTYPOS"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].textypos), UNDO_NONE);
-				cutscenes[num].scene[scenenum].textypos = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].textypos), UNDO_NONE);
+				cutscenes[num]->scene[scenenum].textypos = usi;
 			}
 			else
 				deh_warning("CutSceneScene %d: unknown word '%s'", num, word);
@@ -1214,8 +1214,12 @@ static void readcutscene(MYFILE *f, INT32 num)
 	char *tmp;
 	INT32 value;
 #ifdef DELFILE
-	const INT32 oldnumscenes = cutscenes[num].numscenes;
+	const INT32 oldnumscenes = cutscenes[num]->numscenes;
 #endif
+
+	// Allocate memory for this cutscene if we don't yet have any
+	if (!cutscenes[num])
+		cutscenes[num] = Z_Calloc(sizeof (cutscene_t), PU_STATIC, NULL);
 
 	do
 	{
@@ -1245,7 +1249,7 @@ static void readcutscene(MYFILE *f, INT32 num)
 
 			if (!strcmp(word, "NUMSCENES"))
 			{
-				cutscenes[num].numscenes = value;
+				cutscenes[num]->numscenes = value;
 			}
 			else if (!strcmp(word, "SCENE"))
 			{

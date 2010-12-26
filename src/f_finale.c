@@ -488,13 +488,16 @@ static INT32 textxpos, textypos;
 
 void F_StartCustomCutscene(INT32 cutscenenum, boolean precutscene, boolean resetplayer)
 {
+	if (!cutscenes[cutscenenum])
+		return;
+
 	G_SetGamestate(GS_CUTSCENE);
 
 	gameaction = ga_nothing;
 	playerdeadview = false;
 	paused = false;
 	CON_ToggleOff();
-	finaletext = cutscenes[cutscenenum].scene[0].text;
+	finaletext = cutscenes[cutscenenum]->scene[0].text;
 
 	CON_ClearHUD();
 
@@ -505,23 +508,23 @@ void F_StartCustomCutscene(INT32 cutscenenum, boolean precutscene, boolean reset
 
 	scenenum = picnum = 0;
 	cutnum = cutscenenum;
-	picxpos = cutscenes[cutnum].scene[0].xcoord[0];
-	picypos = cutscenes[cutnum].scene[0].ycoord[0];
-	textxpos = cutscenes[cutnum].scene[0].textxpos;
-	textypos = cutscenes[cutnum].scene[0].textypos;
+	picxpos = cutscenes[cutnum]->scene[0].xcoord[0];
+	picypos = cutscenes[cutnum]->scene[0].ycoord[0];
+	textxpos = cutscenes[cutnum]->scene[0].textxpos;
+	textypos = cutscenes[cutnum]->scene[0].textypos;
 
-	pictime = cutscenes[cutnum].scene[0].picduration[0];
+	pictime = cutscenes[cutnum]->scene[0].picduration[0];
 
 	keypressed = false;
 	finalestage = 0;
 	finalecount = 0;
 	finaletextcount = 0;
 	timetonext = 0;
-	animtimer = cutscenes[cutnum].scene[0].picduration[0]; // Picture duration
+	animtimer = cutscenes[cutnum]->scene[0].picduration[0]; // Picture duration
 	stoptimer = 0;
 
-	if (cutscenes[cutnum].scene[scenenum].musicslot != 0)
-		S_ChangeMusic(cutscenes[cutnum].scene[scenenum].musicslot, cutscenes[cutnum].scene[scenenum].musicloop);
+	if (cutscenes[cutnum]->scene[scenenum].musicslot != 0)
+		S_ChangeMusic(cutscenes[cutnum]->scene[scenenum].musicslot, cutscenes[cutnum]->scene[scenenum].musicloop);
 }
 
 static void F_IntroTextWrite(void);
@@ -1817,26 +1820,26 @@ static void F_AdvanceToNextScene(void)
 {
 	scenenum++;
 
-	if (scenenum < cutscenes[cutnum].numscenes)
+	if (scenenum < cutscenes[cutnum]->numscenes)
 	{
 		picnum = 0;
-		picxpos = cutscenes[cutnum].scene[scenenum].xcoord[picnum];
-		picypos = cutscenes[cutnum].scene[scenenum].ycoord[picnum];
+		picxpos = cutscenes[cutnum]->scene[scenenum].xcoord[picnum];
+		picypos = cutscenes[cutnum]->scene[scenenum].ycoord[picnum];
 	}
 
-	if (cutscenes[cutnum].scene[scenenum].musicslot != 0)
-		S_ChangeMusic(cutscenes[cutnum].scene[scenenum].musicslot, cutscenes[cutnum].scene[scenenum].musicloop);
+	if (cutscenes[cutnum]->scene[scenenum].musicslot != 0)
+		S_ChangeMusic(cutscenes[cutnum]->scene[scenenum].musicslot, cutscenes[cutnum]->scene[scenenum].musicloop);
 
 	if (rendermode != render_none)
 	{
 		F_WipeStartScreen();
 		V_DrawFill(0,0, vid.width, vid.height, 31);
-		if (scenenum < cutscenes[cutnum].numscenes)
+		if (scenenum < cutscenes[cutnum]->numscenes)
 		{
-			if (cutscenes[cutnum].scene[scenenum].pichires[picnum])
-				V_DrawSmallScaledPatch(picxpos, picypos, 0, W_CachePatchName(cutscenes[cutnum].scene[scenenum].picname[picnum], PU_CACHE));
+			if (cutscenes[cutnum]->scene[scenenum].pichires[picnum])
+				V_DrawSmallScaledPatch(picxpos, picypos, 0, W_CachePatchName(cutscenes[cutnum]->scene[scenenum].picname[picnum], PU_CACHE));
 			else
-				V_DrawScaledPatch(picxpos, picypos, 0, W_CachePatchName(cutscenes[cutnum].scene[scenenum].picname[picnum], PU_CACHE));
+				V_DrawScaledPatch(picxpos, picypos, 0, W_CachePatchName(cutscenes[cutnum]->scene[scenenum].picname[picnum], PU_CACHE));
 		}
 		F_WipeEndScreen(0, 0, vid.width, vid.height);
 
@@ -1847,7 +1850,7 @@ static void F_AdvanceToNextScene(void)
 	timetonext = 0;
 	stoptimer = 0;
 
-	if (scenenum >= cutscenes[cutnum].numscenes)
+	if (scenenum >= cutscenes[cutnum]->numscenes)
 	{
 		if (cutnum == creditscutscene-1)
 			F_StartGameEvaluation();
@@ -1856,29 +1859,29 @@ static void F_AdvanceToNextScene(void)
 		return;
 	}
 
-	finaletext = cutscenes[cutnum].scene[scenenum].text;
+	finaletext = cutscenes[cutnum]->scene[scenenum].text;
 
 	picnum = 0;
-	picxpos = cutscenes[cutnum].scene[scenenum].xcoord[picnum];
-	picypos = cutscenes[cutnum].scene[scenenum].ycoord[picnum];
-	textxpos = cutscenes[cutnum].scene[scenenum].textxpos;
-	textypos = cutscenes[cutnum].scene[scenenum].textypos;
+	picxpos = cutscenes[cutnum]->scene[scenenum].xcoord[picnum];
+	picypos = cutscenes[cutnum]->scene[scenenum].ycoord[picnum];
+	textxpos = cutscenes[cutnum]->scene[scenenum].textxpos;
+	textypos = cutscenes[cutnum]->scene[scenenum].textypos;
 
-	animtimer = pictime = cutscenes[cutnum].scene[scenenum].picduration[picnum];
+	animtimer = pictime = cutscenes[cutnum]->scene[scenenum].picduration[picnum];
 }
 
 static void F_CutsceneTextWrite(void)
 {
 	V_DrawFill(0, 0, vid.width, vid.height, 31);
 
-	if (cutscenes[cutnum].scene[scenenum].picname[picnum][0] != '\0')
+	if (cutscenes[cutnum]->scene[scenenum].picname[picnum][0] != '\0')
 	{
-		if (cutscenes[cutnum].scene[scenenum].pichires[picnum])
+		if (cutscenes[cutnum]->scene[scenenum].pichires[picnum])
 			V_DrawSmallScaledPatch(picxpos, picypos, 0,
-				W_CachePatchName(cutscenes[cutnum].scene[scenenum].picname[picnum], PU_CACHE));
+				W_CachePatchName(cutscenes[cutnum]->scene[scenenum].picname[picnum], PU_CACHE));
 		else
 			V_DrawScaledPatch(picxpos,picypos, 0,
-				W_CachePatchName(cutscenes[cutnum].scene[scenenum].picname[picnum], PU_CACHE));
+				W_CachePatchName(cutscenes[cutnum]->scene[scenenum].picname[picnum], PU_CACHE));
 	}
 
 	if (animtimer)
@@ -1887,12 +1890,12 @@ static void F_CutsceneTextWrite(void)
 		if (animtimer <= 0)
 		{
 			if (picnum < 7
-				&& cutscenes[cutnum].scene[scenenum].picname[picnum+1][0] != '\0')
+				&& cutscenes[cutnum]->scene[scenenum].picname[picnum+1][0] != '\0')
 			{
 				picnum++;
-				picxpos = cutscenes[cutnum].scene[scenenum].xcoord[picnum];
-				picypos = cutscenes[cutnum].scene[scenenum].ycoord[picnum];
-				pictime = cutscenes[cutnum].scene[scenenum].picduration[picnum];
+				picxpos = cutscenes[cutnum]->scene[scenenum].xcoord[picnum];
+				picypos = cutscenes[cutnum]->scene[scenenum].ycoord[picnum];
+				pictime = cutscenes[cutnum]->scene[scenenum].picduration[picnum];
 				animtimer = pictime;
 			}
 			else

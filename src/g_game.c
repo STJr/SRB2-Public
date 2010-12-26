@@ -119,7 +119,7 @@ boolean useNightsSS = false;
 tic_t countdowntimer = 0;
 UINT8 countdowntimeup = false;
 
-cutscene_t cutscenes[128];
+cutscene_t *cutscenes[128];
 
 INT16 nextmapoverride;
 INT32 nextmapgametype;
