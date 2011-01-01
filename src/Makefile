@@ -257,6 +257,10 @@ endif
 ifndef NOPNG
 OPTS+=-DHAVE_PNG
 
+ifdef PNG_PKGCONFIG
+PNG_CFLAGS?=$(shell pkg-config $(PNG_PKGCONFIG) --cflags)
+PNG_LDFLAGS?=$(shell pkg-config $(PNG_PKGCONFIG) --libs)
+else
 ifdef PREFIX
 PNG_CONFIG?=$(PREFIX)-libpng-config
 else
@@ -269,6 +273,7 @@ PNG_LDFLAGS?=$(shell $(PNG_CONFIG) --static --ldflags)
 else
 PNG_CFLAGS?=$(shell $(PNG_CONFIG) --cflags)
 PNG_LDFLAGS?=$(shell $(PNG_CONFIG) --ldflags)
+endif
 endif
 
 LIBS+=$(PNG_LDFLAGS)
@@ -559,6 +564,7 @@ endif
 $(OBJDIR)/depend.dep:
 	@echo "Creating dependency file, depend.dep"
 	@echo > comptime.h
+	-@mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -MM *.c > $(OBJDIR)/depend.ped
 	$(CC) $(CFLAGS) -MM $(INTERFACE)/*.c >> $(OBJDIR)/depend.ped
 ifndef NOHW
