@@ -2328,7 +2328,7 @@ static inline void writeconplayer(cons_pak *con, const size_t i)
 	con->scalespeed = players[i].mo->scalespeed;
 }
 
-static inline void readconplayer(cons_pak *con, const INT32 playernum)
+static void readconplayer(cons_pak *con, const INT32 playernum)
 {
 	size_t i;
 	mobj_t *savedmo = players[playernum].mo;
