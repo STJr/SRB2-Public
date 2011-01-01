@@ -1629,9 +1629,10 @@ static boolean P_LoadBlockMap(lumpnum_t lumpnum)
 //
 static void P_GroupLines(void)
 {
+	line_t **linebuffer;
 	size_t i, j, total = 0;
-	line_t *li;
-	sector_t *sector;
+	line_t *li = lines;
+	sector_t *sector = sectors;
 	subsector_t *ss = subsectors;
 	size_t sidei;
 	seg_t *seg;
@@ -1661,7 +1662,7 @@ static void P_GroupLines(void)
 	}
 
 	// count number of lines in each sector
-	for (i = 0, li = lines; i < numlines; i++, li++)
+	for (i = 0; i < numlines; i++, li++)
 	{
 		total++;
 		li->frontsector->linecount++;
@@ -1673,36 +1674,25 @@ static void P_GroupLines(void)
 		}
 	}
 
-	// allocate linebuffers for each sector
-	for (i = 0, sector = sectors; i < numsectors; i++, sector++)
-	{
-		sector->lines = Z_Calloc(sector->linecount * sizeof(line_t*), PU_LEVEL, NULL);
-
-		// zero the count, since we'll later use this to track how many we've recorded
-		sector->linecount = 0;
-	}
-
-	// iterate through lines, assigning them to sectors' linebuffers,
-	// and recalculate the counts in the process
-	for (i = 0, li = lines; i < numlines; i++, li++)
-	{
-		li->frontsector->lines[li->frontsector->linecount++] = li;
-
-		if (li->backsector && li->backsector != li->frontsector)
-			li->backsector->lines[li->backsector->linecount++] = li;
-	}
-
-	// set soundorg's position for each sector
-	for (i = 0, sector = sectors; i < numsectors; i++, sector++)
+	// build line tables for each sector
+	linebuffer = Z_Calloc(total * sizeof (*linebuffer), PU_LEVEL, NULL);
+	for (i = 0; i < numsectors; i++, sector++)
 	{
 		M_ClearBox(bbox);
-
-		for (j = 0; j < sector->linecount; j++)
+		sector->lines = linebuffer;
+		li = lines;
+		for (j = 0; j < numlines; j++, li++)
 		{
-			li = sector->lines[j];
-			M_AddToBox(bbox, li->v1->x, li->v1->y);
-			M_AddToBox(bbox, li->v2->x, li->v2->y);
+			if (li->frontsector == sector || li->backsector == sector)
+			{
+				*linebuffer = li;
+				linebuffer++;
+				M_AddToBox(bbox, li->v1->x, li->v1->y);
+				M_AddToBox(bbox, li->v2->x, li->v2->y);
+			}
 		}
+		if ((size_t)(linebuffer - sector->lines) != sector->linecount)
+			CorruptMapError("P_GroupLines: miscounted");
 
 		// set the degenmobj_t to the middle of the bounding box
 		sector->soundorg.x = (((bbox[BOXRIGHT]>>FRACBITS) + (bbox[BOXLEFT]>>FRACBITS))/2)<<FRACBITS;
