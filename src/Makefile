@@ -501,10 +501,12 @@ endif
 ifdef MINGW
 all_dll: opengl_dll minigl_dll ds3d_dll fmod_dll openal_dll
 opengl_dll : $(OBJDIR)/r_opengl.o $(OBJDIR)/ogl_win.o hardware/r_mingw.def
+	-@mkdir -p $(BIN)
 	@echo Linking R_OpenGL.dll...
 	$(DLLWRAP) --def hardware/r_mingw.def $(OBJDIR)/r_opengl.o $(OBJDIR)/ogl_win.o -lgdi32 -mwindows $(M5) -s -o $(BIN)/r_opengl.dll
 
 minigl_dll: $(OBJDIR)/r_minigl.o hardware/r_mingw.def
+	-@mkdir -p $(BIN)
 	@echo Linking R_MiniGL.dll...
 	$(DLLWRAP) --def hardware/r_mingw.def $(OBJDIR)/r_minigl.o -lgdi32 -mwindows $(M5) -s -o $(BIN)/r_minigl.dll
 
@@ -513,20 +515,24 @@ ds3d_dll: $(OBJDIR)/s_ds3d.o hardware/s_mingw.def
 	$(DLLWRAP) --def hardware/s_mingw.def $(OBJDIR)/s_ds3d.o -ldsound -luuid -mwindows $(M5) -s -o $(BIN)/s_ds3d.dll
 
 fmod_dll: $(OBJDIR)/s_fmod.o hardware/s_mingw.def
+	-@mkdir -p $(BIN)
 	@echo Linking S_FMOD.dll...
 	$(DLLWRAP) --def hardware/s_mingw.def $(OBJDIR)/s_fmod.o -lfmod -mwindows $(M5) -s -o $(BIN)/s_fmod.dll
 
 openal_dll: $(OBJDIR)/s_openal.o hardware/s_mingw.def
+	-@mkdir -p $(BIN)
 	@echo Linking S_OpenAL.dll...
 	$(DLLWRAP) --def hardware/s_mingw.def $(OBJDIR)/s_openal.o -lopenal32 -mwindows $(M5) -s -o $(BIN)/s_openal.dll
 else
 all_dll: fmod_so openal_so
 
 fmod_so: $(OBJDIR)/s_fmod.o
+	-@mkdir -p $(BIN)
 	@echo Linking S_FMOD.so...
 	$(CC) -s -Os -o $(BIN)/s_fmod.so -shared -nostartfiles $(OBJDIR)/s_fmod.o -L. -lfmod -lm
 
 openal_so: $(OBJDIR)/s_openal.o
+	-@mkdir -p $(BIN)
 	@echo Linking S_OpenAL.so...
 	$(CC) -s -Os -o $(BIN)/s_openal.so -shared -nostartfiles $(OBJDIR)/s_openal.o -lopenal -lm
 
