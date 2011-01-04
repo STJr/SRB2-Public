@@ -5182,6 +5182,11 @@ void P_SpawnSpecials(void)
 				if (lines[i].backsector)
 					EV_DoFloor(&lines[i], bounceFloorCrush);
 
+#ifdef REMOVE_FOR_207
+				if (lines[i].special == 57)
+						break; //only move the floor
+#endif
+
 			case 58: // New super cool and awesome moving ceiling crush type
 				if (lines[i].backsector)
 					EV_DoCeiling(&lines[i], bounceCeilingCrush);
