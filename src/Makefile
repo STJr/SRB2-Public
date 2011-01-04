@@ -646,6 +646,7 @@ $(BIN)/1ST_READ.BIN: $(BIN)/$(BINNAME) $(BIN)/scramble
 	$(BIN)/scramble $< $@
 
 $(BIN)/scramble: $(INTERFACE)/SRB2DC/scramble.c
+	-@mkdir -p $(BIN)
 	$(HOSTCC) $< -o $@
 
 iso: $(BIN)/SRB2DC.iso
