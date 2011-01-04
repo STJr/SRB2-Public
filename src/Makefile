@@ -422,11 +422,17 @@ ifdef PSP
 all:	 pre-build $(BIN)/$(BINNAME) post-build
 endif
 
+ifdef DC
+all:	 pre-build $(BIN)/$(BINNAME) post-build
+endif
+
+ifndef DC
 ifndef PSP
 ifndef XBOX
 ifdef MINGW
 ifndef SDL
 all:	 pre-build $(BIN)/$(EXENAME) dll
+endif
 endif
 endif
 endif
@@ -658,6 +664,8 @@ $(BIN)/SRB2DC.iso: $(BIN)/SRB2DC.iso.pass2 $(BIN)/IP.BIN
 
 $(BIN)/SRB2DC.cdi: $(BIN)/SRB2DC.iso.pass2 $(BIN)/SRB2DC.cdi.pass1 $(BIN)/IP.BIN
 	@cat $(BIN)/SRB2DC.cdi.pass1 $(BIN)/IP.BIN $(BIN)/SRB2DC.iso.pass2 > $@
+
+post-build: $(BIN)/1ST_READ.BIN
 endif
 
 ifdef XBOX
