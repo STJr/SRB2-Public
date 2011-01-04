@@ -158,7 +158,7 @@ void SCR_SetMode(void)
 	}*/
 	else
 		I_Error("unknown bytes per pixel mode %d\n", vid.bpp);
-#ifndef DC
+#if !defined (DC) && !defined (WII)
 	if (vid.width % BASEVIDWIDTH || vid.height % BASEVIDHEIGHT)
 		CONS_Printf("WARNING: Resolution is not aspect-correct!\n"
 			"Use a multiple of %dx%d\n", BASEVIDWIDTH, BASEVIDHEIGHT);

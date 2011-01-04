@@ -341,7 +341,12 @@ static void CON_SetupBackColormap(void)
 
 // Setup the console text buffer
 //
+// for WII, libogc already has a CON_Init function, we must rename it here
+#ifdef WII
+void CON_InitWii(void)
+#else
 void CON_Init(void)
+#endif
 {
 	INT32 i;
 

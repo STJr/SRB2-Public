@@ -156,7 +156,7 @@ typedef long ssize_t;
 	#endif
 #endif //macintosh
 
-#if defined (PC_DOS) || defined (_WIN32) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__)
+#if defined (PC_DOS) || defined (_WIN32) || defined (WII) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__)
 #define HAVE_DOSSTR_FUNCS
 #endif
 

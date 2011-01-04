@@ -165,6 +165,30 @@ INT32 M_MapNumber(char first, char second)
 //                         FILE INPUT / OUTPUT
 // ==========================================================================
 
+// DevkitPPC has no access function, make our own
+#ifdef WII
+int access(const char *path, int amode)
+{
+	int accesshandle = 1;
+	FILE *handle = NULL;
+	if (amode == 6)
+		handle = fopen(path, "r+");
+	else if (amode == 4)
+		handle = fopen(path, "r");
+	else if (amode == 2)
+		handle = fopen(path, "a+");
+	else if (amode == 0)
+		handle = fopen(path, "rb");
+	if (handle)
+	{
+		accesshandle = 0;
+		fclose(handle);
+	}
+	return accesshandle;
+}
+#endif
+
+
 //
 // FIL_WriteFile
 //

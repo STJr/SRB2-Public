@@ -148,6 +148,13 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION4 "/tmp/mnt/sd/SRB2"
 #define DEFAULTSEARCHPATH1 "/mnt/sd"
 #define DEFAULTSEARCHPATH2 "/tmp/mnt/sd"
+#elif defined (WII)
+#define NOCWD
+#define NOHOME
+#define DEFAULTWADLOCATION1 "sd:/srb2wii"
+#define DEFAULTWADLOCATION2 "usb:/srb2wii"
+#define DEFAULTSEARCHPATH1 "sd:/srb2wii"
+#define DEFAULTSEARCHPATH2 "usb:/srb2wii"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2"
 #define DEFAULTWADLOCATION2 "/usr/local/games/srb2"

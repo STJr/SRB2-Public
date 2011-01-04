@@ -91,6 +91,18 @@ int main(int argc, char **argv)
 	myargv = argv; /// \todo pull out path to exe from this string
 #endif
 
+// init Wii-specific stuff
+#ifdef WII
+	// Start network
+	char localip[16] = {0};
+	char gateway[16] = {0};
+	char netmask[16] = {0};
+	if_config(localip, netmask, gateway, TRUE);
+
+	// Start FAT filesystem
+	fatInitDefault();
+#endif
+
 	logdir = D_Home();
 
 #ifdef LOGMESSAGES

@@ -130,7 +130,7 @@ void M_PushSpecialParameters(void)
 
 /// \brief max args
 
-#if defined (_arch_dreamcast) || defined (_XBOX)
+#if defined (_arch_dreamcast) || defined (_XBOX) || defined (WII)
 #define MAXARGVS 1
 #else
 #define MAXARGVS 256

@@ -154,6 +154,12 @@ NOHW=1
 NOHS=1
 endif
 
+ifdef WII
+NONX86=1
+NOHW=1
+NOPOSTPROCESSING=1
+endif
+
 ifdef DJGPPDOS
 include djgppdos/Makefile.cfg
 endif
@@ -418,6 +424,10 @@ ifdef XBOX
 all:	 pre-build $(BIN)/$(BINNAME)
 endif
 
+ifdef WII
+all:	pre-build $(BIN)/$(DOLNAME)
+endif
+
 ifdef PSP
 all:	 pre-build $(BIN)/$(BINNAME) post-build
 endif
@@ -675,6 +685,14 @@ $(OBJDIR)/xboxhelp.o: $(INTERFACE)/SRB2XBOX/xboxhelp.c
 
 $(BIN)/$(BINNAME): $(BIN)/$(EXENAME)
 	$(CXBE) -OUT:"$@" -DUMPINFO:"$(BIN)/SRB2XBOX.cxbe"  -TITLE:"Sonic Robo Blast 2" $<
+endif
+
+ifdef WII
+$(BIN)/$(DOLNAME): $(OBJS) $(BIN)/$(BINNAME) $(BIN)/$(EXENAME)
+	@echo Linking $(DOLNAME)...
+	@elf2dol $(BIN)/$(EXENAME) $(BIN)/$(DOLNAME)
+run:
+	@wiiload $(BIN)/$(DOLNAME)
 endif
 
 ifdef MINGW

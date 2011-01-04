@@ -114,7 +114,7 @@
 #endif
 
 // maximum number of windowed modes (see windowedModes[][])
-#if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
+#if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X) || defined (WII)
 #define MAXWINMODES (1)
 #else
 #define MAXWINMODES (27)
@@ -164,7 +164,7 @@ static      SDL_Color    localPalette[256];
 static      SDL_Rect   **modeList = NULL;
 #ifdef DC
 static       Uint8       BitsPerPixel = 15;
-#elif defined (_WIN32_WCE) || defined (GP2X) || defined (PSP)
+#elif defined (_WIN32_WCE) || defined (GP2X) || defined (PSP) || defined(WII)
 static       Uint8       BitsPerPixel = 16;
 #else
 static       Uint8       BitsPerPixel = 8;
@@ -190,7 +190,7 @@ static       SDL_bool    windownnow  = SDL_FALSE;
 // windowed video modes from which to choose from.
 static INT32 windowedModes[MAXWINMODES][2] =
 {
-#if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X))
+#if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X) || defined (WII))
 	{1920,1200}, // 1.60,6.00
 	{1680,1050}, // 1.60,5.25
 	{1600,1200}, // 1.33,5.00
@@ -228,6 +228,9 @@ static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 	if (bpp < 16)
 		bpp = 16; // 256 mode poo
 #endif
+#ifdef WII
+	bpp = 16; // 8-bit mode poo
+#endif
 #ifdef DC
 	if (bpp < 15)
 		bpp = 15;
@@ -247,6 +250,10 @@ static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 #endif
 	if (SDLVD && strncasecmp(SDLVD,"glSDL",6) == 0) //for glSDL videodriver
 		vidSurface = SDL_SetVideoMode(width, height,0,SDL_DOUBLEBUF);
+#ifdef WII // don't want it to use HWSURFACE, so make it first here
+	else if (SDL_VideoModeOK(width, height, bpp, flags|SDL_SWSURFACE|SDL_DOUBLEBUF) >= bpp) // SDL Wii uses double buffering
+		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_SWSURFACE|SDL_DOUBLEBUF);
+#endif
 	else if (cv_vidwait.value && videoblitok && SDL_VideoModeOK(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF) >= bpp)
 		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF);
 	else if (videoblitok && SDL_VideoModeOK(width, height, bpp, flags|SDL_HWSURFACE) >= bpp)
@@ -1949,7 +1956,7 @@ void I_StartupGraphics(void)
 	{
 		char vd[100]; //stack space for video name
 		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
-		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0)
+		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0 || strncasecmp(vd, "wii", 4) == 0)
 			framebuffer = SDL_TRUE;
 	}
 	if (M_CheckParm("-software"))
