@@ -1241,7 +1241,6 @@ static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, f
 {
 	fixed_t bx2 = bx1 + MAPBLOCKUNITS;
 	fixed_t by2 = by1 + MAPBLOCKUNITS;
-	fixed_t bbox[4];
 	line_t boxline, testline;
 	vertex_t vbox, vtest;
 
@@ -1270,10 +1269,6 @@ static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, f
 	bx2 <<= FRACBITS;
 	by2 <<= FRACBITS;
 
-	bbox[BOXTOP] = by2;
-	bbox[BOXBOTTOM] = by1;
-	bbox[BOXRIGHT] = bx2;
-	bbox[BOXLEFT] = bx1;
 	boxline.v1 = &vbox;
 	testline.v1 = &vtest;
 
