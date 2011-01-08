@@ -1562,8 +1562,6 @@ boolean PIT_PushableMoved(mobj_t *thing)
 //
 boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 {
-	fixed_t oldx, oldy;
-
 	floatok = false;
 
 	if (!P_CheckPosition(thing, x, y))
@@ -1690,8 +1688,6 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 	// Link the thing into its new position
 	P_UnsetThingPosition(thing);
 
-	oldx = thing->x;
-	oldy = thing->y;
 	thing->floorz = tmfloorz;
 	thing->ceilingz = tmceilingz;
 	thing->x = x;
