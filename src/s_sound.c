@@ -758,7 +758,6 @@ static INT32 actualmidimusicvolume;
 void S_UpdateSounds(void)
 {
 	INT32 audible, cnum, volume, sep, pitch;
-	sfxinfo_t *sfx;
 	channel_t *c;
 	MumblePos_t MPos;
 
@@ -841,6 +840,8 @@ void S_UpdateSounds(void)
 	{
 		static tic_t nextcleanup = 0;
 		size_t i;
+		sfxinfo_t *sfx;
+
 		if (!gametic) nextcleanup = 0;
 		if (gametic > nextcleanup)
 		{
@@ -869,7 +870,6 @@ void S_UpdateSounds(void)
 	for (cnum = 0; cnum < numofchannels; cnum++)
 	{
 		c = &channels[cnum];
-		sfx = c->sfxinfo;
 
 		if (c->sfxinfo)
 		{
