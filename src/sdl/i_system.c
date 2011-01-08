@@ -373,6 +373,7 @@ static void tty_Back(void)
 	d = write(STDOUT_FILENO, &key, 1);
 	key = '\b';
 	d = write(STDOUT_FILENO, &key, 1);
+	(void)d;
 }
 
 static void tty_Clear(void)
@@ -418,6 +419,7 @@ static inline void tty_Show(void)
 			d = write(STDOUT_FILENO, tty_con.buffer+i, 1);
 		}
 	}
+	(void)d;
 }
 
 // never exit without calling this, or your terminal will be left in a pretty bad state
@@ -528,7 +530,7 @@ void I_GetConsoleEvents(void)
 	}
 	if (ev.data1) D_PostEvent(&ev);
 	//tty_FlushIn();
-
+	(void)d;
 }
 
 #elif defined (_WIN32) && !(defined (_XBOX) || defined (_WIN32_WCE))
@@ -721,9 +723,6 @@ void I_StartupKeyboard (void)
 void I_OutputMsg(const char *fmt, ...)
 {
 	size_t len;
-#ifdef LOGMESSAGES
-	size_t d;
-#endif
 	XBOXSTATIC char txt[128];
 	va_list  argptr;
 
@@ -744,8 +743,9 @@ void I_OutputMsg(const char *fmt, ...)
 #ifdef LOGMESSAGES
 	if (logstream)
 	{
-		d = fwrite(txt, len, 1, logstream);
+		size_t d = fwrite(txt, len, 1, logstream);
 		fflush(logstream);
+		(void)d;
 	}
 #endif
 
