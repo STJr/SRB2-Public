@@ -2196,7 +2196,7 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 INT32 P_GetPlayerControlDirection(player_t *player)
 {
 	ticcmd_t *cmd = &player->cmd;
-	angle_t controldirection, controllerdirection, controlplayerdirection;
+	angle_t controllerdirection, controlplayerdirection;
 	camera_t *thiscam;
 
 	if (splitscreen && player == &players[secondarydisplayplayer])
@@ -2228,7 +2228,7 @@ INT32 P_GetPlayerControlDirection(player_t *player)
 		tempx = tempx*FRACUNIT;
 		tempy = tempy*FRACUNIT;
 
-		controldirection = controllerdirection =
+		controllerdirection =
 			R_PointToAngle2(player->mo->x, player->mo->y, player->mo->x + tempx,
 				player->mo->y + tempy);
 
@@ -2260,7 +2260,7 @@ INT32 P_GetPlayerControlDirection(player_t *player)
 			return 0;
 	}
 
-	controldirection = controllerdirection =
+	controllerdirection =
 		R_PointToAngle2(player->mo->x, player->mo->y, P_ReturnThrustX(player->mo, player->mo->angle, cmd->forwardmove),
 			P_ReturnThrustY(player->mo, player->mo->angle, cmd->forwardmove));
 
