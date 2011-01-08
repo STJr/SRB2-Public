@@ -4523,15 +4523,8 @@ void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 numb
 	TVector v;
 	TVector *res;
 	fixed_t finalx, finaly, finalz, dist;
-	mobj_t hoopcenter;
 	angle_t degrees, fa, closestangle;
 	fixed_t mobjx, mobjy, mobjz;
-
-	hoopcenter.x = x;
-	hoopcenter.y = y;
-	hoopcenter.z = z;
-
-	hoopcenter.z = z - mobjinfo[type].height/2;
 
 	degrees = FINEANGLES/number;
 
