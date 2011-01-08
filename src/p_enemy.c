@@ -3557,9 +3557,6 @@ void A_DetonChase(mobj_t *actor)
 {
 	angle_t exact;
 	fixed_t xydist, dist;
-	mobj_t *oldtracer;
-
-	oldtracer = actor->tracer;
 
 	// modify tracer threshold
 	if (!actor->tracer || actor->tracer->health <= 0)
