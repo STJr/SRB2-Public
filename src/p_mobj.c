@@ -2635,7 +2635,6 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	if (thiscam->momx || thiscam->momy)
 	{
 		fixed_t ptryx, ptryy, xmove, ymove;
-		fixed_t oldx, oldy; // reducing bobbing/momentum on ice when up against walls
 
 		if (thiscam->momx > MAXMOVE)
 			thiscam->momx = MAXMOVE;
@@ -2649,9 +2648,6 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 
 		xmove = thiscam->momx;
 		ymove = thiscam->momy;
-
-		oldx = thiscam->x;
-		oldy = thiscam->y;
 
 		do
 		{
