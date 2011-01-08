@@ -370,11 +370,7 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 	//
 	if (s1 == s2) // Both sectors are the same.
 	{
-		fixed_t sight1, sight2;
 		ffloor_t *rover;
-
-		sight1 = t1->z + (t1->height>>2);
-		sight2 = t2->z + (t2->height>>2);
 
 		for (rover = s1->ffloors; rover; rover = rover->next)
 		{
