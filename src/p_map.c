@@ -1200,6 +1200,7 @@ void P_CheckHoopPosition(mobj_t *hoopthing, fixed_t x, fixed_t y, fixed_t z, fix
 {
 	INT32 i;
 
+	(void)radius; //unused
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (!playeringame[i] || !players[i].mo)
@@ -1215,7 +1216,6 @@ void P_CheckHoopPosition(mobj_t *hoopthing, fixed_t x, fixed_t y, fixed_t z, fix
 		break;
 	}
 
-	radius = 0; //unused
 	return;
 }
 
