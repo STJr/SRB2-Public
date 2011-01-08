@@ -590,13 +590,10 @@ boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed
 {
 	INT32 c = 0, stop;
 	player_t *player;
-	sector_t *sector;
 	angle_t an;
 
 	if (P_FreezeObjectplace())
 		return false;
-
-	sector = actor->subsector->sector;
 
 	// BP: first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
