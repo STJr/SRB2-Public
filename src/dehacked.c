@@ -2093,15 +2093,17 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	INT32 i;
 	// do a copy of this for cross references probleme
 	XBOXSTATIC actionf_t saveactions[NUMSTATES];
-	XBOXSTATIC const char *savesprnames[NUMSPRITES];
+	//XBOXSTATIC const char *savesprnames[NUMSPRITES];
 	XBOXSTATIC const char *savesfxnames[NUMSFX];
 
 	deh_num_warning = 0;
 	// save values for cross reference
 	for (i = 0; i < NUMSTATES; i++)
 		saveactions[i] = states[i].action;
+	/*
 	for (i = 0; i < NUMSPRITES; i++)
 		savesprnames[i] = sprnames[i];
+	*/
 	for (i = 0; i < NUMSFX; i++)
 		savesfxnames[i] = S_sfx[i].name;
 
