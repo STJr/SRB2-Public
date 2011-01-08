@@ -136,9 +136,6 @@ static inline void R_DrawColumnInCache(column_t *patch, UINT8 *cache, INT32 orig
 {
 	INT32 count, position;
 	UINT8 *source;
-	UINT8 *dest;
-
-	dest = (UINT8 *)cache;
 
 	while (patch->topdelta != 0xff)
 	{
