@@ -1031,6 +1031,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 				return;
 			}
 		}
+		HWD.pfnSetBlend(blend);
 		//Hurdler: arf, I don't like that implementation at all... too much crappy
 		gpatch = md2->grpatch;
 		if (!gpatch || !gpatch->mipmap.grInfo.format ||!gpatch->mipmap.downloaded)
