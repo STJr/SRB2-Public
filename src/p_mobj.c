@@ -2815,10 +2815,8 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 	{
 		fixed_t watertop;
 		fixed_t waterbottom;
-		boolean roverfound;
 
 		watertop = waterbottom = 0;
-		roverfound = false;
 
 		for (node = mobj->touching_sectorlist; node; node = node->m_snext)
 		{
@@ -2835,7 +2833,6 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 					{
 						watertop = *rover->topheight;
 						waterbottom = *rover->bottomheight;
-						roverfound = true;
 						break;
 					}
 				}
