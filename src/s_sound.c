@@ -1211,7 +1211,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 
 	if (sfxinfo->pitch & SF_OUTSIDESOUND) // Rain special case
 	{
-		fixed_t x, y, yl, yh, xl, xh, closex, closey, newdist;
+		fixed_t x, y, yl, yh, xl, xh, newdist;
 
 		if (R_PointInSubsector(listensource.x, listensource.y)->sector->ceilingpic == skyflatnum)
 			approx_dist = 0;
@@ -1222,8 +1222,6 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 			yh = listensource.y + 1024*FRACUNIT;
 			xl = listensource.x - 1024*FRACUNIT;
 			xh = listensource.x + 1024*FRACUNIT;
-			closex = listensource.x + 2048*FRACUNIT;
-			closey = listensource.y + 2048*FRACUNIT;
 			approx_dist = 1024*FRACUNIT;
 			for (y = yl; y <= yh; y += FRACUNIT*64)
 				for (x = xl; x <= xh; x += FRACUNIT*64)
@@ -1234,8 +1232,6 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 						newdist = S_CalculateSoundDistance(listensource.x, listensource.y, 0, x, y, 0);
 						if (newdist < approx_dist)
 						{
-							closex = x;
-							closey = y;
 							approx_dist = newdist;
 						}
 					}
