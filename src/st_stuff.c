@@ -260,7 +260,7 @@ void ST_Drawer(boolean refresh)
 #endif
 
 	// force a set of the palette by using doPaletteStuff()
-	refresh = 0; //?
+	(void)refresh; //?
 	if (vid.recalc)
 		st_palette = -1;
 
