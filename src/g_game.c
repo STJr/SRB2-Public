@@ -2000,7 +2000,6 @@ static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 {
 	fixed_t x;
 	fixed_t y;
-	subsector_t *ss;
 	INT32 i;
 
 	// maybe there is no player start
@@ -2022,7 +2021,6 @@ static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 
 	x = mthing->x << FRACBITS;
 	y = mthing->y << FRACBITS;
-	ss = R_PointInSubsector(x, y);
 
 	if (!P_CheckPosition(players[playernum].mo, x, y))
 		return false;
