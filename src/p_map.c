@@ -1396,7 +1396,6 @@ static void CheckMissileImpact(mobj_t *mobj)
 //
 INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 {
-	fixed_t oldx, oldy;
 	subsector_t *s = R_PointInSubsector(x, y);
 	INT32 retval = 1;
 	boolean itsatwodlevel = false;
@@ -1425,8 +1424,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1443,8 +1440,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1463,8 +1458,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1475,8 +1468,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			else if (s == thiscam->subsector && tmceilingz >= thiscam->z)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = tmfloorz;
 				thiscam->ceilingz = tmfloorz + thiscam->height;
 				thiscam->x = x;
@@ -1495,8 +1486,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1517,8 +1506,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 	// the move is ok,
 	// so link the thing into its new position
 
-	oldx = thiscam->x;
-	oldy = thiscam->y;
 	thiscam->floorz = tmfloorz;
 	thiscam->ceilingz = tmceilingz;
 	thiscam->x = x;
