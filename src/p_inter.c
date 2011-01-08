@@ -3592,7 +3592,6 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 	INT32 i;
 	angle_t fa;
 	fixed_t ns;
-	INT32 amt;
 	fixed_t z = 0, momx = 0, momy = 0;
 
 	// Better safe than sorry.
@@ -3618,11 +3617,6 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 			num_stones++;
 		if (player->powers[pw_emeralds] & EMERALD7)
 			num_stones++;
-
-		if (num_stones > 0)
-			amt = 32/num_stones;
-		else
-			amt = 0;
 
 		for (i = 0; i < num_stones; i++)
 		{
