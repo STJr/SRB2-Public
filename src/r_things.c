@@ -2761,13 +2761,9 @@ void R_AddSkins(UINT16 wadnum)
 			// custom translation table
 			else if (!stricmp(stoken, "startcolor"))
 			{
-				UINT8 colorval;
-
 				STRBUFCPY(skins[numskins].starttranscolor,
 					value);
 				strupr(skins[numskins].starttranscolor);
-
-				colorval = (UINT8)atoi(skins[numskins].starttranscolor);
 			}
 
 			GETSKINATTRIB_(prefcolor)
