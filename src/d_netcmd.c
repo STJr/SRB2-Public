@@ -4410,7 +4410,7 @@ static void Command_ExitLevel_f(void)
 
 static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
 {
-	cp = NULL;
+	(void)cp;
 
 	// Ignore duplicate XD_EXITLEVEL commands.
 	if (gameaction == ga_completed)
