@@ -649,7 +649,6 @@ GLTexture_t *HWR_GetTexture(INT32 tex)
 
 static void HWR_CacheFlat(GLMipmap_t *grMipmap, lumpnum_t flatlumpnum)
 {
-	UINT8 *block;
 	size_t size, pflatsize;
 
 	// setup the texture info
@@ -689,10 +688,8 @@ static void HWR_CacheFlat(GLMipmap_t *grMipmap, lumpnum_t flatlumpnum)
 	grMipmap->height = (UINT16)pflatsize;
 
 	// the flat raw data needn't be converted with palettized textures
-	block = Z_Malloc(W_LumpLength(flatlumpnum),
-		PU_HWRCACHE, &grMipmap->grInfo.data);
-
-	W_ReadLump(flatlumpnum, grMipmap->grInfo.data);
+	W_ReadLump(flatlumpnum, Z_Malloc(W_LumpLength(flatlumpnum),
+		PU_HWRCACHE, &grMipmap->grInfo.data));
 }
 
 
