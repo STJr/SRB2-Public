@@ -2895,11 +2895,13 @@ void A_ThrownRing(mobj_t *actor)
 		else if (!(actor->flags2 & MF2_GRENADE))
 			ring = P_SpawnMobj(actor->x, actor->y, actor->z, MT_SUPERSPARK);
 
-/*		if (ring)
+		if (ring)
 		{
+			/* 
 			P_SetTarget(&ring->target, actor);
 			ring->color = actor->color; //copy color
-		}*/
+			*/
+		}
 	}
 
 	// decrement bounce ring time
