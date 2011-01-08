@@ -899,10 +899,9 @@ void R_DrawFogColumn_8(void)
 */
 void R_DrawColumnShadowed_8(void)
 {
-	INT32 count, realyh, realyl, i, height, bheight = 0, solid = 0;
+	INT32 count, realyh, i, height, bheight = 0, solid = 0;
 
 	realyh = dc_yh;
-	realyl = dc_yl;
 
 	count = dc_yh - dc_yl;
 
