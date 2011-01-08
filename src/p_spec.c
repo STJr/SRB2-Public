@@ -408,7 +408,7 @@ static inline boolean twoSided(INT32 sector, INT32 line)
   * \sa getSide, getSector, twoSided
   * \author Steven McGranahan
   */
-static inline sector_t *getNextSector(line_t *line, sector_t *sec)
+static sector_t *getNextSector(line_t *line, sector_t *sec)
 {
 	if (line->frontsector == sec)
 	{
