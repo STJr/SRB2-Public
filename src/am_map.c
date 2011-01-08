@@ -1109,7 +1109,7 @@ static inline void AM_drawThings(INT32 colors, INT32 colorrange)
 	size_t i;
 	mobj_t *t;
 
-	colorrange = 0;
+	(void)colorrange;
 	for (i = 0; i < numsectors; i++)
 	{
 		t = sectors[i].thinglist;
