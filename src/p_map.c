@@ -2900,16 +2900,8 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
 		return true;
 
 	if (P_CheckSight(thing, bombspot))
-	{
-		INT32 damage = bombdamage - dist;
-		INT32 momx = 0, momy = 0;
-		if (dist)
-		{
-			momx = (thing->x - bombspot->x)/dist;
-			momy = (thing->y - bombspot->y)/dist;
-		}
-		// must be in direct path
-		P_DamageMobj(thing, bombspot, bombsource, damage); // Tails 01-11-2001
+	{	// must be in direct path
+		P_DamageMobj(thing, bombspot, bombsource, (bombdamage - dist)); // Tails 01-11-2001
 	}
 
 	return true;
