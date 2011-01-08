@@ -3984,7 +3984,7 @@ static void HWR_DrawSkyBackground(player_t *player)
 //  |/ |
 //  0--1
 
-	player = NULL;
+	(void)player;
 	HWR_GetTexture(skytexture);
 
 	//Hurdler: the sky is the only texture who need 4.0f instead of 1.0
