@@ -818,6 +818,8 @@ boolean HU_Responder(event_t *ev)
 		if (shiftdown)
 			c = shiftxform[c];
 
+		(void)altdown;
+
 		if (c == '"') // Graue 07-04-2004: quote marks mess it up
 			c = '\'';
 
