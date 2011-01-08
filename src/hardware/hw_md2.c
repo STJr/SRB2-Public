@@ -442,7 +442,7 @@ static inline void md2_getBoundingBox (md2_model_t *model, float *minmax)
 static inline INT32 md2_getAnimationCount(md2_model_t *model)
 {
 	size_t i, pos;
-	INT32 j = 0, count, lastId;
+	INT32 j = 0, count;
 	char name[16], last[16];
 
 	strcpy(last, model->frames[0].name);
@@ -454,7 +454,6 @@ static inline INT32 md2_getAnimationCount(md2_model_t *model)
 	}
 	last[pos + 1] = '\0';
 
-	lastId = 0;
 	count = 0;
 
 	for (i = 0; i <= model->header.numFrames; i++)
@@ -485,7 +484,7 @@ static inline INT32 md2_getAnimationCount(md2_model_t *model)
 static inline const char * md2_getAnimationName (md2_model_t *model, INT32 animation)
 {
 	size_t i, pos;
-	INT32 j = 0, count, lastId;
+	INT32 j = 0, count;
 	static char last[32];
 	char name[32];
 
@@ -498,7 +497,6 @@ static inline const char * md2_getAnimationName (md2_model_t *model, INT32 anima
 	}
 	last[pos + 1] = '\0';
 
-	lastId = 0;
 	count = 0;
 
 	for (i = 0; i <= model->header.numFrames; i++)
@@ -533,7 +531,7 @@ static inline void md2_getAnimationFrames(md2_model_t *model,
 	INT32 animation, INT32 *startFrame, INT32 *endFrame)
 {
 	size_t i, pos;
-	INT32 j = 0, count, numFrames, frameCount, lastId;
+	INT32 j = 0, count, numFrames, frameCount;
 	char name[16], last[16];
 
 	strcpy(last, model->frames[0].name);
@@ -545,7 +543,6 @@ static inline void md2_getAnimationFrames(md2_model_t *model,
 	}
 	last[pos + 1] = '\0';
 
-	lastId = 0;
 	count = 0;
 	numFrames = 0;
 	frameCount = 0;
