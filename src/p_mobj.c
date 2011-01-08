@@ -2590,11 +2590,9 @@ static boolean P_CameraCheckWater(camera_t *thiscam)
 void P_DestroyRobots(void)
 {
 	// Search through all the thinkers for enemies.
-	INT32 count;
 	mobj_t *mo;
 	thinker_t *think;
 
-	count = 0;
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
 		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
