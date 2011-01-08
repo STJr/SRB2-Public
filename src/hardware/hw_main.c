@@ -1369,14 +1369,12 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			FBITFIELD blendmode;
 			fixed_t  popentop, popenbottom, polytop, polybottom;
 			fixed_t fvisiblefloor, fvisibleceiling, bvisiblefloor, bvisibleceiling;
-			boolean heightsecd = false;
 			fixed_t     texturevpeg = 0;
 
 			if (gr_frontsector->heightsec != -1)
 			{
 				fvisiblefloor = sectors[gr_frontsector->heightsec].floorheight;
 				fvisibleceiling = sectors[gr_frontsector->heightsec].ceilingheight;
-				heightsecd = true;
 			}
 			else
 			{
@@ -1388,7 +1386,6 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			{
 				bvisiblefloor = sectors[gr_backsector->heightsec].floorheight;
 				bvisibleceiling = sectors[gr_backsector->heightsec].ceilingheight;
-				heightsecd = true;
 			}
 			else
 			{
