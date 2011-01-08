@@ -8255,8 +8255,13 @@ static void M_DrawOpenGLMenu(void)
 	mx = OpenGLOptionDef.x;
 	my = OpenGLOptionDef.y;
 	M_DrawGenericMenu(); // use generic drawer for cursor, items and title
-//	V_DrawString(BASEVIDWIDTH - mx - V_StringWidth(cv_scr_depth.string),
-//		my + currentMenu->menuitems[2].alphaKey, V_YELLOWMAP, cv_scr_depth.string);
+#if 0
+	V_DrawString(BASEVIDWIDTH - mx - V_StringWidth(cv_scr_depth.string),
+		my + currentMenu->menuitems[2].alphaKey, V_YELLOWMAP, cv_scr_depth.string);
+#else
+	(void)mx;
+	(void)my;
+#endif
 }
 
 #define FOG_COLOR_ITEM  1
