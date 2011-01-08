@@ -6867,15 +6867,13 @@ void P_RespawnSpecials(void)
 			else
 			{
 				fixed_t yl, yh, xl, xh;
-				fixed_t closex, closey, closedist, newdist;
+				fixed_t closedist, newdist;
 
 				// Essentially check in a 1024 unit radius of the player for an outdoor area.
 				yl = players[displayplayer].mo->y - 1024*FRACUNIT;
 				yh = players[displayplayer].mo->y + 1024*FRACUNIT;
 				xl = players[displayplayer].mo->x - 1024*FRACUNIT;
 				xh = players[displayplayer].mo->x + 1024*FRACUNIT;
-				closex = players[displayplayer].mo->x + 2048*FRACUNIT;
-				closey = players[displayplayer].mo->y + 2048*FRACUNIT;
 				closedist = 2048*FRACUNIT;
 				for (y = yl; y <= yh; y += FRACUNIT*64)
 					for (x = xl; x <= xh; x += FRACUNIT*64)
@@ -6885,8 +6883,6 @@ void P_RespawnSpecials(void)
 							newdist = S_CalculateSoundDistance(players[displayplayer].mo->x, players[displayplayer].mo->y, 0, x, y, 0);
 							if (newdist < closedist)
 							{
-								closex = x;
-								closey = y;
 								closedist = newdist;
 							}
 						}
