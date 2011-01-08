@@ -457,8 +457,10 @@ void SetModelView(GLint w, GLint h)
 void SetStates(void)
 {
 	// Bind little white RGBA texture to ID NOTEXTURE_NUM.
+	/* 
 	FUINT Data[8*8];
 	INT32 i;
+	*/
 	float LightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	DBG_Printf("SetStates()\n");
@@ -492,8 +494,10 @@ void SetStates(void)
 	CurrentPolyFlags = 0xffffffff;
 	SetBlend(0);
 
+	/*
 	for (i = 0; i < 64; i++)
 		Data[i] = 0xffFFffFF;       // white pixel
+	*/
 
 	tex_downloaded = (GLuint)-1;
 	SetNoTexture();
