@@ -666,9 +666,6 @@ static boolean P_LookForShield(mobj_t *actor)
 {
 	INT32 c = 0, stop;
 	player_t *player;
-	sector_t *sector;
-
-	sector = actor->subsector->sector;
 
 	// BP: first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
