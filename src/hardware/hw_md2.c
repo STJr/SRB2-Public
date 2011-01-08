@@ -612,7 +612,7 @@ static inline void md2_printModelInfo (md2_model_t *model)
 		CONS_Printf("%s ", model->frames[i].name);
 	CONS_Printf("\n");
 #else
-	model = NULL;
+	(void)model;
 #endif
 }
 
