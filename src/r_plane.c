@@ -527,7 +527,6 @@ visplane_t *R_CheckPlane(visplane_t *pl, INT32 start, INT32 stop)
 // overlap.
 void R_ExpandPlane(visplane_t *pl, INT32 start, INT32 stop)
 {
-	INT32 intrl, intrh;
 	INT32 unionl, unionh;
 //	INT32 x;
 
@@ -539,24 +538,20 @@ void R_ExpandPlane(visplane_t *pl, INT32 start, INT32 stop)
 
 	if (start < pl->minx)
 	{
-		intrl = pl->minx;
 		unionl = start;
 	}
 	else
 	{
 		unionl = pl->minx;
-		intrl = start;
 	}
 
 	if (stop > pl->maxx)
 	{
-		intrh = pl->maxx;
 		unionh = stop;
 	}
 	else
 	{
 		unionh = pl->maxx;
-		intrh = stop;
 	}
 /*
 	for (x = start; x <= stop; x++)
