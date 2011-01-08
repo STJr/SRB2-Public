@@ -1610,7 +1610,7 @@ static void Command_OrderPizza_f(void)
 
 static void Got_PizzaOrder(UINT8 **cp, INT32 playernum)
 {
-	cp = NULL;
+	(void)cp;
 	CONS_Printf(text[ORDEREDPIZZA], player_names[playernum]);
 }
 
