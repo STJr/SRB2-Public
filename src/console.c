@@ -1163,7 +1163,8 @@ static void CON_DrawHudlines(void)
 // The pic must be sized BASEVIDHEIGHT height.
 static void CON_DrawBackpic(patch_t *pic, INT32 startx, INT32 destwidth)
 {
-	startx = destwidth = 0;
+	(void)startx;
+	(void)destwidth;
 	V_DrawScaledPatch(0, 0, 0, pic);
 }
 
