@@ -143,12 +143,8 @@ static inline void cht_GetParam(cheatseq_t *cht, char *buffer)
 
 boolean cht_Responder(event_t *ev)
 {
-	static player_t *plyr;
-
 	if (ev->type == ev_keydown && 0x00 <= ev->data1 && ev->data1 <= 0xFF)
 	{
-		plyr = &players[consoleplayer];
-
 		// devmode cheat
 		if (cht_CheckCheat(&cheat_bulmer, (char)ev->data1))
 		{
