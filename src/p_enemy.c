@@ -4458,7 +4458,7 @@ void A_RecyclePowers(mobj_t *actor)
 {
 	INT32 i, numplayers = 0;
 
-	actor = NULL;
+	(void)actor;
 	if (!multiplayer)
 		return;
 
