@@ -3062,11 +3062,8 @@ static boolean P_Look4Players(mobj_t *actor, boolean allaround)
 {
 	INT32 stop, c = 0;
 	player_t *player;
-	sector_t *sector;
 	angle_t an;
 	fixed_t dist;
-
-	sector = actor->subsector->sector;
 
 	// first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
