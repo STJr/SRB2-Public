@@ -1183,7 +1183,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 
 	listener_t listensource;
 
-	pitch = NULL;
+	(void)pitch;
 	if (!listener)
 		return false;
 
