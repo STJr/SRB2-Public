@@ -3353,9 +3353,10 @@ static void Local_Maketic(INT32 realtics)
 void SV_SpawnPlayer(INT32 playernum, INT32 x, INT32 y, angle_t angle)
 {
 	// for future copytic use the good x, y, and angle!
+	(void)x;
+	(void)y;
 	if (server)
 	{
-		x = y = 0;
 		netcmds[maketic%BACKUPTICS][playernum].angleturn = (INT16)((INT16)(angle>>16) | TICCMD_RECEIVED);
 	}
 }
