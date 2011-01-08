@@ -596,19 +596,6 @@ void T_ContinuousFalling(levelspecthink_t *faller)
 #define ceilingwasheight vars[3]
 #define floordestheight vars[4]
 #define ceilingdestheight vars[5]
-	fixed_t destfloor, destceiling;
-	fixed_t dist = faller->ceilingwasheight-faller->floorwasheight;
-
-	if (faller->direction == -1) // Down
-	{
-		destceiling = faller->ceilingdestheight;
-		destfloor = faller->ceilingdestheight-dist;
-	}
-	else // Up!
-	{
-		destceiling = faller->floordestheight+dist;
-		destfloor = faller->floordestheight;
-	}
 
 	if (faller->direction == -1)
 	{
