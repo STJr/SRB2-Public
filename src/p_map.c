@@ -1922,7 +1922,6 @@ static void P_HitSlideLine(line_t *ld)
 //
 static void P_HitBounceLine(line_t *ld)
 {
-	INT32 side;
 	angle_t lineangle, moveangle, deltaangle;
 	fixed_t movelen;
 
@@ -1937,8 +1936,6 @@ static void P_HitBounceLine(line_t *ld)
 		tmxmove = -tmxmove;
 		return;
 	}
-
-	side = P_PointOnLineSide(slidemo->x, slidemo->y, ld);
 
 	lineangle = R_PointToAngle2(0, 0, ld->dx, ld->dy);
 
