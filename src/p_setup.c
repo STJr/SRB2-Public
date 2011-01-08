@@ -235,12 +235,10 @@ void P_InitMapHeaders(void)
 {
 	char mapheader[7];
 	lumpnum_t lumpnum;
-	INT32 moremapnumbers, mapnum;
+	INT32 mapnum;
 
 	for (mapnum = 1; mapnum <= NUMMAPS; mapnum++)
 	{
-		moremapnumbers = mapnum - 1;
-
 		strncpy(mapheader, G_BuildMapName(mapnum), 5);
 
 		mapheader[5] = 'D'; // New header
