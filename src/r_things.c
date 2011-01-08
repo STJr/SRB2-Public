@@ -2759,12 +2759,7 @@ void R_AddSkins(UINT16 wadnum)
 			GETSKINATTRIB_(maxdash)
 
 			// custom translation table
-			else if (!stricmp(stoken, "startcolor"))
-			{
-				STRBUFCPY(skins[numskins].starttranscolor,
-					value);
-				strupr(skins[numskins].starttranscolor);
-			}
+			GETSKINATTRIB("startcolor", starttranscolor)
 
 			GETSKINATTRIB_(prefcolor)
 			GETSKINATTRIB("jumpheight", jumpfactor)
