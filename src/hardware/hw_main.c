@@ -611,7 +611,7 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 			}
 		}
 #else
-		sector = NULL;
+		(void)sector;
 #endif
 	}
 
