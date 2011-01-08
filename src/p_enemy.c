@@ -4248,7 +4248,7 @@ void A_MixUp(mobj_t *actor)
 	boolean teleported[MAXPLAYERS];
 	INT32 i, numplayers = 0, prandom = 0;
 
-	actor = NULL;
+	(void)actor;
 	if (!multiplayer)
 		return;
 
