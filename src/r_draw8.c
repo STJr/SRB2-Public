@@ -830,13 +830,11 @@ void R_DrawTranslucentSpan_8 (void)
 void R_DrawFogSpan_8(void)
 {
 	UINT8 *colormap;
-	UINT8 *transmap;
 	UINT8 *dest;
 
 	size_t count;
 
 	colormap = ds_colormap;
-	transmap = ds_transmap;
 	//dest = ylookup[ds_y] + columnofs[ds_x1];
 	dest = &topleft[ds_y *vid.width + ds_x1];
 
