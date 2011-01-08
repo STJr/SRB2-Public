@@ -4519,7 +4519,7 @@ void A_RecyclePowers(mobj_t *actor)
 		INT32 temp[MAXPLAYERS][NUMPOWERS];
 		INT32 weapons[MAXPLAYERS];
 		INT32 weaponheld[MAXPLAYERS];
-		INT32 pindex[MAXPLAYERS], counter = 0, j = 0, prandom = 0, recyclefrom = 0;
+		INT32 counter = 0, j = 0, prandom = 0, recyclefrom = 0;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -4527,7 +4527,6 @@ void A_RecyclePowers(mobj_t *actor)
 				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super]
 				&& !((netgame || multiplayer) && players[i].spectator))
 			{
-				pindex[counter] = i;
 				for (j = 0; j < NUMPOWERS; j++)
 					temp[counter][j] = players[i].powers[j];
 				//1.1: ring weapons too
