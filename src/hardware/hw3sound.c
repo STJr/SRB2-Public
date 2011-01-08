@@ -221,35 +221,7 @@ static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean spli
 	source_t *  src;
 	INT32 sep = NORM_SEP, pitch = NORM_PITCH, volume = 255;
 
-	mobj_t *listenmobj;
-	listener_t listener  = {0,0,0,0};
-
-	if (splitsound)
-		listenmobj = players[displayplayer].mo;
-	else
-		listenmobj = players[secondarydisplayplayer].mo;
-
-	if (splitsound && cv_chasecam2.value)
-	{
-		listener.x = camera2.x;
-		listener.y = camera2.y;
-		listener.z = camera2.z;
-		listener.angle = camera2.angle;
-	}
-	else if (!splitsound && cv_chasecam.value)
-	{
-		listener.x = camera.x;
-		listener.y = camera.y;
-		listener.z = camera.z;
-		listener.angle = camera.angle;
-	}
-	else if (listenmobj)
-	{
-		listener.x = listenmobj->x;
-		listener.y = listenmobj->y;
-		listener.z = listenmobj->z;
-		listener.angle = listenmobj->angle;
-	}
+	(void)splitsound;
 
 	// Find an open source
 	for (snum = 0, src = sources; snum < num_sources; src++, snum++)
@@ -378,48 +350,11 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 	source_t        *source = NULL;
 	mobj_t *listenmobj = players[displayplayer].mo;
 	mobj_t *listenmobj2 = NULL;
-	listener_t listener  = {0,0,0,0};
-	listener_t listener2 = {0,0,0,0};
 
 	if (splitscreen) listenmobj2 = players[secondarydisplayplayer].mo;
 
 	if (nosound)
 		return -1;
-
-	if (cv_chasecam.value)
-	{
-		listener.x = camera.x;
-		listener.y = camera.y;
-		listener.z = camera.z;
-		listener.angle = camera.angle;
-	}
-	else if (listenmobj)
-	{
-		listener.x = listenmobj->x;
-		listener.y = listenmobj->y;
-		listener.z = listenmobj->z;
-		listener.angle = listenmobj->angle;
-	}
-	else if (origin)
-		return -1;
-
-	if (listenmobj2)
-	{
-		if (cv_chasecam2.value)
-		{
-			listener2.x = camera2.x;
-			listener2.y = camera2.y;
-			listener2.z = camera2.z;
-			listener2.angle = camera2.angle;
-		}
-		else
-		{
-			listener2.x = listenmobj2->x;
-			listener2.y = listenmobj2->y;
-			listener2.z = listenmobj2->z;
-			listener2.angle = listenmobj2->angle;
-		}
-	}
 
 	sfx = &S_sfx[sfx_id];
 
