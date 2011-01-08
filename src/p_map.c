@@ -1704,8 +1704,6 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 
 boolean P_SceneryTryMove(mobj_t *thing, fixed_t x, fixed_t y)
 {
-	fixed_t oldx, oldy;
-
 	if (!P_CheckPosition(thing, x, y))
 		return false; // solid wall or thing
 
@@ -1727,8 +1725,6 @@ boolean P_SceneryTryMove(mobj_t *thing, fixed_t x, fixed_t y)
 	// so link the thing into its new position
 	P_UnsetThingPosition(thing);
 
-	oldx = thing->x;
-	oldy = thing->y;
 	thing->floorz = tmfloorz;
 	thing->ceilingz = tmceilingz;
 	thing->x = x;
