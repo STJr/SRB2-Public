@@ -2285,7 +2285,6 @@ static void P_SceneryZMovement(mobj_t *mo)
 void P_MobjCheckWater(mobj_t *mobj)
 {
 	sector_t *sector;
-	UINT32 oldeflags;
 	UINT32 wasinwater;
 
 	wasinwater = mobj->eflags & MFE_UNDERWATER; // important: not boolean!
@@ -2295,7 +2294,6 @@ void P_MobjCheckWater(mobj_t *mobj)
 
 	// see if we are in water, and set some flags for later
 	sector = mobj->subsector->sector;
-	oldeflags = mobj->eflags;
 
 	if (sector->ffloors) // 3D water
 	{
