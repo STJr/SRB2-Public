@@ -183,6 +183,7 @@ FUNCPRINTF void DBG_Printf(const char *lpFmt, ...)
 	{
 		size_t d;
 		d = fwrite(str, strlen(str), 1, logstream);
+		(void)d;
 	}
 #endif
 
