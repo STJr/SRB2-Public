@@ -3806,6 +3806,11 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	//
 	vis = HWR_NewVisSprite();
 	vis->x1 = x1;
+#if 0
+	vis->x2 = x2;
+#else
+	(void)x2;
+#endif
 	vis->x2 = tx;
 	vis->tz = tz;
 	vis->patchlumpnum = sprframe->lumppat[rot];
