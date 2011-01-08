@@ -567,7 +567,6 @@ static void COM_CEchoDuration_f(void)
   */
 static void COM_Exec_f(void)
 {
-	size_t length;
 	UINT8 *buf = NULL;
 
 	if (COM_Argc() < 2 || COM_Argc() > 3)
@@ -577,7 +576,7 @@ static void COM_Exec_f(void)
 	}
 
 	// load file
-	length = FIL_ReadFile(COM_Argv(1), &buf);
+	FIL_ReadFile(COM_Argv(1), &buf);
 
 	if (!buf)
 	{
