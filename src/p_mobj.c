@@ -6696,14 +6696,14 @@ consvar_t cv_suddendeath = {"suddendeath", "Off", CV_NETVAR, CV_OnOff, NULL, 0, 
 
 static fixed_t P_Rand(void)
 {
-//#if RANDMAX > FRACUNIT/2
+#ifdef _WIN32
 	const unsigned d = (unsigned)rand()*FRACUNIT;
 	const fixed_t t = (fixed_t)(d/RAND_MAX); //RAND_MAX is 2147483647 under linux, eeeee.... vs 0x7FFF(32767) in Window's rand()
-//#else
-//	const fixed_t d = rand()*FRACUNIT;
-//	const fixed_t t = FixedDiv(d,RAND_MAX*FRACUNIT);
-//#endif
 	return (t-FRACUNIT/2)<<FRACBITS;
+#else
+	const unsigned d = (unsigned)rand()*FRACUNIT;
+	return (d-FRACUNIT/2);
+#endif
 }
 
 static boolean P_ObjectInWater(sector_t *sector, fixed_t z)
