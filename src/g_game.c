@@ -272,7 +272,27 @@ static void Analog2_OnChange(void);
 
 static CV_PossibleValue_t crosshair_cons_t[] = {{0, "Off"}, {1, "Cross"}, {2, "Angle"}, {3, "Point"}, {0, NULL}};
 static CV_PossibleValue_t joyaxis_cons_t[] = {{0, "None"},
-#ifdef WMINPUT
+#ifdef _WII
+{1, "LStick.X"}, {2, "LStick.Y"}, {-1, "LStick.X-"}, {-2, "LStick.Y-"},
+#if JOYAXISSET > 1
+{3, "RStick.X"}, {4, "RStick.Y"}, {-3, "RStick.X-"}, {-4, "RStick.Y-"},
+#endif
+#if JOYAXISSET > 2
+{5, "RTrigger"}, {6, "LTrigger"}, {-5, "RTrigger-"}, {-6, "LTrigger-"},
+#endif
+#if JOYAXISSET > 3
+{7, "Pitch"}, {8, "Roll"}, {-7, "Pitch-"}, {-8, "Roll-"},
+#endif
+#if JOYAXISSET > 3
+{7, "Pitch"}, {8, "Roll"}, {-7, "Pitch-"}, {-8, "Roll-"},
+#endif
+#if JOYAXISSET > 4
+{7, "Yaw"}, {8, "Dummy"}, {-7, "Yaw-"}, {-8, "Dummy-"},
+#endif
+#if JOYAXISSET > 4
+{9, "LAnalog"}, {10, "RAnalog"}, {-9, "LAnalog-"}, {-10, "RAnalog-"},
+#endif
+#elif defined (WMINPUT)
 {1, "LStick.X"}, {2, "LStick.Y"}, {-1, "LStick.X-"}, {-2, "LStick.Y-"},
 #if JOYAXISSET > 1
 {3, "RStick.X"}, {4, "RStick.Y"}, {-3, "RStick.X-"}, {-4, "RStick.Y-"},
@@ -304,7 +324,7 @@ static CV_PossibleValue_t joyaxis_cons_t[] = {{0, "None"},
 #endif
 #endif
  {0, NULL}};
-#if JOYAXISSET > 4
+#if JOYAXISSET > 5
 "More Axis Sets"
 #endif
 
@@ -338,7 +358,14 @@ typedef enum
 	AXISFIRENORMAL,
 } axis_input_e;
 
-#ifdef WMINPUT
+#ifdef _WII
+consvar_t cv_turnaxis = {"joyaxis_turn", "LStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_moveaxis = {"joyaxis_move", "LStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_sideaxis = {"joyaxis_side", "RStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_lookaxis = {"joyaxis_look", "RStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_fireaxis = {"joyaxis_fire", "LAnalog", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_firenaxis = {"joyaxis_firenormal", "RAnalog", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+#elif defined  (WMINPUT)
 consvar_t cv_turnaxis = {"joyaxis_turn", "LStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_moveaxis = {"joyaxis_move", "LStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_sideaxis = {"joyaxis_side", "RStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -373,7 +400,14 @@ consvar_t cv_fireaxis = {"joyaxis_fire", "None", CV_SAVE, joyaxis_cons_t, NULL, 
 consvar_t cv_firenaxis = {"joyaxis_firenormal", "None", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
 
-#ifdef WMINPUT
+#ifdef _WII
+consvar_t cv_turnaxis2 = {"joyaxis2_turn", "LStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_moveaxis2 = {"joyaxis2_move", "LStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_sideaxis2 = {"joyaxis2_side", "RStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_lookaxis2 = {"joyaxis2_look", "RStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_fireaxis2 = {"joyaxis2_fire", "LAnalog", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_firenaxis2 = {"joyaxis2_firenormal", "RAnalog", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+#elif defined  (WMINPUT)
 consvar_t cv_turnaxis2 = {"joyaxis2_turn", "LStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_moveaxis2 = {"joyaxis2_move", "LStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_sideaxis2 = {"joyaxis2_side", "RStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};

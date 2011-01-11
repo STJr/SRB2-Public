@@ -693,10 +693,11 @@ endif
 ifdef WII
 $(BIN)/$(DOLNAME): $(OBJS) $(BIN)/$(BINNAME) $(BIN)/$(EXENAME)
 	@echo Linking $(DOLNAME)...
-	@elf2dol $(BIN)/$(EXENAME) $(BIN)/$(DOLNAME)
-run:
-	@wiiload $(BIN)/$(DOLNAME)
+	@$(DEVKITPPC)/bin/elf2dol $(BIN)/$(EXENAME) $(BIN)/$(DOLNAME)
 endif
+
+run:
+	@$(DEVKITPPC)/bin/wiiload $(BIN)/$(DOLNAME)
 
 ifdef MINGW
 ifndef SDL

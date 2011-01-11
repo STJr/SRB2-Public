@@ -22,7 +22,7 @@
 // for debugging shopuld be replaced by nothing later.. so debug is inactive
 #define LOG(x) CONS_Printf(x)
 
-#ifdef WII
+#ifdef _WII
 void CON_InitWii(void);
 #else
 void CON_Init(void);

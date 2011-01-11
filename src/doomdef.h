@@ -75,7 +75,7 @@
 #include <io.h>
 #endif
 
-#ifdef WII
+#ifdef _WII
 #include <gccore.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -142,7 +142,7 @@ extern FILE *logstream;
 #define PUSHACCEL (2*FRACUNIT) // Acceleration for MF2_SLIDEPUSH items.
 
 // Name of local directory for config files and savegames
-#if !defined(_arch_dreamcast) && !defined(_WIN32_WCE) && !defined(GP2X) && !defined(WII)
+#if !defined(_arch_dreamcast) && !defined(_WIN32_WCE) && !defined(GP2X) && !defined(_WII)
 #if (((defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)) && !defined (__APPLE__)
 #define DEFAULTDIR ".srb2"
 #else

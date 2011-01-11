@@ -108,14 +108,22 @@
 #include "ogl_sdl.h"
 #endif
 
+#ifdef REMOTE_DEBUGGING
+#ifdef _WII
+#include <debug.h>
+#endif
+#endif
+
 #ifdef HAVE_FILTER
 #define FILTERS
 #include "filter/filters.h"
 #endif
 
 // maximum number of windowed modes (see windowedModes[][])
-#if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X) || defined (WII)
+#if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
 #define MAXWINMODES (1)
+#elif defined (WII)
+#define MAXWINMODES (8)
 #else
 #define MAXWINMODES (27)
 #endif
@@ -190,7 +198,8 @@ static       SDL_bool    windownnow  = SDL_FALSE;
 // windowed video modes from which to choose from.
 static INT32 windowedModes[MAXWINMODES][2] =
 {
-#if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X) || defined (WII))
+#if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X))
+#ifndef WII
 	{1920,1200}, // 1.60,6.00
 	{1680,1050}, // 1.60,5.25
 	{1600,1200}, // 1.33,5.00
@@ -210,6 +219,7 @@ static INT32 windowedModes[MAXWINMODES][2] =
 	{ 960, 600}, // 1.60,3.00
 	{ 800, 600}, // 1.33,2.50
 	{ 800, 500}, // 1.60,2.50
+#endif
 	{ 640, 480}, // 1.33,2.00
 	{ 640, 400}, // 1.60,2.00
 	{ 576, 432}, // 1.33,1.80
@@ -228,7 +238,7 @@ static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 	if (bpp < 16)
 		bpp = 16; // 256 mode poo
 #endif
-#ifdef WII
+#ifdef _WII
 	bpp = 16; // 8-bit mode poo
 #endif
 #ifdef DC
@@ -250,7 +260,7 @@ static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 #endif
 	if (SDLVD && strncasecmp(SDLVD,"glSDL",6) == 0) //for glSDL videodriver
 		vidSurface = SDL_SetVideoMode(width, height,0,SDL_DOUBLEBUF);
-#ifdef WII // don't want it to use HWSURFACE, so make it first here
+#ifdef _WII // don't want it to use HWSURFACE, so make it first here
 	else if (SDL_VideoModeOK(width, height, bpp, flags|SDL_SWSURFACE|SDL_DOUBLEBUF) >= bpp) // SDL Wii uses double buffering
 		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_SWSURFACE|SDL_DOUBLEBUF);
 #endif
@@ -1953,6 +1963,11 @@ void I_StartupGraphics(void)
 			return;
 		}
 	}
+#ifdef REMOTE_DEBUGGING
+#ifdef _WII
+	_break(); // break for debugger
+#endif
+#endif
 	{
 		char vd[100]; //stack space for video name
 		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
@@ -2050,8 +2065,13 @@ void I_StartupGraphics(void)
 #endif
 	if (render_soft == rendermode)
 	{
+#ifdef WII
+		vid.width = 640;
+		vid.height = 480;
+#else
 		vid.width = BASEVIDWIDTH;
 		vid.height = BASEVIDHEIGHT;
+#endif
 		SDLSetMode(vid.width, vid.height, BitsPerPixel, surfaceFlagsW);
 		if (!vidSurface)
 		{

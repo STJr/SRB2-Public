@@ -38,11 +38,6 @@ extern boolean moviemode;
 #define CONFIGFILENAME "config.cfg"
 #endif
 
-// DevkitPPC has no access function, make our own
-#ifdef WII
-int access(const char *path, int amode);
-#endif
-
 INT32 M_MapNumber(char first, char second);
 
 boolean FIL_WriteFile(char const *name, const void *source, size_t length);

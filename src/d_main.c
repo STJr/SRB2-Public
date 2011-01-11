@@ -1154,7 +1154,7 @@ void D_SRB2Main(void)
 
 	COM_Init();
 	// libogc has a CON_Init function, we must rename SRB2's CON_Init in WII/libogc
-#ifndef WII
+#ifndef _WII
 	CON_Init();
 #else
 	CON_InitWii();
@@ -1374,7 +1374,7 @@ const char *D_Home(void)
 		userhome = M_GetNextParm();
 	else
 	{
-#ifdef GP2X
+#if defined (GP2X)
 		usehome = false; //let use the CWD
 		return NULL;
 #elif !((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__APPLE__) && !defined(_WIN32_WCE)

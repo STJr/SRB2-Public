@@ -39,14 +39,6 @@
 #include "m_argv.h"
 #include "i_system.h"
 
-#ifdef _WIN32_WCE
-#include "sdl/SRB2CE/cehelp.h"
-#endif
-
-#ifdef _XBOX
-#include "sdl/SRB2XBOX/xboxhelp.h"
-#endif
-
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
 #endif
@@ -58,7 +50,7 @@
 #ifdef HAVE_PNG
 
 #ifndef _MSC_VER
-#ifndef WII
+#ifndef _WII
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
@@ -167,19 +159,19 @@ INT32 M_MapNumber(char first, char second)
 //                         FILE INPUT / OUTPUT
 // ==========================================================================
 
-// DevkitPPC has no access function, make our own
-#ifdef WII
+// some libcs has no access function, make our own
+#if defined (_WIN32_WCE) || defined (_XBOX) || defined (_WII)
 int access(const char *path, int amode)
 {
-	int accesshandle = 1;
+	int accesshandle = -1;
 	FILE *handle = NULL;
-	if (amode == 6)
+	if (amode == 6) // W_OK|R_OK
 		handle = fopen(path, "r+");
-	else if (amode == 4)
+	else if (amode == 4) // R_OK
 		handle = fopen(path, "r");
-	else if (amode == 2)
+	else if (amode == 2) // W_OK
 		handle = fopen(path, "a+");
-	else if (amode == 0)
+	else if (amode == 0) //F_OK
 		handle = fopen(path, "rb");
 	if (handle)
 	{
@@ -273,7 +265,7 @@ size_t FIL_ReadFile(char const *name, UINT8 **buffer)
   */
 boolean FIL_FileExists(char const *name)
 {
-	return access(name,0)+1;
+	return access(name,0)+1; //F_OK
 }
 
 
@@ -284,7 +276,7 @@ boolean FIL_FileExists(char const *name)
   */
 boolean FIL_WriteFileOK(char const *name)
 {
-	return access(name,2)+1;
+	return access(name,2)+1; //W_OK
 }
 
 
@@ -295,7 +287,7 @@ boolean FIL_WriteFileOK(char const *name)
   */
 boolean FIL_ReadFileOK(char const *name)
 {
-	return access(name,4)+1;
+	return access(name,4)+1; //R_OK
 }
 
 /** Check if the filename OK to read/write
@@ -305,7 +297,7 @@ boolean FIL_ReadFileOK(char const *name)
   */
 boolean FIL_FileOK(char const *name)
 {
-	return access(name,6)+1;
+	return access(name,6)+1; //R_OK|W_OK
 }
 
 

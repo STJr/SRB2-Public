@@ -156,7 +156,7 @@ typedef long ssize_t;
 	#endif
 #endif //macintosh
 
-#if defined (PC_DOS) || defined (_WIN32) || defined (WII) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__)
+#if defined (PC_DOS) || defined (_WIN32) || defined (_WII) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__)
 #define HAVE_DOSSTR_FUNCS
 #endif
 
@@ -270,7 +270,7 @@ typedef UINT32 tic_t;
 
 #if defined (_WIN32)
 #define PRIdS "Iu"
-#elif defined (_PSP) || defined (_arch_dreamcast) || defined (DJGPP)
+#elif defined (_PSP) || defined (_arch_dreamcast) || defined (DJGPP) || defined (_WII)
 #define PRIdS "u"
 #else
 #define PRIdS "zu"

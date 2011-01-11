@@ -27,6 +27,17 @@
 #include <unistd.h>
 #endif
 
+#ifdef _WII
+#include <limits.h>
+#ifdef REMOTE_DEBUGGING
+#include <debug.h>
+#endif
+static char wiicwd[PATH_MAX] = "sd:/";
+static char localip[16] = {0};
+static char gateway[16] = {0};
+static char netmask[16] = {0};
+#endif
+
 #ifdef SDL
 
 #ifdef SDLMAIN
@@ -92,23 +103,36 @@ int main(int argc, char **argv)
 #endif
 
 // init Wii-specific stuff
-#ifdef WII
+#ifdef _WII
 	// Start network
-	char localip[16] = {0};
-	char gateway[16] = {0};
-	char netmask[16] = {0};
 	if_config(localip, netmask, gateway, TRUE);
 
+#ifdef REMOTE_DEBUGGING
+#if REMOTE_DEBUGGING == 0
+	DEBUG_Init(GDBSTUB_DEVICE_TCP, GDBSTUB_DEF_TCPPORT); // Port 2828
+#elif REMOTE_DEBUGGING > 2
+	DEBUG_Init(GDBSTUB_DEVICE_TCP, REMOTE_DEBUGGING); // Custom Port
+#elif REMOTE_DEBUGGING < 0
+	DEBUG_Init(GDBSTUB_DEVICE_USB, GDBSTUB_DEF_CHANNEL); // Slot 1
+#else
+	DEBUG_Init(GDBSTUB_DEVICE_USB, REMOTE_DEBUGGING-1); // Custom Slot
+#endif
+#endif
 	// Start FAT filesystem
 	fatInitDefault();
 #endif
+
+	if (getcwd(wiicwd, PATH_MAX))
+		I_PutEnv(va("HOME=%ssrb2wii", wiicwd));
 
 	logdir = D_Home();
 
 #ifdef LOGMESSAGES
 #if defined(_WIN32_WCE) || defined(GP2X)
 	logstream = fopen(va("%s.log",argv[0]), "a");
-#elif defined(DEFAULTDIR)
+#elif defined (_WII)
+	logstream = fopen(va("%s/srb2log.txt",logdir), "a");
+#elif defined (DEFAULTDIR)
 	if (logdir)
 		logstream = fopen(va("%s/"DEFAULTDIR"/srb2log.txt",logdir), "a");
 	else

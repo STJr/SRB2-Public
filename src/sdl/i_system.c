@@ -93,7 +93,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #ifdef _PSP
 #include <pspiofilemgr.h>
 #else
-#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined(__HAIKU__))
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (__HAIKU__) && !defined (_WII))
 #if defined (__linux__)
 #include <sys/vfs.h>
 #else
@@ -110,7 +110,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #endif
 
-#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__))
+#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__) && !defined (_WII))
 #ifndef NOTERMIOS
 #include <termios.h>
 #include <sys/ioctl.h> // ioctl
@@ -148,9 +148,10 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION4 "/tmp/mnt/sd/SRB2"
 #define DEFAULTSEARCHPATH1 "/mnt/sd"
 #define DEFAULTSEARCHPATH2 "/tmp/mnt/sd"
-#elif defined (WII)
+#elif defined (_WII)
 #define NOCWD
 #define NOHOME
+#define NEED_SDL_GETENV
 #define DEFAULTWADLOCATION1 "sd:/srb2wii"
 #define DEFAULTWADLOCATION2 "usb:/srb2wii"
 #define DEFAULTSEARCHPATH1 "sd:/srb2wii"
@@ -2439,7 +2440,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 #if defined (_arch_dreamcast) || defined (_PSP)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#if defined (SOLARIS) || defined (__HAIKU__)
+#if defined (SOLARIS) || defined (__HAIKU__) || defined (_WII)
 	*freespace = INT32_MAX;
 	return;
 #else // Both Linux and BSD have this, apparently.
