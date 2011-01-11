@@ -487,9 +487,8 @@ endif
 
 #make a big srb2.s that is the disasm of the exe (dos only ?)
 asm:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -g $(OBJDIR)/i_main.o \
-	-o $(OBJDIR)/tmp.exe $(LIBS)
-	objdump  -d $(OBJDIR)/tmp.exe --no-show-raw-insn > srb2.s
+	$(CC) $(LDFLAGS) $(OBJS) -o $(OBJDIR)/tmp.exe $(LIBS)
+	$(OBJDUMP) -d $(OBJDIR)/tmp.exe --no-show-raw-insn > srb2.s
 	$(REMOVE) $(OBJDIR)/tmp.exe
 
 # executable
