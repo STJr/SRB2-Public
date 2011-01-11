@@ -120,10 +120,10 @@ int main(int argc, char **argv)
 #endif
 	// Start FAT filesystem
 	fatInitDefault();
-#endif
 
 	if (getcwd(wiicwd, PATH_MAX))
 		I_PutEnv(va("HOME=%ssrb2wii", wiicwd));
+#endif
 
 	logdir = D_Home();
 
