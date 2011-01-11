@@ -2897,7 +2897,7 @@ void A_ThrownRing(mobj_t *actor)
 
 		if (ring)
 		{
-			/* 
+			/*
 			P_SetTarget(&ring->target, actor);
 			ring->color = actor->color; //copy color
 			*/

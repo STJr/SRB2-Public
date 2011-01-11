@@ -7114,7 +7114,7 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 			P_ResetCamera(p, &camera2);
 	}
 
-	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't. 
+	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't.
 	P_SetScale(mobj, mobj->destscale);
 }
 

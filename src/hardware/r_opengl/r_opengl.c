@@ -457,7 +457,7 @@ void SetModelView(GLint w, GLint h)
 void SetStates(void)
 {
 	// Bind little white RGBA texture to ID NOTEXTURE_NUM.
-	/* 
+	/*
 	FUINT Data[8*8];
 	INT32 i;
 	*/

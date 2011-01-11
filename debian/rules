@@ -79,7 +79,7 @@ binary-arch:
 	$(INSTALL) $(DIR)/bin/Linux/Release/$(DBGNAME) $(DIR)/debian/tmp/$(DBGDIR)/$(PACKAGE)
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs 
+	dh_installchangelogs
 	dh_installdocs
 	# dh_installexamples
 	dh_install --sourcedir=$(DIR)/debian/tmp
@@ -107,7 +107,7 @@ binary-arch:
 
 binary: binary-indep binary-arch
 
-clean: 
+clean:
 	make -C $(DIR)/src $(MAKEARGS) clean cleandep
 	$(RM) $(DIR)/bin/Linux/Release/*
 	$(RM) $(DIR)/debian/$(PACKAGE)/*
