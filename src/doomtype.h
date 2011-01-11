@@ -283,9 +283,12 @@ typedef UINT32 tic_t;
 #if defined  (__USE_MINGW_ANSI_STDIO) && __USER_MINGW_ANSI_STDIO > 0
 #define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
-#else // !__USE_MINGW_ANSI_STDIO
+#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
 #define FUNCPRINTF __attribute__ ((format(ms_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(ms_printf, 1, 2),noreturn))
+#else
+#define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
+#define FUNCIERROR __attribute__ ((format(printf, 1, 2),noreturn))
 #endif
 #else
 #define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
