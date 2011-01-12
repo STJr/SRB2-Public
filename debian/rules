@@ -34,14 +34,14 @@ ROOT_GROUP := 0
 CROSS_COMPILE_BUILD    := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 CROSS_COMPILE_HOST     := $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 CROSS_COMPILE 	       := $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "$(CROSS_COMPILE_HOST)")
-ifdef CROSS_COMPILE
-CROSS_COMPILE	       := $(CROSS_COMPILE)-
-endif
 
 INSTALL = install -o $(ROOT_USER) -g $(ROOT_GROUP) -m 644
 MV	= mv
 RM	= rm -rf
-STRIP	= $(CROSS_COMPILE)strip --strip-unneeded
+STRIP   = strip --strip-unneedd
+ifdef CROSS_COMPILE
+STRIP	= $(CROSS_COMPILE)-strip --strip-unneeded
+endif
 DIR	= $(shell pwd)
 
 # don't like the head/tail parsing for $(PACKAGE) and $(DBGPKG) but nothing else will work properly with $(shell)
@@ -54,16 +54,19 @@ DBGNAME	= debug/$(EXENAME)
 PKGDIR	= usr/games/srb2
 DBGDIR	= usr/lib/debug/$(PKGDIR)
 PREFIX	= $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "PREFIX=$(CROSS_COMPILE)")
-OS	= $(shell if "`echo $(CROSS_COMPILE_HOST) | grep 'linux'`"; then test "`echo $(CROSS_COMPILE_HOST) | grep 'x86_64'`" && echo "LINUX64=1" || echo "LINUX=1"; else echo "FREEBSD=1"; fi)
-NONX86	= $(shell if ! test "`echo $(CROSS_COMPILE_HOST) | grep 'i[3-6]86'`"; then test "`echo $(CROSS_COMPILE_HOST) | grep 'x86_64'`" || echo "NONX86=1"; fi)
-ARCHTYPE = $(shell if ! test "`echo $(CROSS_COMPILE_HOST) | grep 'i[3-6]86'`"; then if ! test "`echo $(CROSS_COMPILE_HOST) | grep 'x86_64'`"; then test "`echo $(CROSS_COMPILE_HOST) | grep 'powerpc'`" && echo "ARCHTYPE=PPC" || echo "ARCHTYPE=`echo $(CROSS_COMPILE_HOST) | tr 'a-z' 'A-Z' | cut -f 1,1 -d'-'`"; fi; fi)
-MAKEARGS = $(OS) $(NONX86) $(ARCHTYPE) $(PREFIX) EXENAME=$(EXENAME) DBGNAME=$(DBGNAME)
+OS	= LINUX=1
+NONX86	= $(shell if ! test "`echo $(CROSS_COMPILE_HOST) | grep 'i[3-6]86'`"; then echo "NONX86=1"; fi)
+ARCHTYPE = ARCHNAME=$(CROSS_COMPILE_HOST)
+MAKEARGS = $(OS) $(NONX86) $(ARCHTYPE) $(PREFIX) EXENAME=$(EXENAME) DBGNAME=$(DBGNAME) SDL_PKGCONFIG=sdl PNG_PKGCONFIG=libpng
 MENUFILE1 = ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
 MENUFILE2 = title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
+PKG_CONFIG_PATH = /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
+BINDIR :=  $(DIR)/bin/Linux/$(CROSS_COMPILE_HOST)/Release
 
 build:
+	mkdir -p $(BINDIR)/debug
 	make -C $(DIR)/src $(MAKEARGS)
-	$(STRIP) $(DIR)/bin/Linux/Release/$(EXENAME)
+	$(STRIP) $(BINDIR)/$(EXENAME)
 
 binary-indep:
 	# currently does nothing, only here to satisfy lintian
@@ -75,8 +78,8 @@ binary-arch:
 	echo $(PKGDIR) > $(DIR)/debian/$(PACKAGE).install
 	echo $(DBGDIR) > $(DIR)/debian/$(DBGPKG).install
 	mkdir -p $(DIR)/debian/tmp/$(PKGDIR) $(DIR)/debian/tmp/$(DBGDIR)
-	$(INSTALL) $(DIR)/bin/Linux/Release/$(EXENAME) $(DIR)/debian/tmp/$(PKGDIR)/$(PACKAGE)
-	$(INSTALL) $(DIR)/bin/Linux/Release/$(DBGNAME) $(DIR)/debian/tmp/$(DBGDIR)/$(PACKAGE)
+	$(INSTALL) $(BINDIR)/$(EXENAME) $(DIR)/debian/tmp/$(PKGDIR)/$(PACKAGE)
+	$(INSTALL) $(BINDIR)/$(DBGNAME) $(DIR)/debian/tmp/$(DBGDIR)/$(PACKAGE)
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs
@@ -100,7 +103,7 @@ binary-arch:
 	# dh_perl
 	# dh_makeshlibs
 	dh_installdeb
-	dh_shlibdeps
+	-dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
@@ -108,8 +111,8 @@ binary-arch:
 binary: binary-indep binary-arch
 
 clean:
-	make -C $(DIR)/src $(MAKEARGS) clean cleandep
-	$(RM) $(DIR)/bin/Linux/Release/*
+	#make -C $(DIR)/src $(MAKEARGS) clean cleandep
+	$(RM) $(BINDIR)
 	$(RM) $(DIR)/debian/$(PACKAGE)/*
 	$(RM) $(DIR)/debian/$(DBGPKG)/*
 	$(RM) $(DIR)/debian/tmp/*
