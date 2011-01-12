@@ -113,8 +113,6 @@ fixed_t FixedDiv2(fixed_t a, fixed_t b)
 
 #ifndef NO_M
 
-#ifdef NEED_FIXED_VECTOR
-
 fixed_t FixedSqrt(fixed_t x)
 {
 	const float fx = FIXED_TO_FLOAT(x);
@@ -126,8 +124,6 @@ fixed_t FixedSqrt(fixed_t x)
 #endif
 	return FLOAT_TO_FIXED(fr);
 }
-
-#endif
 
 fixed_t FixedHypot(fixed_t x, fixed_t y)
 {

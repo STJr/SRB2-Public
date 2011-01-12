@@ -284,6 +284,8 @@ typedef struct
 	fixed_t x, y, z;
 } vector_t;
 
+#ifdef NEED_FIXED_VECTOR
+
 vector_t *FV_Load(vector_t *vec, fixed_t x, fixed_t y, fixed_t z);
 vector_t *FV_Copy(vector_t *a_o, const vector_t *a_i);
 vector_t *FV_AddEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
@@ -327,5 +329,7 @@ void FM_MultMatrixVec(const matrix_t *matrix, const vector_t *vec, vector_t *out
 void FM_MultMatrix(matrix_t *dest, const matrix_t *multme);
 void FM_Translate(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
 void FM_Scale(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
+
+#endif // defined NEED_FIXED_VECTOR
 
 #endif //m_fixed.h
