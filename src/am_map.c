@@ -38,6 +38,10 @@ static const UINT8 GRAYSRANGE = 16;
 static const UINT8 DBLACK     = 31;
 static const UINT8 DWHITE     = 0;
 
+#ifdef _NDS
+#undef BACKGROUND
+#endif
+
 // Automap colors
 #define BACKGROUND       DBLACK
 #define YOURCOLORS       DWHITE

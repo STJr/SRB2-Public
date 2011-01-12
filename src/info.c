@@ -2543,7 +2543,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		1,              // damage
 		0,              // activesound
 		MF_ENEMY|MF_SHOOTABLE|MF_NOGRAVITY|MF_MISSILE, // flags
-		ANG15           // raisestate: largest angle to turn in one tic (here, 15 degrees)
+		(statenum_t)ANG15// raisestate: largest angle to turn in one tic (here, 15 degrees)
 	},
 
 	{           // MT_SKIM

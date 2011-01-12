@@ -137,7 +137,9 @@
 /*****************************************************************************/
 /* nothing should be changed below */
 
+#ifndef _NDS
 typedef unsigned char u8;
+#endif
 
 typedef const u8 *LZF_STATE[1 << (HLOG)];
 

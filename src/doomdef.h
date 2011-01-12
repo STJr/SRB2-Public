@@ -75,6 +75,10 @@
 #include <io.h>
 #endif
 
+#ifdef _NDS
+#include <fat.h>
+#endif
+
 #ifdef _WII
 #include <gccore.h>
 #include <sys/types.h>

@@ -139,7 +139,7 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t DMulScale16(fixed_t a, fixed_t b, 
 		);
 		return ret;
 	}
-#elif defined (__GNUC__) && defined (__arm__) && !defined(NOASM) //ARMv4 ASM
+#elif defined (__GNUC__) && defined (__arm__) && !defined(__thumb__) && !defined(NOASM) //ARMv4 ASM
 	FUNCMATH FUNCINLINE static inline fixed_t FixedMul(fixed_t a, fixed_t b) // let abuse smull
 	{
 		fixed_t ret;

@@ -117,6 +117,12 @@ ifdef HAIKU
 SDL=1
 endif
 
+ifdef NDS
+# Include this before the main Makefile.cfg
+EXENAME?=srb2.elf
+include nds/Makefile.cfg
+endif
+
 include Makefile.cfg
 
 ifdef DUMMY
@@ -187,6 +193,18 @@ ifdef FREEBSD
 UNIXCOMMON=1
 endif
 
+ifdef NDS
+NOPNG=1
+NONET=1
+NOHW=1
+NOHS=1
+NOASM=1
+NOIPX=1
+NONX86=1
+OBJS=$(OBJDIR)/i_video.o
+LIBS+=-lm
+endif
+
 ifdef SDL
 include sdl/Makefile.cfg
 endif #ifdef SDL
@@ -213,6 +231,7 @@ ifndef ECHO
 	MKDIR:=@$(MKDIR)
 	MKISOFS:=@$(MKISOFS)
 	DD:=@$(DD)
+	NDSTOOL:=@$(NDSTOOL)
 endif
 
 ifdef NONET
@@ -455,6 +474,10 @@ all:	 pre-build $(BIN)/$(EXENAME)
 endif
 endif
 
+ifdef NDS
+all:	$(BIN)/$(EXENAME:.elf=.nds)
+endif
+
 ifdef DUMMY
 all:	$(BIN)/$(EXENAME)
 endif
@@ -687,6 +710,14 @@ $(OBJDIR)/xboxhelp.o: $(INTERFACE)/SRB2XBOX/xboxhelp.c
 
 $(BIN)/$(BINNAME): $(BIN)/$(EXENAME)
 	$(CXBE) -OUT:"$@" -DUMPINFO:"$(BIN)/SRB2XBOX.cxbe"  -TITLE:"Sonic Robo Blast 2" $<
+endif
+
+ifdef NDS
+$(BIN)/$(EXENAME:.elf=.nds): $(BIN)/$(EXENAME:.elf=.arm9)
+	$(NDSTOOL) -c $@ -9 $(BIN)/$(EXENAME:.elf=.arm9)
+
+%.arm9: %.elf
+	$(OBJCOPY) -O binary $< $@
 endif
 
 ifdef WII

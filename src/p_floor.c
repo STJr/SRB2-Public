@@ -2055,7 +2055,7 @@ void T_EachTimeThinker(levelspecthink_t *eachtime)
 	}
 
 	// # of players in this area has changed, so execute.
-	if ((affectPlayer = P_HavePlayersEnteredArea(playersInArea, oldPlayersInArea, eachtime->sourceline->flags & ML_BOUNCY)) != -1)
+	if ((affectPlayer = P_HavePlayersEnteredArea(playersInArea, oldPlayersInArea, (eachtime->sourceline->flags & ML_BOUNCY) == ML_BOUNCY)) != -1)
 	{
 		if (cv_debug)
 			CONS_Printf("Running each time executor with tag %d\n", eachtime->sourceline->tag);
@@ -2886,7 +2886,7 @@ INT32 EV_MarioBlock(sector_t *sec, sector_t *roversector, fixed_t topheight, mob
 
 	if (sec->touching_thinglist && (thing = sec->touching_thinglist->m_thing) != NULL)
 	{
-		const boolean itsamonitor = thing->flags & MF_MONITOR;
+		const boolean itsamonitor = (thing->flags & MF_MONITOR) == MF_MONITOR;
 		// things are touching this sector
 		if (itsamonitor && thing->threshold == 68)
 		{
