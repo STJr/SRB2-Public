@@ -362,7 +362,7 @@ endif
 
 # default EXENAME if all else fails
 EXENAME?=srb2
-DGBNAME?=$(EXENAME).debug
+DBGNAME?=$(EXENAME).debug
 
 # not too sophisticated dependency
 OBJS:=$(i_main_o) \
@@ -522,12 +522,12 @@ $(BIN)/$(EXENAME): $(OBJS)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
 ifndef WATTCP
-	$(OBJDUMP) -S -l $(BIN)/$(EXENAME) > $(BIN)/$(DGBNAME).txt
+	$(OBJDUMP) -S -l $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
 endif
-	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DGBNAME)
+	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DBGNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
 ifndef DJGPPDOS
-	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DGBNAME) $(BIN)/$(EXENAME)
+	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DBGNAME) $(BIN)/$(EXENAME)
 endif
 
 $(OBJDIR):
