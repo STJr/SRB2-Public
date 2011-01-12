@@ -113,6 +113,8 @@ fixed_t FixedDiv2(fixed_t a, fixed_t b)
 
 #ifndef NO_M
 
+#ifdef NEED_FIXED_VECTOR
+
 fixed_t FixedSqrt(fixed_t x)
 {
 	const float fx = FIXED_TO_FLOAT(x);
@@ -124,6 +126,8 @@ fixed_t FixedSqrt(fixed_t x)
 #endif
 	return FLOAT_TO_FIXED(fr);
 }
+
+#endif
 
 fixed_t FixedHypot(fixed_t x, fixed_t y)
 {
@@ -156,6 +160,9 @@ fixed_t FixedHypot(fixed_t x, fixed_t y)
 }
 
 #endif // no math libary?
+
+
+#ifdef NEED_FIXED_VECTOR
 
 vector_t *FV_Load(vector_t *vec, fixed_t x, fixed_t y, fixed_t z)
 {
@@ -743,3 +750,5 @@ void FM_Scale(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z)
 	FM_MultMatrix(dest, &scale);
 #undef M
 }
+
+#endif
