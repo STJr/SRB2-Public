@@ -62,6 +62,7 @@ MENUFILE1 = ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
 MENUFILE2 = title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
 PKG_CONFIG_PATH = /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
 BINDIR :=  $(DIR)/bin/Linux/$(CROSS_COMPILE_HOST)/Release
+LDFLAGS += "-Wl,-rpath=/usr/$(CROSS_COMPILE_HOST)/lib/"
 
 build:
 	mkdir -p $(BINDIR)/debug

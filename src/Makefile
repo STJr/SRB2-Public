@@ -498,7 +498,7 @@ endif
 
 clean:
 	$(REMOVE) *~ *.flc
-	$(REMVOE) comptime.h
+	$(REMOVE) comptime.h
 	$(REMOVE) $(OBJDIR)/*.o
 
 ifdef MINGW
