@@ -112,7 +112,7 @@ binary-arch:
 binary: binary-indep binary-arch
 
 clean:
-	#make -C $(DIR)/src $(MAKEARGS) clean cleandep
+	make -C $(DIR)/src $(MAKEARGS) clean cleandep
 	$(RM) $(BINDIR)
 	$(RM) $(DIR)/debian/$(PACKAGE)/*
 	$(RM) $(DIR)/debian/$(DBGPKG)/*
