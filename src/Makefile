@@ -741,11 +741,6 @@ run:
 	@$(DEVKITPPC)/bin/wiiload $(BIN)/$(DOLNAME)
 endif
 
-ifdef PS3
-run:
-	@$(PS3DEV)/ps3tools/ps3load $(BIN)/$(EXENAME)
-endif
-
 ifdef MINGW
 ifndef SDL
 ifndef NOHW
