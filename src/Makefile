@@ -486,6 +486,7 @@ endif
 
 cleandep:
 	$(REMOVE) $(OBJDIR)/depend.dep
+	$(REMOVE) comptime.h
 
 pre-build:
 ifdef NOVERSION
@@ -500,7 +501,6 @@ endif
 
 clean:
 	$(REMOVE) *~ *.flc
-	$(REMOVE) comptime.h
 	$(REMOVE) $(OBJDIR)/*.o
 
 ifdef MINGW
