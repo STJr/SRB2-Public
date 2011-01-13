@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 #ifdef _PS3
 	PadInfo padinfo;
 	PadData paddata;
-	
+
 	// init controllers
 	ioPadInit(7);
 #endif
