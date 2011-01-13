@@ -102,6 +102,15 @@ int main(int argc, char **argv)
 	myargv = argv; /// \todo pull out path to exe from this string
 #endif
 
+// init PS3-specific stuff
+#ifdef _PS3
+	PadInfo padinfo;
+	PadData paddata;
+	
+	// init controllers
+	ioPadInit(7);
+#endif
+
 // init Wii-specific stuff
 #ifdef _WII
 	// Start network

@@ -124,6 +124,8 @@
 #define MAXWINMODES (1)
 #elif defined (WII)
 #define MAXWINMODES (8)
+#elif defined (_PS3)
+#define MAXWINMODES (26)
 #else
 #define MAXWINMODES (27)
 #endif
@@ -172,7 +174,7 @@ static      SDL_Color    localPalette[256];
 static      SDL_Rect   **modeList = NULL;
 #ifdef DC
 static       Uint8       BitsPerPixel = 15;
-#elif defined (_WIN32_WCE) || defined (GP2X) || defined (PSP) || defined(WII)
+#elif defined (_WIN32_WCE) || defined (GP2X) || defined (PSP) || defined(WII)  || defined(_PS3)
 static       Uint8       BitsPerPixel = 16;
 #else
 static       Uint8       BitsPerPixel = 8;
@@ -200,7 +202,9 @@ static INT32 windowedModes[MAXWINMODES][2] =
 {
 #if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X))
 #ifndef WII
+#ifndef _PS3
 	{1920,1200}, // 1.60,6.00
+#endif
 	{1680,1050}, // 1.60,5.25
 	{1600,1200}, // 1.33,5.00
 	{1600,1000}, // 1.60,5.00
@@ -2065,7 +2069,7 @@ void I_StartupGraphics(void)
 #endif
 	if (render_soft == rendermode)
 	{
-#ifdef WII
+#if defined(WII) || defined(_PS3) // pretty sure PS3 only goes down to 640x480
 		vid.width = 640;
 		vid.height = 480;
 #else

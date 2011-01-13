@@ -169,6 +169,11 @@ NOHW=1
 NOPOSTPROCESSING=1
 endif
 
+ifdef PS3
+NONX86=1
+NOHW=1
+endif
+
 ifdef DJGPPDOS
 include djgppdos/Makefile.cfg
 endif
@@ -446,6 +451,10 @@ endif
 
 ifdef XBOX
 all:	 pre-build $(BIN)/$(BINNAME)
+endif
+
+ifdef PS3
+all:	 pre-build $(BIN)/$(PKGNAME)
 endif
 
 ifdef WII
@@ -727,10 +736,15 @@ ifdef WII
 $(BIN)/$(DOLNAME): $(OBJS) $(BIN)/$(BINNAME) $(BIN)/$(EXENAME)
 	@echo Linking $(DOLNAME)...
 	@$(DEVKITPPC)/bin/elf2dol $(BIN)/$(EXENAME) $(BIN)/$(DOLNAME)
-endif
 
 run:
 	@$(DEVKITPPC)/bin/wiiload $(BIN)/$(DOLNAME)
+endif
+
+ifdef PS3
+run:
+	@$(PS3DEV)/ps3tools/ps3load $(BIN)/$(EXENAME)
+endif
 
 ifdef MINGW
 ifndef SDL

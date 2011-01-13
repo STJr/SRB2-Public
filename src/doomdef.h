@@ -88,6 +88,17 @@
 #include <network.h>
 #endif
 
+#ifdef _PS3
+#include <sysutil/video.h>
+#include <io/pad.h>
+#include <psl1ght/lv2.h>
+#include <rsx/gcm.h>
+//#include <rsx/commands.h>
+//#include <rsx/nv40.h>
+//#include <rsx/reality.h>
+//#include <sysmodule/sysmodule.h>
+#endif
+
 #ifdef PC_DOS
 #include <conio.h>
 #endif
@@ -146,7 +157,7 @@ extern FILE *logstream;
 #define PUSHACCEL (2*FRACUNIT) // Acceleration for MF2_SLIDEPUSH items.
 
 // Name of local directory for config files and savegames
-#if !defined(_arch_dreamcast) && !defined(_WIN32_WCE) && !defined(GP2X) && !defined(_WII)
+#if !defined(_arch_dreamcast) && !defined(_WIN32_WCE) && !defined(GP2X) && !defined(_WII) && !defined(_PS3)
 #if (((defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)) && !defined (__APPLE__)
 #define DEFAULTDIR ".srb2"
 #else
