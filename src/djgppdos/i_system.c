@@ -785,7 +785,7 @@ static UINT16 ComPort[4]={0x3F8,0x2F8,0x3E8,0x2E8};
 //
 //  Installs the mouse2 handler.
 //
-void I_StartupMouse2()
+void I_StartupMouse2(void)
 {
 	tic_t i;
 	boolean  found;
@@ -1123,7 +1123,7 @@ void I_GetJoystick2Events(void)
 	}
 }
 
-void I_GetMouseEvents()
+void I_GetMouseEvents(void)
 {
 	//mouse movement
 	event_t event;
@@ -1479,7 +1479,7 @@ static _go32_dpmi_seginfo oldkeyinfo,newkeyinfo;
 //
 //  Removes the keyboard handler.
 //
-static inline void I_ShutdownKeyboard()
+static inline void I_ShutdownKeyboard(void)
 {
 	if ( !keyboard_started )
 		return;
@@ -1495,7 +1495,7 @@ static inline void I_ShutdownKeyboard()
 //
 //  Installs the keyboard handler.
 //
-void I_StartupKeyboard()
+void I_StartupKeyboard(void)
 {
 	if (keyboard_started)
 		return;
@@ -1667,7 +1667,7 @@ INT32 I_StartupSystem(void)
 //
 //  NOTE : Shutdown user funcs. are effectively called in reverse order.
 //
-void I_ShutdownSystem()
+void I_ShutdownSystem(void)
 {
 	int c;
 
@@ -1703,9 +1703,9 @@ char *I_GetUserName(void)
 	return username;
 }
 
-INT32 I_mkdir(const char *dirname, INT32 unixright)
+INT32 I_mkdir(const char *pdirname, INT32 unixright)
 {
-	return mkdir(dirname,unixright);
+	return mkdir(pdirname, unixright);
 }
 
 char * I_GetEnv(const char *name)

@@ -56,7 +56,7 @@ rendermode_t    rendermode=render_soft;
 //
 // I_OsPolling
 //
-void I_OsPolling()
+void I_OsPolling(void)
 {
 	I_GetEvent();
 	//i dont think i have to do anything else here
