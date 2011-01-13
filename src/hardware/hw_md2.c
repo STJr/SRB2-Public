@@ -18,6 +18,9 @@
 ///	Inspired from md2.c by Mete Ciragan (mete@swissquake.ch)
 
 
+#ifdef __GNUC__
+#include <unistd.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
