@@ -732,15 +732,6 @@ $(BIN)/$(EXENAME:.elf=.nds): $(BIN)/$(EXENAME:.elf=.arm9)
 	$(OBJCOPY) -O binary $< $@
 endif
 
-ifdef WII
-$(BIN)/$(DOLNAME): $(OBJS) $(BIN)/$(BINNAME) $(BIN)/$(EXENAME)
-	@echo Linking $(DOLNAME)...
-	@$(DEVKITPPC)/bin/elf2dol $(BIN)/$(EXENAME) $(BIN)/$(DOLNAME)
-
-run:
-	@$(DEVKITPPC)/bin/wiiload $(BIN)/$(DOLNAME)
-endif
-
 ifdef MINGW
 ifndef SDL
 ifndef NOHW
