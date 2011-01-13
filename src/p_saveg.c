@@ -841,7 +841,7 @@ static void SaveCeilingThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a floormove_t thinker
 //
-static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
+static void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const floormove_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -862,7 +862,7 @@ static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a lightflash_t thinker
 //
-static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
+static void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightflash_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -876,7 +876,7 @@ static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a strobe_t thinker
 //
-static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
+static void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 {
 	const strobe_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -893,7 +893,7 @@ static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a glow_t thinker
 //
-static inline void SaveGlowThinker(const thinker_t *th, const UINT8 type)
+static void SaveGlowThinker(const thinker_t *th, const UINT8 type)
 {
 	const glow_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -2534,7 +2534,7 @@ static inline void P_FinishMobjs(void)
 	}
 }
 
-static inline void P_RelinkPointers(void)
+static void P_RelinkPointers(void)
 {
 	thinker_t *currentthinker;
 	mobj_t *mobj;
