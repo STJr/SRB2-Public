@@ -360,6 +360,8 @@ ifdef PROFILEMODE
 	CFLAGS:=-pg $(CFLAGS)
 endif
 
+OPTS+=$(CPPFLAGS)
+
 # default EXENAME if all else fails
 EXENAME?=srb2
 DBGNAME?=$(EXENAME).debug
