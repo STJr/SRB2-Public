@@ -49,7 +49,7 @@ endif
 DIR	= $(shell pwd)
 
 # FIXME: we SHOULD be able to have the main/dbg/data packages in any order we want, but not for now :(
-PKGNAMES = $(shell echo "`cat $(DIR)/debian/control | grep 'Package:' | sed -e 's/Package: //g' | tr '\n' ' '`\n")
+PKGNAMES = $(shell echo -e "`cat $(DIR)/debian/control | grep 'Package:' | sed -e 's/Package: //g' | tr '\n' ' '`\n")
 PACKAGE = $(shell echo $(PKGNAMES) | awk '{ print $1 }')
 DBGPKG	= $(shell echo $(PKGNAMES) | awk '{ print $2 }')
 DATAPKG	= $(shell echo $(PKGNAMES) | awk '{ print $3 }')
