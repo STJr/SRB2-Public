@@ -48,21 +48,16 @@ STRIP  	= strip $(STRIPARGS)
 endif
 DIR	= $(shell pwd)
 
-# FIXME: we SHOULD be able to have the main/dbg/data packages in any order we want, but not for now :(
-PKGNAMES = $(shell echo `cat $(DIR)/debian/control | grep 'Package:' | sed -e 's/Package: //g' | tr '\n' ' '`)
-PACKAGE = $(shell echo $(PKGNAMES) | awk '{ print $1 }')
-DBGPKG	= $(shell echo $(PKGNAMES) | awk '{ print $2 }')
-DATAPKG	= $(shell echo $(PKGNAMES) | awk '{ print $3 }')
+# FIXME: hate hate hate head/tail hack :(
+DBGPKG  = $(shell cat $(DIR)/debian/control | grep 'Package:' | head -n1 | sed -e 's/Package: //') 
+DBGPKG  = $(shell cat $(DIR)/debian/control | grep 'Package:' | tail -n1 | sed -e 's/Package: //') 
 TITLE	= Sonic Robo Blast 2
 SECTION = Games/Action
 EXENAME = srb2
 DBGNAME	= debug/$(EXENAME)
-DATAFILES= drill.dta music.dta soar.dta zones.dta sonic.plr tails.plr knux.plr rings.wpn srb2.wad
 
 PKGDIR	= usr/games
-DATADIR	= usr/games/SRB2
 DBGDIR	= usr/lib/debug/$(PKGDIR)
-RESOURCEDIR = $(DIR)/bin/Resources
 PREFIX	= $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "PREFIX=$(CROSS_COMPILE)")
 OS	= LINUX=1
 NONX86	= $(shell test "`echo $(CROSS_COMPILE_HOST) | grep 'i[3-6]86'`" || echo "NONX86=1")
@@ -79,28 +74,14 @@ PKG_CONFIG_PATH = /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
 BINDIR :=  $(DIR)/bin/Linux/$(CROSS_COMPILE_HOST)/Release
 LDFLAGS += "-Wl,-rpath=/usr/$(CROSS_COMPILE_HOST)/lib/"
 
-WGET	= wget -P $(RESOURCEDIR) -c -nc
-
 build:
 	$(MKDIR) $(BINDIR)/debug
 	$(MAKE) -C $(DIR)/src $(MAKEARGS)
 	$(STRIP) $(BINDIR)/$(EXENAME)
 
-# This will need to be updated every time SRB2 official version is
 binary-indep:
-	$(MKDIR) $(DIR)/debian/tmp/$(PKGDIR)
-	# Copy data files to their install locations, and add data files to include-binaries
-	for file in $(DATAFILES); do \
-		$(WGET) http://alam.srb2.org/SRB2/2.0.6-Final/Resources/$$file; \
-		if test "$$file" = "srb2.wad"; then \
-			$(INSTALL) $(RESOURCEDIR)/$$file $(DIR)/debian/tmp/$(PKGDIR)/srb2.srb; \
-		else \
-			$(INSTALL) $(RESOURCEDIR)/$$file $(DIR)/debian/tmp/$(PKGDIR)/$$file; \
-		fi; \
-		echo $(RESOURCEDIR)/$$file >> $(DIR)/debian/source/include-binaries; \
-	done
-	# Generate install folder file
-	echo $(DATADIR) > $(DIR)/debian/$(DATAPKG).install
+	# only here to kill Lintian warning
+	echo "no need to do any arch-independent stuff"
 
 binary-arch:
 	$(MKDIR) $(DIR)/debian/tmp/$(PKGDIR) $(DIR)/debian/tmp/$(DBGDIR)
@@ -113,7 +94,7 @@ binary-arch:
 	echo $(PKGDIR) > $(DIR)/debian/$(PACKAGE).install
 	echo $(DBGDIR) > $(DIR)/debian/$(DBGPKG).install
 
-binary: binary-indep binary-arch
+binary: binary-arch
 	# Generate .desktop specifications
 	echo "`echo '$(MENUFILE1)\\'`" > $(DIR)/debian/menu
 	echo " `echo '$(MENUFILE2)'`" >> $(DIR)/debian/menu
