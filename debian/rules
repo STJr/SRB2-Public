@@ -49,7 +49,7 @@ endif
 DIR	= $(shell pwd)
 
 # FIXME: hate hate hate head/tail hack :(
-DBGPKG  = $(shell cat $(DIR)/debian/control | grep 'Package:' | head -n1 | sed -e 's/Package: //') 
+PACKAGE  = $(shell cat $(DIR)/debian/control | grep 'Package:' | head -n1 | sed -e 's/Package: //') 
 DBGPKG  = $(shell cat $(DIR)/debian/control | grep 'Package:' | tail -n1 | sed -e 's/Package: //') 
 TITLE	= Sonic Robo Blast 2
 SECTION = Games/Action
