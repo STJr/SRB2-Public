@@ -321,9 +321,9 @@ R_Draw2sMultiPatchColumn_8_ASM:
         and     eax,edx                 ;; eax &= heightmask
         movzx   eax,byte [esi + eax]    ;; eax = texel
         add     ebp,[dc_iscale]         ;; frac += fracstep
-        movzx   eax,byte [ebx+eax]      ;; Map through colormap
         cmp     al,TRANSPARENTPIXEL     ;; Is pixel transparent?
         je      .nextpowtwoeven         ;; If so, advance.
+        movzx   eax,byte [ebx+eax]      ;; Map through colormap
         mov	    [edi],al                ;; Write pixel
 .nextpowtwoeven:
                                         ;; dest += vid.width
@@ -335,9 +335,9 @@ R_Draw2sMultiPatchColumn_8_ASM:
         and     eax,edx                 ;; eax &= heightmask
         movzx   eax,byte [esi + eax]    ;; eax = texel
         add     ebp,[dc_iscale]         ;; frac += fracstep
-        movzx   eax,byte [ebx+eax]      ;; Map through colormap
         cmp     al,TRANSPARENTPIXEL     ;; Is pixel transparent?
         je      .nextpowtwoodd          ;; If so, advance.
+        movzx   eax,byte [ebx+eax]      ;; Map through colormap
         mov     [edi],al                ;; Write pixel
 .nextpowtwoodd:
                                         ;; dest += vid.width
@@ -370,9 +370,9 @@ R_Draw2sMultiPatchColumn_8_ASM:
         sar     eax,FRACBITS            ;; Integer part.
         mov     bl,[esi + eax]          ;; ebx = colormap + texel
         add     ebp,[dc_iscale]         ;; frac += fracstep
-        movzx   eax,byte [ebx]          ;; Map through colormap
-        cmp     al,TRANSPARENTPIXEL     ;; Is pixel transparent?
+        cmp     bl,TRANSPARENTPIXEL     ;; Is pixel transparent?
         je      .nextnonpowtwo          ;; If so, advance.
+        movzx   eax,byte [ebx]          ;; Map through colormap
         mov     [edi],al                ;; Write pixel
 .nextnonpowtwo:
                                         ;; dest += vid.width

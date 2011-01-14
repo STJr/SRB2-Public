@@ -370,9 +370,9 @@ R_Draw2sMultiPatchColumn_8_MMX:
 		sar			edx, FRACBITS
 		and			edx, ebp				;; edx &= heightmask
 		movzx		edx, byte [esi + edx]
-		movzx		edx, byte [ebx + edx]
 		cmp			dl, TRANSPARENTPIXEL
 		je			.nextmod2
+		movzx		edx, byte [ebx + edx]
 		mov			[edi], dl
 
 .nextmod2:
@@ -405,21 +405,20 @@ R_Draw2sMultiPatchColumn_8_MMX:
 		movd		eax, mm0				;; 3B 1u. Get first frac
 ;; IFETCH boundary
 		movzx		eax, byte [esi + eax]	;; 4B 1u. Texture map
-		movzx		eax, byte [ebx + eax]	;; 4B 1u. Colormap
-
 		punpckhdq	mm0, mm0				;; 3B 1(2)u. low dword = high dword
 		movd		edx, mm0				;; 3B 1u. Get second frac
 		cmp			al, TRANSPARENTPIXEL	;; 2B 1u.
-;; IFETCH boundary
 		je			.secondinpair			;; 2B 1u.
+;; IFETCH boundary
+		movzx		eax, byte [ebx + eax]	;; 4B 1u. Colormap
 		mov			[edi], al				;; 2B 1(2)u. First pixel
 
 .secondinpair:
 		movzx		edx, byte [esi + edx]	;; 4B 1u. Texture map
-		movzx		edx, byte [ebx + edx]	;; 4B 1u. Colormap
 		cmp			dl, TRANSPARENTPIXEL	;; 2B 1u.
 		je			.nextpair				;; 2B 1u.
 ;; IFETCH boundary
+		movzx		edx, byte [ebx + edx]	;; 4B 1u. Colormap
 		mov			[edi + 1*ebp], dl		;; 3B 1(2)u. Second pixel
 
 .nextpair:
