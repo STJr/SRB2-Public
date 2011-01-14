@@ -40,10 +40,12 @@ MAKE	= make
 INSTALL = install -o $(ROOT_USER) -g $(ROOT_GROUP) -m 644
 MV	= mv
 RM	= rm -rf
+STRIPARGS = --strip-unneeded
 ifdef CROSS_COMPILE
-STRIP	= $(CROSS_COMPILE)-
+STRIP	= $(CROSS_COMPILE)-strip $(STRIPARGS)
+else
+STRIP  	= strip $(STRIPARGS)
 endif
-STRIP+=strip --strip-unneeded
 DIR	= $(shell pwd)
 
 # FIXME: we SHOULD be able to have the main/dbg/data packages in any order we want, but not for now :(
@@ -68,7 +70,7 @@ ARCHTYPE = ARCHNAME=$(CROSS_COMPILE_HOST)
 MAKEARGS = $(OS) $(NONX86) $(ARCHTYPE) $(PREFIX) EXENAME=$(EXENAME) DBGNAME=$(DBGNAME) SDL_PKGCONFIG=sdl PNG_PKGCONFIG=libpng
 MENUFILE1 = ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
 MENUFILE2 = title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
-# FIXME pkg-config hacks
+# FIXME pkg-config dir hacks
 #ifdef CROSS_COMPILE
 PKG_CONFIG_PATH = /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
 #else
