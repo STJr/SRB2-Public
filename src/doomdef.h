@@ -89,13 +89,16 @@
 #endif
 
 #ifdef _PS3
+#include <malloc.h>
+#include <assert.h>
+#include <unistd.h>
 #include <sysutil/video.h>
 #include <io/pad.h>
 #include <psl1ght/lv2.h>
 #include <rsx/gcm.h>
+#include <rsx/reality.h>
 //#include <rsx/commands.h>
 //#include <rsx/nv40.h>
-//#include <rsx/reality.h>
 //#include <sysmodule/sysmodule.h>
 #endif
 
