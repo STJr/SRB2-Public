@@ -43,7 +43,7 @@ RM	= rm -rf
 ifdef CROSS_COMPILE
 STRIP	= $(CROSS_COMPILE)-
 endif
-STRIP  += strip --strip-unneeded
+STRIP+=strip --strip-unneeded
 DIR	= $(shell pwd)
 
 # FIXME: we SHOULD be able to have the main/dbg/data packages in any order we want, but not for now :(
