@@ -89,6 +89,7 @@ build:
 # This will need to be updated every time SRB2 official version is
 binary-indep:
 	$(MKDIR) $(DIR)/debian/tmp/$(PKGDIR)
+	# Copy data files to their install locations, and add data files to include-binaries
 	for file in $(DATAFILES); do \
 		$(WGET) http://alam.srb2.org/SRB2/2.0.6-Final/Resources/$(file); \
 		if test "$(file)" = "srb2.wad"; then \
@@ -96,7 +97,6 @@ binary-indep:
 		else \
 			$(INSTALL) $(RESOURCEDIR)/$(file) $(DIR)/debian/tmp/$(PKGDIR)/$(file); \
 		fi; \
-		# Add data files to include-binaries
 		echo $(RESOURCEDIR)/$(file) >> $(DIR)/debian/source/include-binaries; \
 	done
 	# Generate install folder file
