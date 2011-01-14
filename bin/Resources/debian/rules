@@ -30,18 +30,18 @@
 ROOT_USER  := 0
 ROOT_GROUP := 0
 
-MKDIR	= mkdir -p
-INSTALL = install -o $(ROOT_USER) -g $(ROOT_GROUP) -m 644
-MV	= mv
-RM	= rm -rf
-DIR	= $(shell pwd)
+MKDIR	:= mkdir -p
+INSTALL := install -o $(ROOT_USER) -g $(ROOT_GROUP) -m 644
+MV	:= mv
+RM	:= rm -rf
+DIR	:= $(shell pwd)
 
-PACKAGE = $(shell cat $(DIR)/debian/control | grep 'Package:' | sed -e 's/Package: //g')
-DATAFILES= drill.dta music.dta soar.dta zones.dta sonic.plr tails.plr knux.plr rings.wpn srb2.wad
+PACKAGE := $(shell cat $(DIR)/debian/control | grep 'Package:' | sed -e 's/Package: //g')
+DATAFILES := drill.dta music.dta soar.dta zones.dta sonic.plr tails.plr knux.plr rings.wpn srb2.wad
 
-DATADIR	= usr/games/SRB2
-RESOURCEDIR = .
-WGET	= wget -P $(RESOURCEDIR) -c -nc
+DATADIR	:= usr/games/SRB2
+RESOURCEDIR := .
+WGET	:= wget -P $(RESOURCEDIR) -c -nc
 
 build:
 	$(MKDIR) $(DIR)/debian/tmp/$(DATADIR)
