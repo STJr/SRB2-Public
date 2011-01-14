@@ -91,13 +91,13 @@ binary-indep:
 	$(MKDIR) $(DIR)/debian/tmp/$(PKGDIR)
 	# Copy data files to their install locations, and add data files to include-binaries
 	for file in $(DATAFILES); do \
-		$(WGET) http://alam.srb2.org/SRB2/2.0.6-Final/Resources/$(file); \
-		if test "$(file)" = "srb2.wad"; then \
-			$(INSTALL) $(RESOURCEDIR)/$(file) $(DIR)/debian/tmp/$(PKGDIR)/srb2.srb; \
+		$(WGET) http://alam.srb2.org/SRB2/2.0.6-Final/Resources/$$file; \
+		if test "$$file" = "srb2.wad"; then \
+			$(INSTALL) $(RESOURCEDIR)/$$file $(DIR)/debian/tmp/$(PKGDIR)/srb2.srb; \
 		else \
-			$(INSTALL) $(RESOURCEDIR)/$(file) $(DIR)/debian/tmp/$(PKGDIR)/$(file); \
+			$(INSTALL) $(RESOURCEDIR)/$$file $(DIR)/debian/tmp/$(PKGDIR)/$$file; \
 		fi; \
-		echo $(RESOURCEDIR)/$(file) >> $(DIR)/debian/source/include-binaries; \
+		echo $(RESOURCEDIR)/$$file >> $(DIR)/debian/source/include-binaries; \
 	done
 	# Generate install folder file
 	echo $(DATADIR) > $(DIR)/debian/$(DATAPKG).install
