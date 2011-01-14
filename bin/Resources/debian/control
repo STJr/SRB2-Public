@@ -1,5 +1,13 @@
 # SRB2-data Debian package control file.
 
+Source: srb2-data
+Section: games
+Priority: extra
+Maintainer: Callum Dickinson <gcfreak_ag20@hotmail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: http://www.srb2.org
+
 Package: srb2-data
 Architecture: all
 Description: A cross-platform 3D Sonic fangame
