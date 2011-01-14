@@ -542,6 +542,9 @@ ifndef DJGPPDOS
 	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DBGNAME) $(BIN)/$(EXENAME)
 endif
 
+reobjdump:
+	$(OBJDUMP) -S -l $(BIN)/$(DBGNAME) > $(BIN)/$(DBGNAME).txt
+
 $(OBJDIR):
 	-$(MKDIR) $(OBJDIR)
 
