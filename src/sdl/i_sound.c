@@ -250,9 +250,9 @@ static inline void Snd_UnlockAudio(void) //Alam: Unlock audio data and reinstall
 
 FUNCMATH static Uint16 Snd_LowerRate(Uint16 sr)
 {
-	if (sr  < audio.freq) // already lowered rate?
+	if (sr <= audio.freq) // already lowered rate?
 		return sr; // good then
-	for (; sr >= audio.freq;) // not good?
+	for (;sr > audio.freq;) // not good?
 	{ // then let see...
 		if (sr % 2) // can we div by half?
 			return sr; // no, just use the currect rate 
