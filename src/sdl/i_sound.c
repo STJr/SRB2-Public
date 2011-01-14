@@ -248,14 +248,19 @@ static inline void Snd_UnlockAudio(void) //Alam: Unlock audio data and reinstall
 #endif
 }
 
-FUNCMATH static inline SDL_bool Snd_Convert(Uint16 sr)
+FUNCMATH static Uint16 Snd_LowerRate(Uint16 sr)
 {
-#if 1
-	(void)sr;
-	return SDL_FALSE;
-#else
-	return (sr > audio.freq) || (sr % 11025); // more samples then needed or odd samplerate
-#endif
+	if (sr  < audio.freq) // already lowered rate?
+		return sr; // good then
+	for (; sr >= audio.freq;) // not good?
+	{ // then let see...
+		if (sr % 2) // can we div by half?
+			return sr; // no, just use the currect rate 
+		sr /= 2; // we can? wonderful
+	} // let start over again
+	if (sr == audio.freq) // did we drop to the desired rate?
+		return sr; // perfect! but if not
+	return sr*2; // just keep it just above the output sample rate
 }
 
 #ifdef _MSC_VER
@@ -268,7 +273,7 @@ typedef struct
 	Uint16 header;     // 3?
 	Uint16 samplerate; // 11025+
 	Uint16 samples;    // number of samples
-	Uint16 dummy;     // 0
+	Uint16 dummy;      // 0
 	Uint8  data[0];    // data;
 } ATTRPACK dssfx_t;
 
@@ -284,7 +289,7 @@ typedef struct
 static void *getsfx(lumpnum_t sfxlump, size_t *len)
 {
 	dssfx_t *sfx, *paddedsfx;
-	Uint16 sr;
+	Uint16 sr , csr;
 	size_t size = *len;
 	SDL_AudioCVT sfxcvt;
 
@@ -292,8 +297,9 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 	if (sfx) W_ReadLump(sfxlump, (void *)sfx);
 	else return NULL;
 	sr = SHORT(sfx->samplerate);
+	csr = Snd_LowerRate(sr);
 
-	if (Snd_Convert(sr) && SDL_BuildAudioCVT(&sfxcvt, AUDIO_U8, 1, sr, AUDIO_U8, 1, audio.freq))
+	if (sr > csr && SDL_BuildAudioCVT(&sfxcvt, AUDIO_U8, 1, sr, AUDIO_U8, 1, csr))
 	{//Alam: Setup the AudioCVT for the SFX
 
 		sfxcvt.len = (INT32)size-8; //Alam: Chop off the header
@@ -312,9 +318,9 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 				M_Memcpy(paddedsfx+8, sfxcvt.buf, sfxcvt.len_cvt);
 				free(sfxcvt.buf);
 				M_Memcpy(paddedsfx,sfx,8);
-				paddedsfx->samplerate = SHORT((Uint16)audio.freq); // new freq
+				paddedsfx->samplerate = SHORT(csr); // new freq
 		}
-		else //Alam: the convert failed, not needed or i couldn't malloc the buf
+		else //Alam: the convert failed, not needed or I couldn't malloc the buf
 		{
 			if (sfxcvt.buf) free(sfxcvt.buf);
 			*len = size - 8;
@@ -1174,7 +1180,7 @@ void I_StartupSound(void)
 	{
 		audio.freq = atoi(M_GetNextParm());
 		if (!audio.freq) audio.freq = cv_samplerate.value;
-		audio.samples = (Uint16)(samplecount*(INT32)(audio.freq/22050)); //Alam: to keep it around the same XX ms
+		audio.samples = (Uint16)((samplecount/2)*(INT32)(audio.freq/11025)); //Alam: to keep it around the same XX ms
 		CONS_Printf (" requested frequency of %d hz\n", audio.freq);
 	}
 	else
