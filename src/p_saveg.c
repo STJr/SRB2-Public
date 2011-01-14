@@ -1699,7 +1699,7 @@ static void LoadFloormoveThinker(actionf_p1 thinker)
 //
 // Loads a lightflash_t from a save game
 //
-static inline void LoadLightflashThinker(actionf_p1 thinker)
+static void LoadLightflashThinker(actionf_p1 thinker)
 {
 	lightflash_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -2633,7 +2633,7 @@ static inline void P_NetArchiveSpecials(void)
 //
 // P_NetUnArchiveSpecials
 //
-static inline void P_NetUnArchiveSpecials(void)
+static void P_NetUnArchiveSpecials(void)
 {
 	size_t i;
 	INT32 j;
