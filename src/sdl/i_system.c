@@ -167,11 +167,11 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTSEARCHPATH1 "/dev_hdd0/SRB2PS3"
 #define DEFAULTSEARCHPATH2 "/dev_usb/SRB2PS3"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2"
-#define DEFAULTWADLOCATION2 "/usr/local/games/srb2"
-#define DEFAULTWADLOCATION3 "/usr/share/games/srb2"
-#define DEFAULTWADLOCATION4 "/usr/games/srb2"
-#define DEFAULTSEARCHPATH1 "/usr/local/games/"
+#define DEFAULTWADLOCATION1 "/usr/local/share/games/SRB2"
+#define DEFAULTWADLOCATION2 "/usr/local/games/SRB2"
+#define DEFAULTWADLOCATION3 "/usr/share/games/SRB2"
+#define DEFAULTWADLOCATION4 "/usr/games/SRB2"
+#define DEFAULTSEARCHPATH1 "/usr/local/games"
 #define DEFAULTSEARCHPATH2 "/usr/games"
 #define DEFAULTSEARCHPATH3 "/usr/local"
 #elif defined (_XBOX)
