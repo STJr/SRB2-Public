@@ -35,42 +35,39 @@ CROSS_COMPILE_BUILD    := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 CROSS_COMPILE_HOST     := $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 CROSS_COMPILE 	       := $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "$(CROSS_COMPILE_HOST)")
 
-MKDIR	:= mkdir -p
-MAKE	:= make
-INSTALL := install -o $(ROOT_USER) -g $(ROOT_GROUP) -m 644
-MV	:= mv
-RM	:= rm -rf
-STRIPARGS := --strip-unneeded
+MKDIR = mkdir -p
+MAKE = make
+INSTALL = install -o $(ROOT_USER) -g $(ROOT_GROUP) -m 644
+MV	= mv
+RM	= rm -rf
+STRIPARGS = --strip-unneeded
 ifdef CROSS_COMPILE
-STRIP	:= $(CROSS_COMPILE)-strip $(STRIPARGS)
+STRIP = $(CROSS_COMPILE_HOST)-strip $(STRIPARGS)
 else
-STRIP  	:= strip $(STRIPARGS)
+STRIP = strip $(STRIPARGS)
 endif
 DIR	:= $(shell pwd)
 
 # FIXME: hate hate hate head/tail hack :(
-PACKAGE  := $(shell cat $(DIR)/debian/control | grep 'Package:' | head -n1 | sed -e 's/Package: //') 
-DBGPKG  := $(shell cat $(DIR)/debian/control | grep 'Package:' | tail -n1 | sed -e 's/Package: //') 
-TITLE	:= Sonic Robo Blast 2
-SECTION := Games/Action
-EXENAME := srb2
-DBGNAME	:= debug/$(EXENAME)
+CONTROLF = $(DIR)/debian/control
+PACKAGE  = srb2
+DBGPKG   = $(PACKAGE)-dbg
+TITLE	= Sonic Robo Blast 2
+SECTION = Games/Action
+EXENAME = srb2
+DBGNAME	= debug/$(EXENAME)
 
-PKGDIR	:= usr/games
-DBGDIR	:= usr/lib/debug/$(PKGDIR)
-PREFIX	:= $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "PREFIX=$(CROSS_COMPILE)")
-OS	:= LINUX=1
-NONX86	:= $(shell test "`echo $(CROSS_COMPILE_HOST) | grep 'i[3-6]86'`" || echo "NONX86=1")
-ARCHTYPE := ARCHNAME=$(CROSS_COMPILE_HOST)
-MAKEARGS := $(OS) $(NONX86) $(ARCHTYPE) $(PREFIX) EXENAME=$(EXENAME) DBGNAME=$(DBGNAME) SDL_PKGCONFIG=sdl PNG_PKGCONFIG=libpng
-MENUFILE1 := ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
-MENUFILE2 := title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
+PKGDIR	= usr/games/SRB2
+DBGDIR	= usr/lib/debug/$(PKGDIR)
+PREFIX	= $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "PREFIX=$(CROSS_COMPILE_HOST)")
+OS	= LINUX=1
+NONX86	= $(shell test "`echo $(CROSS_COMPILE_HOST) | grep 'i[3-6]86'`" || echo "NONX86=1")
+ARCHTYPE = ARCHNAME=$(CROSS_COMPILE_HOST)
+MAKEARGS = $(OS) $(NONX86) $(ARCHTYPE) $(PREFIX) EXENAME=$(EXENAME) DBGNAME=$(DBGNAME) SDL_PKGCONFIG=sdl PNG_PKGCONFIG=libpng
+MENUFILE1 = ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
+MENUFILE2 = title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
 # FIXME pkg-config dir hacks
-#ifdef CROSS_COMPILE
-PKG_CONFIG_PATH := /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
-#else
-#PKG_CONFIG_PATH := /usr/lib/pkgconfig
-#endif
+export PKG_CONFIG_LIBDIR = /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
 BINDIR :=  $(DIR)/bin/Linux/$(CROSS_COMPILE_HOST)/Release
 LDFLAGS += "-Wl,-rpath=/usr/$(CROSS_COMPILE_HOST)/lib/"
 
