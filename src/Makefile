@@ -237,6 +237,7 @@ ifndef ECHO
 	MKISOFS:=@$(MKISOFS)
 	DD:=@$(DD)
 	NDSTOOL:=@$(NDSTOOL)
+	GZIP:=@$(GZIP)
 endif
 
 ifdef NONET
@@ -533,8 +534,10 @@ $(BIN)/$(EXENAME): $(OBJS)
 	-$(MKDIR) $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
-ifndef WATTCP
-	$(OBJDUMP) -S -l $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
+ifndef NOOBJDUMP
+	@echo Dumping debugging info
+	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || -$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
 endif
 	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DBGNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
@@ -543,7 +546,9 @@ ifndef DJGPPDOS
 endif
 
 reobjdump:
-	$(OBJDUMP) -S -l $(BIN)/$(DBGNAME) > $(BIN)/$(DBGNAME).txt
+	@echo Redumping debugging info
+	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(DBGNAME) > $(BIN)/$(DBGNAME).txt
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || -$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
 
 $(OBJDIR):
 	-$(MKDIR) $(OBJDIR)
