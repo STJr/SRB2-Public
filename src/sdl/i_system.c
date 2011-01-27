@@ -81,6 +81,10 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 
 #include "SDL.h"
 
+#ifdef HAVE_TTF
+#include "i_ttf.h"
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(default : 4214 4244)
 #endif
@@ -162,9 +166,9 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #elif defined (_PS3)
 #define NOCWD
 #define NOHOME
-#define DEFAULTWADLOCATION1 "/dev_hdd0/SRB2PS3"
+#define DEFAULTWADLOCATION1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
 #define DEFAULTWADLOCATION2 "/dev_usb/SRB2PS3"
-#define DEFAULTSEARCHPATH1 "/dev_hdd0/SRB2PS3"
+#define DEFAULTSEARCHPATH1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
 #define DEFAULTSEARCHPATH2 "/dev_usb/SRB2PS3"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #define DEFAULTWADLOCATION1 "/usr/local/share/games/SRB2"
@@ -744,6 +748,11 @@ void I_OutputMsg(const char *fmt, ...)
 	va_start(argptr,fmt);
 	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
+
+#ifdef HAVE_TTF
+	if (TTF_WasInit()) I_TTFDrawText(currentfont, solid, DEFAULTFONTFGR, DEFAULTFONTFGG, DEFAULTFONTFGB,  DEFAULTFONTFGA,
+	DEFAULTFONTBGR, DEFAULTFONTBGG, DEFAULTFONTBGB, DEFAULTFONTBGA, txt);
+#endif
 
 #if defined (_WIN32) && !defined (_XBOX)
 	OutputDebugStringA(txt);

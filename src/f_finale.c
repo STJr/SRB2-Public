@@ -1414,7 +1414,7 @@ void F_GameEvaluationDrawer(void)
 
 					drawchaosemblem = true;
 				}
-				grade |= 2; // Now you can access Mario!
+				grade |= 2;
 			}
 
 			for (i = 0; i < MAXEMBLEMS; i++)

@@ -40,6 +40,11 @@ static char netmask[16] = {0};
 
 #ifdef SDL
 
+#ifdef HAVE_TTF
+#include "SDL.h"
+#include "i_ttf.h"
+#endif
+
 #ifdef SDLMAIN
 #include "SDL_main.h"
 #elif defined(FORCESDLMAIN)
@@ -102,78 +107,19 @@ int main(int argc, char **argv)
 	myargv = argv; /// \todo pull out path to exe from this string
 #endif
 
-// init PS3-specific stuff
+#ifdef HAVE_TTF
 #ifdef _PS3
-	// init_screen function, copied from PSL1GHT samples.
-	// TODO: Obviously it will be slimmed down to only enough of the init we need to get text to show,
-	// but we need to know this works.
+	// apparently there is a bug in SDL_PSL1GHT which needs this to be set to work around
+	SDL_setenv("SDL_VIDEODRIVER", "psl1ght", 1);
+	I_StartupTTF(FONTPOINTSIZE, SDL_INIT_VIDEO, SDL_SWSURFACE|SDL_DOUBLEBUF);
+#elif defined(_WIN32)
+	I_StartupTTF(FONTPOINTSIZE, SDL_INIT_VIDEO|SDL_INIT_AUDIO, SDL_SWSURFACE);
+#else
+	I_StartupTTF(FONTPOINTSIZE, SDL_INIT_VIDEO, SDL_SWSURFACE);
+#endif
+#endif
 
-	gcmContextData *context; // Context to keep track of the RSX buffer.
-
-	VideoResolution res; // Screen Resolution
-
-	s32 *buffer[2]; // The buffer we will be drawing into.
-
-	void waitFlip()
-	{ // Block the PPU thread untill the previous flip operation has finished.
-		while(gcmGetFlipStatus() != 0)
-			usleep(200);
-		gcmResetFlipStatus();
-	}
-
-	void flip(s32 buffer)
-	{
-		assert(gcmSetFlip(context, buffer) == 0);
-		realityFlushBuffer(context);
-		gcmSetWaitFlip(context); // Prevent the RSX from continuing until the flip has finished.
-	}
-
-	// Allocate a 1Mb buffer, alligned to a 1Mb boundary to be our shared IO memory with the RSX.
-	void *host_addr = memalign(1024*1024, 1024*1024);
-	assert(host_addr != NULL);
-
-	// Initilise Reality, which sets up the command buffer and shared IO memory
-	context = realityInit(0x10000, 1024*1024, host_addr);
-	assert(context != NULL);
-
-	VideoState state;
-	assert(videoGetState(0, 0, &state) == 0); // Get the state of the display
-	assert(state.state == 0); // Make sure display is enabled
-
-	// Get the current resolution
-	assert(videoGetResolution(state.displayMode.resolution, &res) == 0);
-
-	// Configure the buffer format to xRGB
-	VideoConfiguration vconfig;
-	memset(&vconfig, 0, sizeof(VideoConfiguration));
-	vconfig.resolution = state.displayMode.resolution;
-	vconfig.format = VIDEO_BUFFER_FORMAT_XRGB;
-	vconfig.pitch = res.width * 4;
-	vconfig.aspect=state.displayMode.aspect;
-
-	assert(videoConfigure(0, &vconfig, NULL, 0) == 0);
-	assert(videoGetState(0, 0, &state) == 0);
-
-	s32 buffer_size = 4 * res.width * res.height; // each pixel is 4 bytes
-	printf("buffers will be 0x%x bytes\n", buffer_size);
-
-	gcmSetFlipMode(GCM_FLIP_VSYNC); // Wait for VSYNC to flip
-
-	// Allocate two buffers for the RSX to draw to the screen (double buffering)
-	buffer[0] = rsxMemAlign(16, buffer_size);
-	buffer[1] = rsxMemAlign(16, buffer_size);
-	assert(buffer[0] != NULL && buffer[1] != NULL);
-
-	u32 offset[2];
-	assert(realityAddressToOffset(buffer[0], &offset[0]) == 0);
-	assert(realityAddressToOffset(buffer[1], &offset[1]) == 0);
-	// Setup the display buffers
-	assert(gcmSetDisplayBuffer(0, offset[0], res.width * 4, res.width, res.height) == 0);
-	assert(gcmSetDisplayBuffer(1, offset[1], res.width * 4, res.width, res.height) == 0);
-
-	gcmResetFlipStatus();
-	flip(1);
-
+#ifdef _PS3
 	// initialise controllers.
 	ioPadInit(7);
 #endif

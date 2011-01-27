@@ -19,7 +19,7 @@
 		0
 	</value>
 	<value name="PS3_SYSTEM_VER" type="string">
-		03.5500
+		0@@PS3_SYSTEM_VER@@00
 	</value>
 	<value name="RESOLUTION" type="integer">
 		63

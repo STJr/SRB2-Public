@@ -602,7 +602,7 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 		if (!dedicated) // to prevent dedicated server error.
 		{
 			// Keep players out of secret levels!
-			if (ss->tag == 4240 && !(grade & 2)) // Mario
+			if (ss->tag == 4240 && !(grade & 4)) // Mario
 				I_Error("You need to unlock this level first!\n");
 			else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
 				I_Error("You need to unlock this level first!\n");

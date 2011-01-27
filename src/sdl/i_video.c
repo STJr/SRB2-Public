@@ -53,6 +53,10 @@
 #define HAVE_SDLMETAKEYS
 #endif
 
+#ifdef HAVE_TTF
+#include "i_ttf.h"
+#endif
+
 #ifdef HAVE_IMAGE
 #include "SDL_image.h"
 #elseif !(defined (DC) || defined (_WIN32_WCE) || defined (PSP) || defined(GP2X))
@@ -1951,6 +1955,7 @@ void I_StartupGraphics(void)
 	conio_shutdown();
 #endif
 
+#if !defined(HAVE_TTF)
 #ifdef _WIN32 // Initialize Audio as well, otherwise Win32's DirectX can not use audio
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0)
 #else //SDL_OpenAudio will do SDL_InitSubSystem(SDL_INIT_AUDIO)
@@ -1972,10 +1977,11 @@ void I_StartupGraphics(void)
 	_break(); // break for debugger
 #endif
 #endif
+#endif
 	{
 		char vd[100]; //stack space for video name
 		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
-		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0 || strncasecmp(vd, "wii", 4) == 0)
+		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0 || strncasecmp(vd, "wii", 4) == 0 || strncasecmp(vd, "psl1ght", 8) == 0)
 			framebuffer = SDL_TRUE;
 	}
 	if (M_CheckParm("-software"))
@@ -1990,6 +1996,10 @@ void I_StartupGraphics(void)
 	vid.direct = NULL; // Maybe direct access?
 	vid.bpp = 1; // This is the game engine's Bpp
 	vid.WndParent = NULL; //For the window?
+
+#ifdef HAVE_TTF
+	I_ShutdownTTF();
+#endif
 
 	// Window title
 #ifdef _WIN32_WCE
@@ -2069,8 +2079,11 @@ void I_StartupGraphics(void)
 #endif
 	if (render_soft == rendermode)
 	{
-#if defined(WII) || defined(_PS3) // pretty sure PS3 only goes down to 640x480
+#if defined(_WII)
 		vid.width = 640;
+		vid.height = 480;
+#elif defined(_PS3)
+		vid.width = 720;
 		vid.height = 480;
 #else
 		vid.width = BASEVIDWIDTH;
