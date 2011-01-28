@@ -67,7 +67,7 @@ MENUFILE1 = ?package($(PACKAGE)):needs="X11" section="$(SECTION)"
 MENUFILE2 = title="$(TITLE)" command="/$(PKGDIR)/$(PACKAGE)"
 # FIXME pkg-config dir hacks
 export PKG_CONFIG_LIBDIR = /usr/$(CROSS_COMPILE_HOST)/lib/pkgconfig
-BINDIR :=  $(DIR)/bin/Linux/$(CROSS_COMPILE_HOST)/Release
+BINDIR :=  $(DIR)/bin/Linux/Release
 LDFLAGS += "-Wl,-rpath=/usr/$(CROSS_COMPILE_HOST)/lib/"
 
 build:
