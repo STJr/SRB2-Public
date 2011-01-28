@@ -57,7 +57,7 @@ SECTION = Games/Action
 EXENAME = srb2
 DBGNAME	= debug/$(EXENAME)
 
-PKGDIR	= usr/games/SRB2
+PKGDIR	= usr/games
 DBGDIR	= usr/lib/debug/$(PKGDIR)
 PREFIX	= $(shell test "$(CROSS_COMPILE_BUILD)" != "$(CROSS_COMPILE_HOST)" && echo "PREFIX=$(CROSS_COMPILE_HOST)")
 OS	= LINUX=1
