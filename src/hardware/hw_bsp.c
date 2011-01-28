@@ -652,9 +652,9 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *b
 				V_DrawString(x+50-V_StringWidth(s), y, V_YELLOWMAP, s);
 
 				V_DrawCenteredString(BASEVIDWIDTH/2, 40, V_YELLOWMAP, "OPENGL MODE IS INCOMPLETE");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "AND MAY CRASH YOUR");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 60, V_YELLOWMAP, "COMPUTER.");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 80, V_YELLOWMAP, "USE AT OWN RISK.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "AND MAY NOT DISPLAY");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 60, V_YELLOWMAP, "SOME SURFACES.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 80, V_YELLOWMAP, "USE AT SONIC'S RISK.");
 
 				I_UpdateNoVsync();
 			}

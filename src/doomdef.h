@@ -246,7 +246,7 @@ extern const char *compdate, *comptime, *comprevision;
                   // so if you really want to enable DELFILE, do it here.
 
 #ifdef SHUFFLE
-#define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.
+//#define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.
 #endif
 
 #endif // __DOOMDEF__
