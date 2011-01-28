@@ -1,5 +1,5 @@
-srb2 (2.0.6-1) maverick; urgency=low
+srb2 (2.0.6-5) maverick; urgency=high
 
-  * Initial release.
+  * Initial proper release..
 
- -- Callum Dickinson <gcfreak_ag20@hotmail.com>  Fri, 26 Nov 2010 18:25:31 +1300
+ -- Callum Dickinson <gcfreak_ag20@hotmail.com>  Sat, 29 Jan 2011 01:18:42 +1300
