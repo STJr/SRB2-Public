@@ -66,6 +66,9 @@
 #endif
 
  #include "png.h"
+ #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
+  #define NO_PNG_DEBUG // 1.4.0 move png_debug to pngpriv.h
+ #endif
  #ifdef PNG_WRITE_SUPPORTED
   #define USE_PNG // Only actually use PNG if write is supported.
   #if defined (PNG_WRITE_APNG_SUPPORTED) //|| !defined(PNG_STATIC)
@@ -872,7 +875,9 @@ static void M_PNGfix_acTL(png_structp png_ptr, png_infop png_info_ptr)
 #endif
 		apng_set_acTL(png_ptr, png_info_ptr, apng_frames, 0);
 
+#ifndef NO_PNG_DEBUG
 	png_debug(1, "in png_write_acTL\n");
+#endif
 
 	png_ptr->num_frames_to_write = apng_frames;
 
