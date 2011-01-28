@@ -110,7 +110,7 @@ static patch_t *ttspop5;
 static patch_t *ttspop6;
 static patch_t *ttspop7;
 
-static void F_SkyScroll(void);
+static void F_SkyScroll(INT32 scrollspeed);
 
 static boolean drawemblem = false, drawchaosemblem = false, runningprecutscene = false, precutresetplayer = false;
 
@@ -963,7 +963,7 @@ static void F_IntroTextWrite(void)
 		}
 		else
 		{
-			F_SkyScroll();
+			F_SkyScroll(80*4);
 			if (timetonext == 6)
 			{
 				stoptimer = finalecount;
@@ -1188,14 +1188,14 @@ static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
 //
 // F_SkyScroll
 //
-static void F_SkyScroll(void)
+static void F_SkyScroll(INT32 scrollspeed)
 {
 	INT32 scrolled, x, mx, fakedwidth;
 	patch_t *pat;
 
 	pat = W_CachePatchName("TITLESKY", PU_CACHE);
 
-	animtimer = ((finalecount*((gamestate == GS_INTRO || gamestate == GS_INTRO2) ? titlescrollspeed*4 : titlescrollspeed))/16) % SHORT(pat->width);
+	animtimer = ((finalecount*scrollspeed)/16) % SHORT(pat->width);
 
 	fakedwidth = vid.width / vid.dupx;
 
@@ -1241,7 +1241,7 @@ static void F_SkyScroll(void)
 void F_TitleScreenDrawer(void)
 {
 	// Draw that sky!
-	F_SkyScroll();
+	F_SkyScroll(titlescrollspeed);
 
 	V_DrawScaledPatch(30, 14, 0, ttwing);
 
