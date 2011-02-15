@@ -4992,17 +4992,17 @@ void P_SpawnSpecials(void)
 		}
 	}
 
-	if (mapheaderinfo[gamemap-1].weather == 2) // snow
+	if (mapheaderinfo[gamemap-1]->weather == 2) // snow
 		curWeather = PRECIP_SNOW;
-	else if (mapheaderinfo[gamemap-1].weather == 3) // rain
+	else if (mapheaderinfo[gamemap-1]->weather == 3) // rain
 		curWeather = PRECIP_RAIN;
-	else if (mapheaderinfo[gamemap-1].weather == 1) // storm
+	else if (mapheaderinfo[gamemap-1]->weather == 1) // storm
 		curWeather = PRECIP_STORM;
-	else if (mapheaderinfo[gamemap-1].weather == 5) // storm w/o rain
+	else if (mapheaderinfo[gamemap-1]->weather == 5) // storm w/o rain
 		curWeather = PRECIP_STORM_NORAIN;
-	else if (mapheaderinfo[gamemap-1].weather == 6) // storm w/o lightning
+	else if (mapheaderinfo[gamemap-1]->weather == 6) // storm w/o lightning
 		curWeather = PRECIP_STORM_NOSTRIKES;
-	else if (mapheaderinfo[gamemap-1].weather == 7) // heat wave
+	else if (mapheaderinfo[gamemap-1]->weather == 7) // heat wave
 		curWeather = PRECIP_HEATWAVE;
 	else
 		curWeather = PRECIP_NONE;

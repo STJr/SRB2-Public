@@ -2051,7 +2051,12 @@ static void Command_Map_f(void)
 		;
 	else if (multiplayer)
 	{
-		INT16 tol = mapheaderinfo[newmapnum-1].typeoflevel, tolflag = 0;
+		INT16 tol, tolflag = 0;
+
+		if(!mapheaderinfo[newmapnum-1])
+			P_AllocMapHeader((INT16)(newmapnum-1));
+
+		tol = mapheaderinfo[newmapnum-1]->typeoflevel;
 
 		switch (newgametype)
 		{
@@ -2082,7 +2087,7 @@ static void Command_Map_f(void)
 			return;
 		}
 	}
-	else if (!(mapheaderinfo[newmapnum-1].typeoflevel & TOL_SP))
+	else if (!(mapheaderinfo[newmapnum-1]->typeoflevel & TOL_SP))
 	{
 		CONS_Printf("%s", text[SPNOTSUPPORTED]);
 		return;
@@ -2197,7 +2202,7 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 
 	// why here? because, this is only called the first time a level is loaded.
 	// also, this needs to be done before the level is loaded, duh :p
-	mapmusic = mapheaderinfo[gamemap-1].musicslot;
+	mapmusic = mapheaderinfo[gamemap-1]->musicslot;
 
 	G_InitNew(ultimatemode, mapname, resetplayer, skipprecutscene);
 	if (demoplayback && !timingdemo)
@@ -4381,10 +4386,10 @@ static void Command_Showmap_f(void)
 {
 	if (gamestate == GS_LEVEL)
 	{
-		if (mapheaderinfo[gamemap-1].actnum)
-			CONS_Printf(text[SHOWMAP1], G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1].lvlttl, mapheaderinfo[gamemap-1].actnum);
+		if (mapheaderinfo[gamemap-1]->actnum)
+			CONS_Printf(text[SHOWMAP1], G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1]->lvlttl, mapheaderinfo[gamemap-1]->actnum);
 		else
-			CONS_Printf(text[SHOWMAP2], G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1].lvlttl);
+			CONS_Printf(text[SHOWMAP2], G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1]->lvlttl);
 	}
 	else
 		CONS_Printf("%s",text[MUSTBEINLEVEL]);
@@ -4489,7 +4494,7 @@ static void Command_Tunes_f(void)
 	}
 
 	if (!strcasecmp(COM_Argv(1), "default"))
-		tune = mapheaderinfo[gamemap-1].musicslot;
+		tune = mapheaderinfo[gamemap-1]->musicslot;
 
 	mapmusic = (INT16)(tune | 2048);
 

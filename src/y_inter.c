@@ -40,6 +40,7 @@
 #include "m_menu.h"
 #include "m_misc.h"
 #include "i_system.h"
+#include "p_setup.h"
 
 #include "r_local.h"
 #include "p_local.h"
@@ -231,7 +232,7 @@ void Y_IntermissionDrawer(void)
 		V_DrawLevelTitle(data.coop.passedx1, 49, 0, data.coop.passed1);
 		V_DrawLevelTitle(data.coop.passedx2, 49+V_LevelNameHeight(data.coop.passed2)+2, 0, data.coop.passed2);
 
-		if (mapheaderinfo[gamemap-1].actnum)
+		if (mapheaderinfo[gamemap-1]->actnum)
 			V_DrawScaledPatch(244, 57, 0, data.coop.ttlnum);
 
 		V_DrawScaledPatch(68, 84 + 3*SHORT(tallnum[0]->height)/2, 0, data.coop.ptimebonus);
@@ -870,6 +871,9 @@ void Y_StartIntermission(void)
 	// We couldn't display the intermission even if we wanted to.
 	if (dedicated) return;
 
+	if(!mapheaderinfo[prevmap])
+		P_AllocMapHeader(prevmap);
+
 	switch (inttype)
 	{
 		case int_coop: // coop or single player, normal level
@@ -929,8 +933,8 @@ void Y_StartIntermission(void)
 			}
 
 			// get act number
-			if (mapheaderinfo[prevmap].actnum)
-				data.coop.ttlnum = W_CachePatchName(va("TTL%.2d", mapheaderinfo[prevmap].actnum),
+			if (mapheaderinfo[prevmap]->actnum)
+				data.coop.ttlnum = W_CachePatchName(va("TTL%.2d", mapheaderinfo[prevmap]->actnum),
 					PU_STATIC);
 			else
 				data.coop.ttlnum = W_CachePatchName("TTL01", PU_STATIC);
@@ -940,9 +944,9 @@ void Y_StartIntermission(void)
 			bgpatch = W_CachePatchName("INTERSCR", PU_STATIC);
 
 			// grab an interscreen if appropriate
-			if (mapheaderinfo[gamemap-1].interscreen[0] != '#')
+			if (mapheaderinfo[gamemap-1]->interscreen[0] != '#')
 			{
-				interpic = W_CachePatchName(mapheaderinfo[gamemap-1].interscreen, PU_STATIC);
+				interpic = W_CachePatchName(mapheaderinfo[gamemap-1]->interscreen, PU_STATIC);
 				useinterpic = true;
 				usebuffer = false;
 			}
@@ -966,7 +970,7 @@ void Y_StartIntermission(void)
 					sizeof data.coop.passed1, "%s GOT",
 					skins[players[consoleplayer].skin].name);
 				data.coop.passed1[sizeof data.coop.passed1 - 1] = '\0';
-				if (mapheaderinfo[gamemap-1].actnum)
+				if (mapheaderinfo[gamemap-1]->actnum)
 				{
 					strcpy(data.coop.passed2, "THROUGH ACT");
 					data.coop.passedx1 = 62 + (176 - V_LevelNameWidth(data.coop.passed1))/2;
@@ -986,7 +990,7 @@ void Y_StartIntermission(void)
 			{
 				strcpy(data.coop.passed1, skins[players[consoleplayer].skin].name);
 				data.coop.passedx1 = 62 + (176 - V_LevelNameWidth(data.coop.passed1))/2;
-				if (mapheaderinfo[gamemap-1].actnum)
+				if (mapheaderinfo[gamemap-1]->actnum)
 				{
 					strcpy(data.coop.passed2, "PASSED ACT");
 					data.coop.passedx2 = 62 + (176 - V_LevelNameWidth(data.coop.passed2))/2;
@@ -1006,16 +1010,16 @@ void Y_StartIntermission(void)
 			Y_CalculateMatchWinners();
 
 			// set up the levelstring
-			if (mapheaderinfo[prevmap].actnum)
+			if (mapheaderinfo[prevmap]->actnum)
 				snprintf(data.match.levelstring,
 					sizeof data.match.levelstring,
 					"%.32s * %d *",
-					mapheaderinfo[prevmap].lvlttl, mapheaderinfo[prevmap].actnum);
+					mapheaderinfo[prevmap]->lvlttl, mapheaderinfo[prevmap]->actnum);
 			else
 				snprintf(data.match.levelstring,
 					sizeof data.match.levelstring,
 					"* %.32s *",
-					mapheaderinfo[prevmap].lvlttl);
+					mapheaderinfo[prevmap]->lvlttl);
 
 			data.match.levelstring[sizeof data.match.levelstring - 1] = '\0';
 
@@ -1035,16 +1039,16 @@ void Y_StartIntermission(void)
 			Y_CalculateTimeRaceWinners();
 
 			// set up the levelstring
-			if (mapheaderinfo[prevmap].actnum)
+			if (mapheaderinfo[prevmap]->actnum)
 				snprintf(data.match.levelstring,
 					sizeof data.match.levelstring,
 					"%.32s * %d *",
-					mapheaderinfo[prevmap].lvlttl, mapheaderinfo[prevmap].actnum);
+					mapheaderinfo[prevmap]->lvlttl, mapheaderinfo[prevmap]->actnum);
 			else
 				snprintf(data.match.levelstring,
 					sizeof data.match.levelstring,
 					"* %.32s *",
-					mapheaderinfo[prevmap].lvlttl);
+					mapheaderinfo[prevmap]->lvlttl);
 
 			data.match.levelstring[sizeof data.match.levelstring - 1] = '\0';
 
@@ -1064,16 +1068,16 @@ void Y_StartIntermission(void)
 			Y_CalculateMatchWinners();
 
 			// set up the levelstring
-			if (mapheaderinfo[prevmap].actnum)
+			if (mapheaderinfo[prevmap]->actnum)
 				snprintf(data.match.levelstring,
 					sizeof data.match.levelstring,
 					"%.32s * %d *",
-					mapheaderinfo[prevmap].lvlttl, mapheaderinfo[prevmap].actnum);
+					mapheaderinfo[prevmap]->lvlttl, mapheaderinfo[prevmap]->actnum);
 			else
 				snprintf(data.match.levelstring,
 					sizeof data.match.levelstring,
 					"* %.32s *",
-					mapheaderinfo[prevmap].lvlttl);
+					mapheaderinfo[prevmap]->lvlttl);
 
 			data.match.levelstring[sizeof data.match.levelstring - 1] = '\0';
 
@@ -1103,9 +1107,9 @@ void Y_StartIntermission(void)
 			bgtile = W_CachePatchName("SPECTILE", PU_STATIC);
 
 			// grab an interscreen if appropriate
-			if (mapheaderinfo[gamemap-1].interscreen[0] != '#')
+			if (mapheaderinfo[gamemap-1]->interscreen[0] != '#')
 			{
-				interpic = W_CachePatchName(mapheaderinfo[gamemap-1].interscreen, PU_STATIC);
+				interpic = W_CachePatchName(mapheaderinfo[gamemap-1]->interscreen, PU_STATIC);
 				useinterpic = true;
 			}
 			else
@@ -1138,16 +1142,16 @@ void Y_StartIntermission(void)
 			Y_CalculateRaceWinners();
 
 			// set up the levelstring
-			if (mapheaderinfo[prevmap].actnum)
+			if (mapheaderinfo[prevmap]->actnum)
 				snprintf(data.race.levelstring,
 					sizeof data.race.levelstring,
 					"%.32s * %d *",
-					mapheaderinfo[prevmap].lvlttl, mapheaderinfo[prevmap].actnum);
+					mapheaderinfo[prevmap]->lvlttl, mapheaderinfo[prevmap]->actnum);
 			else
 				snprintf(data.race.levelstring,
 					sizeof data.race.levelstring,
 					"* %.32s *",
-					mapheaderinfo[prevmap].lvlttl);
+					mapheaderinfo[prevmap]->lvlttl);
 
 			data.race.levelstring[sizeof data.race.levelstring - 1] = '\0';
 
@@ -1225,7 +1229,7 @@ static void Y_AwardCoopBonuses(void)
 			data.coop.total = 0;
 			data.coop.score = players[i].score;
 
-			if (sharedringtotal && sharedringtotal >= nummaprings && (!mapheaderinfo[gamemap-1].noperfectbns)) //perfectionist!
+			if (sharedringtotal && sharedringtotal >= nummaprings && (!mapheaderinfo[gamemap-1]->noperfectbns)) //perfectionist!
 			{
 				data.coop.perfbonus = 50000;
 				data.coop.gotperfbonus = true;
@@ -1244,7 +1248,7 @@ static void Y_AwardCoopBonuses(void)
 			players[i].score += (players[i].health-1) * 100; // ring bonus
 
 		//todo: more conditions where we shouldn't award a perfect bonus?
-		if (sharedringtotal && sharedringtotal >= nummaprings && (!mapheaderinfo[gamemap-1].noperfectbns))
+		if (sharedringtotal && sharedringtotal >= nummaprings && (!mapheaderinfo[gamemap-1]->noperfectbns))
 		{
 			players[i].score += 50000; //perfect bonus
 
@@ -1797,9 +1801,9 @@ static void Y_FollowIntermission(void)
 	}
 
 	// Start a custom cutscene if there is one.
-	if (mapheaderinfo[gamemap-1].cutscenenum)
+	if (mapheaderinfo[gamemap-1]->cutscenenum)
 	{
-		F_StartCustomCutscene(mapheaderinfo[gamemap-1].cutscenenum-1, false, false);
+		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->cutscenenum-1, false, false);
 		return;
 	}
 

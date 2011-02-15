@@ -2699,6 +2699,11 @@ static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 	else
 		gamecomplete = false;
 
+	// gamemap changed; we assume that its map header is always valid,
+	// so make it so
+	if(!mapheaderinfo[gamemap-1])
+		P_AllocMapHeader(gamemap-1);
+
 	lastmapsaved = gamemap;
 
 	tokenlist = 0;
@@ -2797,6 +2802,12 @@ static inline boolean P_NetUnArchiveMisc(void)
 	INT32 i, j;
 
 	gamemap = READINT16(save_p);
+
+	// gamemap changed; we assume that its map header is always valid,
+	// so make it so
+	if(!mapheaderinfo[gamemap-1])
+		P_AllocMapHeader(gamemap-1);
+
 	G_SetGamestate(READINT16(save_p));
 
 	tokenlist = READUINT32(save_p);

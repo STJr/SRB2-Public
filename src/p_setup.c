@@ -162,67 +162,65 @@ FUNCNORETURN static ATTRNORETURN void CorruptMapError(const char *msg)
 static void P_ClearSingleMapHeaderInfo(INT16 i)
 {
 	const INT16 num = (INT16)(i-1);
-	DEH_WriteUndoline("LEVELNAME", mapheaderinfo[num].lvlttl, UNDO_NONE);
-	mapheaderinfo[num].lvlttl[0] = '\0';
-	DEH_WriteUndoline("SUBTITLE", mapheaderinfo[num].subttl, UNDO_NONE);
-	mapheaderinfo[num].subttl[0] = '\0';
-	DEH_WriteUndoline("ACT", va("%d", mapheaderinfo[num].actnum), UNDO_NONE);
-	mapheaderinfo[num].actnum = 0;
-	DEH_WriteUndoline("TYPEOFLEVEL", va("%d", mapheaderinfo[num].typeoflevel), UNDO_NONE);
-	mapheaderinfo[num].typeoflevel = 0;
-	DEH_WriteUndoline("NEXTLEVEL", va("%d", mapheaderinfo[num].nextlevel), UNDO_NONE);
-	mapheaderinfo[num].nextlevel = (INT16)(i + 1);
-	DEH_WriteUndoline("MUSICSLOT", va("%d", mapheaderinfo[num].musicslot), UNDO_NONE);
-	mapheaderinfo[num].musicslot = mus_map01m + num;
-	DEH_WriteUndoline("FORCECHARACTER", va("%d", mapheaderinfo[num].forcecharacter), UNDO_NONE);
-	mapheaderinfo[num].forcecharacter = 255;
-	DEH_WriteUndoline("WEATHER", va("%d", mapheaderinfo[num].weather), UNDO_NONE);
-	mapheaderinfo[num].weather = 0;
-	DEH_WriteUndoline("SKYNUM", va("%d", mapheaderinfo[num].skynum), UNDO_NONE);
-	mapheaderinfo[num].skynum = i;
-	DEH_WriteUndoline("INTERSCREEN", mapheaderinfo[num].interscreen, UNDO_NONE);
-	mapheaderinfo[num].interscreen[0] = '#';
-	DEH_WriteUndoline("SCRIPTNAME", mapheaderinfo[num].scriptname, UNDO_NONE);
-	mapheaderinfo[num].scriptname[0] = '#';
-	DEH_WriteUndoline("SCRIPTISLUMP", va("%d", mapheaderinfo[num].scriptislump), UNDO_NONE);
-	mapheaderinfo[num].scriptislump = false;
-	DEH_WriteUndoline("PRECUTSCENENUM", va("%d", mapheaderinfo[num].precutscenenum), UNDO_NONE);
-	mapheaderinfo[num].precutscenenum = 0;
-	DEH_WriteUndoline("CUTSCENENUM", va("%d", mapheaderinfo[num].cutscenenum), UNDO_NONE);
-	mapheaderinfo[num].cutscenenum = 0;
-	DEH_WriteUndoline("COUNTDOWN", va("%d", mapheaderinfo[num].countdown), UNDO_NONE);
-	mapheaderinfo[num].countdown = 0;
-	DEH_WriteUndoline("NOZONE", va("%d", mapheaderinfo[num].nozone), UNDO_NONE);
-	mapheaderinfo[num].nozone = false;
-	DEH_WriteUndoline("HIDDEN", va("%d", mapheaderinfo[num].hideinmenu), UNDO_NONE);
-	mapheaderinfo[num].hideinmenu = false;
-	DEH_WriteUndoline("NOSSMUSIC", va("%d", mapheaderinfo[num].nossmusic), UNDO_NONE);
-	mapheaderinfo[num].nossmusic = false;
-	DEH_WriteUndoline("SPEEDMUSIC", va("%d", mapheaderinfo[num].speedmusic), UNDO_NONE);
-	mapheaderinfo[num].speedmusic = false;
-	DEH_WriteUndoline("NORELOAD", va("%d", mapheaderinfo[num].noreload), UNDO_NONE);
-	mapheaderinfo[num].noreload = false;
-	DEH_WriteUndoline("TIMEATTACK", va("%d", mapheaderinfo[num].timeattack), UNDO_NONE);
-	mapheaderinfo[num].timeattack = false;
-	DEH_WriteUndoline("LEVELSELECT", va("%d", mapheaderinfo[num].levelselect), UNDO_NONE);
-	mapheaderinfo[num].levelselect = false;
-	DEH_WriteUndoline("RUNSOC", mapheaderinfo[num].runsoc, UNDO_NONE);
-	mapheaderinfo[num].runsoc[0] = '#';
+	DEH_WriteUndoline("LEVELNAME", mapheaderinfo[num]->lvlttl, UNDO_NONE);
+	mapheaderinfo[num]->lvlttl[0] = '\0';
+	DEH_WriteUndoline("SUBTITLE", mapheaderinfo[num]->subttl, UNDO_NONE);
+	mapheaderinfo[num]->subttl[0] = '\0';
+	DEH_WriteUndoline("ACT", va("%d", mapheaderinfo[num]->actnum), UNDO_NONE);
+	mapheaderinfo[num]->actnum = 0;
+	DEH_WriteUndoline("TYPEOFLEVEL", va("%d", mapheaderinfo[num]->typeoflevel), UNDO_NONE);
+	mapheaderinfo[num]->typeoflevel = 0;
+	DEH_WriteUndoline("NEXTLEVEL", va("%d", mapheaderinfo[num]->nextlevel), UNDO_NONE);
+	mapheaderinfo[num]->nextlevel = (INT16)(i + 1);
+	DEH_WriteUndoline("MUSICSLOT", va("%d", mapheaderinfo[num]->musicslot), UNDO_NONE);
+	mapheaderinfo[num]->musicslot = mus_map01m + num;
+	DEH_WriteUndoline("FORCECHARACTER", va("%d", mapheaderinfo[num]->forcecharacter), UNDO_NONE);
+	mapheaderinfo[num]->forcecharacter = 255;
+	DEH_WriteUndoline("WEATHER", va("%d", mapheaderinfo[num]->weather), UNDO_NONE);
+	mapheaderinfo[num]->weather = 0;
+	DEH_WriteUndoline("SKYNUM", va("%d", mapheaderinfo[num]->skynum), UNDO_NONE);
+	mapheaderinfo[num]->skynum = i;
+	DEH_WriteUndoline("INTERSCREEN", mapheaderinfo[num]->interscreen, UNDO_NONE);
+	mapheaderinfo[num]->interscreen[0] = '#';
+	DEH_WriteUndoline("SCRIPTNAME", mapheaderinfo[num]->scriptname, UNDO_NONE);
+	mapheaderinfo[num]->scriptname[0] = '#';
+	DEH_WriteUndoline("SCRIPTISLUMP", va("%d", mapheaderinfo[num]->scriptislump), UNDO_NONE);
+	mapheaderinfo[num]->scriptislump = false;
+	DEH_WriteUndoline("PRECUTSCENENUM", va("%d", mapheaderinfo[num]->precutscenenum), UNDO_NONE);
+	mapheaderinfo[num]->precutscenenum = 0;
+	DEH_WriteUndoline("CUTSCENENUM", va("%d", mapheaderinfo[num]->cutscenenum), UNDO_NONE);
+	mapheaderinfo[num]->cutscenenum = 0;
+	DEH_WriteUndoline("COUNTDOWN", va("%d", mapheaderinfo[num]->countdown), UNDO_NONE);
+	mapheaderinfo[num]->countdown = 0;
+	DEH_WriteUndoline("NOZONE", va("%d", mapheaderinfo[num]->nozone), UNDO_NONE);
+	mapheaderinfo[num]->nozone = false;
+	DEH_WriteUndoline("HIDDEN", va("%d", mapheaderinfo[num]->hideinmenu), UNDO_NONE);
+	mapheaderinfo[num]->hideinmenu = false;
+	DEH_WriteUndoline("NOSSMUSIC", va("%d", mapheaderinfo[num]->nossmusic), UNDO_NONE);
+	mapheaderinfo[num]->nossmusic = false;
+	DEH_WriteUndoline("SPEEDMUSIC", va("%d", mapheaderinfo[num]->speedmusic), UNDO_NONE);
+	mapheaderinfo[num]->speedmusic = false;
+	DEH_WriteUndoline("NORELOAD", va("%d", mapheaderinfo[num]->noreload), UNDO_NONE);
+	mapheaderinfo[num]->noreload = false;
+	DEH_WriteUndoline("TIMEATTACK", va("%d", mapheaderinfo[num]->timeattack), UNDO_NONE);
+	mapheaderinfo[num]->timeattack = false;
+	DEH_WriteUndoline("LEVELSELECT", va("%d", mapheaderinfo[num]->levelselect), UNDO_NONE);
+	mapheaderinfo[num]->levelselect = false;
+	DEH_WriteUndoline("RUNSOC", mapheaderinfo[num]->runsoc, UNDO_NONE);
+	mapheaderinfo[num]->runsoc[0] = '#';
 	DEH_WriteUndoline(va("# uload for map %d", i), NULL, UNDO_DONE);
-	DEH_WriteUndoline("PALLETE", va("%u", mapheaderinfo[num].palette), UNDO_NONE);
-	mapheaderinfo[num].palette = UINT16_MAX;
+	DEH_WriteUndoline("PALLETE", va("%u", mapheaderinfo[num]->palette), UNDO_NONE);
+	mapheaderinfo[num]->palette = UINT16_MAX;
 }
 
-/** Clears the data from the map headers for all levels.
+/** Allocates a new map-header structure.
   *
-  * \sa P_ClearSingleMapHeaderInfo, P_InitMapHeaders
+  * \param i Index of header to allocate.
   */
-void P_ClearMapHeaderInfo(void)
+void P_AllocMapHeader(INT16 i)
 {
-	INT16 i;
-
-	for (i = 1; i <= NUMMAPS; i++)
-		P_ClearSingleMapHeaderInfo(i);
+	mapheaderinfo[i] = Z_Malloc(sizeof(mapheader_t), PU_STATIC, NULL);
+	P_ClearSingleMapHeaderInfo(i + 1);
 }
 
 /** Initializes the map headers.
@@ -236,6 +234,11 @@ void P_InitMapHeaders(void)
 	char mapheader[7];
 	lumpnum_t lumpnum;
 	INT32 mapnum;
+
+	// Make sure that the map header is valid for the
+	// initial value of gamemap
+	if(!mapheaderinfo[gamemap-1])
+		P_AllocMapHeader(gamemap-1);
 
 	for (mapnum = 1; mapnum <= NUMMAPS; mapnum++)
 	{
@@ -270,7 +273,8 @@ static inline void P_LoadMapHeader(INT16 mapnum)
 
 	if (!(lumpnum == LUMPERROR || W_LumpLength(lumpnum) == 0))
 	{
-		P_ClearSingleMapHeaderInfo(mapnum);
+		if (mapheaderinfo[mapnum - 1])
+			P_ClearSingleMapHeaderInfo(mapnum);
 		DEH_LoadDehackedLump(lumpnum);
 		return;
 	}
@@ -1801,8 +1805,8 @@ static void P_LevelInitStuff(void)
 	localaiming = 0;
 	localaiming2 = 0;
 
-	if (mapheaderinfo[gamemap-1].countdown)
-		countdowntimer = mapheaderinfo[gamemap-1].countdown * TICRATE;
+	if (mapheaderinfo[gamemap-1]->countdown)
+		countdowntimer = mapheaderinfo[gamemap-1]->countdown * TICRATE;
 	else
 		countdowntimer = 0;
 
@@ -1952,7 +1956,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	levelloading = true;
 
 	// This is needed. Don't touch.
-	maptol = mapheaderinfo[gamemap-1].typeoflevel;
+	maptol = mapheaderinfo[gamemap-1]->typeoflevel;
 
 	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated) // to prevent dedicated server error.
 		I_Error("You have to unlock this level first!");
@@ -1969,17 +1973,17 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	// Clear CECHO messages
 	HU_ClearCEcho();
 
-	if (mapheaderinfo[gamemap-1].runsoc[0] != '#')
-		P_RunSOC(mapheaderinfo[gamemap-1].runsoc);
+	if (mapheaderinfo[gamemap-1]->runsoc[0] != '#')
+		P_RunSOC(mapheaderinfo[gamemap-1]->runsoc);
 
-	if (cv_runscripts.value && mapheaderinfo[gamemap-1].scriptname[0] != '#')
+	if (cv_runscripts.value && mapheaderinfo[gamemap-1]->scriptname[0] != '#')
 	{
-		if (mapheaderinfo[gamemap-1].scriptislump)
+		if (mapheaderinfo[gamemap-1]->scriptislump)
 		{
 			lumpnum_t lumpnum;
 			char newname[9];
 
-			strncpy(newname, mapheaderinfo[gamemap-1].scriptname, 8);
+			strncpy(newname, mapheaderinfo[gamemap-1]->scriptname, 8);
 
 			newname[8] = '\0';
 
@@ -1995,7 +1999,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 		}
 		else
 		{
-			COM_BufAddText(va("exec %s\n", mapheaderinfo[gamemap-1].scriptname));
+			COM_BufAddText(va("exec %s\n", mapheaderinfo[gamemap-1]->scriptname));
 		}
 		COM_BufExecute(); // Run it!
 	}
@@ -2005,16 +2009,16 @@ noscript:
 
 	postimgtype = postimg_none;
 
-	if (mapheaderinfo[gamemap-1].forcecharacter != 255)
+	if (mapheaderinfo[gamemap-1]->forcecharacter != 255)
 	{
 		char skincmd[33];
 		if (splitscreen)
 		{
-			sprintf(skincmd, "skin2 %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
-			CV_Set(&cv_skin2, skins[mapheaderinfo[gamemap-1].forcecharacter].name);
+			sprintf(skincmd, "skin2 %s\n", skins[mapheaderinfo[gamemap-1]->forcecharacter].name);
+			CV_Set(&cv_skin2, skins[mapheaderinfo[gamemap-1]->forcecharacter].name);
 		}
 
-		sprintf(skincmd, "skin %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
+		sprintf(skincmd, "skin %s\n", skins[mapheaderinfo[gamemap-1]->forcecharacter].name);
 
 		COM_BufAddText(skincmd);
 
@@ -2022,7 +2026,7 @@ noscript:
 		{
 			if (splitscreen)
 			{
-				SetPlayerSkinByNum(secondarydisplayplayer, mapheaderinfo[gamemap-1].forcecharacter);
+				SetPlayerSkinByNum(secondarydisplayplayer, mapheaderinfo[gamemap-1]->forcecharacter);
 				if (cv_playercolor2.value != players[secondarydisplayplayer].prefcolor)
 				{
 					CV_StealthSetValue(&cv_playercolor2, players[secondarydisplayplayer].prefcolor);
@@ -2037,7 +2041,7 @@ noscript:
 				}
 			}
 
-			SetPlayerSkinByNum(consoleplayer, mapheaderinfo[gamemap-1].forcecharacter);
+			SetPlayerSkinByNum(consoleplayer, mapheaderinfo[gamemap-1]->forcecharacter);
 			// normal player colors in single player
 			if (cv_playercolor.value != players[consoleplayer].prefcolor)
 			{
@@ -2112,8 +2116,11 @@ noscript:
 	// internal game map
 	lastloadedmaplumpnum = W_GetNumForName(maplumpname = G_BuildMapName(map));
 
-	R_ReInitColormaps(mapheaderinfo[map-1].palette);
-	CON_ReSetupBackColormap(mapheaderinfo[map-1].palette);
+	if(!mapheaderinfo[map-1])
+		P_AllocMapHeader((INT16)(map-1));
+
+	R_ReInitColormaps(mapheaderinfo[map-1]->palette);
+	CON_ReSetupBackColormap(mapheaderinfo[map-1]->palette);
 
 	// Start the music!
 	S_Start();
@@ -2125,11 +2132,11 @@ noscript:
 	// SRB2 determines the sky texture to be used depending on the map header.
 	if (!dedicated)
 	{
-		P_SetupLevelSky(mapheaderinfo[gamemap-1].skynum);
+		P_SetupLevelSky(mapheaderinfo[gamemap-1]->skynum);
 		globallevelskynum = levelskynum;
 	}
 	else
-		globallevelskynum = levelskynum = mapheaderinfo[gamemap-1].skynum;
+		globallevelskynum = levelskynum = mapheaderinfo[gamemap-1]->skynum;
 
 	P_MakeMapMD5(lastloadedmaplumpnum, &mapmd5);
 
@@ -2176,7 +2183,7 @@ noscript:
 	if (loadprecip) //  ugly hack for P_NetUnArchiveMisc (and P_LoadNetGame)
 		P_SpawnPrecipitation();
 
-	globalweather = mapheaderinfo[gamemap-1].weather;
+	globalweather = mapheaderinfo[gamemap-1]->weather;
 
 // Moved this down. This modifies the seg information which causes polyobjects to break.
 // By moving it down below P_SpawnSpecials(), polyobjects can now function properly. -Jazz
@@ -2355,8 +2362,8 @@ noscript:
 
 	if (!(netgame || multiplayer || demoplayback || demorecording || timeattacking || players[consoleplayer].lives <= 0)
 		&& (!modifiedgame || savemoddata) && cursaveslot != -1 && !ultimatemode
-		&& !mapheaderinfo[gamemap-1].hideinmenu
-		&& (!G_IsSpecialStage(gamemap)) && gamemap != lastmapsaved && (mapheaderinfo[gamemap-1].actnum < 2 || gamecomplete))
+		&& !mapheaderinfo[gamemap-1]->hideinmenu
+		&& (!G_IsSpecialStage(gamemap)) && gamemap != lastmapsaved && (mapheaderinfo[gamemap-1]->actnum < 2 || gamecomplete))
 		G_SaveGame((UINT32)cursaveslot);
 
 	if (savedata.lives > 0)

@@ -920,7 +920,7 @@ void P_GivePlayerLives(player_t *player, INT32 numlives)
 void P_DoSuperTransformation(player_t *player, boolean giverings)
 {
 	player->powers[pw_super] = 1;
-	if (!mapheaderinfo[gamemap-1].nossmusic && P_IsLocalPlayer(player))
+	if (!mapheaderinfo[gamemap-1]->nossmusic && P_IsLocalPlayer(player))
 	{
 		S_StopMusic();
 		S_ChangeMusic(mus_supers, true);
@@ -943,7 +943,7 @@ void P_DoSuperTransformation(player_t *player, boolean giverings)
 	}
 
 	// Just in case.
-	if (!mapheaderinfo[gamemap-1].nossmusic)
+	if (!mapheaderinfo[gamemap-1]->nossmusic)
 	{
 		player->powers[pw_extralife] = 0;
 		player->powers[pw_invulnerability] = 0;
@@ -972,7 +972,7 @@ void P_AddPlayerScore(player_t *player, UINT32 amount)
 
 	// check for extra lives every 50000 pts
 	if (player->score > oldscore && player->score % 50000 < amount && (gametype == GT_RACE || gametype == GT_COOP)
-		&& !(mapheaderinfo[gamemap-1].typeoflevel & TOL_NIGHTS))
+		&& !(mapheaderinfo[gamemap-1]->typeoflevel & TOL_NIGHTS))
 	{
 		P_GivePlayerLives(player, (player->score/50000) - (oldscore/50000));
 
@@ -1010,12 +1010,12 @@ void P_RestoreMusic(player_t *player)
 		return;
 
 	if ((mus_playing == &S_music[mapmusic & 2047]) //the music is correct! don't come in and wreck our speed changes!
-		&& !(player->powers[pw_super] && !mapheaderinfo[gamemap-1].nossmusic)
+		&& !(player->powers[pw_super] && !mapheaderinfo[gamemap-1]->nossmusic)
 		&& !(player->powers[pw_invulnerability] > 1)
 		&& !(player->powers[pw_sneakers] > 1))
 		return;
 
-	if (player->powers[pw_super] && !mapheaderinfo[gamemap-1].nossmusic)
+	if (player->powers[pw_super] && !mapheaderinfo[gamemap-1]->nossmusic)
 	{
 		S_SpeedMusic(1.0f);
 		S_ChangeMusic(mus_supers, true);
@@ -1030,7 +1030,7 @@ void P_RestoreMusic(player_t *player)
 	}
 	else if (player->powers[pw_sneakers] > 1)
 	{
-		if (S_SpeedMusic(0.0f) && mapheaderinfo[gamemap-1].speedmusic)
+		if (S_SpeedMusic(0.0f) && mapheaderinfo[gamemap-1]->speedmusic)
 			S_SpeedMusic(1.4f);
 		else
 		{
@@ -6086,7 +6086,7 @@ static void P_MovePlayer(player_t *player)
 
 	if (!G_IsSpecialStage(gamemap)
 		&& (gametype == GT_COOP || gametype == GT_RACE)
-		&& !(mapheaderinfo[gamemap-1].typeoflevel & TOL_NIGHTS)) // Don't do it in special stages.
+		&& !(mapheaderinfo[gamemap-1]->typeoflevel & TOL_NIGHTS)) // Don't do it in special stages.
 	{
 		if ((player->health > 100) && (!player->xtralife))
 		{
@@ -6305,7 +6305,7 @@ static void P_MovePlayer(player_t *player)
 	}
 
 	// Resume normal music stuff.
-	if (player->powers[pw_invulnerability] == 1 && (!player->powers[pw_super] ||  mapheaderinfo[gamemap-1].nossmusic))
+	if (player->powers[pw_invulnerability] == 1 && (!player->powers[pw_super] ||  mapheaderinfo[gamemap-1]->nossmusic))
 	{
 		if (mariomode)
 		{

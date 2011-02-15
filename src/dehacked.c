@@ -31,6 +31,7 @@
 #include "dehacked.h"
 #include "st_stuff.h"
 #include "i_system.h"
+#include "p_setup.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -755,28 +756,31 @@ static void readlevelheader(MYFILE *f, INT32 num)
 
 			i = atoi(word2); // used for numerical settings
 
+			if(!mapheaderinfo[num-1])
+				P_AllocMapHeader((INT16)(num-1));
+
 			if (!strcmp(word, "LEVELNAME"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1].lvlttl, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1].lvlttl, word2, 33);
+				DEH_WriteUndoline(word, mapheaderinfo[num-1]->lvlttl, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1]->lvlttl, word2, 33);
 			}
 			else if (!strcmp(word, "SUBTITLE"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1].subttl, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1].subttl, word2, 33);
+				DEH_WriteUndoline(word, mapheaderinfo[num-1]->subttl, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1]->subttl, word2, 33);
 			}
 			else if (!strcmp(word, "ACT"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].actnum), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->actnum), UNDO_NONE);
 				if (i >= 0 && i < 20) // 0 for no act number, TTL1 through TTL19
-					mapheaderinfo[num-1].actnum = (UINT8)i;
+					mapheaderinfo[num-1]->actnum = (UINT8)i;
 				else
 					deh_warning("Level header %d: invalid act number %d", num, i);
 			}
 			else if (!strcmp(word, "TYPEOFLEVEL"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].typeoflevel), UNDO_NONE);
-				mapheaderinfo[num-1].typeoflevel = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->typeoflevel), UNDO_NONE);
+				mapheaderinfo[num-1]->typeoflevel = (INT16)i;
 			}
 			else if (!strcmp(word, "NEXTLEVEL"))
 			{
@@ -787,109 +791,109 @@ static void readlevelheader(MYFILE *f, INT32 num)
 				if (word2[0] >= 'A' && word2[0] <= 'Z')
 					i = M_MapNumber(word2[0], word2[1]);
 
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nextlevel), UNDO_NONE);
-				mapheaderinfo[num-1].nextlevel = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->nextlevel), UNDO_NONE);
+				mapheaderinfo[num-1]->nextlevel = (INT16)i;
 			}
 			else if (!strcmp(word, "MUSICSLOT"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].musicslot), UNDO_NONE);
-				mapheaderinfo[num-1].musicslot = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->musicslot), UNDO_NONE);
+				mapheaderinfo[num-1]->musicslot = i;
 			}
 			else if (!strcmp(word, "FORCECHARACTER"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].forcecharacter), UNDO_NONE);
-				mapheaderinfo[num-1].forcecharacter = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->forcecharacter), UNDO_NONE);
+				mapheaderinfo[num-1]->forcecharacter = (UINT8)i;
 			}
 			else if (!strcmp(word, "WEATHER"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].weather), UNDO_NONE);
-				mapheaderinfo[num-1].weather = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->weather), UNDO_NONE);
+				mapheaderinfo[num-1]->weather = (UINT8)i;
 			}
 			else if (!strcmp(word, "SKYNUM"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].skynum), UNDO_NONE);
-				mapheaderinfo[num-1].skynum = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->skynum), UNDO_NONE);
+				mapheaderinfo[num-1]->skynum = (INT16)i;
 			}
 			else if (!strcmp(word, "INTERSCREEN"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1].interscreen, UNDO_NONE);
-				strncpy(mapheaderinfo[num-1].interscreen, word2, 8);
+				DEH_WriteUndoline(word, mapheaderinfo[num-1]->interscreen, UNDO_NONE);
+				strncpy(mapheaderinfo[num-1]->interscreen, word2, 8);
 				// TODO: This needs fixed. DEH_WriteUndoline expects a terminated string.
 			}
 			else if (!strcmp(word, "SCRIPTNAME"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1].scriptname, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1].scriptname, word2, sizeof (mapheaderinfo[num-1].scriptname));
+				DEH_WriteUndoline(word, mapheaderinfo[num-1]->scriptname, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1]->scriptname, word2, sizeof (mapheaderinfo[num-1]->scriptname));
 			}
 			else if (!strcmp(word, "SCRIPTISLUMP"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].scriptislump), UNDO_NONE);
-				mapheaderinfo[num-1].scriptislump = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->scriptislump), UNDO_NONE);
+				mapheaderinfo[num-1]->scriptislump = i;
 			}
 			else if (!strcmp(word, "PRECUTSCENENUM"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].precutscenenum), UNDO_NONE);
-				mapheaderinfo[num-1].precutscenenum = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->precutscenenum), UNDO_NONE);
+				mapheaderinfo[num-1]->precutscenenum = (UINT8)i;
 			}
 			else if (!strcmp(word, "CUTSCENENUM"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].cutscenenum), UNDO_NONE);
-				mapheaderinfo[num-1].cutscenenum = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->cutscenenum), UNDO_NONE);
+				mapheaderinfo[num-1]->cutscenenum = (UINT8)i;
 			}
 			else if (!strcmp(word, "COUNTDOWN"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].countdown), UNDO_NONE);
-				mapheaderinfo[num-1].countdown = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->countdown), UNDO_NONE);
+				mapheaderinfo[num-1]->countdown = (INT16)i;
 			}
 			else if (!strcmp(word, "NOZONE"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nozone), UNDO_NONE);
-				mapheaderinfo[num-1].nozone = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->nozone), UNDO_NONE);
+				mapheaderinfo[num-1]->nozone = i;
 			}
 			else if (!strcmp(word, "HIDDEN"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].hideinmenu), UNDO_NONE);
-				mapheaderinfo[num-1].hideinmenu = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->hideinmenu), UNDO_NONE);
+				mapheaderinfo[num-1]->hideinmenu = i;
 			}
 			else if (!strcmp(word, "NOSSMUSIC"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nossmusic), UNDO_NONE);
-				mapheaderinfo[num-1].nossmusic = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->nossmusic), UNDO_NONE);
+				mapheaderinfo[num-1]->nossmusic = i;
 			}
 			else if (!strcmp(word, "SPEEDMUSIC"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].speedmusic), UNDO_NONE);
-				mapheaderinfo[num-1].speedmusic = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->speedmusic), UNDO_NONE);
+				mapheaderinfo[num-1]->speedmusic = i;
 			}
 			else if (!strcmp(word, "NORELOAD"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].noreload), UNDO_NONE);
-				mapheaderinfo[num-1].noreload = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->noreload), UNDO_NONE);
+				mapheaderinfo[num-1]->noreload = i;
 			}
 			else if (!strcmp(word, "TIMEATTACK"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].timeattack), UNDO_NONE);
-				mapheaderinfo[num-1].timeattack = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->timeattack), UNDO_NONE);
+				mapheaderinfo[num-1]->timeattack = i;
 			}
 			else if (!strcmp(word, "LEVELSELECT"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].levelselect), UNDO_NONE);
-				mapheaderinfo[num-1].levelselect = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->levelselect), UNDO_NONE);
+				mapheaderinfo[num-1]->levelselect = i;
 			}
 			else if (!strcmp(word, "NOPERFECTBONUS"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].noperfectbns), UNDO_NONE);
-				mapheaderinfo[num-1].noperfectbns = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->noperfectbns), UNDO_NONE);
+				mapheaderinfo[num-1]->noperfectbns = i;
 			}
 			else if (!strcmp(word, "RUNSOC"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1].runsoc, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1].runsoc, word2, sizeof (mapheaderinfo[num-1].runsoc));
+				DEH_WriteUndoline(word, mapheaderinfo[num-1]->runsoc, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1]->runsoc, word2, sizeof (mapheaderinfo[num-1]->runsoc));
 			}
 			else if (!strcmp(word, "PALETTE"))
 			{
-				DEH_WriteUndoline(word, va("%u", mapheaderinfo[num-1].palette), UNDO_NONE);
-				mapheaderinfo[num-1].palette = (UINT16)i;
+				DEH_WriteUndoline(word, va("%u", mapheaderinfo[num-1]->palette), UNDO_NONE);
+				mapheaderinfo[num-1]->palette = (UINT16)i;
 			}
 			else
 				deh_warning("Level header %d: unknown word '%s'", num, word);

@@ -267,7 +267,7 @@ static void D_Display(void)
 	{
 		if (wipe)
 		{
-			if (!(mapheaderinfo[gamemap-1].interscreen[0] == '#'
+			if (!(mapheaderinfo[gamemap-1]->interscreen[0] == '#'
 				&& gamestate == GS_INTERMISSION))
 			{
 				V_DrawFill(0, 0, vid.width, vid.height, 31);
@@ -976,8 +976,6 @@ void D_SRB2Main(void)
 
 	if (devparm)
 		CONS_Printf("%s",text[D_DEVSTR]);
-
-	P_ClearMapHeaderInfo();
 
 	// default savegame
 	strcpy(savegamename,text[NORM_SAVEI]);

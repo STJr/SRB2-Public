@@ -411,19 +411,19 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 
 	M_Memcpy(netbuffer->u.serverinfo.mapmd5, mapmd5, 16);
 
-	if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
-		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1].lvlttl, 33);
+	if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
+		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1]->lvlttl, 33);
 	else
 		strncpy(netbuffer->u.serverinfo.maptitle, "UNKNOWN", 33);
 
 	netbuffer->u.serverinfo.maptitle[32] = '\0';
 
-	if (!mapheaderinfo[gamemap-1].nozone)
+	if (!mapheaderinfo[gamemap-1]->nozone)
 		netbuffer->u.serverinfo.iszone = 1;
 	else
 		netbuffer->u.serverinfo.iszone = 0;
 
-	netbuffer->u.serverinfo.actnum = mapheaderinfo[gamemap-1].actnum;
+	netbuffer->u.serverinfo.actnum = mapheaderinfo[gamemap-1]->actnum;
 
 	p = PutFileNeeded();
 
@@ -666,12 +666,12 @@ static void CL_LoadReceivedSavegame(void)
 
 	if (P_LoadNetGame())
 	{
-		const INT32 actnum = mapheaderinfo[gamemap-1].actnum;
+		const INT32 actnum = mapheaderinfo[gamemap-1]->actnum;
 		CONS_Printf(text[MAPISNOW], G_BuildMapName(gamemap));
-		if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
+		if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
 		{
-			CONS_Printf(": %s", mapheaderinfo[gamemap-1].lvlttl);
-			if (!mapheaderinfo[gamemap-1].nozone)
+			CONS_Printf(": %s", mapheaderinfo[gamemap-1]->lvlttl);
+			if (!mapheaderinfo[gamemap-1]->nozone)
 				CONS_Printf(" %s",text[ZONE]);
 			if (actnum > 0)
 				CONS_Printf(" %2d", actnum);

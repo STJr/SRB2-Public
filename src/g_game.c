@@ -133,7 +133,7 @@ mapthing_t *rflagpoint;
 mapthing_t *bflagpoint;
 
 // Map Header Information
-mapheader_t mapheaderinfo[NUMMAPS];
+mapheader_t* mapheaderinfo[NUMMAPS] = {NULL};
 
 static boolean exitgame = false;
 
@@ -1979,7 +1979,7 @@ void G_PlayerReborn(INT32 player)
 	if (P_IsLocalPlayer(p) && !(splitscreen && p == &players[secondarydisplayplayer]))
 	{
 		if (!(mapmusic & 2048)) // TODO: Might not need this here
-			mapmusic = mapheaderinfo[gamemap-1].musicslot;
+			mapmusic = mapheaderinfo[gamemap-1]->musicslot;
 
 		S_ChangeMusic(mapmusic & 2047, true);
 	}
@@ -2188,7 +2188,7 @@ void G_DoReborn(INT32 playernum)
 			player->starpostnum = 0;
 			player->starpostbit = 0;
 		}
-		if (mapheaderinfo[gamemap-1].noreload && !imcontinuing && !timeattacking)
+		if (mapheaderinfo[gamemap-1]->noreload && !imcontinuing && !timeattacking)
 		{
 			INT32 i;
 
@@ -2343,7 +2343,7 @@ static INT16 RandMap(INT16 tolflags, INT16 pprevmap)
 
 	// Find all the maps that are ok and and put them in an array.
 	for (ix = 0; ix < NUMMAPS; ix++)
-		if ((mapheaderinfo[ix].typeoflevel & tolflags) == tolflags && ix != pprevmap) // Don't pick the same map.
+		if (mapheaderinfo[ix] && (mapheaderinfo[ix]->typeoflevel & tolflags) == tolflags && ix != pprevmap) // Don't pick the same map.
 			okmaps[numokmaps++] = ix;
 
 	if (numokmaps == 0)
@@ -2384,7 +2384,7 @@ void G_DoCompleted(void)
 	if (nextmapoverride != 0)
 		nextmap = (INT16)(nextmapoverride-1);
 	else
-		nextmap = (INT16)(mapheaderinfo[gamemap-1].nextlevel-1);
+		nextmap = (INT16)(mapheaderinfo[gamemap-1]->nextlevel-1);
 
 	// Remember last map for when you come out of the special stage.
 	if (!G_IsSpecialStage(gamemap))
@@ -2398,18 +2398,24 @@ void G_DoCompleted(void)
 	{
 		INT16 tolflag = TOLFlag(gametype);
 
+		if(!mapheaderinfo[nextmap])
+			P_AllocMapHeader(nextmap);
+
 		if (nextmap >= 0 && nextmap < NUMMAPS
-			&& !(mapheaderinfo[nextmap].typeoflevel & tolflag))
+			&& !(mapheaderinfo[nextmap]->typeoflevel & tolflag))
 		{
 			register INT16 cm = nextmap;
 			UINT8 visitedmap[(NUMMAPS+7)/8];
 
 			memset(visitedmap, 0, sizeof (visitedmap));
 
-			while (!(mapheaderinfo[cm].typeoflevel & tolflag))
+			if(!mapheaderinfo[cm])
+				P_AllocMapHeader(cm);
+
+			while (!(mapheaderinfo[cm]->typeoflevel & tolflag))
 			{
 				visitedmap[cm/8] |= (1<<(cm%8));
-				cm = (INT16)(mapheaderinfo[cm].nextlevel-1);
+				cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
 				if (cm >= NUMMAPS || cm < 0) // out of range (either 1100-1102 or error)
 				{
 					cm = nextmap; //Start the loop again so that the error checking below is executed.
@@ -2519,8 +2525,8 @@ void G_AfterIntermission(void)
 {
 	HU_ClearCEcho();
 
-	if (mapheaderinfo[gamemap-1].cutscenenum) // Start a custom cutscene.
-		F_StartCustomCutscene(mapheaderinfo[gamemap-1].cutscenenum-1, false, false);
+	if (mapheaderinfo[gamemap-1]->cutscenenum) // Start a custom cutscene.
+		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->cutscenenum-1, false, false);
 	else
 	{
 		if (nextmap < 1100-1)
@@ -2952,26 +2958,32 @@ void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer, boolean
 	}
 
 	gamemap = (INT16)M_MapNumber(mapname[3], mapname[4]); // get xx out of MAPxx
-	maptol = mapheaderinfo[gamemap-1].typeoflevel;
-	globalweather = mapheaderinfo[gamemap-1].weather;
+
+	// gamemap changed; we assume that its map header is always valid,
+	// so make it so
+	if(!mapheaderinfo[gamemap-1])
+		P_AllocMapHeader(gamemap-1);
+
+	maptol = mapheaderinfo[gamemap-1]->typeoflevel;
+	globalweather = mapheaderinfo[gamemap-1]->weather;
 
 	ultimatemode = pultmode;
 	playerdeadview = false;
 	automapactive = false;
 
-	if (!skipprecutscene && mapheaderinfo[gamemap-1].precutscenenum) // Start a custom cutscene.
-		F_StartCustomCutscene(mapheaderinfo[gamemap-1].precutscenenum-1, true, resetplayer);
+	if (!skipprecutscene && mapheaderinfo[gamemap-1]->precutscenenum) // Start a custom cutscene.
+		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->precutscenenum-1, true, resetplayer);
 	else
 		G_DoLoadLevel(resetplayer);
 
 	if (netgame)
 	{
-		const INT32 actnum = mapheaderinfo[gamemap-1].actnum;
+		const INT32 actnum = mapheaderinfo[gamemap-1]->actnum;
 		CONS_Printf(text[MAPISNOW], G_BuildMapName(gamemap));
-		if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
+		if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
 		{
-			CONS_Printf(": %s", mapheaderinfo[gamemap-1].lvlttl);
-			if (!mapheaderinfo[gamemap-1].nozone)
+			CONS_Printf(": %s", mapheaderinfo[gamemap-1]->lvlttl);
+			if (!mapheaderinfo[gamemap-1]->nozone)
 				CONS_Printf(" %s",text[ZONE]);
 			if (actnum > 0)
 				CONS_Printf(" %2d", actnum);

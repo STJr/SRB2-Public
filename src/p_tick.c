@@ -427,7 +427,7 @@ static inline void P_DoSpecialStageStuff(void)
 		players[i].powers[pw_underwater] = players[i].powers[pw_spacetime] = 0;
 	}
 
-	if (sstimer < 15*TICRATE+6 && sstimer > 7 && mapheaderinfo[gamemap-1].speedmusic)
+	if (sstimer < 15*TICRATE+6 && sstimer > 7 && mapheaderinfo[gamemap-1]->speedmusic)
 		S_SpeedMusic(1.4f);
 
 	if (sstimer < 7 && sstimer > 0) // The special stage time is up!
@@ -445,7 +445,7 @@ static inline void P_DoSpecialStageStuff(void)
 				S_StartSound(NULL, sfx_lose);
 		}
 
-		if (mapheaderinfo[gamemap-1].speedmusic)
+		if (mapheaderinfo[gamemap-1]->speedmusic)
 			S_SpeedMusic(1.0f);
 	}
 

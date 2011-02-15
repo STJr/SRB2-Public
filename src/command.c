@@ -36,6 +36,7 @@
 #include "g_game.h" // for player_names
 #include "d_netcmd.h"
 #include "hu_stuff.h"
+#include "p_setup.h"
 
 //========
 // protos.
@@ -1404,17 +1405,20 @@ void CV_AddValue(consvar_t *var, INT32 increment)
 							newvalue = 0;
 						if (newvalue == oldvalue)
 							gt = -1; // don't loop forever if there's none of a certain gametype
+
+						if(!mapheaderinfo[newvalue])
+							P_AllocMapHeader((INT16)newvalue);
 					} while (var->PossibleValue[newvalue].strvalue == NULL
-						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue].typeoflevel & TOL_COOP))
-							|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue].typeoflevel & TOL_MATCH))
-							|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue].typeoflevel & TOL_RACE))
-							|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue].typeoflevel & TOL_TAG))
+						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue]->typeoflevel & TOL_COOP))
+							|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_MATCH))
+							|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_RACE))
+							|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_TAG))
 #ifdef CHAOSISNOTDEADYET
-							|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue].typeoflevel & TOL_CHAOS))
+							|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CHAOS))
 #endif
-							|| (gt == GT_CTF && !(mapheaderinfo[newvalue].typeoflevel & TOL_CTF))) && inlevelselect == 0)
-						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue].levelselect))
-						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue].timeattack && mapvisited[newvalue]))
+							|| (gt == GT_CTF && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CTF))) && inlevelselect == 0)
+						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue]->levelselect))
+						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue]->timeattack && mapvisited[newvalue]))
 						);
 					var->value = newvalue + 1;
 					var->string = var->PossibleValue[newvalue].strvalue;
@@ -1432,16 +1436,16 @@ void CV_AddValue(consvar_t *var, INT32 increment)
 						if (newvalue == oldvalue)
 							gt = -1; // don't loop forever if there's none of a certain gametype
 					} while (var->PossibleValue[newvalue].strvalue == NULL
-						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue].typeoflevel & TOL_COOP))
-						|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue].typeoflevel & TOL_MATCH))
-						|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue].typeoflevel & TOL_RACE))
-						|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue].typeoflevel & TOL_TAG))
+						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue]->typeoflevel & TOL_COOP))
+						|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_MATCH))
+						|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_RACE))
+						|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_TAG))
 #ifdef CHAOSISNOTDEADYET
-						|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue].typeoflevel & TOL_CHAOS))
+						|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CHAOS))
 #endif
-						|| (gt == GT_CTF && !(mapheaderinfo[newvalue].typeoflevel & TOL_CTF))) && inlevelselect == 0)
-						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue].levelselect))
-						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue].timeattack && mapvisited[newvalue]))
+						|| (gt == GT_CTF && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CTF))) && inlevelselect == 0)
+						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue]->levelselect))
+						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue]->timeattack && mapvisited[newvalue]))
 						);
 					var->value = newvalue + 1;
 					var->string = var->PossibleValue[newvalue].strvalue;

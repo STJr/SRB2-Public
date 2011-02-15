@@ -73,6 +73,8 @@
 
 #include "i_sound.h"
 
+#include "p_setup.h"
+
 #ifdef PC_DOS
 #include <stdio.h> // for snprintf
 int	snprintf(char *str, size_t n, const char *fmt, ...);
@@ -2281,7 +2283,7 @@ static INT32 FindFirstMap(INT32 gtype)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (mapheaderinfo[i].typeoflevel & gtype)
+		if (mapheaderinfo[i] && (mapheaderinfo[i]->typeoflevel & gtype))
 			return i + 1;
 	}
 
@@ -2295,14 +2297,17 @@ static void Newgametype_OnChange(void)
 {
 	if (menuactive)
 	{
-		if ((cv_newgametype.value == GT_COOP && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_COOP)) ||
-			((cv_newgametype.value == GT_RACE || cv_newgametype.value == GTF_CLASSICRACE) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_RACE)) ||
-			((cv_newgametype.value == GT_MATCH || cv_newgametype.value == GTF_TEAMMATCH) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_MATCH)) ||
+		if(!mapheaderinfo[cv_nextmap.value-1])
+			P_AllocMapHeader((INT16)(cv_nextmap.value-1));
+
+		if ((cv_newgametype.value == GT_COOP && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_COOP)) ||
+			((cv_newgametype.value == GT_RACE || cv_newgametype.value == GTF_CLASSICRACE) && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_RACE)) ||
+			((cv_newgametype.value == GT_MATCH || cv_newgametype.value == GTF_TEAMMATCH) && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_MATCH)) ||
 #ifdef CHAOSISNOTDEADYET
-			(cv_newgametype.value == GT_CHAOS && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_CHAOS)) ||
+			(cv_newgametype.value == GT_CHAOS && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_CHAOS)) ||
 #endif
-			((cv_newgametype.value == GT_TAG || cv_newgametype.value == GTF_HIDEANDSEEK) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_TAG)) ||
-			(cv_newgametype.value == GT_CTF && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_CTF)))
+			((cv_newgametype.value == GT_TAG || cv_newgametype.value == GTF_HIDEANDSEEK) && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_TAG)) ||
+			(cv_newgametype.value == GT_CTF && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_CTF)))
 		{
 			INT32 value = 0;
 
@@ -2576,13 +2581,13 @@ static boolean M_PatchLevelNameTable(INT32 mode)
 		i = 0;
 		currentmap = map_cons_t[j].value-1;
 
-		if (mapheaderinfo[currentmap].lvlttl[0] && ((mode == 0 && !mapheaderinfo[currentmap].hideinmenu && !((mapheaderinfo[currentmap].typeoflevel & TOL_SRB1) && !(grade & 2))) || (mode == 1 && mapheaderinfo[currentmap].levelselect && !(mapheaderinfo[currentmap].typeoflevel & TOL_SRB1)) || (mode == 2 && mapheaderinfo[currentmap].timeattack && mapvisited[currentmap]) || (mode == 3 && mapheaderinfo[currentmap].levelselect && (mapheaderinfo[currentmap].typeoflevel & TOL_SRB1))))
+		if (mapheaderinfo[currentmap] && mapheaderinfo[currentmap]->lvlttl[0] && ((mode == 0 && !mapheaderinfo[currentmap]->hideinmenu && !((mapheaderinfo[currentmap]->typeoflevel & TOL_SRB1) && !(grade & 2))) || (mode == 1 && mapheaderinfo[currentmap]->levelselect && !(mapheaderinfo[currentmap]->typeoflevel & TOL_SRB1)) || (mode == 2 && mapheaderinfo[currentmap]->timeattack && mapvisited[currentmap]) || (mode == 3 && mapheaderinfo[currentmap]->levelselect && (mapheaderinfo[currentmap]->typeoflevel & TOL_SRB1))))
 		{
-			strlcpy(lvltable[j], mapheaderinfo[currentmap].lvlttl, sizeof (lvltable[j]));
+			strlcpy(lvltable[j], mapheaderinfo[currentmap]->lvlttl, sizeof (lvltable[j]));
 
-			i += strlen(mapheaderinfo[currentmap].lvlttl);
+			i += strlen(mapheaderinfo[currentmap]->lvlttl);
 
-			if (!mapheaderinfo[currentmap].nozone)
+			if (!mapheaderinfo[currentmap]->nozone)
 			{
 				lvltable[j][i++] = ' ';
 				lvltable[j][i++] = 'Z';
@@ -2591,14 +2596,14 @@ static boolean M_PatchLevelNameTable(INT32 mode)
 				lvltable[j][i++] = 'E';
 			}
 
-			if (mapheaderinfo[currentmap].actnum)
+			if (mapheaderinfo[currentmap]->actnum)
 			{
 				char actnum[3];
 				INT32 g;
 
 				lvltable[j][i++] = ' ';
 
-				sprintf(actnum, "%d", mapheaderinfo[currentmap].actnum);
+				sprintf(actnum, "%d", mapheaderinfo[currentmap]->actnum);
 
 				for (g = 0; g < 3; g++)
 				{
@@ -3559,7 +3564,7 @@ static void M_DrawStats(void)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (!(mapheaderinfo[i].timeattack))
+		if (!mapheaderinfo[i] || !(mapheaderinfo[i]->timeattack))
 			continue;
 
 		if (timedata[i].time > 0)
@@ -3606,10 +3611,10 @@ static void M_DrawStats(void)
 		for (i = oldlastmapnum; i < NUMMAPS; i++)
 		{
 
-			if (mapheaderinfo[i].lvlttl[0] == '\0')
+			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -3647,10 +3652,10 @@ static void M_DrawStats(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i].actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
+			if (mapheaderinfo[i]->actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -3696,10 +3701,10 @@ static void M_DrawStats2(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (mapheaderinfo[i].lvlttl[0] == '\0')
+			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -3737,10 +3742,10 @@ static void M_DrawStats2(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i].actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
+			if (mapheaderinfo[i]->actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -3786,10 +3791,10 @@ static void M_DrawStats3(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (mapheaderinfo[i].lvlttl[0] == '\0')
+			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -3827,10 +3832,10 @@ static void M_DrawStats3(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i].actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
+			if (mapheaderinfo[i]->actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -3876,10 +3881,10 @@ static void M_DrawStats4(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (mapheaderinfo[i].lvlttl[0] == '\0')
+			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -3917,10 +3922,10 @@ static void M_DrawStats4(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i].actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
+			if (mapheaderinfo[i]->actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -3966,10 +3971,10 @@ static void M_DrawStats5(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (mapheaderinfo[i].lvlttl[0] == '\0')
+			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -4007,10 +4012,10 @@ static void M_DrawStats5(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i].actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
+			if (mapheaderinfo[i]->actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -4283,7 +4288,7 @@ void M_DrawTimeAttackMenu(void)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (!(mapheaderinfo[i].timeattack))
+		if (!mapheaderinfo[i] || !(mapheaderinfo[i]->timeattack))
 			continue;
 
 		if (timedata[i].time > 0)
@@ -4744,7 +4749,7 @@ boolean M_GotLowEnoughTime(INT32 ptime)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (!(mapheaderinfo[i].timeattack))
+		if (!mapheaderinfo[i] || !(mapheaderinfo[i]->timeattack))
 			continue;
 
 		if (timedata[i].time > 0)
@@ -6937,10 +6942,14 @@ static void M_ReadSavegameInfo(UINT32 slot)
 	CHECKPOS
 	fake = READINT16(save_p);
 	if (fake-1 >= NUMMAPS) BADSAVE
-	strcpy(savegameinfo[slot].levelname, mapheaderinfo[fake-1].lvlttl);
+
+	if(!mapheaderinfo[fake-1])
+		P_AllocMapHeader((INT16)(fake-1));
+
+	strcpy(savegameinfo[slot].levelname, mapheaderinfo[fake-1]->lvlttl);
 	savegameinfo[slot].gamemap = fake;
 
-	savegameinfo[slot].actnum = mapheaderinfo[fake-1].actnum;
+	savegameinfo[slot].actnum = mapheaderinfo[fake-1]->actnum;
 
 	CHECKPOS
 	fake = READUINT16(save_p)-357; // emeralds

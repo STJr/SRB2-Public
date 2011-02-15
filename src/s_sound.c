@@ -427,7 +427,7 @@ void S_StopSoundByNum(sfxenum_t sfxnum)
 void S_Start(void)
 {
 	if (!(mapmusic & 2048))
-		mapmusic = mapheaderinfo[gamemap-1].musicslot;
+		mapmusic = mapheaderinfo[gamemap-1]->musicslot;
 
 	mus_paused = 0;
 

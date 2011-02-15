@@ -647,11 +647,11 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	else
 		snprintf(maptext, 8, "Unknown");
 
-	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1].lvlttl)
+	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1]->lvlttl)
 		snprintf(lvlttltext, 48, "%s%s%s",
-			mapheaderinfo[gamemap-1].lvlttl,
-			(mapheaderinfo[gamemap-1].nozone) ? "" : " ZONE",
-			(mapheaderinfo[gamemap-1].actnum > 0) ? va(" %d",mapheaderinfo[gamemap-1].actnum) : "");
+			mapheaderinfo[gamemap-1]->lvlttl,
+			(mapheaderinfo[gamemap-1]->nozone) ? "" : " ZONE",
+			(mapheaderinfo[gamemap-1]->actnum > 0) ? va(" %d",mapheaderinfo[gamemap-1]->actnum) : "");
 	else
 		snprintf(lvlttltext, 48, "Unknown");
 

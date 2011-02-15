@@ -199,7 +199,7 @@ typedef struct
 	UINT16 palette;      ///< PAL lump to use on this map
 } mapheader_t;
 
-extern mapheader_t mapheaderinfo[NUMMAPS];
+extern mapheader_t* mapheaderinfo[NUMMAPS];
 
 #define TOL_COOP        1 ///< Cooperative
 #define TOL_RACE        2 ///< Race

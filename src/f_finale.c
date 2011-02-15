@@ -1389,7 +1389,7 @@ void F_GameEvaluationDrawer(void)
 
 	if (finalecount == 5*TICRATE)
 	{
-		if ((!modifiedgame || savemoddata) && !(netgame || multiplayer) && mapheaderinfo[gamemap-1].nextlevel == 1102)
+		if ((!modifiedgame || savemoddata) && !(netgame || multiplayer) && mapheaderinfo[gamemap-1]->nextlevel == 1102)
 		{
 			boolean alreadyplayed = false;
 			INT32 bitcount = 0;

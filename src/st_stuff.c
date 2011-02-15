@@ -749,13 +749,13 @@ static void ST_drawDebugInfo(void)
 
 static void ST_drawLevelTitle(void)
 {
-	char *lvlttl = mapheaderinfo[gamemap-1].lvlttl;
-	char *subttl = mapheaderinfo[gamemap-1].subttl;
+	char *lvlttl = mapheaderinfo[gamemap-1]->lvlttl;
+	char *subttl = mapheaderinfo[gamemap-1]->subttl;
 	INT32 lvlttlxpos;
 	INT32 subttlxpos = BASEVIDWIDTH/2;
 	INT32 ttlnumxpos;
 	INT32 zonexpos;
-	INT32 actnum = mapheaderinfo[gamemap-1].actnum;
+	INT32 actnum = mapheaderinfo[gamemap-1]->actnum;
 	boolean nonumber = false;
 
 	if (!(timeinmap > 1 && timeinmap < 111))
@@ -784,7 +784,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(200*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 0, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 200, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 0+48, 0, subttl);
@@ -795,7 +795,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(188*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 12, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 188, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 12+48, 0, subttl);
@@ -806,7 +806,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(0), (INT32)(176*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 24, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 176, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 24+48, 0, subttl);
@@ -817,7 +817,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(164*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 36, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 164, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 36+48, 0, subttl);
@@ -828,7 +828,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(152*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 48, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 152, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 48+48, 0, subttl);
@@ -839,7 +839,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(140*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 60, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 140, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 60+48, 0, subttl);
@@ -850,7 +850,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(128*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 72, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 128, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 72+48, 0, subttl);
@@ -861,7 +861,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(80*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 104, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 80, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 104+48, 0, subttl);
@@ -872,7 +872,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(56*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 128, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 56, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 128+48, 0, subttl);
@@ -883,7 +883,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(32*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 152, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 32, 0, text[ZONE]);
 
 //		V_DrawCenteredString(subttlxpos, 152+48, 0, subttl);
@@ -894,7 +894,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(8*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 176, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 8, 0, text[ZONE]);
 
 		//V_DrawCenteredString(subttlxpos, 176+48, 0, subttl);
@@ -905,7 +905,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(0*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 200, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 0, 0, text[ZONE]);
 
 		//V_DrawCenteredString(subttlxpos, 200+48, 0, subttl);
@@ -916,7 +916,7 @@ static void ST_drawLevelTitle(void)
 			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(104*vid.fdupy), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 80, 0, lvlttl);
 
-		if (!mapheaderinfo[gamemap-1].nozone)
+		if (!mapheaderinfo[gamemap-1]->nozone)
 			V_DrawLevelTitle(zonexpos, 104, 0, text[ZONE]);
 
 		V_DrawCenteredString(subttlxpos, 80+48, 0, subttl);
@@ -2241,7 +2241,7 @@ static void ST_overlayDrawer(void)
 	}
 
 	// draw level title Tails
-	if (*mapheaderinfo[gamemap-1].lvlttl != '\0' && !(hu_showscores && (netgame || multiplayer)))
+	if (*mapheaderinfo[gamemap-1]->lvlttl != '\0' && !(hu_showscores && (netgame || multiplayer)))
 		ST_drawLevelTitle();
 
 	if (!hu_showscores && netgame && (gametype == GT_RACE || gametype == GT_COOP) && stplyr->lives <= 0 && displayplayer == consoleplayer && countdown != 1)
