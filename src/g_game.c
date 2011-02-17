@@ -2336,7 +2336,7 @@ static INT16 TOLFlag(INT32 pgametype)
   */
 static INT16 RandMap(INT16 tolflags, INT16 pprevmap)
 {
-	XBOXSTATIC INT16 okmaps[NUMMAPS];
+	INT16 *okmaps = Z_Malloc(NUMMAPS * sizeof(INT16), PU_STATIC, NULL);
 	INT32 numokmaps = 0;
 	INT16 ix;
 	INT32 mapnum;
@@ -2347,13 +2347,21 @@ static INT16 RandMap(INT16 tolflags, INT16 pprevmap)
 			okmaps[numokmaps++] = ix;
 
 	if (numokmaps == 0)
-		return 1; // Sorry, none match. You get MAP01.
+	{
+		ix = 0; // Sorry, none match. You get MAP01.
+	}
+	else
+	{
+		mapnum = M_Random() << 8;
+		mapnum |= M_Random();
+		mapnum %= numokmaps;
 
-	mapnum = M_Random() << 8;
-	mapnum |= M_Random();
-	mapnum %= numokmaps;
+		ix = okmaps[mapnum];
+	}
 
-	return (INT16)(okmaps[mapnum]+1);
+	Z_Free(okmaps);
+
+	return ix + 1;
 }
 
 //

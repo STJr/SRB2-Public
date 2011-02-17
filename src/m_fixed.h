@@ -258,6 +258,8 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedRem(fixed_t x, fixed_t y)
 		return x;
 }
 
+#if (defined NEED_FIXED_VECTOR) || !(defined HAVE_HYPOT)
+
 /**	\brief	The FixedSqrt function
 
 	\param	x	fixed_t number
@@ -267,6 +269,8 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedRem(fixed_t x, fixed_t y)
 
 */
 FUNCMATH fixed_t FixedSqrt(fixed_t x);
+
+#endif
 
 /**	\brief	The FixedHypot function
 

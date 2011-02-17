@@ -184,7 +184,7 @@ static INT32 deh_num_warning = 0;
 FUNCPRINTF static void deh_warning(const char *first, ...)
 {
 	va_list argptr;
-	XBOXSTATIC char buf[1000];
+	char *buf = Z_Malloc(1000, PU_STATIC, NULL);
 
 	va_start(argptr, first);
 	vsnprintf(buf, sizeof buf, first, argptr);
@@ -193,6 +193,8 @@ FUNCPRINTF static void deh_warning(const char *first, ...)
 	CONS_Printf("%s\n", buf);
 
 	deh_num_warning++;
+
+	Z_Free(buf);
 }
 
 /* ======================================================================== */
@@ -321,7 +323,7 @@ static boolean findFreeSlot(INT32 *num)
 // For modifying the character select screen
 static void readPlayer(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *word2;
 	INT32 i;
@@ -331,7 +333,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -347,7 +349,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 				char *playertext = NULL;
 
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					return;
+					goto done;
 
 				for (i = 0; i < MAXLINELEN-3; i++)
 				{
@@ -395,7 +397,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 			if (!strcmp(word, "PLAYERNAME"))
 			{
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					return;
+					goto done;
 				DEH_WriteUndoline(word, description[num].text, UNDO_NONE);
 				strlcpy(description[num].text, word2, sizeof (description[num].text));
 				PlayerMenu[num].text = description[num].text;
@@ -413,7 +415,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 			else if (!strcmp(word, "PICNAME"))
 			{
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					return;
+					goto done;
 				DEH_WriteUndoline(word, &description[num].picname[0], UNDO_NONE);
 				strlcpy(description[num].picname, word2, 9);
 			}
@@ -433,7 +435,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 					signal that you are purposely doing so by disabling and then reenabling the slot.
 				*/
 				if (i != IT_DISABLED && !slotfound && (slotfound = findFreeSlot(&num)) == false)
-					return;
+					goto done;
 				DEH_WriteUndoline(word, va("%d", PlayerMenu[num].status), UNDO_NONE);
 				PlayerMenu[num].status = (INT16)i;
 			}
@@ -441,7 +443,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 			{
 				// Send to free slot.
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					return;
+					goto done;
 				DEH_WriteUndoline(word, description[num].skinname, UNDO_NONE);
 				strcpy(description[num].skinname, word2);
 			}
@@ -454,18 +456,21 @@ static void readPlayer(MYFILE *f, INT32 num)
 	if (slotfound)
 		DEH_WriteUndoline("MENUPOSITION", va("%d", num), UNDO_NONE);
 #endif
+
+done:
+	Z_Free(s);
 }
 
 static void readthing(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -606,12 +611,14 @@ static void readthing(MYFILE *f, INT32 num)
 				deh_warning("Thing %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 #ifdef HWRENDER
 static void readlight(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *tmp;
 	INT32 value;
@@ -619,7 +626,7 @@ static void readlight(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -679,18 +686,20 @@ static void readlight(MYFILE *f, INT32 num)
 				deh_warning("Light %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 static void readspritelight(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -718,12 +727,14 @@ static void readspritelight(MYFILE *f, INT32 num)
 				deh_warning("Sprite %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 #endif // HWRENDER
 
 static void readlevelheader(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -731,7 +742,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -899,11 +910,13 @@ static void readlevelheader(MYFILE *f, INT32 num)
 				deh_warning("Level header %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 {
-	XBOXSTATIC char s[MAXLINELEN] = "";
+	char *s = Z_Calloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *word2;
 	INT32 i;
@@ -913,7 +926,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -927,7 +940,9 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 			if (!strcmp(word, "SCENETEXT"))
 			{
 				char *scenetext = NULL;
-				XBOXSTATIC char buffer[4096] = "";
+				char *buffer;
+				const int bufferlen = 4096;
+
 				for (i = 0; i < MAXLINELEN; i++)
 				{
 					if (s[i] == '=')
@@ -954,16 +969,19 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 					}
 				}
 
+				buffer = Z_Malloc(4096, PU_STATIC, NULL);
 				strcpy(buffer, scenetext);
 
 				strcat(buffer,
-					myhashfgets(scenetext, sizeof (buffer)
+					myhashfgets(scenetext, bufferlen
 					- strlen(buffer) - 1, f));
 
 				// A cutscene overwriting another one...
 				Z_Free(cutscenes[num]->scene[scenenum].text);
 
 				cutscenes[num]->scene[scenenum].text = Z_StrDup(buffer);
+
+				Z_Free(buffer);
 
 				continue;
 			}
@@ -1208,11 +1226,13 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 				deh_warning("CutSceneScene %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 static void readcutscene(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *word2;
 	char *tmp;
@@ -1227,7 +1247,7 @@ static void readcutscene(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1271,11 +1291,13 @@ static void readcutscene(MYFILE *f, INT32 num)
 				deh_warning("Cutscene %d: unknown word '%s', Scene <num> expected.", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 static void readunlockable(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1291,7 +1313,7 @@ static void readunlockable(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1365,11 +1387,13 @@ static void readunlockable(MYFILE *f, INT32 num)
 				deh_warning("Unlockable %d: unknown word '%s'", num+1, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 static void readhuditem(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1377,7 +1401,7 @@ static void readhuditem(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1416,6 +1440,8 @@ static void readhuditem(MYFILE *f, INT32 num)
 				deh_warning("Level header %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
+
+	Z_Free(s);
 }
 
 /*
@@ -1565,7 +1591,7 @@ static actionpointer_t actionpointers[] =
 
 static void readframe(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word1;
 	char *word2 = NULL;
 	char *tmp;
@@ -1573,7 +1599,7 @@ static void readframe(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1685,18 +1711,20 @@ static void readframe(MYFILE *f, INT32 num)
 				deh_warning("Frame %d: unknown word '%s'", num, word1);
 		}
 	} while (!myfeof(f));
+
+	Z_Free(s);
 }
 
 static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1746,6 +1774,9 @@ static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 				deh_warning("Sound %d : unknown word '%s'",num,word);
 		}
 	} while (!myfeof(f));
+
+	Z_Free(s);
+
 	(void)savesfxnames;
 }
 
@@ -1788,7 +1819,7 @@ static boolean GoodDataFileName(const char *s)
 
 static void readmaincfg(MYFILE *f)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1797,7 +1828,7 @@ static void readmaincfg(MYFILE *f)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -2017,11 +2048,13 @@ static void readmaincfg(MYFILE *f)
 
 	if (reload)
 		G_LoadGameData();
+
+	Z_Free(s);
 }
 
 static void reademblemdata(MYFILE *f, INT32 num)
 {
-	XBOXSTATIC char s[MAXLINELEN];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *word2;
 	char *tmp;
@@ -2029,7 +2062,7 @@ static void reademblemdata(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, sizeof (s), f))
+		if (myfgets(s, MAXLINELEN, f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -2087,11 +2120,13 @@ static void reademblemdata(MYFILE *f, INT32 num)
 				deh_warning("Emblem: unknown word '%s'", word);
 		}
 	} while (!myfeof(f));
+
+	Z_Free(s);
 }
 
 static void DEH_LoadDehackedFile(MYFILE *f)
 {
-	XBOXSTATIC char s[1000];
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *word2;
 	INT32 i;
@@ -2118,7 +2153,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 		INT32 size = 0;
 		char *traverse;
 
-		myfgets(s, sizeof (s), f);
+		myfgets(s, MAXLINELEN, f);
 		if (s[0] == '\n' || s[0] == '#')
 			continue;
 
@@ -2237,7 +2272,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 						i = atoi(word);
 						if (i < NUMSTATES && i >= 0)
 						{
-							if (myfgets(s, sizeof (s), f))
+							if (myfgets(s, MAXLINELEN, f))
 								states[i].action = saveactions[searchvalue(s)];
 						}
 						else
@@ -2258,7 +2293,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				{
 					if (i < NUMSPRITES && i >= 0)
 					{
-						if (myfgets(s, sizeof (s), f))
+						if (myfgets(s, MAXLINELEN, f))
 						{
 							INT32 k;
 							k = (searchvalue(s) - 151328)/8;
@@ -2321,6 +2356,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	}
 
 	deh_loaded = true;
+	Z_Free(s);
 }
 
 // read dehacked lump in a wad (there is special trick for for deh

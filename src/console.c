@@ -426,8 +426,8 @@ static void CON_InputInit(void)
 static void CON_RecalcSize(void)
 {
 	size_t conw, oldcon_width, oldnumlines, i, oldcon_cy;
-	XBOXSTATIC char tmp_buffer[CON_BUFFERSIZE];
-	XBOXSTATIC char string[CON_BUFFERSIZE]; // BP: it is a line but who know
+	char *tmp_buffer;
+	char *string;
 
 	con_recalc = false;
 
@@ -442,6 +442,9 @@ static void CON_RecalcSize(void)
 	// check for change of video width
 	if (conw == con_width)
 		return; // didn't change
+
+	tmp_buffer = Z_Malloc(CON_BUFFERSIZE, PU_STATIC, NULL);
+	string = Z_Malloc(CON_BUFFERSIZE, PU_STATIC, NULL); // BP: it is a line but who know
 
 	oldcon_width = con_width;
 	oldnumlines = con_totallines;
@@ -480,6 +483,9 @@ static void CON_RecalcSize(void)
 			}
 		}
 	}
+
+	Z_Free(string);
+	Z_Free(tmp_buffer);
 }
 
 // Handles Console moves in/out of screen (per frame)
@@ -1016,7 +1022,7 @@ void CON_LogMessage(const char *msg)
 void CONS_Printf(const char *fmt, ...)
 {
 	va_list argptr;
-	XBOXSTATIC char txt[8192];
+	char *txt = malloc(8192);
 
 	va_start(argptr, fmt);
 	vsprintf(txt, fmt, argptr);
@@ -1034,6 +1040,7 @@ void CONS_Printf(const char *fmt, ...)
 #endif
 #ifdef PC_DOS
 		CON_LogMessage(txt);
+		free(txt);
 		return;
 #endif
 	}
@@ -1063,6 +1070,8 @@ void CONS_Printf(const char *fmt, ...)
 		I_FinishUpdate(); // page flip or blit buffer
 #endif
 	}
+
+	free(txt);
 }
 
 // Print an error message, and wait for ENTER key to continue.

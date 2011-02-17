@@ -3056,7 +3056,7 @@ static void Got_Verification(UINT8 **cp, INT32 playernum)
 static void Command_MotD_f(void)
 {
 	size_t i, j;
-	XBOXSTATIC char mymotd[sizeof(motd)];
+	char *mymotd;
 
 	if ((j = COM_Argc()) < 2)
 	{
@@ -3070,34 +3070,41 @@ static void Command_MotD_f(void)
 		return;
 	}
 
-	strlcpy(mymotd, COM_Argv(1), sizeof mymotd);
+	mymotd = Z_Malloc(sizeof(motd), PU_STATIC, NULL);
+
+	strlcpy(mymotd, COM_Argv(1), sizeof motd);
 	for (i = 2; i < j; i++)
 	{
-		strlcat(mymotd, " ", sizeof mymotd);
-		strlcat(mymotd, COM_Argv(i), sizeof mymotd);
+		strlcat(mymotd, " ", sizeof motd);
+		strlcat(mymotd, COM_Argv(i), sizeof motd);
 	}
 
 	// Disallow non-printing characters and semicolons.
 	for (i = 0; mymotd[i] != '\0'; i++)
 		if (!isprint(mymotd[i]) || mymotd[i] == ';')
+		{
+			Z_Free(mymotd);
 			return;
+		}
 
 	if ((netgame || multiplayer) && !server)
-		SendNetXCmd(XD_SETMOTD, mymotd, sizeof(mymotd));
+		SendNetXCmd(XD_SETMOTD, mymotd, sizeof(motd));
 	else
 	{
 		strcpy(motd, mymotd);
 		CONS_Printf("%s", text[MOTD_SET]);
 	}
+
+	Z_Free(mymotd);
 }
 
 static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 {
-	XBOXSTATIC char mymotd[sizeof(motd)];
+	char *mymotd = Z_Malloc(sizeof(motd), PU_STATIC, NULL);
 	INT32 i;
 	boolean kick = false;
 
-	READSTRINGN(*cp, mymotd, sizeof(mymotd));
+	READSTRINGN(*cp, mymotd, sizeof(motd));
 
 	// Disallow non-printing characters and semicolons.
 	for (i = 0; mymotd[i] != '\0'; i++)
@@ -3115,12 +3122,16 @@ static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
+
+		Z_Free(mymotd);
 		return;
 	}
 
 	strcpy(motd, mymotd);
 
 	CONS_Printf("%s", text[MOTD_SET]);
+
+	Z_Free(mymotd);
 }
 
 static void Command_RunSOC(void)
