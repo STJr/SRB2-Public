@@ -1339,6 +1339,57 @@ failure:
 }
 
 // ==========================================================================
+//                       TRANSLATION FUNCTIONS
+// ==========================================================================
+
+// M_StartupLocale.
+// Sets up gettext to translate SRB2's strings.
+#ifdef GETTEXT
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
+#define GETTEXTDOMAIN1 "/usr/share/locale"
+#define GETTEXTDOMAIN2 "/usr/local/share/locale"
+#elif defined (_WIN32)
+#define GETTEXTDOMAIN1 "."
+#endif
+
+void M_StartupLocale(void)
+{
+	char *textdomhandle = NULL;
+
+	CONS_Printf("M_StartupLocale...\n");
+
+	setlocale(LC_ALL, "");
+	// FIXME: global name define anywhere?
+#ifdef GETTEXTDOMAIN1
+	textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN1);
+#endif
+#ifdef GETTEXTDOMAIN2
+	if (!textdomhandle)
+		textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN2);
+#endif
+#ifdef GETTEXTDOMAIN3
+	if (!textdomhandle)
+		textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN3);
+#endif
+#ifdef GETTEXTDOMAIN4
+	if (!textdomhandle)
+		textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN4);
+#endif
+	if (textdomhandle)
+		textdomain("srb2");
+	else
+		CONS_Printf("Could not find locale text domain!\n");
+}
+#else
+// If no translations are to be used, make a stub
+// M_GetText function that just returns the string.
+const char *M_GetText(const char *string)
+{
+	return string;
+}
+#endif
+
+// ==========================================================================
 //                        MISC STRING FUNCTIONS
 // ==========================================================================
 

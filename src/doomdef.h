@@ -65,6 +65,11 @@
 
 #include <math.h>
 
+#ifdef GETTEXT
+#include <libintl.h>
+#include <locale.h>
+#endif
+
 #if !defined (_WIN32_WCE)
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -188,6 +193,12 @@ void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
 #include "m_swap.h"
 
 // m_misc.h
+#ifdef GETTEXT
+#define M_GetText(String) gettext(String)
+void M_StartupLocale(void);
+#else
+const char *M_GetText(const char *string);
+#endif
 extern void *(*M_Memcpy)(void* dest, const void* src, size_t n) FUNCNONNULL;
 char *va(const char *format, ...) FUNCPRINTF;
 

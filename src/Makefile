@@ -222,6 +222,8 @@ ifdef CCACHE
         CC:=ccache $(CC)
 endif
 
+MSGFMT?=msgfmt
+
 ifndef ECHO
 	NASM:=@$(NASM)
 	REMOVE:=@$(REMOVE)
@@ -238,6 +240,7 @@ ifndef ECHO
 	DD:=@$(DD)
 	NDSTOOL:=@$(NDSTOOL)
 	GZIP:=@$(GZIP)
+	MSGFMT:=@$(MSGFMT)
 endif
 
 ifdef NONET
@@ -446,6 +449,18 @@ OBJS:=$(i_main_o) \
 		$(i_sound_o)    \
 		$(OBJS)
 
+# List of languages to compile.
+# For reference, this is the command I use to build a srb2.pot file from the source code.
+# (The listed source files are the ones containing translated strings).
+# FILES=""; for file in `find ./ | grep "\.c" | grep -v svn`; do [ "`grep "M_GetText(" $file`" ] && FILES="$FILES $file"; done; xgettext -d srb2 -o locale/srb2.pot -kM_GetText -F --no-wrap $FILES
+ifndef NOGETTEXT
+ifdef GETTEXT
+POS:=$(BIN)/english.mo
+
+OPTS+=-DGETTEXT
+endif
+endif
+
 ifdef DJGPPDOS
 all:	 pre-build $(BIN)/$(EXENAME)
 endif
@@ -653,6 +668,9 @@ endif
 
 $(OBJDIR)/comptime.o: comptime.c pre-build
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
+
+$(BIN)/%.mo: locale/%.po
+	$(MSGFMT) -f -o $@ $<
 
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
