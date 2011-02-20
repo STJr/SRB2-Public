@@ -98,13 +98,34 @@ extern lumpnum_t viewborderlump[8];
 // r_draw.c COMMON ROUTINES FOR BOTH 8bpp and 16bpp
 // ------------------------------------------------
 
+typedef enum
+{
+	SKINCOLOR_NONE = 0,
+	SKINCOLOR_CYAN,
+	SKINCOLOR_PEACH,
+	SKINCOLOR_LAVENDER,
+	SKINCOLOR_SILVER,
+	SKINCOLOR_ORANGE,
+	SKINCOLOR_LIGHTRED,
+	SKINCOLOR_LIGHTBLUE,
+	SKINCOLOR_STEELBLUE,
+	SKINCOLOR_PINK,
+	SKINCOLOR_BEIGE,
+	SKINCOLOR_PURPLE,
+	SKINCOLOR_GREEN,
+	SKINCOLOR_WHITE,
+	SKINCOLOR_GOLD,
+	SKINCOLOR_YELLOW
+} skincolors_t;
+
+#define GTC_CACHE 1
+
 // Initialize color translation tables, for player rendering etc.
 void R_InitTranslationTables(void);
-
-void R_LoadSkinTable(void);
+UINT8* R_GetTranslationColormap(INT32 skinnum, skincolors_t color, UINT8 flags);
+void R_FlushTranslationColormapCache(void);
 
 // Custom player skin translation
-void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum);
 void R_InitViewBuffer(INT32 width, INT32 height);
 void R_InitViewBorder(void);
 void R_VideoErase(size_t ofs, INT32 count);

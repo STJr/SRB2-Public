@@ -3184,13 +3184,14 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	}
 	else
 	{
-		const UINT8 *colormap = (const UINT8 *)translationtables[setupm_player->skin] - 256
-			+ (setupm_cvcolor->value<<8);
+		UINT8 *colormap = R_GetTranslationColormap(setupm_player->skin, setupm_cvcolor->value, 0);
 
 		if (atoi(skins[setupm_cvskin->value].highres))
 			V_DrawSmallMappedPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch, colormap);
 		else
 			V_DrawMappedPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch, colormap);
+
+		Z_Free(colormap);
 	}
 }
 
@@ -6792,7 +6793,7 @@ static void M_DrawGameStats(void)
 		V_DrawScaledPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
 	else
 	{
-		const UINT8 *colormap = (const UINT8 *) translationtables[savegameinfo[saveSlotSelected].skinnum] - 256 + (savegameinfo[saveSlotSelected].skincolor<<8);
+		UINT8 *colormap = R_GetTranslationColormap(savegameinfo[saveSlotSelected].skinnum, savegameinfo[saveSlotSelected].skincolor, 0);
 		V_DrawMappedPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
 	}
 

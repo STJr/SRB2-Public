@@ -190,6 +190,11 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	block = xm(sizeof *block);
 	ptr = xm(extrabytes + sizeof *hdr + size);
 
+#ifdef _NDS
+	if ((size_t)ptr + extrabytes + sizeof *hdr + size > 0x2400000)
+		I_Error("Out of heap!");
+#endif
+
 	// This horrible calculation makes sure that "given" is aligned
 	// properly.
 	given = (void *)((size_t)((UINT8 *)ptr + extrabytes + sizeof *hdr)

@@ -1888,8 +1888,8 @@ static void ST_overlayDrawer(void)
 					V_NOSCALESTART|V_TRANSLUCENT,superprefix[stplyr->skin]);
 			}
 			else
-			{
-				const UINT8 *colormap = (UINT8 *)translationtables[stplyr->skin] - 256 + (((stplyr->powers[pw_super]) ? 15 : stplyr->skincolor)<<8);
+			{	
+				UINT8 *colormap = R_GetTranslationColormap(stplyr->skin, stplyr->powers[pw_super] ? SKINCOLOR_YELLOW : stplyr->skincolor, GTC_CACHE);
 				V_DrawSmallMappedPatch(SCX(hudinfo[HUD_LIVESPIC].x), SCY(hudinfo[HUD_LIVESPIC].y - (splitscreen ? 8 : 0)),
 					V_NOSCALESTART|V_TRANSLUCENT,superprefix[stplyr->skin], colormap);
 			}
@@ -1903,7 +1903,7 @@ static void ST_overlayDrawer(void)
 			}
 			else
 			{
-				const UINT8 *colormap = (UINT8 *)translationtables[stplyr->skin] - 256 + ((stplyr->skincolor)<<8);
+				UINT8 *colormap = R_GetTranslationColormap(stplyr->skin, stplyr->skincolor, GTC_CACHE);
 				V_DrawSmallMappedPatch(SCX(hudinfo[HUD_LIVESPIC].x), SCY(hudinfo[HUD_LIVESPIC].y - (splitscreen ? 8 : 0)),
 					V_NOSCALESTART|V_TRANSLUCENT,faceprefix[stplyr->skin], colormap);
 			}

@@ -713,13 +713,12 @@ static void R_DrawVisSprite(vissprite_t *vis)
 		// New colormap stuff for skins Tails 06-07-2002
 #ifdef TRANSFIX
 		if (vis->mobj->skin) // This thing is a player!
-			dc_translation = translationtables[(skin_t*)vis->mobj->skin-skins] - 256 +
-				((INT32)vis->mobj->color<<8);
+			dc_translation = R_GetTranslationColormap((skin_t*)vis->mobj->skin-skins, vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
 		{
 			if (vis->mobj->player->skincolor)
-				dc_translation = translationtables[vis->mobj->player->skin] - 256 + ((INT32)vis->mobj->color<<8);
+				dc_translation = R_GetTranslationColormap(vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
 			else
 			{
 				static INT32 firsttime = 1;
@@ -2381,14 +2380,6 @@ void R_InitSkins(void)
 	ST_LoadFaceNameGraphics(skins[0].nameprefix, 0);
 }
 
-static void R_DoSkinTranslationInit(void)
-{
-	INT32 i;
-
-	for (i = 0; i <= numskins && numskins < MAXSKINS; i++)
-		R_InitSkinTranslationTables(atoi(skins[i].starttranscolor), i);
-}
-
 // returns true if the skin name is found (loaded from pwad)
 // warning return -1 if not found
 INT32 R_SkinAvailable(const char *name)
@@ -2825,7 +2816,7 @@ next_token:
 				lastlump++;
 		}
 
-		R_DoSkinTranslationInit();
+		R_FlushTranslationColormapCache();
 
 		CONS_Printf("added skin '%s'\n", skins[numskins].name);
 #ifdef SKINVALUES

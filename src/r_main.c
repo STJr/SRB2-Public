@@ -631,8 +631,6 @@ void R_ExecuteSetViewSize(void)
 
 void R_Init(void)
 {
-	R_LoadSkinTable();
-
 	// screensize independent
 	if (devparm)
 		CONS_Printf("\nR_InitData");

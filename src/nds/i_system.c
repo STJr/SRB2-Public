@@ -7,6 +7,9 @@ UINT8 graphics_started = 0;
 
 UINT8 keyboard_started = 0;
 
+static volatile tic_t ticcount;
+
+
 UINT32 I_GetFreeMem(UINT32 *total)
 {
 	*total = 0;
@@ -15,7 +18,7 @@ UINT32 I_GetFreeMem(UINT32 *total)
 
 tic_t I_GetTime(void)
 {
-	return 0;
+	return ticcount;
 }
 
 void I_Sleep(void){}
@@ -26,12 +29,14 @@ void I_OsPolling(void){}
 
 ticcmd_t *I_BaseTiccmd(void)
 {
-	return NULL;
+	static ticcmd_t emptyticcmd;
+	return &emptyticcmd;
 }
 
 ticcmd_t *I_BaseTiccmd2(void)
 {
-	return NULL;
+	static ticcmd_t emptyticcmd2;
+	return &emptyticcmd2;
 }
 
 void I_Quit(void)
@@ -110,7 +115,15 @@ INT32 I_GetKey(void)
 	return 0;
 }
 
-void I_StartupTimer(void){}
+static void NDS_VBlankHandler(void)
+{
+	ticcount++;
+}
+
+void I_StartupTimer(void)
+{
+	irqSet(IRQ_VBLANK, NDS_VBlankHandler);
+}
 
 void I_AddExitFunc(void (*func)())
 {

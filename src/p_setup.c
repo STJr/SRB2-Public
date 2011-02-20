@@ -35,6 +35,7 @@
 #include "r_data.h"
 #include "r_things.h"
 #include "r_sky.h"
+#include "r_draw.h"
 
 #include "s_sound.h"
 #include "st_stuff.h"
@@ -2095,6 +2096,8 @@ noscript:
 		Z_Free(ss->attached);
 		Z_Free(ss->attachedsolid);
 	}
+
+	R_FlushTranslationColormapCache();
 
 	Z_FreeTags(PU_LEVEL, PU_PURGELEVEL - 1);
 

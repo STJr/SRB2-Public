@@ -477,6 +477,10 @@ ifdef WII
 all:	pre-build $(BIN)/$(DOLNAME)
 endif
 
+ifdef PANDORA
+all:	pre-build $(BIN)/$(PNDNAME)
+endif
+
 ifdef PSP
 all:	 pre-build $(BIN)/$(BINNAME) post-build
 endif

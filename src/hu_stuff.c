@@ -1179,12 +1179,12 @@ void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, I
 		{
 			if (players[tab[i].num].powers[pw_super])
 			{
-				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
+				colormap = R_GetTranslationColormap(players[tab[i].num].skin, players[tab[i].num].powers[pw_super] ? SKINCOLOR_YELLOW : players[tab[i].num].skincolor, GTC_CACHE);
 				V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 			}
 			else
 			{
-				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
+				colormap = R_GetTranslationColormap(players[tab[i].num].skin, tab[i].color, GTC_CACHE);
 				if (players[tab[i].num].health <= 0)
 					V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 				else
@@ -1273,12 +1273,12 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 
 		if (players[tab[i].num].powers[pw_super])
 		{
-			colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
+			colormap = R_GetTranslationColormap(players[tab[i].num].skin, players[tab[i].num].powers[pw_super] ? SKINCOLOR_YELLOW : players[tab[i].num].skincolor, GTC_CACHE);
 			V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 		}
 		else
 		{
-			colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
+			colormap = R_GetTranslationColormap(players[tab[i].num].skin, tab[i].color, GTC_CACHE);
 			if (players[tab[i].num].health <= 0)
 				V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 			else
@@ -1342,12 +1342,12 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 		{
 			if (players[tab[i].num].powers[pw_super])
 			{
-				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
+				colormap = R_GetTranslationColormap(players[tab[i].num].skin, players[tab[i].num].powers[pw_super] ? SKINCOLOR_YELLOW : players[tab[i].num].skincolor, GTC_CACHE);
 				V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 			}
 			else
 			{
-				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
+				colormap = R_GetTranslationColormap(players[tab[i].num].skin, tab[i].color, GTC_CACHE);
 				if (players[tab[i].num].health <= 0)
 					V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 				else

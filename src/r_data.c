@@ -521,9 +521,9 @@ static void R_InitColormaps(void)
 {
 	lumpnum_t lump;
 
-	// Load in the light tables, now 64k aligned for smokie...
+	// Load in the light tables
 	lump = W_GetNumForName("COLORMAP");
-	colormaps = Z_MallocAlign(W_LumpLength (lump), PU_STATIC, NULL, 16);
+	colormaps = Z_MallocAlign(W_LumpLength (lump), PU_STATIC, NULL, 8);
 	W_ReadLump(lump, colormaps);
 
 	// Init Boom colormaps.
@@ -896,7 +896,7 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 #define ABS2(x) ((x) < 0 ? -(x) : (x))
 	if (rendermode == render_soft)
 	{
-		colormap_p = Z_MallocAlign((256 * 34) + 10, PU_LEVEL, NULL, 16);
+		colormap_p = Z_MallocAlign((256 * 34) + 10, PU_LEVEL, NULL, 8);
 		extra_colormaps[mapnum].colormap = (UINT8 *)colormap_p;
 
 		for (p = 0; p < 34; p++)
