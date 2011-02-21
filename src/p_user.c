@@ -10091,7 +10091,7 @@ void P_PlayerAfterThink(player_t *player)
 	if (!player->mo)
 	{
 		const size_t playeri = (size_t)(player - players);
-		I_Error("P_PlayerAfterThink: players[%s].mo == NULL", sizeu1(playeri);
+		I_Error("P_PlayerAfterThink: players[%s].mo == NULL", sizeu1(playeri));
 	}
 #endif
 
