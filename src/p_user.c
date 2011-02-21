@@ -9592,7 +9592,7 @@ void P_PlayerThink(player_t *player)
 
 #ifdef PARANOIA
 	if (!player->mo)
-		I_Error("p_playerthink: players[%s].mo == NULL", sizeu1(playeri);
+		I_Error("p_playerthink: players[%s].mo == NULL", sizeu1(playeri));
 #endif
 
 	// todo: Figure out what is actually causing these problems in the first place...

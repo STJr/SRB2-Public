@@ -2961,7 +2961,7 @@ FILESTAMP
 					if (tic >= firstticstosend + BACKUPTICS)
 					{
 						DEBFILE(va("GetPacket: Textcmd too long (max %s, used %s, mak %d, "
-							"tosend %u, node %u, player %d)\n", sizeu1(j), sizeu1(TotalTextCmdPerTic(maketic)),
+							"tosend %u, node %u, player %d)\n", sizeu1(j), sizeu2(TotalTextCmdPerTic(maketic)),
 							maketic, firstticstosend, node, netconsole));
 						Net_UnAcknowledgPacket(node);
 						break;
