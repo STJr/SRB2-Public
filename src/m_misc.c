@@ -47,6 +47,14 @@
 #include "sdl/hwsym_sdl.h"
 #endif
 
+#if defined (_WIN32)
+#define PRIdS "Iu"
+#elif defined (_PSP) || defined (_arch_dreamcast) || defined (DJGPP) || defined (_WII) || defined (_NDS) || defined (_PS3)
+#define PRIdS "u"
+#else
+#define PRIdS "zu"
+#endif
+
 #ifdef HAVE_PNG
 
 #ifndef _MSC_VER
@@ -1430,6 +1438,47 @@ void strcatbf(char *s1, const char *s2, const char *s3)
 	strcat(s1, tmp);
 }
 
+/** Set of functions to take in a size_t as an argument,
+  * put the argument in a character buffer, and return the
+  * pointer to that buffer.
+  * This is to eliminate usage of PRIdS, so gettext can work
+  * with *all* of SRB2's strings.
+  */
+char *sizeu1(size_t num)
+{
+	static char sizeu1_buf[28];
+	sprintf(sizeu1_buf, "%"PRIdS, num);
+	return sizeu1_buf;
+}
+
+char *sizeu2(size_t num)
+{
+	static char sizeu2_buf[28];
+	sprintf(sizeu2_buf, "%"PRIdS, num);
+	return sizeu2_buf;
+}
+
+char *sizeu3(size_t num)
+{
+	static char sizeu3_buf[28];
+	sprintf(sizeu3_buf, "%"PRIdS, num);
+	return sizeu3_buf;
+}
+
+char *sizeu4(size_t num)
+{
+	static char sizeu4_buf[28];
+	sprintf(sizeu4_buf, "%"PRIdS, num);
+	return sizeu4_buf;
+}
+
+char *sizeu5(size_t num)
+{
+	static char sizeu5_buf[28];
+	sprintf(sizeu5_buf, "%"PRIdS, num);
+	return sizeu5_buf;
+}
+
 #if defined (__GNUC__) && defined (__i386__) // from libkwave, under GPL
 // Alam: note libkwave memcpy code comes from mplayer's libvo/aclib_template.c, r699
 
@@ -1709,13 +1758,13 @@ static void *cpu_cpy(void *dest, const void *src, size_t n)
 {
 	if(src == NULL)
 	{
-		I_OutputMsg("Memcpy from 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
+		I_OutputMsg("Memcpy from 0x0?!: %p %p %s\n", dest, src, sizeu1(n));
 		return dest;
 	}
 
 	if(dest == NULL)
 	{
-		I_OutputMsg("Memcpy to 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
+		I_OutputMsg("Memcpy to 0x0?!: %p %p %s\n", dest, src, sizeu1(n));
 		return dest;
 	}
 

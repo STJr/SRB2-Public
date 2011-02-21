@@ -325,7 +325,7 @@ void R_LoadTextures(void)
 	name_p = pnames+4;
 	patchlookup = malloc(nummappatches*sizeof (*patchlookup));
 	if (!patchlookup)
-		I_Error("Could not malloc %"PRIdS" bytes for patchloopup", (size_t)nummappatches*sizeof (*patchlookup));
+		I_Error("Could not malloc %s bytes for patchloopup", sizeu1((size_t)nummappatches*sizeof (*patchlookup)));
 
 	for (i = 0; i < nummappatches; i++)
 	{
@@ -478,7 +478,7 @@ static void R_InitExtraColormaps(void)
 		colormaplumps[numcolormaplumps].numlumps = endnum - (startnum + 1);
 		numcolormaplumps++;
 	}
-	CONS_Printf("Number of Extra Colormaps: %"PRIdS"\n", numcolormaplumps);
+	CONS_Printf("Number of Extra Colormaps: %s\n", sizeu1(numcolormaplumps));
 }
 
 lumpnum_t R_GetFlatNumForName(const char *name)
@@ -1089,7 +1089,7 @@ INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 			}
 
 			if (lines[linenum].special != 259) // Make-Your-Own FOF
-				CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%"PRIdS", side %d).\nDefaulting to REDWALL.\n", name, sidenum, linenum, whichside);
+				CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%s, side %d).\nDefaulting to REDWALL.\n", name, sidenum, sizeu1(linenum), whichside);
 		}
 	}
 
@@ -1214,8 +1214,8 @@ void R_PrecacheLevel(void)
 	if (devparm)
 	{
 		CONS_Printf("Precache level done:\n"
-			"flatmemory:    %"PRIdS" k\n"
-			"texturememory: %"PRIdS" k\n"
-			"spritememory:  %"PRIdS" k\n", flatmemory>>10, texturememory>>10, spritememory>>10);
+			"flatmemory:    %s k\n"
+			"texturememory: %s k\n"
+			"spritememory:  %s k\n", sizeu1(flatmemory>>10), sizeu2(texturememory>>10), sizeu3(spritememory>>10));
 	}
 }

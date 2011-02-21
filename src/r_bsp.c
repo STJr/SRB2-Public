@@ -725,7 +725,7 @@ static void R_Subsector(size_t num)
 
 #ifdef RANGECHECK
 	if (num >= numsubsectors)
-		I_Error("R_Subsector: ss %"PRIdS" with numss = %"PRIdS"\n", num, numsubsectors);
+		I_Error("R_Subsector: ss %s with numss = %s\n", sizeu1(num), sizeu2(numsubsectors));
 #endif
 
 	// subsectors added at run-time

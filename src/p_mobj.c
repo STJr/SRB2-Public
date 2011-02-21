@@ -7553,7 +7553,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 
 		if (line == numlines)
 		{
-			CONS_Printf("Mace chain (mapthing #%"PRIdS") needs tagged to a #9 parameter line (trying to find tag %d).\n", mthingi, mthing->angle);
+			CONS_Printf("Mace chain (mapthing #%s) needs tagged to a #9 parameter line (trying to find tag %d).\n", sizeu1(mthingi), mthing->angle);
 			return;
 		}
 /*
@@ -7575,7 +7575,7 @@ ML_NOCLIMB : Direction not controllable
 
 		if (cv_debug)
 		{
-			CONS_Printf("Mace Chain (mapthing #%"PRIdS"):\n", mthingi);
+			CONS_Printf("Mace Chain (mapthing #%s):\n", sizeu1(mthingi));
 			CONS_Printf("Length is %d\n", mlength);
 			CONS_Printf("Speed is %d\n", mspeed);
 			CONS_Printf("Xspeed is %d\n", mxspeed);

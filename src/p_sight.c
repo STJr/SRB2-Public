@@ -168,7 +168,7 @@ static boolean P_CrossSubsector(size_t num, register los_t *los)
 
 #ifdef RANGECHECK
 	if (num >= numsubsectors)
-		I_Error("P_CrossSubsector: ss %"PRIdS" with numss = %"PRIdS"\n", num, numsubsectors);
+		I_Error("P_CrossSubsector: ss %s with numss = %s\n", sizeu1(num), sizeu2(numsubsectors));
 #endif
 
 	// haleyjd 02/23/06: this assignment should be after the above check

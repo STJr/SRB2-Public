@@ -499,7 +499,7 @@ INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 		levelflat->lumpnum = R_GetFlatNumForName(flatname);
 
 		if (devparm)
-			I_OutputMsg("flat #%03"PRIdS": %s\n", numlevelflats, levelflat->name);
+			I_OutputMsg("flat #%03d: %s\n", atoi(sizeu1(numlevelflats)), levelflat->name);
 
 		numlevelflats++;
 
@@ -986,7 +986,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (UINT16)numsides)
 				{
 					ld->sidenum[j] = 0xffff;
-					CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has out-of-range sidedef number\n",numlines-i-1);
+					CONS_Printf("P_LoadLineDefs: linedef %s has out-of-range sidedef number\n", sizeu1(numlines-i-1));
 				}
 			}
 		}
@@ -1000,14 +1000,14 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 		{
 			ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
 			// cph - print a warning about the bug
-			CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" missing first sidedef\n",numlines-i-1);
+			CONS_Printf("P_LoadLineDefs: linedef %s missing first sidedef\n", sizeu1(numlines-i-1));
 		}
 
 		if ((ld->sidenum[1] == 0xffff) && (ld->flags & ML_TWOSIDED))
 		{
 			ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 			// cph - print a warning about the bug
-			CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has two-sided flag set, but no second sidedef\n",numlines-i-1);
+			CONS_Printf("P_LoadLineDefs: linedef %s has two-sided flag set, but no second sidedef\n", sizeu1(numlines-i-1));
 		}
 
 		if (ld->sidenum[0] != 0xffff && ld->special)
@@ -1094,7 +1094,7 @@ static void P_LoadLineDefs2(void)
 				M_Memcpy(&newsides[z++], &sides[i], sizeof(side_t));
 		}
 
-		CONS_Printf("Old sides is %"PRIdS", new sides is %"PRIdS"\n", numsides, numnewsides);
+		CONS_Printf("Old sides is %s, new sides is %s\n", sizeu1(numsides), sizeu2(numnewsides));
 
 		Z_Free(sides);
 		sides = newsides;
@@ -1641,21 +1641,21 @@ static void P_GroupLines(void)
 	{
 		if (ss->firstline >= numsegs)
 			CorruptMapError(va("P_GroupLines: ss->firstline invalid "
-				"(subsector %"PRIdS", firstline refers to %d of %"PRIdS")", i, ss->firstline,
-				numsegs));
+				"(subsector %s, firstline refers to %d of %s)", sizeu1(i), ss->firstline,
+				sizeu2(numsegs)));
 		seg = &segs[ss->firstline];
 		sidei = (size_t)(seg->sidedef - sides);
 		if (!seg->sidedef)
 			CorruptMapError(va("P_GroupLines: seg->sidedef is NULL "
-				"(subsector %"PRIdS", firstline is %d)", i, ss->firstline));
+				"(subsector %s, firstline is %d)", sizeu1(i), ss->firstline));
 		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (UINT16)numsides)
-			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %"PRIdS" of %"PRIdS" "
-				"(subsector %"PRIdS", firstline is %d)", sidei, numsides,
-				i, ss->firstline));
+			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %s of %s "
+				"(subsector %s, firstline is %d)", sizeu1(sidei), sizeu2(numsides),
+				sizeu3(i), ss->firstline));
 		if (!seg->sidedef->sector)
 			CorruptMapError(va("P_GroupLines: seg->sidedef->sector is NULL "
-				"(subsector %"PRIdS", firstline is %d, sidedef is %"PRIdS")", i, ss->firstline,
-				sidei));
+				"(subsector %s, firstline is %d, sidedef is %s)", sizeu1(i), ss->firstline,
+				sizeu1(sidei)));
 		ss->sector = seg->sidedef->sector;
 	}
 
@@ -2464,9 +2464,9 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 			texturechange = true;
 	}
 	if (!devparm && sreplaces)
-		CONS_Printf("%"PRIdS" sounds replaced\n", sreplaces);
+		CONS_Printf("%s sounds replaced\n", sizeu1(sreplaces));
 	if (!devparm && mreplaces)
-		CONS_Printf("%"PRIdS" musics replaced\n", mreplaces);
+		CONS_Printf("%s musics replaced\n", sizeu1(mreplaces));
 
 	//
 	// search for sprite replacements

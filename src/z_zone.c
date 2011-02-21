@@ -161,8 +161,8 @@ static void *xm(size_t size)
 {
 	void *p = malloc(size);
 	if (p == NULL)
-		I_Error("Out of memory allocating %"PRIdS" bytes",
-			size);
+		I_Error("Out of memory allocating %s bytes",
+			sizeu1(size));
 	return p;
 }
 
@@ -228,7 +228,7 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	}
 	else if (tag >= PU_PURGELEVEL)
 		I_Error("Z_Malloc: attempted to allocate purgable block "
-			"(size %"PRIdS") with no user", size);
+			"(size %s) with no user", sizeu1(size));
 
 	return given;
 }
@@ -449,26 +449,26 @@ void Command_Memfree_f(void)
 
 	Z_CheckHeap(-1);
 	CONS_Printf("\2Memory Info\n");
-	CONS_Printf("Total heap used   : %7"PRIdS" KB\n", Z_TagsUsage(0, INT32_MAX)>>10);
-	CONS_Printf("Static            : %7"PRIdS" KB\n", Z_TagUsage(PU_STATIC)>>10);
-	CONS_Printf("Static (sound)    : %7"PRIdS" KB\n", Z_TagUsage(PU_SOUND)>>10);
-	CONS_Printf("Static (music)    : %7"PRIdS" KB\n", Z_TagUsage(PU_MUSIC)>>10);
-	CONS_Printf("Level             : %7"PRIdS" KB\n", Z_TagUsage(PU_LEVEL)>>10);
-	CONS_Printf("Special thinker   : %7"PRIdS" KB\n", Z_TagUsage(PU_LEVSPEC)>>10);
-	CONS_Printf("All purgable      : %7"PRIdS" KB\n",
-		Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10);
+	CONS_Printf("Total heap used   : %7s KB\n", sizeu1(Z_TagsUsage(0, INT32_MAX)>>10));
+	CONS_Printf("Static            : %7s KB\n", sizeu1(Z_TagUsage(PU_STATIC)>>10));
+	CONS_Printf("Static (sound)    : %7s KB\n", sizeu1(Z_TagUsage(PU_SOUND)>>10));
+	CONS_Printf("Static (music)    : %7s KB\n", sizeu1(Z_TagUsage(PU_MUSIC)>>10));
+	CONS_Printf("Level             : %7s KB\n", sizeu1(Z_TagUsage(PU_LEVEL)>>10));
+	CONS_Printf("Special thinker   : %7s KB\n", sizeu1(Z_TagUsage(PU_LEVSPEC)>>10));
+	CONS_Printf("All purgable      : %7s KB\n",
+		sizeu1(Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10));
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		CONS_Printf("Patch info headers: %7"PRIdS" KB\n",
-			Z_TagUsage(PU_HWRPATCHINFO)>>10);
-		CONS_Printf("Mipmap patches    : %7"PRIdS" KB\n",
-			Z_TagUsage(PU_HWRPATCHCOLMIPMAP)>>10);
-		CONS_Printf("HW Texture cache  : %7"PRIdS" KB\n",
-			Z_TagUsage(PU_HWRCACHE)>>10);
-		CONS_Printf("Plane polygons    : %7"PRIdS" KB\n",
-			Z_TagUsage(PU_HWRPLANE)>>10);
+		CONS_Printf("Patch info headers: %7s KB\n",
+			sizeu1(Z_TagUsage(PU_HWRPATCHINFO)>>10));
+		CONS_Printf("Mipmap patches    : %7s KB\n",
+			sizeu1(Z_TagUsage(PU_HWRPATCHCOLMIPMAP)>>10));
+		CONS_Printf("HW Texture cache  : %7s KB\n",
+			sizeu1(Z_TagUsage(PU_HWRCACHE)>>10));
+		CONS_Printf("Plane polygons    : %7s KB\n",
+			sizeu1(Z_TagUsage(PU_HWRPLANE)>>10));
 		CONS_Printf("HW Texture used   : %7d KB\n",
 			HWR_GetTextureUsed()>>10);
 	}

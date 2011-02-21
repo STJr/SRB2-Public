@@ -535,8 +535,8 @@ static boolean SV_SendServerConfig(INT32 node)
 #ifdef DEBUGFILE
 		if (debugfile)
 		{
-			fprintf(debugfile, "ServerConfig Packet about to be sent, size of packet:%"PRIdS" to node:%d\n",
-				len, node);
+			fprintf(debugfile, "ServerConfig Packet about to be sent, size of packet:%s to node:%d\n",
+				sizeu1(len), node);
 		}
 #endif
 
@@ -2960,8 +2960,8 @@ FILESTAMP
 
 					if (tic >= firstticstosend + BACKUPTICS)
 					{
-						DEBFILE(va("GetPacket: Textcmd too long (max %"PRIdS", used %"PRIdS", mak %d, "
-							"tosend %u, node %u, player %d)\n", j, TotalTextCmdPerTic(maketic),
+						DEBFILE(va("GetPacket: Textcmd too long (max %s, used %s, mak %d, "
+							"tosend %u, node %u, player %d)\n", sizeu1(j), sizeu1(TotalTextCmdPerTic(maketic)),
 							maketic, firstticstosend, node, netconsole));
 						Net_UnAcknowledgPacket(node);
 						break;
@@ -3264,8 +3264,8 @@ static void SV_SendTics(void)
 
 				if (packsize > software_MAXPACKETLENGTH)
 				{
-					DEBFILE(va("packet too large (%"PRIdS") at tic %d (should be from %d to %d)\n",
-						packsize, i, realfirsttic, lasttictosend));
+					DEBFILE(va("packet too large (%s) at tic %d (should be from %d to %d)\n",
+						sizeu1(packsize), i, realfirsttic, lasttictosend));
 					lasttictosend = i;
 
 					// too bad: too much player have send extradata and there is too
@@ -3275,9 +3275,9 @@ static void SV_SendTics(void)
 					if (lasttictosend == realfirsttic)
 					{
 						if (packsize > MAXPACKETLENGTH)
-							I_Error("Too many players: can't send %"PRIdS" data for %d players to node %d\n"
+							I_Error("Too many players: can't send %s data for %d players to node %d\n"
 							        "Well sorry nobody is perfect....\n",
-							        packsize, doomcom->numslots, n);
+							        sizeu1(packsize), doomcom->numslots, n);
 						else
 						{
 							lasttictosend++; // send it anyway!

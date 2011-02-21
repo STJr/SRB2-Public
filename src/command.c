@@ -788,7 +788,7 @@ void *VS_GetSpace(vsbuf_t *buf, size_t length)
 			I_Error("overflow 111");
 
 		if (length > buf->maxsize)
-			I_Error("overflow l%"PRIdS" 112", length);
+			I_Error("overflow l%s 112", sizeu1(length));
 
 		buf->overflowed = true;
 		CONS_Printf("VS buffer overflow");

@@ -638,7 +638,7 @@ static void Polyobj_spawnPolyObj(INT32 num, mobj_t *spawnSpot, INT32 id)
 	}
 
 	if (cv_debug)
-		CONS_Printf("PO ID: %d; Num verts: %"PRIdS"\n", po->id, po->numVertices);
+		CONS_Printf("PO ID: %d; Num verts: %s\n", po->id, sizeu1(po->numVertices));
 
 	// if an error occurred above, quit processing this object
 	if (po->isBad)

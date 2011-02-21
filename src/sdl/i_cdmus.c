@@ -198,7 +198,7 @@ static void Command_Cd_f (void)
 			for (n = 1; n < MAX_CD_TRACKS; n++)
 			{
 				if (cdRemap[n] != n)
-					CONS_Printf("  %"PRIdS" -> %u\n", n, cdRemap[n]);
+					CONS_Printf("  %s -> %u\n", sizeu1(n), cdRemap[n]);
 			}
 			return;
 		}

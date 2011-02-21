@@ -787,7 +787,7 @@ void R_SetupFrame(player_t *player)
 #ifdef PARANOIA
 		{
 			const size_t playeri = (size_t)(player - players);
-			I_Error("R_SetupFrame: viewmobj null (player %"PRIdS")", playeri);
+			I_Error("R_SetupFrame: viewmobj null (player %s)", sizeu1(playeri));
 		}
 #else
 		return;

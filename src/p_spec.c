@@ -332,8 +332,8 @@ static inline void P_FindAnimatedFlat(INT32 animnum)
 			foundflats->speed = anims[animnum].speed;
 
 			if (devparm)
-				I_OutputMsg("animflat: #%03"PRIdS" name:%.8s animseq:%d numpics:%d speed:%d\n",
-					i, foundflats->name, foundflats->animseq,
+				I_OutputMsg("animflat: #%03d name:%.8s animseq:%d numpics:%d speed:%d\n",
+					atoi(sizeu1(i)), foundflats->name, foundflats->animseq,
 					foundflats->numpics,foundflats->speed);
 		}
 	}
@@ -1508,7 +1508,7 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 			if (masterlineindex == (size_t)-1)
 			{
 				const size_t li = (size_t)(ctlsector->lines[i] - lines);
-				I_Error("Line %"PRIdS" isn't linked into its front sector", li);
+				I_Error("Line %s isn't linked into its front sector", sizeu1(li));
 			}
 #endif
 
@@ -1536,8 +1536,8 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 					if (j == linecnt)
 					{
 						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
-						CONS_Printf("Warning: Sector %"PRIdS" is not closed at vertex %"PRIdS" (%d, %d)\n",
-							sectori, vertexei,
+						CONS_Printf("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
+							sizeu1(sectori), sizeu2(vertexei),
 							ctlsector->lines[i]->v1->x, ctlsector->lines[i]->v1->y);
 						return; // abort
 					}
@@ -1563,8 +1563,8 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 					if (j == linecnt)
 					{
 						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
-						CONS_Printf("Warning: Sector %"PRIdS" is not closed at vertex %"PRIdS" (%d, %d)\n",
-							sectori, vertexei,
+						CONS_Printf("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
+							sizeu1(sectori), sizeu2(vertexei),
 							ctlsector->lines[i]->v2->x, ctlsector->lines[i]->v2->y);
 						return; // abort
 					}
@@ -6343,7 +6343,7 @@ static void P_SpawnScrollers(void)
 				if (s != 0xffff)
 					Add_Scroller(sc_side, -sides[s].textureoffset, sides[s].rowoffset, -1, lines[i].sidenum[0], accel, 0);
 				else
-					CONS_Printf("Line special 506 (line #%"PRIdS") missing 2nd side!\n", i);
+					CONS_Printf("Line special 506 (line #%s) missing 2nd side!\n", sizeu1(i));
 				break;
 
 			case 500: // scroll first side

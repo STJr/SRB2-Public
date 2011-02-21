@@ -130,7 +130,7 @@ UINT8 *PutFileNeeded(void)
 
 		// Don't write too far...
 		if (bytesused > sizeof(netbuffer->u.serverinfo.fileneeded))
-			I_Error("Too many wad files added to host a game. (%"PRIdS", stopped on %s)\n", bytesused, wadfilename);
+			I_Error("Too many wad files added to host a game. (%s, stopped on %s)\n", sizeu1(bytesused), wadfilename);
 
 		WRITEUINT8(p, filestatus);
 
@@ -265,9 +265,9 @@ boolean SendRequestFile(void)
 	WRITEUINT8(p, 0xFF);
 	I_GetDiskFreeSpace(&availablefreespace);
 	if (totalfreespaceneeded > availablefreespace)
-		I_Error("To play on this server you must download %"PRIdS" KB,\n"
-			"but you have only %"PRIdS" KB free space on this drive\n",
-			(size_t)(totalfreespaceneeded>>10), (size_t)(availablefreespace>>10));
+		I_Error("To play on this server you must download %s KB,\n"
+			"but you have only %s KB free space on this drive\n",
+			sizeu1((size_t)(totalfreespaceneeded>>10)), sizeu2((size_t)(availablefreespace>>10)));
 
 	// prepare to download
 	I_mkdir(downloaddir, 0755);
@@ -565,7 +565,7 @@ void FiletxTicker(void)
 		if (ram)
 			M_Memcpy(p->data, &f->filename[transfer[i].position], size);
 		else if (fread(p->data, 1, size, transfer[i].currentfile) != size)
-			I_Error("FiletxTicker: can't read %"PRIdS" byte on %s at %d because %s", size,f->filename,transfer[i].position, strerror(ferror(transfer[i].currentfile)));
+			I_Error("FiletxTicker: can't read %s byte on %s at %d because %s", sizeu1(size), f->filename, transfer[i].position, strerror(ferror(transfer[i].currentfile)));
 		p->position = LONG(transfer[i].position);
 		// put flag so receiver know the totalsize
 		if (transfer[i].position + size == f->size)

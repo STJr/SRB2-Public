@@ -646,7 +646,7 @@ static void *W_ReadCompressedLump(UINT16 wad, UINT16 lump)
 	if (retval == 0 && errno == E2BIG)
 	{
 		I_Error("wad %d, lump %d: compressed data too big "
-			"(bigger than %"PRIdS")", wad, lump, l->size);
+			"(bigger than %s)", wad, lump, sizeu1(l->size));
 	}
 	else if (retval == 0 && errno == EINVAL)
 		I_Error("wad %d, lump %d: invalid compressed data", wad, lump);
@@ -655,8 +655,8 @@ static void *W_ReadCompressedLump(UINT16 wad, UINT16 lump)
 	if (retval != l->size)
 	{
 		I_Error("wad %d, lump %d: decompressed to wrong number of "
-			"bytes (expected %"PRIdS", got %"PRIdS")", wad, lump,
-			l->size, retval);
+			"bytes (expected %s, got %s)", wad, lump,
+			sizeu1(l->size), sizeu2(retval));
 	}
 	Z_Free(compressed);
 	return data;

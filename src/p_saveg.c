@@ -596,7 +596,7 @@ static void P_NetUnArchiveWorld(void)
 			break;
 
 		if (i > numsectors)
-			I_Error("Invalid sector number %u from server (expected end at %"PRIdS")", i, numsectors);
+			I_Error("Invalid sector number %u from server (expected end at %s)", i, sizeu1(numsectors));
 
 		diff = READUINT8(get);
 		if (diff & SD_DIFF2)
