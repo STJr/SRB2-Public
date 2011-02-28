@@ -712,7 +712,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 
 		// New colormap stuff for skins Tails 06-07-2002
 #ifdef TRANSFIX
-		if (vis->mobj->skin) // This thing is a player!
+		if (vis->mobj->skin && vis->mobj->sprite == SPR_PLAY) // This thing is a player!
 			dc_translation = R_GetTranslationColormap((skin_t*)vis->mobj->skin-skins, vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
@@ -1053,7 +1053,7 @@ static void R_ProjectSprite(mobj_t *thing)
 	rot = thing->frame&FF_FRAMEMASK;
 
 	//Fab : 02-08-98: 'skin' override spritedef currently used for skin
-	if (thing->skin)
+	if (thing->skin && thing->sprite == SPR_PLAY)
 		sprdef = &((skin_t *)thing->skin)->spritedef;
 	else
 		sprdef = &sprites[thing->sprite];
