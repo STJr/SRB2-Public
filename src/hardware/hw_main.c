@@ -2068,8 +2068,8 @@ static void HWR_AddLine(seg_t * line)
 	x2 = gr_viewangletox[angle2];
 #endif
 	// Does not cross a pixel?
-//    if (x1 == x2)
-/*    {
+//	if (x1 == x2)
+/*	{
 		// BP: HERE IS THE MAIN PROBLEM !
 		//CONS_Printf("tineline\n");
 		return;
