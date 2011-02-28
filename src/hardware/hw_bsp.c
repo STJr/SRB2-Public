@@ -646,15 +646,16 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *b
 				sprintf(s, "%d%%", (++ls_percent)<<1);
 				x = BASEVIDWIDTH/2;
 				y = BASEVIDHEIGHT/2;
-				V_DrawPatchFill(W_CachePatchName("SRB2BACK",PU_CACHE));
+				V_DrawFill(0, 0, vid.width, vid.height, 31); // Black background to match fade in effect
+				//V_DrawPatchFill(W_CachePatchName("SRB2BACK",PU_CACHE)); // SRB2 background, ehhh too bright.
 				M_DrawTextBox(x-58, y-8, 13, 1);
 				V_DrawString(x-50, y, V_YELLOWMAP, "Loading...");
 				V_DrawString(x+50-V_StringWidth(s), y, V_YELLOWMAP, s);
 
-				V_DrawCenteredString(BASEVIDWIDTH/2, 40, V_YELLOWMAP, "OPENGL MODE IS INCOMPLETE");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "AND MAY NOT DISPLAY");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 60, V_YELLOWMAP, "SOME SURFACES.");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 80, V_YELLOWMAP, "USE AT SONIC'S RISK.");
+				// Is this really necessary at this point..?
+				V_DrawCenteredString(BASEVIDWIDTH/2, 40, V_YELLOWMAP, "OPENGL MODE IS INCOMPLETE AND MAY");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "NOT DISPLAY SOME SURFACES.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 70, V_YELLOWMAP, "USE AT SONIC'S RISK.");
 
 				I_UpdateNoVsync();
 			}
