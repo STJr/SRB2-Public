@@ -2829,6 +2829,11 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 	GLPatch_t *gpatch; // sprite patch converted to hardware
 	FSurfaceInfo Surf;
 	const boolean hires = (spr->mobj && spr->mobj->flags & MF_HIRES);
+	INT32 this_scale = 100;
+	if (spr->mobj)
+		this_scale = spr->mobj->scale;
+	if (hires)
+		this_scale /= 2;
 
 	if (!spr->mobj)
 		return;
@@ -2856,37 +2861,19 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 	//  | /|
 	//  |/ |
 	//  0--1
-	wallVerts[0].x = wallVerts[3].x = spr->x1;
-	wallVerts[2].x = wallVerts[1].x = spr->x2;
-	wallVerts[2].y = wallVerts[3].y = spr->ty;
-	wallVerts[0].y = wallVerts[1].y = spr->ty - gpatch->height;
-
-	if (hires)
+	if (spr->mobj && this_scale != 100)
 	{
-		wallVerts[0].x = wallVerts[3].x += (spr->x2-spr->x1)/4;
-		wallVerts[2].x = wallVerts[1].x -= (spr->x2-spr->x1)/4;
+		wallVerts[0].x = wallVerts[3].x = FLOATSCALE(spr->x1,this_scale);
+		wallVerts[2].x = wallVerts[1].x = FLOATSCALE(spr->x2,this_scale);
+		wallVerts[2].y = wallVerts[3].y = spr->ty;
+		wallVerts[0].y = wallVerts[1].y = spr->ty - FLOATSCALE(gpatch->height,this_scale);
 	}
-
-	if(spr->mobj && spr->mobj->scale != 100)
+	else
 	{
-		const float radius = (spr->x2-spr->x1)/2;
-		const float scale = (float)(100-spr->mobj->scale);
-		if(spr->mobj->flags & MF_HIRES)
-		{
-			wallVerts[0].x = wallVerts[3].x += FLOATSCALE(radius,scale)/2;
-			wallVerts[2].x = wallVerts[1].x -= FLOATSCALE(radius,scale)/2;
-			wallVerts[0].y = wallVerts[1].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale/2);
-			wallVerts[2].y = wallVerts[3].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale/2);
-			wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
-		}
-		else
-		{
-			wallVerts[0].x = wallVerts[3].x += FLOATSCALE(radius,scale);
-			wallVerts[2].x = wallVerts[1].x -= FLOATSCALE(radius,scale);
-			wallVerts[0].y = wallVerts[1].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale);
-			wallVerts[2].y = wallVerts[3].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale);
-			wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
-		}
+		wallVerts[0].x = wallVerts[3].x = spr->x1;
+		wallVerts[2].x = wallVerts[1].x = spr->x2;
+		wallVerts[2].y = wallVerts[3].y = spr->ty;
+		wallVerts[0].y = wallVerts[1].y = spr->ty - gpatch->height;
 	}
 
 	// make a wall polygon (with 2 triangles), using the floor/ceiling heights,
@@ -2919,22 +2906,14 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		wallVerts[2].sow = wallVerts[1].sow = gpatch->max_s;
 	}
 
-	wallVerts[3].tow = wallVerts[2].tow = 0;
-
-	if (hires)
-		wallVerts[0].tow = wallVerts[1].tow = gpatch->max_t*2;
-	else
-		wallVerts[0].tow = wallVerts[1].tow = gpatch->max_t;
-
-	// flip the texture coords
+	// flip the texture coords (look familiar?)
 	if (spr->vflip)
 	{
-		FLOAT temp = wallVerts[0].tow;
-		wallVerts[0].tow = wallVerts[3].tow;
-		wallVerts[3].tow = temp;
-		temp = wallVerts[1].tow;
-		wallVerts[1].tow = wallVerts[2].tow;
-		wallVerts[2].tow = temp;
+		wallVerts[3].tow = wallVerts[2].tow = gpatch->max_t;
+		wallVerts[0].tow = wallVerts[1].tow = 0;
+	}else{
+		wallVerts[3].tow = wallVerts[2].tow = 0;
+		wallVerts[0].tow = wallVerts[1].tow = gpatch->max_t;
 	}
 
 	// cache the patch in the graphics card memory
@@ -3065,27 +3044,23 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		//  | /|
 		//  |/ |
 		//  0--1
-		swallVerts[0].x = swallVerts[3].x = spr->x1;
-		swallVerts[2].x = swallVerts[1].x = spr->x2;
-
-		if (hires)
+		if (spr->mobj && this_scale != 100)
 		{
-			swallVerts[0].x = swallVerts[3].x += (spr->x2-spr->x1)/4;
-			swallVerts[2].x = swallVerts[1].x -= (spr->x2-spr->x1)/4;
-
+			swallVerts[0].x = swallVerts[3].x = FLOATSCALE(spr->x1,this_scale);
+			swallVerts[2].x = swallVerts[1].x = FLOATSCALE(spr->x2,this_scale);
+			swallVerts[2].y = swallVerts[3].y = spr->tz;
+			swallVerts[0].y = swallVerts[1].y = spr->tz - FLOATSCALE(gpatch->height,this_scale);
 			// Always a pixel above the floor, perfectly flat.
 			swallVerts[0].y = swallVerts[1].y = swallVerts[2].y = swallVerts[3].y =
-				spr->ty - gpatch->height/2 - (gpatch->topoffset-gpatch->height)/2 - (floorheight-1);
-
-			// Spread out top away from the camera. (Fixme: Make it always move out in the same direction!... somehow.)
-			swallVerts[0].z = swallVerts[1].z = spr->tz - (gpatch->height-gpatch->topoffset)/2;
-			swallVerts[2].z = swallVerts[3].z = spr->tz + gpatch->height/2 - (gpatch->height-gpatch->topoffset)/2;
+				spr->ty - FLOATSCALE(gpatch->height,this_scale) - FLOATSCALE(gpatch->topoffset-gpatch->height,this_scale) - (floorheight+3);
 		}
-		else
+		else // This version is far more sane.
 		{
+			swallVerts[0].x = swallVerts[3].x = spr->x1;
+			swallVerts[2].x = swallVerts[1].x = spr->x2;
+
 			// Always a pixel above the floor, perfectly flat.
-			swallVerts[0].y = swallVerts[1].y = swallVerts[2].y = swallVerts[3].y =
-				spr->ty - gpatch->height - (gpatch->topoffset-gpatch->height) - (floorheight+3);
+			swallVerts[0].y = swallVerts[1].y = swallVerts[2].y = swallVerts[3].y = spr->ty - gpatch->height - (gpatch->topoffset-gpatch->height) - (floorheight+3);
 
 			// Spread out top away from the camera. (Fixme: Make it always move out in the same direction!... somehow.)
 			swallVerts[0].z = swallVerts[1].z = spr->tz - (gpatch->height-gpatch->topoffset);
@@ -3118,18 +3093,20 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		{
 			swallVerts[0].sow = swallVerts[3].sow = gpatch->max_s;
 			swallVerts[2].sow = swallVerts[1].sow = 0;
-		}
-		else
-		{
+		}else{
 			swallVerts[0].sow = swallVerts[3].sow = 0;
 			swallVerts[2].sow = swallVerts[1].sow = gpatch->max_s;
 		}
-		swallVerts[3].tow = swallVerts[2].tow = 0;
 
-		if (hires)
-			swallVerts[0].tow = swallVerts[1].tow = gpatch->max_t*2;
-		else
-			swallVerts[0].tow = swallVerts[1].tow = gpatch->max_t;
+		// flip the texture coords (look familiar?)
+		if (spr->vflip)
+		{
+			wallVerts[3].tow = wallVerts[2].tow = gpatch->max_t;
+			wallVerts[0].tow = wallVerts[1].tow = 0;
+		}else{
+			wallVerts[3].tow = wallVerts[2].tow = 0;
+			wallVerts[0].tow = wallVerts[1].tow = gpatch->max_t;
+		}
 
 		sSurf.FlatColor.s.red = 0x00;
 		sSurf.FlatColor.s.blue = 0x00;
@@ -3168,28 +3145,7 @@ noshadow:
 		if (!cv_grmd2.value || (md2_models[spr->mobj->sprite].scale < 0.0f))
 		{
 			if (0x80 > floorheight/4)
-			{
-				if(spr->mobj && spr->mobj->scale != 100)
-				{
-					const float radius = (spr->x2-spr->x1)/2;
-					const float scale = (float)(100-spr->mobj->scale);
-					if(spr->mobj->flags & MF_HIRES)
-					{
-						wallVerts[0].x = wallVerts[3].x += FLOATSCALE(radius,scale)/2;
-						wallVerts[2].x = wallVerts[1].x -= FLOATSCALE(radius,scale)/2;
-						wallVerts[0].y = wallVerts[1].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale/2);
-						wallVerts[2].y = wallVerts[3].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale/2);
-						wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
-					}
-					else
-					{
-						wallVerts[0].x = wallVerts[3].x += FLOATSCALE(radius,scale);
-						wallVerts[2].x = wallVerts[1].x -= FLOATSCALE(radius,scale);
-						wallVerts[0].y = wallVerts[1].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale);
-						wallVerts[2].y = wallVerts[3].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale);
-						wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
-					}
-				}
+			{ // wtf is this all about?...
 				sSurf.FlatColor.s.alpha = (UINT8)(0x80 - floorheight/4);
 				HWD.pfnDrawPolygon(&sSurf, swallVerts, 4, PF_Translucent|PF_Modulated|PF_Clip);
 			}
@@ -3703,9 +3659,12 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	unsigned rot;
 	boolean flip;
 	angle_t ang;
+	INT32 this_scale;
 
 	if (!thing)
 		return;
+	else
+		this_scale = thing->scale;
 
 	// transform the origin point
 	tr_x = FIXED_TO_FLOAT(thing->x) - gr_viewx;
@@ -3843,7 +3802,9 @@ static void HWR_ProjectSprite(mobj_t *thing)
 
 	// set top/bottom coords
 	if (thing->flags & MF_HIRES)
-		vis->ty = FIXED_TO_FLOAT(thing->z + spritecachedinfo[lumpoff].topoffset/2) - gr_viewz;
+		this_scale /= 2;
+	if (this_scale != 100)
+		vis->ty = FIXED_TO_FLOAT(thing->z + FLOATSCALE(spritecachedinfo[lumpoff].topoffset,this_scale)) - gr_viewz;
 	else
 		vis->ty = FIXED_TO_FLOAT(thing->z + spritecachedinfo[lumpoff].topoffset) - gr_viewz;
 
@@ -4743,10 +4704,9 @@ void HWR_DoPostProcessor(void)
 		INT32 flags;
 		FSurfaceInfo Surf;
 
-		// Overkill variables! :D
-		v[0].x = v[2].y = v[3].x = v[3].y = -50.0f;
-		v[0].y = v[1].x = v[1].y = v[2].x = 50.0f;
-		v[0].z = v[1].z = v[2].z = v[3].z = 50.0f;
+		v[0].x = v[2].y = v[3].x = v[3].y = -1.0f;
+		v[0].y = v[1].x = v[1].y = v[2].x = 1.0f;
+		v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
 		flags = PF_Modulated | PF_Translucent | PF_Clip | PF_NoZClip | PF_NoDepthTest | PF_NoTexture;
 		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 255;
@@ -4781,10 +4741,9 @@ void HWR_PrepFadeToBlack(void)
 	INT32 flags;
 	FSurfaceInfo Surf;
 
-	// Overkill variables! :D
-	v[0].x = v[2].y = v[3].x = v[3].y = -50.0f;
-	v[0].y = v[1].x = v[1].y = v[2].x = 50.0f;
-	v[0].z = v[1].z = v[2].z = v[3].z = 50.0f;
+	v[0].x = v[2].y = v[3].x = v[3].y = -1.0f;
+	v[0].y = v[1].x = v[1].y = v[2].x = 1.0f;
+	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
 	flags = PF_Modulated | PF_Translucent | PF_Clip | PF_NoZClip | PF_NoDepthTest | PF_NoTexture;
 	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 0;
