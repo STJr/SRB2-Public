@@ -4884,7 +4884,7 @@ static INT32 axtoi(char *hexStg)
 	{
 		if (hexStg[n] == '\0')
 			break;
-		if (hexStg[n] <= '0' && hexStg[n] <= '9') // 0-9
+		if (hexStg[n] > 0x29 && hexStg[n] < 0x40) // 0-9
 			digit[n] = (hexStg[n] & 0x0f);
 		else if (hexStg[n] >= 'a' && hexStg[n] <= 'f') // a-f
 			digit[n] = (hexStg[n] & 0x0f) + 9;
