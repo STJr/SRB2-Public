@@ -2420,7 +2420,7 @@ void G_DoCompleted(void)
 			if(!mapheaderinfo[cm])
 				P_AllocMapHeader(cm);
 
-			while (!(mapheaderinfo[cm]->typeoflevel & tolflag))
+			while (!mapheaderinfo[cm] || !(mapheaderinfo[cm]->typeoflevel & tolflag))
 			{
 				visitedmap[cm/8] |= (1<<(cm%8));
 				cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
