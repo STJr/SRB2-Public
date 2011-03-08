@@ -400,7 +400,7 @@ static boolean PIT_CheckThing(mobj_t *thing)
 			thing->momy = tmthing->momy;
 		}
 
-		if (thing->type != MT_GARGOYLE || thing->z == thing->subsector->sector->floorheight)
+		if (thing->type != MT_GARGOYLE || P_IsObjectOnGround(thing))
 			S_StartSound(thing, thing->info->activesound);
 
 		P_SetTarget(&thing->target, tmthing);
