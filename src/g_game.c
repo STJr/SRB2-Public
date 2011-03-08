@@ -2420,13 +2420,15 @@ void G_DoCompleted(void)
 			if(!mapheaderinfo[cm])
 				P_AllocMapHeader(cm);
 
-			while (!mapheaderinfo[cm] || !(mapheaderinfo[cm]->typeoflevel & tolflag))
+			if(!mapheaderinfo[cm])
+			{
+				CONS_Printf("Next map given (MAP %d) doesn't exist! Reverting to MAP01.\n", cm+1);
+				cm = 1;
+			}
+			else while (!(mapheaderinfo[cm]->typeoflevel & tolflag))
 			{
 				visitedmap[cm/8] |= (1<<(cm%8));
-				if (mapheaderinfo[cm])
-					cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
-				else
-					cm = NUMMAPS;
+				cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
 				if (cm >= NUMMAPS || cm < 0) // out of range (either 1100-1102 or error)
 				{
 					cm = nextmap; //Start the loop again so that the error checking below is executed.
