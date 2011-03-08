@@ -2423,7 +2423,10 @@ void G_DoCompleted(void)
 			while (!mapheaderinfo[cm] || !(mapheaderinfo[cm]->typeoflevel & tolflag))
 			{
 				visitedmap[cm/8] |= (1<<(cm%8));
-				cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
+				if (mapheaderinfo[cm])
+					cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
+				else
+					cm = NUMMAPS;
 				if (cm >= NUMMAPS || cm < 0) // out of range (either 1100-1102 or error)
 				{
 					cm = nextmap; //Start the loop again so that the error checking below is executed.
