@@ -2457,6 +2457,8 @@ void G_DoCompleted(void)
 							prevmap+1, cm+1);
 					break;
 				}
+				if(!mapheaderinfo[cm])
+					P_AllocMapHeader(cm);
 			}
 			nextmap = cm;
 		}
