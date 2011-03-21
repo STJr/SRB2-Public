@@ -3787,7 +3787,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 			vis->colormap = R_GetTranslationColormap((skin_t*)vis->mobj->skin-skins, vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
-			vis->colormap = R_GetTranslationColormap([vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
+			vis->colormap = R_GetTranslationColormap((vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
 #endif
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
 			vis->colormap = (UINT8 *)bosstranslationtables;

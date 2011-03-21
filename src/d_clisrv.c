@@ -3005,7 +3005,7 @@ FILESTAMP
 					// doomcom->numslots+1 "+1" since doomcom->numslots can change within this time and sent time
 					j = software_MAXPACKETLENGTH
 						- (netbuffer->u.textcmd[0]+2+BASESERVERTICSSIZE
-						+ (doomcom->numslots+1)*sizeof (ticcmd_t));
+						+ (doomcom->numslots+1)*sizeof(ticcmd_t));
 
 					// search a tic that have enougth space in the ticcmd
 					while ((TotalTextCmdPerTic(tic) > j || netbuffer->u.textcmd[0]

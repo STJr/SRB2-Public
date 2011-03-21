@@ -2960,7 +2960,7 @@ static boolean M_QuitMultiPlayerMenu(void);
 
 static menuitem_t SetupMultiPlayerMenu[] =
 {
-	{IT_KEYHANDLER | IT_STRING,   NULL, "Your name",   M_HandleSetupMultiPlayer,   0},
+	{IT_KEYHANDLER | IT_STRING,   NULL, "Your name",   M_HandleSetupMultiPlayer,  0},
 
 	{IT_KEYHANDLER | IT_STRING,   NULL, "Your color",  M_HandleSetupMultiPlayer,  16},
 
@@ -3062,7 +3062,7 @@ static state_t * multi_state;
 // this is set before entering the MultiPlayer setup menu,
 // for either player 1 or 2
 static char       setupm_name[MAXPLAYERNAME+1];
-static player_t * setupm_player;
+static player_t *setupm_player;
 static consvar_t *setupm_cvskin;
 static consvar_t *setupm_cvcolor;
 static consvar_t *setupm_cvname;

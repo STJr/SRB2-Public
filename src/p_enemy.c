@@ -3235,7 +3235,6 @@ void A_JetChase(mobj_t *actor)
 void A_JetbThink(mobj_t *actor)
 {
 	sector_t *nextsector;
-
 	fixed_t thefloor;
 
 	if (actor->z >= actor->waterbottom && actor->watertop > actor->floorz
@@ -3246,7 +3245,7 @@ void A_JetbThink(mobj_t *actor)
 
 	if (actor->target)
 	{
-		A_JetChase (actor);
+		A_JetChase(actor);
 		// check for melee attack
 		if ((actor->z > (actor->floorz + (32<<FRACBITS)))
 			&& P_CheckMeleeRange (actor) && !actor->reactiontime
@@ -3265,7 +3264,7 @@ void A_JetbThink(mobj_t *actor)
 			actor->z = thefloor+(32<<FRACBITS);
 
 	if (!actor->target || !(actor->target->flags & MF_SHOOTABLE))
-    {
+	{
 		// look for a new target
 		if (P_LookForPlayers(actor, true, false, 0))
 			return; // got a new target
@@ -4094,47 +4093,7 @@ void A_RingExplode(mobj_t *actor)
 		if (mo2->flags & MF_SHOOTABLE)
 		{
 			actor->flags2 |= MF2_DEBRIS;
-#if 0
-			// Fun experimental explosion hop code.
-			// TF2 in my SRB2? It's more likely than you think.
-			if (mo2->player && (mo2->player == actor->target->player) && actor->type == MT_THROWNEXPLOSION)
-			{
-				player_t *jumpingplayer;
-				angle_t jumpangle;
-				fixed_t horizdist, vertdist;
-				fixed_t horizmom, vertmom;
-
-				jumpingplayer = actor->target->player;
-				jumpangle = R_PointToAngle2(actor->x, actor->y, jumpingplayer->mo->x, jumpingplayer->mo->y);
-
-				// Scale force based on distance from explosive.
-				horizdist = P_AproxDistance(actor->x - jumpingplayer->mo->x, actor->y - jumpingplayer->mo->y);
-				vertdist = abs(actor->z - jumpingplayer->mo->z);
-				horizmom = FixedMul(20*FRACUNIT, FixedDiv(actor->info->painchance - horizdist, actor->info->painchance));
-				vertmom = FixedMul(20*FRACUNIT, FixedDiv(actor->info->painchance - vertdist, actor->info->painchance));
-
-				//Minimum force
-				if (horizmom < 8*FRACUNIT)
-					horizmom = 8*FRACUNIT;
-				if (vertmom < 8*FRACUNIT)
-					vertmom = 8*FRACUNIT;
-
-				// Horizontal momentum.
-				P_InstaThrust(jumpingplayer->mo, jumpangle, horizmom);
-
-				// If off the ground, apply vertical momentum.
-				if (!P_IsObjectOnGround(jumpingplayer->mo))
-				{
-					if (actor->z > jumpingplayer->mo->z)
-						jumpingplayer->mo->momz -= vertmom;
-					else
-						jumpingplayer->mo->momz += vertmom;
-				}
-			}
-			else
-#endif
-				P_DamageMobj(mo2, actor, actor->target, 1);
-
+			P_DamageMobj(mo2, actor, actor->target, 1);
 			continue;
 		}
 	}

@@ -18,7 +18,6 @@
 /// \brief Main program, simply calls D_SRB2Main and D_SRB2Loop, the high level loop.
 
 #include "../doomdef.h"
-
 #include "../m_argv.h"
 #include "../d_main.h"
 #include "../i_system.h"

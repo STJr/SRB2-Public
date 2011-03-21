@@ -1890,7 +1890,7 @@ static void ST_overlayDrawer(void)
 					V_NOSCALESTART|V_TRANSLUCENT,superprefix[stplyr->skin]);
 			}
 			else
-			{	
+			{
 				UINT8 *colormap = R_GetTranslationColormap(stplyr->skin, stplyr->powers[pw_super] ? SKINCOLOR_YELLOW : stplyr->skincolor, GTC_CACHE);
 				V_DrawSmallMappedPatch(SCX(hudinfo[HUD_LIVESPIC].x), SCY(hudinfo[HUD_LIVESPIC].y - (splitscreen ? 8 : 0)),
 					V_NOSCALESTART|V_TRANSLUCENT,superprefix[stplyr->skin], colormap);

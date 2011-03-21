@@ -709,7 +709,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 		if (vis->mobj->player) // This thing is a player!
 		{
 			if (vis->mobj->player->skincolor)
-				dc_translation = R_GetTranslationColormap(vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
+				dc_translation = G_GetTranslationColormap(vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
 			else
 			{
 				static INT32 firsttime = 1;
@@ -753,6 +753,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	spryscale = vis->scale;
 	sprtopscreen = centeryfrac - FixedMul(dc_texturemid, spryscale);
 	windowtop = windowbottom = sprbotscreen = INT32_MAX;
+
 	if (vis->mobjflags & MF_HIRES)
 	{
 		spryscale >>= 1;
