@@ -535,7 +535,7 @@ void I_OutputMsg(const char *fmt, ...)
 	HANDLE co = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD bytesWritten;
 	va_list argptr;
-	char txt[128];
+	char txt[8192];
 
 	va_start(argptr,fmt);
 	vsprintf(txt, fmt, argptr);
