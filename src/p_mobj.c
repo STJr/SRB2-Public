@@ -2701,7 +2701,7 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 			if (player == &players[secondarydisplayplayer])
 				cam_height = cv_cam2_height.value;
 			if (thiscam->z > player->mo->z + player->mo->height + cam_height*FRACUNIT + 16*FRACUNIT)
-				P_ResetCamera(player, &camera);
+				P_ResetCamera(player, thiscam);
 		}
 
 		if (thiscam->z + thiscam->height > thiscam->ceilingz)
@@ -2715,7 +2715,7 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 			thiscam->z = thiscam->ceilingz - thiscam->height;
 
 			if (thiscam->z + thiscam->height < player->mo->z - player->mo->height)
-				P_ResetCamera(player, &camera);
+				P_ResetCamera(player, thiscam);
 		}
 	}
 
