@@ -168,17 +168,11 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 	if ((fhandle = fopen(filename, "rb")) != NULL)
 	{
 		tic_t t = I_GetTime();
-#ifndef _arch_dreamcast
-		if (devparm)
-#endif
-		CONS_Printf("Making MD5 for %s\n",filename);
+		DEBPRINT(va("Making MD5 for %s\n",filename));
 		if (md5_stream(fhandle, resblock) == 1)
 			return 1;
-#ifndef _arch_dreamcast
-		if (devparm)
-#endif
-		CONS_Printf("MD5 calc for %s took %f seconds\n",
-			filename, (float)(I_GetTime() - t)/TICRATE);
+		DEBPRINT(va("MD5 calc for %s took %f seconds\n",
+			filename, (float)(I_GetTime() - t)/TICRATE));
 		fclose(fhandle);
 		return 0;
 	}
@@ -214,7 +208,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	// Shut the compiler up.
 	(void)dummycheck;
 
-	//CONS_Printf("Loading %s\n", filename);
+	//DEBPRINT(va("Loading %s\n", filename));
 	//
 	// check if limit of active wadfiles
 	//
@@ -464,7 +458,7 @@ INT32 W_InitMultipleFiles(char **filenames)
 	// will be realloced as lumps are added
 	for (; *filenames; filenames++)
 	{
-		//CONS_Printf("Loading %s\n", *filenames);
+		//DEBPRINT(va("Loading %s\n", *filenames));
 		rc &= (W_LoadWadFile(*filenames) != INT16_MAX) ? 1 : 0;
 	}
 

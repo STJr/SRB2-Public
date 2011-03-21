@@ -1632,7 +1632,7 @@ static void V_BlitScaledPic(INT32 rx1, INT32 ry1, INT32 scrn, pic_t * pic)
 
 	if (pic->mode != 0)
 	{
-		CONS_Printf("pic mode %d not supported in Software\n", pic->mode);
+		DEBPRINT(va("pic mode %d not supported in Software\n", pic->mode));
 		return;
 	}
 
@@ -2618,8 +2618,8 @@ void V_Init(void)
 		screens[0] = vid.direct;
 
 #ifdef DEBUG
-	CONS_Printf("V_Init done:\n");
+	DEBPRINT("V_Init done:\n");
 	for (i = 0; i < NUMSCREENS+1; i++)
-		CONS_Printf(" screens[%d] = %x\n", i, screens[i]);
+		DEBPRINT(va(" screens[%d] = %x\n", i, screens[i]));
 #endif
 }

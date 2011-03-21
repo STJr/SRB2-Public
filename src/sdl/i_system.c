@@ -955,7 +955,10 @@ static void I_ShutdownJoystick(void)
 	if (!joystick_started && !joystick2_started && SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK)
 	{
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		if (cv_usejoystick.value==0) CONS_Printf("I_Joystick: SDL's Joystick system has been shutdown\n");
+		if (cv_usejoystick.value == 0)
+		{
+			DEBPRINT("I_Joystick: SDL's Joystick system has been shutdown\n");
+		}
 	}
 }
 
@@ -1142,7 +1145,7 @@ static int joy_open(const char *fname)
 
 	if (joyindex <= 0 || num_joy == 0 || JoyInfo.oldjoy == joyindex)
 	{
-//		CONS_Printf("Unable to use that joystick #(%s), non-number\n",fname);
+//		DEBPRINT(va("Unable to use that joystick #(%s), non-number\n",fname));
 		if (num_joy != 0)
 		{
 			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
@@ -1170,7 +1173,7 @@ static int joy_open(const char *fname)
 			JoyInfo.axises = JOYAXISSET*2;
 /*		if (joyaxes<2)
 		{
-			CONS_Printf("Not enought axes?\n");
+			DEBPRINT("Not enought axes?\n");
 			I_ShutdownJoystick();
 			return 0;
 		}*/
@@ -1246,7 +1249,10 @@ static void I_ShutdownJoystick2(void)
 	if (!joystick_started && !joystick2_started && SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK)
 	{
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		if (cv_usejoystick2.value == 0) CONS_Printf("I_Joystick2: SDL's Joystick system has been shutdown\n");
+		if (cv_usejoystick2.value == 0)
+		{
+			DEBFILE("I_Joystick2: SDL's Joystick system has been shutdown\n");
+		}
 	}
 }
 
@@ -1431,7 +1437,7 @@ static int joy_open2(const char *fname)
 
 	if (joyindex <= 0 || num_joy == 0 || JoyInfo2.oldjoy == joyindex)
 	{
-//		CONS_Printf("Unable to use that joystick #(%s), non-number\n",fname);
+//		DEBPRINT(va("Unable to use that joystick #(%s), non-number\n",fname));
 		if (num_joy != 0)
 		{
 			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
@@ -1459,7 +1465,7 @@ static int joy_open2(const char *fname)
 			JoyInfo2.axises = JOYAXISSET*2;
 /*		if (joyaxes < 2)
 		{
-			CONS_Printf("Not enought axes?\n");
+			DEBPRINT("Not enought axes?\n");
 			I_ShutdownJoystick2();
 			return 0;
 		}*/
@@ -2169,10 +2175,10 @@ INT32 I_StartupSystem(void)
 	SDL_VERSION(&SDLcompiled)
 	SDLlinked = SDL_Linked_Version();
 	I_StartupConsole();
-	CONS_Printf("Compiled for SDL version: %d.%d.%d\n",
-	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch);
-	CONS_Printf("Linked with SDL version: %d.%d.%d\n",
-	 SDLlinked->major, SDLlinked->minor, SDLlinked->patch);
+	DEBPRINT(va("Compiled for SDL version: %d.%d.%d\n",
+	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch));
+	DEBPRINT(va("Linked with SDL version: %d.%d.%d\n",
+	 SDLlinked->major, SDLlinked->minor, SDLlinked->patch));
 #if 0 //#ifdef GP2X //start up everything
 	if (SDL_Init(SDL_INIT_NOPARACHUTE|SDL_INIT_EVERYTHING) < 0)
 #else
@@ -2673,7 +2679,7 @@ static const char *locateWad(void)
 	const char *envstr;
 	const char *WadPath;
 
-	I_OutputMsg("SRB2WADDIR");
+	DEBPRINT("SRB2WADDIR");
 	// does SRB2WADDIR exist?
 	if (((envstr = I_GetEnv("SRB2WADDIR")) != NULL) && isWadPathOk(envstr))
 		return envstr;
@@ -2688,7 +2694,7 @@ static const char *locateWad(void)
 #endif
 
 #ifndef NOCWD
-	I_OutputMsg(",.");
+	DEBPRINT(",.");
 	// examine current dir
 	strcpy(returnWadPath, ".");
 	if (isWadPathOk(returnWadPath))
@@ -2697,50 +2703,50 @@ static const char *locateWad(void)
 
 	// examine default dirs
 #ifdef DEFAULTWADLOCATION1
-	I_OutputMsg(","DEFAULTWADLOCATION1);
+	DEBPRINT(","DEFAULTWADLOCATION1);
 	strcpy(returnWadPath, DEFAULTWADLOCATION1);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION2
-	I_OutputMsg(","DEFAULTWADLOCATION2);
+	DEBPRINT(","DEFAULTWADLOCATION2);
 	strcpy(returnWadPath, DEFAULTWADLOCATION2);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION3
-	I_OutputMsg(","DEFAULTWADLOCATION3);
+	DEBPRINT(","DEFAULTWADLOCATION3);
 	strcpy(returnWadPath, DEFAULTWADLOCATION3);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION4
-	I_OutputMsg(","DEFAULTWADLOCATION4);
+	DEBPRINT(","DEFAULTWADLOCATION4);
 	strcpy(returnWadPath, DEFAULTWADLOCATION4);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION5
-	I_OutputMsg(","DEFAULTWADLOCATION5);
+	DEBPRINT(","DEFAULTWADLOCATION5);
 	strcpy(returnWadPath, DEFAULTWADLOCATION5);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION6
-	I_OutputMsg(","DEFAULTWADLOCATION6);
+	DEBPRINT(","DEFAULTWADLOCATION6);
 	strcpy(returnWadPath, DEFAULTWADLOCATION6);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION7
-	I_OutputMsg(","DEFAULTWADLOCATION7);
+	DEBPRINT(","DEFAULTWADLOCATION7);
 	strcpy(returnWadPath, DEFAULTWADLOCATION7);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifndef NOHOME
 	// find in $HOME
-	I_OutputMsg(",HOME");
+	DEBPRINT(",HOME");
 	if ((envstr = I_GetEnv("HOME")) != NULL)
 	{
 		WadPath = searchWad(envstr);
@@ -2750,21 +2756,21 @@ static const char *locateWad(void)
 #endif
 #ifdef DEFAULTSEARCHPATH1
 	// find in /usr/local
-	I_OutputMsg(", in:"DEFAULTSEARCHPATH1);
+	DEBPRINT(", in:"DEFAULTSEARCHPATH1);
 	WadPath = searchWad(DEFAULTSEARCHPATH1);
 	if (WadPath)
 		return WadPath;
 #endif
 #ifdef DEFAULTSEARCHPATH2
 	// find in /usr/games
-	I_OutputMsg(", in:"DEFAULTSEARCHPATH2);
+	DEBPRINT(", in:"DEFAULTSEARCHPATH2);
 	WadPath = searchWad(DEFAULTSEARCHPATH2);
 	if (WadPath)
 		return WadPath;
 #endif
 #ifdef DEFAULTSEARCHPATH3
 	// find in ???
-	I_OutputMsg(", in:"DEFAULTSEARCHPATH3);
+	DEBPRINT(", in:"DEFAULTSEARCHPATH3);
 	WadPath = searchWad(DEFAULTSEARCHPATH3);
 	if (WadPath)
 		return WadPath;
@@ -2777,9 +2783,9 @@ const char *I_LocateWad(void)
 {
 	const char *waddir;
 
-	I_OutputMsg("Looking for WADs in: ");
+	DEBPRINT("Looking for WADs in: ");
 	waddir = locateWad();
-	I_OutputMsg("\n");
+	DEBPRINT("\n");
 
 	if (waddir)
 	{
@@ -2788,7 +2794,7 @@ const char *I_LocateWad(void)
 		SetCurrentDirectoryA(waddir);
 #elif !defined (_WIN32_WCE) && !defined (_PS3)
 		if (chdir(waddir) == -1)
-			CONS_Printf("Couldn't change working directory\n");
+			DEBPRINT("Couldn't change working directory\n");
 #endif
 	}
 	return waddir;

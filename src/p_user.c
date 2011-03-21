@@ -396,8 +396,7 @@ UINT8 P_FindLowestMare(void)
 		}
 	}
 
-	if (cv_debug)
-		CONS_Printf("Lowest mare found: %d\n", mare);
+	DEBPRINT(va("Lowest mare found: %d\n", mare));
 
 	return mare;
 }
@@ -421,8 +420,7 @@ boolean P_TransferToNextMare(player_t *player)
 	if (mare == 255)
 		return false;
 
-	if (cv_debug)
-		CONS_Printf("Mare is %d\n", mare);
+	DEBPRINT(va("Mare is %d\n", mare));
 
 	player->mare = mare;
 
@@ -545,8 +543,7 @@ void P_TransferToAxis(player_t *player, INT32 axisnum)
 	INT32 mare = player->mare;
 	fixed_t dist1, dist2 = 0;
 
-	if (cv_debug)
-		CONS_Printf("Transferring to axis %d\nLeveltime: %u...\n", axisnum, leveltime);
+	DEBPRINT(va("Transferring to axis %d\nLeveltime: %u...\n", axisnum, leveltime));
 
 	closestaxis = NULL;
 
@@ -583,9 +580,13 @@ void P_TransferToAxis(player_t *player, INT32 axisnum)
 	}
 
 	if (!closestaxis)
-		CONS_Printf("ERROR: Specified axis point to transfer to not found!\n%d\n", axisnum);
-	else if (cv_debug)
-		CONS_Printf("Transferred to axis %d, mare %d\n", closestaxis->health, closestaxis->threshold);
+	{
+		DEBPRINT(va("ERROR: Specified axis point to transfer to not found!\n%d\n", axisnum));
+	}
+	else
+	{
+		DEBPRINT(va("Transferred to axis %d, mare %d\n", closestaxis->health, closestaxis->threshold));
+	}
 
 	P_SetTarget(&player->mo->target, closestaxis);
 }
@@ -3095,14 +3096,14 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 		if (cv_debug && (leveltime % TICRATE == 0))
 		{
-			CONS_Printf("Transfer1 : %d\n", transfer1->health);
-			CONS_Printf("Transfer2 : %d\n", transfer2->health);
+			DEBPRINT(va("Transfer1 : %d\n", transfer1->health));
+			DEBPRINT(va("Transfer2 : %d\n", transfer2->health));
 		}
 
-		//CONS_Printf("T1 is at %d, %d\n", transfer1->x>>FRACBITS, transfer1->y>>FRACBITS);
-		//CONS_Printf("T2 is at %d, %d\n", transfer2->x>>FRACBITS, transfer2->y>>FRACBITS);
-		//CONS_Printf("Distance from T1: %d\n", P_AproxDistance(transfer1->x - player->mo->x, transfer1->y - player->mo->y)>>FRACBITS);
-		//CONS_Printf("Distance from T2: %d\n", P_AproxDistance(transfer2->x - player->mo->x, transfer2->y - player->mo->y)>>FRACBITS);
+		//DEBPRINT(va("T1 is at %d, %d\n", transfer1->x>>FRACBITS, transfer1->y>>FRACBITS));
+		//DEBPRINT(va("T2 is at %d, %d\n", transfer2->x>>FRACBITS, transfer2->y>>FRACBITS));
+		//DEBPRINT(va("Distance from T1: %d\n", P_AproxDistance(transfer1->x - player->mo->x, transfer1->y - player->mo->y)>>FRACBITS));
+		//DEBPRINT(va("Distance from T2: %d\n", P_AproxDistance(transfer2->x - player->mo->x, transfer2->y - player->mo->y)>>FRACBITS));
 
 		// Transfer1 is closer to the player than transfer2
 		if (P_AproxDistance(transfer1->x - player->mo->x, transfer1->y - player->mo->y)>>FRACBITS
@@ -3119,11 +3120,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					CONS_Printf("Unable to find an axis - error code #1\n");
+					DEBPRINT("Unable to find an axis - error code #1\n");
 					return;
 				}
 
-				//CONS_Printf("Drawing a line from %d to ", axis->health);
+				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
 
 				transfer1line.v1->x = axis->x;
 				transfer1line.v1->y = axis->y;
@@ -3134,7 +3135,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 				if (cv_debug)
 					P_ShootLine(axis, transfer1, player->mo->z);
 
-				//CONS_Printf("closest %d\n", transfer1->health);
+				//DEBPRINT("closest %d\n", transfer1->health);
 
 				transfer1line.dx = transfer1line.v2->x - transfer1line.v1->x;
 				transfer1line.dy = transfer1line.v2->y - transfer1line.v1->y;
@@ -3172,11 +3173,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					CONS_Printf("Unable to find an axis - error code #2\n");
+					DEBPRINT("Unable to find an axis - error code #2\n");
 					return;
 				}
 
-				//CONS_Printf("Drawing a line from %d to ", axis->health);
+				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
 
 				transfer1line.v1->x = axis->x;
 				transfer1line.v1->y = axis->y;
@@ -3186,7 +3187,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				//axis = P_FindAxis(transfer1->threshold, transfer1->health-1);
 
-				//CONS_Printf("%d\n", axis->health);
+				//DEBPRINT(va("%d\n", axis->health));
 
 				transfer1line.v2->x = transfer1->x;
 				transfer1line.v2->y = transfer1->y;
@@ -3238,11 +3239,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					CONS_Printf("Unable to find an axis - error code #3\n");
+					DEBPRINT("Unable to find an axis - error code #3\n");
 					return;
 				}
 
-				//CONS_Printf("Drawing a line from %d to ", axis->health);
+				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
 
 				transfer2line.v1->x = axis->x;
 				transfer2line.v1->y = axis->y;
@@ -3250,7 +3251,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 				transfer2line.v2->x = transfer2->x;
 				transfer2line.v2->y = transfer2->y;
 
-				//CONS_Printf("closest %d\n", transfer2->health);
+				//DEBPRINT(va("closest %d\n", transfer2->health));
 
 				if (cv_debug)
 					P_ShootLine(axis, transfer2, player->mo->z);
@@ -3301,11 +3302,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					CONS_Printf("Unable to find an axis - error code #4\n");
+					DEBPRINT("Unable to find an axis - error code #4\n");
 					return;
 				}
 
-				//CONS_Printf("Drawing a line from %d to ", axis->health);
+				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
 
 				transfer2line.v1->x = axis->x;
 				transfer2line.v1->y = axis->y;
@@ -3315,7 +3316,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				//axis = P_FindAxis(transfer2->threshold, transfer2->health-1);
 
-				//CONS_Printf("%d\n", axis->health);
+				//DEBPRINT(va("%d\n", axis->health));
 
 				transfer2line.v2->x = transfer2->x;
 				transfer2line.v2->y = transfer2->y;
@@ -3454,7 +3455,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 	if (!player->mo->target) // Uh-oh!
 	{
-		CONS_Printf("No axis points found!\n");
+		DEBPRINT("No axis points found!\n");
 		return;
 	}
 
@@ -8355,8 +8356,7 @@ static void P_DoZoomTube(player_t *player)
 		player->mo->floorz = player->mo->subsector->sector->floorheight;
 		player->mo->ceilingz = player->mo->subsector->sector->ceilingheight;
 
-		if (cv_debug)
-			CONS_Printf("Looking for next waypoint...\n");
+		DEBPRINT("Looking for next waypoint...\n");
 
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -8382,8 +8382,7 @@ static void P_DoZoomTube(player_t *player)
 
 		if (waypoint)
 		{
-			if (cv_debug)
-				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
+			DEBPRINT(va("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health));
 
 			// calculate MOMX/MOMY/MOMZ for next waypoint
 			// change angle
@@ -8410,8 +8409,7 @@ static void P_DoZoomTube(player_t *player)
 		{
 			P_SetTarget(&player->mo->tracer, NULL); // Else, we just let him fly.
 
-			if (cv_debug)
-				CONS_Printf("Next waypoint not found, releasing from track...\n");
+			DEBPRINT("Next waypoint not found, releasing from track...\n");
 		}
 	}
 	else
@@ -8519,8 +8517,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 		P_SetThingPosition(player->mo);
 
-		if (cv_debug)
-			CONS_Printf("Looking for next waypoint...\n");
+		DEBPRINT("Looking for next waypoint...\n");
 
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -8545,8 +8542,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 		if (!(player->mo->tracer->flags & MF_SLIDEME) && !waypoint)
 		{
-			if (cv_debug)
-				CONS_Printf("Next waypoint not found, wrapping to start...\n");
+			DEBPRINT("Next waypoint not found, wrapping to start...\n");
 
 			// Wrap around back to first waypoint
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -8572,8 +8568,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 		if (waypoint)
 		{
-			if (cv_debug)
-				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
+			DEBPRINT(va("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health));
 
 			// calculate MOMX/MOMY/MOMZ for next waypoint
 			// change slope
@@ -8605,8 +8600,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 			P_SetTarget(&player->mo->tracer, NULL);
 
-			if (cv_debug)
-				CONS_Printf("Next waypoint not found!\n");
+			DEBPRINT("Next waypoint not found!\n");
 		}
 	}
 	else
@@ -9595,8 +9589,7 @@ void P_PlayerThink(player_t *player)
 	// todo: Figure out what is actually causing these problems in the first place...
 	if ((player->health <= 0 || player->mo->health <= 0) && player->playerstate == PST_LIVE) //you should be DEAD!
 	{
-		if (server && (netgame || cv_debug))
-			CONS_Printf("Note: Player %s in PST_LIVE with 0 health. (Zombie bug)\n", sizeu1(playeri));
+		DEBPRINT(va("P_PlayerThink: Player %s in PST_LIVE with 0 health. (Zombie bug)\n", sizeu1(playeri)));
 		player->playerstate = PST_DEAD;
 	}
 
@@ -10066,7 +10059,7 @@ void P_PlayerThink(player_t *player)
 				}
 
 				if (i == numlines)
-					CONS_Printf("%d, %d\n", j, sectors[j].tag);
+					DEBPRINT(va("%d, %d\n", j, sectors[j].tag));
 			}
 		}
 

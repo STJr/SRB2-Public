@@ -188,7 +188,7 @@ void *hwOpen(const char *hwfile)
 #else
 	void *tempso = NULL;
 	tempso = SDL_LoadObject(hwfile);
-	if (!tempso) CONS_Printf("hwOpen: %s\n",SDL_GetError());
+	if (!tempso) DEBPRINT(va("hwOpen: %s\n",SDL_GetError()));
 	return tempso;
 #endif
 }

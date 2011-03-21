@@ -1190,7 +1190,9 @@ static void ST_drawNiGHTSHUD(void)
 			origamount = stplyr->capsule->spawnpoint->angle & 1023;
 
 			if (origamount <= 0)
-				CONS_Printf("Give the egg capsule on mare %d a ring requirement.\n", stplyr->capsule->threshold);
+			{
+				DEBPRINT(va("Give the egg capsule on mare %d a ring requirement.\n", stplyr->capsule->threshold));
+			}
 			else
 			{
 				amount = (origamount - stplyr->capsule->health);

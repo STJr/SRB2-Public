@@ -417,7 +417,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 			{
 				HW3DS.pfnStopSource(source->handle);
 				source->handle = HW3DS.pfnReloadSource(source->handle, sfx->volume);
-				//CONS_Printf("PlayerSound data reloaded\n");
+				//DEBPRINT("PlayerSound data reloaded\n");
 			}
 		}
 		else if (c_type == CT_AMBIENT)
@@ -460,7 +460,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 
 			if (s_num  < 0)
 			{
-				//CONS_Printf("No free source, aborting\n");
+				//DEBPRINT("No free source, aborting\n");
 				return -1;
 			}
 
@@ -511,7 +511,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 		{
 			HW3DS.pfnStopSource(source->handle);
 			source->handle = HW3DS.pfnReloadSource(source->handle, sfx->volume);
-			//CONS_Printf("PlayerSound data reloaded\n");
+			//DEBPRINT("PlayerSound data reloaded\n");
 		}
 	}
 	else if (c_type == CT_AMBIENT)
@@ -555,7 +555,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 
 		if (s_num  < 0)
 		{
-			//CONS_Printf("No free source, aborting\n");
+			//DEBPRINT("No free source, aborting\n");
 			return -1;
 		}
 
@@ -698,7 +698,7 @@ INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 			p_attack_source2.handle > -1 && p_scream_source2.handle > -1 &&
 			ambient_source.left.handle > -1 && ambient_source.right.handle > -1;
 
-		//CONS_Printf("Player handles: attack %d, default %d\n", p_attack_source.handle, p_scream_source.handle);
+		//DEBPRINT("Player handles: attack %d, default %d\n", p_attack_source.handle, p_scream_source.handle);
 		return succ;
 	}
 	return 0;

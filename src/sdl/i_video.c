@@ -523,8 +523,10 @@ static INT32 SDLatekey(SDLKey sym)
 				rc = sym - SDLK_SPACE + ' ';
 			else if (sym >= 'A' && sym <= 'Z')
 				rc = sym - 'A' + 'a';
-			else if (sym && devparm)
-				I_OutputMsg("\2Unknown Keycode %i, Name: %s\n",sym, SDL_GetKeyName( sym ));
+			else if (sym)
+			{
+				DEBPRINT(va("\2Unknown Keycode %i, Name: %s\n",sym, SDL_GetKeyName( sym )));
+			}
 			else if (!sym) rc = 0;
 			break;
 	}
@@ -753,17 +755,17 @@ static inline BOOL LoadDM(VOID)
 
 	DMdll = LoadLibraryA("dwmapi.dll");
 	if (DMdll)
-		I_OutputMsg("dmwapi.dll loaded, Vista's Desktop Window Manager API\n");
+		DEBPRINT(va("dmwapi.dll loaded, Vista's Desktop Window Manager API\n"));
 	else
 		return FALSE;
 
 	pfnDwmIsCompositionEnabled = (P_DwmIsCompositionEnabled)GetProcAddress(DMdll, "DwmIsCompositionEnabled");
 	if (pfnDwmIsCompositionEnabled)
-		I_OutputMsg("Composition Aero API found, DwmIsCompositionEnabled\n");
+		DEBPRINT(va("Composition Aero API found, DwmIsCompositionEnabled\n"));
 
 	pfnDwmEnableComposition = (P_DwmEnableComposition)GetProcAddress(DMdll, "DwmEnableComposition");
 	if (pfnDwmEnableComposition)
-		I_OutputMsg("Composition Aero API found, DwmEnableComposition\n");
+		DEBPRINT(va("Composition Aero API found, DwmEnableComposition\n"));
 
 	return TRUE;
 }
@@ -777,19 +779,19 @@ static inline VOID DisableAero(VOID)
 		return;
 
 	if (pfnDwmIsCompositionEnabled && SUCCEEDED(pfnDwmIsCompositionEnabled(&pfnDwmEnableCompositiond)))
-		I_OutputMsg("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond);
+		DEBPRINT(va("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond));
 	else
 		return;
 
 	if ((AeroWasEnabled = pfnDwmEnableCompositiond))
-		I_OutputMsg("Let disable the Aero rendering\n");
+		DEBPRINT("Disable the Aero rendering\n");
 	else
 		return;
 
 	if (pfnDwmEnableComposition && SUCCEEDED(pfnDwmEnableComposition(FALSE)))
-		I_OutputMsg("Aero rendering disabled\n");
+		DEBPRINT("Aero rendering disabled\n");
 	else
-		I_OutputMsg("We failed to disable the Aero rendering\n");
+		DEBPRINT("We failed to disable the Aero rendering\n");
 }
 
 static inline VOID ResetAero(VOID)
@@ -797,9 +799,9 @@ static inline VOID ResetAero(VOID)
 	if (pfnDwmEnableComposition && AeroWasEnabled)
 	{
 		if (SUCCEEDED(pfnDwmEnableComposition(AeroWasEnabled)))
-			I_OutputMsg("Aero rendering setting restored\n");
+			DEBPRINT("Aero rendering setting restored\n");
 		else
-			I_OutputMsg("We failed to restore Aero rendering\n");
+			DEBPRINT("We failed to restore Aero rendering\n");
 	}
 	UnloadDM();
 }
@@ -930,7 +932,7 @@ static inline void SDLJoyRemap(event_t *event)
 			default:
 				break;
 		}
-		//CONS_Printf("Button %i: event key %i and type: %i\n", button, event->data1, event->type);
+		//DEBPRINT(va("Button %i: event key %i and type: %i\n", button, event->data1, event->type));
 	}
 #elif defined(_PSP)
 	if (event->data1 > KEY_JOY1 + 9 + 2) // All button after D-Pad and Select/Start
@@ -1457,14 +1459,14 @@ void I_FinishUpdate(void)
 			else if (vid.bpp == 2) bufSurface = SDL_CreateRGBSurfaceFrom(screens[0],vid.width,vid.height,15,
 				(int)vid.rowbytes,0x00007C00,0x000003E0,0x0000001F,0x00000000); // 555 mode
 			if (bufSurface) SDL_SetColors(bufSurface, localPalette, 0, 256);
-			else CONS_Printf("No system memory for SDL buffer surface\n");
+			else DEBPRINT("No system memory for SDL buffer surface\n");
 		}
 
 #ifdef FILTERS
 		FilterBlit(bufSurface);
 		if (f2xSurface) //Alam: filter!
 		{
-			//CONS_Printf("2x Filter Code\n");
+			//DEBPRINT("2x Filter Code\n");
 			blited = SDL_BlitSurface(f2xSurface,NULL,vidSurface,NULL);
 		}
 		else
@@ -1505,7 +1507,7 @@ void I_FinishUpdate(void)
 			Sint32 pH, pW; //Height, Width
 			bP = (Uint8 *)screens[0];
 			bW = (Uint16)(vid.rowbytes - vid.width);
-			//CONS_Printf("Old Copy Code\n");
+			//DEBPRINT("Old Copy Code\n");
 			if (SDL_MUSTLOCK(vidSurface)) lockedsf = SDL_LockSurface(vidSurface);
 			vP = (Uint8 *)vidSurface->pixels;
 			vW = (Uint16)(vidSurface->pitch - vidSurface->w*vidformat->BytesPerPixel);
@@ -1579,8 +1581,8 @@ void I_FinishUpdate(void)
 			SDL_Flip(vidSurface);
 		else if (blited != -2 && lockedsf == 0) //Alam: -2 for Win32 Direct, yea, i know
 			SDL_UpdateRect(vidSurface, rect.x, rect.y, 0, 0); //Alam: almost always
-		else if (devparm)
-			I_OutputMsg("%s\n",SDL_GetError());
+		else
+			DEBPRINT(va("%s\n",SDL_GetError()));
 	}
 #ifdef HWRENDER
 	else

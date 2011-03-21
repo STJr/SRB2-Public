@@ -885,7 +885,7 @@ static inline void SendPingToMasterServer(void)
 // Here, have a simpler MS Ping... - Cue
 	if(time(NULL) > (MSLastPing+(60*2)) && con_state != MSCS_NONE)
 	{
-		//CONS_Printf("%ld (current time) is greater than %d (Last Ping Time)\n", time(NULL), MSLastPing);
+		//DEBPRINT(va("%ld (current time) is greater than %d (Last Ping Time)\n", time(NULL), MSLastPing));
 		if(MSLastPing < 1)
 			AddToMasterServer(true);
 		else

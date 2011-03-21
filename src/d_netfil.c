@@ -306,8 +306,7 @@ INT32 CL_CheckFiles(void)
 
 	for (i = 1; i < fileneedednum; i++)
 	{
-		if (devparm)
-			CONS_Printf("searching for '%s' ", fileneeded[i].filename);
+		DEBPRINT(va(M_GetText("searching for '%s' "), fileneeded[i].filename));
 
 		// check in allready loaded files
 		for (j = 1; wadfiles[j]; j++)
@@ -316,8 +315,7 @@ INT32 CL_CheckFiles(void)
 			if (!stricmp(wadfilename, fileneeded[i].filename) &&
 				!memcmp(wadfiles[j]->md5sum, fileneeded[i].md5sum, 16))
 			{
-				if (devparm)
-					CONS_Printf("already loaded\n");
+				DEBPRINT(va("%s", M_GetText("already loaded\n")));
 				fileneeded[i].status = FS_OPEN;
 				break;
 			}
@@ -326,8 +324,7 @@ INT32 CL_CheckFiles(void)
 			continue;
 
 		fileneeded[i].status = findfile(fileneeded[i].filename, fileneeded[i].md5sum, true);
-		if (devparm)
-			CONS_Printf("found %d\n", fileneeded[i].status);
+		DEBPRINT(va(M_GetText("found %d\n"), fileneeded[i].status));
 		if (fileneeded[i].status != FS_FOUND)
 			ret = 0;
 	}

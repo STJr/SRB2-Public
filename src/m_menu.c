@@ -839,7 +839,7 @@ static void M_DrawConnectMenu(void)
 				break;
 			default:
 				cgametype = 'U';
-				CONS_Printf("M_DrawConnectMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype);
+				DEBPRINT(va("M_DrawConnectMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype));
 				break;
 		}
 
@@ -921,7 +921,7 @@ static void M_DrawConnectLANMenu(void)
 				break;
 			default:
 				cgametype = 'U';
-				CONS_Printf("M_DrawConnectLANMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype);
+				DEBPRINT(va("M_DrawConnectLANMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype));
 				break;
 		}
 
@@ -4649,7 +4649,7 @@ static void M_LevelSelectWarp(INT32 choice)
 
 	if (W_CheckNumForName(G_BuildMapName(cv_nextmap.value)) == LUMPERROR)
 	{
-//		CONS_Printf("\2Internal game map '%s' not found\n", G_BuildMapName(cv_nextmap.value));
+//		DEBPRINT(va("\2Internal game map '%s' not found\n", G_BuildMapName(cv_nextmap.value)));
 		return;
 	}
 
@@ -7407,7 +7407,7 @@ static void M_DrawMessageMenu(void)
 				memset(string, 0, MAXMSGLINELEN);
 				if (i >= MAXMSGLINELEN)
 				{
-					CONS_Printf("M_DrawMessageMenu: too long segment in %s\n", msg);
+					DEBPRINT(va("M_DrawMessageMenu: too long segment in %s\n", msg));
 					return;
 				}
 				else
@@ -7426,7 +7426,7 @@ static void M_DrawMessageMenu(void)
 		{
 			if (i >= MAXMSGLINELEN)
 			{
-				CONS_Printf("M_DrawMessageMenu: too long segment in %s\n", msg);
+				DEBPRINT(va("M_DrawMessageMenu: too long segment in %s\n", msg));
 				return;
 			}
 			else

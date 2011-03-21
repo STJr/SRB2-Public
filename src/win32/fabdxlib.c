@@ -105,11 +105,11 @@ static HRESULT WINAPI myEnumModesCallback (LPDDSURFACEDESC surf, LPVOID lpContex
 		dwRGBBitCount
 		);
 
-		/*CONS_Printf ("%dx%dx%d bpp %d refresh\n",
+		/*DEBPRINT (va("%dx%dx%d bpp %d refresh\n",
 		surf->dwWidth,
 		surf->dwHeight,
 		surf->ddpfPixelFormat.dwRGBBitCount,
-	surf->dwRefreshRate);*/
+	surf->dwRefreshRate));*/
 
 	return  DDENUMRET_OK;
 }

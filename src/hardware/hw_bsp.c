@@ -91,7 +91,7 @@ void HWR_InitPolyPool(void)
 	if ((pnum = M_CheckParm("-polypoolsize")))
 		POLYPOOLSIZE = atoi(myargv[pnum+1])*1024; // (in kb)
 
-	CONS_Printf("HWR_InitPolyPool(): allocating %d bytes\n", POLYPOOLSIZE);
+	DEBPRINT("HWR_InitPolyPool(): allocating %d bytes\n", POLYPOOLSIZE);
 	gr_polypool = malloc(POLYPOOLSIZE);
 	if (!gr_polypool)
 		I_Error("HWR_InitPolyPool(): couldn't malloc polypool\n");
@@ -617,7 +617,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *b
 			// do we have a valid polygon ?
 			if (poly && poly->numpts > 2)
 			{
-				CONS_Printf("Adding a new subsector\n");
+				DEBPRINT("Adding a new subsector\n");
 				if (addsubsector == numsubsectors + NEWSUBSECTORS)
 					I_Error("WalkBSPNode: not enough addsubsectors\n");
 				else if (addsubsector > 0x7fff)
@@ -841,8 +841,7 @@ static INT32 SolveTProblem(void)
 	if (cv_grsolvetjoin.value == 0)
 		return 0;
 
-	if (cv_debug)
-		CONS_Printf("Solving T-joins. This may take a while. Please wait...\n");
+	DEBPRINT("Solving T-joins. This may take a while. Please wait...\n");
 	CON_Drawer(); //let the user know what we are doing
 	I_FinishUpdate(); // page flip or blit buffer
 
@@ -855,7 +854,7 @@ static INT32 SolveTProblem(void)
 			for (i = 0; i < p->numpts; i++)
 				SearchSegInBSP((INT32)numnodes-1, &p->pts[i], p);
 	}
-	//CONS_Printf("numsplitpoly %d\n", numsplitpoly);
+	//DEBPRINT("numsplitpoly %d\n", numsplitpoly);
 	return numsplitpoly;
 }
 
@@ -966,8 +965,7 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	size_t i;
 	fixed_t rootbbox[4];
 
-	if (cv_debug)
-		CONS_Printf("Creating polygons, please wait...\n");
+	DEBPRINT("Creating polygons, please wait...\n");
 	ls_count = ls_percent = 0; // reset the loading status
 	CON_Drawer(); //let the user know what we are doing
 	I_FinishUpdate(); // page flip or blit buffer
@@ -975,12 +973,12 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	HWR_ClearPolys();
 
 	// find min/max boundaries of map
-	//CONS_Printf("Looking for boundaries of map...\n");
+	//DEBPRINT("Looking for boundaries of map...\n");
 	M_ClearBox(rootbbox);
 	for (i = 0;i < numvertexes; i++)
 		M_AddToBox(rootbbox, vertexes[i].x, vertexes[i].y);
 
-	//CONS_Printf("Generating subsector polygons... %d subsectors\n", numsubsectors);
+	//DEBPRINT("Generating subsector polygons... %d subsectors\n", numsubsectors);
 
 	HWR_FreeExtraSubsectors();
 	// allocate extra data for each subsector present in map
@@ -1017,17 +1015,17 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	WalkBSPNode(bspnum, rootp, NULL,rootbbox);
 
 	i = SolveTProblem();
-	//CONS_Printf("%d point div a polygone line\n",i);
+	//DEBPRINT("%d point divides a polygon line\n",i);
 	AdjustSegs();
 
 	//debug debug..
 	//if (nobackpoly)
-	//    CONS_Printf("no back polygon %u times\n",nobackpoly);
+	//    DEBPRINT("no back polygon %u times\n",nobackpoly);
 	//"(should happen only with the deep water trick)"
 	//if (skipcut)
-	//    CONS_Printf("%u cuts were skipped because of only one point\n",skipcut);
+	//    DEBPRINT("%u cuts were skipped because of only one point\n",skipcut);
 
-	//CONS_Printf("done: %u total subsector convex polygons\n", totalsubsecpolys);
+	//DEBPRINT("done: %u total subsector convex polygons\n", totalsubsecpolys);
 }
 
 #endif //HWRENDER

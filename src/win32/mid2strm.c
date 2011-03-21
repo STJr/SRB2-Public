@@ -24,6 +24,7 @@
 ///	convert the midi data into stream buffers on the fly
 
 #include "../doomdef.h" // warnings
+#include "../doomstat.h"
 
 #ifdef _WINDOWS
 
@@ -204,8 +205,8 @@ VOID _cdecl main(INT argc, LPSTR argv[])
 
 	if (argc < 3)
 	{
-		I_OutputMsg("Format is mid2strm [-c] infile outfile\n");
-		I_OutputMsg("-c\tNo-stream-id compression\n");
+		DEBPRINT("Format is mid2strm [-c] infile outfile\n"
+				 "-c\tNo-stream-id compression\n");
 		exit(1);
 	}
 
@@ -269,14 +270,14 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 	hInFile = CreateFileA(szInFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (INVALID_HANDLE_VALUE == hInFile)
 	{
-		I_OutputMsg("Could not open \"%s\" for read.\n", szInFile);
+		DEBPRINT(va("Could not open \"%s\" for read.\n", szInFile));
 		goto Init_Cleanup;
 	}
 
 	hOutFile = CreateFileA(szOutFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (INVALID_HANDLE_VALUE == hOutFile)
 	{
-		I_OutputMsg("Could not open \"%s\" for write.\n", szOutFile);
+		DEBPRINT(va("Could not open \"%s\" for write.\n", szOutFile));
 		goto Init_Cleanup;
 	}
 
@@ -285,20 +286,20 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 	//
 	if (INVALID_FILE_SIZE == (ifs.FileSize = GetFileSize(hInFile, NULL)))
 	{
-		I_OutputMsg("File system error on input file.\n");
+		DEBPRINT("File system error on input file.\n");
 		goto Init_Cleanup;
 	}
 
 	if (NULL == (ifs.pFile = GlobalAllocPtr(GPTR, ifs.FileSize)))
 	{
-		I_OutputMsg("Out of memory.\n");
+		DEBPRINT("Out of memory.\n");
 		goto Init_Cleanup;
 	}
 
 	if ((!ReadFile(hInFile, ifs.pFile, ifs.FileSize, &cbRead, NULL)) ||
 		cbRead != ifs.FileSize)
 	{
-		I_OutputMsg("Read error on input file.\n");
+		DEBPRINT("Read error on input file.\n");
 		goto Init_Cleanup;
 	}
 
@@ -317,7 +318,7 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 		(iChunkSize = LONGSWAP(*pChunkSize)) < sizeof (MIDIFILEHDR) ||
 		(pHeader = (LPMIDIFILEHDR)GetInFileData(iChunkSize)) == NULL)
 	{
-		I_OutputMsg("Read error on MIDI header.\n");
+		DEBPRINT("Read error on MIDI header.\n");
 		goto Init_Cleanup;
 	}
 
@@ -329,7 +330,7 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 	ifs.dwTimeDivision = (LONG)WORDSWAP(pHeader->wTimeDivision);
 
 #ifdef DEBUGMIDISTREAM
-	I_OutputMsg("MIDI Header:\n"
+	DEBPRINT("MIDI Header:\n"
 	            "------------\n"
 	            "format: %d\n"
 	            "number of tracks: %d\n"
@@ -343,7 +344,7 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 	// ifs.pTracks = (INTRACKSTATE *)GlobalAllocPtr(GPTR, ifs.nTracks*sizeof (INTRACKSTATE));
 	// if (ifs.pTracks == NULL)
 	// {
-	//    I_OutputMsg("Out of memory.\n");
+	//    DEBPRINT("Out of memory.\n");
 	//    goto Init_Cleanup;
 	// }
 
@@ -358,7 +359,7 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 			*pChunkID!= MTrk ||
 			(pChunkSize = (UINT32*)GetInFileData(sizeof (*pChunkSize))) == NULL)
 		{
-			I_OutputMsg("Read error on track header.\n");
+			DEBPRINT("Read error on track header.\n");
 			goto Init_Cleanup;
 		}
 
@@ -368,12 +369,12 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 		pInTrack->pTrackData = GetInFileData(iChunkSize);
 		if (pInTrack->pTrackData == NULL)
 		{
-			I_OutputMsg("Read error while reading track data.\n");
+			DEBPRINT("Read error while reading track data.\n");
 			goto Init_Cleanup;
 		}
 
 #ifdef DEBUGMIDISTREAM
-		I_OutputMsg("Track %d : length %d bytes\n", iTrack, iChunkSize);
+		DEBPRINT(va("Track %d : length %d bytes\n", iTrack, iChunkSize));
 		pInTrack->nTrack = iTrack;
 #endif
 		pInTrack->pTrackPointer = pInTrack->pTrackData;
@@ -393,7 +394,7 @@ static BOOL Init(LPSTR szInFile, LPSTR szOutFile)
 		//
 		if (!GetTrackVDWord(pInTrack, &pInTrack->tkNextEventDue))
 		{
-			I_OutputMsg("Read error while reading first delta time of track.\n");
+			DEBPRINT("Read error while reading first delta time of track.\n");
 			goto Init_Cleanup;
 		}
 	}
@@ -511,7 +512,7 @@ static BOOL BuildNewTracks(VOID)
 		//
 		if (!GetTrackEvent(pInTrackFound, &me))
 		{
-			I_OutputMsg("MIDI file is corrupt!\n");
+			DEBPRINT("MIDI file is corrupt!\n");
 			return FALSE;
 		}
 
@@ -522,7 +523,7 @@ static BOOL BuildNewTracks(VOID)
 
 		if (!AddEventToStream(&me))
 		{
-			I_OutputMsg("Out of memory building tracks.\n");
+			DEBPRINT("Out of memory building tracks.\n");
 			return FALSE;
 		}
 	}
@@ -851,7 +852,7 @@ static BOOL GetTrackEvent(LPINTRACKSTATE pInTrack, LPTEMPEVENT pMe)
 		// be in a normal MIDI file. If they are, we've misparsed or the
 		// authoring software is stpuid.
 #ifdef DEBUGMIDISTREAM
-		I_OutputMsg("System message not supposed to be in MIDI file..\n");
+		DEBPRINT("System message not supposed to be in MIDI file..\n");
 #endif
 		return FALSE;
 	}
@@ -925,10 +926,7 @@ static BOOL AddEventToStream(LPTEMPEVENT pMe)
 			MIDS_SHORTMSG;
 	}
 	else if (pMe->abEvent[0] == MIDI_SYSEX || pMe->abEvent[0] == MIDI_SYSEXEND)
-	{
-		if (devparm) // Tails
-			I_OutputMsg("NOTE: Ignoring SysEx for now.\n");
-	}
+		DEBPRINT("NOTE: Ignoring SysEx for now.\n");
 	else
 	{
 		// Better be a meta event.
@@ -939,7 +937,7 @@ static BOOL AddEventToStream(LPTEMPEVENT pMe)
 		//
 		if (!(pMe->abEvent[0] == MIDI_META))
 		{
-			I_OutputMsg("Mid2Stream: error1\n");
+			DEBPRINT("Mid2Stream: error1\n");
 			return FALSE;
 		}
 
@@ -950,7 +948,7 @@ static BOOL AddEventToStream(LPTEMPEVENT pMe)
 
 		if (!(pMe->dwEventLength == 3))
 		{
-			I_OutputMsg("Mid2Stream: error2\n");
+			DEBPRINT("Mid2Stream: error2\n");
 			return FALSE;
 		}
 
@@ -996,7 +994,7 @@ static LPBYTE GetOutStreamBytes(LONG tkNow, LONG cbNeeded, LONG cbUncompressed)
 
 	if (!(cbUncompressed >= cbNeeded))
 	{
-		I_OutputMsg("GetOutStreamBytes: error\n");
+		DEBPRINT("GetOutStreamBytes: error\n");
 		return NULL;
 	}
 
@@ -1032,9 +1030,8 @@ static LPBYTE GetOutStreamBytes(LONG tkNow, LONG cbNeeded, LONG cbUncompressed)
 	//
 	if (cbNeeded > ots.pLast->iBytesLeft)
 	{
-		I_OutputMsg("NOTE: An event requested %lu BYTEs of memory; the\n", cbNeeded);
-		I_OutputMsg("      maximum configured buffer size is %lu.\n", CB_STREAMBUF);
-
+		DEBPRINT(va("NOTE: An event requested %lu BYTEs of memory; the\n"
+					"      maximum configured buffer size is %lu.\n", cbNeeded, CB_STREAMBUF));
 		return NULL;
 	}
 
@@ -1054,26 +1051,29 @@ static VOID ShowTrackError(LPINTRACKSTATE pInTrack, LPSTR szErr)
 	LPBYTE data;
 	int i;
 
-	I_OutputMsg("Track %u: %s\n", pInTrack->nTrack, szErr);
-	I_OutputMsg("Track offset %lu\n", pInTrack->pTrackPointer - pInTrack->pTrackData);
-	I_OutputMsg("Track total %lu  Track left %lu\n", pInTrack->iTrackLen, pInTrack->iBytesLeft);
+	DEBPRINT(va("Track %u: %s\n"
+				"Track offset %lu\n"
+				"Track total %lu  Track left %lu\n"
+				, pInTrack->nTrack, szErr
+				, pInTrack->pTrackPointer - pInTrack->pTrackData
+				, pInTrack->iTrackLen, pInTrack->iBytesLeft));
 
-	I_OutputMsg(" Midi header: ");
+	DEBPRINT(" Midi header: ");
 	data = ifs.pFile;
 	for (i = 0; i < 6; i++)
 	{
-		I_OutputMsg("%02x ", data[i]);
+		DEBPRINT(va("%02x ", data[i]));
 	}
 
-	I_OutputMsg("\nTrack data: ");
+	DEBPRINT("\nTrack data: ");
 
 	data = pInTrack->pTrackData;
 	for (i = 0; i < 512; i++)
 	{
-		I_OutputMsg("%02x ", data[i]);
+		DEBPRINT(va("%02x ", data[i]));
 	}
 
-	I_OutputMsg("\n");
+	DEBPRINT("\n");
 }
 #endif
 
@@ -1153,7 +1153,7 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 	ifs.pFilePointer = ifs.pFile;
 
 #ifdef DEBUGMIDISTREAM
-	I_OutputMsg("Midi file size: %d\n", iMidiSize);
+	DEBPRINT(va("Midi file size: %d\n", iMidiSize));
 #endif
 
 	// note: midi header size should always be 6
@@ -1163,7 +1163,7 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 		(iChunkSize = LONGSWAP(*pChunkSize)) < sizeof (MIDIFILEHDR) ||
 		(pHeader = (LPMIDIFILEHDR)GetInFileData(iChunkSize)) == NULL)
 	{
-		I_OutputMsg("Read error on MIDI header.\n");
+		DEBPRINT(va("Read error on MIDI header.\n"));
 		goto Init_Cleanup;
 	}
 
@@ -1172,18 +1172,18 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 	ifs.dwTimeDivision = (LONG)WORDSWAP(pHeader->wTimeDivision);
 
 #ifdef DEBUGMIDISTREAM
-	I_OutputMsg("MIDI Header:\n"
+	DEBPRINT(va("MIDI Header:\n"
 				"------------\n"
 				"format: %d\n"
 				"number of tracks: %d\n"
-				"time division: %d\n", ifs.dwFormat, ifs.nTracks, ifs.dwTimeDivision);
+				"time division: %d\n", ifs.dwFormat, ifs.nTracks, ifs.dwTimeDivision));
 #endif
 
 	/* faB: made static
 	ifs.pTracks = (INTRACKSTATE *)GlobalAllocPtr(GPTR, ifs.nTracks*sizeof (INTRACKSTATE));
 	if (ifs.pTracks == NULL)
 	{
-		I_OutputMsg("Out of memory.\n");
+		DEBPRINT("Out of memory.\n");
 		goto Init_Cleanup;
 	}
 	*/
@@ -1198,7 +1198,7 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 			*pChunkID!= MTrk ||
 			(pChunkSize = (UINT32*)GetInFileData(sizeof (*pChunkSize))) == NULL)
 		{
-			I_OutputMsg("Read error on track header.\n");
+			DEBPRINT("Read error on track header.\n");
 			goto Init_Cleanup;
 		}
 
@@ -1208,12 +1208,12 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 		pInTrack->pTrackData = GetInFileData(iChunkSize);
 		if (pInTrack->pTrackData == NULL)
 		{
-			I_OutputMsg("Read error while reading track data.\n");
+			DEBPRINT("Read error while reading track data.\n");
 			goto Init_Cleanup;
 		}
 
 #ifdef DEBUGMIDISTREAM
-		I_OutputMsg("Track %d : length %d bytes\n", iTrack, iChunkSize);
+		DEBPRINT(va("Track %d : length %d bytes\n", iTrack, iChunkSize));
 		pInTrack->nTrack = iTrack;
 #endif
 		// Setup pointer to the current position in the track
@@ -1234,7 +1234,7 @@ BOOL Mid2StreamConverterInit(LPBYTE pMidiData, size_t iMidiSize)
 		// determine which track has the next event with a minimum of work
 		if (!GetTrackVDWord(pInTrack, &pInTrack->tkNextEventDue))
 		{
-			I_OutputMsg("Read error while reading first delta time of track.\n");
+			DEBPRINT("Read error while reading first delta time of track.\n");
 			goto Init_Cleanup;
 		}
 	}
@@ -1327,8 +1327,7 @@ static int AddEventToStreamBuffer(LPTEMPEVENT pMe, LPCONVERTINFO lpciInfo)
 	else if ((pMe->abEvent[0] == MIDI_SYSEX) ||
 			(pMe->abEvent[0] == MIDI_SYSEXEND))
 	{
-		if (devparm) // Tails
-			I_OutputMsg("NOTE: Ignoring SysEx for now.\n");
+		DEBPRINT("NOTE: Ignoring SysEx for now.\n");
 	}
 	else
 	{
@@ -1375,7 +1374,7 @@ static int AddEventToStreamBuffer(LPTEMPEVENT pMe, LPCONVERTINFO lpciInfo)
 
 		dwBufferTickLength = (ifs.dwTimeDivision * 1000 * BUFFER_TIME_LENGTH) / dwCurrentTempo;
 #ifdef DEBUGMIDISTREAM
-		I_OutputMsg("dwBufferTickLength = %lu", dwBufferTickLength);
+		DEBPRINT(va("dwBufferTickLength = %lu", dwBufferTickLength));
 #endif
 		lpciInfo->dwBytesRecorded += 3 *sizeof (DWORD);
 	}
@@ -1423,7 +1422,7 @@ static BOOL Mid2StreamRewindConverter(VOID)
 		// determine which track has the next event with a minimum of work
 		if (!GetTrackVDWord(pInTrack, &pInTrack->tkNextEventDue))
 		{
-			I_OutputMsg("Read error while reading first delta time of track.\n");
+			DEBPRINT("Read error while reading first delta time of track.\n");
 			return TRUE;
 		}
 	}

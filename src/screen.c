@@ -152,7 +152,7 @@ void SCR_SetMode(void)
 	}
 /*	else if (vid.bpp > 1)
 	{
-		CONS_Printf("using highcolor mode\n");
+		DEBPRINT("using highcolor mode\n");
 		spanfunc = basespanfunc = R_DrawSpan_16;
 		transcolfunc = R_DrawTranslatedColumn_16;
 		transtransfunc = R_DrawTranslucentColumn_16; // No 16bit operation for this function

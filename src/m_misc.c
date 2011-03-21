@@ -584,13 +584,13 @@ static const char *Newsnapshotfile(const char *pathname, const char *ext)
 #ifdef HAVE_PNG
 FUNCNORETURN static void PNG_error(png_structp PNG, png_const_charp pngtext)
 {
-	//CONS_Printf("libpng error at %p: %s", PNG, pngtext);
+	//DEBPRINT(va("libpng error at %p: %s", PNG, pngtext));
 	I_Error("libpng error at %p: %s", PNG, pngtext);
 }
 
 static void PNG_warn(png_structp PNG, png_const_charp pngtext)
 {
-	CONS_Printf("libpng warning at %p: %s", PNG, pngtext);
+	DEBPRINT(va("libpng warning at %p: %s", PNG, pngtext));
 }
 
 static void M_PNGhdr(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_uint_32 width, PNG_CONST png_uint_32 height, PNG_CONST png_byte *palette)
@@ -908,8 +908,7 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	apng_FILE = fopen(filename,"wb+"); // + mode for reading
 	if (!apng_FILE)
 	{
-		CONS_Printf("M_StartMovie: Error on opening %s for write\n",
-		            filename);
+		DEBPRINT(va("M_StartMovie: Error on opening %s for write\n", filename));
 		return false;
 	}
 
@@ -917,7 +916,7 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	 PNG_error, PNG_warn);
 	if (!apng_ptr)
 	{
-		CONS_Printf("M_StartMovie: Error on initialize libpng\n");
+		DEBPRINT("M_StartMovie: Error on initialize libpng\n");
 		fclose(apng_FILE);
 		remove(filename);
 		return false;
@@ -926,7 +925,7 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	apng_info_ptr = png_create_info_struct(apng_ptr);
 	if (!apng_info_ptr)
 	{
-		CONS_Printf("M_StartMovie: Error on allocate for libpng\n");
+		DEBPRINT("M_StartMovie: Error on allocate for libpng\n");
 		png_destroy_write_struct(&apng_ptr,  NULL);
 		fclose(apng_FILE);
 		remove(filename);
@@ -1002,9 +1001,13 @@ failure:
 	if (!ret)
 	{
 		if (freename)
-			CONS_Printf("Couldn't create aPNG file %s in %s\n", freename, pathname);
+		{
+			DEBPRINT(va("Couldn't create aPNG file %s in %s\n", freename, pathname));
+		}
 		else
-			CONS_Printf("Couldn't create aPNG file (all 10000 slots used!) in %s\n", pathname);
+		{
+			DEBPRINT(va("Couldn't create aPNG file (all 10000 slots used!) in %s\n", pathname));
+		}
 	}
 	return ret;
 #else
@@ -1103,7 +1106,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	png_FILE = fopen(filename,"wb");
 	if (!png_FILE)
 	{
-		CONS_Printf("M_SavePNG: Error on opening %s for write\n", filename);
+		DEBPRINT(va("M_SavePNG: Error on opening %s for write\n", filename));
 		return false;
 	}
 
@@ -1111,7 +1114,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	 PNG_error, PNG_warn);
 	if (!png_ptr)
 	{
-		CONS_Printf("M_SavePNG: Error on initialize libpng\n");
+		DEBPRINT("M_SavePNG: Error on initialize libpng\n");
 		fclose(png_FILE);
 		remove(filename);
 		return false;
@@ -1120,7 +1123,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	png_info_ptr = png_create_info_struct(png_ptr);
 	if (!png_info_ptr)
 	{
-		CONS_Printf("M_SavePNG: Error on allocate for libpng\n");
+		DEBPRINT("M_SavePNG: Error on allocate for libpng\n");
 		png_destroy_write_struct(&png_ptr,  NULL);
 		fclose(png_FILE);
 		remove(filename);
@@ -1133,7 +1136,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
 	{
-		//CONS_Printf("libpng write error on %s\n", filename);
+		//DEBPRINT(va("libpng write error on %s\n", filename));
 		png_destroy_write_struct(&png_ptr, &png_info_ptr);
 		fclose(png_FILE);
 		remove(filename);
@@ -1756,15 +1759,15 @@ static FUNCTARGET("mmx") void *mmx1_cpy(void *dest, const void *src, size_t n) /
 // Alam: why? memcpy may be __cdecl/_System and our code may be not the same type
 static void *cpu_cpy(void *dest, const void *src, size_t n)
 {
-	if(src == NULL)
+	if (src == NULL)
 	{
-		I_OutputMsg("Memcpy from 0x0?!: %p %p %s\n", dest, src, sizeu1(n));
+		DEBPRINT(va("Memcpy from 0x0?!: %p %p %s\n", dest, src, sizeu1(n)));
 		return dest;
 	}
 
 	if(dest == NULL)
 	{
-		I_OutputMsg("Memcpy to 0x0?!: %p %p %s\n", dest, src, sizeu1(n));
+		DEBPRINT(va("Memcpy to 0x0?!: %p %p %s\n", dest, src, sizeu1(n)));
 		return dest;
 	}
 

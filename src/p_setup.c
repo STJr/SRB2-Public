@@ -498,8 +498,7 @@ INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 		// store the flat lump number
 		levelflat->lumpnum = R_GetFlatNumForName(flatname);
 
-		if (devparm)
-			I_OutputMsg("flat #%03d: %s\n", atoi(sizeu1(numlevelflats)), levelflat->name);
+		DEBPRINT(va("flat #%03d: %s\n", atoi(sizeu1(numlevelflats)), levelflat->name));
 
 		numlevelflats++;
 
@@ -986,7 +985,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (UINT16)numsides)
 				{
 					ld->sidenum[j] = 0xffff;
-					CONS_Printf("P_LoadLineDefs: linedef %s has out-of-range sidedef number\n", sizeu1(numlines-i-1));
+					DEBPRINT(va("P_LoadLineDefs: linedef %s has out-of-range sidedef number\n", sizeu1(numlines-i-1)));
 				}
 			}
 		}
@@ -1000,14 +999,14 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 		{
 			ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
 			// cph - print a warning about the bug
-			CONS_Printf("P_LoadLineDefs: linedef %s missing first sidedef\n", sizeu1(numlines-i-1));
+			DEBPRINT(va("P_LoadLineDefs: linedef %s missing first sidedef\n", sizeu1(numlines-i-1)));
 		}
 
 		if ((ld->sidenum[1] == 0xffff) && (ld->flags & ML_TWOSIDED))
 		{
 			ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 			// cph - print a warning about the bug
-			CONS_Printf("P_LoadLineDefs: linedef %s has two-sided flag set, but no second sidedef\n", sizeu1(numlines-i-1));
+			DEBPRINT(va("P_LoadLineDefs: linedef %s has two-sided flag set, but no second sidedef\n", sizeu1(numlines-i-1)));
 		}
 
 		if (ld->sidenum[0] != 0xffff && ld->special)
@@ -1094,7 +1093,7 @@ static void P_LoadLineDefs2(void)
 				M_Memcpy(&newsides[z++], &sides[i], sizeof(side_t));
 		}
 
-		CONS_Printf("Old sides is %s, new sides is %s\n", sizeu1(numsides), sizeu2(numnewsides));
+		DEBPRINT(va("Old sides is %s, new sides is %s\n", sizeu1(numsides), sizeu1(numnewsides)));
 
 		Z_Free(sides);
 		sides = newsides;
@@ -1135,7 +1134,7 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 
 			if (sector_num >= numsectors)
 			{
-				CONS_Printf("P_LoadSideDefs2: sidedef %u has out-of-range sector num %u\n", i, sector_num);
+				DEBPRINT(va("P_LoadSideDefs2: sidedef %u has out-of-range sector num %u\n", i, sector_num));
 				sector_num = 0;
 			}
 			sd->sector = sec = &sectors[sector_num];
@@ -1894,17 +1893,10 @@ static INT32 P_MakeBufferMD5(const char *buffer, size_t len, void *resblock)
 	return 1;
 #else
 	tic_t t = I_GetTime();
-#ifndef _arch_dreamcast
-	if (devparm)
-#endif
-	CONS_Printf("Making MD5\n");
+	DEBPRINT("Making MD5\n");
 	if (md5_buffer(buffer, len, resblock) == NULL)
 		return 1;
-#ifndef _arch_dreamcast
-	if (devparm)
-#endif
-	CONS_Printf("MD5 calc took %f seconds\n",
-		(float)(I_GetTime() - t)/TICRATE);
+	DEBPRINT(va("MD5 calc took %f seconds\n", (float)(I_GetTime() - t)/TICRATE));
 	return 0;
 #endif
 }
@@ -1992,7 +1984,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 
 			if (lumpnum == LUMPERROR || W_LumpLength(lumpnum) == 0)
 			{
-				CONS_Printf("SOC Error: script lump %s not found/not valid.\n", newname);
+				DEBPRINT(va("SOC Error: script lump %s not found/not valid.\n", newname));
 				goto noscript;
 			}
 
@@ -2439,8 +2431,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 				{
 					// the sound will be reloaded when needed,
 					// since sfx->data will be NULL
-					if (devparm)
-						I_OutputMsg("Sound %.8s replaced\n", name);
+					DEBPRINT(va("Sound %.8s replaced\n", name));
 
 					I_FreeSfx(&S_sfx[j]);
 
@@ -2449,8 +2440,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 			}
 			else if (name[1] == '_')
 			{
-				if (devparm)
-					I_OutputMsg("Music %.8s replaced\n", name);
+				DEBPRINT(va("Music %.8s replaced\n", name));
 				mreplaces++;
 			}
 		}

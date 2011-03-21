@@ -188,15 +188,6 @@ void I_SetupMumble(void);
 */
 void I_UpdateMumble(const MumblePos_t *MPos);
 
-/**	\brief	write a message to stderr (use before I_Quit) for when you need to quit with a msg, but need
- the return code 0 of I_Quit();
-
-	\param	error	message string
-
-	\return	void
-*/
-void I_OutputMsg(const char *error, ...) FUNCPRINTF;
-
 /**	\brief Startup the first mouse
 */
 void I_StartupMouse(void);

@@ -17,6 +17,7 @@
 /// \brief cd music interface (uses MCI).
 
 #include "../doomdef.h"
+#include "../doomstat.h"
 #ifdef _WINDOWS
 #include "win_main.h"
 #include <mmsystem.h>
@@ -59,8 +60,8 @@ static VOID MCIErrorMessageBox (MCIERROR iErrorCode)
 {
 	char szErrorText[128];
 	if (!mciGetErrorStringA (iErrorCode, szErrorText, sizeof (szErrorText)))
-		wsprintfA(szErrorText,"MCI CD Audio Unknow Error #%d\n", iErrorCode);
-	CONS_Printf("%s", szErrorText);
+		wsprintfA(szErrorText,"MCI CD Audio Unknown Error #%d\n", iErrorCode);
+	DEBPRINT(va("%s", szErrorText));
 	/*MessageBox (GetActiveWindow(), szTemp+1, "LEGACY",
 				MB_OK | MB_ICONSTOP);*/
 }
@@ -454,7 +455,7 @@ void I_PlayCD(UINT8 nTrack, UINT8 bLooping)
 
 	if (!m_nTracks[nTrack].IsAudio)
 	{
-		//CONS_Printf ("\2CD Play: not an audio track\n"); // Tails 03-25-2001
+		//DEBPRINT ("\2CD Play: not an audio track\n"); // Tails 03-25-2001
 		return;
 	}
 

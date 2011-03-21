@@ -632,26 +632,21 @@ void R_ExecuteSetViewSize(void)
 void R_Init(void)
 {
 	// screensize independent
-	if (devparm)
-		CONS_Printf("\nR_InitData");
+	DEBPRINT("\nR_InitData");
 	R_InitData();
 
-	if (devparm)
-		CONS_Printf("\nR_InitViewBorder");
+	DEBPRINT("\nR_InitViewBorder");
 	R_InitViewBorder();
 	R_SetViewSize(); // setsizeneeded is set true
 
-	if (devparm)
-		CONS_Printf("\nR_InitPlanes");
+	DEBPRINT("\nR_InitPlanes");
 	R_InitPlanes();
 
 	// this is now done by SCR_Recalc() at the first mode set
-	if (devparm)
-		CONS_Printf("\nR_InitLightTables");
+	DEBPRINT("\nR_InitLightTables");
 	R_InitLightTables();
 
-	if (devparm)
-		CONS_Printf("\nR_InitTranslationTables\n");
+	DEBPRINT("\nR_InitTranslationTables\n");
 	R_InitTranslationTables();
 
 	R_InitDrawNodes();
@@ -887,7 +882,7 @@ void R_RenderPlayerView(player_t *player)
 	RDMSR(0x10, &mycount);
 	mytotal += mycount; // 64bit add
 
-	CONS_Printf("RenderBSPNode: 0x%d %d\n", *((INT32 *)&mytotal + 1), (INT32)mytotal);
+	DEBPRINT(va("RenderBSPNode: 0x%d %d\n", *((INT32 *)&mytotal + 1), (INT32)mytotal));
 #endif
 //profile stuff ---------------------------------------------------------
 

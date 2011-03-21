@@ -200,7 +200,7 @@ boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	} while (!mobj->tics && !seenstate[state]);
 
 	if (ret && !mobj->tics)
-		CONS_Printf("%s", text[CYCLE_DETECT]);
+		DEBPRINT(text[CYCLE_DETECT]);
 
 	if (!--recursion)
 		for (;(state = seenstate[i]) > S_NULL; i = state - 1)
@@ -262,7 +262,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 	} while (!mobj->tics && !seenstate[state]);
 
 	if (ret && !mobj->tics)
-		CONS_Printf("%s", text[CYCLE_DETECT]);
+		DEBPRINT(va("%s", text[CYCLE_DETECT]));
 
 	if (!--recursion)
 		for (;(state = seenstate[i]) > S_NULL; i = state - 1)
@@ -3474,7 +3474,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 
 		if (!mobj->target) // Should NEVER happen
 		{
-			CONS_Printf("Error: Boss 3 was unable to find specified waypoint: %d\n", mobj->threshold);
+			DEBPRINT(va("Error: Boss 3 was unable to find specified waypoint: %d\n", mobj->threshold));
 			return;
 		}
 
@@ -3542,7 +3542,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 				}
 			}
 			else // This should never happen, as well
-				CONS_Printf("Error: Boss 3 waypoint has no spawnpoint associated with it.\n");
+				DEBPRINT("Error: Boss 3 waypoint has no spawnpoint associated with it.\n");
 		}
 	}
 }
@@ -4212,7 +4212,7 @@ RetryAttack:
 
 		if (hitspot == NULL)
 		{
-			CONS_Printf("BlackEggman unable to find waypoint #%d!\n", waypointNum);
+			DEBPRINT(va("BlackEggman unable to find waypoint #%d!\n", waypointNum));
 			P_SetMobjState(mobj, mobj->info->spawnstate);
 			return;
 		}
@@ -4401,7 +4401,7 @@ mobj_t *P_GetClosestAxis(mobj_t *source)
 	}
 
 	if (closestaxis == NULL)
-		CONS_Printf("ERROR: No axis points found!\n");
+		DEBPRINT("ERROR: No axis points found!\n");
 
 	return closestaxis;
 }
@@ -4469,7 +4469,7 @@ void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT
 
 	if (!axis)
 	{
-		CONS_Printf("You forgot to put axis points in the map!\n");
+		DEBPRINT("You forgot to put axis points in the map!\n");
 		return;
 	}
 
@@ -7289,7 +7289,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	if (i == NUMMOBJTYPES)
 	{
 		if (mthing->type != 3328) // 3D Thing Mode start
-			CONS_Printf("\2P_SpawnMapThing: Unknown type %d at (%d, %d)\n", mthing->type, mthing->x, mthing->y);
+			DEBPRINT(va("\2P_SpawnMapThing: Unknown type %d at (%d, %d)\n", mthing->type, mthing->x, mthing->y));
 
 		return;
 	}
@@ -7553,7 +7553,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 
 		if (line == numlines)
 		{
-			CONS_Printf("Mace chain (mapthing #%s) needs tagged to a #9 parameter line (trying to find tag %d).\n", sizeu1(mthingi), mthing->angle);
+			DEBPRINT(va("Mace chain (mapthing #%s) needs tagged to a #9 parameter line (trying to find tag %d).\n", sizeu1(mthingi), mthing->angle));
 			return;
 		}
 /*
@@ -7573,16 +7573,14 @@ ML_NOCLIMB : Direction not controllable
 		mxspeed %= 360;
 		mzspeed %= 360;
 
-		if (cv_debug)
-		{
-			CONS_Printf("Mace Chain (mapthing #%s):\n", sizeu1(mthingi));
-			CONS_Printf("Length is %d\n", mlength);
-			CONS_Printf("Speed is %d\n", mspeed);
-			CONS_Printf("Xspeed is %d\n", mxspeed);
-			CONS_Printf("Zspeed is %d\n", mzspeed);
-			CONS_Printf("startangle is %d\n", mstartangle);
-			CONS_Printf("maxspeed is %d\n", mmaxspeed);
-		}
+		DEBPRINT(va("Mace Chain (mapthing #%s):\n"
+				"Length is %d\n"
+				"Speed is %d\n"
+				"Xspeed is %d\n"
+				"Zspeed is %d\n"
+				"startangle is %d\n"
+				"maxspeed is %d\n",
+				sizeu1(mthingi), mlength, mspeed, mxspeed, mzspeed, mstartangle, mmaxspeed));
 
 		mobj->lastlook = mspeed << 4;
 		mobj->movecount = mobj->lastlook;

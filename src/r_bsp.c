@@ -970,7 +970,7 @@ static void R_Subsector(size_t num)
 
 	while (count--)
 	{
-//		CONS_Printf("Adding normal line %d...(%d)\n", line->linedef-lines, leveltime);
+//		DEBPRINT(va("Adding normal line %d...(%d)\n", line->linedef-lines, leveltime));
 		R_AddLine(line);
 		line++;
 		curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so stuff doesn't try using it for other things */

@@ -601,7 +601,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 
 					my_yl = (my_topscreen+FRACUNIT-1)>>FRACBITS;
 					my_yh = (my_bottomscreen-1)>>FRACBITS;
-	//				CONS_Printf("my_topscreen: %d\nmy_bottomscreen: %d\nmy_yl: %d\nmy_yh: %d\n", my_topscreen, my_bottomscreen, my_yl, my_yh);
+	//				DEBPRINT(va("my_topscreen: %d\nmy_bottomscreen: %d\nmy_yl: %d\nmy_yh: %d\n", my_topscreen, my_bottomscreen, my_yl, my_yh));
 
 					if (numffloors)
 					{
@@ -617,14 +617,14 @@ void R_RenderMaskedSegRange(drawseg_t *ds, INT32 x1, INT32 x2)
 							{
 								INT32 top_w = ffloor[i].plane->top[dc_x];
 
-	//							CONS_Printf("Leveltime : %d\n", leveltime);
-	//							CONS_Printf("Top is %d, top_w is %d\n", top, top_w);
+	//							DEBPRINT(va("Leveltime : %d\n", leveltime));
+	//							DEBPRINT(va("Top is %d, top_w is %d\n", top, top_w));
 								if (top_w < top)
 								{
 									ffloor[i].plane->top[dc_x] = (INT16)top;
 									ffloor[i].plane->picnum = 0;
 								}
-	//							CONS_Printf("top_w is now %d\n", ffloor[i].plane->top[dc_x]);
+	//							DEBPRINT(va("top_w is now %d\n", ffloor[i].plane->top[dc_x]));
 							}
 							else if (ffloor[i].height > viewz)
 							{
@@ -1454,7 +1454,7 @@ void R_StoreWallRange(INT32 start, INT32 stop)
 		{
 			fixed_t         tr_x,tr_y;
 			fixed_t         gxt,gyt;
-			CONS_Printf("TRYING TO FIX THE STRETCHED ETC\n");
+			DEBPRINT("TRYING TO FIX THE STRETCHED ETC\n");
 
 			tr_x = curline->v1->x - viewx;
 			tr_y = curline->v1->y - viewy;

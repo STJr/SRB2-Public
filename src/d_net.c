@@ -261,8 +261,7 @@ static boolean GetFreeAcknum(UINT8 *freeack, boolean lowtimer)
 			return true;
 		}
 #ifdef PARANOIA
-	if (devparm)
-		I_OutputMsg("No more free ackpacket\n");
+	DEBPRINT("No more free ackpacket\n");
 #endif
 	if (netbuffer->packettype < PT_CANFAIL)
 		I_Error("Connection lost\n");
@@ -829,7 +828,7 @@ boolean HSendPacket(INT32 node, boolean reliable, UINT8 acknum, size_t packetlen
 		if ((rebound_head+1) % MAXREBOUND == rebound_tail)
 		{
 #ifdef PARANOIA
-			CONS_Printf("No more rebound buf\n");
+			DEBPRINT("No more rebound buf\n");
 #endif
 			return false;
 		}

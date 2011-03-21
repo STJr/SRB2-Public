@@ -544,7 +544,7 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	if (flags & HU_CSAY)
 	{
 		HU_SetCEchoDuration(5);
-		I_OutputMsg("Server message: %s\n", msg);
+		DEBPRINT("Server message: ");
 		HU_DoCEcho(msg);
 		return;
 	}
@@ -1699,6 +1699,8 @@ void HU_SetCEchoFlags(INT32 flags)
 
 void HU_DoCEcho(const char *msg)
 {
+	DEBPRINT(va("%s\n", msg)); // print to log
+
 	strncpy(cechotext, msg, sizeof(cechotext));
 	strncat(cechotext, "\\", sizeof(cechotext));
 	cechotext[sizeof(cechotext) - 1] = '\0';

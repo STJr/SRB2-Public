@@ -802,7 +802,7 @@ VOID I_ShowLastError(BOOL MB)
 
 	if (!lpMsgBuf)
 	{
-		CONS_Printf("GetLastError: Unknown\n");
+		DEBPRINT("GetLastError: Unknown\n");
 		return;
 	}
 
@@ -1674,7 +1674,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	if (((consvar_t *)pvRef)->value == iJoyNum || !strcmp(((consvar_t *)pvRef)->string, lpddi->tszProductName))
 		bUseThisOne = TRUE;
 
-	//CONS_Printf(" cv joy is %s\n", ((consvar_t *)pvRef)->string);
+	//DEBPRINT(va(" cv joy is %s\n", ((consvar_t *)pvRef)->string));
 
 	// print out device name
 	CONS_Printf("%c%d: %s\n",
@@ -1694,7 +1694,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 		// if it failed, then we can't use this joystick for some
 		// bizarre reason.  (Maybe the user unplugged it while we
 		// were in the middle of enumerating it.)  So continue enumerating
-		CONS_Printf("DIEnumJoysticks(): CreateDevice FAILED\n");
+		DEBPRINT("DIEnumJoysticks(): CreateDevice FAILED\n");
 		return DIENUM_CONTINUE;
 	}
 
@@ -1703,7 +1703,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	caps.dwSize = sizeof (DIDEVCAPS_DX3);
 	if (FAILED(IDirectInputDevice_GetCapabilities (pdev, &caps)))
 	{
-		CONS_Printf("DIEnumJoysticks(): GetCapabilities FAILED\n");
+		DEBPRINT("DIEnumJoysticks(): GetCapabilities FAILED\n");
 		IDirectInputDevice_Release (pdev);
 		return DIENUM_CONTINUE;
 	}
@@ -1718,7 +1718,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 		JoyInfo.ForceAxises = -1;
 
 	Joystick.bGamepadStyle = (GET_DIDEVICE_SUBTYPE(caps.dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD);
-	//DEBUG CONS_Printf("Gamepad: %d\n", Joystick.bGamepadStyle);
+	//DEBPRINT(va("Gamepad: %d\n", Joystick.bGamepadStyle));
 
 
 	CONS_Printf("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %d\n",
@@ -1733,7 +1733,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	// DIJOYSTATE structure to IDirectInputDevice::GetDeviceState.
 	if (IDirectInputDevice_SetDataFormat (pdev, &c_dfDIJoystick) != DI_OK)
 	{
-		CONS_Printf("DIEnumJoysticks(): SetDataFormat FAILED\n");
+		DEBPRINT("DIEnumJoysticks(): SetDataFormat FAILED\n");
 		IDirectInputDevice_Release (pdev);
 		return DIENUM_CONTINUE;
 	}
@@ -1744,7 +1744,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	if (IDirectInputDevice_SetCooperativeLevel (pdev, hWndMain,
 	 DISCL_EXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
 	{
-		CONS_Printf("DIEnumJoysticks(): SetCooperativeLevel FAILED\n");
+		DEBPRINT("DIEnumJoysticks(): SetCooperativeLevel FAILED\n");
 		IDirectInputDevice_Release (pdev);
 		return DIENUM_CONTINUE;
 	}
@@ -1768,7 +1768,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
 //SetPropFail:
-//		CONS_Printf("DIEnumJoysticks(): SetProperty FAILED\n");
+//		DEBPRINT("DIEnumJoysticks(): SetProperty FAILED\n");
 //		IDirectInputDevice_Release (pdev);
 //		return DIENUM_CONTINUE;
 		JoyInfo.Y = FALSE;
@@ -1778,7 +1778,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_Z;    // set the z-axis range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_Z not found\n");
+		//DEBPRINT("DIJOFS_Z not found\n");
 		JoyInfo.Z = FALSE;
 	}
 	else JoyInfo.Z = TRUE;
@@ -1786,7 +1786,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_RX;   // set the x-rudder range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RX (x-rudder) not found\n");
+		//DEBPRINT("DIJOFS_RX (x-rudder) not found\n");
 		JoyInfo.Rx = FALSE;
 	}
 	else JoyInfo.Rx = TRUE;
@@ -1794,7 +1794,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_RY;   // set the y-rudder range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RY (y-rudder) not found\n");
+		//DEBPRINT("DIJOFS_RY (y-rudder) not found\n");
 		JoyInfo.Ry = FALSE;
 	}
 	else JoyInfo.Ry = TRUE;
@@ -1802,14 +1802,14 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_RZ;   // set the z-rudder range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RZ (z-rudder) not found\n");
+		//DEBPRINT("DIJOFS_RZ (z-rudder) not found\n");
 		JoyInfo.Rz = FALSE;
 	}
 	else JoyInfo.Rz = TRUE;
 	diprg.diph.dwObj = DIJOFS_SLIDER(0);   // set the x-misc range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RZ (x-misc) not found\n");
+		//DEBPRINT("DIJOFS_RZ (x-misc) not found\n");
 		JoyInfo.U = FALSE;
 	}
 	else JoyInfo.U = TRUE;
@@ -1817,7 +1817,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_SLIDER(1);   // set the y-misc range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RZ (y-misc) not found\n");
+		//DEBPRINT("DIJOFS_RZ (y-misc) not found\n");
 		JoyInfo.V = FALSE;
 	}
 	else JoyInfo.V = TRUE;
@@ -1829,7 +1829,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_X,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for X DEAD ZONE");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for X DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1837,7 +1837,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Y,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for Y DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for Y DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1845,7 +1845,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Z,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for Z DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for Z DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1853,7 +1853,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RX,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for RX DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for RX DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1861,7 +1861,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RY,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for RY DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for RY DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1869,7 +1869,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RZ,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for RZ DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for RZ DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1877,7 +1877,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(0),
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for U DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for U DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1885,7 +1885,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(1),
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks(): couldn't SetProperty for V DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks(): couldn't SetProperty for V DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -1906,7 +1906,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 		LPVOID *tp  = (LPVOID *)rp;
 		if (FAILED(IDirectInputDevice_QueryInterface(pdev, &IID_IDirectInputDevice2, tp)))
 		{
-			CONS_Printf("DIEnumJoysticks(): QueryInterface FAILED\n");
+			DEBPRINT("DIEnumJoysticks(): QueryInterface FAILED\n");
 			IDirectInputDevice_Release (pdev);
 			return DIENUM_CONTINUE;
 		}
@@ -2035,7 +2035,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	if (((consvar_t *)pvRef)->value == iJoy2Num || !strcmp(((consvar_t *)pvRef)->string, lpddi->tszProductName))
 		bUseThisOne = TRUE;
 
-	//CONS_Printf(" cv joy2 is %s\n", ((consvar_t *)pvRef)->string);
+	//DEBPRINT(va(" cv joy2 is %s\n", ((consvar_t *)pvRef)->string));
 
 	// print out device name
 	CONS_Printf("%c%d: %s\n",
@@ -2055,7 +2055,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 		// if it failed, then we can't use this joystick for some
 		// bizarre reason.  (Maybe the user unplugged it while we
 		// were in the middle of enumerating it.)  So continue enumerating
-		CONS_Printf("DIEnumJoysticks2(): CreateDevice FAILED\n");
+		DEBPRINT("DIEnumJoysticks2(): CreateDevice FAILED\n");
 		return DIENUM_CONTINUE;
 	}
 
@@ -2065,7 +2065,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	caps.dwSize = sizeof (DIDEVCAPS_DX3);
 	if (FAILED(IDirectInputDevice_GetCapabilities (pdev, &caps)))
 	{
-		CONS_Printf("DIEnumJoysticks2(): GetCapabilities FAILED\n");
+		DEBPRINT("DIEnumJoysticks2(): GetCapabilities FAILED\n");
 		IDirectInputDevice_Release (pdev);
 		return DIENUM_CONTINUE;
 	}
@@ -2080,7 +2080,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 		JoyInfo2.ForceAxises = -1;
 
 	Joystick2.bGamepadStyle = (GET_DIDEVICE_SUBTYPE(caps.dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD);
-	//DEBUG CONS_Printf("Gamepad: %d\n", Joystick2.bGamepadStyle);
+	//DEBPRINT(va("Gamepad: %d\n", Joystick2.bGamepadStyle));
 
 
 	CONS_Printf("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %u\n",
@@ -2096,7 +2096,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	// DIJOYSTATE structure to IDirectInputDevice::GetDeviceState.
 	if (IDirectInputDevice_SetDataFormat (pdev, &c_dfDIJoystick) != DI_OK)
 	{
-		CONS_Printf("DIEnumJoysticks2(): SetDataFormat FAILED\n");
+		DEBPRINT("DIEnumJoysticks2(): SetDataFormat FAILED\n");
 		IDirectInputDevice_Release (pdev);
 		return DIENUM_CONTINUE;
 	}
@@ -2107,7 +2107,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	if (IDirectInputDevice_SetCooperativeLevel (pdev, hWndMain,
 	         DISCL_EXCLUSIVE | DISCL_FOREGROUND) != DI_OK)
 	{
-		CONS_Printf("DIEnumJoysticks2(): SetCooperativeLevel FAILED\n");
+		DEBPRINT("DIEnumJoysticks2(): SetCooperativeLevel FAILED\n");
 		IDirectInputDevice_Release (pdev);
 		return DIENUM_CONTINUE;
 	}
@@ -2131,7 +2131,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
 //SetPropFail:
-//		CONS_Printf("DIEnumJoysticks(): SetProperty FAILED\n");
+//		DEBPRINT("DIEnumJoysticks(): SetProperty FAILED\n");
 //		IDirectInputDevice_Release (pdev);
 //		return DIENUM_CONTINUE;
 		JoyInfo2.Y = FALSE;
@@ -2141,7 +2141,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_Z;    // set the z-axis range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_Z not found\n");
+		//DEBPRINT("DIJOFS_Z not found\n");
 		JoyInfo2.Z = FALSE;
 	}
 	else JoyInfo2.Z = TRUE;
@@ -2149,7 +2149,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_RX;   // set the x-rudder range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RX (x-rudder) not found\n");
+		//DEBPRINT("DIJOFS_RX (x-rudder) not found\n");
 		JoyInfo2.Rx = FALSE;
 	}
 	else JoyInfo2.Rx = TRUE;
@@ -2157,7 +2157,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_RY;   // set the y-rudder range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RY (y-rudder) not found\n");
+		//DEBPRINT("DIJOFS_RY (y-rudder) not found\n");
 		JoyInfo2.Ry = FALSE;
 	}
 	else JoyInfo2.Ry = TRUE;
@@ -2165,14 +2165,14 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_RZ;   // set the z-rudder range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RZ (z-rudder) not found\n");
+		//DEBPRINT("DIJOFS_RZ (z-rudder) not found\n");
 		JoyInfo2.Rz = FALSE;
 	}
 	else JoyInfo2.Rz = TRUE;
 	diprg.diph.dwObj = DIJOFS_SLIDER(0);   // set the x-misc range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RZ (x-misc) not found\n");
+		//DEBPRINT("DIJOFS_RZ (x-misc) not found\n");
 		JoyInfo2.U = FALSE;
 	}
 	else JoyInfo2.U = TRUE;
@@ -2180,7 +2180,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	diprg.diph.dwObj = DIJOFS_SLIDER(1);   // set the y-misc range
 	if (FAILED(IDirectInputDevice_SetProperty(pdev, DIPROP_RANGE, &diprg.diph)))
 	{
-		//CONS_Printf("DIJOFS_RZ (y-misc) not found\n");
+		//DEBPRINT("DIJOFS_RZ (y-misc) not found\n");
 		JoyInfo2.V = FALSE;
 	}
 	else JoyInfo2.V = TRUE;
@@ -2192,7 +2192,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_X,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for X DEAD ZONE");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for X DEAD ZONE");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2200,7 +2200,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Y,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for Y DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for Y DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2208,7 +2208,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_Z,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for Z DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for Z DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2216,7 +2216,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RX,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for RX DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for RX DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2224,7 +2224,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RY,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for RY DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for RY DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2232,7 +2232,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_RZ,
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for RZ DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for RZ DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2240,7 +2240,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(0),
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for U DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for U DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2248,7 +2248,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 			if (FAILED(SetDIDwordProperty(pdev, DIPROP_DEADZONE, DIJOFS_SLIDER(1),
 			                              DIPH_BYOFFSET, DIDEADZONE)))
 			{
-				CONS_Printf("DIEnumJoysticks2(): couldn't SetProperty for V DEAD ZONE\n");
+				DEBPRINT("DIEnumJoysticks2(): couldn't SetProperty for V DEAD ZONE\n");
 				//IDirectInputDevice_Release (pdev);
 				//return DIENUM_CONTINUE;
 			}
@@ -2269,7 +2269,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 		LPVOID *tp  = (LPVOID *)rp;
 		if (FAILED(IDirectInputDevice_QueryInterface(pdev, &IID_IDirectInputDevice2, tp)))
 		{
-			CONS_Printf("DIEnumJoysticks2(): QueryInterface FAILED\n");
+			DEBPRINT("DIEnumJoysticks2(): QueryInterface FAILED\n");
 			IDirectInputDevice_Release (pdev);
 			return DIENUM_CONTINUE;
 		}
@@ -2541,7 +2541,7 @@ void I_GetJoystickEvents(void)
 				goto acquire;
 			else if (FAILED(hr))
 			{
-				CONS_Printf("I_GetJoystickEvents(): Poll FAILED\n");
+				DEBPRINT("I_GetJoystickEvents(): Poll FAILED\n");
 				return;
 			}
 		}
@@ -2560,7 +2560,7 @@ void I_GetJoystickEvents(void)
 		}
 		else if (FAILED(hr))
 		{
-			CONS_Printf("I_GetJoystickEvents(): GetDeviceState FAILED\n");
+			DEBPRINT("I_GetJoystickEvents(): GetDeviceState FAILED\n");
 			return;
 		}
 
@@ -2785,7 +2785,7 @@ void I_GetJoystick2Events(void)
 				goto acquire;
 			else if (FAILED(hr))
 			{
-				CONS_Printf("I_GetJoystick2Events(): Poll FAILED\n");
+				DEBPRINT("I_GetJoystick2Events(): Poll FAILED\n");
 				return;
 			}
 		}
@@ -2804,7 +2804,7 @@ void I_GetJoystick2Events(void)
 		}
 		else if (FAILED(hr))
 		{
-			CONS_Printf("I_GetJoystickEvents2(): GetDeviceState FAILED\n");
+			DEBPRINT("I_GetJoystickEvents2(): GetDeviceState FAILED\n");
 			return;
 		}
 
@@ -3015,7 +3015,7 @@ static BOOL CALLBACK DIEnumJoysticksCount (LPCDIDEVICEINSTANCEA lpddi,
 		sprintf(joyname,"%s",lpddi->tszProductName);
 		return DIENUM_STOP;
 	}
-	//else if (devparm) I_OutputMsg("DIEnumJoysticksCount need help!");
+	//else DEBPRINT("DIEnumJoysticksCount need help!\n");
 	return DIENUM_CONTINUE;
 }
 
@@ -3027,7 +3027,9 @@ INT32 I_NumJoys(void)
 	hr = IDirectInput_EnumDevices(lpDI, DIDEVTYPE_JOYSTICK,
 		DIEnumJoysticksCount, (LPVOID)&numofjoy, DIEDFL_ATTACHEDONLY);
 	if (FAILED(hr))
-			CONS_Printf("\nI_NumJoys(): EnumDevices FAILED\n");
+	{
+		DEBPRINT("\nI_NumJoys(): EnumDevices FAILED\n");
+	}
 	return numofjoy;
 
 }
@@ -3041,7 +3043,9 @@ const char *I_GetJoyName(INT32 joyindex)
 	hr = IDirectInput_EnumDevices(lpDI, DIDEVTYPE_JOYSTICK,
 		DIEnumJoysticksCount, (LPVOID)joyname, DIEDFL_ATTACHEDONLY);
 	if (FAILED(hr))
-			CONS_Printf("\nI_GetJoyName(): EnumDevices FAILED\n");
+	{
+		DEBPRINT("\nI_GetJoyName(): EnumDevices FAILED\n");
+	}
 	if (joyname[0] == 0) return NULL;
 	return joyname;
 }
@@ -3192,7 +3196,7 @@ void I_StartupKeyboard(void)
 	// detect error
 	if (lpDIK)
 	{
-		CONS_Printf("\2I_StartupKeyboard(): called twice\n");
+		DEBPRINT("\2I_StartupKeyboard(): called twice\n");
 		return;
 	}
 

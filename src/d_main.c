@@ -929,7 +929,7 @@ void D_SRB2Main(void)
 	// keep error messages until the final flush(stderr)
 #if !defined (PC_DOS) && !defined (_WIN32_WCE) && !defined(NOTERMIOS)
 	if (setvbuf(stderr, NULL, _IOFBF, 1000))
-		CONS_Printf("%s", text[SETVBUF_FAIL]);
+		DEBPRINT(text[SETVBUF_FAIL]);
 #endif
 
 #ifdef GETTEXT

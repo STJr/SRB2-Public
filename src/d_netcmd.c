@@ -1879,8 +1879,7 @@ void D_MapChange(INT32 mapnum, INT32 newgametype, boolean pultmode, INT32 resetp
 	// The supplied data are assumed to be good.
 	I_Assert(delay >= 0 && delay <= 2);
 
-	if (devparm)
-		CONS_Printf(text[MAPCHANGE_DEBUG], mapnum, newgametype, pultmode, resetplayers, delay, skipprecutscene);
+	DEBPRINT(va(text[MAPCHANGE_DEBUG], mapnum, newgametype, pultmode, resetplayers, delay, skipprecutscene));
 	if (delay != 2)
 	{
 		const char *mapname = G_BuildMapName(mapnum);
@@ -3275,15 +3274,9 @@ static void Command_Addfile(void)
 		if (fhandle)
 		{
 			tic_t t = I_GetTime();
-#ifdef _arch_dreamcast
-			CONS_Printf("Making MD5 for %s\n",fn);
-#endif
+			DEBPRINT(va("Making MD5 for %s\n",fn));
 			md5_stream(fhandle, md5sum);
-#ifndef _arch_dreamcast
-			if (devparm)
-#endif
-				CONS_Printf("MD5 calc for %s took %f second\n",
-					fn, (float)(I_GetTime() - t)/TICRATE);
+			DEBPRINT(va(M_GetText("MD5 calc for %s took %f second\n"), fn, (float)(I_GetTime() - t)/TICRATE));
 			fclose(fhandle);
 		}
 		else

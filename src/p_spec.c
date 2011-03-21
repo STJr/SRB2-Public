@@ -331,10 +331,9 @@ static inline void P_FindAnimatedFlat(INT32 animnum)
 			foundflats->numpics = endflatnum - startflatnum + 1;
 			foundflats->speed = anims[animnum].speed;
 
-			if (devparm)
-				I_OutputMsg("animflat: #%03d name:%.8s animseq:%d numpics:%d speed:%d\n",
+			DEBPRINT(va("animflat: #%03d name:%.8s animseq:%d numpics:%d speed:%d\n",
 					atoi(sizeu1(i)), foundflats->name, foundflats->animseq,
-					foundflats->numpics,foundflats->speed);
+					foundflats->numpics,foundflats->speed));
 		}
 	}
 }
@@ -1045,8 +1044,7 @@ static void PolyInvisible(line_t *line)
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
 	{
-		CONS_Printf("PolyInvisible: bad polyobj %d\n",
-			polyObjNum);
+		DEBPRINT(va("PolyInvisible: bad polyobj %d\n", polyObjNum));
 		return;
 	}
 
@@ -1074,8 +1072,7 @@ static void PolyVisible(line_t *line)
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
 	{
-		CONS_Printf("PolyVisible: bad polyobj %d\n",
-			polyObjNum);
+		DEBPRINT(va("PolyVisible: bad polyobj %d\n", polyObjNum));
 		return;
 	}
 
@@ -1103,8 +1100,7 @@ static void PolyTranslucency(line_t *line)
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
 	{
-		CONS_Printf("EV_DoPolyObjWaypoint: bad polyobj %d\n",
-			polyObjNum);
+		DEBPRINT(va("EV_DoPolyObjWaypoint: bad polyobj %d\n", polyObjNum));
 		return;
 	}
 
@@ -1536,9 +1532,8 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 					if (j == linecnt)
 					{
 						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
-						CONS_Printf("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
-							sizeu1(sectori), sizeu2(vertexei),
-							ctlsector->lines[i]->v1->x, ctlsector->lines[i]->v1->y);
+						DEBPRINT(va("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
+							sizeu1(sectori), sizeu2(vertexei), ctlsector->lines[i]->v1->x, ctlsector->lines[i]->v1->y));
 						return; // abort
 					}
 				}
@@ -1563,9 +1558,8 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 					if (j == linecnt)
 					{
 						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
-						CONS_Printf("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
-							sizeu1(sectori), sizeu2(vertexei),
-							ctlsector->lines[i]->v2->x, ctlsector->lines[i]->v2->y);
+						DEBPRINT(va("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
+							sizeu1(sectori), sizeu2(vertexei), ctlsector->lines[i]->v2->x, ctlsector->lines[i]->v2->y));
 						return; // abort
 					}
 				}
@@ -1650,7 +1644,7 @@ void P_SwitchWeather(INT32 weathernum)
 				return;
 			break;
 		default:
-			CONS_Printf("Unknown weather type %d.\n", weathernum);
+			DEBPRINT(va("P_SwitchWeather: Unknown weather type %d.\n", weathernum));
 			break;
 	}
 
@@ -2152,7 +2146,9 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 				lumpnum = W_CheckNumForName(newname);
 
 				if (lumpnum == LUMPERROR || W_LumpLength(lumpnum) == 0)
-					CONS_Printf("SOC Error: script lump %s not found/not valid.\n", newname);
+				{
+					DEBPRINT(va("SOC Error: script lump %s not found/not valid.\n", newname));
+				}
 				else
 					COM_BufInsertText(W_CacheLumpNum(lumpnum, PU_CACHE));
 			}
@@ -2481,7 +2477,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					if (!sec->ffloors)
 					{
-						CONS_Printf("Line type 436 Executor: Target sector #%d has no FOFs.\n", secnum);
+						DEBPRINT(va("Line type 436 Executor: Target sector #%d has no FOFs.\n", secnum));
 						return;
 					}
 
@@ -2493,7 +2489,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					if (!rover)
 					{
-						CONS_Printf("Line type 436 Executor: Can't find a FOF control sector with tag %d\n", foftag);
+						DEBPRINT(va("Line type 436 Executor: Can't find a FOF control sector with tag %d\n", foftag));
 						return;
 					}
 
@@ -3336,7 +3332,7 @@ DoneSection2:
 
 				if (lineindex == -1)
 				{
-					CONS_Printf("ERROR: Sector special %d missing line special #3.\n", sector->special);
+					DEBPRINT(va("ERROR: Sector special %d missing line special #3.\n", sector->special));
 					break;
 				}
 
@@ -3363,14 +3359,13 @@ DoneSection2:
 
 				if (!waypoint)
 				{
-					CONS_Printf("ERROR: FIRST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence);
+					DEBPRINT(va("ERROR: FIRST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence));
 					break;
 				}
-				else if (cv_debug)
-					CONS_Printf("Waypoint %d found in sequence %d - speed = %d\n",
-																waypoint->health,
-																sequence,
-																speed);
+				else
+				{
+					DEBPRINT(va("Waypoint %d found in sequence %d - speed = %d\n", waypoint->health, sequence, speed));
+				}
 
 				an = R_PointToAngle2(player->mo->x, player->mo->y, waypoint->x, waypoint->y) - player->mo->angle;
 
@@ -3411,7 +3406,7 @@ DoneSection2:
 
 				if (lineindex == -1)
 				{
-					CONS_Printf("ERROR: Sector special %d missing line special #3.\n", sector->special);
+					DEBPRINT(va("ERROR: Sector special %d missing line special #3.\n", sector->special));
 					break;
 				}
 
@@ -3439,14 +3434,13 @@ DoneSection2:
 
 				if (!waypoint)
 				{
-					CONS_Printf("ERROR: LAST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence);
+					DEBPRINT(va("ERROR: LAST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence));
 					break;
 				}
-				else if (cv_debug)
-					CONS_Printf("Waypoint %d found in sequence %d - speed = %d\n",
-																waypoint->health,
-																sequence,
-																speed);
+				else
+				{
+					DEBPRINT(va("Waypoint %d found in sequence %d - speed = %d\n", waypoint->health, sequence, speed));
+				}
 
 				an = R_PointToAngle2(player->mo->x, player->mo->y, waypoint->x, waypoint->y) - player->mo->angle;
 
@@ -3554,7 +3548,7 @@ DoneSection2:
 
 				if (lineindex == -1)
 				{
-					CONS_Printf("ERROR: Sector special %d missing line special #11.\n", sector->special);
+					DEBPRINT(va("ERROR: Sector special %d missing line special #11.\n", sector->special));
 					break;
 				}
 
@@ -3604,7 +3598,7 @@ DoneSection2:
 
 				if (waypointmid == NULL)
 				{
-					CONS_Printf("ERROR: WAYPOINT(S) IN SEQUENCE %d NOT FOUND.\n", sequence);
+					DEBPRINT(va("ERROR: WAYPOINT(S) IN SEQUENCE %d NOT FOUND.\n", sequence));
 					break;
 				}
 
@@ -3662,8 +3656,8 @@ DoneSection2:
 					break;
 				}
 
-				if (cv_debug)
-					CONS_Printf("WaypointMid: %d; WaypointLow: %d; WaypointHigh: %d\n", waypointmid->health, waypointlow ? waypointlow->health : -1, waypointhigh ? waypointhigh->health : -1);
+				DEBPRINT(va("WaypointMid: %d; WaypointLow: %d; WaypointHigh: %d\n",
+								waypointmid->health, waypointlow ? waypointlow->health : -1, waypointhigh ? waypointhigh->health : -1));
 
 				// Now we have three waypoints... the closest one we're near, and the one that comes before, and after.
 				// Next, we need to find the closest point on the line between each set, and determine which one we're
@@ -6333,7 +6327,7 @@ static void P_SpawnScrollers(void)
 				if (s != 0xffff)
 					Add_Scroller(sc_side, -sides[s].textureoffset, sides[s].rowoffset, -1, lines[i].sidenum[0], accel, 0);
 				else
-					CONS_Printf("Line special 506 (line #%s) missing 2nd side!\n", sizeu1(i));
+					DEBPRINT(va("Line special 506 (line #%s) missing 2nd side!\n", sizeu1(i)));
 				break;
 
 			case 500: // scroll first side

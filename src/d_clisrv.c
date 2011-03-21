@@ -1736,11 +1736,8 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 
 		CONS_Printf(text[ILLEGALKICKCMD], player_names[playernum], pnum);
 		// In debug, print a longer message with more details.
-#ifndef _DEBUG
-		if (cv_debug || devparm)
-#endif
-		{
-			CONS_Printf("So, you must be asking, why is this an illegal kick?\n"
+		// TODO Callum: Should we translate this?
+		DEBPRINT(va(M_GetText("So, you must be asking, why is this an illegal kick?\n"
 			            "Well, let's take a look at the facts, shall we?\n"
 			            "\n"
 			            "playernum (this is the guy who did it), he's %d.\n"
@@ -1752,13 +1749,12 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 			            "That node has %d players.\n"
 			            "Player 2 on that node is %d.\n"
 			            "\n"
-			            "If you think this is a bug, please report it, including all of the details above.\n",
+			            "If you think this is a bug, please report it, including all of the details above.\n"),
 				playernum, pnum,
 				playernode[playernum], playerpernode[playernode[playernum]],
 				nodetoplayer2[playernode[playernum]],
 				playernode[pnum], playerpernode[playernode[pnum]],
-				nodetoplayer2[playernode[pnum]]);
-		};
+				nodetoplayer2[playernode[pnum]]));
 		pnum = playernum;
 		msg = KICK_MSG_CON_FAIL;
 	}
@@ -3436,8 +3432,7 @@ static void SV_Maketic(void)
 
 				DEBFILE(va("MISS tic%4d for node %d\n", maketic, j));
 #if defined(PARANOIA) && 0
-				if (devparm)
-					I_OutputMsg("Client Misstic %d\n", maketic);
+				DEBPRINT(va("Client Misstic %d\n", maketic));
 #endif
 				// copy the old tic
 				for (i = 0; i < playerpernode[j]; i++, player = nodetoplayer2[j])

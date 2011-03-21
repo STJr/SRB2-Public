@@ -859,7 +859,7 @@ void S_UpdateSounds(void)
 					I_FreeSfx(S_sfx+i);
 					//S_sfx[i].data = 0;
 
-					CONS_Printf("\2flushed sfx %.6s\n", S_sfx[i].name);
+					DEBPRINT(va("\2flushed sfx %.6s\n", S_sfx[i].name));
 				}
 			}
 			nextcleanup = gametic + 15;
@@ -939,7 +939,7 @@ void S_UpdateSounds(void)
 void S_SetDigMusicVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
-		CONS_Printf("musicvolume should be between 0-31\n");
+		DEBPRINT("musicvolume should be between 0-31\n");
 
 	CV_SetValue(&cv_digmusicvolume, volume&31);
 	actualdigmusicvolume = cv_digmusicvolume.value;   //check for change of var
@@ -955,7 +955,7 @@ void S_SetDigMusicVolume(INT32 volume)
 void S_SetMIDIMusicVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
-		CONS_Printf("musicvolume should be between 0-31\n");
+		DEBPRINT("musicvolume should be between 0-31\n");
 
 	CV_SetValue(&cv_midimusicvolume, volume&31);
 	actualmidimusicvolume = cv_midimusicvolume.value;   //check for change of var
@@ -970,7 +970,7 @@ void S_SetMIDIMusicVolume(INT32 volume)
 void S_SetSfxVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
-		CONS_Printf("sfxvolume should be between 0-31\n");
+		DEBPRINT("sfxvolume should be between 0-31\n");
 
 	CV_SetValue(&cv_soundvolume, volume&31);
 	actualsfxvolume = cv_soundvolume.value; // check for change of var
@@ -1354,7 +1354,7 @@ void S_StartSoundName(void *mo, const char *soundname)
 
 		if (i == MAXNEWSOUNDS)
 		{
-			CONS_Printf("Cannot load another extra sound!\n");
+			DEBPRINT("Cannot load another extra sound!\n");
 			return;
 		}
 

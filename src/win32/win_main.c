@@ -92,7 +92,7 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			wParam <<= 16;
 	}
 
-	//CONS_Printf("MainWndproc: %p,%i,%i,%i",hWnd, message, wParam, (UINT)lParam);
+	//DEBPRINT(va("MainWndproc: %p,%i,%i,%i",hWnd, message, wParam, (UINT)lParam));
 
 	switch (message)
 	{
@@ -261,7 +261,7 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 
 		case WM_MOUSEWHEEL:
-			//CONS_Printf("MW_WHEEL dispatched.\n");
+			//DEBPRINT(va("MW_WHEEL dispatched.\n"));
 			ev.type = ev_keydown;
 			if ((INT16)HIWORD(wParam) > 0)
 				ev.data1 = KEY_MOUSEWHEELUP;
@@ -317,16 +317,14 @@ static inline VOID OpenTextConsole(VOID)
 	{
 		if (FreeConsole())
 		{
-			CONS_Printf("We lost a Console, let hope it was Mingw's Bash\n");
+			DEBPRINT("Detatched console.\n");
 			console = TRUE; //lets get back a console
 		}
-#if 1
 		else
 		{
-			CONS_Printf("We did not lost a Console\n");
+			DEBPRINT("No console to detatch.\n");
 			I_ShowLastError(FALSE);
 		}
-#endif
 	}
 
 	if (dedicated || console)
@@ -338,7 +336,7 @@ static inline VOID OpenTextConsole(VOID)
 		}
 		else
 		{
-			CONS_Printf("We have a Console Already? Why?\n");
+			DEBPRINT(va("%s", M_GetText("We have a console already.\n")));
 			I_ShowLastError(FALSE);
 			return;
 		}
@@ -352,31 +350,33 @@ static inline VOID OpenTextConsole(VOID)
 		HANDLE sih = GetStdHandle(STD_INPUT_HANDLE);
 		if (sih != ci)
 		{
-			CONS_Printf("Old STD_INPUT_HANDLE: %p\nNew STD_INPUT_HANDLE: %p\n", sih, ci);
+			DEBPRINT(va("Old STD_INPUT_HANDLE: %p\nNew STD_INPUT_HANDLE: %p\n", sih, ci));
 			SetStdHandle(STD_INPUT_HANDLE,ci);
 		}
 		else
-			CONS_Printf("STD_INPUT_HANDLE already set at %p\n", ci);
+			DEBPRINT(va("STD_INPUT_HANDLE already set at %p\n", ci));
 
 		if (GetFileType(ci) == FILE_TYPE_CHAR)
 		{
 #if 0
 			const DWORD CM = ENABLE_LINE_INPUT|ENABLE_ECHO_INPUT|ENABLE_PROCESSED_INPUT; //default mode but no ENABLE_MOUSE_INPUT
 			if (SetConsoleMode(ci,CM))
-				CONS_Printf("Disabled mouse input on the console\n");
+			{
+				DEBPRINT("Disabled mouse input on the console\n");
+			}
 			else
 			{
-				CONS_Printf("Could not disable mouse input on the console\n");
+				DEBPRINT("Could not disable mouse input on the console\n");
 				I_ShowLastError(FALSE);
 			}
 #endif
 		}
 		else
-			CONS_Printf("Handle CONIN$ in not a Console HANDLE\n");
+			DEBPRINT("Handle CONIN$ in not a Console HANDLE\n");
 	}
 	else
 	{
-		CONS_Printf("Could not get a CONIN$ HANDLE\n");
+		DEBPRINT("Could not get a CONIN$ HANDLE\n");
 		I_ShowLastError(FALSE);
 	}
 
@@ -387,21 +387,21 @@ static inline VOID OpenTextConsole(VOID)
 		HANDLE seh = GetStdHandle(STD_ERROR_HANDLE);
 		if (soh != co)
 		{
-			CONS_Printf("Old STD_OUTPUT_HANDLE: %p\nNew STD_OUTPUT_HANDLE: %p\n", soh, co);
+			DEBPRINT(va("Old STD_OUTPUT_HANDLE: %p\nNew STD_OUTPUT_HANDLE: %p\n", soh, co));
 			SetStdHandle(STD_OUTPUT_HANDLE,co);
 		}
 		else
-			CONS_Printf("STD_OUTPUT_HANDLE already set at %p\n", co);
+			DEBPRINT(va("STD_OUTPUT_HANDLE already set at %p\n", co));
 		if (seh != co)
 		{
-			CONS_Printf("Old STD_ERROR_HANDLE: %p\nNew STD_ERROR_HANDLE: %p\n", seh, co);
+			DEBPRINT(va("Old STD_ERROR_HANDLE: %p\nNew STD_ERROR_HANDLE: %p\n", seh, co));
 			SetStdHandle(STD_ERROR_HANDLE,co);
 		}
 		else
-			CONS_Printf("STD_ERROR_HANDLE already set at %p\n", co);
+			DEBPRINT(va("STD_ERROR_HANDLE already set at %p\n", co));
 	}
 	else
-		CONS_Printf("Could not get a CONOUT$ HANDLE\n");
+		DEBPRINT("Could not get a CONOUT$ HANDLE\n");
 }
 
 
@@ -429,7 +429,7 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 
 	if (!RegisterClassExA(&wc))
 	{
-		CONS_Printf("Error doing RegisterClassExA\n");
+		DEBPRINT("Error doing RegisterClassExA\n");
 		I_ShowLastError(TRUE);
 		return INVALID_HANDLE_VALUE;
 	}
@@ -460,7 +460,7 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 
 	if (hWnd == INVALID_HANDLE_VALUE)
 	{
-		CONS_Printf("Error doing CreateWindowExA\n");
+		DEBPRINT("Error doing CreateWindowExA\n");
 		I_ShowLastError(TRUE);
 	}
 

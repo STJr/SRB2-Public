@@ -73,7 +73,6 @@ extern INT16 gametype;
 extern boolean splitscreen;
 extern boolean circuitmap; // Does this level have 'circuit mode'?
 extern boolean fromlevelselect;
-extern INT32 cv_debug;
 
 // ========================================
 // Internal parameters for sound rendering.

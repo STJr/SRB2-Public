@@ -1437,7 +1437,7 @@ void A_LobShot(mobj_t *actor)
 
 			orig = FixedMul(FixedDiv(vertical, horizontal), diff);
 
-			CONS_Printf("orig: %d\n", (orig)>>FRACBITS);
+			DEBPRINT(va("orig: %d\n", (orig)>>FRACBITS));
 
 			horizontal = dist / airtime;
 			vertical = (gravity*airtime)/2;
@@ -2042,7 +2042,7 @@ void A_MonitorPop(mobj_t *actor)
 		}
 	}
 	else
-		CONS_Printf("Powerup item not defined in 'damage' field for A_MonitorPop\n");
+		DEBPRINT("Powerup item not defined in 'damage' field for A_MonitorPop\n");
 
 	P_RemoveMobj(actor);
 }
@@ -2206,14 +2206,13 @@ void A_CustomPower(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s", text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
 	if (locvar1 >= NUMPOWERS)
 	{
-		CONS_Printf("Power #%d out of range!\n", locvar1);
+		DEBPRINT(va(M_GetText("Power #%d out of range!\n"), locvar1));
 		return;
 	}
 
@@ -2246,14 +2245,13 @@ void A_GiveWeapon(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s", text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
 	if (locvar1 >= 64)
 	{
-		CONS_Printf("Weapon #%d out of range!\n", locvar1);
+		DEBPRINT(va(M_GetText("Weapon #%d out of range!\n"), locvar1));
 		return;
 	}
 
@@ -2277,8 +2275,7 @@ void A_JumpShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s", text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2309,8 +2306,7 @@ void A_RingShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s", text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2341,8 +2337,7 @@ void A_RingBox(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s", text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2366,8 +2361,7 @@ void A_Invincibility(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2397,8 +2391,7 @@ void A_SuperSneakers(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2431,8 +2424,7 @@ void A_ExtraLife(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2471,8 +2463,7 @@ void A_BombShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2503,8 +2494,7 @@ void A_WaterShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2545,8 +2535,7 @@ void A_ForceShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -2579,8 +2568,7 @@ void A_GravityBox(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -3702,8 +3690,7 @@ void A_CapeChase(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
-	if (cv_debug)
-		CONS_Printf("A_CapeChase called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
+	DEBPRINT(va("A_CapeChase called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2));
 
 	if (locvar1 & 65535)
 		chaser = actor->tracer;
@@ -3715,8 +3702,8 @@ void A_CapeChase(mobj_t *actor)
 
 	if (!chaser || (chaser->health <= 0))
 	{
-		if (chaser && cv_debug)
-			CONS_Printf("Hmm, the guy I'm chasing (object type %d) has no health.. so I'll die too!\n", chaser->type);
+		if (chaser)
+			DEBPRINT(va("Hmm, the guy I'm chasing (object type %d) has no health.. so I'll die too!\n", chaser->type));
 
 		P_SetMobjState(actor, S_DISS);
 		return;
@@ -3752,15 +3739,14 @@ void A_RotateSpikeBall(mobj_t *actor)
 
 	if (!actor->target) // This should NEVER happen.
 	{
-		if (cv_debug)
-			CONS_Printf("Error: Spikeball has no target\n");
+		DEBPRINT(va("Error: Spikeball has no target\n"));
 		P_SetMobjState(actor, S_DISS);
 		return;
 	}
 
 	if (!actor->info->speed)
 	{
-		CONS_Printf("Error: A_RotateSpikeBall: Object has no speed.\n");
+		DEBPRINT("Error: A_RotateSpikeBall: Object has no speed.\n");
 		return;
 	}
 
@@ -3792,7 +3778,7 @@ void A_RockSpawn(mobj_t *actor)
 
 	if (i == -1)
 	{
-		CONS_Printf("A_RockSpawn: Unable to find parameter line 12 (tag %d)!\n", actor->threshold);
+		DEBPRINT(va("A_RockSpawn: Unable to find parameter line 12 (tag %d)!\n", actor->threshold));
 		return;
 	}
 
@@ -3800,7 +3786,7 @@ void A_RockSpawn(mobj_t *actor)
 
 	if (!(sides[line->sidenum[0]].textureoffset >> FRACBITS))
 	{
-		CONS_Printf("A_RockSpawn: No X-offset detected! (tag %d)!\n", actor->threshold);
+		DEBPRINT(va("A_RockSpawn: No X-offset detected! (tag %d)!\n", actor->threshold));
 		return;
 	}
 
@@ -3842,8 +3828,7 @@ void A_MaceRotate(mobj_t *actor)
 
 	if (!actor->target) // This should NEVER happen.
 	{
-		if (cv_debug)
-			CONS_Printf("Mace object (type %d) has no target!\n", actor->type);
+		DEBPRINT(va("Mace object (type %d) has no target!\n", actor->type));
 		P_SetMobjState(actor, S_DISS);
 		return;
 	}
@@ -4689,7 +4674,7 @@ void A_Boss2Chase(mobj_t *actor)
 
 	if (!actor->target) // This should NEVER happen.
 	{
-		CONS_Printf("Error: Boss2 has no target!\n");
+		DEBPRINT("Error: Boss2 has no target!\n");
 		A_BossDeath(actor);
 		return;
 	}
@@ -4900,8 +4885,7 @@ void A_EggmanBox(mobj_t *actor)
 {
 	if (!actor->target || !actor->target->player)
 	{
-		if (cv_debug)
-			CONS_Printf("%s",text[POWERUPNOTARGET]);
+		DEBPRINT(text[POWERUPNOTARGET]);
 		return;
 	}
 
@@ -5278,8 +5262,7 @@ void A_LinedefExecute(mobj_t *actor)
 	else
 		tagnum = (INT32)(1000 + (size_t)(actor->state - states));
 
-	if (cv_debug)
-		CONS_Printf("A_LinedefExecute: Running mobjtype %d's sector with tag %d\n", actor->type, tagnum);
+	DEBPRINT(va("A_LinedefExecute: Running mobjtype %d's sector with tag %d\n", actor->type, tagnum));
 
 	P_LinedefExecute(tagnum, actor, actor->subsector->sector);
 }
@@ -5396,8 +5379,7 @@ void A_SpawnObjectRelative(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
-	if (cv_debug)
-		CONS_Printf("A_SpawnObjectRelative called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
+	DEBPRINT(va("A_SpawnObjectRelative called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2));
 
 	x = (INT16)(locvar1>>16);
 	y = (INT16)(locvar1&65535);
@@ -5505,8 +5487,7 @@ void A_FindTarget(mobj_t *actor)
 	mobj_t *mo2;
 	fixed_t dist1 = 0, dist2 = 0;
 
-	if (cv_debug)
-		CONS_Printf("A_FindTarget called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
+	DEBPRINT(va("A_FindTarget called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2));
 
 	// scan the thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -5538,13 +5519,11 @@ void A_FindTarget(mobj_t *actor)
 
 	if (!targetedmobj)
 	{
-		if (cv_debug)
-			CONS_Printf("A_FindTarget: Unable to find the specified object to target.\n");
+		DEBPRINT("A_FindTarget: Unable to find the specified object to target.\n");
 		return; // Oops, nothing found..
 	}
 
-	if (cv_debug)
-		CONS_Printf("A_FindTarget: Found a target.\n");
+	DEBPRINT("A_FindTarget: Found a target.\n");
 
 	P_SetTarget(&actor->target, targetedmobj);
 }
@@ -5565,8 +5544,7 @@ void A_FindTracer(mobj_t *actor)
 	mobj_t *mo2;
 	fixed_t dist1 = 0, dist2 = 0;
 
-	if (cv_debug)
-		CONS_Printf("A_FindTracer called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
+	DEBPRINT(va("A_FindTracer called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2));
 
 	// scan the thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -5598,13 +5576,11 @@ void A_FindTracer(mobj_t *actor)
 
 	if (!targetedmobj)
 	{
-		if (cv_debug)
-			CONS_Printf("A_FindTracer: Unable to find the specified object to target.\n");
+		DEBPRINT("A_FindTracer: Unable to find the specified object to target.\n");
 		return; // Oops, nothing found..
 	}
 
-	if (cv_debug)
-		CONS_Printf("A_FindTracer: Found a target.\n");
+	DEBPRINT("A_FindTracer: Found a target.\n");
 
 	P_SetTarget(&actor->tracer, targetedmobj);
 }
@@ -5730,7 +5706,7 @@ void A_Thrust(mobj_t *actor)
 	INT32 locvar2 = var2;
 
 	if (!locvar1)
-		CONS_Printf("A_Thrust: Var1 not specified!\n");
+		DEBPRINT("A_Thrust: Var1 not specified!\n");
 
 	if (locvar2)
 		P_InstaThrust(actor, actor->angle, locvar1*FRACUNIT);
@@ -5753,7 +5729,7 @@ void A_ZThrust(mobj_t *actor)
 	INT32 locvar2 = var2;
 
 	if (!locvar1)
-		CONS_Printf("A_ZThrust: Var1 not specified!\n");
+		DEBPRINT("A_ZThrust: Var1 not specified!\n");
 
 	if (locvar2)
 		actor->momx = actor->momy = 0;
@@ -5958,21 +5934,18 @@ void A_DualAction(mobj_t *actor)
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
-	if (cv_debug)
-		CONS_Printf("A_DualAction called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
+	DEBPRINT(va("A_DualAction called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2));
 
 	var1 = states[locvar1].var1;
 	var2 = states[locvar1].var2;
 
-	if (cv_debug)
-		CONS_Printf("A_DualAction: Calling First Action (state %d)...\n", locvar1);
+	DEBPRINT(va("A_DualAction: Calling First Action (state %d)...\n", locvar1));
 	states[locvar1].action.acp1(actor);
 
 	var1 = states[locvar2].var1;
 	var2 = states[locvar2].var2;
 
-	if (cv_debug)
-		CONS_Printf("A_DualAction: Calling Second Action (state %d)...\n", locvar2);
+	DEBPRINT(va("A_DualAction: Calling Second Action (state %d)...\n", locvar2));
 	states[locvar2].action.acp1(actor);
 }
 
@@ -6028,13 +6001,11 @@ void A_RemoteAction(mobj_t *actor)
 
 		if (!targetedmobj)
 		{
-			if (cv_debug)
-				CONS_Printf("A_RemoteAction: Unable to find the specified object to target.\n");
+			DEBPRINT("A_RemoteAction: Unable to find the specified object to target.\n");
 			return; // Oops, nothing found..
 		}
 
-		if (cv_debug)
-			CONS_Printf("A_FindTarget: Found a target.\n");
+		DEBPRINT("A_FindTarget: Found a target.\n");
 
 		P_SetTarget(&actor->target, targetedmobj);
 
@@ -6052,8 +6023,8 @@ void A_RemoteAction(mobj_t *actor)
 
 	if (cv_debug)
 	{
-		CONS_Printf("A_RemoteAction: Calling action on %p\n", actor->target);
-		CONS_Printf("var1 is %d\nvar2 is %d\n", var1, var2);
+		DEBPRINT(va("A_RemoteAction: Calling action on %p\n"
+				"var1 is %d\nvar2 is %d\n", actor->target, var1, var2));
 	}
 	states[locvar2].action.acp1(actor->target);
 

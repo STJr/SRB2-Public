@@ -488,7 +488,7 @@ lumpnum_t R_GetFlatNumForName(const char *name)
 	if (lump == LUMPERROR)
 	{
 		if (strcmp(name, "F_SKY1"))
-			CONS_Printf("R_GetFlatNumForName: Could not find flat %.8s\n", name);
+			DEBPRINT(va("R_GetFlatNumForName: Could not find flat %.8s\n", name));
 		lump = W_CheckNumForName("REDFLR");
 	}
 
@@ -1068,7 +1068,9 @@ INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 	if (!dedicated && name[0] != '#')
 	{
 		if (sidenum == 0xffff)
-			CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found.\nDefaulting to REDWALL.\n", name);
+		{
+			DEBPRINT(va("WARNING: R_CheckTextureNumForName: %.8s not found.\nDefaulting to REDWALL.\n", name));
+		}
 		else
 		{
 			size_t linenum = (size_t)-1;
@@ -1089,7 +1091,7 @@ INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 			}
 
 			if (lines[linenum].special != 259) // Make-Your-Own FOF
-				CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%s, side %d).\nDefaulting to REDWALL.\n", name, sidenum, sizeu1(linenum), whichside);
+				DEBPRINT(va("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%s, side %d).\nDefaulting to REDWALL.\n", name, sidenum, sizeu1(linenum), whichside));
 		}
 	}
 
@@ -1112,7 +1114,7 @@ INT32 R_TextureNumForName(const char *name, UINT16 sidenum)
 
 	if (i == -1)
 	{
-		CONS_Printf("WARNING: R_TextureNumForName: %.8s not found\n", name);
+		DEBPRINT(va("WARNING: R_TextureNumForName: %.8s not found\n", name));
 		return 1;
 	}
 	return i;
@@ -1211,11 +1213,8 @@ void R_PrecacheLevel(void)
 	free(spritepresent);
 
 	// FIXME: this is no longer correct with OpenGL render mode
-	if (devparm)
-	{
-		CONS_Printf("Precache level done:\n"
+	DEBPRINT(va("Precache level done:\n"
 			"flatmemory:    %s k\n"
 			"texturememory: %s k\n"
-			"spritememory:  %s k\n", sizeu1(flatmemory>>10), sizeu2(texturememory>>10), sizeu3(spritememory>>10));
-	}
+			"spritememory:  %s k\n", sizeu1(flatmemory>>10), sizeu2(texturememory>>10), sizeu3(spritememory>>10)));
 }

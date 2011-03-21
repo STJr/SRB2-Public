@@ -128,7 +128,7 @@ void Z_Free(void *ptr)
 		return;
 
 #ifdef ZDEBUG2
-	CONS_Printf("Z_Free %s:%d\n", file, line);
+	DEBPRINT("Z_Free %s:%d\n", file, line);
 #endif
 
 #ifdef ZDEBUG
@@ -184,7 +184,7 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	void *given;
 
 #ifdef ZDEBUG2
-	CONS_Printf("Z_Malloc %s:%d\n", file, line);
+	DEBPRINT("Z_Malloc %s:%d\n", file, line);
 #endif
 
 	block = xm(sizeof *block);
@@ -257,7 +257,7 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 	size_t copysize;
 
 #ifdef ZDEBUG2
-	CONS_Printf("Z_Realloc %s:%d\n", file, line);
+	DEBPRINT("Z_Realloc %s:%d\n", file, line);
 #endif
 
 	if (!size)
@@ -357,7 +357,7 @@ void Z_CheckHeap(INT32 i)
 		blocknumon++;
 		given = (UINT8 *)block->hdr + sizeof *(block->hdr);
 #ifdef ZDEBUG
-		CONS_Printf("block %u owned by %s:%d\n",
+		DEBPRINT("block %u owned by %s:%d\n",
 			blocknumon, block->ownerfile, block->ownerline);
 #endif
 		if (block->user != NULL && *(block->user) != given)

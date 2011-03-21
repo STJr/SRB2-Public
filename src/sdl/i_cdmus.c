@@ -296,7 +296,7 @@ void I_StopCD(void)
 		return;
 
 	if (SDL_CDStop(cdrom))
-		CONS_Printf("cdromstop failed\n");
+		DEBPRINT("cdromstop failed\n");
 
 	wasPlaying = SDL_FALSE;
 	cdPlaying = SDL_FALSE;
@@ -321,7 +321,7 @@ void I_PauseCD (void)
 		return;
 
 	if (SDL_CDPause(cdrom))
-		CONS_Printf("cdrompause failed\n");
+		DEBPRINT("cdrompause failed\n");
 
 	wasPlaying = cdPlaying;
 	cdPlaying = SDL_FALSE;
@@ -353,7 +353,7 @@ void I_ResumeCD (void)
 		return;
 
 	if (SDL_CDResume(cdrom))
-		CONS_Printf("cdromresume failed\n");
+		DEBPRINT("cdromresume failed\n");
 
 	cdPlaying = true;
 	wasPlaying = SDL_FALSE;

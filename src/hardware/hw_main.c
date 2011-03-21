@@ -514,7 +514,7 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 
 	if (nrPlaneVerts > MAXPLANEVERTICES) // FIXME: exceeds plVerts size
 	{
-		CONS_Printf("polygon size of %d exceeds max value of %d vertices\n", nrPlaneVerts, MAXPLANEVERTICES);
+		DEBPRINT(va("polygon size of %d exceeds max value of %d vertices\n", nrPlaneVerts, MAXPLANEVERTICES));
 		return;
 	}
 
@@ -712,7 +712,7 @@ static void HWR_RenderSkyPlane(extrasubsector_t *xsub, fixed_t fixedheight)
 
 	if (nrPlaneVerts > MAXPLANEVERTICES) // FIXME: exceeds plVerts size
 	{
-		CONS_Printf("polygon size of %d exceeds max value of %d vertices\n", nrPlaneVerts, MAXPLANEVERTICES);
+		DEBPRINT("polygon size of %d exceeds max value of %d vertices\n", nrPlaneVerts, MAXPLANEVERTICES);
 		return;
 	}
 
@@ -1707,8 +1707,10 @@ static void printsolidsegs(void)
 	if (!hw_newend || cv_grbeta.value != 2)
 		return;
 	for (start = gr_solidsegs;start != hw_newend;start++)
-		CONS_Printf("%d-%d|",start->first,start->last);
-	CONS_Printf("\n\n");
+	{
+		DEBPRINT(va("%d-%d|",start->first,start->last));
+	}
+	DEBPRINT("\n\n");
 }
 
 //
@@ -2071,7 +2073,7 @@ static void HWR_AddLine(seg_t * line)
 //	if (x1 == x2)
 /*	{
 		// BP: HERE IS THE MAIN PROBLEM !
-		//CONS_Printf("tineline\n");
+		//DEBPRINT("tineline\n");
 		return;
 	}
 */
@@ -3686,7 +3688,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 		         thing->sprite);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %i with invalid sprite data (%d) detected and removed.\n", thing->type, thing->sprite);
+		DEBPRINT(va("Warning: Mobj of type %i with invalid sprite data (%d) detected and removed.\n", thing->type, thing->sprite));
 		if (thing->player)
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
 		else
@@ -3709,7 +3711,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 		 thing->sprite, rot, sizeu1(sprdef->numframes), sprnames[thing->sprite]);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %d with invalid sprite frame (%u/%s) of %s detected and removed.\n", thing->type, rot, sizeu1(sprdef->numframes), sprnames[thing->sprite]);
+		DEBPRINT(va("Warning: Mobj of type %d with invalid sprite frame (%u/%s) of %s detected and removed.\n", thing->type, rot, sizeu1(sprdef->numframes), sprnames[thing->sprite]));
 		if (thing->player)
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
 		else
@@ -3808,7 +3810,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	else
 		vis->ty = FIXED_TO_FLOAT(thing->z + spritecachedinfo[lumpoff].topoffset) - gr_viewz;
 
-	//CONS_Printf("------------------\nH: sprite  : %d\nH: frame   : %x\nH: type    : %d\nH: sname   : %s\n\n",
+	//DEBPRINT("------------------\nH: sprite  : %d\nH: frame   : %x\nH: type    : %d\nH: sname   : %s\n\n",
 	//            thing->sprite, thing->frame, thing->type, sprnames[thing->sprite]);
 
 	if (thing->state && (thing->state->frame & FF_FULLBRIGHT))
@@ -4305,7 +4307,7 @@ static UINT32 atohex(const char *s)
 				iCol = iCol | (cCol - 'A' + 10);
 		}
 	}
-	//CONS_Printf("col %x\n", iCol);
+	//DEBPRINT("col %x\n", iCol);
 	return iCol;
 }
 
@@ -4718,19 +4720,14 @@ void HWR_DoPostProcessor(void)
 
 void HWR_StartScreenWipe(void)
 {
-/*	if(cv_debug)
-//		CONS_Printf("In HWR_StartScreenWipe()\n");
-*/
+	//DEBPRINT("In HWR_StartScreenWipe()\n");
 	HWD.pfnStartScreenWipe();
 }
 
 void HWR_EndScreenWipe(void)
 {
 	HWRWipeCounter = 1.0f;
-	// Spammy!
-	/*if(cv_debug)
-	//	CONS_Printf("In HWR_EndScreenWipe()\n");
-*/
+	//DEBPRINT("In HWR_EndScreenWipe()\n");
 	HWD.pfnEndScreenWipe();
 }
 
@@ -4760,10 +4757,9 @@ void HWR_DrawIntermissionBG(void)
 void HWR_DoScreenWipe(void)
 {
 	HWRWipeCounter -= 0.07f;
-/*
-	if(cv_debug)
-		CONS_Printf("In HWR_DoScreenWipe(). Alpha =%f\n", HWRWipeCounter);
-*/
+
+	//DEBPRINT("In HWR_DoScreenWipe(). Alpha =%f\n", HWRWipeCounter);
+
 	HWD.pfnDoScreenWipe(HWRWipeCounter);
 
 	I_OsPolling();

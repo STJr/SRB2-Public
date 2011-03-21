@@ -707,7 +707,7 @@ static SOCKET_TYPE UDP_Socket(void)
 
 	if (bind(s, (void *)&address6, sizeof (address6)) == ERRSOCKET)
 	{
-		CONS_Printf("failed to bind with IPv6 stack");
+		DEBPRINT(va("%s", M_GetText("failed to bind with IPv6 stack")));
 	}
 #endif
 
@@ -871,16 +871,17 @@ boolean I_InitTcpDriver(void)
 					WSError = va("Error code %u",WSAresult);
 					break;
 			}
-			if (WSAresult != WSAVERNOTSUPPORTED) CONS_Printf("WinSock(TCP/IP) error: %s\n",WSError);
+			if (WSAresult != WSAVERNOTSUPPORTED)
+				DEBPRINT(va("WinSock(TCP/IP) error: %s\n",WSError));
 		}
 		if (LOBYTE(WSAData.wVersion) != 1 ||
 			HIBYTE(WSAData.wVersion) != 1)
 		{
 			WSACleanup();
-			CONS_Printf("No WinSock(TCP/IP) 1.1 driver detected");
+			DEBPRINT("No WinSock(TCP/IP) 1.1 driver detected");
 		}
-		CONS_Printf("WinSock description: %s\n",WSAData.szDescription);
-		CONS_Printf("WinSock System Status: %s\n",WSAData.szSystemStatus);
+		DEBPRINT(va("WinSock description: %s\n",WSAData.szDescription));
+		DEBPRINT(va("WinSock System Status: %s\n",WSAData.szSystemStatus));
 #endif
 #ifdef HAVE_LWIP
 		lwip_kos_init();
@@ -908,28 +909,28 @@ boolean I_InitTcpDriver(void)
 				init_tcp_driver = true;
 				break;
 			case 3:
-				CONS_Printf("No packet driver detected");
+				DEBPRINT("No packet driver detected\n");
 				break;
 			case 4:
-				CONS_Printf("Error while talking to packet driver");
+				DEBPRINT("Error while talking to packet driver\n");
 				break;
 			case 5:
-				CONS_Printf("BOOTP failed");
+				DEBPRINT("BOOTP failed\n");
 				break;
 			case 6:
-				CONS_Printf("DHCP failed");
+				DEBPRINT("DHCP failed\n");
 				break;
 			case 7:
-				CONS_Printf("RARP failed");
+				DEBPRINT("RARP failed\n");
 				break;
 			case 8:
-				CONS_Printf("TCP/IP failed");
+				DEBPRINT("TCP/IP failed\n");
 				break;
 			case 9:
-				CONS_Printf("PPPoE login/discovery failed");
+				DEBPRINT("PPPoE login/discovery failed\n");
 				break;
 			default:
-				CONS_Printf("Unknown error with TCP/IP stack");
+				DEBPRINT("Unknown error with TCP/IP stack\n");
 				break;
 		}
 		hires_timer(0);
@@ -937,7 +938,7 @@ boolean I_InitTcpDriver(void)
 		if (__lsck_init())
 			init_tcp_driver = true;
 		else
-			CONS_Printf("No Tcp/Ip driver detected");
+			DEBPRINT("No Tcp/Ip driver detected\n");
 #endif // libsocket
 #endif // __DJGPP__
 #ifndef __DJGPP__

@@ -821,7 +821,7 @@ void HWR_DoCoronasLighting(FOutVector *outVerts, gr_vissprite_t *spr)
 	if (coronalumpnum == LUMPERROR)
 		return;
 
-	//CONS_Printf("sprite (type): %d (%s)\n", spr->type, sprnames[spr->type]);
+	//DEBPRINT("sprite (type): %d (%s)\n", spr->type, sprnames[spr->type]);
 	p_lspr = t_lspr[spr->mobj->sprite];
 	if ((spr->mobj->state>=&states[S_EXPLODE1] && spr->mobj->state<=&states[S_EXPLODE3])
 	 || (spr->mobj->state>=&states[S_FATSHOTX1] && spr->mobj->state<=&states[S_FATSHOTX3]))
@@ -1257,7 +1257,7 @@ static void HWR_SearchLightsInMobjs(void)
 void HWR_CreateStaticLightmaps(int bspnum)
 {
 #ifdef STATICLIGHT
-	CONS_Printf("HWR_CreateStaticLightmaps\n");
+	DEBPRINT("HWR_CreateStaticLightmaps\n");
 
 	dynlights->nb = 0;
 
@@ -1265,7 +1265,7 @@ void HWR_CreateStaticLightmaps(int bspnum)
 	// BP: if i was you, I will make it in create mobj since mobj can be create
 	//     at runtime now with fragle scipt
 	HWR_SearchLightsInMobjs();
-	CONS_Printf("%d lights found\n", dynlights->nb);
+	DEBPRINT("%d lights found\n", dynlights->nb);
 
 	// Second: Build all lightmap for walls covered by lights
 	validcount++; // to be sure

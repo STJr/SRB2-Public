@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 		logstream = fopen("./srb2log.txt", "a");
 #endif
 
-	//CONS_Printf ("I_StartupSystem() ...\n");
+	//DEBPRINT ("I_StartupSystem() ...\n");
 	I_StartupSystem();
 #if defined (_WIN32) && !defined (_XBOX)
 #ifndef _WIN32_WCE

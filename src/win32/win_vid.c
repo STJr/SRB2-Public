@@ -138,17 +138,17 @@ static inline BOOL LoadDM(VOID)
 
 	DMdll = LoadLibraryA("dwmapi.dll");
 	if (DMdll)
-		I_OutputMsg("dmwapi.dll loaded, Vista's Desktop Window Manager API\n");
+		DEBPRINT("dmwapi.dll loaded, Vista's Desktop Window Manager API\n");
 	else
 		return FALSE;
 
 	pfnDwmIsCompositionEnabled = (P_DwmIsCompositionEnabled)GetProcAddress(DMdll, "DwmIsCompositionEnabled");
 	if (pfnDwmIsCompositionEnabled)
-		I_OutputMsg("Composition Aero API found, DwmIsCompositionEnabled\n");
+		DEBPRINT("Composition Aero API found, DwmIsCompositionEnabled\n");
 
 	pfnDwmEnableComposition = (P_DwmEnableComposition)GetProcAddress(DMdll, "DwmEnableComposition");
 	if (pfnDwmEnableComposition)
-		I_OutputMsg("Composition Aero API found, DwmEnableComposition\n");
+		DEBPRINT("Composition Aero API found, DwmEnableComposition\n");
 
 	return TRUE;
 }
@@ -162,19 +162,19 @@ static inline VOID DisableAero(VOID)
 		return;
 
 	if (pfnDwmIsCompositionEnabled && SUCCEEDED(pfnDwmIsCompositionEnabled(&pfnDwmEnableCompositiond)))
-		I_OutputMsg("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond);
+		DEBPRINT("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond);
 	else
 		return;
 
 	if ((AeroWasEnabled = pfnDwmEnableCompositiond))
-		I_OutputMsg("Let disable the Aero rendering\n");
+		DEBPRINT("Disable the Aero rendering\n");
 	else
 		return;
 
 	if (pfnDwmEnableComposition && SUCCEEDED(pfnDwmEnableComposition(FALSE)))
-		I_OutputMsg("Aero rendering disabled\n");
+		DEBPRINT("Aero rendering disabled\n");
 	else
-		I_OutputMsg("We failed to disable the Aero rendering\n");
+		DEBPRINT("We failed to disable the Aero rendering\n");
 }
 
 static inline VOID ResetAero(VOID)
@@ -182,9 +182,9 @@ static inline VOID ResetAero(VOID)
 	if (pfnDwmEnableComposition && AeroWasEnabled)
 	{
 		if (SUCCEEDED(pfnDwmEnableComposition(AeroWasEnabled)))
-			I_OutputMsg("Aero rendering setting restored\n");
+			DEBPRINT("Aero rendering setting restored\n");
 		else
-			I_OutputMsg("We failed to restore Aero rendering\n");
+			DEBPRINT("We failed to restore Aero rendering\n");
 	}
 	UnloadDM();
 }
@@ -809,8 +809,7 @@ static VOID VID_Init(VOID)
 
 #ifdef _DEBUG // DEBUG
 	for (iMode = 0, pv = pvidmodes; pv; pv = pv->pnext, iMode++)
-		CONS_Printf("#%02d: %dx%dx%dbpp (desc: '%s')\n", iMode, pv->width, pv->height,
-			pv->bytesperpixel, pv->name);
+		DEBPRINT(va("#%02d: %dx%dx%dbpp (desc: '%s')\n", iMode, pv->width, pv->height, pv->bytesperpixel, pv->name));
 #endif
 
 	// set the startup screen in a window
@@ -830,9 +829,9 @@ static INT32 WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *currentm
 	int x = 0, y = 0, w = 0, h = 0;
 
 	UNREFERENCED_PARAMETER(currentmode);
-#ifdef DEBUG
-	CONS_Printf("VID_SetWindowedDisplayMode()\n");
-#endif
+
+	DEBPRINT("VID_SetWindowedDisplayMode()\n");
+
 
 	lvid->u.numpages = 1; // not used
 	lvid->direct = NULL; // DOS remains
@@ -924,7 +923,7 @@ INT32 VID_SetMode(INT32 modenum)
 	if (dedicated)
 		return 0;
 
-	CONS_Printf("VID_SetMode(%d)\n", modenum);
+	DEBPRINT(va("VID_SetMode(%d)\n", modenum));
 
 	// if mode 0 (windowed) we must not be fullscreen already,
 	// if other mode, check it is not mode 0 and existing
@@ -1029,9 +1028,8 @@ static BOOL VID_FreeAndAllocVidbuffer(viddef_t *lvid)
 		return FALSE;
 
 	ZeroMemory(lvid->buffer, vidbuffersize);
-#ifdef DEBUG
-	CONS_Printf("VID_FreeAndAllocVidbuffer done, vidbuffersize: %x\n",vidbuffersize);
-#endif
+	DEBPRINT(va("VID_FreeAndAllocVidbuffer done, vidbuffersize: %x\n",(UINT32)vidbuffersize));
+
 	return TRUE;
 }
 
@@ -1044,9 +1042,9 @@ static BOOL VID_FreeAndAllocVidbuffer(viddef_t *lvid)
 static INT32 WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *currentmode)
 {
 	UNREFERENCED_PARAMETER(currentmode);
-#ifdef DEBUG
-	CONS_Printf("VID_SetDirectDrawMode...\n");
-#endif
+
+	DEBPRINT("VID_SetDirectDrawMode...\n");
+
 
 	// DD modes do double-buffer page flipping, but the game engine doesn't need this..
 	lvid->u.numpages = 2;

@@ -187,8 +187,23 @@ extern FILE *logstream;
 */
 void I_Error(const char *error, ...) FUNCIERROR;
 
+/**	\brief	write a message to stderr (use before I_Quit) for when you need to quit with a msg, but need
+ the return code 0 of I_Quit();
+
+	\param	error	message string
+
+	\return	void
+*/
+void I_OutputMsg(const char *error, ...) FUNCPRINTF;
+
 // console.h
 void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
+
+//#ifdef _DEBUG
+#define DEBPRINT(msg) { if (cv_debug || devparm) { CONS_Printf("%s", msg); } else { I_OutputMsg("%s", msg); } }
+//#else
+//#define DEBPRINT(msg) { if (devparm) { I_OutputMsg(msg); } }
+//#endif
 
 #include "m_swap.h"
 
@@ -209,6 +224,8 @@ char *sizeu5(size_t num);
 
 // d_main.c
 extern boolean devparm; // development mode (-debug)
+// d_netcmd.c
+extern INT32 cv_debug;
 
 // =======================
 // Misc stuff for later...

@@ -27,7 +27,6 @@
 #include "z_zone.h"
 #include "m_misc.h"
 #include "i_video.h" // rendermode
-#include "i_system.h" // I_OutputMsg
 #include "r_things.h"
 #include "r_plane.h"
 #include "p_tick.h"
@@ -108,13 +107,11 @@ static void R_InstallSpriteLump(UINT16 wad,            // graphics patch
 	if (rotation == 0)
 	{
 		// the lump should be used for all rotations
-		if (sprtemp[frame].rotate == 0 && devparm)
-			I_OutputMsg("R_InitSprites: Sprite %s frame %c has multiple rot = 0 lump\n",
-				spritename, 'A'+frame);
+		if (sprtemp[frame].rotate == 0)
+			DEBPRINT(va("R_InitSprites: Sprite %s frame %c has multiple rot = 0 lump\n", spritename, 'A'+frame));
 
-		if (sprtemp[frame].rotate == 1 && devparm)
-			I_OutputMsg("R_InitSprites: Sprite %s frame %c has rotations and a rot = 0 lump\n",
-				spritename, 'A'+frame);
+		if (sprtemp[frame].rotate == 1)
+			DEBPRINT(va("R_InitSprites: Sprite %s frame %c has rotations and a rot = 0 lump\n", spritename, 'A'+frame));
 
 		sprtemp[frame].rotate = 0;
 		for (r = 0; r < 8; r++)
@@ -127,18 +124,16 @@ static void R_InstallSpriteLump(UINT16 wad,            // graphics patch
 	}
 
 	// the lump is only used for one rotation
-	if (sprtemp[frame].rotate == 0 && devparm)
-		I_OutputMsg("R_InitSprites: Sprite %s frame %c has rotations and a rot = 0 lump\n",
-			spritename, 'A'+frame);
+	if (sprtemp[frame].rotate == 0)
+		DEBPRINT(va("R_InitSprites: Sprite %s frame %c has rotations and a rot = 0 lump\n", spritename, 'A'+frame));
 
 	sprtemp[frame].rotate = 1;
 
 	// make 0 based
 	rotation--;
 
-	if (sprtemp[frame].lumppat[rotation] != LUMPERROR && devparm)
-		I_OutputMsg("R_InitSprites: Sprite %s: %c:%c has two lumps mapped to it\n",
-			spritename, 'A'+frame, '1'+rotation);
+	if (sprtemp[frame].lumppat[rotation] != LUMPERROR)
+		DEBPRINT(va("R_InitSprites: Sprite %s: %c:%c has two lumps mapped to it\n", spritename, 'A'+frame, '1'+rotation));
 
 	// lumppat & lumpid are the same for original Doom, but different
 	// when using sprites in pwad : the lumppat points the new graphics
@@ -211,7 +206,7 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 
 			if (frame >= 64 || rotation > 8) // Give an actual NAME error -_-...
 			{
-				CONS_Printf("WARNING! Bad sprite name: %s", W_CheckNameForNumPwad(wadnum,l));
+				DEBPRINT(va("WARNING! Bad sprite name: %s", W_CheckNameForNumPwad(wadnum,l)));
 				continue;
 			}
 
@@ -395,8 +390,7 @@ void R_AddSpriteDefs(UINT16 wadnum)
 		end = W_CheckNumForNamePwad("SS_END",wadnum,start);     //deutex compatib.
 	if (end == INT16_MAX)
 	{
-		if (devparm)
-			CONS_Printf("no sprites in pwad %d\n", wadnum);
+		DEBPRINT(va("no sprites in pwad %d\n", wadnum));
 		return;
 		//I_Error("R_AddSpriteDefs: S_END, or SS_END missing for sprites "
 		//         "in pwad %d\n",wadnum);
@@ -413,8 +407,7 @@ void R_AddSpriteDefs(UINT16 wadnum)
 		{
 			// if a new sprite was added (not just replaced)
 			addsprites++;
-			if (devparm)
-				I_OutputMsg("sprite %s set in pwad %d\n", spritename, wadnum);//Fab
+			DEBPRINT(va(M_GetText("sprite %s set in pwad %d\n"), spritename, wadnum));
 		}
 	}
 
@@ -443,8 +436,7 @@ void R_DelSpriteDefs(UINT16 wadnum)
 		end = W_CheckNumForNamePwad("SS_END",wadnum,start);     //deutex compatib.
 	if (end == INT16_MAX)
 	{
-		if (devparm)
-			CONS_Printf("no sprites in pwad %d\n", wadnum);
+		DEBPRINT(va("no sprites in pwad %d\n", wadnum));
 		return;
 		//I_Error("R_DelSpriteDefs: S_END, or SS_END missing for sprites "
 		//         "in pwad %d\n",wadnum);
@@ -461,8 +453,7 @@ void R_DelSpriteDefs(UINT16 wadnum)
 		{
 			// if a new sprite was removed (not just replaced)
 			delsprites++;
-			if (devparm)
-				I_OutputMsg("sprite %s set in pwad %d\n", spritename, wadnum);//Fab
+			DEBPRINT(va("sprite %s set in pwad %d\n", spritename, wadnum));
 		}
 	}
 
@@ -519,7 +510,7 @@ void R_InitSprites(void)
 	/*
 	for (i = 0; i < numsprites; i++)
 		if (sprites[i].numframes < 1)
-			CONS_Printf("R_InitSprites: sprite %s has no frames at all\n", sprnames[i]);
+			DEBPRINT(va("R_InitSprites: sprite %s has no frames at all\n", sprnames[i]));
 	*/
 }
 
@@ -614,7 +605,7 @@ void R_DrawMaskedColumn(column_t *column)
 				static INT32 first = 1;
 				if (first)
 				{
-					CONS_Printf("WARNING: avoiding a crash in %s %d\n", __FILE__, __LINE__);
+					DEBPRINT(va("WARNING: avoiding a crash in %s %d\n", __FILE__, __LINE__));
 					first = 0;
 				}
 			}
@@ -725,7 +716,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 				colfunc = basecolfunc; // Graue 04-08-2004
 				if (firsttime)
 				{
-					CONS_Printf("Abandoning!\n");
+					DEBPRINT("Abandoning!\n");
 					firsttime = 0;
 				}
 			}
@@ -1037,7 +1028,7 @@ static void R_ProjectSprite(mobj_t *thing)
 		I_Error("R_ProjectSprite: invalid sprite number %d ", thing->sprite);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %d with invalid sprite data (%d) detected and removed.\n", thing->type, thing->sprite);
+		DEBPRINT(va("Warning: Mobj of type %d with invalid sprite data (%d) detected and removed.\n", thing->type, thing->sprite));
 		if (thing->player)
 		{
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
@@ -1064,7 +1055,7 @@ static void R_ProjectSprite(mobj_t *thing)
 		 thing->sprite, sizeu1(rot), sizeu2(sprdef->numframes), sprnames[thing->sprite]);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %d with invalid sprite frame (%s/%s) of %s detected and removed.\n", thing->type, sizeu1(rot), sizeu2(sprdef->numframes), sprnames[thing->sprite]);
+		DEBPRINT(va("Warning: Mobj of type %d with invalid sprite frame (%s/%s) of %s detected and removed.\n", thing->type, sizeu1(rot), sizeu2(sprdef->numframes), sprnames[thing->sprite]));
 		if (thing->player)
 		{
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
@@ -2648,7 +2639,7 @@ void R_AddSkins(UINT16 wadnum)
 	{
 		if (numskins > MAXSKINS)
 		{
-			CONS_Printf("ignored skin (%d skins maximum)\n", MAXSKINS);
+			DEBPRINT(va("ignored skin (%d skins maximum)\n", MAXSKINS));
 			lastlump++;
 			continue; // so we know how many skins couldn't be added
 		}
@@ -2776,7 +2767,7 @@ void R_AddSkins(UINT16 wadnum)
 					}
 				}
 				if (!found)
-					CONS_Printf("R_AddSkins: Unknown keyword '%s' in S_SKIN lump# %d (WAD %s)\n", stoken, lump, wadfiles[wadnum]->filename);
+					DEBPRINT(va("R_AddSkins: Unknown keyword '%s' in S_SKIN lump# %d (WAD %s)\n", stoken, lump, wadfiles[wadnum]->filename));
 			}
 next_token:
 			stoken = strtok(NULL, "\r\n= ");

@@ -87,10 +87,10 @@ boolean LoadGL(void)
 
 	if (SDL_GL_LoadLibrary(OGLLibname) != 0)
 	{
-		I_OutputMsg("Could not load OpenGL Library: %s\n", SDL_GetError());
-		I_OutputMsg("falling back to Software mode\n");
+		DEBPRINT(va("Could not load OpenGL Library: %s\n"
+					"Falling back to Software mode.\n", SDL_GetError()));
 		if (!M_CheckParm ("-OGLlib"))
-			I_OutputMsg("if you know what is the OpenGL library's name, use -OGLlib\n");
+			DEBPRINT("If you know what is the OpenGL library's name, use -OGLlib\n");
 		return 0;
 	}
 
@@ -118,18 +118,17 @@ boolean LoadGL(void)
 			return SetupGLfunc();
 		else
 		{
-			I_OutputMsg("Could not load GLU Library: %s\n", GLULibname);
-			I_OutputMsg("falling back to Software mode\n");
+			DEBPRINT(va("Could not load GLU Library: %s\n"
+						"Falling back to Software mode.\n", GLULibname));
 			if (!M_CheckParm ("-GLUlib"))
-				I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
+				DEBPRINT("If you know what is the GLU library's name, use -GLUlib\n");
 		}
 	}
 	else
-	{
-		I_OutputMsg("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS\n");
-		I_OutputMsg("falling back to Software mode\n");
-		I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
-	}
+		DEBPRINT("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS\n"
+				 "Falling back to Software mode.\n"
+				 "If you know what is the GLU library's name, use -GLUlib\n");
+
 	return 0;
 }
 

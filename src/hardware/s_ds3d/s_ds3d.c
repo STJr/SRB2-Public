@@ -472,7 +472,7 @@ static void Update2DSoundPanning (LPDIRECTSOUNDBUFFER lpSnd, INT32 sep)
 	HRESULT hr;
 	hr = IDirectSoundBuffer_SetPan (lpSnd, (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT);
 	//if (FAILED(hr))
-	//	CONS_Printf ("SetPan FAILED for sep %d pan %d\n", sep, (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT);
+	//	DEBFILE(va("SetPan FAILED for sep %d pan %d\n", sep, (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT));
 }
 
 

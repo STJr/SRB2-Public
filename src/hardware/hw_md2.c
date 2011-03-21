@@ -27,6 +27,7 @@
 #include <math.h>
 
 #include "../doomdef.h"
+#include "../doomstat.h"
 
 #ifdef HWRENDER
 #include "hw_drv.h"
@@ -590,30 +591,30 @@ static inline void md2_printModelInfo (md2_model_t *model)
 #if 0
 	INT32 i;
 
-	CONS_Printf("magic:\t\t\t%c%c%c%c\n", model->header.magic>>24,
+	DEBPRINT(va("magic:\t\t\t%c%c%c%c\n", model->header.magic>>24,
 	            (model->header.magic>>16)&0xff,
 	            (model->header.magic>>8)&0xff,
-	             model->header.magic&0xff);
-	CONS_Printf("version:\t\t%d\n", model->header.version);
-	CONS_Printf("skinWidth:\t\t%d\n", model->header.skinWidth);
-	CONS_Printf("skinHeight:\t\t%d\n", model->header.skinHeight);
-	CONS_Printf("frameSize:\t\t%d\n", model->header.frameSize);
-	CONS_Printf("numSkins:\t\t%d\n", model->header.numSkins);
-	CONS_Printf("numVertices:\t\t%d\n", model->header.numVertices);
-	CONS_Printf("numTexCoords:\t\t%d\n", model->header.numTexCoords);
-	CONS_Printf("numTriangles:\t\t%d\n", model->header.numTriangles);
-	CONS_Printf("numGlCommands:\t\t%d\n", model->header.numGlCommands);
-	CONS_Printf("numFrames:\t\t%d\n", model->header.numFrames);
-	CONS_Printf("offsetSkins:\t\t%d\n", model->header.offsetSkins);
-	CONS_Printf("offsetTexCoords:\t%d\n", model->header.offsetTexCoords);
-	CONS_Printf("offsetTriangles:\t%d\n", model->header.offsetTriangles);
-	CONS_Printf("offsetFrames:\t\t%d\n", model->header.offsetFrames);
-	CONS_Printf("offsetGlCommands:\t%d\n", model->header.offsetGlCommands);
-	CONS_Printf("offsetEnd:\t\t%d\n", model->header.offsetEnd);
+	             model->header.magic&0xff));
+	DEBPRINT(va("version:\t\t%d\n", model->header.version));
+	DEBPRINT(va("skinWidth:\t\t%d\n", model->header.skinWidth));
+	DEBPRINT(va("skinHeight:\t\t%d\n", model->header.skinHeight));
+	DEBPRINT(va("frameSize:\t\t%d\n", model->header.frameSize));
+	DEBPRINT(va("numSkins:\t\t%d\n", model->header.numSkins));
+	DEBPRINT(va("numVertices:\t\t%d\n", model->header.numVertices));
+	DEBPRINT(va("numTexCoords:\t\t%d\n", model->header.numTexCoords));
+	DEBPRINT(va("numTriangles:\t\t%d\n", model->header.numTriangles));
+	DEBPRINT(va("numGlCommands:\t\t%d\n", model->header.numGlCommands));
+	DEBPRINT(va("numFrames:\t\t%d\n", model->header.numFrames));
+	DEBPRINT(va("offsetSkins:\t\t%d\n", model->header.offsetSkins));
+	DEBPRINT(va("offsetTexCoords:\t%d\n", model->header.offsetTexCoords));
+	DEBPRINT(va("offsetTriangles:\t%d\n", model->header.offsetTriangles));
+	DEBPRINT(va("offsetFrames:\t\t%d\n", model->header.offsetFrames));
+	DEBPRINT(va("offsetGlCommands:\t%d\n", model->header.offsetGlCommands));
+	DEBPRINT(va("offsetEnd:\t\t%d\n", model->header.offsetEnd));
 
 	for (i = 0; i < model->header.numFrames; i++)
-		CONS_Printf("%s ", model->frames[i].name);
-	CONS_Printf("\n");
+		DEBPRINT("%s ", model->frames[i].name);
+	DEBPRINT("\n");
 #else
 	(void)model;
 #endif
@@ -622,13 +623,13 @@ static inline void md2_printModelInfo (md2_model_t *model)
 #ifdef HAVE_PNG
 static void PNG_error(png_structp PNG, png_const_charp pngtext)
 {
-	CONS_Printf("libpng error at %p: %s", PNG, pngtext);
+	DEBPRINT(va("libpng error at %p: %s", PNG, pngtext));
 	//I_Error("libpng error at %p: %s", PNG, pngtext);
 }
 
 static void PNG_warn(png_structp PNG, png_const_charp pngtext)
 {
-	CONS_Printf("libpng warning at %p: %s", PNG, pngtext);
+	DEBPRINT(va("libpng warning at %p: %s", PNG, pngtext));
 }
 
 static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_t *grpatch)
@@ -649,7 +650,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	png_FILE = fopen(pngfilename, "rb");
 	if (!png_FILE)
 	{
-		//CONS_Printf("M_SavePNG: Error on opening %s for loading\n", filename);
+		//DEBPRINT(va("M_SavePNG: Error on opening %s for loading\n", filename));
 		return 0;
 	}
 
@@ -657,7 +658,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 		PNG_error, PNG_warn);
 	if (!png_ptr)
 	{
-		CONS_Printf("PNG_Load: Error on initialize libpng\n");
+		DEBPRINT("PNG_Load: Error on initialize libpng\n");
 		fclose(png_FILE);
 		return 0;
 	}
@@ -665,7 +666,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	png_info_ptr = png_create_info_struct(png_ptr);
 	if (!png_info_ptr)
 	{
-		CONS_Printf("PNG_Load: Error on allocate for libpng\n");
+		DEBPRINT("PNG_Load: Error on allocate for libpng\n");
 		png_destroy_read_struct(&png_ptr, NULL, NULL);
 		fclose(png_FILE);
 		return 0;
@@ -677,7 +678,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
 	{
-		//CONS_Printf("libpng load error on %s\n", filename);
+		//DEBPRINT(va("libpng load error on %s\n", filename));
 		png_destroy_read_struct(&png_ptr, &png_info_ptr, NULL);
 		fclose(png_FILE);
 		Z_Free(grpatch->mipmap.grInfo.data);
@@ -903,7 +904,7 @@ void HWR_InitMD2(void)
 		{
 			if (strcmp(name, sprnames[i]) == 0)
 			{
-				//CONS_Printf("  Found: %s %s %f %f\n", name, filename, scale, offset);
+				//DEBPRINT("  Found: %s %s %f %f\n", name, filename, scale, offset);
 				md2_models[i].scale = scale;
 				md2_models[i].offset = offset;
 				strcpy(md2_models[i].filename, filename);
@@ -1020,7 +1021,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		md2 = &md2_models[spr->mobj->sprite];
 		if (!md2->model)
 		{
-			//CONS_Printf("Loading MD2... (%s)", sprnames[spr->mobj->sprite]);
+			//DEBPRINT(va("Loading MD2... (%s)", sprnames[spr->mobj->sprite]));
 			sprintf(filename, "md2/%s", md2->filename);
 			md2->model = md2_readModel(filename);
 
@@ -1030,7 +1031,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 			}
 			else
 			{
-				//CONS_Printf(" FAILED\n");
+				//DEBPRINT(" FAILED\n");
 				return;
 			}
 		}

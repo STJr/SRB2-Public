@@ -1579,9 +1579,7 @@ static mobj_t *FindNewPosition(UINT32 oldposition)
 		if (mobj->mobjnum == oldposition)
 			return mobj;
 	}
-	if (devparm)
-		CONS_Printf("\2not found\n");
-	DEBFILE("not found\n");
+	DEBPRINT("mobj not found\n");
 	return NULL;
 }
 
@@ -2137,10 +2135,13 @@ static void P_NetUnArchiveThinkers(void)
 					if (i == NUMMOBJTYPES)
 					{
 						if (mobj->spawnpoint)
-							CONS_Printf("found mobj with unknown map thing type %d\n",
-							mobj->spawnpoint->type);
+						{
+							DEBPRINT(va("Found mobj with unknown map thing type %d\n", mobj->spawnpoint->type));
+						}
 						else
-							CONS_Printf("found mobj with unknown map thing type NULL\n");
+						{
+							DEBPRINT("Found mobj with unknown map thing type NULL\n");
+						}
 						I_Error("Savegame corrupted");
 					}
 					mobj->type = i;
@@ -2556,42 +2557,42 @@ static void P_RelinkPointers(void)
 				temp = (UINT32)(size_t)mobj->tracer;
 				mobj->tracer = NULL;
 				if (!P_SetTarget(&mobj->tracer, FindNewPosition(temp)))
-					CONS_Printf("tracer not found on %d\n", mobj->type);
+					DEBPRINT(va("tracer not found on %d\n", mobj->type));
 			}
 			if (mobj->target)
 			{
 				temp = (UINT32)(size_t)mobj->target;
 				mobj->target = NULL;
 				if (!P_SetTarget(&mobj->target, FindNewPosition(temp)))
-					CONS_Printf("target not found on %d\n", mobj->type);
+					DEBPRINT(va("target not found on %d\n", mobj->type));
 			}
 			if (mobj->player && mobj->player->capsule)
 			{
 				temp = (UINT32)(size_t)mobj->player->capsule;
 				mobj->player->capsule = NULL;
 				if (!P_SetTarget(&mobj->player->capsule, FindNewPosition(temp)))
-					CONS_Printf("capsule not found on %d\n", mobj->type);
+					DEBPRINT(va("capsule not found on %d\n", mobj->type));
 			}
 			if (mobj->player && mobj->player->axis1)
 			{
 				temp = (UINT32)(size_t)mobj->player->axis1;
 				mobj->player->axis1 = NULL;
 				if (!P_SetTarget(&mobj->player->axis1, FindNewPosition(temp)))
-					CONS_Printf("axis1 not found on %d\n", mobj->type);
+					DEBPRINT(va("axis1 not found on %d\n", mobj->type));
 			}
 			if (mobj->player && mobj->player->axis2)
 			{
 				temp = (UINT32)(size_t)mobj->player->axis2;
 				mobj->player->axis2 = NULL;
 				if (!P_SetTarget(&mobj->player->axis2, FindNewPosition(temp)))
-					CONS_Printf("axis2 not found on %d\n", mobj->type);
+					DEBPRINT(va("axis2 not found on %d\n", mobj->type));
 			}
 			if (mobj->player && mobj->player->awayviewmobj)
 			{
 				temp = (UINT32)(size_t)mobj->player->awayviewmobj;
 				mobj->player->awayviewmobj = NULL;
 				if (!P_SetTarget(&mobj->player->awayviewmobj, FindNewPosition(temp)))
-					CONS_Printf("awayviewmobj not found on %d\n", mobj->type);
+					DEBPRINT(va("awayviewmobj not found on %d\n", mobj->type));
 			}
 		}
 	}

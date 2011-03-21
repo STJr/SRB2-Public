@@ -19,9 +19,6 @@
 #include "d_event.h"
 #include "command.h"
 
-// for debugging shopuld be replaced by nothing later.. so debug is inactive
-#define LOG(x) CONS_Printf(x)
-
 #ifdef _WII
 void CON_InitWii(void);
 #else

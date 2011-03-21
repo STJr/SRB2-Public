@@ -696,8 +696,7 @@ static void COM_Help_f(void)
 
 		CONS_Printf("\2\nread help file for more or type help <command or variable>\n");
 
-		if (devparm)
-			CONS_Printf("\2Total : %d\n", i);
+		DEBPRINT(va(M_GetText("\2Total : %d\n"), i));
 	}
 }
 

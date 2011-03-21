@@ -41,6 +41,7 @@
 
 #include <math.h>
 #include "../doomdef.h"
+#include "../doomstat.h"
 
 #ifdef HWRENDER
 #include "hw_glob.h"
@@ -130,7 +131,7 @@ static boolean isPSectorValid(sector_t *sector)
 	if (!sector->pseudoSector) // check only pseudosectors, others dont care
 	{
 #ifdef PARANOIA
-		CONS_Printf("Alert! non-pseudosector fed to isPSectorClosed()\n");
+		DEBPRINT("Alert! non-pseudosector fed to isPSectorClosed()\n");
 #endif
 		return false;
 	}
@@ -287,7 +288,7 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 	}
 
 #ifdef PARANOIA
-	I_OutputMsg("phiMin = %f, phiMax = %f, phi1 = %f, phi2 = %f\n", *phiMin, *phiMax, phi1, phi2);
+	DEBPRINT(va("phiMin = %f, phiMax = %f, phi1 = %f, phi2 = %f\n", *phiMin, *phiMax, phi1, phi2));
 	I_Error("Holy shit, phiBounds() freaked out\n");
 #endif
 }

@@ -892,7 +892,7 @@ static void AM_drawFline_soft(const fline_t *fl, INT32 color)
 	|| fl->b.x < 0 || fl->b.x >= f_w
 	|| fl->b.y < 0 || fl->b.y >= f_h)
 	{
-		CONS_Printf("line clipping problem %d\n", num++);
+		DEBPRINT(va("line clipping problem %d\n", num++));
 		return;
 	}
 #endif

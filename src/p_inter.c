@@ -777,7 +777,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			// We could technically have 91.1 Star Posts. 90 is cleaner.
 			if (special->health > 90)
 			{
-				CONS_Printf("Bad Starpost Number!\n");
+				DEBPRINT("Bad Starpost Number!\n");
 				return;
 			}
 

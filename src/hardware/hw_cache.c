@@ -78,12 +78,12 @@ static void HWR_DrawPatchInCache(GLMipmap_t *mipmap,
 	ncols = ((x2 - x) * pblockwidth) / ptexturewidth;
 
 /*
-	CONS_Printf("patch %dx%d texture %dx%d block %dx%d\n", SHORT(realpatch->width),
+	DEBPRINT("patch %dx%d texture %dx%d block %dx%d\n", SHORT(realpatch->width),
 															SHORT(realpatch->height),
 															ptexturewidth,
 															textureheight,
 															pblockwidth,pblockheight);
-	CONS_Printf("      col %d ncols %d x %d\n", col, ncols, x);
+	DEBPRINT("      col %d ncols %d x %d\n", col, ncols, x);
 */
 
 	// source advance
@@ -316,7 +316,7 @@ static void HWR_ResizeBlock(INT32 originalwidth, INT32 originalheight,
 	if (j == 4)
 	{
 		j = 3;
-		//CONS_Printf("HWR_ResizeBlock : bad aspect ratio %dx%d\n", blockwidth,blockheight);
+		//DEBPRINT("HWR_ResizeBlock : bad aspect ratio %dx%d\n", blockwidth,blockheight);
 		if (blockwidth < blockheight)
 			blockwidth = max>>3;
 		else
@@ -328,7 +328,7 @@ static void HWR_ResizeBlock(INT32 originalwidth, INT32 originalheight,
 
 	blocksize = blockwidth * blockheight;
 
-	//CONS_Printf("Width is %d, Height is %d\n", blockwidth, blockheight);
+	//DEBPRINT("Width is %d, Height is %d\n", blockwidth, blockheight);
 }
 
 
@@ -947,7 +947,7 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 		grpatch->max_t = (float)newheight / (float)blockheight;
 	}
 	HWD.pfnSetTexture(&grpatch->mipmap);
-	//CONS_Printf("picloaded at %x as texture %d\n",grpatch->mipmap.grInfo.data, grpatch->mipmap.downloaded);
+	//DEBPRINT("picloaded at %x as texture %d\n",grpatch->mipmap.grInfo.data, grpatch->mipmap.downloaded);
 
 	return grpatch;
 }
