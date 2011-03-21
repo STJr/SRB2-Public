@@ -23,10 +23,6 @@
 
 extern HWND hWndMain;
 
-// debugging CONS_Printf to file
-#ifdef LOGMESSAGES
-extern HANDLE logstream;
-#endif
 extern int appActive;
 
 // the MIDI callback is another thread, and Midi volume is delayed here in window proc

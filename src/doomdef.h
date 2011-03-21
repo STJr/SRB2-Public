@@ -123,7 +123,7 @@
 #define LOGMESSAGES // write message in log.txt
 #endif
 
-#if defined (LOGMESSAGES) && !defined (_WINDOWS)
+#ifdef LOGMESSAGES
 extern FILE *logstream;
 #endif
 

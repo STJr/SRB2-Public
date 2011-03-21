@@ -104,11 +104,7 @@ extern PFNglGetString pglGetString;
 extern const GLubyte    *gl_extensions;
 extern RGBA_t           myPaletteData[];
 #ifndef SDL
-#ifdef _WINDOWS
-extern HANDLE           logstream;
-#else
 extern FILE             *logstream;
-#endif
 #endif
 extern GLint            screen_width;
 extern GLint            screen_height;

@@ -90,8 +90,9 @@ static INT32      srate;                   // Default sample rate
 
 
 // output all debugging messages to this file
-#if defined (DEBUG_TO_FILE) && !defined (SDL)
-static HANDLE  logstream = INVALID_HANDLE_VALUE;
+#if defined (DEBUG_TO_FILE)
+#include <stdio.h>
+FILE *logstream = NULL;
 #endif
 
 static LPDIRECTSOUND            DSnd            = NULL;  // Main DirectSound object
@@ -137,9 +138,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 			// Initialize once for each new process.
 			// Return FALSE to fail DLL load.
 #ifdef DEBUG_TO_FILE
-			logstream = CreateFile ("s_ds3d.log", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-			                        FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
-			if (logstream == INVALID_HANDLE_VALUE)
+			logstream = fopen("s_ds3d.log", "wt");
+			if (logstream == NULL)
 				return FALSE;
 #endif
 			DisableThreadLibraryCalls(hinstDLL);
@@ -156,10 +156,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 		case DLL_PROCESS_DETACH:
 			// Perform any necessary cleanup.
 #ifdef DEBUG_TO_FILE
-			if (logstream != INVALID_HANDLE_VALUE)
+			if (logstream)
 			{
-				CloseHandle(logstream);
-				logstream = INVALID_HANDLE_VALUE;
+				fclose(logstream);
+				logstream = NULL;
 			}
 #endif
 			break;
@@ -194,17 +194,9 @@ void DBG_Printf(const char *lpFmt, ... )
 	va_start(arglist, lpFmt);
 	vsnprintf(str, 4096, lpFmt, arglist);
 	va_end(arglist);
-#ifdef _WINDOWS
-	{
-		DWORD bytesWritten;
-		if (logstream != INVALID_HANDLE_VALUE)
-			WriteFile(logstream, str, (DWORD)strlen(str), &bytesWritten, NULL);
-	}
-#else
-	if (logstream!=-1)
-		write(logstream, str, strlen(str));
-#endif
 
+	if (logstream)
+		fwrite(str, strlen(str), 1, logstream);
 #endif
 }
 

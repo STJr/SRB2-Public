@@ -38,7 +38,7 @@
 #ifdef DEBUG_TO_FILE
 static unsigned long nb_frames = 0;
 static clock_t my_clock;
-HANDLE logstream = INVALID_HANDLE_VALUE;
+FILE *logstream;
 #endif
 
 static  HDC     hDC           = NULL;       // the window's device context
@@ -80,9 +80,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 			// Initialize once for each new process.
 			// Return FALSE to fail DLL load.
 #ifdef DEBUG_TO_FILE
-			logstream = CreateFileA("ogllog.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-			                        FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
-			if (logstream == INVALID_HANDLE_VALUE)
+			logstream = fopen("ogllog.txt", "wt");
+			if (logstream == NULL)
 				return FALSE;
 #endif
 			DisableThreadLibraryCalls(hinstDLL);
@@ -99,10 +98,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 		case DLL_PROCESS_DETACH:
 			// Perform any necessary cleanup.
 #ifdef DEBUG_TO_FILE
-			if (logstream != INVALID_HANDLE_VALUE)
+			if (logstream)
 			{
-				CloseHandle(logstream);
-				logstream  = INVALID_HANDLE_VALUE;
+				fclose(logstream);
+				logstream  = NULL;
 			}
 #endif
 			break;

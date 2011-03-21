@@ -2449,7 +2449,10 @@ void I_ShutdownSystem(void)
 			(*quit_funcs[c])();
 #ifdef  LOGMESSAGES
 	if (logstream)
+	{
 		fclose(logstream);
+		logstream = NULL;
+	}
 #endif
 
 }

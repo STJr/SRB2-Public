@@ -988,21 +988,12 @@ static void CON_Print(char *msg)
 void CON_LogMessage(const char *msg)
 {
 	XBOXSTATIC char txt[128], *t;
-#if defined (LOGMESSAGES) && defined (_WINDOWS)
-	const boolean ls = (logstream != INVALID_HANDLE_VALUE);
-#endif
 	const char *p = msg, *e = txt+sizeof (txt)-2;
 
 	for (t = txt; *p != '\0'; p++)
 	{
 		if (*p == '\n' || *p >= ' ') // don't log or console print CON_Print's control characters
-		{
-#if defined (LOGMESSAGES) && defined (_WINDOWS)
-			if (*p == '\n' && (p == msg || *(p-1) != '\r') && ls)
-				*t++ = '\r';
-#endif
 			*t++ = *p;
-		}
 
 		if (t >= e)
 		{

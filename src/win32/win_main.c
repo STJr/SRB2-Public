@@ -72,8 +72,7 @@ static LPCSTR wClassName = "SRB2WC";
 boolean appActive = false; // app window is active
 
 #ifdef LOGMESSAGES
-// this is were I log debug text, cons_printf, I_error ect for window port debugging
-HANDLE logstream = INVALID_HANDLE_VALUE;
+FILE *logstream;
 #endif
 
 BOOL nodinput = FALSE;
@@ -568,8 +567,8 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 
 #ifdef LOGMESSAGES
 	// DEBUG!!! - set logstream to NULL to disable debug log
-	logstream = CreateFile (TEXT("log.txt"), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
-	                        FILE_ATTRIBUTE_NORMAL, NULL);  //file flag writethrough?
+	// Replace WIN32 filehandle with standard C calls, because WIN32 doesn't handle \n properly.
+	logstream = fopen(va("%s"PATHSEP"%s", srb2home, "log.txt"), "wt");
 #endif
 
 	// fill myargc,myargv for m_argv.c retrieval of cmdline arguments

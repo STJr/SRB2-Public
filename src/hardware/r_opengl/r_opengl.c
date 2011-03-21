@@ -172,21 +172,8 @@ FUNCPRINTF void DBG_Printf(const char *lpFmt, ...)
 	va_start (arglist, lpFmt);
 	vsnprintf (str, 4096, lpFmt, arglist);
 	va_end   (arglist);
-#ifdef _WINDOWS
-	{
-		DWORD bytesWritten;
-		if (logstream != INVALID_HANDLE_VALUE)
-			WriteFile(logstream, str, (DWORD)strlen(str), &bytesWritten, NULL);
-	}
-#else
 	if (logstream)
-	{
-		size_t d;
-		d = fwrite(str, strlen(str), 1, logstream);
-		(void)d;
-	}
-#endif
-
+		fwrite(str, strlen(str), 1, logstream);
 #else
 	(void)lpFmt;
 #endif
