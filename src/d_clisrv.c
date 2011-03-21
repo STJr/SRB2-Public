@@ -47,6 +47,7 @@
 #include "r_local.h"
 #include "m_argv.h"
 #include "p_setup.h"
+#include "lzf.h"
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -567,14 +568,22 @@ static void SV_SendSaveGame(INT32 node)
 {
 	size_t length;
 	UINT8 *savebuffer;
+#ifdef ADD_FOR_207
+	UINT8 *compressedsave;
+	size_t compressedlen;
+#endif
+	UINT8 *buffertosend;
 
 	// first save it in a malloced buffer
-	save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
-	if (!save_p)
+	savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
+	if (!savebuffer)
 	{
 		CONS_Printf("%s",text[NOSAVEGAMEMEM]);
 		return;
 	}
+
+	// Leave room for the uncompressed length.
+	save_p = savebuffer + sizeof(size_t);
 
 	P_SaveNetGame();
 
@@ -586,9 +595,45 @@ static void SV_SendSaveGame(INT32 node)
 		I_Error("Savegame buffer overrun");
 	}
 
-	// then send it!
-	SendRam(node, savebuffer, length, SF_RAM, 0);
-	//free(savebuffer); //but don't free the data, we will do that later after the real send
+#ifdef ADD_FOR_207
+	// Allocate space for compressed save: one byte fewer than for the
+	// uncompressed data to ensure that the compression is worthwhile.
+	compressedsave = malloc(length - 1);
+	if (!compressedsave)
+	{
+		CONS_Printf("%s", M_GetText("No more free memory for savegame\n"));
+		return;
+	}
+
+	// Attempt to compress it.
+	if((compressedlen = lzf_compress(savebuffer + sizeof(size_t), length - sizeof(size_t), compressedsave + sizeof(size_t), length - sizeof(size_t) - 1)))
+	{
+		// Compressing succeeded; send compressed data
+
+		free(savebuffer);
+
+		// State that we're compressed.
+		buffertosend = compressedsave;
+		WRITEUINT32(compressedsave, length - sizeof(size_t));
+		length = compressedlen + sizeof(size_t);
+	}
+	else
+#endif
+	{
+#ifdef ADD_FOR_207
+		// Compression failed to make it smaller; send original
+
+		free(compressedsave);
+#endif
+
+		// State that we're not compressed
+		buffertosend = savebuffer;
+#ifdef ADD_FOR_207
+		WRITEUINT32(savebuffer, 0);
+#endif
+	}
+
+	SendRam(node, buffertosend, length, SF_RAM, 0);
 	save_p = NULL;
 }
 
@@ -642,6 +687,9 @@ static void CL_LoadReceivedSavegame(void)
 {
 	UINT8 *savebuffer = NULL;
 	size_t length;
+#ifdef ADD_FOR_207
+	size_t decompressedlen;
+#endif
 	XBOXSTATIC char tmpsave[256];
 
 	sprintf(tmpsave, "%s" PATHSEP TMPSAVENAME, srb2home);
@@ -656,6 +704,18 @@ static void CL_LoadReceivedSavegame(void)
 	}
 
 	save_p = savebuffer;
+
+#ifdef ADD_FOR_207
+	// Decompress saved game if necessary.
+	decompressedlen = READUINT32(save_p);
+	if(decompressedlen > 0)
+	{
+		UINT8 *decompressedbuffer = Z_Malloc(decompressedlen, PU_STATIC, NULL);
+		lzf_decompress(save_p, length - sizeof(size_t), decompressedbuffer, decompressedlen);
+		Z_Free(savebuffer);
+		save_p = savebuffer = decompressedbuffer;
+	}
+#endif
 
 	paused = false;
 	demoplayback = false;
