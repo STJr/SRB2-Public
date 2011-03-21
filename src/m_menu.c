@@ -2260,10 +2260,10 @@ consvar_t cv_chooseskin = {"chooseskin", DEFAULTSKIN, CV_HIDEN|CV_CALL, skins_co
 
 CV_PossibleValue_t gametype_cons_t[] =
 {
-	{GT_COOP, "Coop"}, {GT_MATCH, "Match"},
-	{GTF_TEAMMATCH, "Team Match"}, {GT_RACE, "Race"},
-	{GTF_CLASSICRACE, "Classic Race"}, {GT_TAG, "Tag"},
-	{GTF_HIDEANDSEEK, "Hide and Seek"},
+	{GT_COOP, "Coop"}, {GTF_CLASSICRACE, "Competition"},
+	{GT_MATCH, "Match"}, {GTF_TEAMMATCH, "Team Match"},
+	{GT_RACE, "Race"},
+	{GT_TAG, "Tag"}, {GTF_HIDEANDSEEK, "Hide and Seek"},
 	{GT_CTF, "CTF"},
 #ifdef CHAOSISNOTDEADYET
 	{GT_CHAOS, "Chaos"},
