@@ -276,7 +276,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].fakenames[j++], "Alam_GBC\n");
 	strcpy(credits[i].fakenames[j++], "Jazz\n");
 	strcpy(credits[i].fakenames[j++], "Graue\n");
-	strcpy(credits[i].fakenames[j++], "MattW CFI\n");
+	strcpy(credits[i].fakenames[j++], "Inuyasha\n");
 	strcpy(credits[i].fakenames[j++], "Orospakr\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Alam Arias\n");
@@ -313,9 +313,9 @@ void F_StartCredits(void)
 	strcpy(credits[i].fakenames[j++], "Nev3r\n");
 	strcpy(credits[i].fakenames[j++], "JEV3\n");
 	strcpy(credits[i].fakenames[j++], "Spazzo\n");
-	strcpy(credits[i].fakenames[j++], "MattW CFI\n");
+	strcpy(credits[i].fakenames[j++], "Inuyasha\n");
 	strcpy(credits[i].fakenames[j++], "Jazz\n");
-	strcpy(credits[i].fakenames[j++], "FoxBlitzz\n");
+	strcpy(credits[i].fakenames[j++], "Blitzzo\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
 	strcpy(credits[i].realnames[j++], "Ben Geyer\n");
@@ -415,22 +415,22 @@ void F_StartCredits(void)
 	strcpy(credits[i].fakenames[j++], "Blade\n");
 	strcpy(credits[i].fakenames[j++], "KO.T.E\n");
 	strcpy(credits[i].fakenames[j++], "Chaos Zero 64\n");
-	strcpy(credits[i].fakenames[j++], "Prime 2\n");
+	strcpy(credits[i].fakenames[j++], "Prime 2.0\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Paul Clempson\n");	// Boinciel
-	strcpy(credits[i].realnames[j++], "Rob Tisdell\n");		// Dark Warrior
-	strcpy(credits[i].realnames[j++], "Dan Hagerstrand\n");	// Fox Blitzz
+	strcpy(credits[i].realnames[j++], "Rob Tisdell\n");	// Rob
+	strcpy(credits[i].realnames[j++], "Dan Hagerstrand\n");	// Blitzzo
 	strcpy(credits[i].realnames[j++], "Nathan Giroux\n");	// Jazz
 	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");	// JEV3
-	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");	// MattW_CFI
-	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");		// Nev3r
+	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");	// Inuyasha
+	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");	// Nev3r
 	strcpy(credits[i].realnames[j++], "Andrew Moran\n");	// Senku
-	strcpy(credits[i].realnames[j++], "Thomas Igoe\n");		// Shadow Hog
-	strcpy(credits[i].realnames[j++], "Colin Pfaff\n");		// Sonict
+	strcpy(credits[i].realnames[j++], "Thomas Igoe\n");	// Shadow Hog
+	strcpy(credits[i].realnames[j++], "Colin Pfaff\n");	// Sonict
 	strcpy(credits[i].realnames[j++], "Michael Antonakes\n"); // Spazzo
 	strcpy(credits[i].realnames[j++], "Cody Koester\n");	// SRB2-Playah
-	strcpy(credits[i].realnames[j++], "Nick Molina\n");		// ST218
-	strcpy(credits[i].realnames[j++], "Bill Reed\n");		// Tets
+	strcpy(credits[i].realnames[j++], "Nick Molina\n");	// ST218
+	strcpy(credits[i].realnames[j++], "Bill Reed\n");	// Tets
 	strcpy(credits[i].realnames[j++], "Erik Nielsen\n");	// Torgo
 	strcpy(credits[i].realnames[j++], "Desmond D.\n");      // Blade
 	strcpy(credits[i].realnames[j++], "Sherman D.\n");      // KO.T.E.
