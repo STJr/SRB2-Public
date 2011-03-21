@@ -2220,7 +2220,7 @@ static boolean HWR_CheckBBox(fixed_t *bspcoord)
 //
 // haleyjd 02/19/06
 // Adds all segs in all polyobjects in the given subsector.
-// Modified for SRB2 hardware rendering by Jazz 7/13/09
+// Modified for hardware rendering.
 //
 static inline void HWR_AddPolyObjectSegs(void)
 {
@@ -3366,7 +3366,7 @@ static void HWR_CreateDrawNodes(void)
 									,PU_STATIC, NULL);
 	// todo:
 	// However, in reality we shouldn't be re-copying and shifting all this information
-	// that is already lying around. This should all be in some sort of linked list or lists. -Jazz
+	// that is already lying around. This should all be in some sort of linked list or lists.
 	size_t *sortindex = Z_Calloc(sizeof(size_t) * (numplanes + numwalls), PU_STATIC, NULL);
 
 	// If true, swap the draw order.
@@ -3486,7 +3486,7 @@ static void HWR_CreateDrawNodes(void)
 // --------------------------------------------------------------------------
 //  Draw all vissprites
 // --------------------------------------------------------------------------
-#ifdef SORTING //Why weren't we using this before? -Jazz
+#ifdef SORTING
 static void HWR_DrawSprites(void)
 {
 	if (gr_vissprite_p > gr_vissprites)

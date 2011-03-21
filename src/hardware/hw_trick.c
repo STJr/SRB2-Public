@@ -289,7 +289,7 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 
 #ifdef PARANOIA
 	DEBPRINT(va("phiMin = %f, phiMax = %f, phi1 = %f, phi2 = %f\n", *phiMin, *phiMax, phi1, phi2));
-	I_Error("Holy shit, phiBounds() freaked out\n");
+	I_Error("phiBounds() out of range!\n");
 #endif
 }
 

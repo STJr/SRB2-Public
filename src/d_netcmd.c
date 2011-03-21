@@ -2010,7 +2010,7 @@ static void Command_Map_f(void)
 			if (!strcasecmp(gametype_cons_t[j].strvalue, COM_Argv(i+1)))
 			{
 				// Don't do any variable setting here. Wait until you get your
-				// map packet first to avoid sending the same info twice! -Jazz
+				// map packet first to avoid sending the same info twice!
 				if (gametype_cons_t[j].value == GT_MATCH)
 					newgametype = GT_MATCH;
 				else if (gametype_cons_t[j].value == GT_RACE)
@@ -3926,7 +3926,7 @@ void D_GameTypeChanged(INT32 lastgametype)
 	}
 
 	// make sure no players retain the color yellow if swapping to match or CTF.
-	// todo: This block is very unwieldy. Make a way for the server to force changing of color. -Jazz
+	// todo: This block is very unwieldy. Make a way for the server to force changing of color.
 	if (gametype == GT_CTF || gametype == GT_MATCH)
 	{
 		INT32 i;

@@ -889,7 +889,7 @@ static void AdjustSegs(void)
 
 #ifdef POLYOBJECTS
 			// Don't touch polyobject segs. We'll compensate
-			// for this when we go about drawing them. -Jazz
+			// for this when we go about drawing them.
 			if (lseg->polyseg)
 				continue;
 #endif

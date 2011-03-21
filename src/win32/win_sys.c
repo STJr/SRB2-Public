@@ -647,7 +647,7 @@ void I_Error(const char *error, ...)
 	wvsprintfA(txt, error, argptr);
 	va_end(argptr);
 
-	CONS_Printf("I_Error(): %s\n", txt);
+	CONS_Printf("I_Error(): %s\n", txt); //don't change from CONS_Printf.
 
 	// saving one time is enough!
 	if (!errorcount)

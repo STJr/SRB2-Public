@@ -2178,8 +2178,6 @@ noscript:
 
 	globalweather = mapheaderinfo[gamemap-1]->weather;
 
-// Moved this down. This modifies the seg information which causes polyobjects to break.
-// By moving it down below P_SpawnSpecials(), polyobjects can now function properly. -Jazz
 #ifdef HWRENDER // not win32 only 19990829 by Kin
 	if (rendermode != render_soft && rendermode != render_none)
 	{
@@ -2231,7 +2229,7 @@ noscript:
 		//What if one player is node 0 and the other node 31?
 		//The solution? Make a temp array of all players that are currently playing and pick from them.
 		//Future todo? When a player leaves, shift all nodes down so D_NumPlayers() can be used as intended?
-		//Also, you'd never have to loop through all 32 players slots to find anything ever again. =P -Jazz
+		//Also, you'd never have to loop through all 32 players slots to find anything ever again.
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && !players[i].spectator)

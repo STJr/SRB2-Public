@@ -171,10 +171,6 @@ typedef enum
 	MAXNETXCMD
 } netxcmd_t;
 
-//So yeah, my dad taught me about these nifty buggers called bitwise structures.
-//They can hold and transmit our data without having to mess around with packing our bits ourselves.
-//If we utilize these, this code should be 99.9% more dummy-proof, readable and flexible. -Jazz
-
 #if defined(_MSC_VER)
 #pragma pack(1)
 #endif
@@ -184,6 +180,8 @@ typedef enum
 #endif
 
 //Packet composition for Command_TeamChange_f() ServerTeamChange, etc.
+//bitwise structs make packing bits a little easier, but byte alignment harder?
+//todo: decide whether to make the other netcommands conform, or just get rid of this experiment.
 typedef struct {
 	UINT32 playernum    : 5;  // value 0 to 31
 	UINT32 newteam      : 5;  // value 0 to 31
@@ -208,9 +206,6 @@ typedef union {
 	changeteam_packet_t packet;
 	changeteam_value_t value;
 } ATTRPACK changeteam_union;
-
-// Reminder for myself if I ever need packets of odd composition. -Jazz
-// NetPacket = *(( scrambleteams_packet_t *)*cp)++; //lol, pointers
 
 #if defined(_MSC_VER)
 #pragma pack()

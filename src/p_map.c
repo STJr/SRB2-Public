@@ -3825,7 +3825,7 @@ mobj_t *P_CheckOnmobj(mobj_t *thing)
 
 	validcount++;
 
-	//Exempt ghosts from momentum truncation. Jazz 2/21/09
+	//Exempt ghosts from momentum truncation.
 	if (tmflags & MF_NOCLIP && tmthing->type != MT_GHOST)
 		return NULL;
 

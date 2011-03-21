@@ -865,7 +865,7 @@ boolean I_InitTcpDriver(void)
 					WSError = "Limit on the number of tasks supported by the Windows Sockets implementation has been reached";
 					break;
 				case WSAEFAULT:
-					WSError = "WTF? The WSAData is not a valid pointer? What kind of setup do you have?";
+					WSError = "WSAData is not a valid pointer? What kind of setup do you have?";
 					break;
 				default:
 					WSError = va("Error code %u",WSAresult);

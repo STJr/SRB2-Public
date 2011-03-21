@@ -218,7 +218,7 @@ static INT32 S_getChannel(const void *origin, sfxinfo_t *sfxinfo)
 
 		if (cnum == numofchannels)
 		{
-			// FUCK! No lower priority. Sorry, Charlie.
+			// No lower priority. Sorry, Charlie.
 			return -1;
 		}
 		else
@@ -1246,7 +1246,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 												source->x, source->y, source->z);
 	}
 
-	// Taunts, deaths, etc, should all be heard louder.
+	// Ring loss, deaths, etc, should all be heard louder.
 	if (sfxinfo->pitch & SF_X8AWAYSOUND)
 		approx_dist = FixedDiv(approx_dist,8*FRACUNIT);
 

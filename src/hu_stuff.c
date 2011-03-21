@@ -300,7 +300,7 @@ void MatchType_OnChange(void)
 
 	// If swapping to team match, ensure that all players that aren't already on a team become
 	// a spectator, or join the team of their color, if availiable. The quirk of this new gamtype
-	// handling causes us to have to do this. -Jazz 3/4/09
+	// handling causes us to have to do this.
 	if (cv_matchtype.value)
 	{
 		for (i = 0; i < MAXPLAYERS; i++)
