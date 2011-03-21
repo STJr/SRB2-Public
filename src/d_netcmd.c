@@ -4296,10 +4296,7 @@ static void Cheats_OnChange(void)
 
 	// Display console and hud message.
 	if (cv_cheats.value && !cheats)
-	{
 		HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
-		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
-	}
 
 	// When deactivated, restore all variables governed by cheats to their starting values.
 	if (!cv_cheats.value && cheats)

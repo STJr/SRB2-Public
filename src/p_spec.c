@@ -3156,8 +3156,7 @@ DoneSection2:
 
 						HU_SetCEchoFlags(0);
 						HU_SetCEchoDuration(5);
-						HU_DoCEcho(va("%s\\captured the blue flag.\\\\\\\\", player_names[player-players]));
-						I_OutputMsg("%s captured the blue flag.\n", player_names[player-players]);
+						HU_DoCEcho(va(M_GetText("%s\\captured the blue flag.\\\\\\\\"), player_names[player-players]));
 
 						if (players[consoleplayer].ctfteam == 1)
 							S_StartSound(NULL, sfx_flgcap);
@@ -3192,14 +3191,10 @@ DoneSection2:
 						HU_SetCEchoDuration(5);
 
 						if (players[consoleplayer].ctfteam == 2)
-						{
-							HU_DoCEcho("the enemy has returned\\their flag.\\\\\\\\");
-							I_OutputMsg("the blue team has returned their flag.\n");
-						}
+							HU_DoCEcho(va("%s", M_GetText("the enemy has returned\\their flag.\\\\\\\\")));
 						else if (players[consoleplayer].ctfteam == 1)
 						{
-							HU_DoCEcho("your flag was returned\\to base.\\\\\\\\");
-							I_OutputMsg("your red flag was returned to base.\n");
+							HU_DoCEcho(va("%s", M_GetText("your flag was returned\\to base.\\\\\\\\")));
 							S_StartSound(NULL, sfx_chchng);
 						}
 					}
@@ -3243,8 +3238,7 @@ DoneSection2:
 
 						HU_SetCEchoFlags(0);
 						HU_SetCEchoDuration(5);
-						HU_DoCEcho(va("%s\\captured the red flag.\\\\\\\\", player_names[player-players]));
-						I_OutputMsg("%s captured the red flag.\n", player_names[player-players]);
+						HU_DoCEcho(va(M_GetText("%s\\captured the red flag.\\\\\\\\"), player_names[player-players]));
 
 						if (players[consoleplayer].ctfteam == 2)
 							S_StartSound(NULL, sfx_flgcap);
@@ -3276,14 +3270,10 @@ DoneSection2:
 						mo->fuse = TICRATE;
 						mo->spawnpoint = bflagpoint;
 						if (players[consoleplayer].ctfteam == 1)
-						{
-							HU_DoCEcho("the enemy has returned\\their flag.\\\\\\\\");
-							I_OutputMsg("the red team has returned their flag.\n");
-						}
+							HU_DoCEcho(va("%s", M_GetText("the enemy has returned\\their flag.\\\\\\\\")));
 						else if (players[consoleplayer].ctfteam == 2)
 						{
-							HU_DoCEcho("your flag was returned\\to base.\\\\\\\\");
-							I_OutputMsg("your blue flag was returned to base.\n");
+							HU_DoCEcho(va("%s", M_GetText("your flag was returned\\to base.\\\\\\\\")));
 							S_StartSound(NULL, sfx_chchng);
 						}
 					}

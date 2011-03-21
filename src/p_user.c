@@ -955,7 +955,6 @@ void P_DoSuperTransformation(player_t *player, boolean giverings)
 		HU_SetCEchoFlags(0);
 		HU_SetCEchoDuration(5);
 		HU_DoCEcho(va("%s\\is now super.\\\\\\\\", player_names[player-players]));
-		I_OutputMsg("%s is now super.\n", player_names[player-players]);
 	}
 
 	P_PlayerFlagBurst(player, false);
@@ -1576,7 +1575,6 @@ static void P_DoSuperStuff(player_t *player)
 				HU_SetCEchoFlags(0);
 				HU_SetCEchoDuration(5);
 				HU_DoCEcho(va("%s\\is no longer super.\\\\\\\\", player_names[player-players]));
-				I_OutputMsg("%s is no longer super.\n", player_names[player-players]);
 			}
 		}
 
@@ -1627,7 +1625,6 @@ static void P_DoSuperStuff(player_t *player)
 				HU_SetCEchoFlags(0);
 				HU_SetCEchoDuration(5);
 				HU_DoCEcho(va("%s\\is no longer super.\\\\\\\\", player_names[player-players]));
-				I_OutputMsg("%s is no longer super.\n", player_names[player-players]);
 			}
 
 			// Resume normal music if you're the console player

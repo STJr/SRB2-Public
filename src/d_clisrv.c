@@ -1077,12 +1077,8 @@ static void CL_ConnectToServer(boolean viams)
 
 	DEBFILE(va("Synchronisation Finished\n"));
 
-	if (cv_cheats.value)
-	{
-		if (!server)
-			HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
-		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
-	}
+	if (cv_cheats.value && !server)
+		HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
 
 	displayplayer = consoleplayer;
 }

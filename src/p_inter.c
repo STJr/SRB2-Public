@@ -2608,7 +2608,6 @@ static void P_KillPlayer(player_t *player, mobj_t *source, INT32 damage)
 		HU_SetCEchoFlags(0);
 		HU_SetCEchoDuration(5);
 		HU_DoCEcho(va("%s\\is no longer super.\\\\\\\\", player_names[player-players]));
-		I_OutputMsg("%s is no longer super.\n", player_names[player-players]);
 	}
 }
 

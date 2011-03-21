@@ -541,7 +541,7 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	}
 
 	// If it's a CSAY, just CECHO and be done with it.
-	if(flags & HU_CSAY)
+	if (flags & HU_CSAY)
 	{
 		HU_SetCEchoDuration(5);
 		I_OutputMsg("Server message: %s\n", msg);
