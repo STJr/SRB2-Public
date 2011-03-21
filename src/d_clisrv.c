@@ -592,7 +592,7 @@ static void SV_SendSaveGame(INT32 node)
 	save_p = NULL;
 }
 
-/*
+#ifdef DUMPCONSISTENCY
 #define TMPSAVENAME "badmath.sav"
 static consvar_t cv_dumpconsistency = {"dumpconsistency", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
@@ -634,7 +634,7 @@ static void SV_SavedGame(void)
 }
 
 #undef  TMPSAVENAME
-*/
+#endif
 #define TMPSAVENAME "$$$.sav"
 
 
@@ -1770,7 +1770,9 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 
 	if (pnum == consoleplayer)
 	{
-//		if (msg == KICK_MSG_CON_FAIL) SV_SavedGame();
+#ifdef DUMPCONSISTENCY
+		if (msg == KICK_MSG_CON_FAIL) SV_SavedGame();
+#endif
 		D_QuitNetGame();
 		CL_Reset();
 		D_StartTitle();
@@ -1835,7 +1837,9 @@ void D_ClientServerInit(void)
 	CV_RegisterVar(&cv_showjoinaddress);
 	CV_RegisterVar(&cv_consfailprotect);
 	CV_RegisterVar(&cv_blamecfail);
-//	CV_RegisterVar(&cv_dumpconsistency);
+#ifdef DUMPCONSISTENCY
+	CV_RegisterVar(&cv_dumpconsistency);
+#endif
 	Ban_Load_File(false);
 #endif
 

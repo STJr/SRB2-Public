@@ -251,6 +251,7 @@ extern const char *compdate, *comptime, *comprevision;
 //#define WEAPON_SFX
 //#define FISHCAKE /// \todo Remove this to disable cheating. Remove for release!
 //#define JOHNNYFUNCODE
+//#define DUMPCONSISTENCY // dumps the contents of a network save game upon consistency failure for debugging.
 #define SHUFFLE //Incomplete OpenGL sorting code
 //#define CHAOSISNOTDEADYET // Pre-1.08 Chaos gametype code
 //#define POLYOBJECTS_PLANES // Polyobject fake flat code
