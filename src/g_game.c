@@ -2540,7 +2540,7 @@ void G_AfterIntermission(void)
 {
 	HU_ClearCEcho();
 
-	if (mapheaderinfo[gamemap-1]->cutscenenum) // Start a custom cutscene.
+	if (mapheaderinfo[gamemap-1]->cutscenenum && !timeattacking) // Start a custom cutscene.
 		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->cutscenenum-1, false, false);
 	else
 	{
@@ -2982,11 +2982,12 @@ void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer, boolean
 	maptol = mapheaderinfo[gamemap-1]->typeoflevel;
 	globalweather = mapheaderinfo[gamemap-1]->weather;
 
+
 	ultimatemode = pultmode;
 	playerdeadview = false;
 	automapactive = false;
 
-	if (!skipprecutscene && mapheaderinfo[gamemap-1]->precutscenenum) // Start a custom cutscene.
+	if (!skipprecutscene && mapheaderinfo[gamemap-1]->precutscenenum && !timeattacking) // Start a custom cutscene.
 		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->precutscenenum-1, true, resetplayer);
 	else
 		G_DoLoadLevel(resetplayer);

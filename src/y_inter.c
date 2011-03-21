@@ -1801,7 +1801,7 @@ static void Y_FollowIntermission(void)
 	}
 
 	// Start a custom cutscene if there is one.
-	if (mapheaderinfo[gamemap-1]->cutscenenum)
+	if (mapheaderinfo[gamemap-1]->cutscenenum && !timeattacking)
 	{
 		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->cutscenenum-1, false, false);
 		return;
