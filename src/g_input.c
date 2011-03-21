@@ -1296,7 +1296,7 @@ static void setcontrol(INT32 (*gc)[2], INT32 na)
 		;
 	if (numctrl == num_gamecontrols)
 	{
-		CONS_Printf("Control '%s' unknown\n", namectrl);
+		CONS_Printf(M_GetText("Control '%s' unknown\n"), namectrl);
 		return;
 	}
 	keynum = G_KeyStringtoNum(COM_Argv(2));
@@ -1317,7 +1317,7 @@ void Command_Setcontrol_f(void)
 
 	if (na != 3 && na != 4)
 	{
-		CONS_Printf("setcontrol <controlname> <keyname> [<2nd keyname>]\n");
+		CONS_Printf("%s", M_GetText("setcontrol <controlname> <keyname> [<2nd keyname>]\n"));
 		return;
 	}
 
@@ -1332,7 +1332,7 @@ void Command_Setcontrol2_f(void)
 
 	if (na != 3 && na != 4)
 	{
-		CONS_Printf("setcontrol2 <controlname> <keyname> [<2nd keyname>]\n");
+		CONS_Printf("%s", M_GetText("setcontrol2 <controlname> <keyname> [<2nd keyname>]\n"));
 		return;
 	}
 

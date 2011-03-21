@@ -207,6 +207,15 @@ void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
 
 #include "m_swap.h"
 
+// Things that used to be in dstrings.h
+#define DEVMAPS "devmaps"
+#define DEVDATA "devdata"
+
+#define NUM_QUITMESSAGES 22
+#define SAVEGAMENAME "srb2sav"
+
+char savegamename[256];
+
 // m_misc.h
 #ifdef GETTEXT
 #define M_GetText(String) gettext(String)

@@ -332,7 +332,7 @@ static inline VOID OpenTextConsole(VOID)
 		if (AllocConsole()) //Let get the real console HANDLEs, because Mingw's Bash is bad!
 		{
 			SetConsoleTitleA("SRB2 Console");
-			CONS_Printf("Hello, it's me, SRB2's Console Window\n");
+			CONS_Printf("%s", M_GetText("Hello, it's me, SRB2's Console Window\n"));
 		}
 		else
 		{
@@ -595,9 +595,9 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 	I_StartupSystem();
 
 	// startup SRB2
-	CONS_Printf("D_SRB2Main() ...\n");
+	CONS_Printf("%s", M_GetText("Setting up SRB2...\n"));
 	D_SRB2Main();
-	CONS_Printf("Entering main app loop...\n");
+	CONS_Printf("%s", M_GetText("Entering main game loop...\n"));
 	// never return
 	D_SRB2Loop();
 

@@ -395,7 +395,7 @@ void Command_SaveConfig_f(void)
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("saveconfig <filename[.cfg]> [-silent] : save config to a file\n");
+		CONS_Printf("%s", M_GetText("saveconfig <filename[.cfg]> [-silent] : save config to a file\n"));
 		return;
 	}
 	strcpy(tmpstr, COM_Argv(1));
@@ -403,7 +403,7 @@ void Command_SaveConfig_f(void)
 
 	M_SaveConfig(tmpstr);
 	if (stricmp(COM_Argv(2), "-silent"))
-		CONS_Printf("config saved as %s\n", configfile);
+		CONS_Printf(M_GetText("config saved as %s\n"), configfile);
 }
 
 /** Loads a game config, possibly from a particular file.
@@ -414,7 +414,7 @@ void Command_LoadConfig_f(void)
 {
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("loadconfig <filename[.cfg]> : load config from a file\n");
+		CONS_Printf("%s", M_GetText("loadconfig <filename[.cfg]> : load config from a file\n"));
 		return;
 	}
 
@@ -431,7 +431,7 @@ void Command_ChangeConfig_f(void)
 {
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("changeconfig <filename[.cfg]> : save current config and load another\n");
+		CONS_Printf("%s", M_GetText("changeconfig <filename[.cfg]> : save current config and load another\n"));
 		return;
 	}
 
@@ -451,7 +451,7 @@ void M_FirstLoadConfig(void)
 	if (M_CheckParm("-config") && M_IsNextParm())
 	{
 		strcpy(configfile, M_GetNextParm());
-		CONS_Printf("config file: %s\n",configfile);
+		CONS_Printf(M_GetText("config file: %s\n"), configfile);
 	}
 
 	// load default control
@@ -484,7 +484,7 @@ void M_SaveConfig(const char *filename)
 	{
 		if (!strstr(filename, ".cfg"))
 		{
-			CONS_Printf("M_SaveConfig(): filename is not .cfg\n");
+			CONS_Printf("%s", M_GetText("Config filename must be .cfg\n"));
 			return;
 		}
 
@@ -494,7 +494,7 @@ void M_SaveConfig(const char *filename)
 			strcpy(configfile, filename);
 		else
 		{
-			CONS_Printf("Couldn't save game config file %s\n", filename);
+			CONS_Printf(M_GetText("Couldn't save game config file %s\n"), filename);
 			return;
 		}
 	}
@@ -502,14 +502,14 @@ void M_SaveConfig(const char *filename)
 	{
 		if (!strstr(configfile, ".cfg"))
 		{
-			CONS_Printf("M_SaveConfig(): filename is not .cfg\n");
+			CONS_Printf("%s", M_GetText("Config filename must be .cfg\n"));
 			return;
 		}
 
 		f = fopen(configfile, "w");
 		if (!f)
 		{
-			CONS_Printf("Couldn't save game config file %s\n", configfile);
+			CONS_Printf(M_GetText("Couldn't save game config file %s\n"), configfile);
 			return;
 		}
 	}
@@ -1045,7 +1045,7 @@ void M_SaveFrame(void)
 	if (apng_frames == PNG_UINT_31_MAX)
 	{
 		M_StopMovie();
-		CONS_Printf("recording into next new file\n");
+		CONS_Printf("%s", M_GetText("Recording into next new file\n"));
 		M_StartMovie();
 	}
 #else
@@ -1337,14 +1337,14 @@ failure:
 	if (ret)
 	{
 		if (!moviemode)
-			CONS_Printf("screen shot %s saved in %s\n", freename, pathname);
+			CONS_Printf(M_GetText("screen shot %s saved in %s\n"), freename, pathname);
 	}
 	else
 	{
 		if (freename)
-			CONS_Printf("Couldn't create screen shot %s in %s\n", freename, pathname);
+			CONS_Printf(M_GetText("Couldn't create screen shot %s in %s\n"), freename, pathname);
 		else
-			CONS_Printf("Couldn't create screen shot (all 10000 slots used!) in %s\n", pathname);
+			CONS_Printf(M_GetText("Couldn't create screen shot (all 10000 slots used!) in %s\n"), pathname);
 	}
 #endif
 }

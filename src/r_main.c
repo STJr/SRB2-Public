@@ -34,7 +34,6 @@
 #include "am_map.h"
 #include "d_main.h"
 #include "v_video.h"
-#include "dstrings.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
@@ -134,8 +133,7 @@ void SplitScreen_OnChange(void)
 	{
 		if (splitscreen)
 		{
-			CONS_Printf("Splitscreen not supported in netplay, "
-				"sorry!\n");
+			CONS_Printf("%s", M_GetText("Splitscreen not supported in netplay, sorry!\n"));
 			splitscreen = false;
 		}
 		return;

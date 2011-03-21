@@ -48,13 +48,15 @@ void Command_Numthinkers_f(void)
 
 	if (gamestate != GS_LEVEL)
 	{
-		CONS_Printf("%s", text[MUSTBEINLEVEL]);
+		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
 		return;
 	}
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("numthinkers <#>: Count number of thinkers\n\t1: P_MobjThinker\n\t2: P_RainThinker\n\t3: P_SnowThinker\n\t4: P_NullPrecipThinker\n\t5: T_Friction\n\t6: T_Pusher\n\t7: P_RemoveThinkerDelayed\n");
+		CONS_Printf("%s", M_GetText("numthinkers <#>: Count number of thinkers\n\t1: P_MobjThinker\n\t2: "
+		"P_RainThinker\n\t3: P_SnowThinker\n\t4: P_NullPrecipThinker\n\t5:"
+		" T_Friction\n\t6: T_Pusher\n\t7: P_RemoveThinkerDelayed\n"));
 		return;
 	}
 
@@ -64,34 +66,34 @@ void Command_Numthinkers_f(void)
 	{
 		case 1:
 			action = (actionf_p1)P_MobjThinker;
-			CONS_Printf("Number of P_MobjThinker: ");
+			CONS_Printf("%s", M_GetText("Number of P_MobjThinker: "));
 			break;
 		case 2:
 			action = (actionf_p1)P_RainThinker;
-			CONS_Printf("Number of P_RainThinker: ");
+			CONS_Printf("%s", M_GetText("Number of P_RainThinker: "));
 			break;
 		case 3:
 			action = (actionf_p1)P_SnowThinker;
-			CONS_Printf("Number of P_SnowThinker: ");
+			CONS_Printf("%s", M_GetText("Number of P_SnowThinker: "));
 			break;
 		case 4:
 			action = (actionf_p1)P_NullPrecipThinker;
-			CONS_Printf("Number of P_NullPrecipThinker: ");
+			CONS_Printf("%s", M_GetText("Number of P_NullPrecipThinker: "));
 			break;
 		case 5:
 			action = (actionf_p1)T_Friction;
-			CONS_Printf("Number of T_Friction: ");
+			CONS_Printf("%s", M_GetText("Number of T_Friction: "));
 			break;
 		case 6:
 			action = (actionf_p1)T_Pusher;
-			CONS_Printf("Number of T_Pusher: ");
+			CONS_Printf("%s", M_GetText("Number of T_Pusher: "));
 			break;
 		case 7:
 			action = (actionf_p1)P_RemoveThinkerDelayed;
-			CONS_Printf("Number of P_RemoveThinkerDelayed: ");
+			CONS_Printf("%s", M_GetText("Number of P_RemoveThinkerDelayed: "));
 			break;
 		default:
-			CONS_Printf("That is not a valid number.\n");
+			CONS_Printf("%s", M_GetText("That is not a valid number.\n"));
 			return;
 	}
 
@@ -114,7 +116,7 @@ void Command_CountMobjs_f(void)
 
 	if (gamestate != GS_LEVEL)
 	{
-		CONS_Printf("%s", text[MUSTBEINLEVEL]);
+		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
 		return;
 	}
 
@@ -126,7 +128,7 @@ void Command_CountMobjs_f(void)
 			i = atoi(COM_Argv(j));
 			if (i >= NUMMOBJTYPES)
 			{
-				CONS_Printf("Object number %d out of range (max %d).\n", i, NUMMOBJTYPES-1);
+				CONS_Printf(M_GetText("Object number %d out of range (max %d).\n"), i, NUMMOBJTYPES-1);
 				continue;
 			}
 
@@ -141,12 +143,12 @@ void Command_CountMobjs_f(void)
 					count++;
 			}
 
-			CONS_Printf("There are %d objects of type %d currently in the level.\n", count, i);
+			CONS_Printf(M_GetText("There are %d objects of type %d currently in the level.\n"), count, i);
 		}
 		return;
 	}
 
-	CONS_Printf("Count of active objects in level:\n");
+	CONS_Printf("%s", M_GetText("Count of active objects in level:\n"));
 
 	for (i = 0; i < NUMMOBJTYPES; i++)
 	{
@@ -163,7 +165,7 @@ void Command_CountMobjs_f(void)
 
 		CONS_Printf("%d: %d\n", i, count);
 	}
-	CONS_Printf("Done\n");
+	CONS_Printf("%s", M_GetText("Done\n"));
 }
 
 //
@@ -502,7 +504,7 @@ static inline void P_DoTagStuff(void)
 		{
 			if (players[i].pflags & PF_TAGIT)
 			{
-				CONS_Printf("%s is it!\n", player_names[i]); // Tell everyone who is it!
+				CONS_Printf(M_GetText("%s is now IT!\n"), player_names[i]); // Tell everyone who is it!
 				break;
 			}
 		}

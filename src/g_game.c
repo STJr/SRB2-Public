@@ -19,7 +19,6 @@
 
 #include "doomdef.h"
 #include "console.h"
-#include "dstrings.h"
 #include "d_main.h"
 #include "f_finale.h"
 #include "p_setup.h"
@@ -1521,7 +1520,7 @@ boolean G_Responder(event_t *ev)
 				ST_changeDemoView();
 
 			// tell who's the view
-			CONS_Printf("Viewpoint: %s\n", player_names[displayplayer]);
+			CONS_Printf(M_GetText("Viewpoint: %s\n"), player_names[displayplayer]);
 
 			return true;
 		}
@@ -1611,14 +1610,14 @@ boolean G_Responder(event_t *ev)
 					{
 						if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
 						{
-							CONS_Printf("%s", text[PAUSEINFO]);
+							CONS_Printf("%s", M_GetText("You can't pause here.\n"));
 							return true;
 						}
 
 						COM_ImmedExecute("pause");
 					}
 					else
-						CONS_Printf("%s", text[SERVERPAUSE]);
+						CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
 					return true;
 				}
 				else
@@ -1991,7 +1990,7 @@ void G_PlayerReborn(INT32 player)
 	p->mare = P_FindLowestMare();
 
 	if (cv_debug)
-		CONS_Printf("Current mare is %d\n", p->mare);
+		CONS_Printf(M_GetText("Current mare is %d\n"), p->mare);
 
 	if (p->mare == 255)
 		p->mare = 0;
@@ -2078,11 +2077,11 @@ void G_DeathMatchSpawnPlayer(INT32 playernum)
 			}
 
 		// Use a coop start dependent on playernum
-		CONS_Printf("No deathmatch start in this map - shifting to player starts to avoid crash...\n");
+		CONS_Printf("%s", M_GetText("No deathmatch start in this map - shifting to player starts to avoid crash...\n"));
 	}
 
 	if (!numcoopstarts)
-		I_Error("There aren't enough starts in this map!\n");
+		I_Error("%s", M_GetText("There aren't enough starts in this map!\n"));
 
 	i = playernum % numcoopstarts;
 	P_SpawnPlayer(playerstarts[i], playernum);
@@ -2102,7 +2101,7 @@ void G_CoopSpawnPlayer(INT32 playernum, boolean starpost)
 			case 1: // Red Team
 				if (!numredctfstarts)
 				{
-					CONS_Printf("No Red Team start in this map, resorting to Deathmatch starts!\n");
+					CONS_Printf("%s", M_GetText("No Red Team start in this map, resorting to Deathmatch starts!\n"));
 					goto startdeath;
 				}
 
@@ -2119,7 +2118,7 @@ void G_CoopSpawnPlayer(INT32 playernum, boolean starpost)
 			case 2: // Blue Team
 				if (!numbluectfstarts)
 				{
-					CONS_Printf("No Blue Team start in this map, resorting to Deathmatch starts!\n");
+					CONS_Printf("%s", M_GetText("No Blue Team start in this map, resorting to Deathmatch starts!\n"));
 					goto startdeath;
 				}
 
@@ -2285,7 +2284,7 @@ void G_ExitLevel(void)
 		}
 
 		if (gametype != GT_COOP)
-			CONS_Printf("%s", text[ROUND_END]);
+			CONS_Printf("%s", M_GetText("The round has ended.\n"));
 	}
 }
 
@@ -2322,7 +2321,7 @@ static INT16 TOLFlag(INT32 pgametype)
 	if (pgametype == GT_TAG)   return TOL_TAG;
 	if (pgametype == GT_CTF)   return TOL_CTF;
 
-	CONS_Printf("Error: Weird gametype! %d\n", pgametype);
+	CONS_Printf(M_GetText("Unknown gametype! %d\n"), pgametype);
 	return INT16_MAX;
 }
 
@@ -2436,7 +2435,7 @@ void G_DoCompleted(void)
 					//Make sure the map actually exists before you try to go to it!
 					if ((W_CheckNumForName(G_BuildMapName(cm + 1)) == LUMPERROR))
 					{
-						CONS_Printf("Next map given (MAP %d) doesn't exist! Reverting to MAP01.\n", cm+1);
+						CONS_Printf(M_GetText("Next map given (MAP %d) doesn't exist! Reverting to MAP01.\n"), cm+1);
 						cm = 1;
 						break;
 					}
@@ -2449,12 +2448,7 @@ void G_DoCompleted(void)
 					// finding one supporting the current
 					// gametype. Thus, print a warning,
 					// and just use this map anyways.
-					CONS_Printf("Warning: Can't find a "
-						"compatible map after map %d; "
-						"using map %d even though it "
-						"is not compatible with the "
-						"current gametype\n",
-							prevmap+1, cm+1);
+					CONS_Printf(M_GetText("Warning: Can't find a compatible map after map %d; using map %d even though it is not compatible with the current gametype\n"), prevmap+1, cm+1);
 					break;
 				}
 				if(!mapheaderinfo[cm])
@@ -2719,7 +2713,7 @@ void G_SaveGameData(void)
 	save_p = savebuffer = (UINT8 *)malloc(GAMEDATASIZE);
 	if (!save_p)
 	{
-		CONS_Printf("No more free memory for saving game data\n");
+		CONS_Printf("%s", M_GetText("No more free memory for saving game data\n"));
 		return;
 	}
 
@@ -2778,7 +2772,7 @@ void G_LoadGame(UINT32 slot, INT16 mapoverride)
 	length = FIL_ReadFile(savename, &savebuffer);
 	if (!length)
 	{
-		CONS_Printf(text[CANTREADFILE], savename);
+		CONS_Printf(M_GetText("Couldn't read file %s\n"), savename);
 		return;
 	}
 
@@ -2848,7 +2842,7 @@ void G_SaveGame(UINT32 savegameslot)
 		save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
 		if (!save_p)
 		{
-			CONS_Printf("No more free memory for savegame\n");
+			CONS_Printf("%s", M_GetText("No more free memory for saving game data\n"));
 			return;
 		}
 
@@ -2870,9 +2864,9 @@ void G_SaveGame(UINT32 savegameslot)
 	gameaction = ga_nothing;
 
 	if (cv_debug && saved)
-		CONS_Printf("%s", text[GGSAVED]);
+		CONS_Printf("%s", M_GetText("Game saved.\n"));
 	else if (!saved)
-		CONS_Printf("Error while writing to %s for save slot %u, base: %s\n",backup,savegameslot,savegamename);
+		CONS_Printf(M_GetText("Error while writing to %s for save slot %u, base: %s\n"), backup, savegameslot,savegamename);
 }
 
 //
@@ -2995,12 +2989,12 @@ void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer, boolean
 	if (netgame)
 	{
 		const INT32 actnum = mapheaderinfo[gamemap-1]->actnum;
-		CONS_Printf(text[MAPISNOW], G_BuildMapName(gamemap));
+		CONS_Printf(M_GetText("Map is now \"%s"), G_BuildMapName(gamemap));
 		if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
 		{
 			CONS_Printf(": %s", mapheaderinfo[gamemap-1]->lvlttl);
 			if (!mapheaderinfo[gamemap-1]->nozone)
-				CONS_Printf(" %s",text[ZONE]);
+				CONS_Printf("%s", M_GetText("ZONE"));
 			if (actnum > 0)
 				CONS_Printf(" %2d", actnum);
 		}
@@ -3206,7 +3200,7 @@ void G_DoPlayDemo(char *defdemoname)
 		FIL_DefaultExtension(defdemoname, ".lmp");
 		if (!FIL_ReadFile(defdemoname, &demobuffer))
 		{
-			CONS_Printf("\2ERROR: couldn't open file '%s'.\n", defdemoname);
+			CONS_Printf(M_GetText("\2ERROR: cannot open file '%s'.\n"), defdemoname);
 			gameaction = ga_nothing;
 			return;
 		}
@@ -3276,7 +3270,7 @@ void G_MovieMode(boolean enable)
 {
 	if (enable)
 	{
-		CONS_Printf("Movie mode enabled.\n");
+		CONS_Printf("%s", M_GetText("Movie mode enabled.\n"));
 		singletics = true;
 		moviemode = true;
 #ifdef HAVE_PNG
@@ -3285,7 +3279,7 @@ void G_MovieMode(boolean enable)
 	}
 	else
 	{
-		CONS_Printf("Movie mode disabled.\n");
+		CONS_Printf("%s", M_GetText("Movie mode disabled.\n"));
 		singletics = false;
 		moviemode = false;
 #ifdef HAVE_PNG
@@ -3296,7 +3290,7 @@ void G_MovieMode(boolean enable)
 
 void G_DoneLevelLoad(void)
 {
-	CONS_Printf("Loaded level in %f sec\n", (double)(I_GetTime() - demostarttime) / TICRATE);
+	CONS_Printf(M_GetText("Loaded level in %f sec\n"), (double)(I_GetTime() - demostarttime) / TICRATE);
 	framecount = 0;
 	demostarttime = I_GetTime();
 }
@@ -3344,9 +3338,7 @@ boolean G_CheckDemoStatus(void)
 		timingdemo = false;
 		f1 = (double)demotime;
 		f2 = (double)framecount*TICRATE;
-		CONS_Printf("timed %u gametics in %d realtics\n"
-			"%f seconds, %f avg fps\n",
-			leveltime,demotime,f1/TICRATE,f2/f1);
+		CONS_Printf(M_GetText("timed %u gametics in %d realtics\n%f seconds, %f avg fps\n"), leveltime,demotime,f1/TICRATE,f2/f1);
 		if (restorecv_vidwait != cv_vidwait.value)
 			CV_SetValue(&cv_vidwait, restorecv_vidwait);
 		D_AdvanceDemo();
@@ -3375,9 +3367,9 @@ boolean G_CheckDemoStatus(void)
 		if (!timeattacking)
 		{
 			if (saved)
-				CONS_Printf("\2Demo %s recorded\n",demoname);
+				CONS_Printf(M_GetText("\2Demo %s recorded\n"), demoname);
 			else
-				CONS_Printf("\2Demo %s not saved\n",demoname);
+				CONS_Printf(M_GetText("\2Demo %s not saved\n"), demoname);
 		}
 
 		timeattacking = false;

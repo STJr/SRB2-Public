@@ -51,7 +51,6 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "am_map.h"
 #include "console.h"
 #include "d_net.h"
-#include "dstrings.h"
 #include "f_finale.h"
 #include "g_game.h"
 #include "hu_stuff.h"
@@ -529,11 +528,11 @@ void D_SRB2Loop(void)
 	// end of loading screen: CONS_Printf() will no more call FinishUpdate()
 	con_startup = false;
 
-	CONS_Printf("%s", text[I_STARTUPKEYBOARD]);
+	CONS_Printf("I_StartupKeyboard...\n");
 	I_StartupKeyboard();
 
 #ifdef _WINDOWS
-	CONS_Printf("%s", text[I_STARTUPMOUSE]);
+	CONS_Printf("I_StartupMouse...\n");
 	I_DoStartupMouse();
 #endif
 
@@ -806,9 +805,9 @@ static void IdentifyVersion(void)
 	if (srb2wad1 == NULL && srb2wad2 == NULL)
 		I_Error("No more free memory to look in %s", srb2waddir);
 	if (srb2wad1 != NULL)
-		sprintf(srb2wad1, pandf, srb2waddir, text[SRB2SRB]);
+		sprintf(srb2wad1, pandf, srb2waddir, "srb2.srb");
 	if (srb2wad2 != NULL)
-		sprintf(srb2wad2, pandf, srb2waddir, text[SRB2WAD]);
+		sprintf(srb2wad2, pandf, srb2waddir, "srb2.wad");
 
 	// will be overwritten in case of -cdrom or unix/win home
 	snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, srb2waddir);
@@ -820,7 +819,7 @@ static void IdentifyVersion(void)
 	else if (srb2wad1 != NULL && FIL_ReadFileOK(srb2wad1))
 		D_AddFile(srb2wad1);
 	else
-		I_Error("SRB2.SRB/SRB2.WAD not found! Expected in %s, ss files: %s and %s\n", srb2waddir, srb2wad1, srb2wad2);
+		I_Error(M_GetText("SRB2.SRB/SRB2.WAD not found! Expected in %s, ss files: %s and %s\n"), srb2waddir, srb2wad1, srb2wad2);
 
 	if (srb2wad1)
 		free(srb2wad1);
@@ -834,9 +833,9 @@ static void IdentifyVersion(void)
 	D_AddFile(va(pandf,srb2waddir,"zones.dta")); //zones.dta
 
 	// Add the players
-	D_AddFile(va(pandf,srb2waddir,text[SONICPLR])); //sonic.plr
-	D_AddFile(va(pandf,srb2waddir,text[TAILSPLR])); //tails.plr
-	D_AddFile(va(pandf,srb2waddir,text[KNUXPLR])); //knux.plr
+	D_AddFile(va(pandf,srb2waddir, "sonic.plr")); //sonic.plr
+	D_AddFile(va(pandf,srb2waddir, "tails.plr")); //tails.plr
+	D_AddFile(va(pandf,srb2waddir, "knux.plr")); //knux.plr
 
 #ifndef _PSP // PSPDEV's CRT haves a limit of 16 files opened at a time
 	// Add the weapons
@@ -852,7 +851,7 @@ static void IdentifyVersion(void)
 #if defined (DC) && 0
 		const char *musicfile = "music_dc.dta";
 #else
-		const char *musicfile = text[MUSICWAD];
+		const char *musicfile = "music.dta";
 #endif
 		const char *musicpath = va(pandf,srb2waddir,musicfile);
 		int ms = W_VerifyNMUSlumps(musicpath); // Don't forget the music!
@@ -929,7 +928,7 @@ void D_SRB2Main(void)
 	// keep error messages until the final flush(stderr)
 #if !defined (PC_DOS) && !defined (_WIN32_WCE) && !defined(NOTERMIOS)
 	if (setvbuf(stderr, NULL, _IOFBF, 1000))
-		DEBPRINT(text[SETVBUF_FAIL]);
+		DEBPRINT("setvbuf didnt work\n");
 #endif
 
 #ifdef GETTEXT
@@ -980,10 +979,10 @@ void D_SRB2Main(void)
 #endif
 
 	if (devparm)
-		CONS_Printf("%s",text[D_DEVSTR]);
+		CONS_Printf("%s", M_GetText("Development mode ON.\n"));
 
 	// default savegame
-	strcpy(savegamename,text[NORM_SAVEI]);
+	strcpy(savegamename, SAVEGAMENAME"%u.ssg");
 
 	{
 		const char *userhome = D_Home(); //Alam: path to home
@@ -991,7 +990,7 @@ void D_SRB2Main(void)
 		if (!userhome)
 		{
 #if ((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
-			I_Error("Please set $HOME to your home directory\n");
+			I_Error("%s", M_GetText("Please set $HOME to your home directory\n"));
 #elif defined (_WIN32_WCE) && 0
 			if (dedicated)
 				snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/d"CONFIGFILENAME);
@@ -1094,18 +1093,18 @@ void D_SRB2Main(void)
 		savemoddata = false;
 	}
 
-	CONS_Printf("%s",text[Z_INIT]);
+	CONS_Printf("%s", M_GetText("Z_Init: Init zone memory allocation daemon. \n"));
 	Z_Init();
 
 	// adapt tables to SRB2's needs, including extra slots for dehacked file support
 	P_PatchInfoTables();
 
-	CONS_Printf("%s",text[W_INIT]);
+	CONS_Printf("%s", M_GetText("W_Init: Init WADfiles.\n"));
 
 	//---------------------------------------------------- READY TIME
 	// we need to check for dedicated before initialization of some subsystems
 
-	CONS_Printf("%s", text[I_STARTUPTIMER]);
+	CONS_Printf("I_StartupTimer...\n");
 	I_StartupTimer();
 
 	// Make backups of some SOCcable tables.
@@ -1114,9 +1113,9 @@ void D_SRB2Main(void)
 	// load wad, including the main wad file
 	if (!W_InitMultipleFiles(startupwadfiles))
 #ifdef _DEBUG
-		CONS_Error("A WAD file was not found or not valid\n");
+		CONS_Error(M_GetText("A WAD file was not found or not valid\n"));
 #else
-		I_Error("A WAD file was not found or not valid\n");
+		I_Error("%s", M_GetText("A WAD file was not found or not valid\n"));
 #endif
 	D_CleanFile();
 
@@ -1136,15 +1135,28 @@ void D_SRB2Main(void)
 
 	mainwads = 8; // there are 8 wads not to unload
 
+/* TODO: incorporate this!
+	CONS_Printf("%s", "===========================================================================\n"
+	"                       Sonic Robo Blast II!\n"
+	"                       by Sonic Team Junior\n"
+	"                       http://www.srb2.org\n"
+	"      This is a modified version. Go to our site for the original.\n"
+	"===========================================================================\n");
+*/
+
 	// Check and print which version is executed.
-	CONS_Printf("%s",text[COMERCIAL]);
+	CONS_Printf("%s", "===========================================================================\n"
+	"                   We hope you enjoy this game as\n"
+	"                     much as we did making it!\n"
+	"                            ...wait. =P\n"
+	"===========================================================================\n");
 
 	cht_Init();
 
 	//---------------------------------------------------- READY SCREEN
 	// we need to check for dedicated before initialization of some subsystems
 
-	CONS_Printf("%s", text[I_STARTUPGRAPHICS]);
+	CONS_Printf("I_StartupGraphics...\n");
 	I_StartupGraphics();
 
 	//--------------------------------------------------------- CONSOLE
@@ -1152,7 +1164,7 @@ void D_SRB2Main(void)
 	SCR_Startup();
 
 	// we need the font of the console
-	CONS_Printf("%s",text[HU_INIT]);
+	CONS_Printf("%s", M_GetText("HU_Init: Setting up heads up display.\n"));
 	HU_Init();
 
 	COM_Init();
@@ -1197,14 +1209,14 @@ void D_SRB2Main(void)
 	if (M_CheckParm("-nodownloading"))
 		COM_BufAddText("downloading 0\n");
 
-	CONS_Printf("%s",text[M_INIT]);
+	CONS_Printf("%s", M_GetText("M_Init: Init miscellaneous info.\n"));
 	M_Init();
 
-	CONS_Printf("%s",text[R_INIT]);
+	CONS_Printf("%s", M_GetText("R_Init: Init SRB2 refresh daemon - "));
 	R_Init();
 
 	// setting up sound
-	CONS_Printf("%s",text[S_SETSOUND]);
+	CONS_Printf("%s", M_GetText("S_Init: Setting up sound.\n"));
 	if (M_CheckParm("-nosound"))
 		nosound = true;
 	if (M_CheckParm("-nomusic")) // combines -nomidimusic and -nodigmusic
@@ -1220,14 +1232,14 @@ void D_SRB2Main(void)
 	I_InitMusic();
 	S_Init(cv_soundvolume.value, cv_digmusicvolume.value, cv_midimusicvolume.value);
 
-	CONS_Printf("%s",text[ST_INIT]);
+	CONS_Printf("%s", M_GetText("ST_Init: Init status bar.\n"));
 	ST_Init();
 
 	if (M_CheckParm("-internetserver"))
 		CV_SetValue(&cv_internetserver, 1);
 
 	// init all NETWORK
-	CONS_Printf("%s",text[D_CHECKNET]);
+	CONS_Printf("%s", M_GetText("D_CheckNetGame: Checking network game status.\n"));
 	if (D_CheckNetGame())
 		autostart = true;
 
@@ -1267,7 +1279,7 @@ void D_SRB2Main(void)
 
 		FIL_DefaultExtension(tmp, ".lmp");
 
-		CONS_Printf(text[PLAYINGDEMO], tmp);
+		CONS_Printf(M_GetText("Playing demo %s.\n"), tmp);
 
 		if (M_CheckParm("-playdemo"))
 		{

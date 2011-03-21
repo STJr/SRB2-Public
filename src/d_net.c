@@ -23,7 +23,6 @@
 ///	The NOTHING packet is sent when connection is idle to acknowledge packets
 
 #include "doomdef.h"
-#include "dstrings.h"
 #include "g_game.h"
 #include "i_net.h"
 #include "i_system.h"
@@ -1044,7 +1043,7 @@ boolean D_CheckNetGame(void)
 			doomcom->extratics = (INT16)atoi(M_GetNextParm());
 		else
 			doomcom->extratics = 1;
-		CONS_Printf(text[SET_EXTRATICS], doomcom->extratics);
+		CONS_Printf(M_GetText("Set extratics to %d\n"), doomcom->extratics);
 	}
 
 	if (M_CheckParm("-bandwidth"))
@@ -1056,10 +1055,10 @@ boolean D_CheckNetGame(void)
 				net_bandwidth = 1000;
 			if (net_bandwidth > 100000)
 				hardware_MAXPACKETLENGTH = MAXPACKETLENGTH;
-			CONS_Printf(text[SET_BANDWIDTH], net_bandwidth);
+			CONS_Printf(M_GetText("Network bandwidth set to %d\n"), net_bandwidth);
 		}
 		else
-			I_Error("usage: -bandwidth <byte_per_sec>");
+			I_Error("%s", M_GetText("usage: -bandwidth <byte_per_sec>"));
 	}
 
 	software_MAXPACKETLENGTH = hardware_MAXPACKETLENGTH;
@@ -1075,16 +1074,16 @@ boolean D_CheckNetGame(void)
 			software_MAXPACKETLENGTH = (UINT16)p;
 		}
 		else
-			I_Error("usage: -packetsize <bytes_per_packet>");
+			I_Error("%s", M_GetText("usage: -packetsize <bytes_per_packet>"));
 	}
 
 	if (netgame)
 		multiplayer = true;
 
 	if (doomcom->id != DOOMCOM_ID)
-		I_Error("Doomcom buffer invalid!");
+		I_Error("%s", M_GetText("Doomcom buffer invalid!"));
 	if (doomcom->numnodes > MAXNETNODES)
-		I_Error("Too many nodes (%d), max:%d", doomcom->numnodes, MAXNETNODES);
+		I_Error(M_GetText("Too many nodes (%d), max:%d"), doomcom->numnodes, MAXNETNODES);
 
 	netbuffer = (doomdata_t *)(void *)&doomcom->data;
 
@@ -1092,7 +1091,7 @@ boolean D_CheckNetGame(void)
 #ifdef _arch_dreamcast
 	//debugfile = stderr;
 	if (debugfile)
-			CONS_Printf("debug output to: strerr\n");
+			CONS_Printf(M_GetText("debug output to: %s\n"), "STDERR");
 #else
 	if (M_CheckParm("-debugfile"))
 	{
@@ -1107,9 +1106,9 @@ boolean D_CheckNetGame(void)
 			debugfile = fopen(filename, "w");
 		}
 		if (debugfile)
-			CONS_Printf(text[DEBUG_OUTPUT], filename);
+			CONS_Printf(M_GetText("debug output to: %s\n"), filename);
 		else
-			CONS_Printf(text[NODEBUG_OUTPUT], filename);
+			CONS_Printf(M_GetText("\2cannot debug output to file %s!\n"), filename);
 	}
 #endif
 #endif
@@ -1131,16 +1130,16 @@ void Command_Ping_f(void)
 #ifndef NEWPING
 			const INT32 node = playernode[i];
 			if (playeringame[i] && node != 0)
-				CONS_Printf(text[CMD_PING], i, player_names[i],
+				CONS_Printf(M_GetText("%.2d : %s\n %d tics, %d ms.\n"), i, player_names[i],
 				GetLag(node), G_TicsToMilliseconds(GetLag(node)));
 #else
 			if (playeringame[i] && i != 0)
-				CONS_Printf(text[CMD_PING], i, player_names[i], playerpingtable[i]);
+				CONS_Printf(M_GetText("%.2d : %s\n %d ms\n"), i, player_names[i], playerpingtable[i]);
 #endif
 		}
 #ifndef NEWPING
 	}
-	else CONS_Printf("%s", text[YOUARENOTTHESERVER]);
+	else CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
 #endif
 }
 

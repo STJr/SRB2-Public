@@ -55,8 +55,6 @@
 
 #include "m_argv.h"
 
-#include "dstrings.h"
-
 #include "p_polyobj.h"
 
 #include "md5.h" // map MD5
@@ -607,15 +605,15 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 		{
 			// Keep players out of secret levels!
 			if (ss->tag == 4240 && !(grade & 4)) // Mario
-				I_Error("You need to unlock this level first!\n");
+				I_Error("%s", M_GetText("You need to unlock this level first!\n"));
 			else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
-				I_Error("You need to unlock this level first!\n");
+				I_Error("%s", M_GetText("You need to unlock this level first!\n"));
 			else if (ss->tag == 4260 && (modifiedgame || netgame || multiplayer) && !(grade & 2048)) // NAGZ
 			{
 				if (netgame || multiplayer)
-					I_Error("You need to unlock this level in single player first!\n");
+					I_Error("%s", M_GetText("You need to unlock this level in single player first!\n"));
 				else
-					I_Error("You need to unlock this level first!\n");
+					I_Error("%s", M_GetText("You need to unlock this level first!\n"));
 			}
 		}
 	}
@@ -880,7 +878,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 
 	if (!savebuf_p)
 	{
-		CONS_Printf("No more free memory for thingwriting!\n");
+		CONS_Printf("%s", M_GetText("No more free memory for thing writing!\n"));
 		return;
 	}
 
@@ -905,7 +903,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 	free(savebuffer);
 	savebuf_p = NULL;
 
-	CONS_Printf("newthings%d.lmp saved.\n", gamemap);
+	CONS_Printf(M_GetText("newthings%d.lmp saved.\n"), gamemap);
 }
 
 //
@@ -2262,7 +2260,7 @@ noscript:
 			G_DeathMatchSpawnPlayer(playersactive[i]); //respawn the lucky player in his dedicated spawn location.
 		}
 		else
-			CONS_Printf("No player currently available to become IT. Awaiting available players.\n");
+			CONS_Printf("%s", M_GetText("No player currently available to become IT. Awaiting available players.\n"));
 
 	}
 
@@ -2389,7 +2387,7 @@ boolean P_RunSOC(const char *socfilename)
 	if (lump == LUMPERROR)
 		return false;
 
-	CONS_Printf("Loading SOC lump: %s\n", socfilename);
+	CONS_Printf(M_GetText("Loading SOC lump: %s\n"), socfilename);
 	DEH_LoadDehackedLump(lump);
 
 	return true;
@@ -2411,7 +2409,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 
 	if ((numlumps = W_LoadWadFile(wadfilename)) == INT16_MAX)
 	{
-		CONS_Printf("couldn't load wad file %s\n", wadfilename);
+		CONS_Printf(M_GetText("Couldn't load wad file %s\n"), wadfilename);
 		return false;
 	}
 	else wadnum = (UINT16)(numwadfiles-1);
@@ -2454,9 +2452,9 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 			texturechange = true;
 	}
 	if (!devparm && sreplaces)
-		CONS_Printf("%s sounds replaced\n", sizeu1(sreplaces));
+		CONS_Printf(M_GetText("%s sounds replaced\n"), sizeu1(sreplaces));
 	if (!devparm && mreplaces)
-		CONS_Printf("%s musics replaced\n", sizeu1(mreplaces));
+		CONS_Printf(M_GetText("%s musics replaced\n"), sizeu1(mreplaces));
 
 	//
 	// search for sprite replacements
@@ -2515,7 +2513,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 		}
 	}
 	if (!firstmapreplaced)
-		CONS_Printf("no maps added\n");
+		CONS_Printf("%s", M_GetText("No maps added\n"));
 
 	// reload status bar (warning should have valid player!)
 	if (gamestate == GS_LEVEL)
@@ -2523,7 +2521,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 
 	if (replacedcurrentmap && gamestate == GS_LEVEL && (netgame || multiplayer))
 	{
-		CONS_Printf("Current map %d replaced by added file, ending the level to ensure consistiency.\n", gamemap);
+		CONS_Printf(M_GetText("Current map %d replaced by added file, ending the level to ensure consistiency.\n"), gamemap);
 		if (server)
 			SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 	}

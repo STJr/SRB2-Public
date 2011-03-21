@@ -110,7 +110,7 @@ void Z_Init(void)
 	head.next = head.prev = &head;
 
 	memfree = I_GetFreeMem(&total)>>20;
-	CONS_Printf("system memory %uMB free %uMB\n", total>>20, memfree);
+	CONS_Printf(M_GetText("system memory %uMB free %uMB\n"), total>>20, memfree);
 
 	// Note: This allocates memory. Watch out.
 	COM_AddCommand("memfree", Command_Memfree_f);
@@ -448,36 +448,30 @@ void Command_Memfree_f(void)
 	UINT32 freebytes, totalbytes;
 
 	Z_CheckHeap(-1);
-	CONS_Printf("\2Memory Info\n");
-	CONS_Printf("Total heap used   : %7s KB\n", sizeu1(Z_TagsUsage(0, INT32_MAX)>>10));
-	CONS_Printf("Static            : %7s KB\n", sizeu1(Z_TagUsage(PU_STATIC)>>10));
-	CONS_Printf("Static (sound)    : %7s KB\n", sizeu1(Z_TagUsage(PU_SOUND)>>10));
-	CONS_Printf("Static (music)    : %7s KB\n", sizeu1(Z_TagUsage(PU_MUSIC)>>10));
-	CONS_Printf("Level             : %7s KB\n", sizeu1(Z_TagUsage(PU_LEVEL)>>10));
-	CONS_Printf("Special thinker   : %7s KB\n", sizeu1(Z_TagUsage(PU_LEVSPEC)>>10));
-	CONS_Printf("All purgable      : %7s KB\n",
-		sizeu1(Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10));
+	CONS_Printf("\2%s", M_GetText("Memory Info\n"));
+	CONS_Printf(M_GetText("Total heap used   : %7s KB\n"), sizeu1(Z_TagsUsage(0, INT32_MAX)>>10));
+	CONS_Printf(M_GetText("Static            : %7s KB\n"), sizeu1(Z_TagUsage(PU_STATIC)>>10));
+	CONS_Printf(M_GetText("Static (sound)    : %7s KB\n"), sizeu1(Z_TagUsage(PU_SOUND)>>10));
+	CONS_Printf(M_GetText("Static (music)    : %7s KB\n"), sizeu1(Z_TagUsage(PU_MUSIC)>>10));
+	CONS_Printf(M_GetText("Level             : %7s KB\n"), sizeu1(Z_TagUsage(PU_LEVEL)>>10));
+	CONS_Printf(M_GetText("Special thinker   : %7s KB\n"), sizeu1(Z_TagUsage(PU_LEVSPEC)>>10));
+	CONS_Printf(M_GetText("All purgable      : %7s KB\n"), sizeu1(Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10));
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		CONS_Printf("Patch info headers: %7s KB\n",
-			sizeu1(Z_TagUsage(PU_HWRPATCHINFO)>>10));
-		CONS_Printf("Mipmap patches    : %7s KB\n",
-			sizeu1(Z_TagUsage(PU_HWRPATCHCOLMIPMAP)>>10));
-		CONS_Printf("HW Texture cache  : %7s KB\n",
-			sizeu1(Z_TagUsage(PU_HWRCACHE)>>10));
-		CONS_Printf("Plane polygons    : %7s KB\n",
-			sizeu1(Z_TagUsage(PU_HWRPLANE)>>10));
-		CONS_Printf("HW Texture used   : %7d KB\n",
-			HWR_GetTextureUsed()>>10);
+		CONS_Printf(M_GetText("Patch info headers: %7s KB\n"), sizeu1(Z_TagUsage(PU_HWRPATCHINFO)>>10));
+		CONS_Printf(M_GetText("Mipmap patches    : %7s KB\n"), sizeu1(Z_TagUsage(PU_HWRPATCHCOLMIPMAP)>>10));
+		CONS_Printf(M_GetText("HW Texture cache  : %7s KB\n"), sizeu1(Z_TagUsage(PU_HWRCACHE)>>10));
+		CONS_Printf(M_GetText("Plane polygons    : %7s KB\n"), sizeu1(Z_TagUsage(PU_HWRPLANE)>>10));
+		CONS_Printf(M_GetText("HW Texture used   : %7d KB\n"), HWR_GetTextureUsed()>>10);
 	}
 #endif
 
-	CONS_Printf("\2System Memory Info\n");
+	CONS_Printf("\2%s", M_GetText("System Memory Info\n"));
 	freebytes = I_GetFreeMem(&totalbytes);
-	CONS_Printf("    Total physical memory: %7u KB\n", totalbytes>>10);
-	CONS_Printf("Available physical memory: %7u KB\n", freebytes>>10);
+	CONS_Printf(M_GetText("    Total physical memory: %7u KB\n"), totalbytes>>10);
+	CONS_Printf(M_GetText("Available physical memory: %7u KB\n"), freebytes>>10);
 }
 
 // Creates a copy of a string.

@@ -550,7 +550,7 @@ void SDLforceUngrabMouse(void)
 
 static void VID_Command_NumModes_f (void)
 {
-	CONS_Printf ("%d video mode(s) available(s)\n", VID_NumModes());
+	CONS_Printf(M_GetText("%d video mode(s) available(s)\n"), VID_NumModes());
 }
 
 static void SurfaceInfo(const SDL_Surface *infoSurface, const char *SurfaceText)
@@ -562,55 +562,55 @@ static void SurfaceInfo(const SDL_Surface *infoSurface, const char *SurfaceText)
 		return;
 
 	if (!SurfaceText)
-		SurfaceText = "Unknown Surface";
+		SurfaceText = M_GetText("Unknown Surface");
 
 	vfBPP = infoSurface->format?infoSurface->format->BitsPerPixel:0;
 
-	CONS_Printf("%s:\n",SurfaceText);
-	CONS_Printf(" %ix%i at %i bit color\n",infoSurface->w,infoSurface->h,vfBPP);
+	CONS_Printf("%s:\n", SurfaceText);
+	CONS_Printf(M_GetText(" %ix%i at %i bit color\n"), infoSurface->w, infoSurface->h, vfBPP);
 
 	if (infoSurface->flags&SDL_HWSURFACE)
-		CONS_Printf(" Stored in video memory\n");
+		CONS_Printf("%s", M_GetText(" Stored in video memory\n"));
 	else if (infoSurface->flags&SDL_OPENGL)
-		CONS_Printf(" Stored in an OpenGL context\n");
+		CONS_Printf("%s", M_GetText(" Stored in an OpenGL context\n"));
 	else if (infoSurface->flags&SDL_PREALLOC)
-		CONS_Printf(" Uses preallocated memory\n");
+		CONS_Printf("%s", M_GetText(" Uses preallocated memory\n"));
 	else
-		CONS_Printf(" Stored in system memory\n");
+		CONS_Printf("%s", M_GetText(" Stored in system memory\n"));
 
 	if (infoSurface->flags&SDL_ASYNCBLIT)
-		CONS_Printf(" Uses asynchronous blits if possible\n");
+		CONS_Printf("%s", M_GetText(" Uses asynchronous blits if possible\n"));
 	else
-		CONS_Printf(" Uses synchronous blits if possible\n");
+		CONS_Printf("%s", M_GetText(" Uses synchronous blits if possible\n"));
 
 	if (infoSurface->flags&SDL_ANYFORMAT)
-		CONS_Printf(" Allows any pixel-format\n");
+		CONS_Printf("%s", M_GetText(" Allows any pixel-format\n"));
 
 	if (infoSurface->flags&SDL_HWPALETTE)
-		CONS_Printf(" Has exclusive palette access\n");
+		CONS_Printf("%s", M_GetText(" Has exclusive palette access\n"));
 	else if (VidSur == infoSurface)
-		CONS_Printf(" Has nonexclusive palette access\n");
+		CONS_Printf("%s", M_GetText(" Has nonexclusive palette access\n"));
 
 	if (infoSurface->flags&SDL_DOUBLEBUF)
-		CONS_Printf(" Double buffered\n");
+		CONS_Printf("%s", M_GetText(" Double buffered\n"));
 	else if (VidSur == infoSurface)
-		CONS_Printf(" No hardware flipping\n");
+		CONS_Printf("%s", M_GetText(" No hardware flipping\n"));
 
 	if (infoSurface->flags&SDL_FULLSCREEN)
-		CONS_Printf(" Full screen\n");
+		CONS_Printf("%s", M_GetText(" Full screen\n"));
 	else if (infoSurface->flags&SDL_RESIZABLE)
-		CONS_Printf(" Resizable window\n");
+		CONS_Printf("%s", M_GetText(" Resizable window\n"));
 	else if (VidSur == infoSurface)
-		CONS_Printf(" Nonresizable window\n");
+		CONS_Printf("%s", M_GetText(" Nonresizable window\n"));
 
 	if (infoSurface->flags&SDL_HWACCEL)
-		CONS_Printf(" Uses hardware acceleration blit\n");
+		CONS_Printf("%s", M_GetText(" Uses hardware acceleration blit\n"));
 	if (infoSurface->flags&SDL_SRCCOLORKEY)
-		CONS_Printf(" Use colorkey blitting\n");
+		CONS_Printf("%s", M_GetText(" Use colorkey blitting\n"));
 	if (infoSurface->flags&SDL_RLEACCEL)
-		CONS_Printf(" Colorkey RLE acceleration blit\n");
+		CONS_Printf("%s", M_GetText(" Colorkey RLE acceleration blit\n"));
 	if (infoSurface->flags&SDL_SRCALPHA)
-		CONS_Printf(" Use alpha blending acceleration blit\n");
+		CONS_Printf("%s", M_GetText(" Use alpha blending acceleration blit\n"));
 
 }
 
@@ -620,43 +620,43 @@ static void VID_Command_Info_f (void)
 	videoInfo = SDL_GetVideoInfo(); //Alam: Double-Check
 	if (videoInfo)
 	{
-		CONS_Printf("Video Interface Capabilities:\n");
+		CONS_Printf("%s", M_GetText("Video Interface Capabilities:\n"));
 		if (videoInfo->hw_available)
-			CONS_Printf(" Hardware surfaces\n");
+			CONS_Printf("%s", M_GetText(" Hardware surfaces\n"));
 		if (videoInfo->wm_available)
-			CONS_Printf(" Window manager\n");
+			CONS_Printf("%s", M_GetText(" Window manager\n"));
 		//UnusedBits1  :6
 		//UnusedBits2  :1
 		if (videoInfo->blit_hw)
-			CONS_Printf(" Accelerated blits HW-2-HW\n");
+			CONS_Printf("%s", M_GetText(" Accelerated blits HW-2-HW\n"));
 		if (videoInfo->blit_hw_CC)
-			CONS_Printf(" Accelerated blits HW-2-HW with Colorkey\n");
+			CONS_Printf("%s", M_GetText(" Accelerated blits HW-2-HW with Colorkey\n"));
 		if (videoInfo->wm_available)
-			CONS_Printf(" Accelerated blits HW-2-HW with Alpha\n");
+			CONS_Printf("%s", M_GetText(" Accelerated blits HW-2-HW with Alpha\n"));
 		if (videoInfo->blit_sw)
 		{
-			CONS_Printf(" Accelerated blits SW-2-HW\n");
+			CONS_Printf("%s", M_GetText(" Accelerated blits SW-2-HW\n"));
 			if (!M_CheckParm("-noblit")) videoblitok = SDL_TRUE;
 		}
 		if (videoInfo->blit_sw_CC)
-			CONS_Printf(" Accelerated blits SW-2-HW with Colorkey\n");
+			CONS_Printf("%s", M_GetText(" Accelerated blits SW-2-HW with Colorkey\n"));
 		if (videoInfo->blit_sw_A)
-			CONS_Printf(" Accelerated blits SW-2-HW with Alpha\n");
+			CONS_Printf("%s", M_GetText(" Accelerated blits SW-2-HW with Alpha\n"));
 		if (videoInfo->blit_fill)
-			CONS_Printf(" Accelerated Color filling, Hmmm\n");
+			CONS_Printf("%s", M_GetText(" Accelerated Color filling\n"));
 		//UnusedBits3  :16
 		if (videoInfo->video_mem)
-			CONS_Printf(" There is %i KB of video memory\n",videoInfo->video_mem);
+			CONS_Printf(M_GetText(" There is %i KB of video memory\n"), videoInfo->video_mem);
 		else
-			CONS_Printf(" There no video memory for SDL\n");
+			CONS_Printf("%s", M_GetText(" There no video memory for SDL\n"));
 		//*vfmt
 	}
-	SurfaceInfo(bufSurface,"Current Engine Mode");
+	SurfaceInfo(bufSurface, M_GetText("Current Engine Mode"));
 #ifdef FILTERS
-	SurfaceInfo(preSurface,"Prebuffer Mode");
-	SurfaceInfo(f2xSurface,"Postbuffer Mode");
+	SurfaceInfo(preSurface, M_GetText("Prebuffer Mode"));
+	SurfaceInfo(f2xSurface, M_GetText("Postbuffer Mode"));
 #endif
-	SurfaceInfo(vidSurface,"Current Video Mode");
+	SurfaceInfo(vidSurface, M_GetText("Current Video Mode"));
 }
 
 static void VID_Command_ModeList_f(void)
@@ -672,7 +672,7 @@ static void VID_Command_ModeList_f(void)
 
 	if (modeList == (SDL_Rect **)0 && cv_fullscreen.value)
 	{
-		CONS_Printf("No video modes present\n");
+		CONS_Printf("%s", M_GetText("No video modes present\n"));
 		cv_fullscreen.value = 0;
 	}
 	else if (modeList != (SDL_Rect **)0)
@@ -683,18 +683,18 @@ static void VID_Command_ModeList_f(void)
 		else while (modeList[numVidModes])
 			numVidModes++;
 	}
-	CONS_Printf("Found %d FullScreen Video Modes:\n", numVidModes);
+	CONS_Printf(M_GetText("Found %d FullScreen Video Modes:\n"), numVidModes);
 	for (i=0 ; i<numVidModes; i++)
 	{ // fullscreen modes
 		INT32 modeNum = firstEntry + i;
 		if (modeNum >= numVidModes)
 			break;
 
-		CONS_Printf("%dx%d and ",
+		CONS_Printf(M_GetText("%dx%d and "),
 				modeList[modeNum]->w,
 				modeList[modeNum]->h);
 	}
-	CONS_Printf("None\n");
+	CONS_Printf("%s", M_GetText("None\n"));
 #endif
 }
 
@@ -704,14 +704,14 @@ static void VID_Command_Mode_f (void)
 
 	if (COM_Argc()!= 2)
 	{
-		CONS_Printf ("vid_mode <modenum> : set video mode, currect video mode %i\n",vid.modenum);
+		CONS_Printf (M_GetText("vid_mode <modenum> : set video mode, current video mode %i\n"), vid.modenum);
 		return;
 	}
 
 	modenum = atoi(COM_Argv(1));
 
 	if (modenum >= VID_NumModes())
-		CONS_Printf ("No such video mode\n");
+		CONS_Printf ("%s", M_GetText("No such video mode\n"));
 	else
 		setmodeneeded = modenum+1; // request vid mode change
 }
@@ -1966,11 +1966,11 @@ void I_StartupGraphics(void)
 	{
 #ifdef _WIN32
 		if (SDL_WasInit(SDL_INIT_AUDIO)==0)
-			CONS_Printf("Couldn't initialize SDL's Audio System with Video System: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't initialize SDL's Audio System with Video System: %s\n"), SDL_GetError());
 		if (SDL_WasInit(SDL_INIT_VIDEO)==0)
 #endif
 		{
-			CONS_Printf("Couldn't initialize SDL's Video System: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't initialize SDL's Video System: %s\n"), SDL_GetError());
 			return;
 		}
 	}
@@ -1982,7 +1982,7 @@ void I_StartupGraphics(void)
 #endif
 	{
 		char vd[100]; //stack space for video name
-		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
+		CONS_Printf(M_GetText("Starting up with video driver : %s\n"), SDL_VideoDriverName(vd,100));
 		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0 || strncasecmp(vd, "wii", 4) == 0 || strncasecmp(vd, "psl1ght", 8) == 0)
 			framebuffer = SDL_TRUE;
 	}
@@ -2051,7 +2051,7 @@ void I_StartupGraphics(void)
 #endif
 		// check gl renderer lib
 		if (HWD.pfnGetRenderVersion() != VERSION)
-			I_Error ("The version of the renderer doesn't match the version of the executable\nBe sure you have installed SRB2 properly.\n");
+			I_Error("%s", M_GetText("The version of the renderer doesn't match the version of the executable\nBe sure you have installed SRB2 properly.\n"));
 #if 1 //#ifdef  _WIN32_WCE
 		vid.width = 320;
 		vid.height = 240;
@@ -2094,7 +2094,7 @@ void I_StartupGraphics(void)
 		SDLSetMode(vid.width, vid.height, BitsPerPixel, surfaceFlagsW);
 		if (!vidSurface)
 		{
-			CONS_Printf("Could not set vidmode: %s\n",SDL_GetError());
+			CONS_Printf(M_GetText("Could not set vidmode: %s\n") ,SDL_GetError());
 			vid.rowbytes = 0;
 			graphics_started = true;
 			return;
@@ -2103,7 +2103,7 @@ void I_StartupGraphics(void)
 		vid.direct = SDLGetDirect();
 		vid.buffer = malloc(vid.rowbytes*vid.height*NUMSCREENS);
 		if (vid.buffer) memset(vid.buffer,0x00,vid.rowbytes*vid.height*NUMSCREENS);
-		else CONS_Printf ("Not enough memory for video buffer\n");
+		else CONS_Printf("%s", M_GetText("Not enough memory for video buffer\n"));
 	}
 	if (M_CheckParm("-nomousegrab"))
 		mousegrabok = SDL_FALSE;
@@ -2159,7 +2159,7 @@ void I_ShutdownGraphics(void)
 	//ResetAero();
 #endif
 	graphics_started = false;
-	CONS_Printf("shut down\n");
+	CONS_Printf("%s", M_GetText("shut down\n"));
 #ifdef HWRENDER
 	if (GLUhandle)
 		hwClose(GLUhandle);

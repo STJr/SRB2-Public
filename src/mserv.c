@@ -334,7 +334,7 @@ static INT32 GetServersList(void)
 		if (!msg.length)
 		{
 			if (!count)
-				CONS_Printf("No servers currently running.\n");
+				CONS_Printf("%s", M_GetText("No servers currently running.\n"));
 			return MS_NO_ERROR;
 		}
 		count++;
@@ -361,7 +361,7 @@ static inline INT32 GetMSMOTD(void)
 		if (!msg.length)
 		{
 			if (!count)
-				CONS_Printf("No servers currently running.\n");
+				CONS_Printf("%s", M_GetText("No servers currently running.\n"));
 			return MS_NO_ERROR;
 		}
 		count++;
@@ -462,8 +462,8 @@ const msg_server_t *GetShortServersList(INT32 room)
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("cannot connect to the master server\n");
-		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
+		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
+		M_StartMessage(M_GetText("There was a problem connecting to\nthe Master Server"), NULL, MM_NOTHING);
 		return NULL;
 	}
 
@@ -503,8 +503,8 @@ INT32 GetRoomsList(boolean hosting)
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("cannot connect to the master server\n");
-		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
+		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
+		M_StartMessage(M_GetText("There was a problem connecting to\nthe Master Server"), NULL, MM_NOTHING);
 		return -1;
 	}
 
@@ -529,9 +529,9 @@ INT32 GetRoomsList(boolean hosting)
 			char banmsg[1000];
 			M_Memcpy(&banned_info[0], msg.buffer, sizeof (msg_ban_t));
 			if (hosting)
-				sprintf(banmsg, "You have been banned from\nhosting netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s",banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
+				sprintf(banmsg, M_GetText("You have been banned from\nhosting netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s"),banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
 			else
-				sprintf(banmsg, "You have been banned from\njoining netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s",banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
+				sprintf(banmsg, M_GetText("You have been banned from\njoining netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s"),banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
 			M_StartMessage(banmsg, NULL, MM_NOTHING);
 			cv_internetserver.value = false;
 			return -2;
@@ -554,8 +554,8 @@ INT32 GetRoomsList(boolean hosting)
 	else
 	{
 		room_list[0].id = 1;
-		strcpy(room_list[0].motd,"Master Server Offline.");
-		strcpy(room_list[0].name,"Offline");
+		strcpy(room_list[0].motd,M_GetText("Master Server Offline."));
+		strcpy(room_list[0].name,M_GetText("Offline"));
 		return -1;
 	}
 }
@@ -569,8 +569,8 @@ const char *GetMODVersion(void)
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("cannot connect to the master server\n");
-		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
+		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
+		M_StartMessage(M_GetText("There was a problem connecting to\nthe Master Server"), NULL, MM_NOTHING);
 		return NULL;
 	}
 
@@ -599,20 +599,20 @@ static void Command_Listserv_f(void)
 {
 	if (con_state == MSCS_WAITING)
 	{
-		CONS_Printf("Not yet registered to the master server.\n");
+		CONS_Printf("%s", M_GetText("Not yet registered to the master server.\n"));
 		return;
 	}
 
-	CONS_Printf("Retrieving server list...\n");
+	CONS_Printf("%s", M_GetText("Retrieving server list...\n"));
 
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("cannot connect to the master server\n");
+		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
 		return;
 	}
 
 	if (GetServersList())
-		CONS_Printf("cannot get server list\n");
+		CONS_Printf("%s", M_GetText("cannot get server list\n"));
 
 	CloseConnection();
 }
@@ -634,7 +634,7 @@ FUNCMATH static const char *int2str(INT32 n)
 static INT32 ConnectionFailed(void)
 {
 	con_state = MSCS_FAILED;
-	CONS_Printf("Connection to master server failed\n");
+	CONS_Printf("%s", M_GetText("Connection to master server failed\n"));
 	CloseConnection();
 	return MS_CONNECT_ERROR;
 }
@@ -665,7 +665,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 		if (retry++ > 30) // an about 30 second timeout
 		{
 			retry = 0;
-			CONS_Printf("Timeout on masterserver\n");
+			CONS_Printf("%s", M_GetText("Timeout on masterserver\n"));
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -676,7 +676,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 	{
 		if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 		{
-			CONS_Printf("Mastserver error on select #%u: %s\n", errno, strerror(errno));
+			CONS_Printf(M_GetText("Masterserver error on select #%u: %s\n"), errno, strerror(errno));
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -688,7 +688,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 	getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, (char *)&i, &j);
 	if (i) // it was bad
 	{
-		CONS_Printf("Masterserver getsockopt error #%u: %s\n", errno, strerror(errno));
+		CONS_Printf(M_GetText("Masterserver getsockopt error #%u: %s\n"), errno, strerror(errno));
 		MSLastPing = timestamp;
 		return ConnectionFailed();
 	}
@@ -700,7 +700,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 			room = -1;
 	}
 	else if(dedicated) // This isn't much better than room = -1, but at least it doesn't leave you wondering why nobody is joining.
-		I_Error("Dedicated internet servers must use the -room parameter!");
+		I_Error("%s", M_GetText("Dedicated internet servers must use the -room parameter!"));
 	else
 		room = cv_chooseroom.value;
 
@@ -731,7 +731,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 	}
 
 	if(con_state != MSCS_REGISTERED)
-		CONS_Printf("Master Server Updated Successfully!\n");
+		CONS_Printf("%s", M_GetText("Master Server Updated Successfully!\n"));
 
 	MSLastPing = timestamp;
 	con_state = MSCS_REGISTERED;
@@ -840,14 +840,14 @@ void RegisterServer(void)
 	if (con_state == MSCS_REGISTERED || con_state == MSCS_WAITING)
 			return;
 
-	CONS_Printf("Registering this server to the master server...\n");
+	CONS_Printf("%s", M_GetText("Registering this server to the master server...\n"));
 
 	strcpy(registered_server.ip, GetMasterServerIP());
 	strcpy(registered_server.port, GetMasterServerPort());
 
 	if (MS_Connect(registered_server.ip, registered_server.port, 1))
 	{
-		CONS_Printf("cannot connect to the master server\n");
+		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
 		return;
 	}
 	MSOpenUDPSocket();
@@ -940,16 +940,16 @@ void UnregisterServer(void)
 
 	con_state = MSCS_NONE;
 
-	CONS_Printf("Unregistering this server to the master server...\n");
+	CONS_Printf("%s", M_GetText("Unregistering this server to the master server...\n"));
 
 	if (MS_Connect(registered_server.ip, registered_server.port, 0))
 	{
-		CONS_Printf("cannot connect to the master server\n");
+		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
 		return;
 	}
 
 	if (RemoveFromMasterSever() < 0)
-		CONS_Printf("cannot remove this server from the master server\n");
+		CONS_Printf("%s", M_GetText("cannot remove this server from the master server\n"));
 
 	CloseConnection();
 	MSCloseUDPSocket();
@@ -977,7 +977,9 @@ static void InternetServer_OnChange(void)
 	if(cv_internetserver.value && Playing())
 	{
 		CV_StealthSetValue(&cv_internetserver, 0);
-		CONS_Printf("You cannot register on the Master Server mid-game, please end your current session and re-host if you wish to advertise your server on the Master Server.\n");
+		CONS_Printf("%s", M_GetText("You cannot register on the Master Server mid-game, "
+		" please end your current session and re-host if"
+		"you wish to advertise your server on the Master Server.\n"));
 		return;
 	}
 #ifndef NONET

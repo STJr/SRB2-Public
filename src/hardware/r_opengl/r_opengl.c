@@ -22,7 +22,7 @@
 #define RPC_NO_WINDOWS_H
 #include <windows.h>
 #endif
-
+#undef GETTEXT
 #ifdef __GNUC__
 #include <unistd.h>
 #endif

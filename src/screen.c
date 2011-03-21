@@ -166,8 +166,7 @@ void SCR_SetMode(void)
 		I_Error("unknown bytes per pixel mode %d\n", vid.bpp);
 #if !defined (DC) && !defined (WII)
 	if (vid.width % BASEVIDWIDTH || vid.height % BASEVIDHEIGHT)
-		CONS_Printf("WARNING: Resolution is not aspect-correct!\n"
-			"Use a multiple of %dx%d\n", BASEVIDWIDTH, BASEVIDHEIGHT);
+		CONS_Printf(M_GetText("WARNING: Resolution is not aspect-correct!\nUse a multiple of %dx%d\n"), BASEVIDWIDTH, BASEVIDHEIGHT);
 #endif
 	// set the apprpriate drawer for the sky (tall or INT16)
 	setmodeneeded = 0;
@@ -310,13 +309,13 @@ void SCR_CheckDefaultMode(void)
 
 	if (scr_forcex && scr_forcey)
 	{
-		CONS_Printf("Using resolution: %d x %d\n", scr_forcex, scr_forcey);
+		CONS_Printf(M_GetText("Using resolution: %d x %d\n"), scr_forcex, scr_forcey);
 		// returns -1 if not found, thus will be 0 (no mode change) if not found
 		setmodeneeded = VID_GetModeForSize(scr_forcex, scr_forcey) + 1;
 	}
 	else
 	{
-		CONS_Printf("Default resolution: %d x %d (%d bits)\n", cv_scr_width.value,
+		CONS_Printf(M_GetText("Default resolution: %d x %d (%d bits)\n"), cv_scr_width.value,
 			cv_scr_height.value, cv_scr_depth.value);
 		// see note above
 		setmodeneeded = VID_GetModeForSize(cv_scr_width.value, cv_scr_height.value) + 1;

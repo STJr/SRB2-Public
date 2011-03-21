@@ -28,7 +28,6 @@
 #include "m_random.h"
 #include "m_misc.h"
 #include "r_things.h"
-#include "dstrings.h"
 
 #ifdef HW3SOUND
 #include "hardware/hw3sound.h"
@@ -2011,7 +2010,7 @@ void A_MonitorPop(mobj_t *actor)
 
 			if (numchoices == 0)
 			{
-				CONS_Printf("Note: All monitors turned off.\n");
+				CONS_Printf("%s", M_GetText("Note: All monitors turned off.\n"));
 				return;
 			}
 
@@ -2206,7 +2205,7 @@ void A_CustomPower(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2245,7 +2244,7 @@ void A_GiveWeapon(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2275,7 +2274,7 @@ void A_JumpShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2306,7 +2305,7 @@ void A_RingShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2337,7 +2336,7 @@ void A_RingBox(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2361,7 +2360,7 @@ void A_Invincibility(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2391,7 +2390,7 @@ void A_SuperSneakers(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2424,7 +2423,7 @@ void A_ExtraLife(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2463,7 +2462,7 @@ void A_BombShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2494,7 +2493,7 @@ void A_WaterShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2535,7 +2534,7 @@ void A_ForceShield(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -2568,7 +2567,7 @@ void A_GravityBox(mobj_t *actor)
 
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 
@@ -4885,7 +4884,7 @@ void A_EggmanBox(mobj_t *actor)
 {
 	if (!actor->target || !actor->target->player)
 	{
-		DEBPRINT(text[POWERUPNOTARGET]);
+		DEBPRINT(va("%s", M_GetText("ERROR: Powerup has no target!\n")));
 		return;
 	}
 

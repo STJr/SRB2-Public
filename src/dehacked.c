@@ -21,7 +21,6 @@
 #include "sounds.h"
 #include "info.h"
 #include "d_think.h"
-#include "dstrings.h"
 #include "m_argv.h"
 #include "z_zone.h"
 #include "w_wad.h"
@@ -2183,7 +2182,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i < NUMMOBJTYPES && i >= 0)
 						readthing(f, i);
 					else
-						deh_warning(text[THING_NOTEXIST], i);
+						deh_warning(M_GetText("Thing %d doesn't exist"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "MODBY"))
@@ -2201,7 +2200,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i < 15)
 						readPlayer(f, i);
 					else
-						deh_warning(text[CHAR_OUTOFRANGE], i);
+						deh_warning(M_GetText("Character %d out of range"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "LIGHT"))
@@ -2236,7 +2235,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i <= NUMMAPS)
 						readlevelheader(f, i);
 					else
-						deh_warning(text[LEVEL_OUTOFRANGE], i);
+						deh_warning(M_GetText("Level number %d out of range"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "CUTSCENE"))
@@ -2244,7 +2243,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i < 129)
 						readcutscene(f, i - 1);
 					else
-						deh_warning(text[CUTSCENE_OUTOFRANGE], i);
+						deh_warning(M_GetText("Cutscene number %d out of range"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "UNLOCKABLE"))
@@ -2252,7 +2251,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i < 16)
 						readunlockable(f, i - 1);
 					else
-						deh_warning(text[UNLOCKABLE_OUTOFRANGE], i);
+						deh_warning(M_GetText("Unlockable number %d out of range"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "FRAME"))
@@ -2260,9 +2259,10 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i < NUMSTATES && i >= 0)
 						readframe(f, i);
 					else
-						deh_warning(text[FRAME_NOTEXIST], i);
+						deh_warning(M_GetText("Frame %d doesn't exist"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
+				// <Callum> Added translations to this just in case its re-enabled
 /*				else if (!strcmp(word, "POINTER"))
 				{
 					word = strtok(NULL, " "); // get frame
@@ -2276,17 +2276,17 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 								states[i].action = saveactions[searchvalue(s)];
 						}
 						else
-							deh_warning("Pointer: Frame %d doesn't exist", i);
+							deh_warning(M_GetText("Pointer: Frame %d doesn't exist"), i);
 					}
 					else
-						deh_warning("pointer (Frame %d) : missing ')'", i);
+						deh_warning(M_GetText("pointer (Frame %d) : missing ')'"), i);
 				}*/
 				else if (!strcmp(word, "SOUND"))
 				{
 					if (i < NUMSFX && i >= 0)
 						readsound(f, i, savesfxnames);
 					else
-						deh_warning(text[SOUND_NOTEXIST], i);
+						deh_warning(M_GetText("Sound %d doesn't exist"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 /*				else if (!strcmp(word, "SPRITE"))
@@ -2300,18 +2300,18 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 							if (k >= 0 && k < NUMSPRITES)
 								sprnames[i] = savesprnames[k];
 							else
-								deh_warning("Sprite %d: offset out of bound", i);
+								deh_warning(M_GetText("Sprite %d: offset out of bound"), i);
 						}
 					}
 					else
-						deh_warning("Sprite %d doesn't exist",i);
+						deh_warning(M_GetText("Sprite %d doesn't exist"),i);
 				}*/
 				else if (!strcmp(word, "HUDITEM"))
 				{
 					if (i >= 0 && i < NUMHUDITEMS)
 						readhuditem(f, i);
 					else
-						deh_warning(text[HUDITEM_OUTOFRANGE], i);
+						deh_warning(M_GetText("HUD item number %d out of range"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "EMBLEM"))
@@ -2319,7 +2319,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i <= MAXEMBLEMS)
 						reademblemdata(f, i);
 					else
-						deh_warning(text[EMBLEM_OUTOFRANGE], i);
+						deh_warning(M_GetText("Emblem number %d out of range"), i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "MAINCFG"))
@@ -2332,23 +2332,24 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					INT32 ver = searchvalue(strtok(NULL, "\n"));
 					if (ver != 200)
 					{
-						deh_warning(text[WRONG_VERSION_WARNING], ver);
-						deh_warning("%s", text[SUPPORTED_VERSION]);
+						deh_warning(M_GetText("Warning: patch from a different SRB2 version (%d), "), ver);
+						// TODO: change this every time major version number is changed?
+						deh_warning("%s", M_GetText("only version 2.0 is supported\n"));
 					}
 					//DEH_WriteUndoline(word, va("%d", ver), UNDO_NONE);
 				}
 				else
-					deh_warning(text[UNKNOWN_WORD], word);
+					deh_warning(M_GetText("Unknown word: %s"), word);
 			}
 			else
-				deh_warning(text[MISSING_ARGUMENT], word);
+				deh_warning(M_GetText("missing argument for '%s'"), word);
 		}
 		else
-			deh_warning(text[MISSING_WORD], s);
+			deh_warning(M_GetText("No word in this line: %s"), s);
 	} // end while
 	if (deh_num_warning)
 	{
-		CONS_Printf(text[WARNING_IN_SOC_LUMP], deh_num_warning,
+		CONS_Printf(M_GetText("%d warning%s in the SOC lump\n"), deh_num_warning,
 			deh_num_warning == 1 ? "" : "s");
 		if (devparm)
 			while (!I_GetKey())
@@ -2395,7 +2396,7 @@ void DEH_UnloadDehackedWad(UINT16 wad)
 #ifdef DUMPUNDONE
 	FILE *UNDO = fopen("undo.soc", "wt");
 #endif
-	CONS_Printf("%s", text[UNLOADING_SOC_EDITS]);
+	CONS_Printf("%s", M_GetText("Unloading WAD SOC edits\n"));
 	while (curundo)
 	{
 		data = curundo->undata;

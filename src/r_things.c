@@ -411,7 +411,7 @@ void R_AddSpriteDefs(UINT16 wadnum)
 		}
 	}
 
-	CONS_Printf("%s sprites added from file %s\n", sizeu1(addsprites), wadfiles[wadnum]->filename);
+	CONS_Printf(M_GetText("%s sprites added from file %s\n"), sizeu1(addsprites), wadfiles[wadnum]->filename);
 }
 
 void R_DelSpriteDefs(UINT16 wadnum)
@@ -457,7 +457,7 @@ void R_DelSpriteDefs(UINT16 wadnum)
 		}
 	}
 
-	CONS_Printf("%s sprites removed from file %s\n", sizeu1(delsprites), wadfiles[wadnum]->filename);
+	CONS_Printf(M_GetText("%s sprites removed from file %s\n"), sizeu1(delsprites), wadfiles[wadnum]->filename);
 }
 
 //
@@ -2402,7 +2402,7 @@ void SetPlayerSkin(INT32 playernum, const char *skinname)
 	}
 
 	if (P_IsLocalPlayer(player))
-		CONS_Printf("Skin %s not found\n", skinname);
+		CONS_Printf(M_GetText("Skin %s not found\n"), skinname);
 
 	SetPlayerSkinByNum(playernum, 0);
 }
@@ -2493,7 +2493,7 @@ void SetPlayerSkinByNum(INT32 playernum, INT32 skinnum)
 	player = &players[playernum];
 
 	if (P_IsLocalPlayer(player))
-		CONS_Printf("Skin %d not found\n", skinnum);
+		CONS_Printf(M_GetText("Skin %d not found\n"), skinnum);
 
 	players[playernum].skin = 0;  // not found put the sonic skin
 
@@ -2549,7 +2549,7 @@ static void SetSkinValues(consvar_t *var, char *valstr, size_t valstrspace)
 
 error:
 			// not found
-			CONS_Printf("\"%s\" is not a possible value for \"%s\"\n", valstr, var->name);
+			CONS_Printf(M_GetText("\"%s\" is not a possible value for \"%s\"\n"), valstr, var->name);
 			if (var->defaultvalue == valstr)
 				I_Error("Variable %s default value \"%s\" is not a possible value\n",
 					var->name, var->defaultvalue);
@@ -2809,7 +2809,7 @@ next_token:
 
 		R_FlushTranslationColormapCache();
 
-		CONS_Printf("added skin '%s'\n", skins[numskins].name);
+		CONS_Printf(M_GetText("Added skin '%s'\n"), skins[numskins].name);
 #ifdef SKINVALUES
 		skin_cons_t[numskins].value = numskins;
 		skin_cons_t[numskins].strvalue = skins[numskins].name;
@@ -2871,6 +2871,6 @@ void R_DelSkins(UINT16 wadnum)
 			while (W_CheckNameForNumPwad(wadnum,lastlump) && memcmp(W_CheckNameForNumPwad(wadnum, lastlump),sprname,4)==0)
 				lastlump++;
 		}
-		CONS_Printf("removed skin '%s'\n", skins[numskins].name);
+		CONS_Printf(M_GetText("Removed skin '%s'\n"), skins[numskins].name);
 	}
 }

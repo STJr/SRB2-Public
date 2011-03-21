@@ -1481,7 +1481,7 @@ sfxenum_t S_AddSoundFx(const char *name, INT32 singularity, INT32 pitch,
 			return i;
 		}
 	}
-	CONS_Printf("\2No more free sound slots\n");
+	CONS_Printf("\2%s", M_GetText("No more free sound slots\n"));
 	return 0;
 }
 

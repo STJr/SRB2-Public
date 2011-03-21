@@ -181,9 +181,9 @@ int main(int argc, char **argv)
 	prevExceptionFilter = SetUnhandledExceptionFilter(RecordExceptionInfo);
 #endif
 	// startup SRB2
-	CONS_Printf ("Setting up SRB2...\n");
+	CONS_Printf("%s", M_GetText("Setting up SRB2...\n"));
 	D_SRB2Main();
-	CONS_Printf ("Entering main game loop...\n");
+	CONS_Printf("%s", M_GetText("Entering main game loop...\n"));
 	// never return
 	D_SRB2Loop();
 

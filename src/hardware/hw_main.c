@@ -4333,9 +4333,9 @@ static void Command_GrStats_f(void)
 {
 	Z_CheckHeap(9875); // debug
 
-	CONS_Printf("Patch info headers: %7s kb\n", sizeu1(Z_TagUsage(PU_HWRPATCHINFO)>>10));
-	CONS_Printf("3D Texture cache  : %7s kb\n", sizeu1(Z_TagUsage(PU_HWRCACHE)>>10));
-	CONS_Printf("Plane polygon     : %7s kb\n", sizeu1(Z_TagUsage(PU_HWRPLANE)>>10));
+	CONS_Printf(M_GetText("Patch info headers: %7s kb\n"), sizeu1(Z_TagUsage(PU_HWRPATCHINFO)>>10));
+	CONS_Printf(M_GetText("3D Texture cache  : %7s kb\n"), sizeu1(Z_TagUsage(PU_HWRCACHE)>>10));
+	CONS_Printf(M_GetText("Plane polygon     : %7s kb\n"), sizeu1(Z_TagUsage(PU_HWRPLANE)>>10));
 }
 
 

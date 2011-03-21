@@ -30,7 +30,6 @@
 #include "am_map.h"
 
 #include "doomdef.h"
-#include "dstrings.h"
 #include "d_main.h"
 #include "d_netcmd.h"
 
@@ -101,6 +100,36 @@ static INT32 oldlastmapnum;
 #define SLIDER_WIDTH (8*SLIDER_RANGE+6)
 #define MAXSTRINGLENGTH 32
 #define SERVERS_PER_PAGE 10
+
+typedef enum
+{
+	QUITMSG,
+	QUITMSG1,
+	QUITMSG2,
+	QUITMSG3,
+	QUITMSG4,
+	QUITMSG5,
+	QUITMSG6,
+	QUITMSG7,
+
+	QUIT2MSG,
+	QUIT2MSG1,
+	QUIT2MSG2,
+	QUIT2MSG3,
+	QUIT2MSG4,
+	QUIT2MSG5,
+	QUIT2MSG6,
+
+	QUIT3MSG,
+	QUIT3MSG1,
+	QUIT3MSG2,
+	QUIT3MSG3,
+	QUIT3MSG4,
+	QUIT3MSG5,
+	QUIT3MSG6
+} text_enum;
+
+const char *quitmsg[NUM_QUITMESSAGES];
 
 // Stuff for customizing the player select screen Tails 09-22-2003
 description_t description[15] =
@@ -4097,7 +4126,7 @@ static void M_SRB1Remake(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
+		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
 		return;
 	}
 
@@ -4114,7 +4143,7 @@ static void M_NightsGame(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
+		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
 		return;
 	}
 
@@ -4131,7 +4160,7 @@ static void M_MarioGame(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
+		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
 		return;
 	}
 
@@ -4148,7 +4177,7 @@ static void M_NAGZGame(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
+		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
 		return;
 	}
 
@@ -4164,7 +4193,7 @@ static void M_CustomWarp(INT32 choice)
 {
 	if (netgame && Playing())
 	{
-		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
+		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
 		return;
 	}
 
@@ -4643,7 +4672,7 @@ static void M_LevelSelectWarp(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
+		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
 		return;
 	}
 
@@ -6963,7 +6992,7 @@ static void M_ReadSavegameInfo(UINT32 slot)
 	length = FIL_ReadFile(savename, &savebuffer);
 	if (length == 0)
 	{
-		CONS_Printf("%s %s", text[HUSTR_MSGU], savename);
+		CONS_Printf("%s %s", M_GetText("[Message unsent]\n"), savename);
 		savegameinfo[slot].lives = -42;
 		return;
 	}
@@ -7094,7 +7123,7 @@ static void M_LoadGame(INT32 choice)
 	// change can't load message to can't load in server mode
 	if (netgame && !server)
 	{
-		M_StartMessage(text[LOADNET],NULL,MM_NOTHING);
+		M_StartMessage(M_GetText("Only the server can do a load net game!\n\npress a key."), NULL, MM_NOTHING);
 		return;
 	}
 
@@ -7147,7 +7176,7 @@ void M_EndGame(INT32 choice)
 	if (!Playing())
 		return;
 
-	M_StartMessage(text[ENDGAME],M_EndGameResponse,MM_YESNO);
+	M_StartMessage(M_GetText("Are you sure you want to end the game?\n\npress Y or N."), M_EndGameResponse, MM_YESNO);
 }
 
 //===========================================================================
@@ -7205,7 +7234,7 @@ static void M_QuitSRB2(INT32 choice)
 	// between 1 and maximum number.
 	static char s[200];
 	(void)choice;
-	sprintf(s, text[DOSY], text[QUITMSG + (gametic % NUM_QUITMESSAGES)]);
+	sprintf(s, M_GetText("%s\n\n(Press 'Y' to quit)"), quitmsg[QUITMSG + (gametic % NUM_QUITMESSAGES)]);
 	M_StartMessage(s, M_QuitResponse, MM_YESNO);
 }
 
@@ -8172,6 +8201,31 @@ void M_Init(void)
 
 	if (dedicated)
 		return;
+
+	quitmsg[QUITMSG] = M_GetText("Eggman's tied explosives\nto your girlfriend, and\nwill activate them if\nyou press the 'Y' key!\nPress 'N' to save her!");
+	quitmsg[QUITMSG1] = M_GetText("What would Tails say if\nhe saw you quitting the game?");
+	quitmsg[QUITMSG2] = M_GetText("Hey!\nWhere do ya think you're goin'?");
+	quitmsg[QUITMSG3] = M_GetText("Forget your studies!\nPlay some more!");
+	quitmsg[QUITMSG4] = M_GetText("You're trying to say you\nlike Sonic 2K6 better than\nthis, right?");
+	quitmsg[QUITMSG5] = M_GetText("Don't leave yet -- there's a\nsuper emerald around that corner!");
+	quitmsg[QUITMSG6] = M_GetText("You'd rather work than play?");
+	quitmsg[QUITMSG7] = M_GetText("Go ahead and leave. See if I care...\n*sniffle*");
+
+	quitmsg[QUIT2MSG] = M_GetText("If you leave now,\nEggman will take over the world!");
+	quitmsg[QUIT2MSG1] = M_GetText("Don't quit!\nThere are animals\nto save!");
+	quitmsg[QUIT2MSG2] = M_GetText("Aw c'mon, just bop\na few more robots!");
+	quitmsg[QUIT2MSG3] = M_GetText("Did you get all those Chaos Emeralds?");
+	quitmsg[QUIT2MSG4] = M_GetText("If you leave, I'll use\nmy spin attack on you!");
+	quitmsg[QUIT2MSG5] = M_GetText("Don't go!\nYou might find the hidden\nlevels!");
+	quitmsg[QUIT2MSG6] = M_GetText("Hit the 'N' key, Sonic!\nThe 'N' key!");
+
+	quitmsg[QUIT3MSG] = M_GetText("Are you really going to\ngive up?\nWe certainly would never give you up.");
+	quitmsg[QUIT3MSG1] = M_GetText("Come on, just ONE more netgame!");
+	quitmsg[QUIT3MSG2] = M_GetText("Press 'N' to unlock\nthe Ultimate Cheat!");
+	quitmsg[QUIT3MSG3] = M_GetText("Why don't you go back and try\njumping on that house to\nsee what happens?");
+	quitmsg[QUIT3MSG4] = M_GetText("Every time you press 'Y', an\nSRB2 Developer cries...");
+	quitmsg[QUIT3MSG5] = M_GetText("You'll be back to play soon, though...\n......right?");
+	quitmsg[QUIT3MSG6] = M_GetText("Aww, is Egg Rock Zone too\ndifficult for you?");
 
 	// This is used because DOOM 2 had only one HELP
 	//  page. I use CREDIT as second page now, but

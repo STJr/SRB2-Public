@@ -31,7 +31,6 @@
 #include "i_video.h"
 #include "i_system.h"
 
-#include "dstrings.h"
 #include "st_stuff.h" // ST_HEIGHT
 #include "r_local.h"
 
@@ -373,7 +372,7 @@ static void DoSayCommand(SINT8 target, size_t usedargs, UINT8 flags)
 
 	if (cv_mute.value && !(server || adminplayer == consoleplayer))
 	{
-		CONS_Printf("The chat is muted. You can't say anything at the moment.\n");
+		CONS_Printf("%s", M_GetText("The chat is muted. You can't say anything at the moment.\n"));
 		return;
 	}
 
@@ -408,7 +407,7 @@ static void Command_Say_f(void)
 {
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("say <message>: send a message\n");
+		CONS_Printf("%s", M_GetText("say <message>: send a message\n"));
 		return;
 	}
 
@@ -425,14 +424,14 @@ static void Command_Sayto_f(void)
 
 	if (COM_Argc() < 3)
 	{
-		CONS_Printf("sayto <playername|playernum> <message>: send a message to a player\n");
+		CONS_Printf("%s", M_GetText("sayto <playername|playernum> <message>: send a message to a player\n"));
 		return;
 	}
 
 	target = nametonum(COM_Argv(1));
 	if (target == -1)
 	{
-		CONS_Printf("sayto: No player with that name!\n");
+		CONS_Printf("%s", M_GetText("sayto: No player with that name!\n"));
 		return;
 	}
 	target++; // Internally we use 0 to 31, but say command uses 1 to 32.
@@ -448,13 +447,13 @@ static void Command_Sayteam_f(void)
 {
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("sayteam <message>: send a message to your team\n");
+		CONS_Printf("%s", M_GetText("sayteam <message>: send a message to your team\n"));
 		return;
 	}
 
 	if (dedicated)
 	{
-		CONS_Printf("Dedicated servers can't send team messages. Use \"say\".\n");
+		CONS_Printf("%s", M_GetText("Dedicated servers can't send team messages. Use \"say\".\n"));
 		return;
 	}
 
@@ -468,13 +467,13 @@ static void Command_CSay_f(void)
 {
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("csay <message>: send a message to be shown in the middle of the screen\n");
+		CONS_Printf("%s", M_GetText("csay <message>: send a message to be shown in the middle of the screen\n"));
 		return;
 	}
 
 	if(!server && adminplayer != consoleplayer)
 	{
-		CONS_Printf("Only servers and admins can use csay.\n");
+		CONS_Printf("%s", M_GetText("Only servers and admins can use csay.\n"));
 		return;
 	}
 
@@ -500,8 +499,7 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	if ((cv_mute.value || (flags & HU_CSAY)) && playernum != serverplayer && playernum != adminplayer)
 	{
 		CONS_Printf(cv_mute.value ?
-			"Illegal say command received from %s while muted\n" :
-			"Illegal csay command received from non-admin %s\n",
+			M_GetText("Illegal say command received from %s while muted\n") : M_GetText("Illegal csay command received from non-admin %s\n"),
 			player_names[playernum]);
 		if (server)
 		{
@@ -525,8 +523,7 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 		{
 			if (msg[i] & 0x80)
 			{
-				CONS_Printf("Illegal say command received from %s containing invalid characters\n",
-					player_names[playernum]);
+				CONS_Printf(M_GetText("Illegal say command received from %s containing invalid characters\n"), player_names[playernum]);
 				if (server)
 				{
 					XBOXSTATIC char buf[2];
@@ -723,7 +720,7 @@ char HU_dequeueChatChar(void)
 static void HU_queueChatChar(char c)
 {
 	if (((head + 1) & (QUEUESIZE-1)) == tail)
-		CONS_Printf("%s", text[HUSTR_MSGU]); // message not sent
+		CONS_Printf("%s", M_GetText("[Message unsent]\n")); // message not sent
 	else
 	{
 		if (c == KEY_BACKSPACE)

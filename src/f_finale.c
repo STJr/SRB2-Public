@@ -20,7 +20,6 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "am_map.h"
-#include "dstrings.h"
 #include "d_main.h"
 #include "f_finale.h"
 #include "g_game.h"
@@ -56,9 +55,24 @@ static INT32 deplete;
 static tic_t stoptimer;
 
 // Intro
-static INT32 scene;
-
 #define NUMINTROSCENES 16
+static INT32 scene;
+const char *intro01text = NULL;
+const char *intro02text = NULL;
+const char *intro03text = NULL;
+const char *intro04text = NULL;
+const char *intro05text = NULL;
+const char *intro06text = NULL;
+const char *intro07text = NULL;
+const char *intro08text = NULL;
+const char *intro09text = NULL;
+const char *intro10text = NULL;
+const char *intro11text = NULL;
+const char *intro12text = NULL;
+const char *intro13text = NULL;
+const char *intro14text = NULL;
+const char *intro15text = NULL;
+const char *intro16text = NULL;
 
 static tic_t introscenetime[NUMINTROSCENES] =
 {
@@ -209,26 +223,27 @@ void F_StartCredits(void)
 	memset(credits, 0, sizeof(credit_t)*19);
 
 	// Initalize the credits table
-	strcpy(credits[i].header, "Sonic Team Junior\n");
-	strcpy(credits[i].fakenames[j++], "Staff\n");
+	// <Callum> Should we make the names of the people translatable?
+	strcpy(credits[i].header, M_GetText("Sonic Team Junior\n"));
+	strcpy(credits[i].fakenames[j++], M_GetText("Staff\n"));
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Staff\n");
+	strcpy(credits[i].realnames[j++], M_GetText("Staff\n"));
 	credits[i].numnames = 1;
 	i++;
-	strcpy(credits[i].header, "Producer\n");
+	strcpy(credits[i].header, M_GetText("Producer\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
 	strcpy(credits[i].fakenames[j++], "\n");
-	strcpy(credits[i].fakenames[j++], "Director\n");
+	strcpy(credits[i].fakenames[j++], M_GetText("Director\n"));
 	strcpy(credits[i].fakenames[j++], "Sonikku\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Art Freda\n");
 	strcpy(credits[i].realnames[j++], "\n");
-	strcpy(credits[i].realnames[j++], "Director\n");
+	strcpy(credits[i].realnames[j++], M_GetText( "Director\n"));
 	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Game Designers\n");
+	strcpy(credits[i].header, M_GetText("Game Designers\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Sonikku\n");
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
@@ -239,7 +254,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Ben Geyer\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Character Designers\n");
+	strcpy(credits[i].header, M_GetText("Character Designers\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Sonikku\n");
 	strcpy(credits[i].fakenames[j++], "Instant Sonic\n");
@@ -248,14 +263,14 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "David Spencer Jr\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Visual Design\n");
+	strcpy(credits[i].header, M_GetText("Visual Design\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Art Freda\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Landscape Design\n");
+	strcpy(credits[i].header, M_GetText("Landscape Design\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Sonikku\n");
 	strcpy(credits[i].fakenames[j++], "JEV3\n");
@@ -264,14 +279,14 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Chief Programmer\n");
+	strcpy(credits[i].header, M_GetText("Chief Programmer\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Art Freda\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Programmers\n");
+	strcpy(credits[i].header, M_GetText("Programmers\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Alam_GBC\n");
 	strcpy(credits[i].fakenames[j++], "Jazz\n");
@@ -286,7 +301,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Andrew Clunis\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Coding Assistants\n");
+	strcpy(credits[i].header, M_GetText("Coding Assistants\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "StroggOnMeth\n");
 	strcpy(credits[i].fakenames[j++], "Cyan Helkaraxe\n");
@@ -303,7 +318,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "John J. Muniz\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Level Designers\n");
+	strcpy(credits[i].header, M_GetText("Level Designers\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Sonikku\n");
 	strcpy(credits[i].fakenames[j++], "Mystic\n");
@@ -331,7 +346,7 @@ void F_StartCredits(void)
 	credits[i].numnames = (UINT8)j;
 	credits[i].smallnames = true;
 	i++;
-	strcpy(credits[i].header, "Texture Artists\n");
+	strcpy(credits[i].header, M_GetText("Texture Artists\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "KinkaJoy\n");
 	strcpy(credits[i].fakenames[j++], "SSNTails\n");
@@ -346,7 +361,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Music Production\n");
+	strcpy(credits[i].header, M_GetText("Music Production\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Bulmybag\n");
 	strcpy(credits[i].fakenames[j++], "Arrow\n");
@@ -368,7 +383,7 @@ void F_StartCredits(void)
 	credits[i].smallnames = true;
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Lead Guitar\n");
+	strcpy(credits[i].header, M_GetText("Lead Guitar\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Big Wave Dave\n");
 	strcpy(credits[i].fakenames[j++], "Shane Strife\n");
@@ -377,7 +392,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Shane Sexton\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Sound Effects\n");
+	strcpy(credits[i].header, M_GetText("Sound Effects\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Sega\n");
 	strcpy(credits[i].fakenames[j++], "Instant Sonic\n");
@@ -388,21 +403,21 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Various Sources\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Official Mascot\n");
+	strcpy(credits[i].header, M_GetText("Official Mascot\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Spazzo\n");
 	j = 0;
 	strcpy(credits[i].realnames[j++], "Michael Antonakes\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "Sky Sanctuary Team\n");
+	strcpy(credits[i].header, M_GetText("Sky Sanctuary Team\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Boinciel\n");
-	strcpy(credits[i].fakenames[j++], "Dark Warrior\n");
-	strcpy(credits[i].fakenames[j++], "FoxBlitzz\n");
+	strcpy(credits[i].fakenames[j++], "Rob\n");
+	strcpy(credits[i].fakenames[j++], "Blitzzo\n");
 	strcpy(credits[i].fakenames[j++], "Jazz\n");
 	strcpy(credits[i].fakenames[j++], "JEV3\n");
-	strcpy(credits[i].fakenames[j++], "MattW CFI\n");
+	strcpy(credits[i].fakenames[j++], "Inuyasha\n");
 	strcpy(credits[i].fakenames[j++], "Nev3r\n");
 	strcpy(credits[i].fakenames[j++], "Senku\n");
 	strcpy(credits[i].fakenames[j++], "Shadow Hog\n");
@@ -439,7 +454,7 @@ void F_StartCredits(void)
 	credits[i].numnames = (UINT8)j;
 	credits[i].smallnames = true;
 	i++;
-	strcpy(credits[i].header, "Special Thanks\n");
+	strcpy(credits[i].header, M_GetText("Special Thanks\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Doom Legacy Project\n");
 	strcpy(credits[i].fakenames[j++], "iD Software\n");
@@ -454,7 +469,7 @@ void F_StartCredits(void)
 	strcpy(credits[i].realnames[j++], "Chris Pryor\n");
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, "In Fond Memory Of\n");
+	strcpy(credits[i].header, M_GetText("In Fond Memory Of\n"));
 	j = 0;
 	strcpy(credits[i].fakenames[j++], "Naoto Oshima\n");
 	strcpy(credits[i].fakenames[j++], "Howard Drossin\n");
@@ -469,7 +484,7 @@ void F_StartCredits(void)
 	i++;
 	if (modcredits)
 	{
-		strcpy(&credits[i].header[0], text[MOD_BY]);
+		strcpy(&credits[i].header[0], M_GetText("Modification By\n"));
 		j = 0;
 		strcpy(credits[i].fakenames[j++], modcreditname);
 		strcpy(credits[i].fakenames[j++], "\n");
@@ -537,13 +552,140 @@ void F_StartIntro(void)
 		return;
 	}
 
+	intro01text = " #";
+
+	intro02text = M_GetText("Two months had passed since Dr. Eggman\n"
+	"tried to take over the world using his\n"
+	"Ring Satellite.\n#");
+
+	intro03text = M_GetText("As it was about to drain the rings\n"
+	"away from the planet, Sonic burst into\n"
+	"the Satellite and for what he thought\n"
+	"would be the last time, defeated\n"
+	"Dr. Eggman.\n#");
+
+	intro04text = M_GetText("\nWhat Sonic, Tails, and Knuckles had\n"
+	"not anticipated was that Eggman would\n"
+	"return, bringing an all new threat.\n#");
+
+	intro05text = M_GetText("About once every year, a strange asteroid\n"
+	"hovers around the planet. it suddenly\n"
+	"appears from nowhere, circles around, and\n"
+	"- just as mysteriously as it arrives, it\n"
+	"vanishes after about two months.\n"
+	"No one knows why it appears, or how.\n#");
+
+	intro06text = M_GetText("\"Curses!\" Eggman yelled. \"That hedgehog\n"
+	"and his ridiculous friends will pay\n"
+	"dearly for this!\" Just then his scanner\n"
+	"blipped as the Black Rock made its\n"
+	"appearance from nowhere. Eggman looked at\n"
+	"the screen, and just shrugged it off.\n#");
+
+	intro07text = M_GetText("It was only later\n"
+	"that he had an\n"
+	"idea. \"The Black\n"
+	"Rock usually has a\n"
+	"lot of energy\n"
+	"within it... if I\n"
+	"can somehow\n"
+	"harness this, I\n"
+	"can turn it into\n"
+	"the ultimate\n"
+	"battle station,\n"
+	"and every last\n"
+	"person will be\n"
+	"begging for mercy,\n"
+	"including Sonic!\"\n#");
+
+	intro08text = M_GetText("\n\nBefore beginning his scheme,\n"
+	"Eggman decided to give Sonic\n"
+	"a reunion party...\n#");
+
+	intro09text = M_GetText("\"We're ready to fire in 15 seconds!\"\n"
+	"The robot said, his voice crackling a\n"
+	"little down the com-link. \"Good!\"\n"
+	"Eggman sat back in his Egg-Mobile and\n"
+	"began to count down as he saw the\n"
+	"GreenFlower city on the main monitor.\n#");
+
+	intro10text = M_GetText("\"10...9...8...\"\n"
+	"Meanwhile, Sonic was tearing across the\n"
+	"zones, and everything became nothing but\n"
+	"a blur as he ran around loops, skimmed\n"
+	"over water, and catapulted himself off\n"
+	"rocks with his phenomenal speed.\n#");
+
+	intro11text = M_GetText("\"5...4...3...\"\n"
+	"Sonic knew he was getting closer to the\n"
+	"City, and pushed himself harder. Finally,\n"
+	"the city appeared in the horizon.\n"
+	"\"2...1...Zero.\"\n#");
+
+	intro12text = M_GetText("GreenFlower City was gone.\n"
+	"Sonic arrived just in time to see what\n"
+	"little of the 'ruins' were left. Everyone\n"
+	"and everything in the city had been\n"
+	"obliterated.\n#");
+
+	intro13text = M_GetText("\"You're not quite as dead as we thought,\n"
+	"huh? Are you going to tell us your plan as\n"
+	"usual or will I 'have to work it out' or\n"
+	"something?\"                         \n"
+	"\"We'll see... let's give you a quick warm\n"
+	"up, Sonic! JETTYSYNS! Open fire!\"\n#");
+
+	intro14text = M_GetText("Eggman took this\n"
+	"as his cue and\n"
+	"blasted off,\n"
+	"leaving Sonic\n"
+	"and Tails behind.\n"
+	"Tails looked at\n"
+	"the ruins of the\n"
+	"Greenflower City\n"
+	"with a grim face\n"
+	"and sighed.           \n"
+	"\"Now what do we\n"
+	"do?\", he asked.\n#");
+
+	intro15text = M_GetText("\"Easy! We go\n"
+	"find Eggman\n"
+	"and stop his\n"
+	"latest\n"
+	"insane plan.\n"
+	"Just like\n"
+	"we've always\n"
+	"done, right?                 \n\n"
+	"...                    \n\n"
+	"\"Tails,what\n"
+	"*ARE* you\n"
+	"doing?\"\n#");
+
+	intro16text = M_GetText("\"I'm just finding what mission obje...\n"
+	"a-ha! Here it is! This will only give\n"
+	"the robot's primary objective. It says,\n"
+	"* LOCATE AND RETRIEVE CHAOS EMERALD.\n"
+	"ESTIMATED LOCATION: GREENFLOWER ZONE *\"\n"
+	"\"All right, then let's go!\"\n#");
+
+/*
+	"What are we waiting for? The first emerald is ours!" Sonic was about to
+	run, when he saw a shadow pass over him, he recognized the silhouette
+	instantly.
+	"Knuckles!" Sonic said. The echidna stopped his glide and landed
+	facing Sonic. "What are you doing here?"
+	He replied, "This crisis affects the Floating Island,
+	if that explosion I saw is anything to go by."
+	If you're willing to help then... let's go!"
+*/
+
 	G_SetGamestate(GS_INTRO);
 	gameaction = ga_nothing;
 	playerdeadview = false;
 	paused = false;
 	CON_ToggleOff();
 	CON_ClearHUD();
-	finaletext = text[INTRO01TEXT];
+	finaletext = intro01text;
 
 	finalestage = finaletextcount = finalecount = animtimer = stoptimer = 0;
 	roidtics = BASEVIDWIDTH - 64;
@@ -771,7 +913,7 @@ static void F_WriteText(INT32 cx, INT32 cy)
 		{
 			if (!timetonext)
 			{
-				if (finaletext == text[INTRO16TEXT])
+				if (finaletext == intro16text)
 					timetonext = 12*TICRATE + 1;
 				else
 					timetonext = 5*TICRATE + 1;
@@ -861,65 +1003,65 @@ static void F_IntroTextWrite(void)
 	INT32 cx = 8, cy = 128;
 
 	// DRAW A FULL PIC INSTEAD OF FLAT!
-	if (finaletext == text[INTRO01TEXT])
+	if (finaletext == intro01text)
 		nobg = true;
-	else if (finaletext == text[INTRO02TEXT])
+	else if (finaletext == intro02text)
 		background = W_CachePatchName("INTRO1", PU_CACHE);
-	else if (finaletext == text[INTRO03TEXT])
+	else if (finaletext == intro03text)
 	{
 		background = W_CachePatchName("INTRO2", PU_CACHE);
 		highres = true;
 	}
-	else if (finaletext == text[INTRO04TEXT])
+	else if (finaletext == intro04text)
 		background = W_CachePatchName("INTRO3", PU_CACHE);
-	else if (finaletext == text[INTRO05TEXT])
+	else if (finaletext == intro05text)
 		background = W_CachePatchName("INTRO4", PU_CACHE);
-	else if (finaletext == text[INTRO06TEXT])
+	else if (finaletext == intro06text)
 	{
 		background = W_CachePatchName("DRAT", PU_CACHE);
 		highres = true;
 	}
-	else if (finaletext == text[INTRO07TEXT])
+	else if (finaletext == intro07text)
 	{
 		background = W_CachePatchName("INTRO6", PU_CACHE);
 		cx = 180;
 		cy = 8;
 	}
-	else if (finaletext == text[INTRO08TEXT])
+	else if (finaletext == intro08text)
 		background = W_CachePatchName("SGRASS1", PU_CACHE);
-	else if (finaletext == text[INTRO09TEXT])
+	else if (finaletext == intro09text)
 	{
 		background = W_CachePatchName("WATCHING", PU_CACHE);
 		highres = true;
 	}
-	else if (finaletext == text[INTRO10TEXT])
+	else if (finaletext == intro10text)
 	{
 		background = W_CachePatchName("ZOOMING", PU_CACHE);
 		highres = true;
 	}
-	else if (finaletext == text[INTRO11TEXT])
+	else if (finaletext == intro11text)
 		nobg = true;
-	else if (finaletext == text[INTRO12TEXT])
+	else if (finaletext == intro12text)
 		background = W_CachePatchName("INTRO5", PU_CACHE);
-	else if (finaletext == text[INTRO13TEXT])
+	else if (finaletext == intro13text)
 	{
 		background = W_CachePatchName("REVENGE", PU_CACHE);
 		highres = true;
 	}
-	else if (finaletext == text[INTRO14TEXT])
+	else if (finaletext == intro14text)
 	{
 		nobg = true;
 		cx = 8;
 		cy = 8;
 	}
-	else if (finaletext == text[INTRO15TEXT])
+	else if (finaletext == intro15text)
 	{
 		background = W_CachePatchName("SONICDO1", PU_CACHE);
 		highres = true;
 		cx = 224;
 		cy = 8;
 	}
-	else if (finaletext == text[INTRO16TEXT])
+	else if (finaletext == intro16text)
 	{
 		background = W_CachePatchName("INTRO7", PU_CACHE);
 		highres = true;
@@ -927,12 +1069,12 @@ static void F_IntroTextWrite(void)
 
 	V_DrawFill(0, 0, vid.width, vid.height, 31);
 
-	if (finaletext == text[INTRO01TEXT])
+	if (finaletext == intro01text)
 	{
 		V_DrawCreditString(160 - (V_CreditStringWidth("SONIC TEAM JR")/2), 80, 0, "SONIC TEAM JR");
 		V_DrawCreditString(160 - (V_CreditStringWidth("PRESENTS")/2), 96, 0, "PRESENTS");
 	}
-	else if (finaletext == text[INTRO11TEXT])
+	else if (finaletext == intro11text)
 	{
 		if (finaletextcount > 8*TICRATE && finaletextcount < 9*TICRATE)
 		{
@@ -993,7 +1135,7 @@ static void F_IntroTextWrite(void)
 			V_DrawFill(0, 112, vid.width, (INT32)(vid.height - 112*vid.fdupy), 31);
 		}
 	}
-	else if (finaletext == text[INTRO08TEXT] && timetonext > 0 && finaletextcount >= 5*TICRATE
+	else if (finaletext == intro08text && timetonext > 0 && finaletextcount >= 5*TICRATE
 		&& finaletextcount > 0)
 	{
 		background = W_CachePatchName("SGRASS5", PU_CACHE);
@@ -1007,18 +1149,18 @@ static void F_IntroTextWrite(void)
 			V_DrawScaledPatch(0, 0, 0, background);
 	}
 
-	if (finaletext == text[INTRO14TEXT])
+	if (finaletext == intro14text)
 	{
 		V_DrawFill(0, 0, vid.width, vid.height, 31);
 		V_DrawSmallScaledPatch(144, 0, 0, W_CachePatchName("TAILSSAD", PU_CACHE));
 	}
-	else if (finaletext == text[INTRO05TEXT]) // The asteroid SPINS!
+	else if (finaletext == intro05text) // The asteroid SPINS!
 	{
 		if (roidtics >= 0)
 			V_DrawScaledPatch(roidtics, 24, 0,
 				W_CachePatchName(va("ROID00%.2d", finaletextcount%35), PU_CACHE));
 	}
-	else if (finaletext == text[INTRO06TEXT])
+	else if (finaletext == intro06text)
 	{
 		if (finaletextcount == 5*TICRATE + (TICRATE/5)*3)
 		{
@@ -1040,7 +1182,7 @@ static void F_IntroTextWrite(void)
 		else if (finaletextcount > 5*TICRATE+(TICRATE/5)*3)
 			V_DrawScaledPatch(0, 0, 0, W_CachePatchName("RADAR", PU_CACHE));
 	}
-	else if (finaletext == text[INTRO13TEXT])
+	else if (finaletext == intro13text)
 	{
 		if (finaletextcount == 9*TICRATE)
 		{
@@ -1062,7 +1204,7 @@ static void F_IntroTextWrite(void)
 		else if (finaletextcount > 9*TICRATE)
 			V_DrawSmallScaledPatch(0, 0, 0, W_CachePatchName("CONFRONT", PU_CACHE));
 	}
-	else if (finaletext == text[INTRO15TEXT])
+	else if (finaletext == intro15text)
 	{
 		if (finaletextcount == 7*TICRATE)
 		{
@@ -1088,7 +1230,7 @@ static void F_IntroTextWrite(void)
 	if (animtimer)
 		animtimer--;
 
-	if (finaletext == text[INTRO08TEXT] && finaletextcount > 5*TICRATE)
+	if (finaletext == intro08text && finaletextcount > 5*TICRATE)
 	{
 		first = W_CachePatchName("SGRASS2", PU_CACHE);
 		second = W_CachePatchName("SGRASS3", PU_CACHE);
@@ -1706,33 +1848,33 @@ void F_IntroDrawer(void)
 {
 	if (timetonext <= 0)
 	{
-		if (finaletext == text[INTRO01TEXT])
+		if (finaletext == intro01text)
 		{
 			S_ChangeMusic(mus_read_m, false);
-			finaletext = text[INTRO02TEXT];
+			finaletext = intro02text;
 		}
-		else if (finaletext == text[INTRO02TEXT])
-			finaletext = text[INTRO03TEXT];
-		else if (finaletext == text[INTRO03TEXT])
-			finaletext = text[INTRO04TEXT];
-		else if (finaletext == text[INTRO04TEXT])
+		else if (finaletext == intro02text)
+			finaletext = intro03text;
+		else if (finaletext == intro03text)
+			finaletext = intro04text;
+		else if (finaletext == intro04text)
 		{
-			finaletext = text[INTRO05TEXT];
+			finaletext = intro05text;
 			roidtics = BASEVIDWIDTH - 64;
 		}
-		else if (finaletext == text[INTRO05TEXT])
-			finaletext = text[INTRO06TEXT];
-		else if (finaletext == text[INTRO06TEXT])
-			finaletext = text[INTRO07TEXT];
-		else if (finaletext == text[INTRO07TEXT])
-			finaletext = text[INTRO08TEXT];
-		else if (finaletext == text[INTRO08TEXT])
-			finaletext = text[INTRO09TEXT];
-		else if (finaletext == text[INTRO09TEXT])
-			finaletext = text[INTRO10TEXT];
-		else if (finaletext == text[INTRO10TEXT])
-			finaletext = text[INTRO11TEXT];
-		else if (finaletext == text[INTRO11TEXT])
+		else if (finaletext == intro05text)
+			finaletext = intro06text;
+		else if (finaletext == intro06text)
+			finaletext = intro07text;
+		else if (finaletext == intro07text)
+			finaletext = intro08text;
+		else if (finaletext == intro08text)
+			finaletext = intro09text;
+		else if (finaletext == intro09text)
+			finaletext = intro10text;
+		else if (finaletext == intro10text)
+			finaletext = intro11text;
+		else if (finaletext == intro11text)
 		{
 			if (rendermode != render_none)
 			{
@@ -1743,17 +1885,17 @@ void F_IntroDrawer(void)
 				F_RunWipe(TICRATE, true);
 			}
 
-			finaletext = text[INTRO12TEXT];
+			finaletext = intro12text;
 		}
-		else if (finaletext == text[INTRO12TEXT])
-			finaletext = text[INTRO13TEXT];
-		else if (finaletext == text[INTRO13TEXT])
-			finaletext = text[INTRO14TEXT];
-		else if (finaletext == text[INTRO14TEXT])
-			finaletext = text[INTRO15TEXT];
-		else if (finaletext == text[INTRO15TEXT])
-			finaletext = text[INTRO16TEXT];
-		else if (finaletext == text[INTRO16TEXT])
+		else if (finaletext == intro12text)
+			finaletext = intro13text;
+		else if (finaletext == intro13text)
+			finaletext = intro14text;
+		else if (finaletext == intro14text)
+			finaletext = intro15text;
+		else if (finaletext == intro15text)
+			finaletext = intro16text;
+		else if (finaletext == intro16text)
 		{
 			if (rendermode != render_none)
 			{
@@ -1799,7 +1941,7 @@ void F_IntroDrawer(void)
 		timetonext = introscenetime[scene];
 	}
 
-	if (finaletext == text[INTRO08TEXT] && finaletextcount == 5*TICRATE) // Force a wipe here
+	if (finaletext == intro08text && finaletextcount == 5*TICRATE) // Force a wipe here
 	{
 		if (rendermode != render_none)
 		{

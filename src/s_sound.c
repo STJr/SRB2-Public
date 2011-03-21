@@ -346,13 +346,13 @@ void S_Init(INT32 sfxVolume, INT32 digMusicVolume, INT32 midiMusicVolume)
 	if (!nosound && (M_CheckParm("-precachesound") || precachesound.value))
 	{
 		// Initialize external data (all sounds) at start, keep static.
-		CONS_Printf("Loading sounds... ");
+		CONS_Printf("%s", M_GetText("Loading sounds... "));
 
 		for (i = 1; i < NUMSFX; i++)
 			if (S_sfx[i].name)
 				S_sfx[i].data = I_GetSfx(&S_sfx[i]);
 
-		CONS_Printf(" pre-cached all sound data\n");
+		CONS_Printf("%s", M_GetText(" pre-cached all sound data\n"));
 	}
 }
 
@@ -1078,7 +1078,7 @@ void S_ChangeMusic(musicenum_t music_num, INT32 looping)
 		S_StopMusic(); // shutdown old music
 
 	if (!S_DigMusic(music, looping) && !S_MIDIMusic(music, looping) && (!nodigimusic || !nomidimusic || !digital_disabled || !music_disabled))
-		CONS_Printf("ERROR: Music lump %.6s not found!\n", music->name);
+		CONS_Printf(M_GetText("ERROR: Music lump %.6s not found!\n"), music->name);
 }
 
 boolean S_SpeedMusic(float speed)

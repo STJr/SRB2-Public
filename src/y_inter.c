@@ -252,9 +252,9 @@ void Y_IntermissionDrawer(void)
 		Y_DrawNum(BASEVIDWIDTH - 68, 85 + 6*SHORT(tallnum[0]->height), data.coop.total);
 
 		if (gottimebonus && endtic != -1)
-			V_DrawCenteredString(BASEVIDWIDTH/2, 136, V_YELLOWMAP, "GOT TIME BONUS EMBLEM!");
+			V_DrawCenteredString(BASEVIDWIDTH/2, 136, V_YELLOWMAP, M_GetText("GOT TIME BONUS EMBLEM!"));
 		if (gotemblem && !gottimebonus && endtic != -1)
-			V_DrawCenteredString(BASEVIDWIDTH/2, 172, V_YELLOWMAP, "GOT PERFECT BONUS EMBLEM!");
+			V_DrawCenteredString(BASEVIDWIDTH/2, 172, V_YELLOWMAP, M_GetText("GOT PERFECT BONUS EMBLEM!"));
 	}
 	else if (inttype == int_spec)
 	{
@@ -565,7 +565,7 @@ void Y_IntermissionDrawer(void)
 
 	// Make it obvious that scrambling is happening next round.
 	if (cv_scrambleonchange.value && cv_teamscramble.value && (intertic/TICRATE % 2 == 0))
-		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2, V_YELLOWMAP, va("Teams will be scrambled next round!"));
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/2, V_YELLOWMAP, M_GetText("Teams will be scrambled next round!"));
 }
 
 //

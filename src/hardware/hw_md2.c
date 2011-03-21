@@ -895,7 +895,7 @@ void HWR_InitMD2(void)
 	f = fopen("md2.dat", "rt");
 	if (!f)
 	{
-		CONS_Printf("Error while loading md2.dat\n");
+		CONS_Printf("%s", M_GetText("Error while loading md2.dat\n"));
 		return;
 	}
 	while (fscanf(f, "%4s %31s %f %f", name, filename, &scale, &offset) == 4)
@@ -912,7 +912,7 @@ void HWR_InitMD2(void)
 			}
 		}
 		if (i == NUMSPRITES)
-			CONS_Printf("    Not found: %s\n", name);
+			CONS_Printf(M_GetText("    Not found: %s\n"), name);
 	}
 	fclose(f);
 }

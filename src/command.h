@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 #include "doomdef.h"
-#include "dstrings.h"
 
 //===================================
 // Command buffer & command execution

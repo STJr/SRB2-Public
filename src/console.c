@@ -162,7 +162,7 @@ static void CONS_hudlines_Change(void)
 
 	con_hudlines = cons_hudlines.value;
 
-	CONS_Printf("Number of console HUD lines is now %d\n", con_hudlines);
+	CONS_Printf(M_GetText("Number of console HUD lines is now %d\n"), con_hudlines);
 }
 
 // Check CONS_speed value (must be positive)
@@ -190,7 +190,7 @@ static void CONS_Clear_f(void)
 static void CONS_English_f(void)
 {
 	shiftxform = english_shiftxform;
-	CONS_Printf("English keymap.\n");
+	CONS_Printf("%s", M_GetText("English keymap.\n"));
 }
 
 static char *bindtable[NUMINPUTS];
@@ -204,8 +204,8 @@ static void CONS_Bind_f(void)
 
 	if (na != 2 && na != 3)
 	{
-		CONS_Printf("bind <keyname> [<command>]\n");
-		CONS_Printf("\2bind table :\n");
+		CONS_Printf("%s", M_GetText("bind <keyname> [<command>]\n"));
+		CONS_Printf("\2%s", M_GetText("bind table :\n"));
 		na = 0;
 		for (key = 0; key < NUMINPUTS; key++)
 			if (bindtable[key])
@@ -214,14 +214,14 @@ static void CONS_Bind_f(void)
 				na = 1;
 			}
 		if (!na)
-			CONS_Printf("Empty\n");
+			CONS_Printf("%s", M_GetText("Empty\n"));
 		return;
 	}
 
 	key = G_KeyStringtoNum(COM_Argv(1));
 	if (!key)
 	{
-		CONS_Printf("Invalid key name\n");
+		CONS_Printf("%s", M_GetText("Invalid key name\n"));
 		return;
 	}
 
@@ -1078,7 +1078,7 @@ void CONS_Error(const char *msg)
 	}
 #endif
 	CONS_Printf("\2%s", msg); // write error msg in different colour
-	CONS_Printf("Press ENTER to continue\n");
+	CONS_Printf("%s", M_GetText("Press ENTER to continue\n"));
 
 	// dirty quick hack, but for the good cause
 	while (I_GetKey() != KEY_ENTER)

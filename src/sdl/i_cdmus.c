@@ -96,13 +96,13 @@ static INT32 CDAudio_GetAudioDiskInfo(void)
 
 	if (!CD_INDRIVE(cdStatus))
 	{
-		CONS_Printf("No CD in drive\n");
+		CONS_Printf("%s", M_GetText("No CD in drive\n"));
 		return -1;
 	}
 
 	if (cdStatus == CD_ERROR)
 	{
-		CONS_Printf("CD Error: %s\n", SDL_GetError());
+		CONS_Printf(M_GetText("CD Error: %s\n"), SDL_GetError());
 		return -1;
 	}
 
@@ -129,7 +129,7 @@ static void I_EjectCD(void)
 	I_StopCD();
 
 	if (SDL_CDEject(cdrom))
-		CONS_Printf("CD eject failed\n");
+		CONS_Printf("%s", M_GetText("CD eject failed\n"));
 }
 
 /**************************************************************************
@@ -150,9 +150,9 @@ static void Command_Cd_f (void)
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf ("cd [on] [off] [remap] [reset] [select]\n"
-		             "   [open] [info] [play <track>] [resume]\n"
-		             "   [stop] [pause] [loop <track>]\n");
+		CONS_Printf ("%s", M_GetText("cd [on] [off] [remap] [reset] [select]\n"
+		"   [open] [info] [play <track>] [resume]\n"
+		"   [stop] [pause] [loop <track>]\n"));
 		return;
 	}
 
@@ -183,10 +183,9 @@ static void Command_Cd_f (void)
 		if (cdrom)
 		{
 			cdEnabled = true;
-			CONS_Printf("Opened CD-ROM drive %s\n", command?command:COM_Argv(2));
+			CONS_Printf(M_GetText("Opened CD-ROM drive %s\n"), command ? command : COM_Argv(2));
 		}
-		else CONS_Printf("Couldn't open CD-ROM drive %s: %s\n",
-		 command?command:COM_Argv(2), SDL_GetError());
+		else CONS_Printf(M_GetText("Couldn't open CD-ROM drive %s: %s\n"), command ? command : COM_Argv(2), SDL_GetError());
 		return;
 	}
 
@@ -222,7 +221,7 @@ static void Command_Cd_f (void)
 	{
 		if (CDAudio_GetAudioDiskInfo()==-1 && !cdValid)
 		{
-			CONS_Printf("No CD in player.\n");
+			CONS_Printf("%s", M_GetText("No CD in drive\n"));
 			return;
 		}
 	}
@@ -236,12 +235,12 @@ static void Command_Cd_f (void)
 
 	if (!strncmp(command, "info", 4))
 	{
-		CONS_Printf("%u tracks\n", maxTrack);
+		CONS_Printf(M_GetText("%u tracks\n"), maxTrack);
 		if (cdPlaying)
-			CONS_Printf("Currently %s track %u\n", playLooping ? "looping" : "playing", playTrack);
+			CONS_Printf(M_GetText("Currently %s track %u\n"), playLooping ? M_GetText("looping") : M_GetText("playing"), playTrack);
 		else if (wasPlaying)
-			CONS_Printf("Paused %s track %u\n", playLooping ? "looping" : "playing", playTrack);
-		CONS_Printf("Volume is %d\n", cdvolume);
+			CONS_Printf(M_GetText("Paused %s track %u\n"), playLooping ? M_GetText("looping") : M_GetText("playing"), playTrack);
+		CONS_Printf(M_GetText("Volume is %d\n"), cdvolume);
 		return;
 	}
 
@@ -274,7 +273,7 @@ static void Command_Cd_f (void)
 		return;
 	}
 
-	CONS_Printf("Invalid command \"cd %s\"\n", COM_Argv (1));
+	CONS_Printf(M_GetText("Invalid CD command \"CD %s\"\n"), COM_Argv(1));
 }
 #endif
 
@@ -381,7 +380,7 @@ void I_ShutdownCD (void)
 	SDL_CDClose(cdrom);
 	cdrom = NULL;
 	cdaudio_started = false;
-	CONS_Printf("shut down\n");
+	CONS_Printf("%s", M_GetText("shut down\n"));
 	SDL_QuitSubSystem(SDL_INIT_CDROM);
 	cdEnabled = SDL_FALSE;
 #endif
@@ -404,12 +403,12 @@ void I_InitCD (void)
 	if (M_CheckParm ("-nocd"))
 		return;
 
-	CONS_Printf("I_InitCD: Init CD audio\n");
+	CONS_Printf("%s", M_GetText("I_InitCD: Init CD audio\n"));
 
 	// Initialize SDL first
 	if (SDL_InitSubSystem(SDL_INIT_CDROM) < 0)
 	{
-		CONS_Printf("Couldn't initialize SDL CDROM: %s\n",SDL_GetError());
+		CONS_Printf(M_GetText("Couldn't initialize SDL CDROM: %s\n"), SDL_GetError());
 		return;
 	}
 
@@ -420,16 +419,9 @@ void I_InitCD (void)
 	{
 		const char *cdName = SDL_CDName(0);
 		if (!cdName)
-		{
-
-			CONS_Printf("Couldn't open default CD-ROM drive: %s\n",
-				SDL_GetError());
-		}
+			CONS_Printf(M_GetText("Couldn't open CD-ROM drive %s: %s\n"), "\b", SDL_GetError());
 		else
-		{
-			CONS_Printf("Couldn't open default CD-ROM drive %s: %s\n",
-				cdName, SDL_GetError());
-		}
+			CONS_Printf(M_GetText("Couldn't open CD-ROM drive %s: %s\n"), cdName, SDL_GetError());
 		//return;
 	}
 
@@ -441,13 +433,13 @@ void I_InitCD (void)
 
 	if (CDAudio_GetAudioDiskInfo()==-1)
 	{
-		CONS_Printf("I_InitCD: No CD in player.\n");
+		CONS_Printf("%s", M_GetText("No CD in drive\n"));
 		cdValid = SDL_FALSE;
 	}
 
 	COM_AddCommand ("cd", Command_Cd_f);
 
-	CONS_Printf("CD audio Initialized\n");
+	CONS_Printf("%s", M_GetText("CD audio Initialized\n"));
 #endif
 }
 
@@ -525,14 +517,14 @@ void I_PlayCD (UINT8 track, UINT8 looping)
 
 	if (track < 1 || track > maxTrack)
 	{
-		CONS_Printf("I_PlayCD: Bad track number %u.\n", track);
+		CONS_Printf(M_GetText("Bad track number %u.\n"), track);
 		return;
 	}
 
 	// don't try to play a non-audio track
 	if (cdrom->track[track].type == SDL_DATA_TRACK)
 	{
-		CONS_Printf("I_PlayCD: track %u is not audio\n", track);
+		CONS_Printf(M_GetText("Track %u is not audio\n"), track);
 		return;
 	}
 
@@ -545,8 +537,7 @@ void I_PlayCD (UINT8 track, UINT8 looping)
 
 	if (SDL_CDPlayTracks(cdrom, track, 0, 1, 0))
 	{
-		CONS_Printf("Error playing track %d: %s\n",
-				track, SDL_GetError());
+		CONS_Printf(M_GetText("Error playing track %d: %s\n"), track, SDL_GetError());
 		return;
 	}
 

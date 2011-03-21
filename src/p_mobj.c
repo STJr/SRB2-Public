@@ -34,7 +34,6 @@
 #include "m_misc.h"
 #include "info.h"
 #include "i_video.h"
-#include "dstrings.h"
 
 //Real Prototypes to A_*
 void A_Boss1Chase(mobj_t *actor);
@@ -200,7 +199,7 @@ boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	} while (!mobj->tics && !seenstate[state]);
 
 	if (ret && !mobj->tics)
-		DEBPRINT(text[CYCLE_DETECT]);
+		DEBPRINT(va("%s", M_GetText("Warning: State Cycle Detected\n")));
 
 	if (!--recursion)
 		for (;(state = seenstate[i]) > S_NULL; i = state - 1)
@@ -262,7 +261,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 	} while (!mobj->tics && !seenstate[state]);
 
 	if (ret && !mobj->tics)
-		DEBPRINT(va("%s", text[CYCLE_DETECT]));
+		DEBPRINT(va("%s", M_GetText("Warning: State Cycle Detected\n")));
 
 	if (!--recursion)
 		for (;(state = seenstate[i]) > S_NULL; i = state - 1)
@@ -1503,8 +1502,8 @@ static void P_ZMovement(mobj_t *mo)
 #endif
 		case MT_REDTEAMRING:
 		case MT_BLUETEAMRING:
-		case MT_FLINGCOIN:
 		case MT_FLINGRING:
+		case MT_FLINGCOIN:
 #ifdef BLUE_SPHERES
 		case MT_FLINGBALL:
 #endif
@@ -2614,7 +2613,7 @@ void P_DestroyRobots(void)
 		modifiedgame = true;
 		savemoddata = false;
 		if (!(netgame || multiplayer))
-			CONS_Printf("%s", text[GAMEMODIFIED]);
+			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
 	}
 }
 
@@ -5688,7 +5687,7 @@ void P_MobjThinker(mobj_t *mobj)
 						if (mobj->type == MT_REDFLAG)
 						{
 							if (!(mobj->flags2 & MF2_JUSTATTACKED))
-								CONS_Printf("The red flag has returned to base.\n");
+								CONS_Printf("%s", M_GetText("The red flag has returned to base.\n"));
 
 							if (players[consoleplayer].ctfteam == 1)
 								S_StartSound(NULL, sfx_hoop1);
@@ -5698,7 +5697,7 @@ void P_MobjThinker(mobj_t *mobj)
 						else // MT_BLUEFLAG
 						{
 							if (!(mobj->flags2 & MF2_JUSTATTACKED))
-								CONS_Printf("The blue flag has returned to base.\n");
+								CONS_Printf("%s", M_GetText("The blue flag has returned to base.\n"));
 
 							if (players[consoleplayer].ctfteam == 2)
 								S_StartSound(NULL, sfx_hoop1);
@@ -6730,7 +6729,7 @@ static boolean P_ObjectInWater(sector_t *sector, fixed_t z)
 
 void P_SpawnPrecipitation(void)
 {
-	const INT32 preloop = 1048576*12;
+	const INT32 preloop = 192*FRACUNIT;
 	INT32 i;
 	fixed_t x = 0, y = 0, height;
 	subsector_t *precipsector = NULL;

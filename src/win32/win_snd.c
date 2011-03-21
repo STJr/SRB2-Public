@@ -865,7 +865,7 @@ void I_ShutdownSound(void)
 {
 	int i;
 
-	CONS_Printf("I_ShutdownSound()\n");
+	CONS_Printf("I_ShutdownSound: ");
 
 #ifdef HW3SOUND
 	if (hws_mode != HWS_DEFAULT_MODE)
@@ -916,13 +916,13 @@ void I_StartupSound(void)
 		return;
 
 	// Secure and configure sound device first.
-	CONS_Printf("I_StartupSound: ");
+	CONS_Printf("I_StartupSound:\n");
 
 	// frequency of primary buffer may be set at cmd-line
 	if (M_CheckParm("-freq") && M_IsNextParm())
 	{
 		frequency = atoi(M_GetNextParm());
-		CONS_Printf(" requested frequency of %d hz\n", frequency);
+		CONS_Printf(M_GetText(" requested frequency of %d hz\n"), frequency);
 		CV_SetValue(&cv_samplerate,frequency);
 	}
 	else
@@ -984,12 +984,12 @@ void I_StartupSound(void)
 			snddev.hWnd = hWndMain;
 			if (HW3S_Init(I_Error, &snddev))
 			{
-				CONS_Printf("Using external sound driver %s\n", sdrv_name);
+				CONS_Printf(M_GetText("Using external sound driver %s\n"), sdrv_name);
 				I_AddExitFunc(I_ShutdownSound);
 				return;
 			}
 			// Falls back to default sound system
-			CONS_Printf("Not using external sound driver %s\n", sdrv_name);
+			CONS_Printf(M_GetText("Not using external sound driver %s\n"), sdrv_name);
 			HW3S_Shutdown();
 			Shutdown3DSDriver();
 		}
@@ -1000,7 +1000,7 @@ void I_StartupSound(void)
 	// Load DirectSound DLL
 	if (!LoadDirectSound())
 	{
-		CONS_Printf(" DirectSound DLL not loaded\n");
+		CONS_Printf("%s", M_GetText(" DirectSound DLL not loaded\n"));
 		nosound = true;
 		return;
 	}
@@ -1008,9 +1008,9 @@ void I_StartupSound(void)
 	hr = pfnDirectSoundCreate(NULL, &DSnd, NULL);
 	if (FAILED(hr))
 	{
-		CONS_Printf(" DirectSoundCreate FAILED\n"
-		            " there is no sound device or the sound device is under\n"
-		            " the control of another application\n");
+		CONS_Printf("%s", M_GetText(" DirectSoundCreate FAILED\n"
+		" there is no sound device or the sound device is under\n"
+		" the control of another application\n"));
 		nosound = true;
 		return;
 	}
@@ -1020,7 +1020,7 @@ void I_StartupSound(void)
 	hr = IDirectSound_SetCooperativeLevel(DSnd, hWndMain, cooplevel);
 	if (FAILED(hr))
 	{
-		CONS_Printf(" SetCooperativeLevel FAILED\n");
+		CONS_Printf("%s", M_GetText(" SetCooperativeLevel FAILED\n"));
 		nosound = true;
 		return;
 	}
@@ -1046,7 +1046,7 @@ void I_StartupSound(void)
 	hr = IDirectSound_CreateSoundBuffer(DSnd, &dsbdesc, &lpDsb, NULL);
 	if (FAILED(hr))
 	{
-		CONS_Printf("CreateSoundBuffer FAILED: %s (ErrNo %ld)\n", DXErrorToString(hr), hr);
+		CONS_Printf(M_GetText("CreateSoundBuffer FAILED: %s (ErrNo %ld)\n"), DXErrorToString(hr), hr);
 		nosound = true;
 		return;
 	}
@@ -1061,16 +1061,16 @@ void I_StartupSound(void)
 			// we'll just ignore and go with the default.
 			hr = IDirectSoundBuffer_SetFormat(lpDsb, &wfm);
 			if (FAILED(hr))
-				CONS_Printf("I_StartupSound :  couldn't set primary buffer format.\n");
+				CONS_Printf("%s", M_GetText("Couldn't set primary buffer format.\n"));
 			else
 				CV_SetValue(&cv_samplerate,wfm.nSamplesPerSec);
 		}
 		// move any on-board sound memory into a contiguous block
 		// to make the largest portion of free memory available.
 
-		CONS_Printf(" Compacting onboard sound-memory...");
+		CONS_Printf("%s", M_GetText(" Compacting onboard sound-memory..."));
 		hr = IDirectSound_Compact(DSnd);
-		CONS_Printf(" %s\n", SUCCEEDED(hr) ? "done" : "FAILED");
+		CONS_Printf(" %s\n", SUCCEEDED(hr) ? M_GetText("Done\n") : M_GetText("Failed\n"));
 	}
 
 	// set the primary buffer to play continuously, for performance
@@ -1080,7 +1080,7 @@ void I_StartupSound(void)
 	// will be playing continuously rather than stopping and starting between secondary buffers."
 	hr = IDirectSoundBuffer_Play(lpDsb, 0, 0, DSBPLAY_LOOPING);
 	if (FAILED (hr))
-		CONS_Printf(" Primary buffer continuous play FAILED\n");
+		CONS_Printf("%s", M_GetText(" Primary buffer continuous play FAILED\n"));
 
 #ifdef DEBUGSOUND
 	{
@@ -1117,7 +1117,7 @@ void I_StartupSound(void)
 
 	ZeroMemory(StackSounds, sizeof (StackSounds));
 
-	CONS_Printf("sound initialised.\n");
+	CONS_Printf("%s", M_GetText("sound initialized.\n"));
 	sound_started = true;
 }
 
@@ -1224,7 +1224,7 @@ void I_InitDigMusic(void)
 			I_AddExitFunc(I_ShutdownDigMusic);
 		else
 		{
-			CONS_Printf(" failling loading FMOD\n no DigiMusic support\n");
+			CONS_Printf("%s", M_GetText(" failed to load FMOD\n no DigiMusic support\n"));
 			nodigimusic = true;
 		}
 	}
@@ -1234,8 +1234,7 @@ void I_InitDigMusic(void)
 		// Tails 11-21-2002
 		if (fmod375->FSOUND_GetVersion() < FMOD_VERSION)
 		{
-			//I_Error("FMOD Error : You are using the wrong DLL version!\nYou should be using FMOD %s\n", "FMOD_VERSION");
-			CONS_Printf("FMOD Error : You are using the wrong DLL version!\nYou should be using FMOD %s\n", "FMOD_VERSION");
+			CONS_Printf(M_GetText("Wrong FMOD DLL version.\nYou should be using FMOD %s\n"), "FMOD_VERSION");
 			nodigimusic = true;
 		}
 
@@ -1287,7 +1286,7 @@ void I_InitMIDIMusic(void)
 	cMidiDevs = midiOutGetNumDevs();
 	if (!cMidiDevs)
 	{
-		CONS_Printf("No MIDI devices available, music is disabled\n");
+		CONS_Printf("%s", M_GetText("No MIDI devices available, music is disabled\n"));
 		nomidimusic = true;
 		return;
 	}
@@ -1337,7 +1336,7 @@ void I_InitMIDIMusic(void)
 	}
 
 #ifdef TESTCODE
-	I_InitAudioMixer ();
+	I_InitAudioMixer();
 #endif
 
 	// ----------------------------------------------------------------------
@@ -1351,7 +1350,7 @@ void I_InitMIDIMusic(void)
 
 	if (!hBufferReturnEvent)
 	{
-		CONS_Printf("No MIDI music\n");
+		CONS_Printf("%s", M_GetText("No MIDI music\n"));
 		I_ShowLastError(TRUE);
 		nomidimusic = true;
 		return;
@@ -1363,7 +1362,7 @@ void I_InitMIDIMusic(void)
 	                                (DWORD)0,
 	                                CALLBACK_FUNCTION /*CALLBACK_NULL*/)) != MMSYSERR_NOERROR)
 	{
-		CONS_Printf("I_RegisterSong: midiStreamOpen FAILED\n");
+		CONS_Printf("%s", M_GetText("midiStreamOpen FAILED\n"));
 		MidiErrorMessageBox(mmrRetVal);
 		nomidimusic = true;
 		return;
@@ -1542,7 +1541,7 @@ void I_SetMIDIMusicVolume(INT32 volume)
 		iVolume = (volume << 11) | (volume << 27);
 		if ((mmrRetVal = midiOutSetVolume((HMIDIOUT)(size_t)uMIDIDeviceID, iVolume)) != MMSYSERR_NOERROR)
 		{
-			CONS_Printf("I_SetMusicVolume: couldn't set volume\n");
+			CONS_Printf("%s", M_GetText("Couldn't set volume\n"));
 			MidiErrorMessageBox(mmrRetVal);
 		}
 	}
@@ -2114,7 +2113,7 @@ INT32 I_RegisterSong(void *data, size_t len)
 	// check for MID format file
 	if (memcmp(data, "MThd", 4))
 	{
-		CONS_Printf("Music lump is not MID music format\n");
+		CONS_Printf("%s", M_GetText("Music lump is not MID music format\n"));
 		return 0;
 	}
 
@@ -2126,7 +2125,7 @@ INT32 I_RegisterSong(void *data, size_t len)
 	if (StreamBufferSetup(data, len))
 	{
 		Mid2StreamConverterCleanup();
-		I_Error("I_RegisterSong: StreamBufferSetup FAILED");
+		I_Error("%s", M_GetText("I_RegisterSong: StreamBufferSetup FAILED"));
 	}
 
 	return 1;

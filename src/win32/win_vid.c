@@ -233,7 +233,7 @@ void I_ShutdownGraphics(void)
 	if (!graphics_started)
 		return;
 
-	CONS_Printf("I_ShutdownGraphics()\n");
+	CONS_Printf("I_ShutdownGraphics: ");
 
 	//FreeConsole();
 
@@ -618,7 +618,7 @@ static BOOL GetExtraModesCallback(int width, int height, int bpp)
 	// check if we have space for this mode
 	if (nummodes >= MAX_EXTRA_MODES)
 	{
-		CONS_Printf("mode skipped (too many)\n");
+		CONS_Printf("%s", M_GetText("mode skipped (too many)\n"));
 		return FALSE;
 	}
 
@@ -766,7 +766,7 @@ static VOID VID_Init(VOID)
 		{
 			int hwdversion = HWD.pfnGetRenderVersion();
 			if (hwdversion != VERSION)
-				CONS_Printf("WARNING: This r_opengl version is not supported, use it at your own risk.\n");
+				CONS_Printf("%s", M_GetText("WARNING: This r_opengl version is not supported, use it at your own risk.\n"));
 
 			// perform initialisations
 			HWD.pfnInit(I_Error);
@@ -978,7 +978,7 @@ INT32 VID_SetMode(INT32 modenum)
 	else if (!vstat)
 		I_Error("Couldn't set video mode %d (%dx%d %d bits)\n", modenum, vid.width, vid.height, (vid.bpp*8));// hardware could not setup mode
 	else
-		CONS_Printf("Mode changed to %d (%s)\n", modenum, pcurrentmode->name);
+		CONS_Printf(M_GetText("Mode changed to %d (%s)\n"), modenum, pcurrentmode->name);
 
 	vid.modenum = modenum;
 
@@ -1081,7 +1081,7 @@ static INT32 WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *currentmode)
 //
 static void VID_Command_NumModes_f(void)
 {
-	CONS_Printf("%d video mode(s) available(s)\n", VID_NumModes());
+	CONS_Printf(M_GetText("%d video mode(s) available(s)\n"), VID_NumModes());
 }
 
 // vid_modeinfo <modenum>
@@ -1098,17 +1098,16 @@ static void VID_Command_ModeInfo_f(void)
 
 	if (modenum > VID_NumModes() || modenum < NUMSPECIALMODES) // don't accept the windowed modes
 	{
-		CONS_Printf("No such video mode\n");
+		CONS_Printf("%s", M_GetText("No such video mode\n"));
 		return;
 	}
 
 	pv = VID_GetModePtr(modenum);
 
 	CONS_Printf("%s\n", VID_GetModeName(modenum));
-	CONS_Printf("width: %d\nheight: %d\n", pv->width, pv->height);
+	CONS_Printf(M_GetText("width: %d\nheight: %d\n"), pv->width, pv->height);
 	if (rendermode == render_soft)
-		CONS_Printf("bytes per scanline: %d\nbytes per pixel: %d\nnumpages: %d\n",
-			pv->rowbytes, pv->bytesperpixel, pv->numpages);
+		CONS_Printf(M_GetText("bytes per scanline: %d\nbytes per pixel: %d\nnumpages: %d\n"), pv->rowbytes, pv->bytesperpixel, pv->numpages);
 }
 
 // vid_modelist
@@ -1140,14 +1139,14 @@ static void VID_Command_Mode_f(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("vid_mode <modenum> : set video mode\n");
+		CONS_Printf(M_GetText("vid_mode <modenum> : set video mode, current video mode %i\n"), vid.modenum);
 		return;
 	}
 
 	modenum = atoi(COM_Argv(1));
 
 	if (modenum > VID_NumModes() || modenum < NUMSPECIALMODES) // don't accept the windowed mode 0
-		CONS_Printf("No such video mode\n");
+		CONS_Printf("%s", M_GetText("No video modes present\n"));
 	else
 		setmodeneeded = modenum + 1; // request vid mode change
 }

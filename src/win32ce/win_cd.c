@@ -337,7 +337,7 @@ void I_ShutdownCD (void)
 	if (!cdaudio_started)
 		return;
 
-	CONS_Printf ("I_ShutdownCD()\n");
+	CONS_Printf("I_ShutdownCD()\n");
 
 	I_StopCD();
 
@@ -385,7 +385,7 @@ void I_InitCD (void)
 	I_AddExitFunc (I_ShutdownCD);
 	cdaudio_started = true;
 
-	CONS_Printf ("I_InitCD: CD Audio started\n");
+	CONS_Printf("I_InitCD: Init CD audio\n");
 
 	// last saved in config.cfg
 	i = cd_volume.value;

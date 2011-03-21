@@ -1029,7 +1029,7 @@ void I_StartupSound(void)
 
 		CONS_Printf(" Compacting onboard sound-memory...");
 		hr = IDirectSound_Compact (DSnd);
-		CONS_Printf(" %s\n", SUCCEEDED(hr) ? "done" : "FAILED");
+		CONS_Printf(" %s\n", SUCCEEDED(hr) ? "Done\n" : "Failed\n"));
 	}
 
 	// set the primary buffer to play continuously, for performance

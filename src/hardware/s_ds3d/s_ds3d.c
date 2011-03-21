@@ -614,7 +614,7 @@ EXPORT BOOL HWRAPI( Startup ) (I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 
 		DBG_Printf(" Compacting onboard sound-memory...");
 		hr = IDirectSound_Compact(DSnd);
-		DBG_Printf(" %s\n", SUCCEEDED(hr) ? "done" : "FAILED");
+		DBG_Printf(" %s\n", SUCCEEDED(hr) ? M_GetText("Done\n") : M_GetText("Failed\n"));
 	}
 
 #ifdef DX7

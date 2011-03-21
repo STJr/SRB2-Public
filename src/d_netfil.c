@@ -51,7 +51,6 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "d_main.h"
-#include "dstrings.h"
 #include "g_game.h"
 #include "i_net.h"
 #include "i_system.h"
@@ -652,7 +651,7 @@ void Got_Filetxpak(void)
 			fclose(fileneeded[filenum].phandle);
 			fileneeded[filenum].phandle = NULL;
 			fileneeded[filenum].status = FS_FOUND;
-			CONS_Printf(text[DOWNLOADING_DONE],
+			CONS_Printf(M_GetText("Downloading %s...(done)\n"),
 				fileneeded[filenum].filename);
 		}
 	}

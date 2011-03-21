@@ -33,7 +33,9 @@
 #endif
 
 #include "doomdef.h"
+#include "doomstat.h"
 #include "doomtype.h"
+
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -133,7 +135,7 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 		lump = W_CheckNumForNamePwad("MAINCFG", wadnum, lump);
 		if (lump == INT16_MAX)
 			break;
-		CONS_Printf("Loading main config from %s\n", wadfiles[wadnum]->filename);
+		CONS_Printf(M_GetText("Loading main config from %s\n"), wadfiles[wadnum]->filename);
 		DEH_LoadDehackedLumpPwad(wadnum, lump);
 	}
 
@@ -143,7 +145,7 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 		lump = W_CheckNumForNamePwad("OBJCTCFG", wadnum, lump);
 		if (lump == INT16_MAX)
 			break;
-		CONS_Printf("Loading object config from %s\n", wadfiles[wadnum]->filename);
+		CONS_Printf(M_GetText("Loading object config from %s\n"), wadfiles[wadnum]->filename);
 		DEH_LoadDehackedLumpPwad(wadnum, lump);
 	}
 }
@@ -214,7 +216,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	//
 	if (numwadfiles >= MAX_WADFILES)
 	{
-		CONS_Printf("Maximum wad files reached\n");
+		CONS_Printf("%s", M_GetText("Maximum wad files reached\n"));
 		return INT16_MAX;
 	}
 
@@ -235,13 +237,13 @@ UINT16 W_LoadWadFile(const char *filename)
 		{
 			if ((handle = fopen(filename, "rb")) == NULL)
 			{
-				CONS_Printf("Can't open %s\n", filename);
+				CONS_Printf(M_GetText("Can't open %s\n"), filename);
 				return INT16_MAX;
 			}
 		}
 		else
 		{
-			CONS_Printf("File %s not found.\n", filename);
+			CONS_Printf(M_GetText("File %s not found.\n"), filename);
 			return INT16_MAX;
 		}
 	}
@@ -259,7 +261,7 @@ UINT16 W_LoadWadFile(const char *filename)
 
 	if (packetsize > sizeof(dummycheck->fileneeded))
 	{
-		CONS_Printf("Maximum wad files reached\n");
+		CONS_Printf("%s", M_GetText("Maximum wad files reached\n"));
 		if (handle)
 			fclose(handle);
 		return INT16_MAX;
@@ -290,7 +292,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		// read the header
 		if (fread(&header, 1, sizeof header, handle) < sizeof header)
 		{
-			CONS_Printf("Can't read wad header from %s because %s\n", filename, strerror(ferror(handle)));
+			CONS_Printf(M_GetText("Can't read wad header from %s because %s\n"), filename, strerror(ferror(handle)));
 			return INT16_MAX;
 		}
 
@@ -300,7 +302,7 @@ UINT16 W_LoadWadFile(const char *filename)
 			&& memcmp(header.identification, "PWAD", 4) != 0
 			&& memcmp(header.identification, "SDLL", 4) != 0)
 		{
-			CONS_Printf("%s doesn't have IWAD or PWAD id\n", filename);
+			CONS_Printf(M_GetText("%s doesn't have IWAD or PWAD id\n"), filename);
 			return INT16_MAX;
 		}
 
@@ -313,7 +315,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		if (fseek(handle, header.infotableofs, SEEK_SET) == -1
 			|| fread(fileinfo, 1, i, handle) < i)
 		{
-			CONS_Printf("%s wadfile directory is corrupt; maybe %s\n", filename, strerror(ferror(handle)));
+			CONS_Printf(M_GetText("%s wadfile directory is corrupt; maybe %s\n"), filename, strerror(ferror(handle)));
 			free(fileinfov);
 			return INT16_MAX;
 		}
@@ -393,7 +395,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	//
 	// add the wadfile
 	//
-	CONS_Printf("Added file %s (%u lumps)\n", filename, numlumps);
+	CONS_Printf(M_GetText("Added file %s (%u lumps)\n"), filename, numlumps);
 	wadfiles[numwadfiles] = wadfile;
 	W_LoadDehackedLumps(numwadfiles);
 
@@ -409,11 +411,11 @@ void W_UnloadWadFile(UINT16 num)
 	lumpcache_t *lumpcache;
 	if (num == 0)
 	{
-		CONS_Printf("You can't remove the IWAD %s!\n", wadfiles[0]->filename);
+		CONS_Printf(M_GetText("You can't remove the IWAD %s!\n"), wadfiles[0]->filename);
 		return;
 	}
 	else
-		CONS_Printf("Removing WAD %s...\n", wadfiles[num]->filename);
+		CONS_Printf(M_GetText("Removing WAD %s...\n"), wadfiles[num]->filename);
 
 	DEH_UnloadDehackedWad(num);
 	wadfiles[num] = NULL;
@@ -433,7 +435,7 @@ void W_UnloadWadFile(UINT16 num)
 	fclose(delwad->handle);
 	Z_Free(delwad->filename);
 	Z_Free(delwad);
-	CONS_Printf(" done unloading WAD\n");
+	CONS_Printf("%s", M_GetText(" done unloading WAD\n"));
 }
 #endif
 
@@ -948,10 +950,7 @@ void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5)
 #else
 		I_Error
 #endif
-			("File is corrupt or has been modified: %s "
-			"(found md5: %s, wanted: %s)\n",
-			wadfiles[wadfilenum]->filename,
-			actualmd5text, matchmd5);
+			(M_GetText("File is corrupt or has been modified: %s (found md5: %s, wanted: %s)\n"), wadfiles[wadfilenum]->filename, actualmd5text, matchmd5);
 	}
 #endif
 }

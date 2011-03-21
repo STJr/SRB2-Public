@@ -136,6 +136,7 @@ static UINT8** translationtablecache[MAXSKINS + 1] = {NULL};
 
 
 // See also the enum skincolors_t
+// TODO Callum: Can this be translated?
 const char *Color_Names[MAXSKINCOLORS] =
 {
 	"None",

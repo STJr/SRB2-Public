@@ -1117,7 +1117,7 @@ static int joy_open(const char *fname)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 		{
-			CONS_Printf("Couldn't initialize SDL Joystick: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't initialize joystick: %s\n"), SDL_GetError());
 			return -1;
 		}
 		else
@@ -1127,9 +1127,9 @@ static int joy_open(const char *fname)
 
 		if (num_joy < joyindex)
 		{
-			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
+			CONS_Printf(M_GetText("Cannot use joystick #%d/(%s), it doesn't exist\n"),joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
 			I_ShutdownJoystick();
 			return -1;
 		}
@@ -1148,21 +1148,21 @@ static int joy_open(const char *fname)
 //		DEBPRINT(va("Unable to use that joystick #(%s), non-number\n",fname));
 		if (num_joy != 0)
 		{
-			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
+			CONS_Printf(M_GetText("Found %d joysticks on this system\n"), num_joy);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
 		}
 		else
-			CONS_Printf("Hmm, I was unable to found any joysticks on this system\n");
+			CONS_Printf("%s", M_GetText("Found no joysticks on this system\n"));
 		if (joyindex <= 0 || num_joy == 0) return 0;
 	}
 
 	JoyInfo.dev = SDL_JoystickOpen(joyindex-1);
-	CONS_Printf("Joystick: %s\n",SDL_JoystickName(joyindex-1));
+	CONS_Printf(M_GetText("Joystick: %s\n"), SDL_JoystickName(joyindex-1));
 
 	if (JoyInfo.dev == NULL)
 	{
-		CONS_Printf("Couldn't open joystick: %s\n", SDL_GetError());
+		CONS_Printf(M_GetText("Couldn't open joystick: %s\n"), SDL_GetError());
 		I_ShutdownJoystick();
 		return -1;
 	}
@@ -1411,7 +1411,7 @@ static int joy_open2(const char *fname)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 		{
-			CONS_Printf("Couldn't initialize SDL Joystick: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't initialize joystick: %s\n"), SDL_GetError());
 			return -1;
 		}
 		else
@@ -1419,9 +1419,9 @@ static int joy_open2(const char *fname)
 
 		if (num_joy < joyindex)
 		{
-			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
+			CONS_Printf(M_GetText("Cannot use joystick #%d/(%s), it doesn't exist\n"),joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
 			I_ShutdownJoystick2();
 			return -1;
 		}
@@ -1440,21 +1440,21 @@ static int joy_open2(const char *fname)
 //		DEBPRINT(va("Unable to use that joystick #(%s), non-number\n",fname));
 		if (num_joy != 0)
 		{
-			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
+			CONS_Printf(M_GetText("Found %d joysticks on this system\n"), num_joy);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
 		}
 		else
-			CONS_Printf("Hmm, I was unable to found any joysticks on this system\n");
+			CONS_Printf("%s", M_GetText("Found no joysticks on this system\n"));
 		if (joyindex <= 0 || num_joy == 0) return 0;
 	}
 
 	JoyInfo2.dev = SDL_JoystickOpen(joyindex-1);
-	CONS_Printf("Joystick2: %s\n", SDL_JoystickName(joyindex-1));
+	CONS_Printf(M_GetText("Joystick2: %s\n"), SDL_JoystickName(joyindex-1));
 
 	if (!JoyInfo2.dev)
 	{
-		CONS_Printf("Couldn't open joystick2: %s\n", SDL_GetError());
+		CONS_Printf(M_GetText("Couldn't open joystick2: %s\n"), SDL_GetError());
 		I_ShutdownJoystick2();
 		return -1;
 	}
@@ -1779,7 +1779,7 @@ static void I_PoolMouse2(void)
 
 	if (!ReadFile(mouse2filehandle, buffer, dwLength, &dwLength, NULL))
 	{
-		CONS_Printf("\2Read Error on secondary mouse port\n");
+		CONS_Printf("\2%s", M_GetText("Read Error on secondary mouse port\n"));
 		return;
 	}
 
@@ -1875,7 +1875,7 @@ void I_StartupMouse2(void)
 	if (cv_usemouse2.value == 0) return;
 	if ((fdmouse2 = open(cv_mouse2port.string, O_RDONLY|O_NONBLOCK|O_NOCTTY)) == -1)
 	{
-		CONS_Printf("Error opening %s!\n", cv_mouse2port.string);
+		CONS_Printf(M_GetText("Error opening %s!\n"), cv_mouse2port.string);
 		return;
 	}
 	tcflush(fdmouse2, TCIOFLUSH);
@@ -1943,10 +1943,9 @@ void I_StartupMouse2(void)
 		{
 			INT32 e = GetLastError();
 			if (e == 5)
-				CONS_Printf("\2Can't open %s: Access denied\n"
-				            "The port is probably already used by one other device (mouse, modem,...)\n", cv_mouse2port.string);
+				CONS_Printf(M_GetText("\2Can't open %s: Access denied\n"), cv_mouse2port.string);
 			else
-				CONS_Printf("\2Can't open %s: error %d\n", cv_mouse2port.string, e);
+				CONS_Printf(M_GetText("\2Can't open %s: error %d\n"), cv_mouse2port.string, e);
 			return;
 		}
 	}
@@ -2122,7 +2121,7 @@ void I_StartupTimer(void)
 	if (M_CheckParm("-gettickcount"))
 	{
 		starttickcount = GetTickCount();
-		CONS_Printf("Using GetTickCount()\n");
+		CONS_Printf("%s", M_GetText("Using GetTickCount()\n"));
 	}
 	winmm = LoadLibraryA("winmm.dll");
 	if (winmm)

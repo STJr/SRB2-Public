@@ -457,7 +457,7 @@ void I_StartupTimer(void)
 	if (M_CheckParm("-gettickcount"))
 	{
 		starttickcount = GetTickCount();
-		CONS_Printf("Using GetTickCount()\n");
+		CONS_Printf("%s", M_GetText("Using GetTickCount()\n"));
 	}
 	timeBeginPeriod(1);
 	I_AddExitFunc(I_ShutdownTimer);
@@ -889,7 +889,7 @@ static VOID CreateDevice2A(LPDIRECTINPUTA di, REFGUID pguid, LPDIRECTINPUTDEVICE
 			hr2 = IDirectInputDevice_QueryInterface(lpdid1, &IID_IDirectInputDevice2, tp);
 			if (FAILED(hr2))
 			{
-				CONS_Printf("\2Could not create IDirectInput device 2");
+				CONS_Printf("\2%s", M_GetText("Could not create IDirectInput device 2"));
 				lpdid2 = NULL;
 			}
 		}
@@ -974,7 +974,7 @@ static VOID I_PoolMouse2(VOID)
 	{
 		if (!ReadFile(mouse2filehandle, buffer, dwLength, &dwLength, NULL))
 		{
-			CONS_Printf("\2Read Error on secondary mouse port\n");
+			CONS_Printf("\2%s", M_GetText("Read Error on secondary mouse port\n"));
 			return;
 		}
 
@@ -1035,11 +1035,9 @@ void I_StartupMouse2(void)
 		{
 			int e = GetLastError();
 			if (e == 5)
-				CONS_Printf("\2Can't open %s: Access denied\n"
-					"The port is probably already used by another device (mouse, modem,...)\n",
-						cv_mouse2port.string);
+				CONS_Printf(M_GetText("Error opening %s!\n"), cv_mouse2port.string);
 			else
-				CONS_Printf("\2Can't open %s: error %d\n", cv_mouse2port.string, e);
+				CONS_Printf(M_GetText("\2Can't open %s: error %d\n"), cv_mouse2port.string, e);
 			return;
 		}
 	}
@@ -1184,7 +1182,7 @@ VOID I_DoStartupMouse(VOID)
 
 	if (nodinput)
 	{
-		CONS_Printf("\tMouse will not use DirectInput.\n");
+		CONS_Printf("%s", M_GetText("\tMouse will not use DirectInput.\n"));
 		// System mouse input will be initiated by VID_SetMode
 		I_AddExitFunc(I_ShutdownMouse);
 
@@ -1721,8 +1719,7 @@ static BOOL CALLBACK DIEnumJoysticks (LPCDIDEVICEINSTANCEA lpddi,
 	//DEBPRINT(va("Gamepad: %d\n", Joystick.bGamepadStyle));
 
 
-	CONS_Printf("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %d\n",
-	            caps.dwAxes, caps.dwButtons, caps.dwPOVs, Joystick.bJoyNeedPoll, Joystick.bGamepadStyle);
+	CONS_Printf(M_GetText("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %d\n"), caps.dwAxes, caps.dwButtons, caps.dwPOVs, Joystick.bJoyNeedPoll, Joystick.bGamepadStyle);
 
 	// Set the data format to "simple joystick" - a predefined data format
 	//
@@ -1954,7 +1951,7 @@ void I_InitJoystick(void)
 	//joystick detection can be skipped by setting use_joystick to 0
 	if (!lpDI || M_CheckParm("-nojoy"))
 	{
-		CONS_Printf("Joystick disabled\n");
+		CONS_Printf("%s", M_GetText("Joystick disabled\n"));
 		return;
 	}
 	else
@@ -1968,14 +1965,14 @@ void I_InitJoystick(void)
 	{
 		joystick_detected = false;
 
-		CONS_Printf("Looking for joystick devices:\n");
+		CONS_Printf("%s", M_GetText("Looking for joystick devices:\n"));
 		iJoyNum = 0;
 		hr = IDirectInput_EnumDevices(lpDI, DIDEVTYPE_JOYSTICK, DIEnumJoysticks,
 			(void *)&cv_usejoystick, // our user parameter is joystick number
 			DIEDFL_ATTACHEDONLY);
 		if (FAILED(hr))
 		{
-			CONS_Printf("\nI_InitJoystick(): EnumDevices FAILED\n");
+			CONS_Printf("%s", M_GetText("Joystick initialize failed.\n"));
 			cv_usejoystick.value = 0;
 			return;
 		}
@@ -1983,14 +1980,13 @@ void I_InitJoystick(void)
 		if (!lpDIJ)
 		{
 			if (!iJoyNum)
-				CONS_Printf("none found\n");
+				CONS_Printf("%s", M_GetText("none found\n"));
 			else
 			{
-				CONS_Printf("none used\n");
+				CONS_Printf("%s", M_GetText("none used\n"));
 				if (cv_usejoystick.value > 0 && cv_usejoystick.value > iJoyNum)
 				{
-					CONS_Printf("\2Set the use_joystick variable to one of the"
-						" enumerated joystick numbers\n");
+					CONS_Printf("\2%s", M_GetText("Set the use_joystick variable to one of the enumerated joystick numbers\n"));
 				}
 			}
 			cv_usejoystick.value = 0;
@@ -2003,11 +1999,11 @@ void I_InitJoystick(void)
 		if (FAILED(IDirectInputDevice_SetCooperativeLevel(lpDIJ, hWndMain,
 		 DISCL_NONEXCLUSIVE|DISCL_FOREGROUND)))
 		{
-			I_Error("I_InitJoystick: SetCooperativeLevel FAILED");
+			I_Error("%s", M_GetText("I_InitJoystick: SetCooperativeLevel FAILED"));
 		}
 	}
 	else
-		CONS_Printf("Joystick already initialized\n");
+		CONS_Printf("%s", M_GetText("Joystick already initialized\n"));
 
 	// we don't unacquire joystick, so let's just pretend we re-acquired it
 	joystick_detected = true;
@@ -2082,10 +2078,7 @@ static BOOL CALLBACK DIEnumJoysticks2 (LPCDIDEVICEINSTANCEA lpddi,
 	Joystick2.bGamepadStyle = (GET_DIDEVICE_SUBTYPE(caps.dwDevType) == DIDEVTYPEJOYSTICK_GAMEPAD);
 	//DEBPRINT(va("Gamepad: %d\n", Joystick2.bGamepadStyle));
 
-
-	CONS_Printf("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %u\n",
-	             caps.dwAxes, caps.dwButtons, caps.dwPOVs, Joystick2.bJoyNeedPoll, Joystick2.bGamepadStyle);
-
+	CONS_Printf(M_GetText("Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %d\n"), caps.dwAxes, caps.dwButtons, caps.dwPOVs, Joystick2.bJoyNeedPoll, Joystick2.bGamepadStyle);
 
 	// Set the data format to "simple joystick" - a predefined data format
 	//
@@ -2320,7 +2313,7 @@ void I_InitJoystick2 (void)
 	// joystick detection can be skipped by setting use_joystick to 0
 	if (!lpDI || M_CheckParm("-nojoy"))
 	{
-		CONS_Printf("Joystick2 disabled\n");
+		CONS_Printf("%s", M_GetText("Joystick2 disabled\n"));
 		return;
 	}
 	else
@@ -2334,7 +2327,7 @@ void I_InitJoystick2 (void)
 	{
 		joystick2_detected = false;
 
-		CONS_Printf("Looking for joystick devices:\n");
+		CONS_Printf("%s", M_GetText("Looking for joystick devices:\n"));
 		iJoy2Num = 0;
 		hr = IDirectInput_EnumDevices(lpDI, DIDEVTYPE_JOYSTICK,
 		                              DIEnumJoysticks2,
@@ -2342,7 +2335,7 @@ void I_InitJoystick2 (void)
 		                              DIEDFL_ATTACHEDONLY);
 		if (FAILED(hr))
 		{
-			CONS_Printf("\nI_InitJoystick2(): EnumDevices FAILED\n");
+			CONS_Printf("%s", M_GetText("Joystick initialize failed.\n"));
 			cv_usejoystick2.value = 0;
 			return;
 		}
@@ -2350,15 +2343,14 @@ void I_InitJoystick2 (void)
 		if (!lpDIJ2)
 		{
 			if (iJoy2Num == 0)
-				CONS_Printf("none found\n");
+				CONS_Printf("%s", M_GetText("none found\n"));
 			else
 			{
-				CONS_Printf("none used\n");
+				CONS_Printf("%s", M_GetText("none used\n"));
 				if (cv_usejoystick2.value > 0 &&
 				    cv_usejoystick2.value > iJoy2Num)
 				{
-					CONS_Printf("\2Set the use_joystick2 variable to one of the"
-					            " enumerated joysticks number\n");
+					CONS_Printf("\2%s", M_GetText("Set the use_joystick2 variable to one of the enumerated joysticks number\n"));
 				}
 			}
 			cv_usejoystick2.value = 0;
@@ -2369,7 +2361,7 @@ void I_InitJoystick2 (void)
 
 		// set coop level
 		if (FAILED(IDirectInputDevice_SetCooperativeLevel (lpDIJ2, hWndMain, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND)))
-			I_Error("I_InitJoystick2: SetCooperativeLevel FAILED");
+			I_Error("%s", M_GetText("I_InitJoystick2: SetCooperativeLevel FAILED"));
 
 		// later
 		//if (FAILED(IDirectInputDevice_Acquire (lpDIJ2)))
@@ -2378,7 +2370,7 @@ void I_InitJoystick2 (void)
 		joystick2_detected = true;
 	}
 	else
-		CONS_Printf("Joystick2 already initialized\n");
+		CONS_Printf("%s", M_GetText("Joystick already initialized\n"));
 
 	//faB: we don't unacquire joystick, so let's just pretend we re-acquired it
 	joystick2_detected = true;
@@ -3471,10 +3463,10 @@ INT32 I_StartupSystem(void)
 					sErr = "UNKNOWN";
 					break;
 			}
-			I_Error("Couldn't create DirectInput (reason: %s)", sErr);
+			I_Error(M_GetText("Couldn't create DirectInput (reason: %s)"), sErr);
 		}
 		else
-			CONS_Printf("\2Using DirectX3 interface\n");
+			CONS_Printf("\2%s", M_GetText("Using DirectX3 interface\n"));
 
 		// only use DirectInput3 compatible structures and calls
 		bDX0300 = TRUE;

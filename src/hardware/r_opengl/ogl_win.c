@@ -28,6 +28,7 @@
 #define RPC_NO_WINDOWS_H
 #include <windows.h>
 #include <time.h>
+#undef GETTEXT
 #include "r_opengl.h"
 
 

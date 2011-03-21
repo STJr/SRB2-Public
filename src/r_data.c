@@ -478,7 +478,7 @@ static void R_InitExtraColormaps(void)
 		colormaplumps[numcolormaplumps].numlumps = endnum - (startnum + 1);
 		numcolormaplumps++;
 	}
-	CONS_Printf("Number of Extra Colormaps: %s\n", sizeu1(numcolormaplumps));
+	CONS_Printf(M_GetText("Number of Extra Colormaps: %s\n"), sizeu1(numcolormaplumps));
 }
 
 lumpnum_t R_GetFlatNumForName(const char *name)

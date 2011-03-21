@@ -40,7 +40,6 @@
 #include "r_splats.h"
 #include "z_zone.h"
 #include "w_wad.h"
-#include "dstrings.h"
 #include "hu_stuff.h"
 
 #ifdef HW3SOUND
@@ -356,7 +355,7 @@ void P_ResetScore(player_t *player)
 {
 #ifdef CHAOSISNOTDEADYET
 	if (gametype == GT_CHAOS && player->scoreadd >= 5)
-		CONS_Printf("%s got a chain of %u!\n", player_names[player-players], player->scoreadd);
+		CONS_Printf(M_GetText("%s got a chain of %u!\n"), player_names[player-players], player->scoreadd);
 #endif
 
 	player->scoreadd = 0;
@@ -1343,7 +1342,7 @@ void P_DoPlayerExit(player_t *player)
 	player->powers[pw_underwater] = 1; // So music resets
 
 	if (playeringame[player-players] && netgame && (gametype == GT_COOP || gametype == GT_RACE) && !circuitmap)
-		CONS_Printf(text[FINISHEDLEVEL], player_names[player-players]);
+		CONS_Printf(M_GetText("%s has completed the level.\n"), player_names[player-players]);
 }
 
 #define SPACESPECIAL 12
@@ -4860,7 +4859,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 			if (((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS) >= (1 << (16-ZSHIFT)))
 			{
-				CONS_Printf("%s",text[TOOHIGH_4095]);
+				CONS_Printf("%s", M_GetText("Sorry, you're too high to place this object (max: 4095 above bottom floor).\n"));
 				return;
 			}
 
@@ -4994,12 +4993,12 @@ static void P_NiGHTSMovement(player_t *player)
 
 			if ((cv_mapthingnum.value == 16 || cv_mapthingnum.value == 2008) && ((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS) >= (1 << (16-(ZSHIFT+1))))
 			{
-				CONS_Printf("%s", text[TOOHIGH_2047]);
+				CONS_Printf("%s", M_GetText("Sorry, you're too high to place this object (max: 2047 above bottom floor).\n"));
 				return;
 			}
 			else if (((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS) >= (1 << (16-ZSHIFT)))
 			{
-				CONS_Printf("%s", text[TOOHIGH_4095]);
+				CONS_Printf("%s", M_GetText("Sorry, you're too high to place this object (max: 4095 above bottom floor).\n"));
 				return;
 			}
 
@@ -5046,7 +5045,7 @@ static void P_NiGHTSMovement(player_t *player)
 			else
 				P_SpawnMapThing(mt);
 
-			CONS_Printf("Spawned at %d\n", mt->options >> shift);
+			CONS_Printf(M_GetText("Spawned at %d\n"), mt->options >> shift);
 
 			player->pflags |= PF_USEDOWN;
 		}
@@ -5116,7 +5115,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			|| mobjinfo[player->currentthing].flags & MF_BOSS
 			|| (states[mobjinfo[player->currentthing].spawnstate].sprite == SPR_DISS && player->currentthing != MT_MINUS));
 
-		CONS_Printf("Current mapthing is %d\n", mobjinfo[player->currentthing].doomednum);
+		CONS_Printf(M_GetText("Current mapthing is %d\n"), mobjinfo[player->currentthing].doomednum);
 		player->pflags |= PF_SKIDDOWN;
 	}
 	else if (cmd->buttons & BT_CAMRIGHT && !(player->pflags & PF_JUMPDOWN))
@@ -5133,7 +5132,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			|| mobjinfo[player->currentthing].flags & MF_BOSS
 			|| (states[mobjinfo[player->currentthing].spawnstate].sprite == SPR_DISS && player->currentthing != MT_MINUS));
 
-		CONS_Printf("Current mapthing is %d\n", mobjinfo[player->currentthing].doomednum);
+		CONS_Printf(M_GetText("Current mapthing is %d\n"), mobjinfo[player->currentthing].doomednum);
 		player->pflags |= PF_JUMPDOWN;
 	}
 
@@ -5210,10 +5209,8 @@ static void P_ObjectplaceMovement(player_t *player)
 			{
 				if (z >= (1 << (16-(ZSHIFT+1))))
 				{
-					CONS_Printf("Sorry, you're too %s to place this object (max: %d %s).\n",
-						player->mo->target->flags & MF_SPAWNCEILING ? "low" : "high",
-						(1 << (16-(ZSHIFT+1))),
-						player->mo->target->flags & MF_SPAWNCEILING ? "below top ceiling" : "above bottom floor");
+					CONS_Printf(M_GetText("Sorry, you're too %s to place this object (max: %d %s).\n"), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("low") : M_GetText("high"),
+						(1 << (16-(ZSHIFT+1))), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("below top ceiling") : M_GetText("above bottom floor"));
 					return;
 				}
 				zshift = ZSHIFT+1; // Shift it over 5 bits to make room for the flag info.
@@ -5222,10 +5219,8 @@ static void P_ObjectplaceMovement(player_t *player)
 			{
 				if (z >= (1 << (16-ZSHIFT)))
 				{
-					CONS_Printf("Sorry, you're too %s to place this object (max: %d %s).\n",
-						player->mo->target->flags & MF_SPAWNCEILING ? "low" : "high",
-						(1 << (16-ZSHIFT)),
-						player->mo->target->flags & MF_SPAWNCEILING ? "below top ceiling" : "above bottom floor");
+					CONS_Printf(M_GetText("Sorry, you're too %s to place this object (max: %d %s).\n"), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("low") : M_GetText("high"),
+						(1 << (16-ZSHIFT)), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("below top ceiling") : M_GetText("above bottom floor"));
 					return;
 				}
 				zshift = ZSHIFT;
@@ -5272,7 +5267,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			if (cv_mapthingnum.value != 0)
 			{
 				mt->type = (INT16)cv_mapthingnum.value;
-				CONS_Printf("Placed object mapthingum %d, not the one below.\n", mt->type);
+				CONS_Printf(M_GetText("Placed object mapthingum %d, not the one below.\n"), mt->type);
 			}
 			else
 				mt->type = (INT16)mobjinfo[player->currentthing].doomednum;
@@ -5282,7 +5277,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			newthing = P_SpawnMobj(x << FRACBITS, y << FRACBITS, player->mo->target->flags & MF_SPAWNCEILING ? player->mo->subsector->sector->ceilingheight - ((z>>zshift)<<FRACBITS) : player->mo->subsector->sector->floorheight + ((z>>zshift)<<FRACBITS), player->currentthing);
 			newthing->angle = player->mo->angle;
 			newthing->spawnpoint = mt;
-			CONS_Printf("Placed object type %d at %d, %d, %d, %d\n", newthing->info->doomednum, mt->x, mt->y, newthing->z>>FRACBITS, mt->angle);
+			CONS_Printf(M_GetText("Placed object type %d at %d, %d, %d, %d\n"), newthing->info->doomednum, mt->x, mt->y, newthing->z>>FRACBITS, mt->angle);
 
 			player->pflags |= PF_ATTACKDOWN;
 		}
@@ -5328,7 +5323,7 @@ static void P_ObjectplaceMovement(player_t *player)
 							mapthing_t *newmt;
 							size_t z;
 
-							CONS_Printf("Deleting...\n");
+							CONS_Printf("%s", M_GetText("Deleting...\n"));
 
 							oldmapthings = mapthings;
 							nummapthings--;
@@ -5342,7 +5337,7 @@ static void P_ObjectplaceMovement(player_t *player)
 							{
 								if (oldmt->mobj == mo2)
 								{
-									CONS_Printf("Deleted.\n");
+									CONS_Printf("%s", M_GetText("Deleted.\n"));
 									newmt--;
 									continue;
 								}
@@ -5363,7 +5358,7 @@ static void P_ObjectplaceMovement(player_t *player)
 					}
 				}
 				else
-					CONS_Printf("You cannot delete this item because it doesn't have a mapthing!\n");
+					CONS_Printf("%s", M_GetText("You cannot delete this item because it doesn't have a mapthing!\n"));
 			}
 			done = false;
 		}
@@ -5528,7 +5523,7 @@ static void P_MovePlayer(player_t *player)
 					//Make joining players "it" after hidetime.
 					if (leveltime > (hidetime * TICRATE))
 					{
-						CONS_Printf("%s is it!\n", player_names[player-players]); // Tell everyone who is it!
+						CONS_Printf(M_GetText("%s is now IT!\n"), player_names[player-players]); // Tell everyone who is it!
 						player->pflags |= PF_TAGIT;
 					}
 
@@ -5539,18 +5534,18 @@ static void P_MovePlayer(player_t *player)
 				if (P_IsLocalPlayer(player) && displayplayer != consoleplayer)
 					displayplayer = consoleplayer;
 
-				CONS_Printf(text[INGAME_SWITCH], player_names[player-players]);
+				CONS_Printf(M_GetText("%s entered the game.\n"), player_names[player-players]);
 			}
 			else
 			{
 				if (P_IsLocalPlayer(player))
-					CONS_Printf("You must wait until next round to enter the game.\n");
+					CONS_Printf("%s", M_GetText("You must wait until next round to enter the game.\n"));
 				player->powers[pw_flashing] += 2*TICRATE; //to prevent message spam.
 			}
 		}
 		else
 		{
-			CONS_Printf("Server does not allow team change.\n");
+			CONS_Printf("%s", M_GetText("Server does not allow team change.\n"));
 			player->powers[pw_flashing] += 2*TICRATE; //to prevent message spam.
 		}
 	}
@@ -5610,7 +5605,7 @@ static void P_MovePlayer(player_t *player)
 		}
 		else
 		{
-			CONS_Printf("Server does not allow team change.\n");
+			CONS_Printf("%s", M_GetText("Server does not allow team change.\n"));
 			player->powers[pw_flashing] += 2*TICRATE; //to prevent message spam.
 		}
 	}
@@ -8642,7 +8637,7 @@ static void P_NukeAllPlayers(player_t *player)
 		P_DamageMobj(mo, player->mo, player->mo, 1);
 	}
 
-	CONS_Printf(WORLD_OF_PAIN, player_names[player-players]);
+	CONS_Printf(M_GetText("%s caused a world of pain.\n"), player_names[player-players]);
 
 	return;
 }
@@ -9683,7 +9678,7 @@ void P_PlayerThink(player_t *player)
 		else if (countdown == 1 && !player->exiting && player->lives > 0)
 		{
 			if (netgame && player->health > 0)
-				CONS_Printf(text[OUT_OF_TIME], player_names[player-players]);
+				CONS_Printf(M_GetText("%s ran out of time.\n"), player_names[player-players]);
 
 			player->pflags |= PF_TIMEOVER;
 

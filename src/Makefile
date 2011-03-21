@@ -549,7 +549,7 @@ asm:
 # executable
 # NOTE: DJGPP's objcopy do not have --add-gnu-debuglink
 
-$(BIN)/$(EXENAME): $(OBJS)
+$(BIN)/$(EXENAME): $(POS) $(OBJS)
 	-$(MKDIR) $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)

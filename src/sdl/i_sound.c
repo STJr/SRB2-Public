@@ -1135,7 +1135,7 @@ void I_ShutdownSound(void)
 
 	if (nomidimusic && nodigimusic)
 		SDL_CloseAudio();
-	CONS_Printf("shut down\n");
+	CONS_Printf("%s", M_GetText("shut down\n"));
 	sound_started = false;
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	if (Snd_Mutex)
@@ -1181,7 +1181,7 @@ void I_StartupSound(void)
 		audio.freq = atoi(M_GetNextParm());
 		if (!audio.freq) audio.freq = cv_samplerate.value;
 		audio.samples = (Uint16)((samplecount/2)*(INT32)(audio.freq/11025)); //Alam: to keep it around the same XX ms
-		CONS_Printf (" requested frequency of %d hz\n", audio.freq);
+		CONS_Printf (M_GetText(" requested frequency of %d hz\n"), audio.freq);
 	}
 	else
 	{
@@ -1261,34 +1261,34 @@ void I_StartupSound(void)
 			if (HW3S_Init(I_Error, &snddev))
 			{
 				audio.userdata = NULL;
-				CONS_Printf(" Using 3D sound driver\n");
+				CONS_Printf("%s", M_GetText(" Using 3D sound driver\n"));
 				return;
 			}
-			CONS_Printf(" Failed 3D sound Init\n");
+			CONS_Printf("%s", M_GetText(" Failed loading 3D sound driver\n"));
 			// Falls back to default sound system
 			HW3S_Shutdown();
 			hwClose(soundso);
 		}
-		CONS_Printf(" Failed loading 3D sound driver\n");
+		CONS_Printf("%s", M_GetText(" Failed loading 3D sound driver\n"));
 		hws_mode = HWS_DEFAULT_MODE;
 	}
 #endif
 	if (!musicStarted && SDL_OpenAudio(&audio, &audio) < 0)
 	{
-		CONS_Printf(" couldn't open audio with desired format\n");
+		CONS_Printf("%s", M_GetText(" couldn't open audio with desired format\n"));
 		nosound = true;
 		return;
 	}
 	else
 	{
 		char ad[100];
-		CONS_Printf(" Starting up with audio driver : %s\n", SDL_AudioDriverName(ad, (int)sizeof ad));
+		CONS_Printf(M_GetText(" Starting up with audio driver : %s\n"), SDL_AudioDriverName(ad, (int)sizeof ad));
 	}
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
-	CONS_Printf(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0f) / audio.freq));
+	CONS_Printf(M_GetText(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n"), samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0f) / audio.freq));
 	// Finished initialization.
-	CONS_Printf("I_InitSound: sound module ready\n");
+	CONS_Printf("%s", M_GetText(" Sound module ready\n"));
 	//[segabor]
 	if (!musicStarted) SDL_PauseAudio(0);
 	//Mix_Pause(0);
@@ -1344,7 +1344,7 @@ static void I_ShutdownFMODMusic(void)
 	}
 	FMOD_FreeInstance(fmod375);
 	fmod375 = NULL;
-	CONS_Printf(" Done\n");
+	CONS_Printf("%s", M_GetText("Done\n"));
 }
 #endif
 
@@ -1374,7 +1374,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 		SDLRW = SDL_RWFromConstMem(data, (int)lumplength); //new RWops from Z_zone
 		if (!SDLRW) //ERROR while making RWops!
 		{
-			CONS_Printf("Couldn't load music lump: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't load music lump: %s\n"), SDL_GetError());
 			Z_Free(data);
 			return false;
 		}
@@ -1384,7 +1384,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 			Smidi[selectpos] = data; //all done
 		else //ERROR while making Mix_Chuck
 		{
-			CONS_Printf("Couldn't load music data: %s\n", Mix_GetError());
+			CONS_Printf(M_GetText("Couldn't load music data: %s\n"), Mix_GetError());
 			Z_Free(data);
 			SDL_RWclose(SDLRW);
 			Smidi[selectpos] = NULL;
@@ -1418,14 +1418,14 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 
 	if (!midfile)
 	{
-		CONS_Printf("Couldn't open file %s to write music in\n", tempname);
+		CONS_Printf(M_GetText("Couldn't open file %s to write music in\n"), tempname);
 		Z_Free(data);
 		return false;
 	}
 
 	if (fwrite(data, lumplength, 1, midfile) == 0)
 	{
-		CONS_Printf("Couldn't write music into file %s because %s\n", tempname, strerror(ferror(midfile)));
+		CONS_Printf(M_GetText("Couldn't write music into file %s because %s\n"), tempname, strerror(ferror(midfile)));
 		Z_Free(data);
 		fclose(midfile);
 		return false;
@@ -1438,7 +1438,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 	music[selectpos] = Mix_LoadMUS(tempname);
 	if (!music[selectpos]) //ERROR while making Mix_Chuck
 	{
-		CONS_Printf("Couldn't load music file %s: %s\n", tempname, Mix_GetError());
+		CONS_Printf(M_GetText("Couldn't load music file %s: %s\n"), tempname, Mix_GetError());
 		return false;
 	}
 	return true;
@@ -1452,7 +1452,7 @@ void I_ShutdownMusic(void)
 	if ((nomidimusic && nodigimusic) || !musicStarted)
 		return;
 
-	CONS_Printf("I_ShutdownMusic: ");
+	CONS_Printf("%s", M_GetText("I_ShutdownMusic: "));
 
 	I_UnRegisterSong(0);
 	I_StopDigSong();
@@ -1460,7 +1460,7 @@ void I_ShutdownMusic(void)
 #ifdef MIX_INIT
 	Mix_Quit();
 #endif
-	CONS_Printf("shut down\n");
+	CONS_Printf("%s", M_GetText("shut down\n"));
 	musicStarted = SDL_FALSE;
 	if (Msc_Mutex)
 		SDL_DestroyMutex(Msc_Mutex);
@@ -1491,7 +1491,7 @@ static SDL_bool I_InitFMODMusic(void)
 
 	if (M_CheckParm("-nofmod"))
 	{
-		CONS_Printf(" disabled loading FMOD\n");
+		CONS_Printf("%s", M_GetText(" disabled loading FMOD\n"));
 		return SDL_FALSE;
 	}
 
@@ -1510,7 +1510,7 @@ static SDL_bool I_InitFMODMusic(void)
 		I_AddExitFunc(I_ShutdownFMODMusic);
 	else
 	{
-		CONS_Printf(" failling loading FMOD\n");
+		CONS_Printf("%s", M_GetText(" failed to load FMOD\n"));
 		return SDL_FALSE;
 	}
 
@@ -1519,8 +1519,7 @@ static SDL_bool I_InitFMODMusic(void)
 		// Tails 11-21-2002
 		if (fmod375->FSOUND_GetVersion() < FMOD_VERSION)
 		{
-			//I_Error("FMOD Error : You are using the wrong DLL version!\nYou should be using FMOD %s\n", "FMOD_VERSION");
-			CONS_Printf("FMOD Error : You are using the wrong DLL version!\nYou should be using FMOD %s\n", "FMOD_VERSION");
+			CONS_Printf(M_GetText("Wrong FMOD DLL version.\nYou should be using FMOD %s\n"), "FMOD_VERSION");
 			return SDL_FALSE;
 		}
 
@@ -1609,32 +1608,31 @@ void I_InitMusic(void)
 		DEBPRINT(" Done\n");
 	}
 
-	CONS_Printf("I_InitMusic:");
+	CONS_Printf("%s", M_GetText("I_InitMusic:"));
 
 #ifdef MIXER_INIT
 	mixflags = Mix_Init(mixstart);
 	if ((mixstart & MIX_INIT_FLAC) != (mixflags & MIX_INIT_FLAC))
 	{
-		CONS_Printf(" Unable to load FLAC support\n");
+		CONS_Printf("%s", M_GetText(" Unable to load FLAC support\n"));
 	}
 	if ((mixstart & MIX_INIT_MOD ) != (mixflags & MIX_INIT_MOD ))
 	{
-		CONS_Printf(" Unable to load MOD support\n");
+		CONS_Printf("%s", M_GetText(" Unable to load MOD support\n"));
 	}
 	if ((mixstart & MIX_INIT_MP3 ) != (mixflags & MIX_INIT_MP3 ))
 	{
-		CONS_Printf(" Unable to load MP3 support\n");
+		CONS_Printf("%s", M_GetText(" Unable to load MP3 support\n"));
 	}
 	if ((mixstart & MIX_INIT_OGG ) != (mixflags & MIX_INIT_OGG ))
 	{
-		CONS_Printf(" Unable to load OGG support\n");
-		CONS_Printf(" This is bad news for you!\n");
+		CONS_Printf("%s", M_GetText(" Unable to load OGG support\n"));
 	}
 #endif
 
 	if (Mix_OpenAudio(audio.freq, audio.format, audio.channels, audio.samples) < 0) //open_music(&audio)
 	{
-		CONS_Printf(" Unable to open music: %s\n", Mix_GetError());
+		CONS_Printf(M_GetText(" Unable to open music: %s\n"), Mix_GetError());
 		nomidimusic = nodigimusic = true;
 		if (sound_started
 #ifdef HW3SOUND
@@ -1644,19 +1642,19 @@ void I_InitMusic(void)
 		{
 			if (SDL_OpenAudio(&audio, NULL) < 0) //retry
 			{
-				CONS_Printf(" couldn't reopen audio with desired format\n");
+				CONS_Printf("%s", M_GetText(" couldn't open audio with desired format\n"));
 				nosound = true;
 				sound_started = false;
 			}
 			else
 			{
-				CONS_Printf(" Restarting with audio driver : %s\n", SDL_AudioDriverName(ad, (int)sizeof ad));
+				CONS_Printf(M_GetText(" Starting with audio driver : %s\n"), SDL_AudioDriverName(ad, (int)sizeof ad));
 			}
 		}
 		return;
 	}
 	else
-		CONS_Printf(" Starting up with audio driver : %s with SDL_Mixer\n", SDL_AudioDriverName(ad, (int)sizeof ad));
+		CONS_Printf(M_GetText(" Starting up with audio driver : %s with SDL_Mixer\n"), SDL_AudioDriverName(ad, (int)sizeof ad));
 
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
@@ -1670,7 +1668,7 @@ void I_InitMusic(void)
 	DEBPRINT(va(" with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) ((audio.samples * 1000.0f) / audio.freq)));
 	Mix_SetPostMix(audio.callback, audio.userdata);  // after mixing music, add sound effects
 	Mix_Resume(-1);
-	CONS_Printf("I_InitMusic: music initialized\n");
+	CONS_Printf("%s", M_GetText("Music initialized\n"));
 	musicStarted = SDL_TRUE;
 	Msc_Mutex = SDL_CreateMutex();
 #endif
@@ -1689,7 +1687,7 @@ boolean I_PlaySong(INT32 handle, INT32 looping)
 #endif
 
 	if (Mix_FadeInMusic(music[handle], looping ? -1 : 0, MIDIfade) == -1)
-		CONS_Printf("I_PlaySong: Couldn't play song because %s\n", Mix_GetError());
+		CONS_Printf(M_GetText("Couldn't play song because %s\n"), Mix_GetError());
 	else
 	{
 		Mix_VolumeMusic(musicvol);
@@ -1815,7 +1813,7 @@ INT32 I_RegisterSong(void *data, size_t len)
 	if (music[0])
 		return true;
 
-	CONS_Printf("Couldn't load MIDI: %s\n", Mix_GetError());
+	CONS_Printf(M_GetText("Couldn't load MIDI: %s\n"), Mix_GetError());
 #else
 	(void)len;
 	(void)data;

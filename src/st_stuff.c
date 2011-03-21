@@ -773,7 +773,7 @@ static void ST_drawLevelTitle(void)
 	}
 
 	ttlnumxpos = lvlttlxpos + V_LevelNameWidth(lvlttl);
-	zonexpos = ttlnumxpos - V_LevelNameWidth(text[ZONE]);
+	zonexpos = ttlnumxpos - V_LevelNameWidth(M_GetText("ZONE"));
 
 	if (lvlttlxpos < 0)
 		lvlttlxpos = 0;
@@ -785,7 +785,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 0, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 200, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 200, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 0+48, 0, subttl);
 	}
@@ -796,7 +796,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 12, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 188, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 188, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 12+48, 0, subttl);
 	}
@@ -807,7 +807,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 24, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 176, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 176, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 24+48, 0, subttl);
 	}
@@ -818,7 +818,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 36, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 164, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 164, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 36+48, 0, subttl);
 	}
@@ -829,7 +829,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 48, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 152, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 152, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 48+48, 0, subttl);
 	}
@@ -840,7 +840,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 60, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 140, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 140, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 60+48, 0, subttl);
 	}
@@ -851,7 +851,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 72, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 128, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 128, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 72+48, 0, subttl);
 	}
@@ -862,7 +862,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 104, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 80, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 80, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 104+48, 0, subttl);
 	}
@@ -873,7 +873,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 128, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 56, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 56, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 128+48, 0, subttl);
 	}
@@ -884,7 +884,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 152, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 32, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 32, 0, M_GetText("ZONE"));
 
 //		V_DrawCenteredString(subttlxpos, 152+48, 0, subttl);
 	}
@@ -895,7 +895,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 176, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 8, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 8, 0, M_GetText("ZONE"));
 
 		//V_DrawCenteredString(subttlxpos, 176+48, 0, subttl);
 	}
@@ -906,7 +906,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 200, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 0, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 0, 0, M_GetText("ZONE"));
 
 		//V_DrawCenteredString(subttlxpos, 200+48, 0, subttl);
 	}
@@ -917,7 +917,7 @@ static void ST_drawLevelTitle(void)
 		V_DrawLevelTitle(lvlttlxpos, 80, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
-			V_DrawLevelTitle(zonexpos, 104, 0, text[ZONE]);
+			V_DrawLevelTitle(zonexpos, 104, 0, M_GetText("ZONE"));
 
 		V_DrawCenteredString(subttlxpos, 80+48, 0, subttl);
 	}
@@ -1476,18 +1476,18 @@ static void ST_drawTagHUD(void)
 			sprintf(pstime, "%d", (hidetime - leveltime/TICRATE)); //hide time is in seconds, not tics.
 
 		if (stplyr->pflags & PF_TAGIT && !stplyr->spectator)
-			sprintf(pstext, "WAITING FOR PLAYERS TO HIDE...");
+			sprintf(pstext, "%s", M_GetText("WAITING FOR PLAYERS TO HIDE..."));
 		else
 		{
 			if (!stplyr->spectator) //spectators get a generic HUD message rather than a gametype specific one.
 			{
 				if (cv_tagtype.value == 1) //hide and seek.
-					sprintf(pstext, "HIDE BEFORE TIME RUNS OUT!");
+					sprintf(pstext, "%s", M_GetText("HIDE BEFORE TIME RUNS OUT!"));
 				else //default
-					sprintf(pstext, "FLEE BEFORE YOU ARE HUNTED!");
+					sprintf(pstext, "%s", M_GetText("FLEE BEFORE YOU ARE HUNTED!"));
 			}
 			else
-				sprintf(pstext, "HIDE TIME REMAINING:");
+				sprintf(pstext, "%s", M_GetText("HIDE TIME REMAINING:"));
 		}
 	}
 	else
@@ -1496,13 +1496,13 @@ static void ST_drawTagHUD(void)
 			sprintf(pstime, "%d", (timelimitintics-leveltime)/TICRATE);
 
 		if (stplyr->pflags & PF_TAGIT)
-			sprintf(pstext, "YOU'RE IT!");
+			sprintf(pstext, "%s", M_GetText("YOU'RE IT!"));
 		else
 		{
 			if (cv_timelimit.value)
-				sprintf(pstext, "TIME REMAINING:");
+				sprintf(pstext, "%s", M_GetText("TIME REMAINING:"));
 			else //Since having no hud message in tag is not characteristic:
-				sprintf(pstext, "NO TIME LIMIT");
+				sprintf(pstext, "%s", M_GetText("NO TIME LIMIT"));
 		}
 	}
 
@@ -1645,23 +1645,23 @@ static void ST_drawCTFHUD(void)
 	if (stplyr->ctfteam == 1)
 	{
 		if (splitscreen)
-			V_DrawString(256, STRINGY(184), V_TRANSLUCENT, "RED TEAM");
+			V_DrawString(256, STRINGY(184), V_TRANSLUCENT, M_GetText("RED TEAM"));
 		else
-			V_DrawString(256, STRINGY(192), V_TRANSLUCENT, "RED TEAM");
+			V_DrawString(256, STRINGY(192), V_TRANSLUCENT, M_GetText("RED TEAM"));
 	}
 	else if (stplyr->ctfteam == 2)
 	{
 		if (splitscreen)
-			V_DrawString(248, STRINGY(184), V_TRANSLUCENT, "BLUE TEAM");
+			V_DrawString(248, STRINGY(184), V_TRANSLUCENT, M_GetText("BLUE TEAM"));
 		else
-			V_DrawString(248, STRINGY(192), V_TRANSLUCENT, "BLUE TEAM");
+			V_DrawString(248, STRINGY(192), V_TRANSLUCENT, M_GetText("BLUE TEAM"));
 	}
 	else
 	{
 		if (splitscreen)
-			V_DrawString(244, STRINGY(184), V_TRANSLUCENT, "SPECTATOR");
+			V_DrawString(244, STRINGY(184), V_TRANSLUCENT, M_GetText("SPECTATOR"));
 		else
-			V_DrawString(244, STRINGY(192), V_TRANSLUCENT, "SPECTATOR");
+			V_DrawString(244, STRINGY(192), V_TRANSLUCENT, M_GetText("SPECTATOR"));
 	}
 
 	// Display a countdown timer showing how much time left until the flag your team dropped returns to base.
@@ -1691,21 +1691,21 @@ static void ST_drawTeamMatchHUD(void)
 	{
 	case 1:
 		if (splitscreen)
-			V_DrawString(256, STRINGY(184), V_TRANSLUCENT, "RED TEAM");
+			V_DrawString(256, STRINGY(184), V_TRANSLUCENT, M_GetText("RED TEAM"));
 		else
-			V_DrawString(256, STRINGY(192), V_TRANSLUCENT, "RED TEAM");
+			V_DrawString(256, STRINGY(192), V_TRANSLUCENT, M_GetText("RED TEAM"));
 		break;
 	case 2:
 		if (splitscreen)
-			V_DrawString(248, STRINGY(184), V_TRANSLUCENT, "BLUE TEAM");
+			V_DrawString(248, STRINGY(184), V_TRANSLUCENT, M_GetText("BLUE TEAM"));
 		else
-			V_DrawString(248, STRINGY(192), V_TRANSLUCENT, "BLUE TEAM");
+			V_DrawString(248, STRINGY(192), V_TRANSLUCENT, M_GetText("BLUE TEAM"));
 		break;
 	default: //spectators have no team.
 		if (splitscreen)
-			V_DrawString(244, STRINGY(184), V_TRANSLUCENT, "SPECTATOR");
+			V_DrawString(244, STRINGY(184), V_TRANSLUCENT, M_GetText("SPECTATOR"));
 		else
-			V_DrawString(244, STRINGY(192), V_TRANSLUCENT, "SPECTATOR");
+			V_DrawString(244, STRINGY(192), V_TRANSLUCENT, M_GetText("SPECTATOR"));
 	}
 }
 
@@ -1739,7 +1739,7 @@ static void ST_drawSpecialStageHUD(void)
 
 	if (sstimer)
 	{
-		V_DrawString(hudinfo[HUD_TIMELEFT].x, STRINGY(hudinfo[HUD_TIMELEFT].y), 0, "TIME LEFT");
+		V_DrawString(hudinfo[HUD_TIMELEFT].x, STRINGY(hudinfo[HUD_TIMELEFT].y), 0, M_GetText("TIME LEFT"));
 		ST_DrawNightsOverlayNum(SCX(hudinfo[HUD_TIMELEFTNUM].x), SCY(hudinfo[HUD_TIMELEFTNUM].y), sstimer/TICRATE, tallnum, 13);
 	}
 	else
@@ -1773,7 +1773,7 @@ static void ST_drawContinueHUD(void)
 
 			contsonic = W_CachePatchName("CONT1", PU_CACHE);
 			V_DrawScaledPatch((BASEVIDWIDTH-SHORT(contsonic->width))/2, 64, 0, contsonic);
-			V_DrawString(128,128,0, "CONTINUE?");
+			V_DrawString(128,128,0, M_GetText("CONTINUE?"));
 			sprintf(stimeleft, "%d", (stplyr->deadtimer - (gameovertics-11*TICRATE))/TICRATE);
 			V_DrawString(stplyr->deadtimer >= (gameovertics-TICRATE) ? 152 : 160,144,0, stimeleft);
 
@@ -2115,9 +2115,9 @@ static void ST_overlayDrawer(void)
 			&& (leveltime > (timelimitintics + TICRATE/2)) && cv_timelimit.value && (leveltime/TICRATE % 2 == 0))
 		{
 			if (splitscreen)
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, "OVERTIME!");
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(168), 0, M_GetText("OVERTIME!"));
 			else
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, "OVERTIME!");
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(184), 0, M_GetText("OVERTIME!"));
 		}
 
 		// Draw Match-related stuff
@@ -2170,7 +2170,7 @@ static void ST_overlayDrawer(void)
 			strlcpy(name, player_names[stplyr-players], 13);
 
 			// Show name of player being displayed
-			V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-80, 0, "Viewpoint:");
+			V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-80, 0, M_GetText("Viewpoint:"));
 			V_DrawCenteredString((BASEVIDWIDTH/6), BASEVIDHEIGHT-64, V_ALLOWLOWERCASE, name);
 		}
 
@@ -2188,23 +2188,23 @@ static void ST_overlayDrawer(void)
 	{
 		if (grade & 2048)
 		{
-			V_DrawCenteredString(BASEVIDWIDTH/2, 70, 0, "I, Pope Rededict XVI proclaim");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 80, 0, "AJ & Amy");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 90, 0, "Husband & Wife");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 100, 0, "on this day");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 110, 0, "May 16, 2009");
+			V_DrawCenteredString(BASEVIDWIDTH/2, 70, 0, M_GetText("I, Pope Rededict XVI proclaim"));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 80, 0, M_GetText("AJ & Amy"));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 90, 0, M_GetText("Husband & Wife"));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 100, 0, M_GetText("on this day"));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 110, 0, M_GetText("May 16, 2009"));
 
 			P_GivePlayerRings(stplyr, 9999, true);
 		}
 		else
 		{
-			V_DrawCenteredString(BASEVIDWIDTH/2,  60, 0, "Oh... it's you again...");
-			V_DrawCenteredString(BASEVIDWIDTH/2,  80, 0, "Look, I wanted to apologize for the way");
-			V_DrawCenteredString(BASEVIDWIDTH/2,  90, 0, "I've acted in the past.");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 110, 0, "I've seen the error of my ways");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 120, 0, "and turned over a new leaf.");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 140, 0, "Instead of sending people to hell,");
-			V_DrawCenteredString(BASEVIDWIDTH/2, 150, 0, "I now send them to heaven!");
+			V_DrawCenteredString(BASEVIDWIDTH/2,  60, 0, M_GetText("Oh... it's you again..."));
+			V_DrawCenteredString(BASEVIDWIDTH/2,  80, 0, M_GetText("Look, I wanted to apologize for the way"));
+			V_DrawCenteredString(BASEVIDWIDTH/2,  90, 0, M_GetText("I've acted in the past."));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 110, 0, M_GetText("I've seen the error of my ways"));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 120, 0, M_GetText("and turned over a new leaf."));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 140, 0, M_GetText("Instead of sending people to hell,"));
+			V_DrawCenteredString(BASEVIDWIDTH/2, 150, 0, M_GetText("I now send them to heaven!"));
 
 			P_LinedefExecute(4200, stplyr->mo, stplyr->mo->subsector->sector);
 			P_LinedefExecute(4201, stplyr->mo, stplyr->mo->subsector->sector);
@@ -2236,9 +2236,9 @@ static void ST_overlayDrawer(void)
 
 		if (foundtoad)
 		{
-			V_DrawCenteredString(160, 32+16, 0, "Thank you!");
-			V_DrawCenteredString(160, 44+16, 0, "But our earless leader is in");
-			V_DrawCenteredString(160, 56+16, 0, "another castle!");
+			V_DrawCenteredString(160, 32+16, 0, M_GetText("Thank you!"));
+			V_DrawCenteredString(160, 44+16, 0, M_GetText("But our earless leader is in"));
+			V_DrawCenteredString(160, 56+16, 0, M_GetText("another castle!"));
 		}
 	}
 
@@ -2247,13 +2247,13 @@ static void ST_overlayDrawer(void)
 		ST_drawLevelTitle();
 
 	if (!hu_showscores && netgame && (gametype == GT_RACE || gametype == GT_COOP) && stplyr->lives <= 0 && displayplayer == consoleplayer && countdown != 1)
-		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/3, 0, "Press F12 to watch another player.");
+		V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT/3, 0, M_GetText("Press F12 to watch another player."));
 
 	if (!hu_showscores && netgame && (gametype == GT_TAG && cv_tagtype.value) && displayplayer == consoleplayer &&
 		(!stplyr->spectator && !(stplyr->pflags & PF_TAGIT)) && (leveltime > hidetime * TICRATE))
 	{
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), 0, "You cannot move while hiding.");
-		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), 0, "Press F12 to watch another player.");
+		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(84), 0, M_GetText("You cannot move while hiding."));
+		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(116), 0, M_GetText("Press F12 to watch another player."));
 	}
 
 	if (!hu_showscores && (netgame || splitscreen))
@@ -2261,20 +2261,20 @@ static void ST_overlayDrawer(void)
 		if ((gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)
 			&& stplyr->playerstate == PST_DEAD && stplyr->lives) //Death overrides spectator text.
 		{
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "Press Jump to respawn.");
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, M_GetText("Press Jump to respawn."));
 			if (((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG) && !stplyr->spectator)
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(148), V_TRANSLUCENT, "Press 'Toss Flag' to Spectate.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(148), V_TRANSLUCENT, M_GetText("Press 'Toss Flag' to Spectate."));
 		}
 		else if ((((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG) && stplyr->spectator)
 		 || (((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF) && !stplyr->ctfteam))
 		{
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(60), V_TRANSLUCENT, "You are a spectator.");
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(60), V_TRANSLUCENT, M_GetText("You are a spectator."));
 			if ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "Press Fire to be assigned to a team.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, M_GetText("Press Fire to be assigned to a team."));
 			else
-				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, "Press Fire to enter the game.");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(148), V_TRANSLUCENT, "Press F12 to watch another player.");
-			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(164), V_TRANSLUCENT, "Press Jump to float and Spin to sink.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(132), V_TRANSLUCENT, M_GetText("Press Fire to enter the game."));
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(148), V_TRANSLUCENT, M_GetText("Press F12 to watch another player."));
+			V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(164), V_TRANSLUCENT, M_GetText("Press Jump to float and Spin to sink."));
 		}
 	}
 

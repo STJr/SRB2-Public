@@ -32,7 +32,6 @@
 #include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
-#include "dstrings.h" //SoM: 3/10/2000
 #include "r_main.h" //Two extra includes.
 #include "r_sky.h"
 #include "p_polyobj.h"
@@ -3475,9 +3474,9 @@ DoneSection2:
 						player->drillmeter += 48*20;
 
 					if (player->laps >= (unsigned)cv_numlaps.value)
-						CONS_Printf(text[FINISHEDFINALLAP], player_names[player-players]);
+						CONS_Printf(M_GetText("%s has finished the race.\n"), player_names[player-players]);
 					else
-						CONS_Printf(text[STARTEDLAP], player_names[player-players],player->laps+1);
+						CONS_Printf(M_GetText("%s started lap %d\n"), player_names[player-players],player->laps+1);
 
 					// Reset starposts (checkpoints) info
 					player->starpostangle = player->starposttime = player->starpostnum = player->starpostbit = 0;
@@ -4168,7 +4167,7 @@ void P_UpdateSpecials(void)
 
 				if (!(players[i].pflags & PF_TAGGED) && !(players[i].pflags & PF_TAGIT))
 				{
-					CONS_Printf("%s recieved double points for surviving the round.\n", player_names[i]);
+					CONS_Printf(M_GetText("%s recieved double points for surviving the round.\n"), player_names[i]);
 					P_AddPlayerScore(&players[i], players[i].score);
 				}
 			}

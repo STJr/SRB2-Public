@@ -714,19 +714,19 @@ static SOCKET_TYPE UDP_Socket(void)
 	// make it non blocking
 	if (ioctl(s, FIONBIO, &trueval) != 0)
 	{
-		I_Error("UDP_Socket error. Could not set socket to non blocking mode");
+		I_Error("%s", M_GetText("UDP_Socket error. Could not set socket to non blocking mode"));
 	}
 
 	// make it broadcastable
 	j = (socklen_t)sizeof(trueval);
 	if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&trueval, j))
 	{
-		I_Error("UDP_Socket error. Could not set socket to allow broadcast");
+		I_Error("%s", M_GetText("UDP_Socket error. Could not set socket to allow broadcast"));
 	}
 
 	j = (socklen_t)sizeof(i);
 	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an INT32 value is written to a (char *); portability!!!!!!!
-	CONS_Printf("Network system buffer: %dKb\n", i>>10);
+	CONS_Printf(M_GetText("Network system buffer: %dKb\n"), i>>10);
 
 	if (i < 64<<10) // 64k
 	{
@@ -735,9 +735,9 @@ static SOCKET_TYPE UDP_Socket(void)
 		setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, j);
 		getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an INT32 value is written to a (char *); portability!!!!!!!
 		if (i < 64<<10)
-			CONS_Printf("Can't set buffer length to 64k, file transfer will be bad\n");
+			CONS_Printf("%s", M_GetText("Can't set buffer length to 64k, file transfer will be bad\n"));
 		else
-			CONS_Printf("Network system buffer set to: %dKb\n",i>>10);
+			CONS_Printf(M_GetText("Network system buffer set to: %dKb\n"), i>>10);
 	}
 
 	// ip + udp
@@ -796,18 +796,18 @@ static SOCKET_TYPE IPX_Socket(void)
 	// set receive buffer to 64Kb
 	j = sizeof (i);
 	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j);
-	CONS_Printf("Network system receive buffer: %dKb\n",i>>10);
+	CONS_Printf(M_GetText("Network system receive buffer: %dKb\n"), i>>10);
 	if (i < 128<<10)
 	{
 		i = 64<<10;
 		if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, sizeof (i)))
 		{
-			CONS_Printf("Network system receive buffer set to: %dKb\n",i>>10);
-			CONS_Printf("Can't set receive buffer length to 64k, file transfer will be bad\n");
+			CONS_Printf(M_GetText("Network system receive buffer set to: %dKb\n"), i>>10);
+			CONS_Printf("%s", M_GetText("Can't set receive buffer length to 64k, file transfer will be bad\n"));
 		}
 		else
 		{
-			CONS_Printf("Network system receive buffer set to: %dKb\n",i>>10);
+			CONS_Printf(M_GetText("Network system receive buffer set to: %dKb\n"), i>>10);
 		}
 	}
 
@@ -988,7 +988,7 @@ void I_ShutdownTcpDriver(void)
 	__lsck_uninit();
 #endif // libsocket
 #endif // __DJGPP__
-	CONS_Printf("shut down\n");
+	CONS_Printf("%s", M_GetText("shut down\n"));
 	init_tcp_driver = false;
 #endif
 }
@@ -1040,18 +1040,18 @@ static SINT8 SOCK_NetMakeNode(const char *hostname)
 
 		if (clientaddress[newnode].ip.sin_addr.s_addr == htonl(INADDR_NONE)) // not a ip ask to the dns
 		{
-			CONS_Printf("Resolving %s\n",localhostname);
+			CONS_Printf(M_GetText("Resolving %s\n"), localhostname);
 			hostentry = gethostbyname(localhostname);
 			if (!hostentry)
 			{
-				CONS_Printf("%s unknown\n", localhostname);
+				CONS_Printf(M_GetText("%s unknown\n"), localhostname);
 				I_NetFreeNodenum(newnode);
 				free(localhostname);
 				return -1;
 			}
 			clientaddress[newnode].ip.sin_addr.s_addr = *((UINT32 *)hostentry->h_addr_list[0]);
 
-			CONS_Printf("Resolved %s\n", SOCK_GetNodeAddress(newnode));
+			CONS_Printf(M_GetText("Resolved %s\n"), SOCK_GetNodeAddress(newnode));
 		}
 
 		free(localhostname);
