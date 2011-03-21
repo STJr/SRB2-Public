@@ -6041,27 +6041,31 @@ static void M_ControlDef2(void);
 //
 static menuitem_t ControlMenu[] =
 {
-	{IT_CALL | IT_STRING2, NULL, "Forward",      M_ChangeControl, gc_forward    },
-	{IT_CALL | IT_STRING2, NULL, "Reverse",      M_ChangeControl, gc_backward   },
-	{IT_CALL | IT_STRING2, NULL, "Turn Left",    M_ChangeControl, gc_turnleft   },
-	{IT_CALL | IT_STRING2, NULL, "Turn Right",   M_ChangeControl, gc_turnright  },
-	{IT_CALL | IT_STRING2, NULL, "Jump",         M_ChangeControl, gc_jump       },
-	{IT_CALL | IT_STRING2, NULL, "Spin",         M_ChangeControl, gc_use        }, // Tails 12-04-99
-	{IT_CALL | IT_STRING2, NULL, "Ring Toss",    M_ChangeControl, gc_fire       },
+	// Player Actions
+	{IT_CALL | IT_STRING2, NULL, "Forward",          M_ChangeControl, gc_forward    },
+	{IT_CALL | IT_STRING2, NULL, "Reverse",          M_ChangeControl, gc_backward   },
+	{IT_CALL | IT_STRING2, NULL, "Turn Left",        M_ChangeControl, gc_turnleft   },
+	{IT_CALL | IT_STRING2, NULL, "Turn Right",       M_ChangeControl, gc_turnright  },
+	{IT_CALL | IT_STRING2, NULL, "Jump",             M_ChangeControl, gc_jump       },
+	{IT_CALL | IT_STRING2, NULL, "Spin",             M_ChangeControl, gc_use        },
+	{IT_CALL | IT_STRING2, NULL, "Taunt",            M_ChangeControl, gc_taunt      },
+	{IT_CALL | IT_STRING2, NULL, "Toss Flag",        M_ChangeControl, gc_tossflag   },
+	{IT_CALL | IT_STRING2, NULL, "Ring Toss",        M_ChangeControl, gc_fire       },
 	{IT_CALL | IT_STRING2, NULL, "Ring Toss Normal",
-	                                             M_ChangeControl, gc_firenormal },
-	{IT_CALL | IT_STRING2, NULL, "Taunt",        M_ChangeControl, gc_taunt      },
-	{IT_CALL | IT_STRING2, NULL, "Toss Flag",    M_ChangeControl, gc_tossflag   },
-	{IT_CALL | IT_STRING2, NULL, "Strafe On",    M_ChangeControl, gc_strafe     },
-	{IT_CALL | IT_STRING2, NULL, "Strafe Left",  M_ChangeControl, gc_strafeleft },
-	{IT_CALL | IT_STRING2, NULL, "Strafe Right", M_ChangeControl, gc_straferight},
-	{IT_CALL | IT_STRING2, NULL, "Look Up",      M_ChangeControl, gc_lookup     },
-	{IT_CALL | IT_STRING2, NULL, "Look Down",    M_ChangeControl, gc_lookdown   },
-	{IT_CALL | IT_STRING2, NULL, "Center View",  M_ChangeControl, gc_centerview },
-	{IT_CALL | IT_STRING2, NULL, "Mouselook",    M_ChangeControl, gc_mouseaiming},
+	                                                 M_ChangeControl, gc_firenormal },
+	// First person specific
+	{IT_CALL | IT_STRING2, NULL, "Strafe On",        M_ChangeControl, gc_strafe     },
+	{IT_CALL | IT_STRING2, NULL, "Strafe Left",      M_ChangeControl, gc_strafeleft },
+	{IT_CALL | IT_STRING2, NULL, "Strafe Right",     M_ChangeControl, gc_straferight},
+	{IT_CALL | IT_STRING2, NULL, "Look Up",          M_ChangeControl, gc_lookup     },
+	{IT_CALL | IT_STRING2, NULL, "Look Down",        M_ChangeControl, gc_lookdown   },
+	{IT_CALL | IT_STRING2, NULL, "Center View",      M_ChangeControl, gc_centerview },
+	{IT_CALL | IT_STRING2, NULL, "Mouselook",        M_ChangeControl, gc_mouseaiming},
+	// Misc
+	{IT_CALL | IT_STRING2, NULL, "Pause",            M_ChangeControl, gc_pause      },
 
 	{IT_CALL | IT_WHITESTRING,
-	                       NULL, "next",         M_ControlDef2,               144},
+	                       NULL, "next",             M_ControlDef2,   144           },
 };
 
 menu_t ControlDef =
@@ -6085,10 +6089,10 @@ menu_t ControlDef =
 //
 static menuitem_t ControlMenu2[] =
 {
+	// Chat
 	{IT_CALL | IT_STRING2, NULL, "Talk key",         M_ChangeControl, gc_talkkey      },
 	{IT_CALL | IT_STRING2, NULL, "Team-Talk key",    M_ChangeControl, gc_teamkey      },
-	{IT_CALL | IT_STRING2, NULL, "Rankings/Scores",  M_ChangeControl, gc_scores       },
-	{IT_CALL | IT_STRING2, NULL, "Console",          M_ChangeControl, gc_console      },
+	// Weapons
 	{IT_CALL | IT_STRING2, NULL, "Next Weapon",      M_ChangeControl, gc_weaponnext   },
 	{IT_CALL | IT_STRING2, NULL, "Prev Weapon",      M_ChangeControl, gc_weaponprev   },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 1",    M_ChangeControl, gc_normalring   },
@@ -6098,10 +6102,13 @@ static menuitem_t ControlMenu2[] =
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 5",    M_ChangeControl, gc_grenadering  },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 6",    M_ChangeControl, gc_explosionring},
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 7",    M_ChangeControl, gc_railring     },
+	// Camera controls
 	{IT_CALL | IT_STRING2, NULL, "Rotate Camera L",  M_ChangeControl, gc_camleft      },
 	{IT_CALL | IT_STRING2, NULL, "Rotate Camera R",  M_ChangeControl, gc_camright     },
 	{IT_CALL | IT_STRING2, NULL, "Reset Camera",     M_ChangeControl, gc_camreset     },
-	{IT_CALL | IT_STRING2, NULL, "Pause",            M_ChangeControl, gc_pause        },
+	// Misc
+	{IT_CALL | IT_STRING2, NULL, "Rankings/Scores",  M_ChangeControl, gc_scores       },
+	{IT_CALL | IT_STRING2, NULL, "Console",          M_ChangeControl, gc_console      },
 
 	{IT_SUBMENU | IT_WHITESTRING,
 	                       NULL, "next",             &ControlDef,     140             },
