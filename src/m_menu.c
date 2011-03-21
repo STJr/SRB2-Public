@@ -2933,8 +2933,7 @@ static menuitem_t SetupMultiPlayerMenu[] =
 {
 	{IT_KEYHANDLER | IT_STRING,   NULL, "Your name",   M_HandleSetupMultiPlayer,   0},
 
-	{IT_CVAR | IT_STRING | IT_CV_NOPRINT,
-	                              NULL, "Your color",  &cv_playercolor,           16},
+	{IT_KEYHANDLER | IT_STRING,   NULL, "Your color",  M_HandleSetupMultiPlayer,  16},
 
 	{IT_KEYHANDLER | IT_STRING,   NULL, "Your player", M_HandleSetupMultiPlayer,  96}, // Tails 01-18-2001
 
@@ -3038,6 +3037,8 @@ static player_t * setupm_player;
 static consvar_t *setupm_cvskin;
 static consvar_t *setupm_cvcolor;
 static consvar_t *setupm_cvname;
+static INT32 setupm_skin;
+static INT32 setupm_color;
 
 static void M_SetupMultiPlayer(INT32 choice)
 {
@@ -3055,11 +3056,12 @@ static void M_SetupMultiPlayer(INT32 choice)
 	SetupMultiPlayerDef.numitems = setupmultiplayer_skin +1;      //remove player2 setup controls and mouse2
 
 	// set for player 1
-	SetupMultiPlayerMenu[setupmultiplayer_color].itemaction = &cv_playercolor;
 	setupm_player = &players[consoleplayer];
 	setupm_cvskin = &cv_skin;
 	setupm_cvcolor = &cv_playercolor;
 	setupm_cvname = &cv_playername;
+	setupm_skin = cv_skin.value;
+	setupm_color = cv_playercolor.value;
 	M_SetupNextMenu (&SetupMultiPlayerDef);
 }
 
@@ -3079,11 +3081,12 @@ static void M_SetupMultiPlayerBis(INT32 choice)
 	SetupMultiPlayerDef.numitems = setupmulti_end;          //activate the setup controls for player 2
 
 	// set for splitscreen secondary player
-	SetupMultiPlayerMenu[setupmultiplayer_color].itemaction = &cv_playercolor2;
 	setupm_player = &players[secondarydisplayplayer];
 	setupm_cvskin = &cv_skin2;
 	setupm_cvcolor = &cv_playercolor2;
 	setupm_cvname = &cv_playername2;
+	setupm_skin = cv_skin2.value;
+	setupm_color = cv_playercolor2.value;
 	M_SetupNextMenu (&SetupMultiPlayerDef);
 }
 
@@ -3141,11 +3144,11 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	V_DrawString(mx + 98, my, V_ALLOWLOWERCASE, setupm_name);
 
 	// draw skin string
-	V_DrawString(mx + 90, my + 96, 0, setupm_cvskin->string);
+	V_DrawString(mx + 90, my + 96, 0, (char *)&skins[setupm_skin].name);
 
 	// draw the name of the color you have chosen
 	// Just so people don't go thinking that "Default" is Green.
-	V_DrawString(208, 72, 0, setupm_cvcolor->string);
+	V_DrawString(208, 72, 0, Color_Names[setupm_color]);
 
 	// draw text cursor for name
 	if (!itemOn && skullAnimCounter < 4) // blink cursor
@@ -3163,8 +3166,8 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	}
 
 	// skin 0 is default player sprite
-	if (R_SkinAvailable(setupm_cvskin->string) != -1)
-		sprdef = &skins[R_SkinAvailable(setupm_cvskin->string)].spritedef;
+	if (R_SkinAvailable((char *)&skins[setupm_skin].name) != -1)
+		sprdef = &skins[R_SkinAvailable((char *)&skins[setupm_skin].name)].spritedef;
 	else
 		sprdef = &skins[0].spritedef;
 
@@ -3175,18 +3178,18 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	M_DrawTextBox(mx + 90, my + 8, PLBOXW, PLBOXH);
 
 	// draw player sprite
-	if (!setupm_cvcolor->value)
+	if (!setupm_color)
 	{
-		if (atoi(skins[setupm_cvskin->value].highres))
+		if (atoi(skins[setupm_skin].highres))
 			V_DrawScaledPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch);
 		else
 			V_DrawScaledPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch);
 	}
 	else
 	{
-		UINT8 *colormap = R_GetTranslationColormap(setupm_player->skin, setupm_cvcolor->value, 0);
+		UINT8 *colormap = R_GetTranslationColormap(setupm_skin, setupm_color, 0);
 
-		if (atoi(skins[setupm_cvskin->value].highres))
+		if (atoi(skins[setupm_skin].highres))
 			V_DrawSmallMappedPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch, colormap);
 		else
 			V_DrawMappedPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch, colormap);
@@ -3261,7 +3264,6 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 {
 	size_t   l;
 	boolean  exitmenu = false;  // exit to previous menu and send name change
-	INT32      myskin = setupm_cvskin->value;
 
 	switch (choice)
 	{
@@ -3280,18 +3282,28 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 			break;
 
 		case KEY_LEFTARROW:
-			if (itemOn == 2)       //player skin
+			if (itemOn == 1)       //player color
 			{
 				S_StartSound(NULL,sfx_menu1); // Tails
-				myskin--;
+				setupm_color--;
+			}
+			else if (itemOn == 2)       //player skin
+			{
+				S_StartSound(NULL,sfx_menu1); // Tails
+				setupm_skin--;
 			}
 			break;
 
 		case KEY_RIGHTARROW:
-			if (itemOn == 2)       //player skin
+			if (itemOn == 1)       //player color
 			{
 				S_StartSound(NULL,sfx_menu1); // Tails
-				myskin++;
+				setupm_color++;
+			}
+			else if (itemOn == 2)       //player skin
+			{
+				S_StartSound(NULL,sfx_menu1); // Tails
+				setupm_skin++;
 			}
 			break;
 
@@ -3321,14 +3333,26 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 	}
 
 	// check skin
-	if (myskin <0)
-		myskin = numskins-1;
-	if (myskin >numskins-1)
-		myskin = 0;
+	if (setupm_skin < 0)
+		setupm_skin = numskins-1;
+	if (setupm_skin > numskins-1)
+		setupm_skin = 0;
 
-	// check skin change
-	if (myskin != setupm_player->skin)
-		COM_BufAddText (va("%s \"%s\"",setupm_cvskin->name,skins[myskin].name));
+	// check color, we don't like yellow in some instances
+	if (gametype == GT_MATCH || gametype == GT_CTF)
+	{
+		if (setupm_color < 1)
+			setupm_color = MAXSKINCOLORS-2; // avoid yellow
+		if (setupm_color > MAXSKINCOLORS-2) // avoid yellow
+			setupm_color = 1; // don't allow zero
+	}
+	else
+	{
+		if (setupm_color < 1)
+			setupm_color = MAXSKINCOLORS-1;
+		if (setupm_color > MAXSKINCOLORS-1)
+			setupm_color = 1; // don't allow zero
+	}
 
 	if (exitmenu)
 	{
@@ -3349,8 +3373,15 @@ static boolean M_QuitMultiPlayerMenu(void)
 		for (l= strlen(setupm_name)-1;
 		    (signed)l >= 0 && setupm_name[l] ==' '; l--)
 			setupm_name[l] =0;
-		COM_BufAddText (va("%s \"%s\"\n",setupm_cvname->name,setupm_name));
+		COM_ImmedExecute (va("%s \"%s\"\n",setupm_cvname->name,setupm_name));
 	}
+	// check skin change
+	if (setupm_skin != setupm_player->skin)
+		COM_ImmedExecute (va("%s \"%s\"",setupm_cvskin->name, skins[setupm_skin].name));
+	// check color change
+	if (setupm_color != setupm_player->skincolor)
+		COM_ImmedExecute (va("%s \"%s\"",setupm_cvcolor->name, Color_Names[setupm_color]));
+
 	return true;
 }
 
