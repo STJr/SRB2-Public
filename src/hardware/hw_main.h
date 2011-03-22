@@ -47,7 +47,7 @@ void HWR_DrawClippedPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option);
 void HWR_DrawTranslucentPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option);
 void HWR_DrawSmallPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap);
 void HWR_DrawMappedPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap);
-void HWR_MakePatch(const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap);
+void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap, boolean makebitmap);
 void HWR_CreatePlanePolygons(INT32 bspnum);
 void HWR_CreateStaticLightmaps(INT32 bspnum);
 void HWR_PrepLevelCache(size_t pnumtextures);

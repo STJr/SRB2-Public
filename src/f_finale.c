@@ -100,7 +100,6 @@ static tic_t introscenetime[NUMINTROSCENES] =
 static const char *finaletext = NULL;
 static boolean keypressed = false;
 
-static patch_t *background;
 static patch_t *currentanim;
 static patch_t *nextanim;
 static patch_t *first;
@@ -935,7 +934,7 @@ static void F_WriteText(INT32 cx, INT32 cy)
 		}
 
 		w = SHORT(hu_font[c]->width);
-		if (cx + w > vid.width)
+		if (cx + w > BASEVIDWIDTH)
 			break;
 		V_DrawScaledPatch(cx, cy, 0, hu_font[c]);
 		cx += w;
@@ -1001,6 +1000,8 @@ static void F_IntroTextWrite(void)
 {
 	boolean nobg = false, highres = false;
 	INT32 cx = 8, cy = 128;
+	patch_t *background = NULL;
+	void *patch;
 
 	// DRAW A FULL PIC INSTEAD OF FLAT!
 	if (finaletext == intro01text)
@@ -1067,7 +1068,7 @@ static void F_IntroTextWrite(void)
 		highres = true;
 	}
 
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	if (finaletext == intro01text)
 	{
@@ -1124,15 +1125,19 @@ static void F_IntroTextWrite(void)
 
 			if (finalecount & 1)
 			{
-				V_DrawScaledPatch(deplete, 8, 0, W_CachePatchName("RUN2", PU_CACHE));
-				V_DrawScaledPatch(deplete, 72, 0, W_CachePatchName("PEELOUT2", PU_CACHE));
+				V_DrawScaledPatch(deplete, 8, 0, (patch = W_CachePatchName("RUN2", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
+				V_DrawScaledPatch(deplete, 72, 0, (patch = W_CachePatchName("PEELOUT2", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
 			}
 			else
 			{
-				V_DrawScaledPatch(deplete, 8, 0, W_CachePatchName("RUN1", PU_CACHE));
-				V_DrawScaledPatch(deplete, 72, 0, W_CachePatchName("PEELOUT1", PU_CACHE));
+				V_DrawScaledPatch(deplete, 8, 0, (patch = W_CachePatchName("RUN1", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
+				V_DrawScaledPatch(deplete, 72, 0, (patch = W_CachePatchName("PEELOUT1", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
 			}
-			V_DrawFill(0, 112, vid.width, (INT32)(vid.height - 112*vid.fdupy), 31);
+			V_DrawFill(0, 112, BASEVIDWIDTH, BASEVIDHEIGHT - 112, 31);
 		}
 	}
 	else if (finaletext == intro08text && timetonext > 0 && finaletextcount >= 5*TICRATE
@@ -1149,16 +1154,22 @@ static void F_IntroTextWrite(void)
 			V_DrawScaledPatch(0, 0, 0, background);
 	}
 
+	W_UnlockCachedPatch(background);
+
 	if (finaletext == intro14text)
 	{
-		V_DrawFill(0, 0, vid.width, vid.height, 31);
-		V_DrawSmallScaledPatch(144, 0, 0, W_CachePatchName("TAILSSAD", PU_CACHE));
+		V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
+		V_DrawSmallScaledPatch(144, 0, 0, (patch = W_CachePatchName("TAILSSAD", PU_CACHE)));
+		W_UnlockCachedPatch(patch);
 	}
 	else if (finaletext == intro05text) // The asteroid SPINS!
 	{
 		if (roidtics >= 0)
+		{
 			V_DrawScaledPatch(roidtics, 24, 0,
-				W_CachePatchName(va("ROID00%.2d", finaletextcount%35), PU_CACHE));
+				(patch = W_CachePatchName(va("ROID00%.2d", finaletextcount%35), PU_CACHE)));
+			W_UnlockCachedPatch(patch);
+		}
 	}
 	else if (finaletext == intro06text)
 	{
@@ -1170,7 +1181,8 @@ static void F_IntroTextWrite(void)
 
 				F_WipeStartScreen();
 
-				V_DrawScaledPatch(0, 0, 0, W_CachePatchName("RADAR", PU_CACHE));
+				V_DrawScaledPatch(0, 0, 0, (patch = W_CachePatchName("RADAR", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
 				// draw some of the text onto the screen
 				F_WriteText(cx, cy);
 
@@ -1180,7 +1192,10 @@ static void F_IntroTextWrite(void)
 			}
 		}
 		else if (finaletextcount > 5*TICRATE+(TICRATE/5)*3)
-			V_DrawScaledPatch(0, 0, 0, W_CachePatchName("RADAR", PU_CACHE));
+		{
+			V_DrawScaledPatch(0, 0, 0, (patch = W_CachePatchName("RADAR", PU_CACHE)));
+			W_UnlockCachedPatch(patch);
+		}
 	}
 	else if (finaletext == intro13text)
 	{
@@ -1192,7 +1207,9 @@ static void F_IntroTextWrite(void)
 
 				F_WipeStartScreen();
 
-				V_DrawSmallScaledPatch(0, 0, 0, W_CachePatchName("CONFRONT", PU_CACHE));
+				V_DrawSmallScaledPatch(0, 0, 0, (patch = W_CachePatchName("CONFRONT", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
+
 				// draw some of the text onto the screen
 				F_WriteText(cx, cy);
 
@@ -1202,7 +1219,10 @@ static void F_IntroTextWrite(void)
 			}
 		}
 		else if (finaletextcount > 9*TICRATE)
-			V_DrawSmallScaledPatch(0, 0, 0, W_CachePatchName("CONFRONT", PU_CACHE));
+		{
+			V_DrawSmallScaledPatch(0, 0, 0, (patch = W_CachePatchName("CONFRONT", PU_CACHE)));
+			W_UnlockCachedPatch(patch);
+		}
 	}
 	else if (finaletext == intro15text)
 	{
@@ -1214,7 +1234,9 @@ static void F_IntroTextWrite(void)
 
 				F_WipeStartScreen();
 
-				V_DrawSmallScaledPatch(0, 0, 0, W_CachePatchName("SONICDO2", PU_CACHE));
+				V_DrawSmallScaledPatch(0, 0, 0, (patch = W_CachePatchName("SONICDO2", PU_CACHE)));
+				W_UnlockCachedPatch(patch);
+
 				// draw some of the text onto the screen
 				F_WriteText(cx, cy);
 
@@ -1224,7 +1246,10 @@ static void F_IntroTextWrite(void)
 			}
 		}
 		else if (finaletextcount > 7*TICRATE)
-			V_DrawSmallScaledPatch(0, 0, 0, W_CachePatchName("SONICDO2", PU_CACHE));
+		{
+			V_DrawSmallScaledPatch(0, 0, 0, (patch = W_CachePatchName("SONICDO2", PU_CACHE)));
+			W_UnlockCachedPatch(patch);
+		}
 	}
 
 	if (animtimer)
@@ -1253,6 +1278,10 @@ static void F_IntroTextWrite(void)
 
 		if (currentanim)
 			V_DrawScaledPatch(123, 4, 0, currentanim);
+
+		W_UnlockCachedPatch(third);
+		W_UnlockCachedPatch(second);
+		W_UnlockCachedPatch(first);
 	}
 
 	F_WriteText(cx, cy);
@@ -1377,6 +1406,8 @@ static void F_SkyScroll(INT32 scrollspeed)
 		}
 	}
 #endif
+
+	W_UnlockCachedPatch(pat);
 }
 
 // De-Demo'd Title Screen
@@ -1440,7 +1471,7 @@ void F_GameEvaluationDrawer(void)
 	const fixed_t radius = 48*FRACUNIT;
 	angle_t fa;
 
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	// Draw all the good crap here.
 	if (animtimer == 64)
@@ -1814,7 +1845,7 @@ static void F_DrawCreditScreen(credit_t *creditpassed)
 
 void F_CreditDrawer(void)
 {
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	if (timetonext-- <= 0) // Fade to the next!
 	{
@@ -1830,7 +1861,7 @@ void F_CreditDrawer(void)
 		if (rendermode != render_none)
 		{
 			F_WipeStartScreen();
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 			F_DrawCreditScreen(&credits[animtimer]);
 			F_WipeEndScreen(0, 0, vid.width, vid.height);
 
@@ -1879,7 +1910,7 @@ void F_IntroDrawer(void)
 			if (rendermode != render_none)
 			{
 				F_WipeStartScreen();
-				V_DrawFill(0, 0, vid.width, vid.height, 0);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 0);
 				F_WipeEndScreen(0, 0, vid.width, vid.height);
 
 				F_RunWipe(TICRATE, true);
@@ -1900,7 +1931,7 @@ void F_IntroDrawer(void)
 			if (rendermode != render_none)
 			{
 				F_WipeStartScreen();
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 				F_WipeEndScreen(0, 0, vid.width, vid.height);
 
 				F_RunWipe(TICRATE, true);
@@ -1945,9 +1976,12 @@ void F_IntroDrawer(void)
 	{
 		if (rendermode != render_none)
 		{
+			patch_t *grass = W_CachePatchName("SGRASS5", PU_CACHE);
+
 			F_WipeStartScreen();
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
-			V_DrawScaledPatch(0, 0, 0, W_CachePatchName("SGRASS5", PU_CACHE));
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
+			V_DrawScaledPatch(0, 0, 0, grass);
+			W_UnlockCachedPatch(grass);
 			F_IntroTextWrite();
 			F_WipeEndScreen(0, 0, vid.width, vid.height);
 
@@ -1975,7 +2009,7 @@ static void F_AdvanceToNextScene(void)
 	if (rendermode != render_none)
 	{
 		F_WipeStartScreen();
-		V_DrawFill(0,0, vid.width, vid.height, 31);
+		V_DrawFill(0,0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		if (scenenum < cutscenes[cutnum]->numscenes)
 		{
 			if (cutscenes[cutnum]->scene[scenenum].pichires[picnum])
@@ -2014,7 +2048,7 @@ static void F_AdvanceToNextScene(void)
 
 static void F_CutsceneTextWrite(void)
 {
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	if (cutscenes[cutnum]->scene[scenenum].picname[picnum][0] != '\0')
 	{

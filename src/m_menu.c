@@ -3440,7 +3440,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 	patch_t *patch;
 
 	// Black BG
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	{
 		// Compact the menu
@@ -3473,6 +3473,8 @@ static void M_DrawSetupChoosePlayerMenu(void)
 
 	V_DrawScaledPatch(mx+160,my+8,0,patch);
 	V_DrawString(mx-16, my+80, 0, description[itemOn].info);
+
+	W_UnlockCachedPatch(patch);
 }
 
 //
@@ -7918,7 +7920,7 @@ boolean M_Responder(event_t *ev)
 					// Fade to black first
 					if (rendermode != render_none)
 					{
-						V_DrawFill(0, 0, vid.width, vid.height, 31);
+						V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 						F_WipeEndScreen(0, 0, vid.width, vid.height);
 
 						F_RunWipe(2*TICRATE, false);

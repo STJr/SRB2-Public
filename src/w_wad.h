@@ -128,6 +128,8 @@ void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag); // return a patch_t
 #define W_CachePatchNum(lumpnum, tag) W_CacheLumpNum(lumpnum, tag)
 #endif
 
+void W_UnlockCachedPatch(void *patch);
+
 void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5);
 
 int W_VerifyNMUSlumps(const char *filename);

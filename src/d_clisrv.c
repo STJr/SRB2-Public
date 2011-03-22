@@ -113,8 +113,27 @@ SINT8 servernode = 0; // the number of the server node
 boolean acceptnewnode = true;
 
 // engine
+
+// Must be a power of two
+#define TEXTCMD_HASH_SIZE 4
+
+typedef struct textcmdplayer_s
+{
+	INT32 playernum;
+	UINT8 cmd[MAXTEXTCMD];
+	struct textcmdplayer_s *next;
+} textcmdplayer_t;
+
+typedef struct textcmdtic_s
+{
+	tic_t tic;
+	textcmdplayer_t *playercmds[TEXTCMD_HASH_SIZE];
+	struct textcmdtic_s *next;
+} textcmdtic_t;
+
 ticcmd_t netcmds[BACKUPTICS][MAXPLAYERS];
-static UINT8 textcmds[BACKUPTICS][MAXPLAYERS][MAXTEXTCMD];
+static textcmdtic_t *textcmds[TEXTCMD_HASH_SIZE] = {NULL};
+
 
 static consvar_t cv_showjoinaddress = {"showjoinaddress", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_playdemospeed = {"playdemospeed", "0", 0, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -238,56 +257,158 @@ UINT8 GetFreeXCmdSize(void)
 	return (UINT8)(localtextcmd[0] - 2);
 }
 
+// Frees all textcmd memory for the specified tic
+static void D_FreeTextcmd(tic_t tic)
+{
+	textcmdtic_t **tctprev = &textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
+	textcmdtic_t *textcmdtic = *tctprev;
+	
+	while (textcmdtic && textcmdtic->tic != tic)
+	{
+		tctprev = &textcmdtic->next;
+		textcmdtic = textcmdtic->next;
+	}
+
+	if (textcmdtic)
+	{
+		INT32 i;
+
+		// Remove this tic from the list.
+		*tctprev = textcmdtic->next;
+
+		// Free all players.
+		for (i = 0; i < TEXTCMD_HASH_SIZE; i++)
+		{
+			textcmdplayer_t *textcmdplayer = textcmdtic->playercmds[i];
+
+			while (textcmdplayer)
+			{
+				textcmdplayer_t *tcpnext = textcmdplayer->next;
+				Z_Free(textcmdplayer);
+				textcmdplayer = tcpnext;
+			}
+		}
+
+		// Free this tic's own memory.
+		Z_Free(textcmdtic);
+	}
+}
+
+// Gets the buffer for the specified ticcmd, or NULL if there isn't one
+static UINT8* D_GetExistingTextcmd(tic_t tic, INT32 playernum)
+{
+	textcmdtic_t *textcmdtic = textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
+	while (textcmdtic && textcmdtic->tic != tic) textcmdtic = textcmdtic->next;
+
+	// Do we have an entry for the tic? If so, look for player.
+	if (textcmdtic)
+	{
+		textcmdplayer_t *textcmdplayer = textcmdtic->playercmds[playernum & (TEXTCMD_HASH_SIZE - 1)];
+		while (textcmdplayer && textcmdplayer->playernum != playernum) textcmdplayer = textcmdplayer->next;
+
+		if (textcmdplayer) return textcmdplayer->cmd;
+	}
+
+	return NULL;
+}
+
+// Gets the buffer for the specified ticcmd, creating one if necessary
+static UINT8* D_GetTextcmd(tic_t tic, INT32 playernum)
+{
+	textcmdtic_t *textcmdtic = textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
+	textcmdtic_t **tctprev = &textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
+	textcmdplayer_t *textcmdplayer, **tcpprev;
+
+	// Look for the tic.
+	while (textcmdtic && textcmdtic->tic != tic)
+	{
+		tctprev = &textcmdtic->next;
+		textcmdtic = textcmdtic->next;
+	}
+
+	// If we don't have an entry for the tic, make it.
+	if (!textcmdtic)
+	{
+		textcmdtic = *tctprev = Z_Calloc(sizeof (textcmdtic_t), PU_STATIC, NULL);
+		textcmdtic->tic = tic;
+	}
+
+	tcpprev = &textcmdtic->playercmds[playernum & (TEXTCMD_HASH_SIZE - 1)];
+	textcmdplayer = *tcpprev;
+
+	// Look for the player.
+	while (textcmdplayer && textcmdplayer->playernum != playernum)
+	{
+		tcpprev = &textcmdplayer->next;
+		textcmdplayer = textcmdplayer->next;
+	}
+
+	// If we don't have an entry for the player, make it.
+	if (!textcmdplayer)
+	{
+		textcmdplayer = *tcpprev = Z_Calloc(sizeof (textcmdplayer_t), PU_STATIC, NULL);
+		textcmdplayer->playernum = playernum;
+	}
+
+	return textcmdplayer->cmd;
+}
+
 static void ExtraDataTicker(void)
 {
-	INT32 i, tic;
-	UINT8 *curpos, *bufferend;
-
-	tic = gametic % BACKUPTICS;
+	INT32 i;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] || i == 0)
 		{
-			curpos = (UINT8 *)&(textcmds[tic][i]);
-			bufferend = &curpos[curpos[0]+1];
-			curpos++;
-			while (curpos < bufferend)
-			{
-				if (*curpos < MAXNETXCMD && listnetxcmd[*curpos])
-				{
-					const UINT8 id = *curpos;
-					curpos++;
-					DEBFILE(va("executing x_cmd %u ply %u ", id, i));
-					(listnetxcmd[id])(&curpos, i);
-					DEBFILE("done\n");
-				}
-				else
-				{
-					if (server)
-					{
-						XBOXSTATIC UINT8 buf[3];
+			UINT8 *bufferstart = D_GetExistingTextcmd(gametic, i);
 
-						buf[0] = (UINT8)i;
-						buf[1] = KICK_MSG_CON_FAIL;
-						SendNetXCmd(XD_KICK, &buf, 2);
-						DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
+			if (bufferstart)
+			{
+				UINT8 *curpos = bufferstart;
+				UINT8 *bufferend = &curpos[curpos[0]+1];
+
+				curpos++;
+				while (curpos < bufferend)
+				{
+					if (*curpos < MAXNETXCMD && listnetxcmd[*curpos])
+					{
+						const UINT8 id = *curpos;
+						curpos++;
+						DEBFILE(va("executing x_cmd %u ply %u ", id, i));
+						(listnetxcmd[id])(&curpos, i);
+						DEBFILE("done\n");
 					}
-					CONS_Printf(M_GetText("Got unknown net command [%s]=%d (max %d)\n"), sizeu1(curpos - (UINT8 *)&(textcmds[tic][i])), *curpos, textcmds[tic][i][0]);
-					return;
+					else
+					{
+						if (server)
+						{
+							XBOXSTATIC UINT8 buf[3];
+
+							buf[0] = (UINT8)i;
+							buf[1] = KICK_MSG_CON_FAIL;
+							SendNetXCmd(XD_KICK, &buf, 2);
+							DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
+						}
+						CONS_Printf(M_GetText("Got unknown net command [%s]=%d (max %d)\n"), sizeu1(curpos - bufferstart), *curpos, bufferstart[0]);
+						D_FreeTextcmd(gametic);
+						return;
+					}
 				}
 			}
 		}
+
+	D_FreeTextcmd(gametic);
 }
 
 static void D_Clearticcmd(tic_t tic)
 {
 	INT32 i;
 
+	D_FreeTextcmd(tic);
+
 	for (i = 0; i < MAXPLAYERS; i++)
-	{
-		textcmds[tic%BACKUPTICS][i][0] = 0;
 		netcmds[tic%BACKUPTICS][i].angleturn = 0;
-	}
+
 	DEBFILE(va("clear tic %5u (%2u)\n", tic, tic%BACKUPTICS));
 }
 
@@ -318,28 +439,27 @@ static void D_Clearticcmd(tic_t tic)
 // endif
 boolean AddLmpExtradata(UINT8 **demo_point, INT32 playernum)
 {
-	INT32 tic;
+	UINT8 *textcmd = D_GetExistingTextcmd(gametic, playernum);
 
-	tic = gametic % BACKUPTICS;
-	if (textcmds[tic][playernum][0] == 0)
+	if (!textcmd)
 		return false;
 
-	M_Memcpy(*demo_point, textcmds[tic][playernum], textcmds[tic][playernum][0]+1);
-	*demo_point += textcmds[tic][playernum][0]+1;
+	M_Memcpy(*demo_point, textcmd, textcmd[0]+1);
+	*demo_point += textcmd[0]+1;
 	return true;
 }
 
 void ReadLmpExtraData(UINT8 **demo_pointer, INT32 playernum)
 {
 	UINT8 nextra;
+	UINT8 *textcmd;
 
 	if (!demo_pointer)
-	{
-		textcmds[gametic%BACKUPTICS][playernum][0] = 0;
 		return;
-	}
+
+	textcmd = D_GetTextcmd(gametic, playernum);
 	nextra = **demo_pointer;
-	M_Memcpy(textcmds[gametic%BACKUPTICS][playernum], *demo_pointer, nextra + 1);
+	M_Memcpy(textcmd, *demo_pointer, nextra + 1);
 	// increment demo pointer
 	*demo_pointer += nextra + 1;
 }
@@ -2650,11 +2770,12 @@ static size_t TotalTextCmdPerTic(tic_t tic)
 {
 	size_t i, total = 1; // num of textcmds in the tic (ntextcmd byte)
 
-	tic %= BACKUPTICS;
-
 	for (i = 0; i < MAXPLAYERS; i++)
-		if ((!i || playeringame[i]) && textcmds[tic][i][0])
-			total += 2 + textcmds[tic][i][0]; // "+2" for size and playernum
+	{
+		UINT8 *textcmd = D_GetExistingTextcmd(tic, i);
+		if ((!i || playeringame[i]) && textcmd)
+			total += 2 + textcmd[0]; // "+2" for size and playernum
+	}
 
 	return total;
 }
@@ -2669,7 +2790,6 @@ static void GetPackets(void)
 	XBOXSTATIC SINT8 node;
 	XBOXSTATIC tic_t realend,realstart;
 	XBOXSTATIC UINT8 *pak, *txtpak, numtxtpak;
-	INT32 p = maketic%BACKUPTICS;
 FILESTAMP
 	while (HGetPacket())
 	{
@@ -3000,6 +3120,7 @@ FILESTAMP
 				{
 					size_t j;
 					tic_t tic = maketic;
+					UINT8 *textcmd;
 
 					// check if tic that we are making isn't too large else we cannot send it :(
 					// doomcom->numslots+1 "+1" since doomcom->numslots can change within this time and sent time
@@ -3008,8 +3129,8 @@ FILESTAMP
 						+ (doomcom->numslots+1)*sizeof(ticcmd_t));
 
 					// search a tic that have enougth space in the ticcmd
-					while ((TotalTextCmdPerTic(tic) > j || netbuffer->u.textcmd[0]
-						+ textcmds[tic%BACKUPTICS][netconsole][0] > MAXTEXTCMD)
+					while ((textcmd = D_GetExistingTextcmd(tic, netconsole)),
+						(TotalTextCmdPerTic(tic) > j || netbuffer->u.textcmd[0] + (textcmd ? textcmd[0] : 0) > MAXTEXTCMD)
 						&& tic < firstticstosend + BACKUPTICS)
 						tic++;
 
@@ -3021,12 +3142,15 @@ FILESTAMP
 						Net_UnAcknowledgPacket(node);
 						break;
 					}
+
+					// Make sure we have a buffer
+					if (!textcmd) textcmd = D_GetTextcmd(tic, netconsole);
+
 					DEBFILE(va("textcmd put in tic %u at position %d (player %d) ftts %u mk %u\n",
-						tic, textcmds[p][netconsole][0]+1, netconsole, firstticstosend, maketic));
-					p = tic % BACKUPTICS;
-					M_Memcpy(&textcmds[p][netconsole][textcmds[p][netconsole][0]+1],
-						netbuffer->u.textcmd+1, netbuffer->u.textcmd[0]);
-					textcmds[p][netconsole][0] = (UINT8)(textcmds[p][netconsole][0] + (UINT8)netbuffer->u.textcmd[0]);
+						tic, textcmd[0]+1, netconsole, firstticstosend, maketic));
+
+					M_Memcpy(&textcmd[textcmd[0]+1], netbuffer->u.textcmd+1, netbuffer->u.textcmd[0]);
+					textcmd[0] += (UINT8)netbuffer->u.textcmd[0];
 				}
 				break;
 			case PT_NODETIMEOUT:
@@ -3109,7 +3233,7 @@ FILESTAMP
 							INT32 k = *txtpak++; // playernum
 							const size_t txtsize = txtpak[0]+1;
 
-							M_Memcpy(textcmds[i%BACKUPTICS][k], txtpak, txtsize);
+							M_Memcpy(D_GetTextcmd(i, k), txtpak, txtsize);
 							txtpak += txtsize;
 						}
 					}
@@ -3362,13 +3486,14 @@ static void SV_SendTics(void)
 				*ntextcmd = 0;
 				for (j = 0; j < MAXPLAYERS; j++)
 				{
-					INT32 size = textcmds[i%BACKUPTICS][j][0];
+					UINT8 *textcmd = D_GetExistingTextcmd(i, j);
+					INT32 size = textcmd ? textcmd[0] : 0;
 
 					if ((!j || playeringame[j]) && size)
 					{
 						(*ntextcmd)++;
 						WRITEUINT8(bufpos, j);
-						M_Memcpy(bufpos, textcmds[i%BACKUPTICS][j], size + 1);
+						M_Memcpy(bufpos, textcmd, size + 1);
 						bufpos += size + 1;
 					}
 				}

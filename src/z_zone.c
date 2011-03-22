@@ -160,9 +160,23 @@ void Z_Free(void *ptr)
 static void *xm(size_t size)
 {
 	void *p = malloc(size);
+
 	if (p == NULL)
-		I_Error("Out of memory allocating %s bytes",
-			sizeu1(size));
+	{
+		// Oh crumbs: we're out of heap. Try purging the cache and reallocating.
+		Z_FreeTags(PU_PURGELEVEL, INT32_MAX);
+		p = malloc(size);
+
+		if (p == NULL)
+		{
+#ifdef _NDS
+			// Temporary-ish debugging measure
+			Command_Memfree_f();
+#endif
+			I_Error("Out of memory allocating %s bytes", sizeu1(size));
+		}
+	}
+
 	return p;
 }
 
@@ -189,11 +203,6 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 
 	block = xm(sizeof *block);
 	ptr = xm(extrabytes + sizeof *hdr + size);
-
-#ifdef _NDS
-	if ((size_t)ptr + extrabytes + sizeof *hdr + size > 0x2400000)
-		I_Error("Out of heap!");
-#endif
 
 	// This horrible calculation makes sure that "given" is aligned
 	// properly.
@@ -281,7 +290,7 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 #ifdef ZDEBUG
 	// Write every Z_Realloc call to a debug file.
 	DEBFILE(va("Z_Realloc at %s:%d\n", file, line));
-	rez = Z_MallocAlign2(size, tag, user, alignbits, file, line);
+	rez = Z_Malloc2(size, tag, user, alignbits, file, line);
 #else
 	rez = Z_MallocAlign(size, tag, user, alignbits);
 #endif
@@ -453,9 +462,11 @@ void Command_Memfree_f(void)
 	CONS_Printf(M_GetText("Static            : %7s KB\n"), sizeu1(Z_TagUsage(PU_STATIC)>>10));
 	CONS_Printf(M_GetText("Static (sound)    : %7s KB\n"), sizeu1(Z_TagUsage(PU_SOUND)>>10));
 	CONS_Printf(M_GetText("Static (music)    : %7s KB\n"), sizeu1(Z_TagUsage(PU_MUSIC)>>10));
+	CONS_Printf(M_GetText("Locked cache      : %7s KB\n"), sizeu1(Z_TagUsage(PU_CACHE)>>10));
 	CONS_Printf(M_GetText("Level             : %7s KB\n"), sizeu1(Z_TagUsage(PU_LEVEL)>>10));
 	CONS_Printf(M_GetText("Special thinker   : %7s KB\n"), sizeu1(Z_TagUsage(PU_LEVSPEC)>>10));
-	CONS_Printf(M_GetText("All purgable      : %7s KB\n"), sizeu1(Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10));
+	CONS_Printf(M_GetText("All purgable      : %7s KB\n"),
+		sizeu1(Z_TagsUsage(PU_PURGELEVEL, INT32_MAX)>>10));
 
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)

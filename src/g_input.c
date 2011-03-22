@@ -347,6 +347,16 @@ static keyname_t keynames[] =
 	{KEY_JOY1+6, "JOYVOLUP"},
 	{KEY_JOY1+7, "JOYVOLDOWN"},
 	{KEY_JOY1+8, "JOYSELECT"},
+#elif defined (_NDS)
+	{KEY_JOY1+0, "JOYA"},
+	{KEY_JOY1+1, "JOYB"},
+	{KEY_JOY1+2, "JOYX"},
+	{KEY_JOY1+3, "JOYY"},
+	{KEY_JOY1+4, "JOYL"},
+	{KEY_JOY1+5, "JOYR"},
+	{KEY_JOY1+6, "JOYSTART"},
+	{KEY_JOY1+7, "JOYSELECT"},
+#define NOMOREJOYBTN_1S
 #elif defined (WMINPUT)
 	{KEY_JOY1+0,  "JOYB"},
 	{KEY_JOY1+1,  "JOYA"},
@@ -527,6 +537,16 @@ static keyname_t keynames[] =
 	{KEY_DBLJOY1+6, "DBLJOYVOLUP"},
 	{KEY_DBLJOY1+7, "DBLJOYVOLDOWN"},
 	{KEY_DBLJOY1+8, "DBLJOYSELECT"},
+#define NOMOREJOYBTN_1DBL
+#elif defined (_NDS)
+	{KEY_DBLJOY1+0, "DBLJOYA"},
+	{KEY_DBLJOY1+1, "DBLJOYB"},
+	{KEY_DBLJOY1+2, "DBLJOYX"},
+	{KEY_DBLJOY1+3, "DBLJOYY"},
+	{KEY_DBLJOY1+4, "DBLJOYL"},
+	{KEY_DBLJOY1+5, "DBLJOYR"},
+	{KEY_DBLJOY1+6, "DBLJOYSTART"},
+	{KEY_DBLJOY1+7, "DBLJOYSELECT"},
 #define NOMOREJOYBTN_1DBL
 #elif defined (WMINPUT)
 	{KEY_DBLJOY1+0,  "DBLJOYB"},
@@ -1122,6 +1142,21 @@ void G_Controldefault(void)
 	gamecontrol[gc_lookup     ][0] = KEY_JOY1+6; //U
 	gamecontrol[gc_lookdown   ][0] = KEY_JOY1+7; //D
 	gamecontrol[gc_pause      ][0] = KEY_JOY1+8; //S
+}
+#elif defined (_NDS)
+void G_Controldefault(void)
+{
+	gamecontrol[gc_fire       ][0] = KEY_JOY1+2; //X
+	gamecontrol[gc_forward    ][0] = KEY_UPARROW;
+	gamecontrol[gc_backward   ][0] = KEY_DOWNARROW;
+	gamecontrol[gc_jump       ][0] = KEY_JOY1+0; //A
+	gamecontrol[gc_use        ][0] = KEY_JOY1+3; //Y
+	gamecontrol[gc_strafeleft ][0] = KEY_JOY1+4; //L
+	gamecontrol[gc_straferight][0] = KEY_JOY1+5; //R
+	gamecontrol[gc_turnleft   ][0] = KEY_LEFTARROW;
+	gamecontrol[gc_turnright  ][0] = KEY_RIGHTARROW;
+	gamecontrol[gc_pause      ][0] = KEY_JOY1+6; //Start
+	gamecontrol[gc_weaponnext ][0] = KEY_JOY1+7; //Select
 }
 #else
 void G_Controldefault(void)

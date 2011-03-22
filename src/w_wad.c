@@ -857,7 +857,7 @@ static inline void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 		// this code will be executed latter in GetPatch, anyway
 		// do it now
 		patch_t *ptr = W_CacheLumpNum(grPatch->patchlump, PU_STATIC);
-		HWR_MakePatch(ptr, grPatch, &grPatch->mipmap);
+		HWR_MakePatch(ptr, grPatch, &grPatch->mipmap, false);
 		Z_Free(ptr);
 	}
 
@@ -871,6 +871,18 @@ void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag)
 }
 
 #endif // HWRENDER
+
+void W_UnlockCachedPatch(void *patch)
+{
+	// The hardware code does its own memory management, as its patches
+	// have different lifetimes from software's.
+#ifdef HWRENDER
+	if (rendermode != render_soft && rendermode != render_none)
+		HWR_UnlockCachedPatch((GLPatch_t*)patch);
+	else
+#endif
+		Z_Unlock(patch);
+}
 
 void *W_CachePatchName(const char *name, INT32 tag)
 {

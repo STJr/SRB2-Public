@@ -463,8 +463,12 @@ void R_DelSpriteDefs(UINT16 wadnum)
 //
 // GAME FUNCTIONS
 //
-static vissprite_t vissprites[MAXVISSPRITES];
-static vissprite_t *vissprite_p;
+#define VISSPRITECHUNKBITS 6	// 2^6 = 64 sprites per chunk
+#define VISSPRITESPERCHUNK (1 << VISSPRITECHUNKBITS)
+#define VISSPRITEINDEXMASK (VISSPRITESPERCHUNK - 1)
+static UINT32 visspritecount;
+static vissprite_t *visspritechunks[MAXVISSPRITES >> VISSPRITECHUNKBITS] = {NULL};
+
 
 //
 // R_InitSprites
@@ -520,7 +524,12 @@ void R_InitSprites(void)
 //
 void R_ClearSprites(void)
 {
-	vissprite_p = vissprites;
+	visspritecount = 0;
+}
+
+void R_ResetVisSpriteChunks(void)
+{
+	memset(visspritechunks, 0, sizeof(visspritechunks));
 }
 
 //
@@ -528,13 +537,23 @@ void R_ClearSprites(void)
 //
 static vissprite_t overflowsprite;
 
+static vissprite_t *R_GetVisSprite(UINT32 num)
+{
+		UINT32 chunk = num >> VISSPRITECHUNKBITS;
+
+		// Allocate chunk if necessary
+		if (!visspritechunks[chunk])
+			visspritechunks[chunk] = Z_Malloc(sizeof(vissprite_t) * VISSPRITESPERCHUNK, PU_LEVEL, NULL);
+
+		return visspritechunks[chunk] + (num & VISSPRITEINDEXMASK);
+}
+
 static vissprite_t *R_NewVisSprite(void)
 {
-	if (vissprite_p == &vissprites[MAXVISSPRITES])
+	if (visspritecount == MAXVISSPRITES)
 		return &overflowsprite;
 
-	vissprite_p++;
-	return vissprite_p-1;
+	return R_GetVisSprite(visspritecount++);
 }
 
 //
@@ -689,7 +708,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	{
 		colfunc = transtransfunc;
 		dc_transmap = vis->transmap;
-		dc_translation = defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
+		dc_translation = R_GetTranslationColormap(TC_DEFAULT, vis->mobj->color, GTC_CACHE);
 	}
 	else if (vis->transmap)
 	{
@@ -724,15 +743,10 @@ static void R_DrawVisSprite(vissprite_t *vis)
 #endif
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
 		{
-			dc_translation = bosstranslationtables;
+			dc_translation = R_GetTranslationColormap(TC_BOSS, 0, GTC_CACHE);
 		}
 		else // Use the defaults
-		{
-			if (vis->mobj->color)
-				dc_translation = defaulttranslationtables - 256 + ((long)vis->mobj->color<<8);
-			else
-				dc_translation = defaulttranslationtables;
-		}
+			dc_translation = R_GetTranslationColormap(TC_DEFAULT, vis->mobj->color ? vis->mobj->color : SKINCOLOR_CYAN, GTC_CACHE);
 	}
 
 	if (vis->extra_colormap)
@@ -1625,33 +1639,40 @@ static vissprite_t vsprsortedhead;
 
 void R_SortVisSprites(void)
 {
-	size_t       i, count;
-	vissprite_t *ds;
+	size_t       i;
+	vissprite_t *ds, *dsprev, *dsnext, *dsfirst;
 	vissprite_t *best = NULL;
 	vissprite_t  unsorted;
 	fixed_t      bestscale;
 
-	count = vissprite_p - vissprites;
+	if (!visspritecount)
+		return;
 
 	unsorted.next = unsorted.prev = &unsorted;
 
-	if (!count)
-		return;
+	dsfirst = R_GetVisSprite(0);
 
-	for (ds = vissprites; ds < vissprite_p; ds++)
+	// The first's prev and last's next will be set to
+	// nonsense, but are fixed in a moment
+	for (i = 0, dsnext = dsfirst, ds = NULL; i < visspritecount; i++)
 	{
-		ds->next = ds+1;
-		ds->prev = ds-1;
+		dsprev = ds;
+		ds = dsnext;
+		if (i < visspritecount - 1) dsnext = R_GetVisSprite(i + 1);
+
+		ds->next = dsnext;
+		ds->prev = dsprev;
 	}
 
-	vissprites[0].prev = &unsorted;
-	unsorted.next = &vissprites[0];
-	(vissprite_p-1)->next = &unsorted;
-	unsorted.prev = vissprite_p-1;
+	// Fix first and last. ds still points to the last one after the loop
+	dsfirst->prev = &unsorted;
+	unsorted.next = dsfirst;
+	ds->next = &unsorted;
+	unsorted.prev = ds;
 
 	// pull the vissprites out by scale
 	vsprsortedhead.next = vsprsortedhead.prev = &vsprsortedhead;
-	for (i = 0; i < count; i++)
+	for (i = 0; i < visspritecount; i++)
 	{
 		bestscale = INT32_MAX;
 		for (ds = unsorted.next; ds != &unsorted; ds = ds->next)
@@ -1747,7 +1768,7 @@ static void R_CreateDrawNodes(void)
 		}
 	}
 
-	if (vissprite_p == vissprites)
+	if (visspritecount == 0)
 		return;
 
 	R_SortVisSprites();

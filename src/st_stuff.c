@@ -620,7 +620,7 @@ static void ST_DrawNightsOverlayNum(INT32 x /* right border */, INT32 y, INT32 n
 	else
 	{
 		// Uses the player colors.
-		colormap = (UINT8 *)defaulttranslationtables - 256 + (colornum<<8);
+		colormap = R_GetTranslationColormap(TC_DEFAULT, colornum, GTC_CACHE);
 	}
 
 	// special case for 0
@@ -1014,13 +1014,13 @@ static void ST_drawNiGHTSHUD(void)
 		{
 			ST_DrawNightsOverlayNum(SCX(256), SCY(160), (stplyr->linkcount-1), nightsnum, colornum);
 			V_DrawMappedPatch(SCX(264), SCY(160), V_NOSCALESTART, nightslink,
-				colornum == 0 ? colormaps : (UINT8 *)defaulttranslationtables - 256 + (colornum<<8));
+				colornum == 0 ? colormaps : R_GetTranslationColormap(TC_DEFAULT, colornum, GTC_CACHE));
 		}
 		else
 		{
 			ST_DrawNightsOverlayNum(SCX(160), SCY(176), (stplyr->linkcount-1), nightsnum, colornum);
 			V_DrawMappedPatch(SCX(168), SCY(176), V_NOSCALESTART, nightslink,
-				colornum == 0 ? colormaps : (UINT8 *)defaulttranslationtables - 256 + (colornum<<8));
+				colornum == 0 ? colormaps : R_GetTranslationColormap(TC_DEFAULT, colornum, GTC_CACHE));
 		}
 	}
 
@@ -1769,7 +1769,7 @@ static void ST_drawContinueHUD(void)
 			F_WipeStartScreen();
 
 			// Then, draw what the new screen will look like.
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 			contsonic = W_CachePatchName("CONT1", PU_CACHE);
 			V_DrawScaledPatch((BASEVIDWIDTH-SHORT(contsonic->width))/2, 64, 0, contsonic);
@@ -1785,7 +1785,7 @@ static void ST_drawContinueHUD(void)
 		}
 	}
 
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	V_DrawString(128, 128, 0, "CONTINUE?");
 	// Draw a Sonic!
 	contsonic = W_CachePatchName("CONT1", PU_CACHE);

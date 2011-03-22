@@ -269,7 +269,7 @@ static void D_Display(void)
 			if (!(mapheaderinfo[gamemap-1]->interscreen[0] == '#'
 				&& gamestate == GS_INTERMISSION))
 			{
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 #if defined (SHUFFLE) && defined (HWRENDER)
 				if(rendermode != render_soft)
 				{

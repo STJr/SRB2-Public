@@ -1101,7 +1101,7 @@ static inline void AM_drawPlayers(void)
 		if (p->skincolor == 0)
 			color = GREENS;
 		else
-			color = *(defaulttranslationtables + ((p->skincolor - 1)<<8) + GREENS + 8);
+			color = R_GetTranslationColormap(TC_DEFAULT, p->skincolor, GTC_CACHE)[GREENS + 8];
 
 		AM_drawLineCharacter(player_arrow, NUMPLYRLINES, 0, p->mo->angle,
 			color, p->mo->x, p->mo->y);

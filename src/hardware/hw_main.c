@@ -104,8 +104,8 @@ static consvar_t cv_grbeta = {"gr_beta", "0", 0, CV_Unsigned, NULL, 0, NULL, NUL
 
 #ifdef SHUFFLE
 static float HWRWipeCounter = 1.0f;
-consvar_t cv_grrounddown = {"gr_rounddown", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
+consvar_t cv_grrounddown = {"gr_rounddown", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_grfov = {"gr_fov", "90", CV_FLOAT|CV_CALL, grfov_cons_t, CV_grFov_OnChange, 0, NULL, NULL, 0, 0, NULL};
 #ifndef HARDWAREFIX
 consvar_t cv_grfogdensity = {"gr_fogdensity", "25", CV_CALL|CV_NOINIT, CV_Unsigned,
@@ -3790,14 +3790,9 @@ static void HWR_ProjectSprite(mobj_t *thing)
 			vis->colormap = R_GetTranslationColormap((vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
 #endif
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
-			vis->colormap = (UINT8 *)bosstranslationtables;
+			vis->colormap = R_GetTranslationColormap(TC_BOSS, 0, GTC_CACHE);
 		else
-		{
-			if (vis->mobj->color)
-				vis->colormap = (UINT8 *)defaulttranslationtables - 256 + ((INT32)vis->mobj->color<<8);
-			else
-				vis->colormap = (UINT8 *)defaulttranslationtables;
-		}
+			vis->colormap = R_GetTranslationColormap(TC_DEFAULT, vis->mobj->color ? vis->mobj->color : SKINCOLOR_CYAN, GTC_CACHE);
 	}
 	else
 		vis->colormap = colormaps;
@@ -4413,7 +4408,12 @@ void HWR_Startup(void)
 	}
 
 	if (rendermode == render_opengl)
-		textureformat = patchformat = GR_RGBA;
+		textureformat = patchformat =
+#ifdef _NDS
+			GR_TEXFMT_P_8;
+#else
+			GR_RGBA;
+#endif
 
 	startupdone = true;
 }

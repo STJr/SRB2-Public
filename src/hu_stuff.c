@@ -182,7 +182,7 @@ void HU_LoadGraphics(void)
 		j++;
 		if (i >= HU_REALFONTSIZE && i != '~' - HU_FONTSTART && i != '`' - HU_FONTSTART) /// \note font end hack
 			continue;
-		hu_font[i] = (patch_t *)W_CachePatchName(buffer, PU_HUDGFX);
+		hu_font[i] = (patch_t *)W_CachePatchName(buffer, PU_HUDGFX);;
 	}
 
 	// cache the level title font for entire game execution

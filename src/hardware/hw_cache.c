@@ -358,7 +358,7 @@ static UINT8 *MakeBlock(GLMipmap_t *grMipmap)
 	INT32 i;
 
 	bpp =  format2bpp[grMipmap->grInfo.format];
-	block = Z_Malloc(blocksize*bpp, PU_STATIC, &(grMipmap->grInfo.data));
+	block = Z_Malloc(blocksize*bpp, PU_HWRCACHE, &(grMipmap->grInfo.data));
 
 	switch (bpp)
 	{
@@ -441,6 +441,7 @@ static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 		                     patch->originx, patch->originy,
 		                     realpatch,
 		                     format2bpp[grtex->mipmap.grInfo.format]);
+		Z_Unlock(realpatch);
 	}
 	//Hurdler: not efficient at all but I don't remember exactly how HWR_DrawPatchInCache works :(
 	if (format2bpp[grtex->mipmap.grInfo.format]==4)
@@ -455,10 +456,6 @@ static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 		}
 	}
 
-	// make it purgable from zone memory
-	// use PU_PURGELEVEL so we can Z_FreeTags all at once
-	Z_ChangeTag (block, PU_HWRCACHE);
-
 	grtex->scaleX = 1.0f/(texture->width*FRACUNIT);
 	grtex->scaleY = 1.0f/(texture->height*FRACUNIT);
 }
@@ -466,9 +463,8 @@ static void HWR_GenerateTexture(INT32 texnum, GLTexture_t *grtex)
 // grTex : Hardware texture cache info
 //         .data : address of converted patch in heap memory
 //                 user for Z_Malloc(), becomes NULL if it is purged from the cache
-void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap)
+void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap, boolean makebitmap)
 {
-	UINT8 *block;
 	INT32 newwidth, newheight;
 
 	// don't do it twice (like a cache)
@@ -502,8 +498,6 @@ void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipm
 	Z_Free(grMipmap->grInfo.data);
 	grMipmap->grInfo.data = NULL;
 
-	block = MakeBlock(grMipmap);
-
 	// if rounddown, rounddown patches as well as textures
 	if (cv_grrounddown.value)
 	{
@@ -529,19 +523,21 @@ void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipm
 		newheight = min(SHORT(patch->height), blockheight);
 	}
 
-	HWR_DrawPatchInCache(grMipmap,
-	                     newwidth, newheight,
-	                     blockwidth*format2bpp[grMipmap->grInfo.format],
-	                     SHORT(patch->width), SHORT(patch->height),
-	                     0, 0,
-	                     patch,
-	                     format2bpp[grMipmap->grInfo.format]);
+	if (makebitmap)
+	{
+		MakeBlock(grMipmap);
+
+		HWR_DrawPatchInCache(grMipmap,
+			newwidth, newheight,
+			blockwidth*format2bpp[grMipmap->grInfo.format],
+			SHORT(patch->width), SHORT(patch->height),
+			0, 0,
+			patch,
+			format2bpp[grMipmap->grInfo.format]);
+	}
 
 	grPatch->max_s = (float)newwidth / (float)blockwidth;
 	grPatch->max_t = (float)newheight / (float)blockheight;
-
-	// Now that the texture has been built in cache, it is purgable from zone memory.
-	Z_ChangeTag (block, PU_HWRCACHE);
 }
 
 
@@ -643,6 +639,10 @@ GLTexture_t *HWR_GetTexture(INT32 tex)
 		HWR_GenerateTexture(tex, grtex);
 
 	HWD.pfnSetTexture(&grtex->mipmap);
+
+	// The system-memory data can be purged now.
+	Z_ChangeTag(grtex->mipmap.grInfo.data, PU_HWRCACHE_UNLOCKED);
+
 	return grtex;
 }
 
@@ -704,6 +704,9 @@ void HWR_GetFlat(lumpnum_t flatlumpnum)
 		HWR_CacheFlat(grmip, flatlumpnum);
 
 	HWD.pfnSetTexture(grmip);
+
+	// The system-memory data can be purged now.
+	Z_ChangeTag(grmip->grInfo.data, PU_HWRCACHE_UNLOCKED);
 }
 
 //
@@ -715,12 +718,15 @@ static void HWR_LoadMappedPatch(GLMipmap_t *grmip, GLPatch_t *gpatch)
 	if (!grmip->downloaded && !grmip->grInfo.data)
 	{
 		patch_t *patch = W_CacheLumpNum(gpatch->patchlump, PU_STATIC);
-		HWR_MakePatch(patch, gpatch, grmip);
+		HWR_MakePatch(patch, gpatch, grmip, true);
 
 		Z_Free(patch);
 	}
 
 	HWD.pfnSetTexture(grmip);
+
+	// The system-memory data can be purged now.
+	Z_ChangeTag(grmip->grInfo.data, PU_HWRCACHE_UNLOCKED);
 }
 
 // -----------------+
@@ -734,7 +740,7 @@ void HWR_GetPatch(GLPatch_t *gpatch)
 		// load the software patch, PU_STATIC or the Z_Malloc for hardware patch will
 		// flush the software patch before the conversion! oh yeah I suffered
 		patch_t *ptr = W_CacheLumpNum(gpatch->patchlump, PU_STATIC);
-		HWR_MakePatch(ptr, gpatch, &gpatch->mipmap);
+		HWR_MakePatch(ptr, gpatch, &gpatch->mipmap, true);
 
 		// this is inefficient.. but the hardware patch in heap is purgeable so it should
 		// not fragment memory, and besides the REAL cache here is the hardware memory
@@ -742,6 +748,9 @@ void HWR_GetPatch(GLPatch_t *gpatch)
 	}
 
 	HWD.pfnSetTexture(&gpatch->mipmap);
+
+	// The system-memory patch data can be purged now.
+	Z_ChangeTag(gpatch->mipmap.grInfo.data, PU_HWRCACHE_UNLOCKED);
 }
 
 
@@ -784,6 +793,11 @@ void HWR_GetMappedPatch(GLPatch_t *gpatch, const UINT8 *colormap)
 
 	newmip->colormap = colormap;
 	HWR_LoadMappedPatch(newmip, gpatch);
+}
+
+void HWR_UnlockCachedPatch(GLPatch_t *gpatch)
+{
+	Z_ChangeTag(gpatch->mipmap.grInfo.data, PU_HWRCACHE_UNLOCKED);
 }
 
 static const INT32 picmode2GR[] =
@@ -877,7 +891,7 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 		size_t len;
 		INT32 newwidth, newheight;
 
-		pic = W_CacheLumpNum(lumpnum, PU_STATIC);
+		pic = W_CacheLumpNum(lumpnum, PU_CACHE);
 		grpatch->width = SHORT(pic->width);
 		grpatch->height = SHORT(pic->height);
 		len = W_LumpLength(lumpnum) - sizeof (pic_t);
@@ -939,8 +953,8 @@ GLPatch_t *HWR_GetPic(lumpnum_t lumpnum)
 			                   pic,
 			                   format2bpp[grpatch->mipmap.grInfo.format]);
 
-		Z_ChangeTag(pic, PU_CACHE);
-		Z_ChangeTag(block, PU_HWRCACHE);
+		Z_Unlock(pic);
+		Z_ChangeTag(block, PU_HWRCACHE_UNLOCKED);
 
 		grpatch->mipmap.flags = 0;
 		grpatch->max_s = (float)newwidth  / (float)blockwidth;

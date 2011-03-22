@@ -1090,6 +1090,9 @@ static void HWR_SetLight(void)
 		lightmappatch.mipmap.flags = 0; //TF_WRAPXY; // DEBUG: view the overdraw !
 	}
 	HWD.pfnSetTexture(&lightmappatch.mipmap);
+
+	// The system-memory data can be purged now.
+	Z_ChangeTag(Data, PU_HWRCACHE_UNLOCKED);
 }
 
 //**********************************************************

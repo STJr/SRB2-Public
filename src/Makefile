@@ -201,12 +201,12 @@ endif
 ifdef NDS
 NOPNG=1
 NONET=1
-NOHW=1
+#NOHW=1
 NOHS=1
 NOASM=1
 NOIPX=1
 NONX86=1
-OBJS=$(OBJDIR)/i_video.o
+OBJS+=$(OBJDIR)/i_video.o
 LIBS+=-lm
 endif
 

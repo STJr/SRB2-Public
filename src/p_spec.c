@@ -6908,7 +6908,11 @@ void T_Pusher(pusher_t *p)
 			{
 				if (referrer->floorheight > thing->z + thing->height
 					|| referrer->ceilingheight < (thing->z + (thing->height >> 1)))
+#ifdef REMOVE_FOR_207
+					continue;
+#else
 					return;
+#endif
 
 				if (thing->z < referrer->floorheight)
 					touching = true;
@@ -6920,8 +6924,11 @@ void T_Pusher(pusher_t *p)
 			else
 			{
 				if (referrer->ceilingheight < thing->z || referrer->floorheight > (thing->z + (thing->height >> 1)))
+#ifdef REMOVE_FOR_207
+					continue;
+#else
 					return;
-
+#endif
 				if (thing->z + thing->height > referrer->ceilingheight)
 					touching = true;
 

@@ -48,9 +48,6 @@ extern UINT8 *dc_transmap;
 
 // translation stuff here
 
-extern UINT8 *translationtables[MAXSKINS];
-extern UINT8 *defaulttranslationtables;
-extern UINT8 *bosstranslationtables;
 extern UINT8 *dc_translation;
 
 extern struct r_lightlist_s *dc_lightlist;
@@ -119,6 +116,9 @@ typedef enum
 } skincolors_t;
 
 #define GTC_CACHE 1
+
+#define TC_DEFAULT -1
+#define TC_BOSS    -2
 
 // Initialize color translation tables, for player rendering etc.
 void R_InitTranslationTables(void);

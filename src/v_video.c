@@ -359,7 +359,7 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 	scrn &= 0xffff;
@@ -459,7 +459,7 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 	scrn &= 0xffff;
@@ -567,7 +567,7 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 	destend = desttop + SHORT(patch->width) * dupx;
@@ -839,7 +839,7 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 
 		// if it's meant to cover the whole screen, black out the rest
 		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
 	if (skippixels)
@@ -1002,7 +1002,7 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 
 		// if it's meant to cover the whole screen, black out the rest
 		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
 	if (skippixels)
@@ -1165,7 +1165,7 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 
 		// if it's meant to cover the whole screen, black out the rest
 		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
 	if (skippixels)
@@ -1322,7 +1322,7 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 
 		// if it's meant to cover the whole screen, black out the rest
 		if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH*2 && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT*2)
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
 	if (skippixels)
@@ -1481,7 +1481,7 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 

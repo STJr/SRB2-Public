@@ -49,7 +49,7 @@
 // we try to re-allocate a minimum of buffers for stability of the memory,
 // so all the small-enough tables based on screen size, are allocated once
 // and for all at the maximum size.
-#if defined (_WIN32_WCE) || defined (DC) || defined (_PSP)
+#if defined (_WIN32_WCE) || defined (DC) || defined (_PSP) || defined (_NDS)
 #define MAXVIDWIDTH 320
 #define MAXVIDHEIGHT 200
 #elif defined (GP2X)

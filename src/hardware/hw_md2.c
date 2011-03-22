@@ -874,6 +874,7 @@ static void md2_loadTexture(md2_t *model)
 		grpatch->mipmap.grInfo.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
 	}
 	HWD.pfnSetTexture(&grpatch->mipmap);
+	HWR_UnlockCachedPatch(grpatch);
 }
 
 void HWR_InitMD2(void)
@@ -940,7 +941,6 @@ void HWR_InitMD2(void)
 	*/
 void HWR_DrawMD2(gr_vissprite_t *spr)
 {
-	GLPatch_t *gpatch; // sprite patch converted to hardware
 	FSurfaceInfo Surf;
 
 	char filename[64];
@@ -948,17 +948,6 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	FTransform p;
 	md2_t *md2;
 	UINT8 color[4];
-
-	// cache model graphics
-	//12/12/99: Hurdler:
-	//          OK, I don't change anything for MD2 support because I want to be
-	//          sure to do it the right way. So actually, we keep normal sprite
-	//          in memory and we add the md2 model if it exists for that sprite
-
-	gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
-
-	//12/12/99: Hurdler: same comment as above (for md2)
-	HWR_GetMappedPatch(gpatch, spr->colormap);
 
 	// model lighting by modulating the RGB components
 	/// \todo Handled colored lighting
@@ -992,8 +981,8 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	// Look at HWR_ProjetctSprite for more
 	if (cv_grmd2.value && (md2_models[spr->mobj->sprite].scale > 0) && !spr->precip)
 	{
+		GLPatch_t *gpatch;
 		FBITFIELD blend = 0;
-		GLPatch_t *oldgpatch = gpatch;
 		INT32 *buff;
 		UINT32 durs = spr->mobj->state->tics;
 		UINT32 tics = spr->mobj->tics;
@@ -1038,12 +1027,19 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		HWD.pfnSetBlend(blend);
 		//Hurdler: arf, I don't like that implementation at all... too much crappy
 		gpatch = md2->grpatch;
-		if (!gpatch || !gpatch->mipmap.grInfo.format ||!gpatch->mipmap.downloaded)
+		if (!gpatch || !gpatch->mipmap.grInfo.format || !gpatch->mipmap.downloaded)
 			md2_loadTexture(md2);
 		else if (gpatch->mipmap.grInfo.format)
+		{
+			// This is safe, since we know the texture has been downloaded
 			HWD.pfnSetTexture(&gpatch->mipmap);
+		}
 		else
-			HWD.pfnSetTexture(&oldgpatch->mipmap);
+		{
+			// Sprite
+			gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
+			HWR_GetMappedPatch(gpatch, spr->colormap);
+		}
 
 		//FIXME: this is not yet correct
 		frame = spr->mobj->frame % md2->model->header.numFrames;
