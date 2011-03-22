@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-21 01:20-0400\n"
+"POT-Creation-Date: 2011-03-22 01:49-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -137,7 +137,7 @@ msgstr ""
 msgid "Bounded cvar \"%s\" without maximum!"
 msgstr ""
 
-#: command.c:1087 r_things.c:2553
+#: command.c:1087 r_things.c:2574
 #, c-format
 msgid "\"%s\" is not a possible value for \"%s\"\n"
 msgstr ""
@@ -226,7 +226,7 @@ msgstr ""
 msgid "Press ENTER to continue\n"
 msgstr ""
 
-#: d_clisrv.c:201 d_clisrv.c:203
+#: d_clisrv.c:220 d_clisrv.c:222
 #, c-format
 msgid ""
 "No more place in the buffer for netcmd %d\n"
@@ -234,144 +234,144 @@ msgid ""
 "nparam is %s\n"
 msgstr ""
 
-#: d_clisrv.c:275
+#: d_clisrv.c:392
 #, c-format
 msgid "Got unknown net command [%s]=%d (max %d)\n"
 msgstr ""
 
-#: d_clisrv.c:381
+#: d_clisrv.c:501
 msgid "Sending join request...\n"
 msgstr ""
 
-#: d_clisrv.c:580 d_clisrv.c:603 d_clisrv.c:658
+#: d_clisrv.c:700 d_clisrv.c:723 d_clisrv.c:778
 msgid "No more free memory for savegame\n"
 msgstr ""
 
-#: d_clisrv.c:674
+#: d_clisrv.c:794
 #, c-format
 msgid "Didn't save %s for netgame"
 msgstr ""
 
-#: d_clisrv.c:698
+#: d_clisrv.c:818
 #, c-format
 msgid "Loading savegame length %s\n"
 msgstr ""
 
-#: d_clisrv.c:701
+#: d_clisrv.c:821
 msgid "Can't read savegame sent"
 msgstr ""
 
-#: d_clisrv.c:729 g_game.c:2992
+#: d_clisrv.c:849 g_game.c:2992
 #, c-format
 msgid "Map is now \"%s"
 msgstr ""
 
-#: d_clisrv.c:734 g_game.c:2997 st_stuff.c:776 st_stuff.c:788 st_stuff.c:799
+#: d_clisrv.c:854 g_game.c:2997 st_stuff.c:776 st_stuff.c:788 st_stuff.c:799
 #: st_stuff.c:810 st_stuff.c:821 st_stuff.c:832 st_stuff.c:843 st_stuff.c:854
 #: st_stuff.c:865 st_stuff.c:876 st_stuff.c:887 st_stuff.c:898 st_stuff.c:909
 #: st_stuff.c:920
 msgid "ZONE"
 msgstr ""
 
-#: d_clisrv.c:742
+#: d_clisrv.c:862
 msgid "Can't load the level!\n"
 msgstr ""
 
-#: d_clisrv.c:746 d_clisrv.c:754
+#: d_clisrv.c:866 d_clisrv.c:874
 #, c-format
 msgid "WARNING: Can't delete %s"
 msgstr ""
 
-#: d_clisrv.c:947
+#: d_clisrv.c:1067
 #, c-format
 msgid "Can't delete %s"
 msgstr ""
 
-#: d_clisrv.c:950
+#: d_clisrv.c:1070
 msgid "Press ESC to abort\n"
 msgstr ""
 
-#: d_clisrv.c:952
+#: d_clisrv.c:1072
 msgid "Searching the server...\n"
 msgstr ""
 
-#: d_clisrv.c:954
+#: d_clisrv.c:1074
 msgid "Contacting the server...\n"
 msgstr ""
 
-#: d_clisrv.c:972
+#: d_clisrv.c:1092
 #, c-format
 msgid "Connecting to: %s\n"
 msgstr ""
 
-#: d_clisrv.c:982
+#: d_clisrv.c:1102
 #, c-format
 msgid "Gametype: %s\n"
 msgstr ""
 
-#: d_clisrv.c:983
+#: d_clisrv.c:1103
 #, c-format
 msgid "Version: %d.%.2d.%u\n"
 msgstr ""
 
-#: d_clisrv.c:1000
+#: d_clisrv.c:1120
 msgid "Found, "
 msgstr ""
 
-#: d_clisrv.c:1012
+#: d_clisrv.c:1132
 #, c-format
 msgid ""
 "Maximum players reached: %d\n"
 "Press ESC"
 msgstr ""
 
-#: d_clisrv.c:1023
+#: d_clisrv.c:1143
 msgid "Checking files...\n"
 msgstr ""
 
-#: d_clisrv.c:1110
+#: d_clisrv.c:1230
 msgid "Network game synchronization aborted.\n"
 msgstr ""
 
-#: d_clisrv.c:1140
+#: d_clisrv.c:1260
 msgid "Cheats have been activated.\n"
 msgstr ""
 
-#: d_clisrv.c:1163
+#: d_clisrv.c:1283
 msgid "Ban List:\n"
 msgstr ""
 
-#: d_clisrv.c:1175
+#: d_clisrv.c:1295
 #, c-format
 msgid "Why: %s\n"
 msgstr ""
 
-#: d_clisrv.c:1181
+#: d_clisrv.c:1301
 msgid " None\n"
 msgstr ""
 
-#: d_clisrv.c:1198
+#: d_clisrv.c:1318
 msgid "Could not save ban list into ban.txt\n"
 msgstr ""
 
-#: d_clisrv.c:1268
+#: d_clisrv.c:1388
 msgid "Could not open ban.txt for ban list\n"
 msgstr ""
 
-#: d_clisrv.c:1302
+#: d_clisrv.c:1422
 msgid ""
 "Connect <serveraddress>: connect to a server\n"
 "Connect ANY: connect to the first lan server found\n"
 "Connect SELF: connect to your own server.\n"
 msgstr ""
 
-#: d_clisrv.c:1310 d_clisrv.c:1341
+#: d_clisrv.c:1430 d_clisrv.c:1461
 msgid ""
 "You cannot connect while in a game\n"
 "End this game first\n"
 msgstr ""
 
-#: d_clisrv.c:1316
+#: d_clisrv.c:1436
 msgid ""
 "You have wad files loaded and/or\n"
 "modified the game in some way.\n"
@@ -379,66 +379,66 @@ msgid ""
 "connecting."
 msgstr ""
 
-#: d_clisrv.c:1357
+#: d_clisrv.c:1477
 msgid "There is no server identification with this network driver\n"
 msgstr ""
 
-#: d_clisrv.c:1363
+#: d_clisrv.c:1483
 msgid "There is no network driver\n"
 msgstr ""
 
-#: d_clisrv.c:1523
+#: d_clisrv.c:1643
 #, c-format
 msgid "num:%2d  node:%2d  %s\n"
 msgstr ""
 
-#: d_clisrv.c:1525
+#: d_clisrv.c:1645
 #, c-format
 msgid "num:%2d  node:%2d  %s\n"
 msgstr ""
 
-#: d_clisrv.c:1553
+#: d_clisrv.c:1673
 #, c-format
 msgid "There is no player named \"%s\"\n"
 msgstr ""
 
-#: d_clisrv.c:1585
+#: d_clisrv.c:1705
 msgid " (verified admin)"
 msgstr ""
 
-#: d_clisrv.c:1588
+#: d_clisrv.c:1708
 msgid " (spectator)"
 msgstr ""
 
-#: d_clisrv.c:1599
+#: d_clisrv.c:1719
 msgid "Ban <playername> or <playernum> <reason>: ban and kick a player\n"
 msgstr ""
 
-#: d_clisrv.c:1616 d_clisrv.c:1771
+#: d_clisrv.c:1736 d_clisrv.c:1891
 msgid "Too many bans! Geez, that's a lot of people you're excluding...\n"
 msgstr ""
 
-#: d_clisrv.c:1649 d_clisrv.c:1694 d_net.c:1142 d_netcmd.c:1951
+#: d_clisrv.c:1769 d_clisrv.c:1814 d_net.c:1142 d_netcmd.c:1951
 #: d_netcmd.c:2252 d_netcmd.c:2576 d_netcmd.c:2927 d_netcmd.c:3006
 #: d_netcmd.c:3067 d_netcmd.c:3151 d_netcmd.c:3248 d_netcmd.c:3311
 #: d_netcmd.c:4416 g_game.c:1620
 msgid "You are not the server. You cannot do this.\n"
 msgstr ""
 
-#: d_clisrv.c:1660
+#: d_clisrv.c:1780
 msgid "Kick <playername> or <playernum> <reason>: kick a player\n"
 msgstr ""
 
-#: d_clisrv.c:1709
+#: d_clisrv.c:1829
 msgid "Server is being shut down remotely. Goodbye!\n"
 msgstr ""
 
-#: d_clisrv.c:1738
+#: d_clisrv.c:1858
 #, c-format
 msgid "Illegal kick command received from %s for player %d\n"
 msgstr ""
 
-#: d_clisrv.c:1741
+#: d_clisrv.c:1861
 #, c-format
 msgid ""
 "So, you must be asking, why is this an illegal kick?\n"
@@ -456,77 +456,77 @@ msgid ""
 "If you think this is a bug, please report it, including all of the details above.\n"
 msgstr ""
 
-#: d_clisrv.c:1778
+#: d_clisrv.c:1898
 msgid "has been kicked (Go away)\n"
 msgstr ""
 
-#: d_clisrv.c:1782
+#: d_clisrv.c:1902
 msgid "left the game (Broke ping limit)\n"
 msgstr ""
 
-#: d_clisrv.c:1786
+#: d_clisrv.c:1906
 msgid "left the game (Consistency failure)\n"
 msgstr ""
 
-#: d_clisrv.c:1792
+#: d_clisrv.c:1912
 #, c-format
 msgid "Player kicked is #%d\n"
 msgstr ""
 
-#: d_clisrv.c:1798
+#: d_clisrv.c:1918
 #, c-format
 msgid "Player %d is at %d, %d, %d\n"
 msgstr ""
 
-#: d_clisrv.c:1800
+#: d_clisrv.c:1920
 #, c-format
 msgid "Player %d has a null mo\n"
 msgstr ""
 
-#: d_clisrv.c:1806
+#: d_clisrv.c:1926
 msgid "left the game (Connection timeout)\n"
 msgstr ""
 
-#: d_clisrv.c:1809
+#: d_clisrv.c:1929
 msgid "left the game\n"
 msgstr ""
 
-#: d_clisrv.c:1812
+#: d_clisrv.c:1932
 msgid "has been banned (Don't come back)\n"
 msgstr ""
 
-#: d_clisrv.c:1816
+#: d_clisrv.c:1936
 #, c-format
 msgid "has been kicked (%s)\n"
 msgstr ""
 
-#: d_clisrv.c:1820
+#: d_clisrv.c:1940
 #, c-format
 msgid "has been banned (%s)\n"
 msgstr ""
 
-#: d_clisrv.c:1834
+#: d_clisrv.c:1954
 msgid ""
 "Server closed connection\n"
 "(consistency failure)\n"
 "Press ESC\n"
 msgstr ""
 
-#: d_clisrv.c:1839
+#: d_clisrv.c:1959
 msgid ""
 "Server closed connection\n"
 "(Broke ping limit)\n"
 "Press ESC\n"
 msgstr ""
 
-#: d_clisrv.c:1842
+#: d_clisrv.c:1962
 msgid ""
 "You have been banned by the server\n"
 "\n"
 "Press ESC\n"
 msgstr ""
 
-#: d_clisrv.c:1844
+#: d_clisrv.c:1964
 #, c-format
 msgid ""
 "You have been kicked\n"
@@ -534,7 +534,7 @@ msgid ""
 "Press ESC\n"
 msgstr ""
 
-#: d_clisrv.c:1846
+#: d_clisrv.c:1966
 #, c-format
 msgid ""
 "You have been banned\n"
@@ -542,44 +542,44 @@ msgid ""
 "Press ESC\n"
 msgstr ""
 
-#: d_clisrv.c:1848
+#: d_clisrv.c:1968
 msgid ""
 "You have been kicked by the server\n"
 "\n"
 "Press ESC\n"
 msgstr ""
 
-#: d_clisrv.c:2031
+#: d_clisrv.c:2151
 #, c-format
 msgid "Illegal add player command received from %s\n"
 msgstr ""
 
-#: d_clisrv.c:2053
+#: d_clisrv.c:2173
 #, c-format
 msgid "Player %d has joined the game (node %d)\n"
 msgstr ""
 
-#: d_clisrv.c:2077
+#: d_clisrv.c:2197
 #, c-format
 msgid "Player Address is %s\n"
 msgstr ""
 
-#: d_clisrv.c:2149
+#: d_clisrv.c:2269
 #, c-format
 msgid "Server added player %d node %d\n"
 msgstr ""
 
-#: d_clisrv.c:2189
+#: d_clisrv.c:2309
 msgid "Starting Server....\n"
 msgstr ""
 
-#: d_clisrv.c:2680
+#: d_clisrv.c:2800
 msgid ""
 "You have been banned\n"
 "from the server"
 msgstr ""
 
-#: d_clisrv.c:2683
+#: d_clisrv.c:2803
 #, c-format
 msgid ""
 "Different SRB2 versions cannot\n"
@@ -587,53 +587,53 @@ msgid ""
 "(server version %d.%d.%d)"
 msgstr ""
 
-#: d_clisrv.c:2685
+#: d_clisrv.c:2805
 msgid ""
 "The server is not accepting\n"
 "joins for the moment"
 msgstr ""
 
-#: d_clisrv.c:2687
+#: d_clisrv.c:2807
 #, c-format
 msgid "Maximum players reached: %d"
 msgstr ""
 
-#: d_clisrv.c:2689
+#: d_clisrv.c:2809
 msgid ""
 "Too many players from\n"
 "this node."
 msgstr ""
 
-#: d_clisrv.c:2691
+#: d_clisrv.c:2811
 msgid ""
 "No players from\n"
 "this node."
 msgstr ""
 
-#: d_clisrv.c:2709
+#: d_clisrv.c:2829
 msgid "Server couldn't send info, please try again"
 msgstr ""
 
-#: d_clisrv.c:2733
+#: d_clisrv.c:2853
 msgid ""
 "Server has shutdown\n"
 "\n"
 "Press Esc"
 msgstr ""
 
-#: d_clisrv.c:2742
+#: d_clisrv.c:2862
 msgid ""
 "Server Timeout\n"
 "\n"
 "Press Esc"
 msgstr ""
 
-#: d_clisrv.c:2768
+#: d_clisrv.c:2888
 #, c-format
 msgid "Received packet from unknown host %d\n"
 msgstr ""
 
-#: d_clisrv.c:2795
+#: d_clisrv.c:2915
 #, c-format
 msgid ""
 "Server refuses connection\n"
@@ -642,41 +642,41 @@ msgid ""
 "%s"
 msgstr ""
 
-#: d_clisrv.c:2830
+#: d_clisrv.c:2950
 msgid "Join accepted, waiting for next level change...\n"
 msgstr ""
 
-#: d_clisrv.c:2831
+#: d_clisrv.c:2951
 #, c-format
 msgid "Server accept join gametic=%u mynode=%d\n"
 msgstr ""
 
-#: d_clisrv.c:2869
+#: d_clisrv.c:2989
 #, c-format
 msgid "unknown packet received (%d) from unknown host\n"
 msgstr ""
 
-#: d_clisrv.c:2929
+#: d_clisrv.c:3049
 #, c-format
 msgid "Illegal movement value recieved from node %d\n"
 msgstr ""
 
-#: d_clisrv.c:2954
+#: d_clisrv.c:3074
 #, c-format
 msgid "Consistency failure for player %d, restoring...\n"
 msgstr ""
 
-#: d_clisrv.c:3066 d_clisrv.c:3071
+#: d_clisrv.c:3190 d_clisrv.c:3195
 #, c-format
 msgid "PT_SERVERTICS recieved from non-host %d\n"
 msgstr ""
 
-#: d_clisrv.c:3126 d_clisrv.c:3131
+#: d_clisrv.c:3250 d_clisrv.c:3255
 #, c-format
 msgid "PT_CONSISTENCY recieved from non-host %d\n"
 msgstr ""
 
-#: d_clisrv.c:3149 d_clisrv.c:3154
+#: d_clisrv.c:3273 d_clisrv.c:3278
 #, c-format
 msgid "PT_PING recieved from non-host %d\n"
 msgstr ""
@@ -1502,91 +1502,91 @@ msgstr ""
 msgid "Unloading WAD SOC edits\n"
 msgstr ""
 
-#: f_finale.c:227
+#: f_finale.c:226
 msgid "Sonic Team Junior\n"
 msgstr ""
 
-#: f_finale.c:228 f_finale.c:230
+#: f_finale.c:227 f_finale.c:229
 msgid "Staff\n"
 msgstr ""
 
-#: f_finale.c:233
+#: f_finale.c:232
 msgid "Producer\n"
 msgstr ""
 
-#: f_finale.c:237 f_finale.c:242
+#: f_finale.c:236 f_finale.c:241
 msgid "Director\n"
 msgstr ""
 
-#: f_finale.c:246
+#: f_finale.c:245
 msgid "Game Designers\n"
 msgstr ""
 
-#: f_finale.c:257
+#: f_finale.c:256
 msgid "Character Designers\n"
 msgstr ""
 
-#: f_finale.c:266
+#: f_finale.c:265
 msgid "Visual Design\n"
 msgstr ""
 
-#: f_finale.c:273
+#: f_finale.c:272
 msgid "Landscape Design\n"
 msgstr ""
 
-#: f_finale.c:282
+#: f_finale.c:281
 msgid "Chief Programmer\n"
 msgstr ""
 
-#: f_finale.c:289
+#: f_finale.c:288
 msgid "Programmers\n"
 msgstr ""
 
-#: f_finale.c:304
+#: f_finale.c:303
 msgid "Coding Assistants\n"
 msgstr ""
 
-#: f_finale.c:321
+#: f_finale.c:320
 msgid "Level Designers\n"
 msgstr ""
 
-#: f_finale.c:349
+#: f_finale.c:348
 msgid "Texture Artists\n"
 msgstr ""
 
-#: f_finale.c:364
+#: f_finale.c:363
 msgid "Music Production\n"
 msgstr ""
 
-#: f_finale.c:386
+#: f_finale.c:385
 msgid "Lead Guitar\n"
 msgstr ""
 
-#: f_finale.c:395
+#: f_finale.c:394
 msgid "Sound Effects\n"
 msgstr ""
 
-#: f_finale.c:406
+#: f_finale.c:405
 msgid "Official Mascot\n"
 msgstr ""
 
-#: f_finale.c:413
+#: f_finale.c:412
 msgid "Sky Sanctuary Team\n"
 msgstr ""
 
-#: f_finale.c:457
+#: f_finale.c:456
 msgid "Special Thanks\n"
 msgstr ""
 
-#: f_finale.c:472
+#: f_finale.c:471
 msgid "In Fond Memory Of\n"
 msgstr ""
 
-#: f_finale.c:487
+#: f_finale.c:486
 msgid "Modification By\n"
 msgstr ""
 
-#: f_finale.c:557
+#: f_finale.c:556
 msgid ""
 "Two months had passed since Dr. Eggman\n"
 "tried to take over the world using his\n"
@@ -1594,7 +1594,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:561
+#: f_finale.c:560
 msgid ""
 "As it was about to drain the rings\n"
 "away from the planet, Sonic burst into\n"
@@ -1604,7 +1604,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:567
+#: f_finale.c:566
 msgid ""
 "\n"
 "What Sonic, Tails, and Knuckles had\n"
@@ -1613,7 +1613,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:571
+#: f_finale.c:570
 msgid ""
 "About once every year, a strange asteroid\n"
 "hovers around the planet. it suddenly\n"
@@ -1624,7 +1624,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:578
+#: f_finale.c:577
 msgid ""
 "\"Curses!\" Eggman yelled. \"That hedgehog\n"
 "and his ridiculous friends will pay\n"
@@ -1635,7 +1635,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:585
+#: f_finale.c:584
 msgid ""
 "It was only later\n"
 "that he had an\n"
@@ -1655,7 +1655,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:601
+#: f_finale.c:600
 msgid ""
 "\n"
 "\n"
@@ -1665,7 +1665,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:605
+#: f_finale.c:604
 msgid ""
 "\"We're ready to fire in 15 seconds!\"\n"
 "The robot said, his voice crackling a\n"
@@ -1676,7 +1676,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:612
+#: f_finale.c:611
 msgid ""
 "\"10...9...8...\"\n"
 "Meanwhile, Sonic was tearing across the\n"
@@ -1687,7 +1687,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:619
+#: f_finale.c:618
 msgid ""
 "\"5...4...3...\"\n"
 "Sonic knew he was getting closer to the\n"
@@ -1697,7 +1697,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:625
+#: f_finale.c:624
 msgid ""
 "GreenFlower City was gone.\n"
 "Sonic arrived just in time to see what\n"
@@ -1707,7 +1707,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:631
+#: f_finale.c:630
 msgid ""
 "\"You're not quite as dead as we thought,\n"
 "huh? Are you going to tell us your plan as\n"
@@ -1718,7 +1718,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:638
+#: f_finale.c:637
 msgid ""
 "Eggman took this\n"
 "as his cue and\n"
@@ -1735,7 +1735,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:651
+#: f_finale.c:650
 msgid ""
 "\"Easy! We go\n"
 "find Eggman\n"
@@ -1754,7 +1754,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:664
+#: f_finale.c:663
 msgid ""
 "\"I'm just finding what mission obje...\n"
 "a-ha! Here it is! This will only give\n"
@@ -1863,39 +1863,39 @@ msgstr ""
 msgid "Demo %s not saved\n"
 msgstr ""
 
-#: g_input.c:1299
+#: g_input.c:1334
 #, c-format
 msgid "Control '%s' unknown\n"
 msgstr ""
 
-#: g_input.c:1320
+#: g_input.c:1355
 msgid "setcontrol <controlname> <keyname> [<2nd keyname>]\n"
 msgstr ""
 
-#: g_input.c:1335
+#: g_input.c:1370
 msgid "setcontrol2 <controlname> <keyname> [<2nd keyname>]\n"
 msgstr ""
 
-#: hardware/hw_main.c:4336
+#: hardware/hw_main.c:4331
 #, c-format
 msgid "Patch info headers: %7s kb\n"
 msgstr ""
 
-#: hardware/hw_main.c:4337
+#: hardware/hw_main.c:4332
 #, c-format
 msgid "3D Texture cache  : %7s kb\n"
 msgstr ""
 
-#: hardware/hw_main.c:4338
+#: hardware/hw_main.c:4333
 #, c-format
 msgid "Plane polygon     : %7s kb\n"
 msgstr ""
 
-#: hardware/hw_md2.c:898
+#: hardware/hw_md2.c:899
 msgid "Error while loading md2.dat\n"
 msgstr ""
 
-#: hardware/hw_md2.c:915
+#: hardware/hw_md2.c:916
 #, c-format
 msgid "    Not found: %s\n"
 msgstr ""
@@ -1956,7 +1956,7 @@ msgstr ""
 msgid "Illegal say command received from %s containing invalid characters\n"
 msgstr ""
 
-#: hu_stuff.c:723 m_menu.c:6995
+#: hu_stuff.c:723 m_menu.c:6997
 msgid "[Message unsent]\n"
 msgstr ""
 
@@ -2113,29 +2113,29 @@ msgstr ""
 msgid "All secrets unlocked.\n"
 msgstr ""
 
-#: m_menu.c:4129 m_menu.c:4146 m_menu.c:4163 m_menu.c:4180 m_menu.c:4196
-#: m_menu.c:4675
+#: m_menu.c:4131 m_menu.c:4148 m_menu.c:4165 m_menu.c:4182 m_menu.c:4198
+#: m_menu.c:4677
 msgid ""
 "You are in a network game.\n"
 "End it?\n"
 "(Y/N).\n"
 msgstr ""
 
-#: m_menu.c:7126
+#: m_menu.c:7128
 msgid ""
 "Only the server can do a load net game!\n"
 "\n"
 "press a key."
 msgstr ""
 
-#: m_menu.c:7179
+#: m_menu.c:7181
 msgid ""
 "Are you sure you want to end the game?\n"
 "\n"
 "press Y or N."
 msgstr ""
 
-#: m_menu.c:7237
+#: m_menu.c:7239
 #, c-format
 msgid ""
 "%s\n"
@@ -2143,7 +2143,7 @@ msgid ""
 "(Press 'Y' to quit)"
 msgstr ""
 
-#: m_menu.c:8205
+#: m_menu.c:8207
 msgid ""
 "Eggman's tied explosives\n"
 "to your girlfriend, and\n"
@@ -2152,126 +2152,126 @@ msgid ""
 "Press 'N' to save her!"
 msgstr ""
 
-#: m_menu.c:8206
+#: m_menu.c:8208
 msgid ""
 "What would Tails say if\n"
 "he saw you quitting the game?"
 msgstr ""
 
-#: m_menu.c:8207
+#: m_menu.c:8209
 msgid ""
 "Hey!\n"
 "Where do ya think you're goin'?"
 msgstr ""
 
-#: m_menu.c:8208
+#: m_menu.c:8210
 msgid ""
 "Forget your studies!\n"
 "Play some more!"
 msgstr ""
 
-#: m_menu.c:8209
+#: m_menu.c:8211
 msgid ""
 "You're trying to say you\n"
 "like Sonic 2K6 better than\n"
 "this, right?"
 msgstr ""
 
-#: m_menu.c:8210
+#: m_menu.c:8212
 msgid ""
 "Don't leave yet -- there's a\n"
 "super emerald around that corner!"
 msgstr ""
 
-#: m_menu.c:8211
+#: m_menu.c:8213
 msgid "You'd rather work than play?"
 msgstr ""
 
-#: m_menu.c:8212
+#: m_menu.c:8214
 msgid ""
 "Go ahead and leave. See if I care...\n"
 "*sniffle*"
 msgstr ""
 
-#: m_menu.c:8214
+#: m_menu.c:8216
 msgid ""
 "If you leave now,\n"
 "Eggman will take over the world!"
 msgstr ""
 
-#: m_menu.c:8215
+#: m_menu.c:8217
 msgid ""
 "Don't quit!\n"
 "There are animals\n"
 "to save!"
 msgstr ""
 
-#: m_menu.c:8216
+#: m_menu.c:8218
 msgid ""
 "Aw c'mon, just bop\n"
 "a few more robots!"
 msgstr ""
 
-#: m_menu.c:8217
+#: m_menu.c:8219
 msgid "Did you get all those Chaos Emeralds?"
 msgstr ""
 
-#: m_menu.c:8218
+#: m_menu.c:8220
 msgid ""
 "If you leave, I'll use\n"
 "my spin attack on you!"
 msgstr ""
 
-#: m_menu.c:8219
+#: m_menu.c:8221
 msgid ""
 "Don't go!\n"
 "You might find the hidden\n"
 "levels!"
 msgstr ""
 
-#: m_menu.c:8220
+#: m_menu.c:8222
 msgid ""
 "Hit the 'N' key, Sonic!\n"
 "The 'N' key!"
 msgstr ""
 
-#: m_menu.c:8222
+#: m_menu.c:8224
 msgid ""
 "Are you really going to\n"
 "give up?\n"
 "We certainly would never give you up."
 msgstr ""
 
-#: m_menu.c:8223
+#: m_menu.c:8225
 msgid "Come on, just ONE more netgame!"
 msgstr ""
 
-#: m_menu.c:8224
+#: m_menu.c:8226
 msgid ""
 "Press 'N' to unlock\n"
 "the Ultimate Cheat!"
 msgstr ""
 
-#: m_menu.c:8225
+#: m_menu.c:8227
 msgid ""
 "Why don't you go back and try\n"
 "jumping on that house to\n"
 "see what happens?"
 msgstr ""
 
-#: m_menu.c:8226
+#: m_menu.c:8228
 msgid ""
 "Every time you press 'Y', an\n"
 "SRB2 Developer cries..."
 msgstr ""
 
-#: m_menu.c:8227
+#: m_menu.c:8229
 msgid ""
 "You'll be back to play soon, though...\n"
 "......right?"
 msgstr ""
 
-#: m_menu.c:8228
+#: m_menu.c:8230
 msgid ""
 "Aww, is Egg Rock Zone too\n"
 "difficult for you?"
@@ -2698,35 +2698,35 @@ msgstr ""
 msgid "newthings%d.lmp saved.\n"
 msgstr ""
 
-#: p_setup.c:2261
+#: p_setup.c:2263
 msgid "No player currently available to become IT. Awaiting available players.\n"
 msgstr ""
 
-#: p_setup.c:2388
+#: p_setup.c:2390
 #, c-format
 msgid "Loading SOC lump: %s\n"
 msgstr ""
 
-#: p_setup.c:2410
+#: p_setup.c:2412
 #, c-format
 msgid "Couldn't load wad file %s\n"
 msgstr ""
 
-#: p_setup.c:2453
+#: p_setup.c:2455
 #, c-format
 msgid "%s sounds replaced\n"
 msgstr ""
 
-#: p_setup.c:2455
+#: p_setup.c:2457
 #, c-format
 msgid "%s musics replaced\n"
 msgstr ""
 
-#: p_setup.c:2514
+#: p_setup.c:2516
 msgid "No maps added\n"
 msgstr ""
 
-#: p_setup.c:2522
+#: p_setup.c:2524
 #, c-format
 msgid "Current map %d replaced by added file, ending the level to ensure consistiency.\n"
 msgstr ""
@@ -2935,22 +2935,22 @@ msgstr ""
 msgid "%s sprites removed from file %s\n"
 msgstr ""
 
-#: r_things.c:2406
+#: r_things.c:2427
 #, c-format
 msgid "Skin %s not found\n"
 msgstr ""
 
-#: r_things.c:2497
+#: r_things.c:2518
 #, c-format
 msgid "Skin %d not found\n"
 msgstr ""
 
-#: r_things.c:2813
+#: r_things.c:2834
 #, c-format
 msgid "Added skin '%s'\n"
 msgstr ""
 
-#: r_things.c:2875
+#: r_things.c:2896
 #, c-format
 msgid "Removed skin '%s'\n"
 msgstr ""
@@ -3683,7 +3683,7 @@ msgstr ""
 msgid " done unloading WAD\n"
 msgstr ""
 
-#: w_wad.c:953
+#: w_wad.c:965
 #, c-format
 msgid "File is corrupt or has been modified: %s (found md5: %s, wanted: %s)\n"
 msgstr ""
@@ -3913,80 +3913,85 @@ msgstr ""
 msgid "system memory %uMB free %uMB\n"
 msgstr ""
 
-#: z_zone.c:451
+#: z_zone.c:460
 msgid "Memory Info\n"
 msgstr ""
 
-#: z_zone.c:452
+#: z_zone.c:461
 #, c-format
 msgid "Total heap used   : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:453
+#: z_zone.c:462
 #, c-format
 msgid "Static            : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:454
+#: z_zone.c:463
 #, c-format
 msgid "Static (sound)    : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:455
+#: z_zone.c:464
 #, c-format
 msgid "Static (music)    : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:456
-#, c-format
-msgid "Level             : %7s KB\n"
-msgstr ""
-
-#: z_zone.c:457
-#, c-format
-msgid "Special thinker   : %7s KB\n"
-msgstr ""
-
-#: z_zone.c:458
-#, c-format
-msgid "All purgable      : %7s KB\n"
-msgstr ""
-
-#: z_zone.c:463
-#, c-format
-msgid "Patch info headers: %7s KB\n"
-msgstr ""
-
-#: z_zone.c:464
-#, c-format
-msgid "Mipmap patches    : %7s KB\n"
-msgstr ""
-
 #: z_zone.c:465
 #, c-format
-msgid "HW Texture cache  : %7s KB\n"
+msgid "Locked cache      : %7s KB\n"
 msgstr ""
 
 #: z_zone.c:466
 #, c-format
-msgid "Plane polygons    : %7s KB\n"
+msgid "Level             : %7s KB\n"
 msgstr ""
 
 #: z_zone.c:467
 #, c-format
+msgid "Special thinker   : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:468
+#, c-format
+msgid "All purgable      : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:474
+#, c-format
+msgid "Patch info headers: %7s KB\n"
+msgstr ""
+
+#: z_zone.c:475
+#, c-format
+msgid "Mipmap patches    : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:476
+#, c-format
+msgid "HW Texture cache  : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:477
+#, c-format
+msgid "Plane polygons    : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:478
+#, c-format
 msgid "HW Texture used   : %7d KB\n"
 msgstr ""
 
-#: z_zone.c:471
+#: z_zone.c:482
 msgid "System Memory Info\n"
 msgstr ""
 
-#: z_zone.c:473
+#: z_zone.c:484
 #, c-format
 msgid "    Total physical memory: %7u KB\n"
 msgstr ""
 
-#: z_zone.c:474
+#: z_zone.c:485
 #, c-format
 msgid "Available physical memory: %7u KB\n"
 msgstr ""
