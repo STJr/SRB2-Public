@@ -8228,11 +8228,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNBOUNCE1,// spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
-#ifdef WEAPON_SFX
-		sfx_bnce1,      // seesound
-#else
 		sfx_thok,       // seesound
-#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8259,11 +8255,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNAUTOMATIC1, // spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
-#ifdef WEAPON_SFX
-		sfx_s3k_129,    // seesound
-#else
 		sfx_thok,       // seesound
-#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8290,11 +8282,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNSCATTER,// spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
-#ifdef WEAPON_SFX
-		sfx_s3k_129,    // seesound
-#else
 		sfx_thok,       // seesound
-#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8321,11 +8309,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNEXPLOSION1, // spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
-#ifdef WEAPON_SFX
-		sfx_s3k_45,     // seesound
-#else
 		sfx_thok,       // seesound
-#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8352,11 +8336,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNGRENADE1, // spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
-#ifdef WEAPON_SFX
-		sfx_s3k_32,     // seesound 30?
-#else
 		sfx_thok,       // seesound
-#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
