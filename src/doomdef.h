@@ -221,7 +221,9 @@ char savegamename[256];
 #define M_GetText(String) gettext(String)
 void M_StartupLocale(void);
 #else
-const char *M_GetText(const char *string);
+// If no translations are to be used, make a stub
+// M_GetText function that just returns the string.
+#define M_GetText(x) (x)
 #endif
 extern void *(*M_Memcpy)(void* dest, const void* src, size_t n) FUNCNONNULL;
 char *va(const char *format, ...) FUNCPRINTF;

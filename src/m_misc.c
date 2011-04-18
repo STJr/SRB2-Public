@@ -1391,13 +1391,6 @@ void M_StartupLocale(void)
 	else
 		CONS_Printf("Could not find locale text domain!\n");
 }
-#else
-// If no translations are to be used, make a stub
-// M_GetText function that just returns the string.
-const char *M_GetText(const char *string)
-{
-	return string;
-}
 #endif
 
 // ==========================================================================
