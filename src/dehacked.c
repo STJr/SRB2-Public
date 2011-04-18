@@ -2148,7 +2148,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	// it doesn't test the version of SRB2 and version of dehacked file
 	while (!myfeof(f))
 	{
-		XBOXSTATIC char origpos[32];
+		XBOXSTATIC char origpos[128];
 		INT32 size = 0;
 		char *traverse;
 
