@@ -25,7 +25,6 @@
 #define __M_MISC__
 
 #include "doomtype.h"
-#include "w_wad.h"
 
 extern boolean moviemode;
 
@@ -63,7 +62,6 @@ extern boolean takescreenshot;
 void M_ScreenShot(void);
 void M_DoScreenShot(void);
 
-extern char configfile[MAX_WADPATH];
 
 void Command_SaveConfig_f(void);
 void Command_LoadConfig_f(void);
@@ -77,5 +75,21 @@ void M_SaveConfig(const char *filename);
 void strcatbf(char *s1, const char *s2, const char *s3);
 
 void M_SetupMemcpy(void);
+
+// Flags for AA trees.
+#define AATREE_ZUSER	1		// Treat values as z_zone-allocated blocks and set their user fields
+
+typedef struct aatree_s aatree_t;
+typedef void (*aatree_iter_t)(INT32 key, void *value);
+
+aatree_t *M_AATreeAlloc(UINT32 flags);
+void M_AATreeFree(aatree_t *aatree);
+void M_AATreeSet(aatree_t *aatree, INT32 key, void* value);
+void *M_AATreeGet(aatree_t *aatree, INT32 key);
+void M_AATreeIterate(aatree_t *aatree, aatree_iter_t callback);
+
+// Nasty cyclic dependency workaround. This must come after aatree stuff.
+#include "w_wad.h"
+extern char configfile[MAX_WADPATH];
 
 #endif

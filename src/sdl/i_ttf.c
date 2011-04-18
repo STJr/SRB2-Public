@@ -38,32 +38,29 @@
 #define FONTSEARCHPATH1 "."
 #endif
 
+#define FONTHANDLE -1
+
+// Renduring surfaces.
 SDL_Surface *TTFSurface = NULL;
 SDL_Surface *TTFRendSurface = NULL;
+// Text box.
 SDL_Rect TTFRect;
 // Temporary storage for the new TTFRect, used to check for
 // line wrapping.
 SDL_Rect TTFRectCheck;
-TextQuality TTFQuality;
+// Text rendering resolution.
 VideoResolution res;
-TTF_Font *fonttodraw;
 // Text storage buffer, the contents get printed to the SDL surface.
 char textbuffer[8192];
 
-// Foreground colours.
-int fgR, fgG, fgB, fgA;
-// Background colours.
-int bgR, bgG, bgB, bgA;
-
 // look for default ttf file in given directory
-// FIXME: this crashes when it can't find anything.
 static char *searchFont(const char *fontsearchDir)
 {
 	static char tempsw[256] = "";
 	filestatus_t fstemp;
 
 	strcpy(tempsw, FONTFILE);
-	fstemp = filesearch(tempsw,fontsearchDir,NULL,true,20);
+	fstemp = filesearch(tempsw, fontsearchDir, NULL, true, 20);
 	if (fstemp == FS_FOUND)
 	{
 		return tempsw;
@@ -71,32 +68,11 @@ static char *searchFont(const char *fontsearchDir)
 	return NULL;
 }
 
-static void I_TTFRendSurface(const char *textmsg)
-{
-	SDL_Color fontfgcolor = {fgR, fgG, fgB, fgA};
-	SDL_Color fontbgcolor = {bgR, bgG, bgB, bgA};
-
-	// Print text in the buffer.
-	// SDL_ttf has three modes to draw text.
-	// Solid rendering is quick, but dirty. Use it if you need speed more than quality.
-	if (TTFQuality == solid) TTFRendSurface = TTF_RenderText_Solid(fonttodraw, textmsg, fontfgcolor);
-	// Shaded rendering adds a background to the rendered text. Because of this, I_TTFDrawText
-	// takes an extra color more than the other styles to be a background color.
-	// Shaded is supposedly as fast as solid rendering and about as good quality as blended.
-	else if (TTFQuality == shaded) TTFRendSurface = TTF_RenderText_Shaded(fonttodraw, textmsg, fontfgcolor, fontbgcolor);
-	// Blended rendering is the opposite of solid. Good quality, but slow.
-	else if (TTFQuality == blended) TTFRendSurface = TTF_RenderText_Blended(fonttodraw, textmsg, fontfgcolor);
-
-	// Get SDL to update the main surface.
-	SDL_BlitSurface(TTFRendSurface, NULL, TTFSurface, &TTFRect);
-	SDL_Flip(TTFSurface);
-}
-
 // Load TTF font from file.
-int I_TTFLoadFont(char* file, int ptsize)
+INT32 I_TTFLoadFont(const char *file, UINT32 ptsize)
 {
-	int fonthandle = -1;
-	TTF_Font* tmpfont = NULL;
+	TTF_Font *tmpfont = NULL;
+	float fontsize;
 
 	// If a font is currently loaded, unload it.
 	if (currentfont)
@@ -105,11 +81,12 @@ int I_TTFLoadFont(char* file, int ptsize)
 	}
 
 	// Scale the specified font point size for the current resolution.
-	ptsize = (ptsize * 0.005) * (res.width - res.height);
+	fontsize = (ptsize * 0.005f) * (res.width - res.height);
 
-	tmpfont = TTF_OpenFont(file, ptsize);
+	tmpfont = TTF_OpenFont(file, fontsize);
 
-	if (!tmpfont) return fonthandle;
+	if (!tmpfont)
+		return FONTHANDLE;
 
 	// set pointer for current font
 	currentfont = tmpfont;
@@ -136,10 +113,37 @@ int I_TTFLoadFont(char* file, int ptsize)
 	return 0;
 }
 
+static void I_TTFRendSurface(const char *textmsg, TTF_Font *font, TextQuality quality, SDL_Color fontfgcolor, SDL_Color fontbgcolor)
+{
+	// Print text in the buffer.
+	// SDL_ttf has three modes to draw text.
+	// Solid rendering is quick, but dirty. Use it if you need speed more than quality.
+	switch (quality)
+	{
+		case solid:
+			TTFRendSurface = TTF_RenderText_Solid(font, textmsg, fontfgcolor);
+			break;
+		// Shaded rendering adds a background to the rendered text. Because of this, I_TTFDrawText
+		// takes an extra color more than the other styles to be a background color.
+		// Shaded is supposedly as fast as solid rendering and about as good quality as blended.
+		case shaded:
+			TTFRendSurface = TTF_RenderText_Shaded(font, textmsg, fontfgcolor, fontbgcolor);
+			break;
+		// Blended rendering is the opposite of solid. Good quality, but slow.
+		case blended:
+			TTFRendSurface = TTF_RenderText_Blended(font, textmsg, fontfgcolor);
+			break;
+	}
+
+	// Get SDL to update the main surface.
+	SDL_BlitSurface(TTFRendSurface, NULL, TTFSurface, &TTFRect);
+	SDL_Flip(TTFSurface);
+}
+
 // Draw text to screen. It will accept four colour vales (red, green, blue and alpha)
 // with foreground for draw modes Solid and Blended, and an extra four values for background
 // colour with draw type Shaded.
-void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FGG, int FGB, int FGA, int BGR, int BGG, int BGB, int BGA, char* textmsg)
+void I_TTFDrawText(TTF_Font *font, TextQuality quality, INT32 fgR, INT32 fgG, INT32 fgB, INT32 fgA, INT32 bgR, INT32 bgG, INT32 bgB, INT32 bgA, const char *textmsg)
 {
 	// Temporary small buffer to store character to process.
 	// NULL pointer to prevc to kill warning
@@ -147,20 +151,12 @@ void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FG
 	// hack to allow TTF_SizeText to work properly.
 	char linebuffer[2];
 	// Don't need h, but TTF_SizeText needs a height parameter
-	int w, h;
+	INT32 w, h;
 
 	// Globally declare foreground and background text colours,
 	// text drawing mode and the font to draw.
-	fgR = FGR;
-	fgG = FGG;
-	fgB = FGB;
-	fgA = FGA;
-	bgR = BGR;
-	bgG = BGG;
-	bgB = BGB;
-	bgA = BGA;
-	fonttodraw = FONTTODRAW;
-	TTFQuality = TTFQUALITY;
+	SDL_Color fontfgcolor = {fgR, fgG, fgB, fgA};
+	SDL_Color fontbgcolor = {bgR, bgG, bgB, bgA};
 
 	// Keep on processing until the null terminator in the text buffer is reached.
 	while (*textmsg != '\0')
@@ -182,7 +178,7 @@ void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FG
 				if (textbuffer != NULL)
 				{
 					// Render cached text to the SDL surface.
-					I_TTFRendSurface(textbuffer);
+					I_TTFRendSurface(textbuffer, font, quality, fontfgcolor, fontbgcolor);
 					// Empty text buffer.
 					memset(textbuffer, '\0', 1);
 				}
@@ -199,7 +195,7 @@ void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FG
 			if (TTFRectCheck.x >= res.width)
 			{
 				// Render cached text to the SDL surface.
-				I_TTFRendSurface(textbuffer);
+				I_TTFRendSurface(textbuffer, font, quality, fontfgcolor, fontbgcolor);
 				// Empty text buffer.
 				memset(textbuffer, '\0', 1);
 				// Move to the next line.
@@ -222,7 +218,7 @@ void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FG
 	if (textbuffer != NULL)
 	{
 		// Render cached text to the SDL surface.
-		I_TTFRendSurface(textbuffer);
+		I_TTFRendSurface(textbuffer, font, quality, fontfgcolor, fontbgcolor);
 		// Empty text buffer.
 		memset(textbuffer, '\0', 1);
 		// Set stored co-ordinates for next line.
@@ -232,10 +228,10 @@ void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FG
 }
 
 // Initialise SDL_ttf.
-void I_StartupTTF(int fontpointsize, Uint32 initflags, Uint32 vidmodeflags)
+void I_StartupTTF(UINT32 fontpointsize, Uint32 initflags, Uint32 vidmodeflags)
 {
 	char *fontpath = NULL;
-	int fontstatus = -1;
+	INT32 fontstatus = -1;
 #ifdef _PS3
 	VideoState state;
 	videoGetState(0, 0, &state);

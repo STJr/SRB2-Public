@@ -262,7 +262,7 @@ static void D_FreeTextcmd(tic_t tic)
 {
 	textcmdtic_t **tctprev = &textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
 	textcmdtic_t *textcmdtic = *tctprev;
-	
+
 	while (textcmdtic && textcmdtic->tic != tic)
 	{
 		tctprev = &textcmdtic->next;
@@ -877,6 +877,7 @@ static void CL_LoadReceivedSavegame(void)
 }
 #endif
 
+#ifndef NONET
 static void SendAskInfo(INT32 node, boolean viams)
 {
 	const tic_t asktime = I_GetTime();
@@ -1047,6 +1048,8 @@ void CL_UpdateServerList(boolean internetsearch, INT32 room)
 	}
 }
 
+#endif // ifndef NONET
+
 // use adaptive send using net_bandwidth and stat.sendbytes
 static void CL_ConnectToServer(boolean viams)
 {
@@ -1084,7 +1087,10 @@ static void CL_ConnectToServer(boolean viams)
 	pnumnodes = 1;
 	oldtic = I_GetTime() - 1;
 	asksent = (tic_t)-TICRATE;
+
+#ifndef NONET
 	i = SL_SearchServer(servernode);
+
 	if (i != -1)
 	{
 		INT32 j;
@@ -1104,11 +1110,14 @@ static void CL_ConnectToServer(boolean viams)
 		 serverlist[i].info.version%100, serverlist[i].info.subversion);
 	}
 	SL_ClearServerList(servernode);
+#endif
+
 	do
 	{
 		switch (cl_mode)
 		{
 			case cl_searching:
+#ifndef NONET
 				// serverlist is updated by GetPacket function
 				if (serverlistcount > 0)
 				{
@@ -1168,6 +1177,11 @@ static void CL_ConnectToServer(boolean viams)
 					SendAskInfo(servernode, viams);
 					asksent = I_GetTime();
 				}
+#else
+				(void)viams;
+				// No netgames, so we skip this state.
+				cl_mode = cl_askjoin;
+#endif // ifndef NONET/else
 				break;
 			case cl_downloadfiles:
 				waitmore = false;
@@ -2866,6 +2880,7 @@ FILESTAMP
 			continue;
 		}
 
+#ifndef NONET
 		if (netbuffer->packettype == PT_SERVERINFO)
 		{
 			// compute ping in ms
@@ -2878,6 +2893,7 @@ FILESTAMP
 			SL_InsertServer(&netbuffer->u.serverinfo, node);
 			continue;
 		}
+#endif
 
 		if (netbuffer->packettype == PT_PLAYERINFO)
 			continue; // We do nothing with PLAYERINFO, that's for the MS browser.

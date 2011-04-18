@@ -26,7 +26,7 @@ static inline void leftshift_onebit(unsigned char *input,unsigned char *output)
 	int i;
     unsigned char overflow = 0;
 
-	for ( i=15; i>=0; i-- ) 
+	for ( i=15; i>=0; i-- )
 	{
 		output[i] = input[i] << 1;
 		output[i] |= overflow;
@@ -45,7 +45,7 @@ void generate_subkey(unsigned char *key, unsigned char *K1, unsigned char *K2)
 
 	AES_KEY aes;
 	AES_set_encrypt_key(key, 128, &aes);
-      
+
 	AES_encrypt(Z, L, &aes);
 
 	if ( (L[0] & 0x80) == 0 ) /* If MSB(L) = 0, then K1 = L << 1 */
@@ -56,7 +56,7 @@ void generate_subkey(unsigned char *key, unsigned char *K1, unsigned char *K2)
         xor_128(tmp,const_Rb,K1);
     }
 
-	if ( (K1[0] & 0x80) == 0 ) 
+	if ( (K1[0] & 0x80) == 0 )
 	{
         leftshift_onebit(K1,K2);
     } else {
@@ -68,11 +68,11 @@ void generate_subkey(unsigned char *key, unsigned char *K1, unsigned char *K2)
 static inline void padding ( unsigned char *lastb, unsigned char *pad, int length )
 {
 	int j;
-	
+
 	/* original last block */
-	for ( j=0; j<16; j++ ) 
+	for ( j=0; j<16; j++ )
 	{
-		if ( j < length ) 
+		if ( j < length )
 		{
             pad[j] = lastb[j];
         } else if ( j == length ) {
@@ -92,7 +92,7 @@ void AES_CMAC ( unsigned char *key, unsigned char *input, int length, unsigned c
 
     n = (length+15) / 16;       /* n is number of rounds */
 
-    if ( n == 0 ) 
+    if ( n == 0 )
 	{
         n = 1;
         flag = 0;
@@ -115,10 +115,10 @@ void AES_CMAC ( unsigned char *key, unsigned char *input, int length, unsigned c
     AES_set_encrypt_key(key, 128, &aes);
 
     for ( i=0; i<16; i++ ) X[i] = 0;
-    for ( i=0; i<n-1; i++ ) 
+    for ( i=0; i<n-1; i++ )
     {
         xor_128(X,&input[16*i],Y); /* Y := Mi (+) X  */
-        AES_encrypt(Y, X, &aes); /* X := AES-128(KEY, Y); */ 
+        AES_encrypt(Y, X, &aes); /* X := AES-128(KEY, Y); */
     }
 
     xor_128(X,M_last,Y);

@@ -60,6 +60,7 @@
 #define PU_CACHE_UNLOCKED     101
 #define PU_HWRCACHE_UNLOCKED  102 // 'second-level' cache for graphics
                                   // stored in hardware format and downloaded as needed
+#define PU_HWRPATCHINFO_UNLOCKED 103
 
 void Z_Init(void);
 void Z_FreeTags(INT32 lowtag, INT32 hightag);
@@ -69,6 +70,12 @@ void Z_CheckHeap(INT32 i);
 void Z_ChangeTag2(void *ptr, INT32 tag, const char *file, INT32 line);
 #else
 void Z_ChangeTag2(void *ptr, INT32 tag);
+#endif
+
+#ifdef PARANOIA
+void Z_SetUser2(void *ptr, void **newuser, const char *file, INT32 line);
+#else
+void Z_SetUser2(void *ptr, void **newuser);
 #endif
 
 #ifdef ZDEBUG
@@ -104,6 +111,12 @@ char *Z_StrDup(const char *in);
 #define Z_ChangeTag(p,t) Z_ChangeTag2(p, t, __FILE__, __LINE__)
 #else
 #define Z_ChangeTag(p,t) Z_ChangeTag2(p, t)
+#endif
+
+#ifdef PARANOIA
+#define Z_SetUser(p,u) Z_SetUser2(p, u, __FILE__, __LINE__)
+#else
+#define Z_SetUser(p,u) Z_SetUser2(p, u)
 #endif
 
 #define Z_Unlock(p) Z_ChangeTag(p, PU_CACHE_UNLOCKED)

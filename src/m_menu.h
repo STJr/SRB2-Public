@@ -66,6 +66,9 @@ void M_StartMessage(const char *string, void *routine, menumessagetype_t itemtyp
 // Called by linux_x/i_video_xshm.c
 void M_QuitResponse(INT32 ch);
 
+// Determines whether to show a level in the list
+boolean M_CanShowLevelInList(INT32 mapnum, INT32 gt);
+
 
 // flags for items in the menu
 // menu handle (what we do when key is pressed
@@ -191,8 +194,6 @@ typedef struct
 } customsecrets_t;
 
 extern customsecrets_t customsecretinfo[15];
-
-extern INT32 inlevelselect;
 
 boolean M_GotLowEnoughTime(INT32 ptime);
 boolean M_GotEnoughEmblems(INT32 number);

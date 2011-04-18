@@ -260,7 +260,7 @@ static void CV_Gammaxxx_ONChange(void)
 #endif
 
 
-#if defined (__GNUC__) && defined (__i386__) && !defined (NOASM)
+#if defined (__GNUC__) && defined (__i386__) && !defined (NOASM) && !defined (__APPLE__)
 void VID_BlitLinearScreen_ASM(const UINT8 *srcptr, UINT8 *destptr, INT32 width, INT32 height, size_t srcrowbytes,
 	size_t destrowbytes);
 #define HAVE_VIDCOPY
@@ -512,7 +512,11 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 
 #ifdef HWRENDER
 	// draw a hardware converted patch
-	if (rendermode != render_soft && rendermode != render_none)
+	if (rendermode != render_soft && rendermode != render_none
+#ifdef _WINDOWS
+		&& !con_startup
+#endif
+		)
 	{
 		HWR_DrawPatch((GLPatch_t *)patch, x, y, scrn);
 		return;
@@ -533,8 +537,15 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
-	desttop = screens[scrn&0xFF];
-	deststop = screens[scrn&0xFF] + vid.width * vid.height * vid.bpp;
+#ifdef _WINDOWS
+	// Special case for hardware mode before display mode is set
+	if (rendermode != render_soft && rendermode != render_none)
+		desttop = vid.buffer;
+	else
+#endif
+		desttop = screens[scrn&0xFF];
+
+	deststop = desttop + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;

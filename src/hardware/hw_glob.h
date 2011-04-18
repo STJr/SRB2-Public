@@ -22,6 +22,7 @@
 
 #include "hw_defs.h"
 #include "hw_main.h"
+#include "../m_misc.h"
 
 // the original aspect ratio of Doom graphics isn't square
 #define ORIGINAL_ASPECT (320.0f/200.0f)
@@ -104,6 +105,8 @@ void HWR_GetMappedPatch(GLPatch_t *gpatch, const UINT8 *colormap);
 void HWR_UnlockCachedPatch(GLPatch_t *gpatch);
 GLPatch_t *HWR_GetPic(lumpnum_t lumpnum);
 void HWR_SetPalette(RGBA_t *palette);
+GLPatch_t *HWR_GetCachedGLPatchPwad(UINT16 wad, UINT16 lump);
+GLPatch_t *HWR_GetCachedGLPatch(lumpnum_t lumpnum);
 
 // --------
 // hw_draw.c

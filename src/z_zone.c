@@ -102,6 +102,9 @@ static memblock_t *Ptr2Memblock(void *ptr, const char* func)
 static memblock_t head;
 
 static void Command_Memfree_f(void);
+#ifdef ZDEBUG
+static void Command_Memdump_f(void);
+#endif
 
 void Z_Init(void)
 {
@@ -114,6 +117,10 @@ void Z_Init(void)
 
 	// Note: This allocates memory. Watch out.
 	COM_AddCommand("memfree", Command_Memfree_f);
+
+#ifdef ZDEBUG
+	COM_AddCommand("memdump", Command_Memdump_f);
+#endif
 }
 
 #ifdef ZDEBUG
@@ -365,35 +372,70 @@ void Z_CheckHeap(INT32 i)
 	{
 		blocknumon++;
 		given = (UINT8 *)block->hdr + sizeof *(block->hdr);
-#ifdef ZDEBUG
-		DEBPRINT("block %u owned by %s:%d\n",
-			blocknumon, block->ownerfile, block->ownerline);
+#ifdef ZDEBUG2
+		DEBPRINT(va("block %u owned by %s:%d\n",
+			blocknumon, block->ownerfile, block->ownerline));
 #endif
 		if (block->user != NULL && *(block->user) != given)
 		{
-			I_Error("Z_CheckHeap %d: block %u doesn't have a "
-				"proper user", i, blocknumon);
+			I_Error("Z_CheckHeap %d: block %u"
+#ifdef ZDEBUG
+				"(owned by %s:%d)"
+#endif
+				" doesn't have a proper user", i, blocknumon
+#ifdef ZDEBUG
+				, block->ownerfile, block->ownerline
+#endif
+			       );
 		}
 		if (block->next->prev != block)
 		{
-			I_Error("Z_CheckHeap %d: block %u lacks proper "
-				"backlink", i, blocknumon);
+			I_Error("Z_CheckHeap %d: block %u"
+#ifdef ZDEBUG
+				"(owned by %s:%d)"
+#endif
+				" lacks proper backlink", i, blocknumon
+#ifdef ZDEBUG
+				, block->ownerfile, block->ownerline
+#endif
+			       );
 		}
 		if (block->prev->next != block)
 		{
-			I_Error("Z_CheckHeap %d: block %u lacks proper "
-				"forward link", i, blocknumon);
+			I_Error("Z_CheckHeap %d: block %u"
+#ifdef ZDEBUG
+				"(owned by %s:%d)"
+#endif
+				" lacks proper forward link", i, blocknumon
+#ifdef ZDEBUG
+				, block->ownerfile, block->ownerline
+#endif
+			       );
 		}
 		if (block->hdr->block != block)
 		{
-			I_Error("Z_CheckHeap %d: block %u doesn't have "
-				"linkback from allocated memory",
-				i, blocknumon);
+			I_Error("Z_CheckHeap %d: block %u"
+#ifdef ZDEBUG
+				"(owned by %s:%d)"
+#endif
+				" doesn't have linkback from allocated memory",
+				i, blocknumon
+#ifdef ZDEBUG
+				, block->ownerfile, block->ownerline
+#endif
+			        );
 		}
 		if (block->hdr->id != ZONEID)
 		{
-			I_Error("Z_CheckHeap %d: block %u's memory has "
-				"wrong ID", i, blocknumon);
+			I_Error("Z_CheckHeap %d: block %u"
+#ifdef ZDEBUG
+				"(owned by %s:%d)"
+#endif
+				" have the wrong ID", i, blocknumon
+#ifdef ZDEBUG
+				, block->ownerfile, block->ownerline
+#endif
+			        );
 		}
 	}
 }
@@ -485,8 +527,59 @@ void Command_Memfree_f(void)
 	CONS_Printf(M_GetText("Available physical memory: %7u KB\n"), freebytes>>10);
 }
 
+#ifdef ZDEBUG
+static void Command_Memdump_f(void)
+{
+	memblock_t *block;
+	INT32 mintag = 0, maxtag = INT32_MAX;
+	INT32 i;
+
+	if ((i = COM_CheckParm("-min")))
+		mintag = atoi(COM_Argv(i + 1));
+
+	if ((i = COM_CheckParm("-max")))
+		maxtag = atoi(COM_Argv(i + 1));
+
+	for (block = head.next; block != &head; block = block->next)
+		if (block->tag >= mintag && block->tag <= maxtag)
+		{
+			char *filename = strrchr(block->ownerfile, PATHSEP[0]);
+			CONS_Printf("[%3d] %10u (%10u) bytes @ %s:%d\n", block->tag, block->size, block->realsize, filename ? filename + 1 : block->ownerfile, block->ownerline);
+		}
+}
+#endif
+
 // Creates a copy of a string.
 char *Z_StrDup(const char *s)
 {
 	return strcpy(ZZ_Alloc(strlen(s) + 1), s);
+}
+
+
+#ifdef PARANOIA
+void Z_SetUser2(void *ptr, void **newuser, const char *file, INT32 line)
+#else
+void Z_SetUser2(void *ptr, void **newuser)
+#endif
+{
+	memblock_t *block;
+	memhdr_t *hdr;
+
+	if (ptr == NULL)
+		return;
+
+	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
+
+#ifdef PARANOIA
+	if (hdr->id != ZONEID) I_Error("Z_CT at %s:%d: wrong id", file, line);
+#endif
+
+	block = hdr->block;
+
+	if (block->tag >= PU_PURGELEVEL && newuser == NULL)
+		I_Error("Internal memory management error: "
+			"tried to make block purgable but it has no owner");
+
+	block->user = (void*)newuser;
+	*newuser = ptr;
 }

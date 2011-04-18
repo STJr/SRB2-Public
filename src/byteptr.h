@@ -17,7 +17,7 @@
 /// \brief Macros to read/write from/to a UINT8 *,
 ///        used for packet creation and such
 
-#if defined (__alpha__) || defined (__arm__) || defined (__mips__) || defined (__ia64__)
+#if defined (__alpha__) || defined (__arm__) || defined (__mips__) || defined (__ia64__) || defined (__clang__)
 #define DEALIGNED
 #endif
 

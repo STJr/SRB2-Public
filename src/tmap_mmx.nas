@@ -662,8 +662,8 @@ R_DrawSpan_8_MMX:
 ;;
 ;; Back to one step at a time.
 ;;
-		psrld		mm3, 1
-		psrld		mm4, 1
+		psrad		mm3, 1
+		psrad		mm4, 1
 		jmp			.stragglers
 
 .done:

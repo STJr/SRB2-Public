@@ -161,9 +161,6 @@ extern mapthing_t *rflagpoint, *bflagpoint; // Pointers to the flag spawn locati
 #define MF_REDFLAG 1
 #define MF_BLUEFLAG 2
 
-#define LEVELARRAYSIZE 1035+2
-extern char lvltable[LEVELARRAYSIZE+3][64];
-
 /** Map header information.
   */
 typedef struct

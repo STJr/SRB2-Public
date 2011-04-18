@@ -250,7 +250,7 @@ union FColorRGBA
 		UINT8 blue;
 		UINT8 alpha;
 	} s;
-};
+} ATTRPACK;
 typedef union FColorRGBA RGBA_t;
 
 typedef enum
@@ -278,7 +278,7 @@ typedef UINT32 tic_t;
 #define FUNCNORETURN __attribute__ ((noreturn))
 #if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) && defined (__MINGW32__)
 #include "inttypes.h"
-#if defined  (__USE_MINGW_ANSI_STDIO) && __USE_MINGW_ANSI_STDIO > 0
+#if 0 //defined  (__USE_MINGW_ANSI_STDIO) && __USE_MINGW_ANSI_STDIO > 0
 #define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
 #elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)

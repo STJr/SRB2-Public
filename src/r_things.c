@@ -463,9 +463,6 @@ void R_DelSpriteDefs(UINT16 wadnum)
 //
 // GAME FUNCTIONS
 //
-#define VISSPRITECHUNKBITS 6	// 2^6 = 64 sprites per chunk
-#define VISSPRITESPERCHUNK (1 << VISSPRITECHUNKBITS)
-#define VISSPRITEINDEXMASK (VISSPRITESPERCHUNK - 1)
 static UINT32 visspritecount;
 static vissprite_t *visspritechunks[MAXVISSPRITES >> VISSPRITECHUNKBITS] = {NULL};
 
@@ -527,7 +524,7 @@ void R_ClearSprites(void)
 	visspritecount = 0;
 }
 
-void R_ResetVisSpriteChunks(void)
+static inline void R_ResetVisSpriteChunks(void)
 {
 	memset(visspritechunks, 0, sizeof(visspritechunks));
 }
@@ -543,7 +540,7 @@ static vissprite_t *R_GetVisSprite(UINT32 num)
 
 		// Allocate chunk if necessary
 		if (!visspritechunks[chunk])
-			visspritechunks[chunk] = Z_Malloc(sizeof(vissprite_t) * VISSPRITESPERCHUNK, PU_LEVEL, NULL);
+			Z_Malloc(sizeof(vissprite_t) * VISSPRITESPERCHUNK, PU_LEVEL, &visspritechunks[chunk]);
 
 		return visspritechunks[chunk] + (num & VISSPRITEINDEXMASK);
 }

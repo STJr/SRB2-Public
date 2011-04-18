@@ -142,8 +142,6 @@ UINT32 tokenlist; // List of tokens collected
 INT32 tokenbits; // Used for setting token bits
 INT32 sstimer; // Time allotted in the special stage
 
-char lvltable[LEVELARRAYSIZE+3][64];
-
 tic_t totalplaytime;
 INT32 numemblems = 40;
 boolean gamedataloaded = 0;
@@ -2988,18 +2986,46 @@ void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer, boolean
 
 	if (netgame)
 	{
-		const INT32 actnum = mapheaderinfo[gamemap-1]->actnum;
+		char *title = G_BuildMapTitle(gamemap);
+
 		CONS_Printf(M_GetText("Map is now \"%s"), G_BuildMapName(gamemap));
-		if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
+		if (title)
 		{
-			CONS_Printf(": %s", mapheaderinfo[gamemap-1]->lvlttl);
-			if (!mapheaderinfo[gamemap-1]->nozone)
-				CONS_Printf("%s", M_GetText("ZONE"));
-			if (actnum > 0)
-				CONS_Printf(" %2d", actnum);
+			CONS_Printf(": %s", title);
+			Z_Free(title);
 		}
 		CONS_Printf("\"\n");
 	}
+}
+
+
+char *G_BuildMapTitle(INT32 mapnum)
+{
+	char *title = NULL;
+
+	if (strcmp(mapheaderinfo[mapnum-1]->lvlttl, ""))
+	{
+		UINT32 len = 1;
+		const char *zonetext = NULL;
+		const INT32 actnum = mapheaderinfo[mapnum-1]->actnum;
+
+		len += strlen(mapheaderinfo[mapnum-1]->lvlttl);
+		if (!mapheaderinfo[mapnum-1]->nozone)
+		{
+			zonetext = M_GetText("ZONE");
+			len += strlen(zonetext) + 1;	// ' ' + zonetext
+		}
+		if (actnum > 0)
+			len += 1 + 11;			// ' ' + INT32
+
+		title = Z_Malloc(len, PU_STATIC, NULL);
+
+		sprintf(title, "%s", mapheaderinfo[mapnum-1]->lvlttl);
+		if (zonetext) sprintf(title + strlen(title), " %s", zonetext);
+		if (actnum > 0) sprintf(title + strlen(title), " %d", actnum);
+	}
+
+	return title;
 }
 
 //

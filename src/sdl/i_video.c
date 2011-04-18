@@ -1386,9 +1386,6 @@ static inline boolean I_SkipFrame(void)
 {
 	static boolean skip = false;
 
-	if (rendermode == render_opengl)
-		return true; //WTH?
-
 	if (render_soft != rendermode)
 		return false;
 
@@ -2053,8 +2050,8 @@ void I_StartupGraphics(void)
 		if (HWD.pfnGetRenderVersion() != VERSION)
 			I_Error("%s", M_GetText("The version of the renderer doesn't match the version of the executable\nBe sure you have installed SRB2 properly.\n"));
 #if 1 //#ifdef  _WIN32_WCE
-		vid.width = 320;
-		vid.height = 240;
+		vid.width = BASEVIDWIDTH;
+		vid.height = BASEVIDHEIGHT;
 #else
 		vid.width = 640; // hack to make voodoo cards work in 640x480
 		vid.height = 480;

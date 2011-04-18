@@ -1360,7 +1360,43 @@ void CV_AddValue(consvar_t *var, INT32 increment)
 	if (var->PossibleValue)
 	{
 #define MINVAL 0
-		if (var->PossibleValue[MINVAL].strvalue && !strcmp(var->PossibleValue[MINVAL].strvalue, "MIN"))
+		if (var == &cv_nextmap)
+		{
+			// Special case for the nextmap variable, used only directly from the menu
+			INT32 oldvalue = var->value - 1, gt;
+			gt = cv_newgametype.value;
+			if (increment != 0) // Going up!
+			{
+				newvalue = var->value - 1;
+				do
+				{
+					if(increment > 0) // Going up!
+					{
+						newvalue++;
+						if (newvalue == NUMMAPS)
+							newvalue = 0;
+					}
+					else // Going down!
+					{
+						newvalue--;
+						if (newvalue == -1)
+							newvalue = NUMMAPS-1;
+					}
+
+					if (newvalue == oldvalue)
+						gt = -1; // don't loop forever if there's none of a certain gametype
+
+					if(!mapheaderinfo[newvalue])
+						P_AllocMapHeader((INT16)newvalue);
+
+				} while (!M_CanShowLevelInList(newvalue, gt));
+
+				var->value = newvalue + 1;
+				var->func();
+				return;
+			}
+		}
+		else if (var->PossibleValue[MINVAL].strvalue && !strcmp(var->PossibleValue[MINVAL].strvalue, "MIN"))
 		{
 			// search the next to last
 			for (max = 0; var->PossibleValue[max+1].strvalue; max++)
@@ -1386,70 +1422,7 @@ void CV_AddValue(consvar_t *var, INT32 increment)
 
 			max--;
 
-			if (var == &cv_nextmap)
-			{
-				// Special case for the nextmap variable, used only directly from the menu
-				INT32 oldvalue = var->value - 1, gt;
-				gt = cv_newgametype.value;
-				if (increment > 0) // Going up!
-				{
-					newvalue = var->value - 1;
-					do
-					{
-						newvalue++;
-						if (newvalue == NUMMAPS)
-							newvalue = 0;
-						if (newvalue == oldvalue)
-							gt = -1; // don't loop forever if there's none of a certain gametype
-
-						if(!mapheaderinfo[newvalue])
-							P_AllocMapHeader((INT16)newvalue);
-					} while (var->PossibleValue[newvalue].strvalue == NULL
-						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue]->typeoflevel & TOL_COOP))
-							|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_MATCH))
-							|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_RACE))
-							|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_TAG))
-#ifdef CHAOSISNOTDEADYET
-							|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CHAOS))
-#endif
-							|| (gt == GT_CTF && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CTF))) && inlevelselect == 0)
-						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue]->levelselect))
-						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue]->timeattack && mapvisited[newvalue]))
-						);
-					var->value = newvalue + 1;
-					var->string = var->PossibleValue[newvalue].strvalue;
-					var->func();
-					return;
-				}
-				else if (increment < 0) // Going down!
-				{
-					newvalue = var->value - 1;
-					do
-					{
-						newvalue--;
-						if (newvalue == -1)
-							newvalue = NUMMAPS-1;
-						if (newvalue == oldvalue)
-							gt = -1; // don't loop forever if there's none of a certain gametype
-					} while (var->PossibleValue[newvalue].strvalue == NULL
-						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue]->typeoflevel & TOL_COOP))
-						|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_MATCH))
-						|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_RACE))
-						|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue]->typeoflevel & TOL_TAG))
-#ifdef CHAOSISNOTDEADYET
-						|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CHAOS))
-#endif
-						|| (gt == GT_CTF && !(mapheaderinfo[newvalue]->typeoflevel & TOL_CTF))) && inlevelselect == 0)
-						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue]->levelselect))
-						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue]->timeattack && mapvisited[newvalue]))
-						);
-					var->value = newvalue + 1;
-					var->string = var->PossibleValue[newvalue].strvalue;
-					var->func();
-					return;
-				}
-			}
-			else if (var == &cv_chooseskin)
+			if (var == &cv_chooseskin)
 			{
 				// Special case for the chooseskin variable, used only directly from the menu
 				if (increment > 0) // Going up!

@@ -1950,7 +1950,7 @@ Includes=
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DNONET_@@_-DNOROPENGL_@@__@@_
+Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DNONET_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-Os_@@_-g_@@_
 Linker=
 PreprocDefines=NORMALSRB2_@@_
@@ -1977,7 +1977,7 @@ Includes=
 Libs=
 ResourceIncludes=
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DNONET_@@_-DNOROPENGL_@@_
+Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DNONET_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-O0_@@_-g_@@_
 Linker=
 PreprocDefines=NORMALSRB2_@@_
@@ -2054,7 +2054,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
+Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-Os_@@_-g_@@_
 Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mwindows_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2081,7 +2081,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
+Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-O0_@@_-g_@@_
 Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2258,7 +2258,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
+Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-Os_@@_-g_@@_
 Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2315,7 +2315,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
+Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-O0_@@_-g_@@_
 Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2342,7 +2342,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
+Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-Os_@@_-g_@@_
 Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lws2_32_@@_-static_@@_-lpng64_@@_-lz64_@@_-mwindows_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2369,7 +2369,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_
+Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-O0_@@_-g_@@_
 Linker=-lgdi32_@@_-ldinput_@@_-ldxguid_@@_-lwinmm_@@_-lws2_32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2396,7 +2396,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
+Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-Os_@@_-g_@@_
 Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_
@@ -2423,7 +2423,7 @@ Includes=tools/libpng-src;tools/zlib
 Libs=tools/libpng-src/projects;tools/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
-Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@__@@_
+Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
 CppCompiler=-O0_@@_-g_@@_
 Linker=-lSDL_@@_-lSDL_Mixer_@@_-lwsock32_@@_-static_@@_-lpng32_@@_-lz32_@@_-mconsole_@@_
 PreprocDefines=NORMALSRB2_@@_

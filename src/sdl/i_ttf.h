@@ -19,6 +19,7 @@
 #ifndef __I_TTF__
 #define __I_TTF__
 
+#include "../doomdef.h"
 #include "SDL_ttf.h"
 
 // Default name for standard TTF file.
@@ -59,11 +60,11 @@ int currentfontoutline;
 #ifndef _PS3
 typedef struct
 {
-	int width;
-	int height;
+	UINT16 width;
+	UINT16 height;
 } VideoResolution;
 #endif
-int bitsperpixel;
+UINT8 bitsperpixel;
 
 typedef enum
 {
@@ -73,15 +74,15 @@ typedef enum
 } TextQuality;
 
 // Load TTF font from file.
-int I_TTFLoadFont(char* file, int ptsize);
+INT32 I_TTFLoadFont(const char *file, UINT32 ptsize);
 
 // Draw TTF text to screen. It will accept four colour vales (red, green, blue and alpha)
 // with foreground for draw modes Solid and Blended, and an extra four values for background
 // colour with draw type Shaded.
-void I_TTFDrawText(TTF_Font *FONTTODRAW, TextQuality TTFQUALITY, int FGR, int FGG, int FGB, int FGA, int BGR, int BGG, int BGB, int BGA, char* text);
+void I_TTFDrawText(TTF_Font *font, TextQuality quality, INT32 fgR, INT32 fgG, INT32 fgB, INT32 fgA, INT32 bgR, INT32 bgG, INT32 bgB, INT32 bgA, const char *textmsg);
 
 // Initialise SDL_ttf.
-void I_StartupTTF(int fontpointsize, Uint32 initflags, Uint32 vidmodeflags);
+void I_StartupTTF(UINT32 fontpointsize, Uint32 initflags, Uint32 vidmodeflags);
 
 void I_ShutdownTTF(void);
 #endif

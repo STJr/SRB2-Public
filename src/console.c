@@ -97,8 +97,6 @@ static INT32 inputline;    // current input line number
 static INT32 inputhist;    // line number of history input line to restore
 static size_t input_cx;  // position in current input line
 
-static patch_t *con_backpic; // console background picture, loaded static
-
 // protos.
 static void CON_InputInit(void);
 static void CON_RecalcSize(void);
@@ -369,9 +367,6 @@ void CON_Init(void)
 
 	// setup console input filtering
 	CON_InputInit();
-
-	// load console background pic
-	con_backpic = (patch_t *)W_CacheLumpName("CONSBACK",PU_STATIC);
 
 	// register our commands
 	//
@@ -1050,10 +1045,21 @@ void CONS_Printf(const char *fmt, ...)
 	if (con_startup)
 	{
 #if (defined (_WINDOWS)) || (defined (__OS2__) && !defined (SDL))
+		static lumpnum_t con_backpic_lumpnum = UINT32_MAX;
+		patch_t *con_backpic;
+
+		if (con_backpic_lumpnum == UINT32_MAX)
+			con_backpic_lumpnum = W_GetNumForName("CONSBACK");
+
+		// We load the raw lump, even in hardware mode
+		con_backpic = (patch_t*)W_CacheLumpNum(con_backpic_lumpnum, PU_CACHE);
+
 		// show startup screen and message using only 'software' graphics
 		// (rendermode may be hardware accelerated, but the video mode is not set yet)
 		CON_DrawBackpic(con_backpic, 0, vid.width); // put console background
 		I_LoadingScreen(txt);
+
+		Z_Unlock(con_backpic);
 #else
 		// here we display the console background and console text
 		// (no hardware accelerated support for these versions)
@@ -1235,10 +1241,20 @@ static void CON_DrawConsole(void)
 	// draw console background
 	if (cons_backpic.value || con_forcepic)
 	{
+		static lumpnum_t con_backpic_lumpnum = UINT32_MAX;
+		patch_t *con_backpic;
+
+		if (con_backpic_lumpnum == UINT32_MAX)
+			con_backpic_lumpnum = W_GetNumForName("CONSBACK");
+
+		con_backpic = (patch_t*)W_CachePatchNum(con_backpic_lumpnum, PU_CACHE);
+
 		if (rendermode != render_soft)
 			V_DrawScaledPatch(0, 0, 0, con_backpic);
 		else if (rendermode != render_none)
 			CON_DrawBackpic(con_backpic, 0, vid.width); // picture as background
+
+		W_UnlockCachedPatch(con_backpic);
 	}
 	else
 	{

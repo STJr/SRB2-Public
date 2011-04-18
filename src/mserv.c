@@ -47,7 +47,9 @@
 #else
 #include <arpa/inet.h>
 #ifdef __APPLE_CC__
+#ifndef _BSD_SOCKLEN_T_
 #define _BSD_SOCKLEN_T_
+#endif
 #endif
 #include <sys/socket.h> // socket(),...
 #include <netinet/in.h> // sockaddr_in

@@ -38,7 +38,19 @@
 #include "m_random.h"
 #include "y_inter.h"
 
-credit_t credits[19];
+/** A screen of credits.
+  */
+typedef struct
+{
+	const char *header;        ///< Header text.
+	UINT8 numnames;            ///< Number of names on this screen.
+	UINT8 smallnames;          ///< Use small text to write names
+	const char *fakenames[32]; ///< Nicknames, e.g. Graue, Alam_GBC.
+	const char *realnames[32]; ///< Real names.
+} credit_t;
+
+// the array of credits of the game and mod
+static credit_t credits[19];
 
 // Stage of animation:
 // 0 = text, 1 = art screen
@@ -223,275 +235,275 @@ void F_StartCredits(void)
 
 	// Initalize the credits table
 	// <Callum> Should we make the names of the people translatable?
-	strcpy(credits[i].header, M_GetText("Sonic Team Junior\n"));
-	strcpy(credits[i].fakenames[j++], M_GetText("Staff\n"));
+	credits[i].header = M_GetText("Sonic Team Junior\n");
+	credits[i].fakenames[j++] = M_GetText("Staff\n");
 	j = 0;
-	strcpy(credits[i].realnames[j++], M_GetText("Staff\n"));
+	credits[i].realnames[j++] = M_GetText("Staff\n");
 	credits[i].numnames = 1;
 	i++;
-	strcpy(credits[i].header, M_GetText("Producer\n"));
+	credits[i].header = M_GetText("Producer\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
-	strcpy(credits[i].fakenames[j++], "\n");
-	strcpy(credits[i].fakenames[j++], M_GetText("Director\n"));
-	strcpy(credits[i].fakenames[j++], "Sonikku\n");
+	credits[i].fakenames[j++] = "SSNTails\n";
+	credits[i].fakenames[j++] = "\n";
+	credits[i].fakenames[j++] = M_GetText("Director\n");
+	credits[i].fakenames[j++] = "Sonikku\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	strcpy(credits[i].realnames[j++], "\n");
-	strcpy(credits[i].realnames[j++], M_GetText( "Director\n"));
-	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
+	credits[i].realnames[j++] = "Art Freda\n";
+	credits[i].realnames[j++] = "\n";
+	credits[i].realnames[j++] = M_GetText( "Director\n");
+	credits[i].realnames[j++] = "Johnny Wallbank\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Game Designers\n"));
+	credits[i].header = M_GetText("Game Designers\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Sonikku\n");
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
-	strcpy(credits[i].fakenames[j++], "Mystic\n");
+	credits[i].fakenames[j++] = "Sonikku\n";
+	credits[i].fakenames[j++] = "SSNTails\n";
+	credits[i].fakenames[j++] = "Mystic\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	strcpy(credits[i].realnames[j++], "Ben Geyer\n");
+	credits[i].realnames[j++] = "Johnny Wallbank\n";
+	credits[i].realnames[j++] = "Art Freda\n";
+	credits[i].realnames[j++] = "Ben Geyer\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Character Designers\n"));
+	credits[i].header = M_GetText("Character Designers\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Sonikku\n");
-	strcpy(credits[i].fakenames[j++], "Instant Sonic\n");
+	credits[i].fakenames[j++] = "Sonikku\n";
+	credits[i].fakenames[j++] = "Instant Sonic\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
-	strcpy(credits[i].realnames[j++], "David Spencer Jr\n");
+	credits[i].realnames[j++] = "Johnny Wallbank\n";
+	credits[i].realnames[j++] = "David Spencer Jr\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Visual Design\n"));
+	credits[i].header = M_GetText("Visual Design\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
+	credits[i].fakenames[j++] = "SSNTails\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
+	credits[i].realnames[j++] = "Art Freda\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Landscape Design\n"));
+	credits[i].header = M_GetText("Landscape Design\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Sonikku\n");
-	strcpy(credits[i].fakenames[j++], "JEV3\n");
+	credits[i].fakenames[j++] = "Sonikku\n";
+	credits[i].fakenames[j++] = "JEV3\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
-	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");
+	credits[i].realnames[j++] = "Johnny Wallbank\n";
+	credits[i].realnames[j++] = "Jarrett Voight\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Chief Programmer\n"));
+	credits[i].header = M_GetText("Chief Programmer\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
+	credits[i].fakenames[j++] = "SSNTails\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
+	credits[i].realnames[j++] = "Art Freda\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Programmers\n"));
+	credits[i].header = M_GetText("Programmers\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Alam_GBC\n");
-	strcpy(credits[i].fakenames[j++], "Jazz\n");
-	strcpy(credits[i].fakenames[j++], "Graue\n");
-	strcpy(credits[i].fakenames[j++], "Inuyasha\n");
-	strcpy(credits[i].fakenames[j++], "Orospakr\n");
+	credits[i].fakenames[j++] = "Alam_GBC\n";
+	credits[i].fakenames[j++] = "Jazz\n";
+	credits[i].fakenames[j++] = "Graue\n";
+	credits[i].fakenames[j++] = "Inuyasha\n";
+	credits[i].fakenames[j++] = "Orospakr\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Alam Arias\n");
-	strcpy(credits[i].realnames[j++], "Nathan Giroux\n");
-	strcpy(credits[i].realnames[j++], "Scott Feeney\n");
-	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");
-	strcpy(credits[i].realnames[j++], "Andrew Clunis\n");
+	credits[i].realnames[j++] = "Alam Arias\n";
+	credits[i].realnames[j++] = "Nathan Giroux\n";
+	credits[i].realnames[j++] = "Scott Feeney\n";
+	credits[i].realnames[j++] = "Matthew Walsh\n";
+	credits[i].realnames[j++] = "Andrew Clunis\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Coding Assistants\n"));
+	credits[i].header = M_GetText("Coding Assistants\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "StroggOnMeth\n");
-	strcpy(credits[i].fakenames[j++], "Cyan Helkaraxe\n");
-	strcpy(credits[i].fakenames[j++], "Logan_GBA\n");
-	strcpy(credits[i].fakenames[j++], "Shuffle\n");
-	strcpy(credits[i].fakenames[j++], "Oogaland\n");
-	strcpy(credits[i].fakenames[j++], "Jason the Echidna\n");
+	credits[i].fakenames[j++] = "StroggOnMeth\n";
+	credits[i].fakenames[j++] = "Cyan Helkaraxe\n";
+	credits[i].fakenames[j++] = "Logan_GBA\n";
+	credits[i].fakenames[j++] = "Shuffle\n";
+	credits[i].fakenames[j++] = "Oogaland\n";
+	credits[i].fakenames[j++] = "Jason the Echidna\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Steven McGranahan\n");
-	strcpy(credits[i].realnames[j++], "Cyan Helkaraxe\n");
-	strcpy(credits[i].realnames[j++], "Logan Arias\n");
-	strcpy(credits[i].realnames[j++], "Matt Marsalko\n");
-	strcpy(credits[i].realnames[j++], "Gregor Dick\n");
-	strcpy(credits[i].realnames[j++], "John J. Muniz\n");
+	credits[i].realnames[j++] = "Steven McGranahan\n";
+	credits[i].realnames[j++] = "Cyan Helkaraxe\n";
+	credits[i].realnames[j++] = "Logan Arias\n";
+	credits[i].realnames[j++] = "Matt Marsalko\n";
+	credits[i].realnames[j++] = "Gregor Dick\n";
+	credits[i].realnames[j++] = "John J. Muniz\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("Level Designers\n"));
+	credits[i].header = M_GetText("Level Designers\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Sonikku\n");
-	strcpy(credits[i].fakenames[j++], "Mystic\n");
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
-	strcpy(credits[i].fakenames[j++], "Digiku\n");
-	strcpy(credits[i].fakenames[j++], "Torgo\n");
-	strcpy(credits[i].fakenames[j++], "Nev3r\n");
-	strcpy(credits[i].fakenames[j++], "JEV3\n");
-	strcpy(credits[i].fakenames[j++], "Spazzo\n");
-	strcpy(credits[i].fakenames[j++], "Inuyasha\n");
-	strcpy(credits[i].fakenames[j++], "Jazz\n");
-	strcpy(credits[i].fakenames[j++], "Blitzzo\n");
+	credits[i].fakenames[j++] = "Sonikku\n";
+	credits[i].fakenames[j++] = "Mystic\n";
+	credits[i].fakenames[j++] = "SSNTails\n";
+	credits[i].fakenames[j++] = "Digiku\n";
+	credits[i].fakenames[j++] = "Torgo\n";
+	credits[i].fakenames[j++] = "Nev3r\n";
+	credits[i].fakenames[j++] = "JEV3\n";
+	credits[i].fakenames[j++] = "Spazzo\n";
+	credits[i].fakenames[j++] = "Inuyasha\n";
+	credits[i].fakenames[j++] = "Jazz\n";
+	credits[i].fakenames[j++] = "Blitzzo\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Johnny Wallbank\n");
-	strcpy(credits[i].realnames[j++], "Ben Geyer\n");
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	strcpy(credits[i].realnames[j++], "Marco Zafra\n");
-	strcpy(credits[i].realnames[j++], "Erik Nielsen\n");
-	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");
-	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");
-	strcpy(credits[i].realnames[j++], "Michael Antonakes\n");
-	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");
-	strcpy(credits[i].realnames[j++], "Nathan Giroux\n");
-	strcpy(credits[i].realnames[j++], "Dan Hagerstrand\n");
-	credits[i].numnames = (UINT8)j;
-	credits[i].smallnames = true;
-	i++;
-	strcpy(credits[i].header, M_GetText("Texture Artists\n"));
-	j = 0;
-	strcpy(credits[i].fakenames[j++], "KinkaJoy\n");
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
-	strcpy(credits[i].fakenames[j++], "Blaze Hedgehog\n");
-	strcpy(credits[i].fakenames[j++], "JEV3\n");
-	strcpy(credits[i].fakenames[j++], "Nev3r\n");
-	j = 0;
-	strcpy(credits[i].realnames[j++], "Buddy Fischer\n");
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	strcpy(credits[i].realnames[j++], "Ryan Bloom\n");
-	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");
-	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");
-	credits[i].numnames = (UINT8)j;
-	i++;
-	strcpy(credits[i].header, M_GetText("Music Production\n"));
-	j = 0;
-	strcpy(credits[i].fakenames[j++], "Bulmybag\n");
-	strcpy(credits[i].fakenames[j++], "Arrow\n");
-	strcpy(credits[i].fakenames[j++], "Stuf\n");
-	strcpy(credits[i].fakenames[j++], "SSNTails\n");
-	strcpy(credits[i].fakenames[j++], "Cyan Helkaraxe\n");
-	strcpy(credits[i].fakenames[j++], "Red XVI\n");
-	strcpy(credits[i].fakenames[j++], "Spazzo\n");
-	strcpy(credits[i].fakenames[j++], "Nev3r\n");
-	j = 0;
-	strcpy(credits[i].realnames[j++], "David Bulmer\n");
-	strcpy(credits[i].realnames[j++], "Jarel Jones\n");
-	strcpy(credits[i].realnames[j++], "Stefan Rimalia\n");
-	strcpy(credits[i].realnames[j++], "Art Freda\n");
-	strcpy(credits[i].realnames[j++], "Cyan Helkaraxe\n");
-	strcpy(credits[i].realnames[j++], "Malcolm Brown\n");
-	strcpy(credits[i].realnames[j++], "Michael Antonakes\n");
-	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");
-	credits[i].smallnames = true;
-	credits[i].numnames = (UINT8)j;
-	i++;
-	strcpy(credits[i].header, M_GetText("Lead Guitar\n"));
-	j = 0;
-	strcpy(credits[i].fakenames[j++], "Big Wave Dave\n");
-	strcpy(credits[i].fakenames[j++], "Shane Strife\n");
-	j = 0;
-	strcpy(credits[i].realnames[j++], "David Spencer Sr\n");
-	strcpy(credits[i].realnames[j++], "Shane Sexton\n");
-	credits[i].numnames = (UINT8)j;
-	i++;
-	strcpy(credits[i].header, M_GetText("Sound Effects\n"));
-	j = 0;
-	strcpy(credits[i].fakenames[j++], "Sega\n");
-	strcpy(credits[i].fakenames[j++], "Instant Sonic\n");
-	strcpy(credits[i].fakenames[j++], "Various Sources\n");
-	j = 0;
-	strcpy(credits[i].realnames[j++], "Sega\n");
-	strcpy(credits[i].realnames[j++], "David Spencer Jr\n");
-	strcpy(credits[i].realnames[j++], "Various Sources\n");
-	credits[i].numnames = (UINT8)j;
-	i++;
-	strcpy(credits[i].header, M_GetText("Official Mascot\n"));
-	j = 0;
-	strcpy(credits[i].fakenames[j++], "Spazzo\n");
-	j = 0;
-	strcpy(credits[i].realnames[j++], "Michael Antonakes\n");
-	credits[i].numnames = (UINT8)j;
-	i++;
-	strcpy(credits[i].header, M_GetText("Sky Sanctuary Team\n"));
-	j = 0;
-	strcpy(credits[i].fakenames[j++], "Boinciel\n");
-	strcpy(credits[i].fakenames[j++], "Rob\n");
-	strcpy(credits[i].fakenames[j++], "Blitzzo\n");
-	strcpy(credits[i].fakenames[j++], "Jazz\n");
-	strcpy(credits[i].fakenames[j++], "JEV3\n");
-	strcpy(credits[i].fakenames[j++], "Inuyasha\n");
-	strcpy(credits[i].fakenames[j++], "Nev3r\n");
-	strcpy(credits[i].fakenames[j++], "Senku\n");
-	strcpy(credits[i].fakenames[j++], "Shadow Hog\n");
-	strcpy(credits[i].fakenames[j++], "Sonict\n");
-	strcpy(credits[i].fakenames[j++], "Spazzo\n");
-	strcpy(credits[i].fakenames[j++], "SRB2 Playah\n");
-	strcpy(credits[i].fakenames[j++], "ST218\n");
-	strcpy(credits[i].fakenames[j++], "Tets\n");
-	strcpy(credits[i].fakenames[j++], "Torgo\n");
-	strcpy(credits[i].fakenames[j++], "Blade\n");
-	strcpy(credits[i].fakenames[j++], "KO.T.E\n");
-	strcpy(credits[i].fakenames[j++], "Chaos Zero 64\n");
-	strcpy(credits[i].fakenames[j++], "Prime 2.0\n");
-	j = 0;
-	strcpy(credits[i].realnames[j++], "Paul Clempson\n");	// Boinciel
-	strcpy(credits[i].realnames[j++], "Rob Tisdell\n");	// Rob
-	strcpy(credits[i].realnames[j++], "Dan Hagerstrand\n");	// Blitzzo
-	strcpy(credits[i].realnames[j++], "Nathan Giroux\n");	// Jazz
-	strcpy(credits[i].realnames[j++], "Jarrett Voight\n");	// JEV3
-	strcpy(credits[i].realnames[j++], "Matthew Walsh\n");	// Inuyasha
-	strcpy(credits[i].realnames[j++], "Pedro Iceta\n");	// Nev3r
-	strcpy(credits[i].realnames[j++], "Andrew Moran\n");	// Senku
-	strcpy(credits[i].realnames[j++], "Thomas Igoe\n");	// Shadow Hog
-	strcpy(credits[i].realnames[j++], "Colin Pfaff\n");	// Sonict
-	strcpy(credits[i].realnames[j++], "Michael Antonakes\n"); // Spazzo
-	strcpy(credits[i].realnames[j++], "Cody Koester\n");	// SRB2-Playah
-	strcpy(credits[i].realnames[j++], "Nick Molina\n");	// ST218
-	strcpy(credits[i].realnames[j++], "Bill Reed\n");	// Tets
-	strcpy(credits[i].realnames[j++], "Erik Nielsen\n");	// Torgo
-	strcpy(credits[i].realnames[j++], "Desmond D.\n");      // Blade
-	strcpy(credits[i].realnames[j++], "Sherman D.\n");      // KO.T.E.
-	strcpy(credits[i].realnames[j++], "Julio Guir\n");      // Chaos Zero 64
-	strcpy(credits[i].realnames[j++], "Samuel Peters\n");   // Prime 2
+	credits[i].realnames[j++] = "Johnny Wallbank\n";
+	credits[i].realnames[j++] = "Ben Geyer\n";
+	credits[i].realnames[j++] = "Art Freda\n";
+	credits[i].realnames[j++] = "Marco Zafra\n";
+	credits[i].realnames[j++] = "Erik Nielsen\n";
+	credits[i].realnames[j++] = "Pedro Iceta\n";
+	credits[i].realnames[j++] = "Jarrett Voight\n";
+	credits[i].realnames[j++] = "Michael Antonakes\n";
+	credits[i].realnames[j++] = "Matthew Walsh\n";
+	credits[i].realnames[j++] = "Nathan Giroux\n";
+	credits[i].realnames[j++] = "Dan Hagerstrand\n";
 	credits[i].numnames = (UINT8)j;
 	credits[i].smallnames = true;
 	i++;
-	strcpy(credits[i].header, M_GetText("Special Thanks\n"));
+	credits[i].header = M_GetText("Texture Artists\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Doom Legacy Project\n");
-	strcpy(credits[i].fakenames[j++], "iD Software\n");
-	strcpy(credits[i].fakenames[j++], "Dave Perry\n");
-	strcpy(credits[i].fakenames[j++], "MistaED\n");
-	strcpy(credits[i].fakenames[j++], "Chrispy\n");
+	credits[i].fakenames[j++] = "KinkaJoy\n";
+	credits[i].fakenames[j++] = "SSNTails\n";
+	credits[i].fakenames[j++] = "Blaze Hedgehog\n";
+	credits[i].fakenames[j++] = "JEV3\n";
+	credits[i].fakenames[j++] = "Nev3r\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Doom Legacy Project\n");
-	strcpy(credits[i].realnames[j++], "iD Software\n");
-	strcpy(credits[i].realnames[j++], "Dave Perry\n");
-	strcpy(credits[i].realnames[j++], "Alex Fuller\n");
-	strcpy(credits[i].realnames[j++], "Chris Pryor\n");
+	credits[i].realnames[j++] = "Buddy Fischer\n";
+	credits[i].realnames[j++] = "Art Freda\n";
+	credits[i].realnames[j++] = "Ryan Bloom\n";
+	credits[i].realnames[j++] = "Jarrett Voight\n";
+	credits[i].realnames[j++] = "Pedro Iceta\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
-	strcpy(credits[i].header, M_GetText("In Fond Memory Of\n"));
+	credits[i].header = M_GetText("Music Production\n");
 	j = 0;
-	strcpy(credits[i].fakenames[j++], "Naoto Oshima\n");
-	strcpy(credits[i].fakenames[j++], "Howard Drossin\n");
-	strcpy(credits[i].fakenames[j++], "\n");
-	strcpy(credits[i].fakenames[j++], "\n");
+	credits[i].fakenames[j++] = "Bulmybag\n";
+	credits[i].fakenames[j++] = "Arrow\n";
+	credits[i].fakenames[j++] = "Stuf\n";
+	credits[i].fakenames[j++] = "SSNTails\n";
+	credits[i].fakenames[j++] = "Cyan Helkaraxe\n";
+	credits[i].fakenames[j++] = "Red XVI\n";
+	credits[i].fakenames[j++] = "Spazzo\n";
+	credits[i].fakenames[j++] = "Nev3r\n";
 	j = 0;
-	strcpy(credits[i].realnames[j++], "Naoto Oshima\n");
-	strcpy(credits[i].realnames[j++], "Howard Drossin\n");
-	strcpy(credits[i].realnames[j++], "\n");
-	strcpy(credits[i].realnames[j++], "\n");
+	credits[i].realnames[j++] = "David Bulmer\n";
+	credits[i].realnames[j++] = "Jarel Jones\n";
+	credits[i].realnames[j++] = "Stefan Rimalia\n";
+	credits[i].realnames[j++] = "Art Freda\n";
+	credits[i].realnames[j++] = "Cyan Helkaraxe\n";
+	credits[i].realnames[j++] = "Malcolm Brown\n";
+	credits[i].realnames[j++] = "Michael Antonakes\n";
+	credits[i].realnames[j++] = "Pedro Iceta\n";
+	credits[i].smallnames = true;
+	credits[i].numnames = (UINT8)j;
+	i++;
+	credits[i].header = M_GetText("Lead Guitar\n");
+	j = 0;
+	credits[i].fakenames[j++] = "Big Wave Dave\n";
+	credits[i].fakenames[j++] = "Shane Strife\n";
+	j = 0;
+	credits[i].realnames[j++] = "David Spencer Sr\n";
+	credits[i].realnames[j++] = "Shane Sexton\n";
+	credits[i].numnames = (UINT8)j;
+	i++;
+	credits[i].header = M_GetText("Sound Effects\n");
+	j = 0;
+	credits[i].fakenames[j++] = "Sega\n";
+	credits[i].fakenames[j++] = "Instant Sonic\n";
+	credits[i].fakenames[j++] = "Various Sources\n";
+	j = 0;
+	credits[i].realnames[j++] = "Sega\n";
+	credits[i].realnames[j++] = "David Spencer Jr\n";
+	credits[i].realnames[j++] = "Various Sources\n";
+	credits[i].numnames = (UINT8)j;
+	i++;
+	credits[i].header = M_GetText("Official Mascot\n");
+	j = 0;
+	credits[i].fakenames[j++] = "Spazzo\n";
+	j = 0;
+	credits[i].realnames[j++] = "Michael Antonakes\n";
+	credits[i].numnames = (UINT8)j;
+	i++;
+	credits[i].header = M_GetText("Sky Sanctuary Team\n");
+	j = 0;
+	credits[i].fakenames[j++] = "Boinciel\n";
+	credits[i].fakenames[j++] = "Rob\n";
+	credits[i].fakenames[j++] = "Blitzzo\n";
+	credits[i].fakenames[j++] = "Jazz\n";
+	credits[i].fakenames[j++] = "JEV3\n";
+	credits[i].fakenames[j++] = "Inuyasha\n";
+	credits[i].fakenames[j++] = "Nev3r\n";
+	credits[i].fakenames[j++] = "Senku\n";
+	credits[i].fakenames[j++] = "Shadow Hog\n";
+	credits[i].fakenames[j++] = "Sonict\n";
+	credits[i].fakenames[j++] = "Spazzo\n";
+	credits[i].fakenames[j++] = "SRB2 Playah\n";
+	credits[i].fakenames[j++] = "ST218\n";
+	credits[i].fakenames[j++] = "Tets\n";
+	credits[i].fakenames[j++] = "Torgo\n";
+	credits[i].fakenames[j++] = "Blade\n";
+	credits[i].fakenames[j++] = "KO.T.E\n";
+	credits[i].fakenames[j++] = "Chaos Zero 64\n";
+	credits[i].fakenames[j++] = "Prime 2.0\n";
+	j = 0;
+	credits[i].realnames[j++] = "Paul Clempson\n";	// Boinciel
+	credits[i].realnames[j++] = "Rob Tisdell\n";	// Rob
+	credits[i].realnames[j++] = "Dan Hagerstrand\n";	// Blitzzo
+	credits[i].realnames[j++] = "Nathan Giroux\n";	// Jazz
+	credits[i].realnames[j++] = "Jarrett Voight\n";	// JEV3
+	credits[i].realnames[j++] = "Matthew Walsh\n";	// Inuyasha
+	credits[i].realnames[j++] = "Pedro Iceta\n";	// Nev3r
+	credits[i].realnames[j++] = "Andrew Moran\n";	// Senku
+	credits[i].realnames[j++] = "Thomas Igoe\n";	// Shadow Hog
+	credits[i].realnames[j++] = "Colin Pfaff\n";	// Sonict
+	credits[i].realnames[j++] = "Michael Antonakes\n"; // Spazzo
+	credits[i].realnames[j++] = "Cody Koester\n";	// SRB2-Playah
+	credits[i].realnames[j++] = "Nick Molina\n";	// ST218
+	credits[i].realnames[j++] = "Bill Reed\n";	// Tets
+	credits[i].realnames[j++] = "Erik Nielsen\n";	// Torgo
+	credits[i].realnames[j++] = "Desmond D.\n";      // Blade
+	credits[i].realnames[j++] = "Sherman D.\n";      // KO.T.E.
+	credits[i].realnames[j++] = "Julio Guir\n";      // Chaos Zero 64
+	credits[i].realnames[j++] = "Samuel Peters\n";   // Prime 2
+	credits[i].numnames = (UINT8)j;
+	credits[i].smallnames = true;
+	i++;
+	credits[i].header = M_GetText("Special Thanks\n");
+	j = 0;
+	credits[i].fakenames[j++] = "Doom Legacy Project\n";
+	credits[i].fakenames[j++] = "iD Software\n";
+	credits[i].fakenames[j++] = "Dave Perry\n";
+	credits[i].fakenames[j++] = "MistaED\n";
+	credits[i].fakenames[j++] = "Chrispy\n";
+	j = 0;
+	credits[i].realnames[j++] = "Doom Legacy Project\n";
+	credits[i].realnames[j++] = "iD Software\n";
+	credits[i].realnames[j++] = "Dave Perry\n";
+	credits[i].realnames[j++] = "Alex Fuller\n";
+	credits[i].realnames[j++] = "Chris Pryor\n";
+	credits[i].numnames = (UINT8)j;
+	i++;
+	credits[i].header = M_GetText("In Fond Memory Of\n");
+	j = 0;
+	credits[i].fakenames[j++] = "Naoto Oshima\n";
+	credits[i].fakenames[j++] = "Howard Drossin\n";
+	credits[i].fakenames[j++] = "\n";
+	credits[i].fakenames[j++] = "\n";
+	j = 0;
+	credits[i].realnames[j++] = "Naoto Oshima\n";
+	credits[i].realnames[j++] = "Howard Drossin\n";
+	credits[i].realnames[j++] = "\n";
+	credits[i].realnames[j++] = "\n";
 	credits[i].numnames = (UINT8)j;
 	i++;
 	if (modcredits)
 	{
-		strcpy(&credits[i].header[0], M_GetText("Modification By\n"));
+		credits[i].header = M_GetText("Modification By\n");
 		j = 0;
-		strcpy(credits[i].fakenames[j++], modcreditname);
-		strcpy(credits[i].fakenames[j++], "\n");
-		strcpy(credits[i].fakenames[j++], "\n");
+		credits[i].fakenames[j++] = modcreditname;
+		credits[i].fakenames[j++] = "\n";
+		credits[i].fakenames[j++] = "\n";
 		j = 0;
-		strcpy(credits[i].realnames[j++], modcreditname);
-		strcpy(credits[i].realnames[j++], "\n");
-		strcpy(credits[i].realnames[j++], "\n");
+		credits[i].realnames[j++] = modcreditname;
+		credits[i].realnames[j++] = "\n";
+		credits[i].realnames[j++] = "\n";
 		credits[i].numnames = (UINT8)j;
 	}
 }

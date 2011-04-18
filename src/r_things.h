@@ -29,6 +29,10 @@
 
 #define MAXVISSPRITES 2048 // added 2-2-98 was 128
 
+#define VISSPRITECHUNKBITS 6	// 2^6 = 64 sprites per chunk
+#define VISSPRITESPERCHUNK (1 << VISSPRITECHUNKBITS)
+#define VISSPRITEINDEXMASK (VISSPRITESPERCHUNK - 1)
+
 // Constant arrays used for psprite clipping
 //  and initializing clipping.
 extern INT16 negonearray[MAXVIDWIDTH];
@@ -54,7 +58,6 @@ void R_DelSpriteDefs(UINT16 wadnum);
 void R_AddSprites(sector_t *sec, INT32 lightlevel);
 void R_InitSprites(void);
 void R_ClearSprites(void);
-void R_ResetVisSpriteChunks(void);
 void R_DrawMasked(void);
 
 // -----------

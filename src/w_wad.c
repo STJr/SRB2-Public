@@ -172,7 +172,10 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 		tic_t t = I_GetTime();
 		DEBPRINT(va("Making MD5 for %s\n",filename));
 		if (md5_stream(fhandle, resblock) == 1)
+		{
+			fclose(fhandle);
 			return 1;
+		}
 		DEBPRINT(va("MD5 calc for %s took %f seconds\n",
 			filename, (float)(I_GetTime() - t)/TICRATE));
 		fclose(fhandle);
@@ -200,9 +203,6 @@ UINT16 W_LoadWadFile(const char *filename)
 	wadfile_t *wadfile;
 	UINT32 numlumps;
 	size_t i;
-#ifdef HWRENDER
-	GLPatch_t *grPatch;
-#endif
 	INT32 compressed = 0;
 	size_t packetsize = 0;
 	serverinfo_pak *dummycheck = NULL;
@@ -381,15 +381,8 @@ UINT16 W_LoadWadFile(const char *filename)
 	Z_Calloc(numlumps * sizeof (*wadfile->lumpcache), PU_STATIC, &wadfile->lumpcache);
 
 #ifdef HWRENDER
-	// allocates GLPatch info structures STATIC from the start,
-	// because these were causing a lot of fragmentation of the heap,
-	// considering they are never freed.
-	grPatch = Z_Calloc(numlumps * sizeof (*grPatch), PU_HWRPATCHINFO, &(wadfile->hwrcache)); // never freed
-	for (i = 0; i < numlumps; i++)
-	{
-		// store the software patch lump number for each GLPatch
-		grPatch[i].patchlump = (numwadfiles<<16) + (UINT16)i;
-	}
+	// allocates GLPatch info structures and store them in a tree
+	wadfile->hwrcache = M_AATreeAlloc(AATREE_ZUSER);
 #endif
 
 	//
@@ -424,7 +417,7 @@ void W_UnloadWadFile(UINT16 num)
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 		HWR_FreeTextureCache();
-	Z_Free(delwad->hwrcache);
+	M_AATreeFree(delwad->hwrcache);
 #endif
 	if (*lumpcache)
 	{
@@ -842,7 +835,7 @@ static inline void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 	if (!TestValidLump(wad, lump))
 		return NULL;
 
-	grPatch = &(wadfiles[wad]->hwrcache[lump]);
+	grPatch = HWR_GetCachedGLPatchPwad(wad, lump);
 
 	if (grPatch->mipmap.grInfo.data)
 	{
@@ -852,11 +845,13 @@ static inline void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 	}
 	else
 	{
-		// first time init grPatch fields
-		// we need patch w,h,offset,...
-		// this code will be executed latter in GetPatch, anyway
-		// do it now
-		patch_t *ptr = W_CacheLumpNum(grPatch->patchlump, PU_STATIC);
+		patch_t *ptr = NULL;
+
+		// Only load the patch if we haven't initialised the grPatch yet
+		if (grPatch->mipmap.width == 0)
+			ptr = W_CacheLumpNumPwad(grPatch->wadnum, grPatch->lumpnum, PU_STATIC);
+
+		// Run HWR_MakePatch in all cases, to recalculate some things
 		HWR_MakePatch(ptr, grPatch, &grPatch->mipmap, false);
 		Z_Free(ptr);
 	}

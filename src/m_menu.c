@@ -86,7 +86,16 @@ static boolean pandoralevelselect = false;
 static INT32 fromloadgame = 0;
 
 customsecrets_t customsecretinfo[15];
-INT32 inlevelselect = 0;
+
+typedef enum
+{
+	LLM_CREATESERVER,
+	LLM_LEVELSELECT,
+	LLM_TIMEATTACK,
+	LLM_SRB1LEVELSELECT
+} levellist_mode_t;
+
+levellist_mode_t levellistmode = LLM_CREATESERVER;
 
 static INT32 lastmapnum;
 static INT32 oldlastmapnum;
@@ -204,8 +213,8 @@ static void M_OpenGLOption(INT32 choice);
 static void M_NextServerPage(void);
 static void M_PrevServerPage(void);
 static void M_RoomInfoMenu(INT32 choice);
-#endif
 static void M_SortServerList(void);
+#endif
 
 static const char *ALREADYPLAYING = "You are already playing.\nDo you wish to end the\ncurrent game? (Y/N)\n";
 
@@ -696,6 +705,7 @@ menu_t SinglePlayerDef =
 //===========================================================================
 // Connect Menu
 //===========================================================================
+#ifndef NONET
 static CV_PossibleValue_t serversort_cons_t[] = {
 	{0,"Ping"},
 	{1,"Players"},
@@ -704,7 +714,6 @@ static CV_PossibleValue_t serversort_cons_t[] = {
 
 consvar_t cv_serversort = {"serversort", "Ping", CV_HIDEN | CV_CALL, serversort_cons_t, M_SortServerList, 0, NULL, NULL, 0, 0, NULL};
 
-#ifndef NONET
 static CV_PossibleValue_t serversearch_cons_t[] = {
 	{0,"Local Lan"},
 	{1,"Internet"},
@@ -1236,1043 +1245,9 @@ void M_AlterRoomInfo(void)
 // Start Server Menu
 //===========================================================================
 
-static CV_PossibleValue_t map_cons_t[LEVELARRAYSIZE] = {
-	{1,"MAP01"},
-	{2,"MAP02"},
-	{3,"MAP03"},
-	{4,"MAP04"},
-	{5,"MAP05"},
-	{6,"MAP06"},
-	{7,"MAP07"},
-	{8,"MAP08"},
-	{9,"MAP09"},
-	{10,"MAP10"},
-	{11,"MAP11"},
-	{12,"MAP12"},
-	{13,"MAP13"},
-	{14,"MAP14"},
-	{15,"MAP15"},
-	{16,"MAP16"},
-	{17,"MAP17"},
-	{18,"MAP18"},
-	{19,"MAP19"},
-	{20,"MAP20"},
-	{21,"MAP21"},
-	{22,"MAP22"},
-	{23,"MAP23"},
-	{24,"MAP24"},
-	{25,"MAP25"},
-	{26,"MAP26"},
-	{27,"MAP27"},
-	{28,"MAP28"},
-	{29,"MAP29"},
-	{30,"MAP30"},
-	{31,"MAP31"},
-	{32,"MAP32"},
-	{33,"MAP33"},
-	{34,"MAP34"},
-	{35,"MAP35"},
-	{36,"MAP36"},
-	{37,"MAP37"},
-	{38,"MAP38"},
-	{39,"MAP39"},
-	{40,"MAP40"},
-	{41,"MAP41"},
-	{42,"MAP42"},
-	{43,"MAP43"},
-	{44,"MAP44"},
-	{45,"MAP45"},
-	{46,"MAP46"},
-	{47,"MAP47"},
-	{48,"MAP48"},
-	{49,"MAP49"},
-	{50,"MAP50"},
-	{51,"MAP51"},
-	{52,"MAP52"},
-	{53,"MAP53"},
-	{54,"MAP54"},
-	{55,"MAP55"},
-	{56,"MAP56"},
-	{57,"MAP57"},
-	{58,"MAP58"},
-	{59,"MAP59"},
-	{60,"MAP60"},
-	{61,"MAP61"},
-	{62,"MAP62"},
-	{63,"MAP63"},
-	{64,"MAP64"},
-	{65,"MAP65"},
-	{66,"MAP66"},
-	{67,"MAP67"},
-	{68,"MAP68"},
-	{69,"MAP69"},
-	{70,"MAP70"},
-	{71,"MAP71"},
-	{72,"MAP72"},
-	{73,"MAP73"},
-	{74,"MAP74"},
-	{75,"MAP75"},
-	{76,"MAP76"},
-	{77,"MAP77"},
-	{78,"MAP78"},
-	{79,"MAP79"},
-	{80,"MAP80"},
-	{81,"MAP81"},
-	{82,"MAP82"},
-	{83,"MAP83"},
-	{84,"MAP84"},
-	{85,"MAP85"},
-	{86,"MAP86"},
-	{87,"MAP87"},
-	{88,"MAP88"},
-	{89,"MAP89"},
-	{90,"MAP90"},
-	{91,"MAP91"},
-	{92,"MAP92"},
-	{93,"MAP93"},
-	{94,"MAP94"},
-	{95,"MAP95"},
-	{96,"MAP96"},
-	{97,"MAP97"},
-	{98,"MAP98"},
-	{99,"MAP99"},
-	{100, "MAP100"},
-	{101, "MAP101"},
-	{102, "MAP102"},
-	{103, "MAP103"},
-	{104, "MAP104"},
-	{105, "MAP105"},
-	{106, "MAP106"},
-	{107, "MAP107"},
-	{108, "MAP108"},
-	{109, "MAP109"},
-	{110, "MAP110"},
-	{111, "MAP111"},
-	{112, "MAP112"},
-	{113, "MAP113"},
-	{114, "MAP114"},
-	{115, "MAP115"},
-	{116, "MAP116"},
-	{117, "MAP117"},
-	{118, "MAP118"},
-	{119, "MAP119"},
-	{120, "MAP120"},
-	{121, "MAP121"},
-	{122, "MAP122"},
-	{123, "MAP123"},
-	{124, "MAP124"},
-	{125, "MAP125"},
-	{126, "MAP126"},
-	{127, "MAP127"},
-	{128, "MAP128"},
-	{129, "MAP129"},
-	{130, "MAP130"},
-	{131, "MAP131"},
-	{132, "MAP132"},
-	{133, "MAP133"},
-	{134, "MAP134"},
-	{135, "MAP135"},
-	{136, "MAP136"},
-	{137, "MAP137"},
-	{138, "MAP138"},
-	{139, "MAP139"},
-	{140, "MAP140"},
-	{141, "MAP141"},
-	{142, "MAP142"},
-	{143, "MAP143"},
-	{144, "MAP144"},
-	{145, "MAP145"},
-	{146, "MAP146"},
-	{147, "MAP147"},
-	{148, "MAP148"},
-	{149, "MAP149"},
-	{150, "MAP150"},
-	{151, "MAP151"},
-	{152, "MAP152"},
-	{153, "MAP153"},
-	{154, "MAP154"},
-	{155, "MAP155"},
-	{156, "MAP156"},
-	{157, "MAP157"},
-	{158, "MAP158"},
-	{159, "MAP159"},
-	{160, "MAP160"},
-	{161, "MAP161"},
-	{162, "MAP162"},
-	{163, "MAP163"},
-	{164, "MAP164"},
-	{165, "MAP165"},
-	{166, "MAP166"},
-	{167, "MAP167"},
-	{168, "MAP168"},
-	{169, "MAP169"},
-	{170, "MAP170"},
-	{171, "MAP171"},
-	{172, "MAP172"},
-	{173, "MAP173"},
-	{174, "MAP174"},
-	{175, "MAP175"},
-	{176, "MAP176"},
-	{177, "MAP177"},
-	{178, "MAP178"},
-	{179, "MAP179"},
-	{180, "MAP180"},
-	{181, "MAP181"},
-	{182, "MAP182"},
-	{183, "MAP183"},
-	{184, "MAP184"},
-	{185, "MAP185"},
-	{186, "MAP186"},
-	{187, "MAP187"},
-	{188, "MAP188"},
-	{189, "MAP189"},
-	{190, "MAP190"},
-	{191, "MAP191"},
-	{192, "MAP192"},
-	{193, "MAP193"},
-	{194, "MAP194"},
-	{195, "MAP195"},
-	{196, "MAP196"},
-	{197, "MAP197"},
-	{198, "MAP198"},
-	{199, "MAP199"},
-	{200, "MAP200"},
-	{201, "MAP201"},
-	{202, "MAP202"},
-	{203, "MAP203"},
-	{204, "MAP204"},
-	{205, "MAP205"},
-	{206, "MAP206"},
-	{207, "MAP207"},
-	{208, "MAP208"},
-	{209, "MAP209"},
-	{210, "MAP210"},
-	{211, "MAP211"},
-	{212, "MAP212"},
-	{213, "MAP213"},
-	{214, "MAP214"},
-	{215, "MAP215"},
-	{216, "MAP216"},
-	{217, "MAP217"},
-	{218, "MAP218"},
-	{219, "MAP219"},
-	{220, "MAP220"},
-	{221, "MAP221"},
-	{222, "MAP222"},
-	{223, "MAP223"},
-	{224, "MAP224"},
-	{225, "MAP225"},
-	{226, "MAP226"},
-	{227, "MAP227"},
-	{228, "MAP228"},
-	{229, "MAP229"},
-	{230, "MAP230"},
-	{231, "MAP231"},
-	{232, "MAP232"},
-	{233, "MAP233"},
-	{234, "MAP234"},
-	{235, "MAP235"},
-	{236, "MAP236"},
-	{237, "MAP237"},
-	{238, "MAP238"},
-	{239, "MAP239"},
-	{240, "MAP240"},
-	{241, "MAP241"},
-	{242, "MAP242"},
-	{243, "MAP243"},
-	{244, "MAP244"},
-	{245, "MAP245"},
-	{246, "MAP246"},
-	{247, "MAP247"},
-	{248, "MAP248"},
-	{249, "MAP249"},
-	{250, "MAP250"},
-	{251, "MAP251"},
-	{252, "MAP252"},
-	{253, "MAP253"},
-	{254, "MAP254"},
-	{255, "MAP255"},
-	{256, "MAP256"},
-	{257, "MAP257"},
-	{258, "MAP258"},
-	{259, "MAP259"},
-	{260, "MAP260"},
-	{261, "MAP261"},
-	{262, "MAP262"},
-	{263, "MAP263"},
-	{264, "MAP264"},
-	{265, "MAP265"},
-	{266, "MAP266"},
-	{267, "MAP267"},
-	{268, "MAP268"},
-	{269, "MAP269"},
-	{270, "MAP270"},
-	{271, "MAP271"},
-	{272, "MAP272"},
-	{273, "MAP273"},
-	{274, "MAP274"},
-	{275, "MAP275"},
-	{276, "MAP276"},
-	{277, "MAP277"},
-	{278, "MAP278"},
-	{279, "MAP279"},
-	{280, "MAP280"},
-	{281, "MAP281"},
-	{282, "MAP282"},
-	{283, "MAP283"},
-	{284, "MAP284"},
-	{285, "MAP285"},
-	{286, "MAP286"},
-	{287, "MAP287"},
-	{288, "MAP288"},
-	{289, "MAP289"},
-	{290, "MAP290"},
-	{291, "MAP291"},
-	{292, "MAP292"},
-	{293, "MAP293"},
-	{294, "MAP294"},
-	{295, "MAP295"},
-	{296, "MAP296"},
-	{297, "MAP297"},
-	{298, "MAP298"},
-	{299, "MAP299"},
-	{300, "MAP300"},
-	{301, "MAP301"},
-	{302, "MAP302"},
-	{303, "MAP303"},
-	{304, "MAP304"},
-	{305, "MAP305"},
-	{306, "MAP306"},
-	{307, "MAP307"},
-	{308, "MAP308"},
-	{309, "MAP309"},
-	{310, "MAP310"},
-	{311, "MAP311"},
-	{312, "MAP312"},
-	{313, "MAP313"},
-	{314, "MAP314"},
-	{315, "MAP315"},
-	{316, "MAP316"},
-	{317, "MAP317"},
-	{318, "MAP318"},
-	{319, "MAP319"},
-	{320, "MAP320"},
-	{321, "MAP321"},
-	{322, "MAP322"},
-	{323, "MAP323"},
-	{324, "MAP324"},
-	{325, "MAP325"},
-	{326, "MAP326"},
-	{327, "MAP327"},
-	{328, "MAP328"},
-	{329, "MAP329"},
-	{330, "MAP330"},
-	{331, "MAP331"},
-	{332, "MAP332"},
-	{333, "MAP333"},
-	{334, "MAP334"},
-	{335, "MAP335"},
-	{336, "MAP336"},
-	{337, "MAP337"},
-	{338, "MAP338"},
-	{339, "MAP339"},
-	{340, "MAP340"},
-	{341, "MAP341"},
-	{342, "MAP342"},
-	{343, "MAP343"},
-	{344, "MAP344"},
-	{345, "MAP345"},
-	{346, "MAP346"},
-	{347, "MAP347"},
-	{348, "MAP348"},
-	{349, "MAP349"},
-	{350, "MAP350"},
-	{351, "MAP351"},
-	{352, "MAP352"},
-	{353, "MAP353"},
-	{354, "MAP354"},
-	{355, "MAP355"},
-	{356, "MAP356"},
-	{357, "MAP357"},
-	{358, "MAP358"},
-	{359, "MAP359"},
-	{360, "MAP360"},
-	{361, "MAP361"},
-	{362, "MAP362"},
-	{363, "MAP363"},
-	{364, "MAP364"},
-	{365, "MAP365"},
-	{366, "MAP366"},
-	{367, "MAP367"},
-	{368, "MAP368"},
-	{369, "MAP369"},
-	{370, "MAP370"},
-	{371, "MAP371"},
-	{372, "MAP372"},
-	{373, "MAP373"},
-	{374, "MAP374"},
-	{375, "MAP375"},
-	{376, "MAP376"},
-	{377, "MAP377"},
-	{378, "MAP378"},
-	{379, "MAP379"},
-	{380, "MAP380"},
-	{381, "MAP381"},
-	{382, "MAP382"},
-	{383, "MAP383"},
-	{384, "MAP384"},
-	{385, "MAP385"},
-	{386, "MAP386"},
-	{387, "MAP387"},
-	{388, "MAP388"},
-	{389, "MAP389"},
-	{390, "MAP390"},
-	{391, "MAP391"},
-	{392, "MAP392"},
-	{393, "MAP393"},
-	{394, "MAP394"},
-	{395, "MAP395"},
-	{396, "MAP396"},
-	{397, "MAP397"},
-	{398, "MAP398"},
-	{399, "MAP399"},
-	{400, "MAP400"},
-	{401, "MAP401"},
-	{402, "MAP402"},
-	{403, "MAP403"},
-	{404, "MAP404"},
-	{405, "MAP405"},
-	{406, "MAP406"},
-	{407, "MAP407"},
-	{408, "MAP408"},
-	{409, "MAP409"},
-	{410, "MAP410"},
-	{411, "MAP411"},
-	{412, "MAP412"},
-	{413, "MAP413"},
-	{414, "MAP414"},
-	{415, "MAP415"},
-	{416, "MAP416"},
-	{417, "MAP417"},
-	{418, "MAP418"},
-	{419, "MAP419"},
-	{420, "MAP420"},
-	{421, "MAP421"},
-	{422, "MAP422"},
-	{423, "MAP423"},
-	{424, "MAP424"},
-	{425, "MAP425"},
-	{426, "MAP426"},
-	{427, "MAP427"},
-	{428, "MAP428"},
-	{429, "MAP429"},
-	{430, "MAP430"},
-	{431, "MAP431"},
-	{432, "MAP432"},
-	{433, "MAP433"},
-	{434, "MAP434"},
-	{435, "MAP435"},
-	{436, "MAP436"},
-	{437, "MAP437"},
-	{438, "MAP438"},
-	{439, "MAP439"},
-	{440, "MAP440"},
-	{441, "MAP441"},
-	{442, "MAP442"},
-	{443, "MAP443"},
-	{444, "MAP444"},
-	{445, "MAP445"},
-	{446, "MAP446"},
-	{447, "MAP447"},
-	{448, "MAP448"},
-	{449, "MAP449"},
-	{450, "MAP450"},
-	{451, "MAP451"},
-	{452, "MAP452"},
-	{453, "MAP453"},
-	{454, "MAP454"},
-	{455, "MAP455"},
-	{456, "MAP456"},
-	{457, "MAP457"},
-	{458, "MAP458"},
-	{459, "MAP459"},
-	{460, "MAP460"},
-	{461, "MAP461"},
-	{462, "MAP462"},
-	{463, "MAP463"},
-	{464, "MAP464"},
-	{465, "MAP465"},
-	{466, "MAP466"},
-	{467, "MAP467"},
-	{468, "MAP468"},
-	{469, "MAP469"},
-	{470, "MAP470"},
-	{471, "MAP471"},
-	{472, "MAP472"},
-	{473, "MAP473"},
-	{474, "MAP474"},
-	{475, "MAP475"},
-	{476, "MAP476"},
-	{477, "MAP477"},
-	{478, "MAP478"},
-	{479, "MAP479"},
-	{480, "MAP480"},
-	{481, "MAP481"},
-	{482, "MAP482"},
-	{483, "MAP483"},
-	{484, "MAP484"},
-	{485, "MAP485"},
-	{486, "MAP486"},
-	{487, "MAP487"},
-	{488, "MAP488"},
-	{489, "MAP489"},
-	{490, "MAP490"},
-	{491, "MAP491"},
-	{492, "MAP492"},
-	{493, "MAP493"},
-	{494, "MAP494"},
-	{495, "MAP495"},
-	{496, "MAP496"},
-	{497, "MAP497"},
-	{498, "MAP498"},
-	{499, "MAP499"},
-	{500, "MAP500"},
-	{501, "MAP501"},
-	{502, "MAP502"},
-	{503, "MAP503"},
-	{504, "MAP504"},
-	{505, "MAP505"},
-	{506, "MAP506"},
-	{507, "MAP507"},
-	{508, "MAP508"},
-	{509, "MAP509"},
-	{510, "MAP510"},
-	{511, "MAP511"},
-	{512, "MAP512"},
-	{513, "MAP513"},
-	{514, "MAP514"},
-	{515, "MAP515"},
-	{516, "MAP516"},
-	{517, "MAP517"},
-	{518, "MAP518"},
-	{519, "MAP519"},
-	{520, "MAP520"},
-	{521, "MAP521"},
-	{522, "MAP522"},
-	{523, "MAP523"},
-	{524, "MAP524"},
-	{525, "MAP525"},
-	{526, "MAP526"},
-	{527, "MAP527"},
-	{528, "MAP528"},
-	{529, "MAP529"},
-	{530, "MAP530"},
-	{531, "MAP531"},
-	{532, "MAP532"},
-	{533, "MAP533"},
-	{534, "MAP534"},
-	{535, "MAP535"},
-	{536, "MAP536"},
-	{537, "MAP537"},
-	{538, "MAP538"},
-	{539, "MAP539"},
-	{540, "MAP540"},
-	{541, "MAP541"},
-	{542, "MAP542"},
-	{543, "MAP543"},
-	{544, "MAP544"},
-	{545, "MAP545"},
-	{546, "MAP546"},
-	{547, "MAP547"},
-	{548, "MAP548"},
-	{549, "MAP549"},
-	{550, "MAP550"},
-	{551, "MAP551"},
-	{552, "MAP552"},
-	{553, "MAP553"},
-	{554, "MAP554"},
-	{555, "MAP555"},
-	{556, "MAP556"},
-	{557, "MAP557"},
-	{558, "MAP558"},
-	{559, "MAP559"},
-	{560, "MAP560"},
-	{561, "MAP561"},
-	{562, "MAP562"},
-	{563, "MAP563"},
-	{564, "MAP564"},
-	{565, "MAP565"},
-	{566, "MAP566"},
-	{567, "MAP567"},
-	{568, "MAP568"},
-	{569, "MAP569"},
-	{570, "MAP570"},
-	{571, "MAP571"},
-	{572, "MAP572"},
-	{573, "MAP573"},
-	{574, "MAP574"},
-	{575, "MAP575"},
-	{576, "MAP576"},
-	{577, "MAP577"},
-	{578, "MAP578"},
-	{579, "MAP579"},
-	{580, "MAP580"},
-	{581, "MAP581"},
-	{582, "MAP582"},
-	{583, "MAP583"},
-	{584, "MAP584"},
-	{585, "MAP585"},
-	{586, "MAP586"},
-	{587, "MAP587"},
-	{588, "MAP588"},
-	{589, "MAP589"},
-	{590, "MAP590"},
-	{591, "MAP591"},
-	{592, "MAP592"},
-	{593, "MAP593"},
-	{594, "MAP594"},
-	{595, "MAP595"},
-	{596, "MAP596"},
-	{597, "MAP597"},
-	{598, "MAP598"},
-	{599, "MAP599"},
-	{600, "MAP600"},
-	{601, "MAP601"},
-	{602, "MAP602"},
-	{603, "MAP603"},
-	{604, "MAP604"},
-	{605, "MAP605"},
-	{606, "MAP606"},
-	{607, "MAP607"},
-	{608, "MAP608"},
-	{609, "MAP609"},
-	{610, "MAP610"},
-	{611, "MAP611"},
-	{612, "MAP612"},
-	{613, "MAP613"},
-	{614, "MAP614"},
-	{615, "MAP615"},
-	{616, "MAP616"},
-	{617, "MAP617"},
-	{618, "MAP618"},
-	{619, "MAP619"},
-	{620, "MAP620"},
-	{621, "MAP621"},
-	{622, "MAP622"},
-	{623, "MAP623"},
-	{624, "MAP624"},
-	{625, "MAP625"},
-	{626, "MAP626"},
-	{627, "MAP627"},
-	{628, "MAP628"},
-	{629, "MAP629"},
-	{630, "MAP630"},
-	{631, "MAP631"},
-	{632, "MAP632"},
-	{633, "MAP633"},
-	{634, "MAP634"},
-	{635, "MAP635"},
-	{636, "MAP636"},
-	{637, "MAP637"},
-	{638, "MAP638"},
-	{639, "MAP639"},
-	{640, "MAP640"},
-	{641, "MAP641"},
-	{642, "MAP642"},
-	{643, "MAP643"},
-	{644, "MAP644"},
-	{645, "MAP645"},
-	{646, "MAP646"},
-	{647, "MAP647"},
-	{648, "MAP648"},
-	{649, "MAP649"},
-	{650, "MAP650"},
-	{651, "MAP651"},
-	{652, "MAP652"},
-	{653, "MAP653"},
-	{654, "MAP654"},
-	{655, "MAP655"},
-	{656, "MAP656"},
-	{657, "MAP657"},
-	{658, "MAP658"},
-	{659, "MAP659"},
-	{660, "MAP660"},
-	{661, "MAP661"},
-	{662, "MAP662"},
-	{663, "MAP663"},
-	{664, "MAP664"},
-	{665, "MAP665"},
-	{666, "MAP666"},
-	{667, "MAP667"},
-	{668, "MAP668"},
-	{669, "MAP669"},
-	{670, "MAP670"},
-	{671, "MAP671"},
-	{672, "MAP672"},
-	{673, "MAP673"},
-	{674, "MAP674"},
-	{675, "MAP675"},
-	{676, "MAP676"},
-	{677, "MAP677"},
-	{678, "MAP678"},
-	{679, "MAP679"},
-	{680, "MAP680"},
-	{681, "MAP681"},
-	{682, "MAP682"},
-	{683, "MAP683"},
-	{684, "MAP684"},
-	{685, "MAP685"},
-	{686, "MAP686"},
-	{687, "MAP687"},
-	{688, "MAP688"},
-	{689, "MAP689"},
-	{690, "MAP690"},
-	{691, "MAP691"},
-	{692, "MAP692"},
-	{693, "MAP693"},
-	{694, "MAP694"},
-	{695, "MAP695"},
-	{696, "MAP696"},
-	{697, "MAP697"},
-	{698, "MAP698"},
-	{699, "MAP699"},
-	{700, "MAP700"},
-	{701, "MAP701"},
-	{702, "MAP702"},
-	{703, "MAP703"},
-	{704, "MAP704"},
-	{705, "MAP705"},
-	{706, "MAP706"},
-	{707, "MAP707"},
-	{708, "MAP708"},
-	{709, "MAP709"},
-	{710, "MAP710"},
-	{711, "MAP711"},
-	{712, "MAP712"},
-	{713, "MAP713"},
-	{714, "MAP714"},
-	{715, "MAP715"},
-	{716, "MAP716"},
-	{717, "MAP717"},
-	{718, "MAP718"},
-	{719, "MAP719"},
-	{720, "MAP720"},
-	{721, "MAP721"},
-	{722, "MAP722"},
-	{723, "MAP723"},
-	{724, "MAP724"},
-	{725, "MAP725"},
-	{726, "MAP726"},
-	{727, "MAP727"},
-	{728, "MAP728"},
-	{729, "MAP729"},
-	{730, "MAP730"},
-	{731, "MAP731"},
-	{732, "MAP732"},
-	{733, "MAP733"},
-	{734, "MAP734"},
-	{735, "MAP735"},
-	{736, "MAP736"},
-	{737, "MAP737"},
-	{738, "MAP738"},
-	{739, "MAP739"},
-	{740, "MAP740"},
-	{741, "MAP741"},
-	{742, "MAP742"},
-	{743, "MAP743"},
-	{744, "MAP744"},
-	{745, "MAP745"},
-	{746, "MAP746"},
-	{747, "MAP747"},
-	{748, "MAP748"},
-	{749, "MAP749"},
-	{750, "MAP750"},
-	{751, "MAP751"},
-	{752, "MAP752"},
-	{753, "MAP753"},
-	{754, "MAP754"},
-	{755, "MAP755"},
-	{756, "MAP756"},
-	{757, "MAP757"},
-	{758, "MAP758"},
-	{759, "MAP759"},
-	{760, "MAP760"},
-	{761, "MAP761"},
-	{762, "MAP762"},
-	{763, "MAP763"},
-	{764, "MAP764"},
-	{765, "MAP765"},
-	{766, "MAP766"},
-	{767, "MAP767"},
-	{768, "MAP768"},
-	{769, "MAP769"},
-	{770, "MAP770"},
-	{771, "MAP771"},
-	{772, "MAP772"},
-	{773, "MAP773"},
-	{774, "MAP774"},
-	{775, "MAP775"},
-	{776, "MAP776"},
-	{777, "MAP777"},
-	{778, "MAP778"},
-	{779, "MAP779"},
-	{780, "MAP780"},
-	{781, "MAP781"},
-	{782, "MAP782"},
-	{783, "MAP783"},
-	{784, "MAP784"},
-	{785, "MAP785"},
-	{786, "MAP786"},
-	{787, "MAP787"},
-	{788, "MAP788"},
-	{789, "MAP789"},
-	{790, "MAP790"},
-	{791, "MAP791"},
-	{792, "MAP792"},
-	{793, "MAP793"},
-	{794, "MAP794"},
-	{795, "MAP795"},
-	{796, "MAP796"},
-	{797, "MAP797"},
-	{798, "MAP798"},
-	{799, "MAP799"},
-	{800, "MAP800"},
-	{801, "MAP801"},
-	{802, "MAP802"},
-	{803, "MAP803"},
-	{804, "MAP804"},
-	{805, "MAP805"},
-	{806, "MAP806"},
-	{807, "MAP807"},
-	{808, "MAP808"},
-	{809, "MAP809"},
-	{810, "MAP810"},
-	{811, "MAP811"},
-	{812, "MAP812"},
-	{813, "MAP813"},
-	{814, "MAP814"},
-	{815, "MAP815"},
-	{816, "MAP816"},
-	{817, "MAP817"},
-	{818, "MAP818"},
-	{819, "MAP819"},
-	{820, "MAP820"},
-	{821, "MAP821"},
-	{822, "MAP822"},
-	{823, "MAP823"},
-	{824, "MAP824"},
-	{825, "MAP825"},
-	{826, "MAP826"},
-	{827, "MAP827"},
-	{828, "MAP828"},
-	{829, "MAP829"},
-	{830, "MAP830"},
-	{831, "MAP831"},
-	{832, "MAP832"},
-	{833, "MAP833"},
-	{834, "MAP834"},
-	{835, "MAP835"},
-	{836, "MAP836"},
-	{837, "MAP837"},
-	{838, "MAP838"},
-	{839, "MAP839"},
-	{840, "MAP840"},
-	{841, "MAP841"},
-	{842, "MAP842"},
-	{843, "MAP843"},
-	{844, "MAP844"},
-	{845, "MAP845"},
-	{846, "MAP846"},
-	{847, "MAP847"},
-	{848, "MAP848"},
-	{849, "MAP849"},
-	{850, "MAP850"},
-	{851, "MAP851"},
-	{852, "MAP852"},
-	{853, "MAP853"},
-	{854, "MAP854"},
-	{855, "MAP855"},
-	{856, "MAP856"},
-	{857, "MAP857"},
-	{858, "MAP858"},
-	{859, "MAP859"},
-	{860, "MAP860"},
-	{861, "MAP861"},
-	{862, "MAP862"},
-	{863, "MAP863"},
-	{864, "MAP864"},
-	{865, "MAP865"},
-	{866, "MAP866"},
-	{867, "MAP867"},
-	{868, "MAP868"},
-	{869, "MAP869"},
-	{870, "MAP870"},
-	{871, "MAP871"},
-	{872, "MAP872"},
-	{873, "MAP873"},
-	{874, "MAP874"},
-	{875, "MAP875"},
-	{876, "MAP876"},
-	{877, "MAP877"},
-	{878, "MAP878"},
-	{879, "MAP879"},
-	{880, "MAP880"},
-	{881, "MAP881"},
-	{882, "MAP882"},
-	{883, "MAP883"},
-	{884, "MAP884"},
-	{885, "MAP885"},
-	{886, "MAP886"},
-	{887, "MAP887"},
-	{888, "MAP888"},
-	{889, "MAP889"},
-	{890, "MAP890"},
-	{891, "MAP891"},
-	{892, "MAP892"},
-	{893, "MAP893"},
-	{894, "MAP894"},
-	{895, "MAP895"},
-	{896, "MAP896"},
-	{897, "MAP897"},
-	{898, "MAP898"},
-	{899, "MAP899"},
-	{900, "MAP900"},
-	{901, "MAP901"},
-	{902, "MAP902"},
-	{903, "MAP903"},
-	{904, "MAP904"},
-	{905, "MAP905"},
-	{906, "MAP906"},
-	{907, "MAP907"},
-	{908, "MAP908"},
-	{909, "MAP909"},
-	{910, "MAP910"},
-	{911, "MAP911"},
-	{912, "MAP912"},
-	{913, "MAP913"},
-	{914, "MAP914"},
-	{915, "MAP915"},
-	{916, "MAP916"},
-	{917, "MAP917"},
-	{918, "MAP918"},
-	{919, "MAP919"},
-	{920, "MAP920"},
-	{921, "MAP921"},
-	{922, "MAP922"},
-	{923, "MAP923"},
-	{924, "MAP924"},
-	{925, "MAP925"},
-	{926, "MAP926"},
-	{927, "MAP927"},
-	{928, "MAP928"},
-	{929, "MAP929"},
-	{930, "MAP930"},
-	{931, "MAP931"},
-	{932, "MAP932"},
-	{933, "MAP933"},
-	{934, "MAP934"},
-	{935, "MAP935"},
-	{936, "MAP936"},
-	{937, "MAP937"},
-	{938, "MAP938"},
-	{939, "MAP939"},
-	{940, "MAP940"},
-	{941, "MAP941"},
-	{942, "MAP942"},
-	{943, "MAP943"},
-	{944, "MAP944"},
-	{945, "MAP945"},
-	{946, "MAP946"},
-	{947, "MAP947"},
-	{948, "MAP948"},
-	{949, "MAP949"},
-	{950, "MAP950"},
-	{951, "MAP951"},
-	{952, "MAP952"},
-	{953, "MAP953"},
-	{954, "MAP954"},
-	{955, "MAP955"},
-	{956, "MAP956"},
-	{957, "MAP957"},
-	{958, "MAP958"},
-	{959, "MAP959"},
-	{960, "MAP960"},
-	{961, "MAP961"},
-	{962, "MAP962"},
-	{963, "MAP963"},
-	{964, "MAP964"},
-	{965, "MAP965"},
-	{966, "MAP966"},
-	{967, "MAP967"},
-	{968, "MAP968"},
-	{969, "MAP969"},
-	{970, "MAP970"},
-	{971, "MAP971"},
-	{972, "MAP972"},
-	{973, "MAP973"},
-	{974, "MAP974"},
-	{975, "MAP975"},
-	{976, "MAP976"},
-	{977, "MAP977"},
-	{978, "MAP978"},
-	{979, "MAP979"},
-	{980, "MAP980"},
-	{981, "MAP981"},
-	{982, "MAP982"},
-	{983, "MAP983"},
-	{984, "MAP984"},
-	{985, "MAP985"},
-	{986, "MAP986"},
-	{987, "MAP987"},
-	{988, "MAP988"},
-	{989, "MAP989"},
-	{990, "MAP990"},
-	{991, "MAP991"},
-	{992, "MAP992"},
-	{993, "MAP993"},
-	{994, "MAP994"},
-	{995, "MAP995"},
-	{996, "MAP996"},
-	{997, "MAP997"},
-	{998, "MAP998"},
-	{999, "MAP999"},
-	{1000, "MAP1000"},
-	{1001, "MAP1001"},
-	{1002, "MAP1002"},
-	{1003, "MAP1003"},
-	{1004, "MAP1004"},
-	{1005, "MAP1005"},
-	{1006, "MAP1006"},
-	{1007, "MAP1007"},
-	{1008, "MAP1008"},
-	{1009, "MAP1009"},
-	{1010, "MAP1010"},
-	{1011, "MAP1011"},
-	{1012, "MAP1012"},
-	{1013, "MAP1013"},
-	{1014, "MAP1014"},
-	{1015, "MAP1015"},
-	{1016, "MAP1016"},
-	{1017, "MAP1017"},
-	{1018, "MAP1018"},
-	{1019, "MAP1019"},
-	{1020, "MAP1020"},
-	{1021, "MAP1021"},
-	{1022, "MAP1022"},
-	{1023, "MAP1023"},
-	{1024, "MAP1024"},
-	{1025, "MAP1025"},
-	{1026, "MAP1026"},
-	{1027, "MAP1027"},
-	{1028, "MAP1028"},
-	{1029, "MAP1029"},
-	{1030, "MAP1030"},
-	{1031, "MAP1031"},
-	{1032, "MAP1032"},
-	{1033, "MAP1033"},
-	{1034, "MAP1034"},
-	{1035, "MAP1035"},
-	{INT16_MAX, NULL}
+static CV_PossibleValue_t map_cons_t[] = {
+	{1,"MIN"},
+	{NUMMAPS, "MAX"}
 };
 
 static void Newgametype_OnChange(void);
@@ -2587,80 +1562,11 @@ menu_t TeamScrambleDef =
 	NULL
 };
 
-//
-// M_PatchLevelNameTable
-//
-// Populates the cv_nextmap variable
-//
-// Modes:
-// 0 = Create Server Menu
-// 1 = Level Select Menu
-// 2 = Time Attack Menu
-// 3 = SRB1 Level Select Menu
-//
-static boolean M_PatchLevelNameTable(INT32 mode)
+
+// Call before showing any level-select menus
+static void M_PrepareLevelSelect(void)
 {
-	size_t i;
-	INT32 j;
-	INT32 currentmap;
-	boolean foundone = false;
-
-	for (j = 0; j < LEVELARRAYSIZE-2; j++)
-	{
-		i = 0;
-		currentmap = map_cons_t[j].value-1;
-
-		if (mapheaderinfo[currentmap] && mapheaderinfo[currentmap]->lvlttl[0] && ((mode == 0 && !mapheaderinfo[currentmap]->hideinmenu && !((mapheaderinfo[currentmap]->typeoflevel & TOL_SRB1) && !(grade & 2))) || (mode == 1 && mapheaderinfo[currentmap]->levelselect && !(mapheaderinfo[currentmap]->typeoflevel & TOL_SRB1)) || (mode == 2 && mapheaderinfo[currentmap]->timeattack && mapvisited[currentmap]) || (mode == 3 && mapheaderinfo[currentmap]->levelselect && (mapheaderinfo[currentmap]->typeoflevel & TOL_SRB1))))
-		{
-			strlcpy(lvltable[j], mapheaderinfo[currentmap]->lvlttl, sizeof (lvltable[j]));
-
-			i += strlen(mapheaderinfo[currentmap]->lvlttl);
-
-			if (!mapheaderinfo[currentmap]->nozone)
-			{
-				lvltable[j][i++] = ' ';
-				lvltable[j][i++] = 'Z';
-				lvltable[j][i++] = 'O';
-				lvltable[j][i++] = 'N';
-				lvltable[j][i++] = 'E';
-			}
-
-			if (mapheaderinfo[currentmap]->actnum)
-			{
-				char actnum[3];
-				INT32 g;
-
-				lvltable[j][i++] = ' ';
-
-				sprintf(actnum, "%d", mapheaderinfo[currentmap]->actnum);
-
-				for (g = 0; g < 3; g++)
-				{
-					if (actnum[g] == '\0')
-						break;
-
-					lvltable[j][i++] = actnum[g];
-				}
-			}
-
-			lvltable[j][i++] = '\0';
-			foundone = true;
-		}
-		else
-			lvltable[j][0] = '\0';
-
-		if (lvltable[j][0] == '\0')
-			map_cons_t[j].strvalue = NULL;
-		else
-			map_cons_t[j].strvalue = lvltable[j];
-	}
-
-	if (!foundone)
-		return false;
-
-	CV_SetValue(&cv_nextmap, cv_nextmap.value); // This causes crash sometimes?!
-
-	if (mode > 0)
+	if (levellistmode != LLM_CREATESERVER)
 	{
 		INT32 value = 0;
 
@@ -2689,9 +1595,8 @@ static boolean M_PatchLevelNameTable(INT32 mode)
 	}
 	else
 		Newgametype_OnChange(); // Make sure to start on an appropriate map if wads have been added
-
-	return true;
 }
+
 
 static void M_MapChange(INT32 choice)
 {
@@ -2702,8 +1607,7 @@ static void M_MapChange(INT32 choice)
 		return;
 	}
 
-	inlevelselect = 0;
-	M_PatchLevelNameTable(0);
+	levellistmode = LLM_CREATESERVER;
 
 	// Special Cases
 	if (gametype == GT_MATCH && cv_matchtype.value) // Team Match
@@ -2717,6 +1621,7 @@ static void M_MapChange(INT32 choice)
 
 	CV_SetValue(&cv_nextmap, gamemap);
 
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&ChangeLevelDef);
 }
 
@@ -2750,10 +1655,54 @@ static void M_TeamScramble(INT32 choice)
 	M_SetupNextMenu(&TeamScrambleDef);
 }
 
+
+//
+// M_CanShowLevelInList
+//
+// Determines whether to show a given map in the various level-select lists.
+// Set gt = -1 to ignore gametype.
+//
+boolean M_CanShowLevelInList(INT32 mapnum, INT32 gt)
+{
+	return mapheaderinfo[mapnum]
+		&& mapheaderinfo[mapnum]->lvlttl[0]
+		&& !(levellistmode == LLM_CREATESERVER
+			&& (mapheaderinfo[mapnum]->hideinmenu
+				|| ((mapheaderinfo[mapnum]->typeoflevel & TOL_SRB1) && !(grade & 2))
+				|| ((gt == GT_COOP && !(mapheaderinfo[mapnum]->typeoflevel & TOL_COOP))
+				|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[mapnum]->typeoflevel & TOL_MATCH))
+				|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[mapnum]->typeoflevel & TOL_RACE))
+				|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[mapnum]->typeoflevel & TOL_TAG))
+#ifdef CHAOSISNOTDEADYET
+				|| (gt == GT_CHAOS && !(mapheaderinfo[mapnum]->typeoflevel & TOL_CHAOS))
+#endif
+				|| (gt == GT_CTF && !(mapheaderinfo[mapnum]->typeoflevel & TOL_CTF)))))
+			&& !(levellistmode == LLM_LEVELSELECT
+				&& (!mapheaderinfo[mapnum]->levelselect
+					|| (mapheaderinfo[mapnum]->typeoflevel & TOL_SRB1)))
+			&& !(levellistmode == LLM_TIMEATTACK
+				&& (!mapheaderinfo[mapnum]->timeattack
+					|| !mapvisited[mapnum]))
+			&& !(levellistmode == LLM_SRB1LEVELSELECT
+				&& (!mapheaderinfo[mapnum]->levelselect
+					|| !(mapheaderinfo[mapnum]->typeoflevel & TOL_SRB1)));
+}
+
+static INT32 M_CountLevelsToShowInList(void)
+{
+	INT32 mapnum, count = 0;
+
+	for (mapnum = 0; mapnum < NUMMAPS; mapnum++)
+		if (M_CanShowLevelInList(mapnum, -1))
+			count++;
+
+	return count;
+}
+
 //
 // M_PatchSkinNameTable
 //
-// Like M_PatchLevelNameTable, but for cv_chooseskin
+// Like the old M_PatchLevelNameTable, but for cv_chooseskin
 //
 static void M_PatchSkinNameTable(void)
 {
@@ -2792,13 +1741,14 @@ static inline void M_StartSplitServerMenu(void)
 		return;
 	}
 
-	inlevelselect = 0;
-	M_PatchLevelNameTable(0);
+	levellistmode = LLM_CREATESERVER;
 	StartSplitScreenGame = true;
 	ServerMenu[1].status = IT_DISABLED; // No advertise on Internet option.
 	ServerMenu[2].status = IT_DISABLED; // No room.
 	ServerMenu[3].status = IT_DISABLED; // No room info.
 	ServerMenu[4].status = IT_DISABLED; // No server name.
+
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&Serverdef);
 }
 
@@ -2812,12 +1762,13 @@ static void M_StartServerMenu(INT32 choice)
 		return;
 	}
 
-	inlevelselect = 0;
-	M_PatchLevelNameTable(0);
+	levellistmode = LLM_CREATESERVER;
 	StartSplitScreenGame = false;
 	ServerMenu[1].status = IT_STRING|IT_CVAR; // Make advertise on Internet option available.
 	M_AlterRoomOptions();
 	ServerMenu[4].status = IT_STRING|IT_CVAR|IT_CV_STRING; // Server name too.
+
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&Serverdef);
 
 }
@@ -4265,9 +3216,16 @@ menu_t TimeAttackDef =
 	NULL
 };
 
-// Used only for time attack menu
+
 static void Nextmap_OnChange(void)
 {
+	char *leveltitle;
+
+	// Update the string in the consvar.
+	Z_Free(cv_nextmap.zstring);
+	leveltitle = G_BuildMapTitle(cv_nextmap.value);
+	cv_nextmap.string = cv_nextmap.zstring = leveltitle ? leveltitle : Z_StrDup(va("MAP%d", cv_nextmap.value));
+
 	if (currentMenu != &TimeAttackDef)
 		return;
 
@@ -4299,20 +3257,18 @@ static void M_TimeAttack(INT32 choice)
 
 	memset(skins_cons_t, 0, sizeof (skins_cons_t));
 
-	if (!(M_PatchLevelNameTable(2)))
+	levellistmode = LLM_TIMEATTACK; // Don't be dependent on cv_newgametype
+
+	if (M_CountLevelsToShowInList() == 0)
 	{
 		M_StartMessage("No time-attackable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
 
-	inlevelselect = 2; // Don't be dependent on cv_newgametype
-
 	M_PatchSkinNameTable();
 
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&TimeAttackDef);
-
-	CV_AddValue(&cv_nextmap, 1);
-	CV_AddValue(&cv_nextmap, -1);
 
 	G_SetGamestate(GS_TIMEATTACK);
 	S_ChangeMusic(mus_racent, true);
@@ -5196,14 +4152,16 @@ static void M_SRB1LevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &SecretsDef;
-	inlevelselect = 3;
+	levellistmode = LLM_SRB1LEVELSELECT;
 	pandoralevelselect = true;
 
-	if (!(M_PatchLevelNameTable(3)))
+	if (M_CountLevelsToShowInList() == 0)
 	{
 		M_StartMessage("No selectable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
+
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
@@ -5211,14 +4169,16 @@ static void M_LevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &SecretsDef;
-	inlevelselect = 1;
+	levellistmode = LLM_LEVELSELECT;
 	pandoralevelselect = true;
 
-	if (!(M_PatchLevelNameTable(1)))
+	if (M_CountLevelsToShowInList() == 0)
 	{
 		M_StartMessage("No selectable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
+
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
@@ -5226,14 +4186,16 @@ static void M_CustomLevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &CustomSecretsDef;
-	inlevelselect = 1;
+	levellistmode = LLM_LEVELSELECT;
 	pandoralevelselect = true;
 
-	if (!(M_PatchLevelNameTable(1)))
+	if (M_CountLevelsToShowInList() == 0)
 	{
 		M_StartMessage("No selectable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
+
+	M_PrepareLevelSelect();
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
@@ -8483,7 +7445,6 @@ static void M_PrevServerPage(void)
 {
 	if (serverlistpage > 0) serverlistpage--;
 }
-#endif
 
 // Descending order. The casts are safe as long as the caller doesn't
 // do anything stupid.
@@ -8512,6 +7473,7 @@ static void M_SortServerList(void)
 		break;
 	}
 }
+#endif
 
 // Message responder for turning on
 // cheats through the menu system.

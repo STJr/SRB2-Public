@@ -478,10 +478,6 @@ static UINT32 HWR_Lighting(INT32 light, UINT32 color)
 
 #ifdef DOPLANES
 
-// maximum number of verts around a convex floor/ceiling polygon
-#define MAXPLANEVERTICES 2048
-static FOutVector  planeVerts[MAXPLANEVERTICES];
-
 // -----------------+
 // HWR_RenderPlane  : Render a floor or ceiling convex polygon
 // -----------------+
@@ -500,6 +496,9 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	float scrollx = 0.0f, scrolly = 0.0f;
 	FSurfaceInfo    Surf;
 
+	static FOutVector *planeVerts = NULL;
+	static UINT16 numAllocedPlaneVerts = 0;
+
 	// no convex poly were generated for this subsector
 	if (!xsub->planepoly)
 		return;
@@ -512,10 +511,18 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	if (nrPlaneVerts < 3)   //not even a triangle ?
 		return;
 
-	if (nrPlaneVerts > MAXPLANEVERTICES) // FIXME: exceeds plVerts size
+	if (nrPlaneVerts > UINT16_MAX) // FIXME: exceeds plVerts size
 	{
-		DEBPRINT(va("polygon size of %d exceeds max value of %d vertices\n", nrPlaneVerts, MAXPLANEVERTICES));
+		DEBPRINT(va("polygon size of %d exceeds max value of %d vertices\n", nrPlaneVerts, UINT16_MAX));
 		return;
+	}
+
+	// Allocate plane-vertex buffer if we need to
+	if (!planeVerts || nrPlaneVerts > numAllocedPlaneVerts)
+	{
+		numAllocedPlaneVerts = (UINT16)nrPlaneVerts;
+		Z_Free(planeVerts);
+		Z_Malloc(numAllocedPlaneVerts * sizeof (FOutVector), PU_LEVEL, &planeVerts);
 	}
 
 	len = W_LumpLength(lumpnum);
@@ -2759,8 +2766,8 @@ void HWR_InitTextureMapping(void)
 // sprites are drawn after all wall and planes are rendered, so that
 // sprite translucency effects apply on the rendered view (instead of the background sky!!)
 
-static gr_vissprite_t gr_vissprites[MAXVISSPRITES];
-static gr_vissprite_t *gr_vissprite_p;
+static UINT32 gr_visspritecount;
+static gr_vissprite_t *gr_visspritechunks[MAXVISSPRITES >> VISSPRITECHUNKBITS] = {NULL};
 
 // --------------------------------------------------------------------------
 // HWR_ClearSprites
@@ -2768,7 +2775,12 @@ static gr_vissprite_t *gr_vissprite_p;
 // --------------------------------------------------------------------------
 static void HWR_ClearSprites(void)
 {
-	gr_vissprite_p = gr_vissprites;
+	gr_visspritecount = 0;
+}
+
+static inline void HWR_ResetVisSpriteChunks(void)
+{
+	memset(gr_visspritechunks, 0, sizeof(gr_visspritechunks));
 }
 
 
@@ -2777,13 +2789,23 @@ static void HWR_ClearSprites(void)
 // --------------------------------------------------------------------------
 static gr_vissprite_t gr_overflowsprite;
 
+static gr_vissprite_t *HWR_GetVisSprite(UINT32 num)
+{
+		UINT32 chunk = num >> VISSPRITECHUNKBITS;
+
+		// Allocate chunk if necessary
+		if (!gr_visspritechunks[chunk])
+			Z_Malloc(sizeof(gr_vissprite_t) * VISSPRITESPERCHUNK, PU_LEVEL, &gr_visspritechunks[chunk]);
+
+		return gr_visspritechunks[chunk] + (num & VISSPRITEINDEXMASK);
+}
+
 static gr_vissprite_t *HWR_NewVisSprite(void)
 {
-	if (gr_vissprite_p == &gr_vissprites[MAXVISSPRITES])
+	if (gr_visspritecount == MAXVISSPRITES)
 		return &gr_overflowsprite;
 
-	gr_vissprite_p++;
-	return gr_vissprite_p-1;
+	return HWR_GetVisSprite(gr_visspritecount++);
 }
 
 // Finds a floor through which light does not pass.
@@ -3229,33 +3251,36 @@ static gr_vissprite_t gr_vsprsortedhead;
 
 static void HWR_SortVisSprites(void)
 {
-	size_t i, count;
-	gr_vissprite_t *ds;
+	size_t i;
+	gr_vissprite_t *ds, *dsprev, *dsnext, *dsfirst;
 	gr_vissprite_t *best = NULL;
 	gr_vissprite_t unsorted;
 	float bestdist;
 
-	count = gr_vissprite_p - gr_vissprites;
-
-	unsorted.next = unsorted.prev = &unsorted;
-
-	if (!count)
+	if (!gr_visspritecount)
 		return;
 
-	for (ds = gr_vissprites; ds < gr_vissprite_p; ds++)
+	dsfirst = HWR_GetVisSprite(0);
+
+	for (i = 0, dsnext = dsfirst, ds = NULL; i < gr_visspritecount; i++)
 	{
-		ds->next = ds+1;
-		ds->prev = ds-1;
+		dsprev = ds;
+		ds = dsnext;
+		if (i < gr_visspritecount - 1) dsnext = HWR_GetVisSprite(i + 1);
+
+		ds->next = dsnext;
+		ds->prev = dsprev;
 	}
 
-	gr_vissprites[0].prev = &unsorted;
-	unsorted.next = &gr_vissprites[0];
-	(gr_vissprite_p-1)->next = &unsorted;
-	unsorted.prev = gr_vissprite_p-1;
+	// Fix first and last. ds still points to the last one after the loop
+	dsfirst->prev = &unsorted;
+	unsorted.next = dsfirst;
+	ds->next = &unsorted;
+	unsorted.prev = ds;
 
 	// pull the vissprites out by scale
 	gr_vsprsortedhead.next = gr_vsprsortedhead.prev = &gr_vsprsortedhead;
-	for (i = 0; i < count; i++)
+	for (i = 0; i < gr_visspritecount; i++)
 	{
 		bestdist = ZCLIP_PLANE-1;
 		for (ds = unsorted.next; ds != &unsorted; ds = ds->next)
@@ -3489,7 +3514,7 @@ static void HWR_CreateDrawNodes(void)
 #ifdef SORTING
 static void HWR_DrawSprites(void)
 {
-	if (gr_vissprite_p > gr_vissprites)
+	if (gr_visspritecount > 0)
 	{
 		gr_vissprite_t *spr;
 
@@ -3513,7 +3538,7 @@ static void HWR_DrawSprites(void)
 // --------------------------------------------------------------------------
 static void HWR_DrawMD2S(void)
 {
-	if (gr_vissprite_p > gr_vissprites)
+	if (gr_visspritecount > 0)
 	{
 		gr_vissprite_t *spr;
 
@@ -3963,15 +3988,15 @@ static void HWR_DrawSkyBackground(player_t *player)
 		angle = (dup_viewangle + gr_xtoviewangle[0])%(ANGLE_90-1);
 
 	f = (float)((textures[skytexture]->width/2)
-	            * FIXED_TO_FLOAT(finetangent[(2048
-	 - ((INT32)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
+	            * FIXED_TO_FLOAT(FINETANGENT((2048
+	 - ((INT32)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK)));
 
 	v[0].sow = v[3].sow = 0.22f+(f)/(textures[skytexture]->width/2);
 	v[2].sow = v[1].sow = 0.22f+(f+(127))/(textures[skytexture]->width/2);
 
 	f = (float)((textures[skytexture]->height/2)
-	            * FIXED_TO_FLOAT(finetangent[(2048
-	 - ((INT32)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
+	            * FIXED_TO_FLOAT(FINETANGENT((2048
+	 - ((INT32)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK)));
 
 	v[3].tow = v[2].tow = 0.22f+(f)/(textures[skytexture]->height/2);
 	v[0].tow = v[1].tow = 0.22f+(f+(127))/(textures[skytexture]->height/2);
@@ -4043,6 +4068,8 @@ void HWR_SetViewSize(void)
 void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 {
 	const float fpov = FIXED_TO_FLOAT(cv_grfov.value+player->fovadd);
+	FTransform stransform;
+
 	{
 		// do we really need to save player (is it not the same)?
 		player_t *saved_player = stplyr;
@@ -4098,6 +4125,20 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	atransform.fovxangle = fpov; // Tails
 	atransform.fovyangle = fpov; // Tails
 	atransform.splitscreen = splitscreen;
+
+	// Transform for sprites
+	stransform.anglex = 0.0f;
+	stransform.angley = -270.0f;
+	stransform.x      = 0.0f;
+	stransform.y      = 0.0f;
+	stransform.z      = 0.0f;
+	stransform.scalex = 1;
+	stransform.scaley = 1;
+	stransform.scalez = 1;
+	stransform.fovxangle = 90.0f;
+	stransform.fovyangle = 90.0f;
+	stransform.splitscreen = splitscreen;
+
 	gr_fovlud = (float)(1.0l/tan((double)(fpov*M_PIl/360l)));
 
 	//------------------------------------------------------------------------
@@ -4163,8 +4204,12 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	else
 		HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 0); // Turn it off
 
+#ifndef _NDS
 	if (drawsky)
 		HWR_DrawSkyBackground(player);
+#else
+	(void)HWR_DrawSkyBackground;
+#endif
 
 	//Hurdler: it doesn't work in splitscreen mode
 	drawsky = splitscreen;
@@ -4226,8 +4271,8 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 #endif
 	HWR_DrawMD2S();
 
-	// Draw the sprites like it was done previously without T&L
-	HWD.pfnSetTransform(NULL);
+	// Draw the sprites with trivial transform
+	HWD.pfnSetTransform(&stransform);
 #ifdef SORTING
 	HWR_DrawSprites();
 #endif
@@ -4240,7 +4285,6 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	if (numplanes || numwalls) //Hurdler: render 3D water and transparent walls after everything
 	{
 		HWR_CreateDrawNodes();
-		HWD.pfnSetTransform(NULL);
 	}
 #else
 	if (numfloors || numwalls)
@@ -4250,9 +4294,10 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 			HWR_Render3DWater();
 		if (numwalls)
 			HWR_RenderTransparentWalls();
-		HWD.pfnSetTransform(NULL);
 	}
 #endif
+
+	HWD.pfnSetTransform(NULL);
 
 #ifdef SHUFFLE
 	HWR_DoPostProcessor();

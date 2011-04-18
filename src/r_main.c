@@ -95,7 +95,9 @@ angle_t xtoviewangle[MAXVIDWIDTH+1];
 // holds the fixed_t tangent values for view angles,
 // ranging from INT32_MIN to 0 to INT32_MAX.
 
+#if !(defined _NDS) || !(defined NONET)
 fixed_t *finecosine = &finesine[FINEANGLES/4];
+#endif
 
 lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t *scalelightfixed[MAXLIGHTSCALE];

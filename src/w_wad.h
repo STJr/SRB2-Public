@@ -62,13 +62,19 @@ typedef struct
 
 #define lumpcache_t void *
 
+// Annoying cyclic dependency workaround: this inlcusion must come after
+// the definition of MAX_WADPATH.
+#ifdef HWRENDER
+#include "m_misc.h"
+#endif
+
 typedef struct wadfile_s
 {
 	char *filename;
 	lumpinfo_t *lumpinfo;
 	lumpcache_t *lumpcache;
 #ifdef HWRENDER
-	GLPatch_t *hwrcache; // patches are cached in renderer's native format
+	aatree_t *hwrcache; // patches are cached in renderer's native format
 #endif
 	UINT16 numlumps; // this wad's number of resources
 	FILE *handle;

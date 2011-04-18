@@ -71,9 +71,9 @@ void *GLUhandle = NULL;
 
 void *GetGLFunc(const char *proc)
 {
-	void *func = SDL_GL_GetProcAddress(proc);
+	void *func = hwSym(proc, GLUhandle);
 	if (!func)
-		func = hwSym(proc, GLUhandle);
+		func = SDL_GL_GetProcAddress(proc);
 	return func;
 }
 
@@ -102,7 +102,9 @@ boolean LoadGL(void)
 	GLULibname = "/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib";
 #elif defined (macintos)
 	GLULibname = "OpenGLLibrary";
-#elif defined (__unix__) || defined (__HAIKU__)
+#elif defined (__unix__)
+	GLULibname = "libGLU.so.1";
+#elif defined (__HAIKU__)
 	GLULibname = "libGLU.so";
 #else
 	GLULibname = NULL;

@@ -195,7 +195,7 @@ INT32 I_StartupSystem(void)
 {
 	lcdMainOnTop();
 
-	videoSetModeSub(MODE_0_2D); 
+	videoSetModeSub(MODE_0_2D);
 	vramSetBankC(VRAM_C_MAIN_BG);	// Get this mapped *out* of the sub BG
 	vramSetBankI(VRAM_I_SUB_BG_0x06208000);
 

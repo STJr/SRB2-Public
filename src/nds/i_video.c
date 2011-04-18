@@ -69,9 +69,9 @@ void I_StartupGraphics(void)
 	vramSetBankE(VRAM_E_TEX_PALETTE);
 
 	glInit();
-	
+
 	glEnable(GL_TEXTURE_2D);
-	
+
 	glClearColor(16,16,16,31);
 	glClearPolyID(63);
 	glClearDepth(0x7FFF);

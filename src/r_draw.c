@@ -123,8 +123,8 @@ UINT32 nflatxshift, nflatyshift, nflatshiftup, nflatmask;
 //                   TRANSLATION COLORMAP CODE
 // =========================================================================
 
-#define DEFAULT_TT_CACHE_INDEX (MAXSKINS + 1)
-#define BOSS_TT_CACHE_INDEX (MAXSKINS + 2)
+#define DEFAULT_TT_CACHE_INDEX MAXSKINS
+#define BOSS_TT_CACHE_INDEX (MAXSKINS + 1)
 #define SKIN_RAMP_LENGTH 16
 #define DEFAULT_STARTTRANSCOLOR 160
 #define NUM_PALETTE_ENTRIES 256
@@ -211,7 +211,7 @@ static void R_GenerateTranslationColormap(UINT8 *dest_colormap, INT32 skinnum, U
 		if (skinnum == TC_BOSS)
 			dest_colormap[31] = 0;
 
-		return; 
+		return;
 	}
 
 	starttranscolor = (skinnum != TC_DEFAULT) ? atoi(skins[skinnum].starttranscolor) : DEFAULT_STARTTRANSCOLOR;
@@ -274,7 +274,7 @@ static void R_GenerateTranslationColormap(UINT8 *dest_colormap, INT32 skinnum, U
 
 			for (i = 0; i < 8; i++)
 				dest_colormap[starttranscolor + i] = (UINT8)(skinbasecolors[color - 1] + i);
-	
+
 			dest_colormap[starttranscolor + 8] = dest_colormap[starttranscolor + 9] = 0x71;
 			dest_colormap[starttranscolor + 10] = 0x72;
 			dest_colormap[starttranscolor + 11] = dest_colormap[starttranscolor + 12] = dest_colormap[starttranscolor + 13] = 0x73;

@@ -42,8 +42,9 @@ static UINT16 myPaletteData[256];
 static FTextureInfo* gr_cachetail = NULL;
 static FTextureInfo* gr_cachehead = NULL;
 static INT32 NextTexAvail = FIRST_TEX_AVAIL;
-static INT32 tex_downloaded = 0;
+static UINT32 tex_downloaded = 0;
 static INT32 texids[MAX_SRB2_TEXTURES];
+static boolean scalehack = false;
 
 
 static void GenerateTextureNames(void)
@@ -54,7 +55,7 @@ static void GenerateTextureNames(void)
 
 static void Flush(void)
 {
-	// Delete all textures at once, since libnds's glDeleteTextures seems to be buggy. 
+	// Delete all textures at once, since libnds's glDeleteTextures seems to be buggy.
 	glResetTextures();
 	GenerateTextureNames();
 	while (gr_cachehead)
@@ -144,8 +145,23 @@ void NDS3D_DrawPolygon(FSurfaceInfo *pSurf, FOutVector *pOutVerts, FUINT iNumPts
 	for (i = 0; i < iNumPts; i++)
 	{
 		FUINT index = (i & 1) ? (i >> 1) : (iNumPts - 1 - (i >> 1));
+		FLOAT x, y, z;
+
+		if (scalehack)
+		{
+			x = pOutVerts[index].x/4096.0f;
+			y = pOutVerts[index].y/4096.0f;
+			z = pOutVerts[index].z/4096.0f;
+		}
+		else
+		{
+			x = pOutVerts[index].x;
+			y = pOutVerts[index].y;
+			z = pOutVerts[index].z;
+		}
+
 		glTexCoord2f(pOutVerts[index].sow, pOutVerts[index].tow);
-		glVertex3f(pOutVerts[index].x, pOutVerts[index].y, pOutVerts[index].z);
+		glVertex3f(x,y,z);
 	}
 	glEnd();
 }
@@ -232,6 +248,7 @@ void NDS3D_SetTexture(FTextureInfo *TexInfo)
 			Flush();
 			TexInfo->downloaded = 0;
 			NDS3D_SetTexture(TexInfo);
+			return;
 		}
 
 		if (TexInfo->downloaded > FIRST_TEX_AVAIL)
@@ -276,7 +293,11 @@ void NDS3D_ReadRect(INT32 x, INT32 y, INT32 width, INT32 height, INT32 dst_strid
 
 void NDS3D_GClipRect(INT32 minx, INT32 miny, INT32 maxx, INT32 maxy, float nearclip)
 {
-	glViewport(minx, vid.height-maxy, maxx-minx, maxy-miny);
+	(void)minx;
+	(void)miny;
+	(void)maxx;
+	(void)maxy;
+	//glViewport(minx, vid.height-maxy, maxx-minx, maxy-miny);
 	NEAR_CLIPPING_PLANE = nearclip;
 
 	glMatrixMode(GL_PROJECTION);
@@ -316,7 +337,45 @@ void NDS3D_DrawMD2i(INT32 *gl_cmd_buffer, md2_frame_t *frame, UINT32 duration, U
 
 void NDS3D_SetTransform(FTransform *ptransform)
 {
-	(void)ptransform;
+	static INT32 special_splitscreen;
+	glLoadIdentity();
+	if (ptransform)
+	{
+		scalehack = true;
+
+		glScalef(ptransform->scalex*4096.0f, ptransform->scaley*4096.0f, -ptransform->scalez*4096.0f);
+		glRotatef(ptransform->anglex       , 1.0f, 0.0f, 0.0f);
+		glRotatef(ptransform->angley+270.0f, 0.0f, 1.0f, 0.0f);
+		glTranslatef(-ptransform->x/4096.0f, -ptransform->z/4096.0f, -ptransform->y/4096.0f);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		special_splitscreen = (ptransform->splitscreen && ptransform->fovxangle == 90.0f);
+		if (special_splitscreen)
+			gluPerspective(53.13l, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
+			                NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
+		else
+			gluPerspective(ptransform->fovxangle, ASPECT_RATIO, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
+
+		glMatrixMode(GL_MODELVIEW);
+	}
+	else
+	{
+		scalehack = false;
+
+		glScalef(1.0f, 1.0f, -1.0f);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		if (special_splitscreen)
+			gluPerspective(53.13l, 2*ASPECT_RATIO,  // 53.13 = 2*atan(0.5)
+			                NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
+		else
+			//Hurdler: is "fov" correct?
+			gluPerspective(fov, ASPECT_RATIO, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
+
+		glMatrixMode(GL_MODELVIEW);
+	}
 }
 
 INT32 NDS3D_GetTextureUsed(void)

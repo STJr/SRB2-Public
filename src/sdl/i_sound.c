@@ -315,7 +315,7 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 				paddedsfx = (dssfx_t *) Z_Malloc(size, PU_SOUND, NULL);
 
 				// Now copy and pad.
-				M_Memcpy(paddedsfx+8, sfxcvt.buf, sfxcvt.len_cvt);
+				M_Memcpy(paddedsfx->data, sfxcvt.buf, sfxcvt.len_cvt);
 				free(sfxcvt.buf);
 				M_Memcpy(paddedsfx,sfx,8);
 				paddedsfx->samplerate = SHORT(csr); // new freq

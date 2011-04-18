@@ -63,7 +63,9 @@
 #define ioctl lwip_ioctl
 #else
 #ifdef __APPLE_CC__
+#ifndef _BSD_SOCKLEN_T_
 #define _BSD_SOCKLEN_T_
+#endif
 #endif
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -230,7 +232,7 @@ static UINT8 bannedmask[MAXBANS];
 
 #define DEFAULTPORT 5029
 
-#if (defined (_WIN32) || defined (_WIN32_WCE) || defined (_WIN32)) && !defined (NONET)
+#if (defined (_WIN32) || defined (_WIN32_WCE)) && !defined (NONET)
 typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
@@ -246,6 +248,10 @@ typedef unsigned long SOCKET_TYPE;
 
 #if (defined (WATTCP) && !defined (__libsocket_socklen_t)) || defined (_WIN32)
 typedef int socklen_t;
+#endif
+
+#ifdef _WIN32
+typedef unsigned long in_addr_t;
 #endif
 
 static SOCKET_TYPE mysocket = BADSOCKET;
@@ -1049,7 +1055,7 @@ static SINT8 SOCK_NetMakeNode(const char *hostname)
 				free(localhostname);
 				return -1;
 			}
-			clientaddress[newnode].ip.sin_addr.s_addr = *((UINT32 *)hostentry->h_addr_list[0]);
+			memcpy(&clientaddress[newnode].ip.sin_addr.s_addr, hostentry->h_addr_list[0], sizeof(in_addr_t));
 
 			CONS_Printf(M_GetText("Resolved %s\n"), SOCK_GetNodeAddress(newnode));
 		}
