@@ -16,7 +16,7 @@ _WINDOWS for DirectX Interface
 SDL for SDL Interface
 HAVE_MIXER for SDL_Mixer
 
-HAVE_PNG for PNG support (for APNG support. compile tools/libpng-src)
+HAVE_PNG for PNG support (for APNG support. compile libs/libpng-src)
 HWRENDER for hardware render support
 HW3SOUND for 3D hardware sound  support
 ]]>
@@ -136,7 +136,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
@@ -150,7 +150,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Release Mingw/SDL">
@@ -173,7 +173,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
@@ -187,7 +187,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Debug Mingw/DirectX">
@@ -207,7 +207,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
@@ -226,7 +226,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Release Mingw/DirectX">
@@ -245,7 +245,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
@@ -264,7 +264,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Debug Any/Dummy">
@@ -506,7 +506,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
@@ -520,7 +520,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png64" />
 					<Add library="z64" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Release Mingw64/SDL">
@@ -542,7 +542,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
@@ -556,7 +556,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png64" />
 					<Add library="z64" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Debug Mingw64/DirectX">
@@ -575,7 +575,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DRANGECHECK" />
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
@@ -594,7 +594,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png64" />
 					<Add library="z64" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Release Mingw64/DirectX">
@@ -612,7 +612,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DHAVE_PNG" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
-					<Add directory="tools/libpng-src" />
+					<Add directory="libs/libpng-src" />
 					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
@@ -631,7 +631,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="png64" />
 					<Add library="z64" />
 					<Add directory="libs/zlib/win32" />
-					<Add directory="tools/libpng-src/projects" />
+					<Add directory="libs/libpng-src/projects" />
 				</Linker>
 			</Target>
 			<Target title="Debug Mingw64 R_OpenGL">

@@ -14,10 +14,10 @@
 # Patches
 /tools/SDL-1.2.14-gc/SDL-1.2.14-gc.patch -whitespace
 # LibPNG
-/tools/libpng-src/CMakeLists.txt -whitespace
-/tools/libpng-src/libpng-1.2.*.txt -whitespace
-/tools/libpng-src/libpng.3 -whitespace
-/tools/libpng-src/*.c -whitespace
+/libs/libpng-src/CMakeLists.txt -whitespace
+/libs/libpng-src/libpng-1.2.*.txt -whitespace
+/libs/libpng-src/libpng.3 -whitespace
+/libs/libpng-src/*.c -whitespace
 # Zlib
 /libs/zlib/contrib/amd64/amd64-match.S -whitespace
 /libs/zlib/contrib/delphi/zlibd32.mak -crlf -whitespace

@@ -21,7 +21,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libpng"="..\..\tools\libpng-src\projects\visualc6\libpng.dsp" - Package Owner=<4>
+Project: "libpng"="..\..\libs\libpng-src\projects\visualc6\libpng.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
