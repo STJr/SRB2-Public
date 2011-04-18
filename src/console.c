@@ -987,7 +987,7 @@ static void CON_Print(char *msg)
 
 void CON_LogMessage(const char *msg)
 {
-	XBOXSTATIC char txt[128], *t;
+	XBOXSTATIC char txt[8192], *t;
 	const char *p = msg, *e = txt+sizeof (txt)-2;
 
 	for (t = txt; *p != '\0'; p++)
