@@ -925,7 +925,7 @@ void R_RenderThickSideRange(drawseg_t *ds, INT32 x1, INT32 x2, ffloor_t *pfloor)
 						{
 							// The light is from an extra 3D floor... Check the flags so
 							// there are no undesired cuts.
-							if (rlight->flags == pfloor->flags) // Only merge with your own kind
+							if ((rlight->flags & (FF_FOG|FF_SWIMMABLE)) == (pfloor->flags & (FF_FOG|FF_SWIMMABLE)))
 								solid = 1;
 						}
 						else
