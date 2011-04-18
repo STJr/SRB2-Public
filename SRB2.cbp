@@ -137,7 +137,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
 					<Add library="SDL" />
@@ -149,7 +149,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="wsock32" />
 					<Add library="png32" />
 					<Add library="z32" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -174,7 +174,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
 					<Add library="SDL" />
@@ -186,7 +186,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="wsock32" />
 					<Add library="png32" />
 					<Add library="z32" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -208,7 +208,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="src/win32" />
@@ -225,7 +225,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="wsock32" />
 					<Add library="png32" />
 					<Add library="z32" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -246,7 +246,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="src/win32" />
@@ -263,7 +263,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="wsock32" />
 					<Add library="png32" />
 					<Add library="z32" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -507,7 +507,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
 					<Add library="SDL" />
@@ -519,7 +519,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="ws2_32" />
 					<Add library="png64" />
 					<Add library="z64" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -543,7 +543,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<Linker>
 					<Add library="SDL" />
@@ -555,7 +555,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="ws2_32" />
 					<Add library="png64" />
 					<Add library="z64" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -576,7 +576,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-D_DEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="src/win32" />
@@ -593,7 +593,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="ws2_32" />
 					<Add library="png64" />
 					<Add library="z64" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>
@@ -613,7 +613,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add option="-DNDEBUG" />
 					<Add option="-DCOMPVERSION" />
 					<Add directory="tools/libpng-src" />
-					<Add directory="tools/zlib" />
+					<Add directory="libs/zlib" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="src/win32" />
@@ -630,7 +630,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="ws2_32" />
 					<Add library="png64" />
 					<Add library="z64" />
-					<Add directory="tools/zlib/win32" />
+					<Add directory="libs/zlib/win32" />
 					<Add directory="tools/libpng-src/projects" />
 				</Linker>
 			</Target>

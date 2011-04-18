@@ -48,7 +48,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "zlib"=..\..\tools\zlib\projects\visualc6\zlib.dsp - Package Owner=<4>
+Project: "zlib"=..\..\libs\zlib\projects\visualc6\zlib.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

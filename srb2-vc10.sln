@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "tools\libpng-src\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "r_opengl", "src\hardware\r_opengl\r_opengl-vc10.vcxproj", "{51137D5C-4E81-4955-AACF-EA3092006051}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "tools\zlib\projects\visualc10\zlib.vcxproj", "{73A5729C-7323-41D4-AB48-8A03C9F81603}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "libs\zlib\projects\visualc10\zlib.vcxproj", "{73A5729C-7323-41D4-AB48-8A03C9F81603}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s_openal", "src\hardware\s_openal\s_openal-vc10.vcxproj", "{E662D0B3-412D-4D55-A5EC-8CBD680DDCBE}"
 EndProject

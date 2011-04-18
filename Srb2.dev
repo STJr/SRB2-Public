@@ -1947,7 +1947,7 @@ ProfileName=Dummy Release
 Type=1
 ObjFiles=
 Includes=
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DNONET_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2050,8 +2050,8 @@ CompileCpp=0
 ProfileName=Win32/DirectX Release
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2077,8 +2077,8 @@ CompilerType=0
 ProfileName=Win32/DirectX Debug
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2254,8 +2254,8 @@ BuildCmd=
 ProfileName=Win32/SDL Release
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2311,8 +2311,8 @@ BuildCmd=$(CC) -c src/comptime.c -o $@ $(CFLAGS) -DCOMPVERSION
 ProfileName=Win32/SDL Debug
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2338,8 +2338,8 @@ CompilerType=0
 ProfileName=Win64/DirectX Release
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2365,8 +2365,8 @@ CompilerType=0
 ProfileName=Win64/DirectX Debug
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-D_WINDOWS_@@_-DHAVE_PNG_@@_-DNOROPENGL_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2392,8 +2392,8 @@ CompilerType=0
 ProfileName=Win64/SDL Release
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-DNDEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-Os_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
@@ -2419,8 +2419,8 @@ CompilerType=0
 ProfileName=Win64/SDL Debug
 Type=0
 ObjFiles=
-Includes=tools/libpng-src;tools/zlib
-Libs=tools/libpng-src/projects;tools/zlib/win32
+Includes=tools/libpng-src;libs/zlib
+Libs=tools/libpng-src/projects;libs/zlib/win32
 ResourceIncludes=src/win32
 MakeIncludes=comptime.mk;cpdebug.mk
 Compiler=-D_DEBUG_@@_-fno-exceptions_@@_-DSTDC_HEADERS_@@_-Wall_@@_-O0_@@_-g_@@_-DUSE_WGL_SWAP_@@_-DDIRECTFULLSCREEN_@@_-DSDL_@@_-DHWRENDER_@@_-DHW3SOUND_@@_-DHAVE_MIXER_@@_-DHAVE_PNG_@@_-D__USE_MINGW_ANSI_STDIO=0_@@_
