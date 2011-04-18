@@ -655,6 +655,7 @@ void R_DrawSinglePlane(visplane_t *pl)
 	INT32 x;
 	INT32 stop, angle;
 	size_t size;
+	ffloor_t *rover;
 
 	if (!(pl->minx <= pl->maxx))
 		return;
@@ -663,6 +664,23 @@ void R_DrawSinglePlane(visplane_t *pl)
 	spanfunc = basespanfunc;
 	if (pl->ffloor)
 	{
+		// Don't draw planes that shouldn't be drawn.
+		for (rover = pl->ffloor->target->ffloors; rover; rover = rover->next)
+		{
+			if ((pl->ffloor->flags & FF_CUTEXTRA) && (rover->flags & FF_EXTRA))
+			{
+				if (pl->ffloor->flags & FF_EXTRA)
+				{
+					// The plane is from an extra 3D floor... Check the flags so
+					// there are no undesired cuts.
+					if (((pl->ffloor->flags & (FF_FOG|FF_SWIMMABLE)) == (rover->flags & (FF_FOG|FF_SWIMMABLE)))
+						&& pl->height < *rover->topheight
+						&& pl->height > *rover->bottomheight)
+						return;
+				}
+			}
+		}
+
 		if (pl->ffloor->flags & FF_TRANSLUCENT)
 		{
 			spanfunc = R_DrawTranslucentSpan_8;
