@@ -186,7 +186,7 @@ FUNCPRINTF static void deh_warning(const char *first, ...)
 	char *buf = Z_Malloc(1000, PU_STATIC, NULL);
 
 	va_start(argptr, first);
-	vsnprintf(buf, sizeof buf, first, argptr);
+	vsnprintf(buf, 1000, first, argptr);
 	va_end(argptr);
 
 	CONS_Printf("%s\n", buf);
