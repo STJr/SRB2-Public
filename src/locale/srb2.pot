@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-17 20:14-0400\n"
+"POT-Creation-Date: 2011-04-22 16:01-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1542,51 +1542,51 @@ msgstr ""
 msgid "Programmers\n"
 msgstr ""
 
-#: f_finale.c:315
+#: f_finale.c:317
 msgid "Coding Assistants\n"
 msgstr ""
 
-#: f_finale.c:332
+#: f_finale.c:334
 msgid "Level Designers\n"
 msgstr ""
 
-#: f_finale.c:360
+#: f_finale.c:362
 msgid "Texture Artists\n"
 msgstr ""
 
-#: f_finale.c:375
+#: f_finale.c:377
 msgid "Music Production\n"
 msgstr ""
 
-#: f_finale.c:397
+#: f_finale.c:399
 msgid "Lead Guitar\n"
 msgstr ""
 
-#: f_finale.c:406
+#: f_finale.c:408
 msgid "Sound Effects\n"
 msgstr ""
 
-#: f_finale.c:417
+#: f_finale.c:419
 msgid "Official Mascot\n"
 msgstr ""
 
-#: f_finale.c:424
+#: f_finale.c:426
 msgid "Sky Sanctuary Team\n"
 msgstr ""
 
-#: f_finale.c:468
+#: f_finale.c:470
 msgid "Special Thanks\n"
 msgstr ""
 
-#: f_finale.c:483
+#: f_finale.c:485
 msgid "In Fond Memory Of\n"
 msgstr ""
 
-#: f_finale.c:498
+#: f_finale.c:500
 msgid "Modification By\n"
 msgstr ""
 
-#: f_finale.c:568
+#: f_finale.c:570
 msgid ""
 "Two months had passed since Dr. Eggman\n"
 "tried to take over the world using his\n"
@@ -1594,7 +1594,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:572
+#: f_finale.c:574
 msgid ""
 "As it was about to drain the rings\n"
 "away from the planet, Sonic burst into\n"
@@ -1604,7 +1604,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:578
+#: f_finale.c:580
 msgid ""
 "\n"
 "What Sonic, Tails, and Knuckles had\n"
@@ -1613,7 +1613,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:582
+#: f_finale.c:584
 msgid ""
 "About once every year, a strange asteroid\n"
 "hovers around the planet. it suddenly\n"
@@ -1624,7 +1624,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:589
+#: f_finale.c:591
 msgid ""
 "\"Curses!\" Eggman yelled. \"That hedgehog\n"
 "and his ridiculous friends will pay\n"
@@ -1635,7 +1635,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:596
+#: f_finale.c:598
 msgid ""
 "It was only later\n"
 "that he had an\n"
@@ -1655,7 +1655,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:612
+#: f_finale.c:614
 msgid ""
 "\n"
 "\n"
@@ -1665,7 +1665,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:616
+#: f_finale.c:618
 msgid ""
 "\"We're ready to fire in 15 seconds!\"\n"
 "The robot said, his voice crackling a\n"
@@ -1676,7 +1676,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:623
+#: f_finale.c:625
 msgid ""
 "\"10...9...8...\"\n"
 "Meanwhile, Sonic was tearing across the\n"
@@ -1687,7 +1687,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:630
+#: f_finale.c:632
 msgid ""
 "\"5...4...3...\"\n"
 "Sonic knew he was getting closer to the\n"
@@ -1697,7 +1697,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:636
+#: f_finale.c:638
 msgid ""
 "GreenFlower City was gone.\n"
 "Sonic arrived just in time to see what\n"
@@ -1707,7 +1707,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:642
+#: f_finale.c:644
 msgid ""
 "\"You're not quite as dead as we thought,\n"
 "huh? Are you going to tell us your plan as\n"
@@ -1718,7 +1718,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:649
+#: f_finale.c:651
 msgid ""
 "Eggman took this\n"
 "as his cue and\n"
@@ -1735,7 +1735,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:662
+#: f_finale.c:664
 msgid ""
 "\"Easy! We go\n"
 "find Eggman\n"
@@ -1754,7 +1754,7 @@ msgid ""
 "#"
 msgstr ""
 
-#: f_finale.c:675
+#: f_finale.c:677
 msgid ""
 "\"I'm just finding what mission obje...\n"
 "a-ha! Here it is! This will only give\n"
