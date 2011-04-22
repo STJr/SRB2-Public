@@ -125,6 +125,13 @@ INT32 M_SignedRandom(void)
 	return M_Random() - 128;
 }
 
+/** Provides a random number in between a specific range.
+  *
+  * \return A random number, arg1 to arg2.
+  */
+INT32 M_RandomRange(INT32 a, INT32 b)
+{
+	return (rand() % b + a);
 }
 
 // Provides a random fixed_t for use in percipitation.
