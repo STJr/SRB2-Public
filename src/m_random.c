@@ -114,6 +114,17 @@ INT32 P_SignedRandom2(const char *a, INT32 b)
 UINT8 M_Random(void)
 {
 	return rndtable[++rndindex];
+
+/** Provides a random signed byte.
+  *
+  * \return A random byte, -128 to 127.
+  * \sa P_Random
+  */
+INT32 M_SignedRandom(void)
+{
+	return M_Random() - 128;
+}
+
 }
 
 // Provides a random fixed_t for use in percipitation.

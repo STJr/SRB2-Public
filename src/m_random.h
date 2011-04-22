@@ -25,6 +25,7 @@
 
 // Returns a number from 0 to 255, from a lookup table.
 UINT8 M_Random(void);
+INT32 M_SignedRandom(void);
 
 #ifdef DEBUGRANDOM
 #define P_Random() P_Random2(__FILE__, __LINE__)
