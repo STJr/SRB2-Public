@@ -37,11 +37,14 @@ fixed_t M_RandomPrecip(void);
 #ifdef DEBUGRANDOM
 #define P_Random() P_Random2(__FILE__, __LINE__)
 #define P_SignedRandom() P_SignedRandom2(__FILE__, __LINE__)
+#define P_RandomRange(c, d) P_RandomRange2(__FILE__, __LINE__, c, d)
 UINT8 P_Random2(const char *a, INT32 b);
 INT32 P_SignedRandom2(const char *a, INT32 b);
+INT32 P_RandomRange2(const char *a, INT32 b, INT32 c, INT32 d);
 #else
 UINT8 P_Random(void);
 INT32 P_SignedRandom(void);
+INT32 P_RandomRange(INT32 a, INT32 b);
 #endif
 
 void M_ClearRandom(void);

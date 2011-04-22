@@ -76,6 +76,14 @@ INT32 P_SignedRandom(void)
 	return r - P_Random();
 }
 
+/** Provides a random number in between a specific range.
+  *
+  * \return A random number, arg1 to arg2.
+  */
+INT32 P_RandomRange(INT32 a, INT32 b)
+{
+	return (P_Random() % b + a);
+}
 #else
 
 UINT8 P_Random2(const char *a, INT32 b)
@@ -92,6 +100,11 @@ INT32 P_SignedRandom2(const char *a, INT32 b)
 	return r - rndtable[++prndindex];
 }
 
+INT32 P_RandomRange2(const char *a, INT32 b, UINT8 c, UINT8 d)
+{
+	DEBPRINT(va("P_RandomRange2 at: %sp %d\n", a, b));
+	return (P_Random2() % d + c);
+}
 #endif
 
 /** Provides a random byte.
