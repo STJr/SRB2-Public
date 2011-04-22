@@ -45,7 +45,6 @@ static UINT8 rndtable[256] =
 	120, 163, 236, 249
 };
 
-static UINT8 rndindex = 0;
 /**	\brief P_Random seed
 */
 static UINT8 prndindex = 0;
@@ -109,15 +108,15 @@ INT32 P_RandomRange2(const char *a, INT32 b, UINT8 c, UINT8 d)
 /** Provides a random byte.
   * Used outside the p_xxx game code and not synchronized in netgames. This is
   * for anything that doesn't need to be synced. In practice many applications
-  * just use rand() instead, e.g. precipitation.
+  * e.g. precipitation.
   *
   * \return A random byte, 0 to 255.
   * \sa P_Random
-  * \todo Consider replacing in favor of rand().
   */
 UINT8 M_Random(void)
 {
-	return rndtable[++rndindex];
+	return (rand() % 256);
+}
 
 /** Provides a random signed byte.
   *
@@ -154,9 +153,8 @@ fixed_t M_RandomPrecip(void)
   */
 void M_ClearRandom(void)
 {
-	rndindex = prndindex = 0;
+	prndindex = 0;
 }
-
 
 /** Returns the current random number index used by p_xxx game code.
   * Used by servers when archiving netgames, as well as for debugging purposes.
