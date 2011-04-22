@@ -565,8 +565,10 @@ void R_DrawSplat_8 (void)
 		// SoM: Why didn't I see this earlier? the spot variable is a waste now because we don't
 		// have the uber complicated math to calculate it now, so that was a memory write we didn't
 		// need!
+		//
+		// <Callum> 4194303 = (2048x2048)-1 (2048x2048 is maximum flat size)
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[0] = colormap[val];
@@ -574,7 +576,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[1] = colormap[val];
@@ -582,7 +584,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[2] = colormap[val];
@@ -590,7 +592,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[3] = colormap[val];
@@ -598,7 +600,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[4] = colormap[val];
@@ -606,7 +608,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[5] = colormap[val];
@@ -614,7 +616,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[6] = colormap[val];
@@ -622,7 +624,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[7] = colormap[val];
@@ -635,7 +637,7 @@ void R_DrawSplat_8 (void)
 	while (count--)
 	{
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4095;
+		val &= 4194303;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			*dest = colormap[val];
