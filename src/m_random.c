@@ -20,11 +20,7 @@
 #include "doomdef.h"
 #include "doomtype.h"
 #include "m_random.h"
-
-/**	\brief M_Random
-
-	Returns a 0-255 number
-*/
+#include "m_fixed.h"
 
 static UINT8 rndtable[256] =
 {
@@ -48,17 +44,13 @@ static UINT8 rndtable[256] =
 	197, 242,  98,  43,  39, 175, 254, 145, 190,  84, 118, 222, 187, 136,
 	120, 163, 236, 249
 };
-/**	\brief M_Random seed
-*/
 
 static UINT8 rndindex = 0;
 /**	\brief P_Random seed
 */
-
 static UINT8 prndindex = 0;
 
 #ifndef DEBUGRANDOM
-
 /** Provides a random byte.
   * Used throughout all the p_xxx game code.
   *
