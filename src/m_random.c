@@ -85,17 +85,16 @@ INT32 P_RandomRange(INT32 a, INT32 b)
 	return (P_Random() % b + a);
 }
 #else
-
 UINT8 P_Random2(const char *a, INT32 b)
 {
-	CONS_Printf("P_Random at: %sp %d\n", a, b);
+	DEBPRINT(va("P_Random at: %sp %d\n", a, b));
 	return rndtable[++prndindex];
 }
 
 INT32 P_SignedRandom2(const char *a, INT32 b)
 {
 	INT32 r;
-	CONS_Printf("P_SignedRandom at: %sp %d\n",a,b);
+	DEBPRINT(va("P_SignedRandom at: %sp %d\n", a, b));
 	r = rndtable[++prndindex];
 	return r - rndtable[++prndindex];
 }
