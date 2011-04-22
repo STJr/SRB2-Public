@@ -116,6 +116,19 @@ UINT8 M_Random(void)
 	return rndtable[++rndindex];
 }
 
+// Provides a random fixed_t for use in percipitation.
+fixed_t M_RandomPrecip(void)
+{
+#ifdef _WIN32
+	const unsigned d = (unsigned)rand()*FRACUNIT;
+	const fixed_t t = (fixed_t)(d/RAND_MAX); //RAND_MAX is 2147483647 under linux, eeeee.... vs 0x7FFF(32767) in Window's rand()
+	return (t-FRACUNIT/2)<<FRACBITS;
+#else
+	const unsigned d = (unsigned)rand()*FRACUNIT;
+	return (d-FRACUNIT/2);
+#endif
+}
+
 /** Resets both the random number indices.
   * Used when loading savegames (not net savegames).
   *

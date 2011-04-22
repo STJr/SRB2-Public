@@ -6693,18 +6693,6 @@ static CV_PossibleValue_t flagtime_cons_t[] = {{0, "MIN"}, {300, "MAX"}, {0, NUL
 consvar_t cv_flagtime = {"flagtime", "30", CV_NETVAR, flagtime_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_suddendeath = {"suddendeath", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-static fixed_t P_Rand(void)
-{
-#ifdef _WIN32
-	const unsigned d = (unsigned)rand()*FRACUNIT;
-	const fixed_t t = (fixed_t)(d/RAND_MAX); //RAND_MAX is 2147483647 under linux, eeeee.... vs 0x7FFF(32767) in Window's rand()
-	return (t-FRACUNIT/2)<<FRACBITS;
-#else
-	const unsigned d = (unsigned)rand()*FRACUNIT;
-	return (d-FRACUNIT/2);
-#endif
-}
-
 static boolean P_ObjectInWater(sector_t *sector, fixed_t z)
 {
 	if (sector->ffloors)
@@ -6743,9 +6731,9 @@ void P_SpawnPrecipitation(void)
 
 		for (i = 0; i < snowloop; i++)
 		{
-			x = P_Rand();
-			y = P_Rand();
-			height = P_Rand();
+			x = M_RandomPrecip();
+			y = M_RandomPrecip();
+			height = M_RandomPrecip();
 
 			precipsector = R_IsPointInSubsector(x, y);
 
@@ -6781,9 +6769,9 @@ void P_SpawnPrecipitation(void)
 
 		for (i = 0; i < rainloop; i++)
 		{
-			x = P_Rand();
-			y = P_Rand();
-			height = P_Rand();
+			x = M_RandomPrecip();
+			y = M_RandomPrecip();
+			height = M_RandomPrecip();
 
 			precipsector = R_IsPointInSubsector(x, y);
 

@@ -21,6 +21,7 @@
 #define __M_RANDOM__
 
 #include "doomtype.h"
+#include "m_fixed.h"
 
 // Returns a number from 0 to 255, from a lookup table.
 UINT8 M_Random(void);
@@ -35,6 +36,9 @@ INT32 P_SignedRandom2(const char *a, INT32 b);
 UINT8 P_Random(void);
 INT32 P_SignedRandom(void);
 #endif
+
+// Pulls a random fixed_t, not synced across network.
+fixed_t M_RandomPrecip(void);
 
 // Fix randoms for demos.
 void M_ClearRandom(void);
