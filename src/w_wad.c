@@ -93,6 +93,20 @@ typedef struct
 	size_t len;
 } lumpchecklist_t;
 
+#define MAKEWADLUMPNUM(wad, lump) (lumpnum_t)(((wad) << 16) | (lump & 0xFFFF))
+
+// Must be a power of two
+#define LUMPNUMCACHESIZE 64
+
+typedef struct lumpnum_cache_s
+{
+	char lumpname[8];
+	lumpnum_t lumpnum;
+} lumpnum_cache_t;
+
+static lumpnum_cache_t lumpnumcache[LUMPNUMCACHESIZE];
+static UINT16 lumpnumcacheindex = 0;
+
 //===========================================================================
 //                                                                    GLOBALS
 //===========================================================================
@@ -184,6 +198,13 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 #endif
 	return 1;
 }
+
+// Invalidates the cache of lump numbers. Call this whenever a wad is added.
+static void W_InvalidateLumpnumCache(void)
+{
+	memset(lumpnumcache, 0, sizeof (lumpnumcache));
+}
+
 
 //  Allocate a wadfile, setup the lumpinfo (directory) and
 //  lumpcache, add the wadfile to the current active wadfiles
@@ -392,6 +413,8 @@ UINT16 W_LoadWadFile(const char *filename)
 	wadfiles[numwadfiles] = wadfile;
 	W_LoadDehackedLumps(numwadfiles);
 
+	W_InvalidateLumpnumCache();
+
 	numwadfiles++;
 	return wadfile->numlumps;
 }
@@ -541,6 +564,17 @@ lumpnum_t W_CheckNumForName(const char *name)
 	INT32 i;
 	lumpnum_t check = INT16_MAX;
 
+	// Check the lumpnumcache first. Loop backwards so that we check
+	// most recent entries first
+	for (i = lumpnumcacheindex + LUMPNUMCACHESIZE; i > lumpnumcacheindex; i--)
+	{
+		if (strncmp(lumpnumcache[i & (LUMPNUMCACHESIZE - 1)].lumpname, name, 8) == 0)
+		{
+			lumpnumcacheindex = i & (LUMPNUMCACHESIZE - 1);
+			return lumpnumcache[lumpnumcacheindex].lumpnum;
+		}
+	}
+
 	// scan wad files backwards so patch lump files take precedence
 	for (i = numwadfiles - 1; i >= 0; i--)
 	{
@@ -548,8 +582,17 @@ lumpnum_t W_CheckNumForName(const char *name)
 		if (check != INT16_MAX)
 			break; //found it
 	}
+
 	if (check == INT16_MAX) return LUMPERROR;
-	else return (i<<16)+check;
+	else
+	{
+		// Update the cache.
+		lumpnumcacheindex = (lumpnumcacheindex + 1) & (LUMPNUMCACHESIZE - 1);
+		strncpy(lumpnumcache[lumpnumcacheindex].lumpname, name, 8);
+		lumpnumcache[lumpnumcacheindex].lumpnum = MAKEWADLUMPNUM(i, check);
+
+		return lumpnumcache[lumpnumcacheindex].lumpnum;
+	}
 }
 
 //

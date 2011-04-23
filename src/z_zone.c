@@ -311,6 +311,11 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 
 	Z_Free(ptr);
 
+	// Need to set the user in case the old block had the same one, in
+	// which case the Z_Free will just have NULLed it out.
+	if (user)
+		*((void**)user) = rez;
+
 	if (size > copysize)
 		memset((char*)rez+copysize, 0x00, size-copysize);
 

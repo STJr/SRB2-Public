@@ -3359,10 +3359,16 @@ static INT32 drawcount = 0;
 void HWR_AddTransparentFloor(lumpnum_t lumpnum, extrasubsector_t *xsub,
 	fixed_t fixedheight, INT32 lightlevel, INT32 alpha, sector_t *FOFSector)
 {
-	if (!(numplanes % MAX_TRANSPARENTFLOOR))
+	static size_t allocedplanes = 0;
+
+	// Force realloc if buffer has been freed
+	if (!planeinfo)
+		allocedplanes = 0;
+
+	if (allocedplanes < numplanes + 1)
 	{
-		planeinfo = Z_Realloc(planeinfo,
-			(numplanes + MAX_TRANSPARENTFLOOR) * sizeof *planeinfo, PU_STATIC, NULL);
+		allocedplanes += MAX_TRANSPARENTFLOOR;
+		Z_Realloc(planeinfo, allocedplanes * sizeof (*planeinfo), PU_LEVEL, &planeinfo);
 	}
 
 	planeinfo[numplanes].fixedheight = fixedheight;
@@ -4506,10 +4512,16 @@ void transform(float *cx, float *cy, float *cz)
 static void HWR_Add3DWater(lumpnum_t lumpnum, extrasubsector_t *xsub,
 	fixed_t fixedheight, INT32 lightlevel, INT32 alpha, sector_t *FOFSector)
 {
-	if (!(numfloors % MAX_3DWATER))
+	static size_t allocedplanes = 0;
+
+	// Force realloc if buffer has been freed
+	if (!planeinfo)
+		allocedplanes = 0;
+
+	if (allocedplanes < numfloors + 1)
 	{
-		planeinfo = Z_Realloc(planeinfo,
-			(numfloors + MAX_3DWATER) * sizeof *planeinfo, PU_STATIC, NULL);
+		allocedplanes += MAX_3DWATER;
+		Z_Realloc(planeinfo, allocedplanes * sizeof (*planeinfo), PU_LEVEL, &planeinfo);
 	}
 	planeinfo[numfloors].fixedheight = fixedheight;
 	planeinfo[numfloors].lightlevel = lightlevel;
@@ -4598,10 +4610,16 @@ static void HWR_Render3DWater(void)
 
 static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, INT32 texnum, FBITFIELD blend)
 {
-	if (!(numwalls % MAX_TRANSPARENTWALL))
+	static size_t allocedwalls = 0;
+
+	// Force realloc if buffer has been freed
+	if (!wallinfo)
+		allocedwalls = 0;
+
+	if (allocedwalls < numwalls + 1)
 	{
-		wallinfo = Z_Realloc(wallinfo,
-			(numwalls + MAX_TRANSPARENTWALL) * sizeof *wallinfo, PU_STATIC, NULL);
+		allocedwalls += MAX_TRANSPARENTWALL;
+		Z_Realloc(wallinfo, allocedwalls * sizeof (*wallinfo), PU_LEVEL, &wallinfo);
 	}
 
 	M_Memcpy(wallinfo[numwalls].wallVerts, wallVerts, sizeof (wallinfo[numwalls].wallVerts));

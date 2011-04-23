@@ -56,8 +56,8 @@ void I_GetEvent(void)
 	else if (held & KEY_RIGHT) event.data2 = 1;
 	else event.data2 = 0;
 
-	if (held & KEY_DOWN) event.data3 = -1;
-	else if (held & KEY_UP) event.data3 = 1;
+	if (held & KEY_UP) event.data3 = -1;
+	else if (held & KEY_DOWN) event.data3 = 1;
 	else event.data3 = 0;
 
 	D_PostEvent(&event);
@@ -126,7 +126,10 @@ void I_JoyScale(void){}
 
 void I_JoyScale2(void){}
 
-void I_InitJoystick(void){}
+void I_InitJoystick(void)
+{
+	Joystick.bGamepadStyle = true;
+}
 
 void I_InitJoystick2(void){}
 

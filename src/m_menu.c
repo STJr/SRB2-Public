@@ -6999,7 +6999,7 @@ void M_Drawer(void)
 	if (customversionstring[0] != '\0')
 		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, customversionstring);
 	else
-		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, VERSIONSTRING);
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, va("%s (%s)", VERSIONSTRING, comprevision));
 }
 
 //

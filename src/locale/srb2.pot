@@ -1164,7 +1164,7 @@ msgstr ""
 msgid "MD5 calc for %s took %f second\n"
 msgstr ""
 
-#: d_netcmd.c:3283 w_wad.c:246
+#: d_netcmd.c:3283 w_wad.c:267
 #, c-format
 msgid "File %s not found.\n"
 msgstr ""
@@ -1876,17 +1876,17 @@ msgstr ""
 msgid "setcontrol2 <controlname> <keyname> [<2nd keyname>]\n"
 msgstr ""
 
-#: hardware/hw_main.c:4376
+#: hardware/hw_main.c:4382
 #, c-format
 msgid "Patch info headers: %7s kb\n"
 msgstr ""
 
-#: hardware/hw_main.c:4377
+#: hardware/hw_main.c:4383
 #, c-format
 msgid "3D Texture cache  : %7s kb\n"
 msgstr ""
 
-#: hardware/hw_main.c:4378
+#: hardware/hw_main.c:4384
 #, c-format
 msgid "Plane polygon     : %7s kb\n"
 msgstr ""
@@ -3630,60 +3630,60 @@ msgstr ""
 msgid "Press Jump to float and Spin to sink."
 msgstr ""
 
-#: w_wad.c:138
+#: w_wad.c:152
 #, c-format
 msgid "Loading main config from %s\n"
 msgstr ""
 
-#: w_wad.c:148
+#: w_wad.c:162
 #, c-format
 msgid "Loading object config from %s\n"
 msgstr ""
 
-#: w_wad.c:219 w_wad.c:264
+#: w_wad.c:240 w_wad.c:285
 msgid "Maximum wad files reached\n"
 msgstr ""
 
-#: w_wad.c:240
+#: w_wad.c:261
 #, c-format
 msgid "Can't open %s\n"
 msgstr ""
 
-#: w_wad.c:295
+#: w_wad.c:316
 #, c-format
 msgid "Can't read wad header from %s because %s\n"
 msgstr ""
 
-#: w_wad.c:305
+#: w_wad.c:326
 #, c-format
 msgid "%s doesn't have IWAD or PWAD id\n"
 msgstr ""
 
-#: w_wad.c:318
+#: w_wad.c:339
 #, c-format
 msgid "%s wadfile directory is corrupt; maybe %s\n"
 msgstr ""
 
-#: w_wad.c:391
+#: w_wad.c:412
 #, c-format
 msgid "Added file %s (%u lumps)\n"
 msgstr ""
 
-#: w_wad.c:407
+#: w_wad.c:430
 #, c-format
 msgid "You can't remove the IWAD %s!\n"
 msgstr ""
 
-#: w_wad.c:411
+#: w_wad.c:434
 #, c-format
 msgid "Removing WAD %s...\n"
 msgstr ""
 
-#: w_wad.c:431
+#: w_wad.c:454
 msgid " done unloading WAD\n"
 msgstr ""
 
-#: w_wad.c:960
+#: w_wad.c:1003
 #, c-format
 msgid "File is corrupt or has been modified: %s (found md5: %s, wanted: %s)\n"
 msgstr ""
@@ -3913,85 +3913,85 @@ msgstr ""
 msgid "system memory %uMB free %uMB\n"
 msgstr ""
 
-#: z_zone.c:502
-msgid "Memory Info\n"
-msgstr ""
-
-#: z_zone.c:503
-#, c-format
-msgid "Total heap used   : %7s KB\n"
-msgstr ""
-
-#: z_zone.c:504
-#, c-format
-msgid "Static            : %7s KB\n"
-msgstr ""
-
-#: z_zone.c:505
-#, c-format
-msgid "Static (sound)    : %7s KB\n"
-msgstr ""
-
-#: z_zone.c:506
-#, c-format
-msgid "Static (music)    : %7s KB\n"
-msgstr ""
-
 #: z_zone.c:507
-#, c-format
-msgid "Locked cache      : %7s KB\n"
+msgid "Memory Info\n"
 msgstr ""
 
 #: z_zone.c:508
 #, c-format
-msgid "Level             : %7s KB\n"
+msgid "Total heap used   : %7s KB\n"
 msgstr ""
 
 #: z_zone.c:509
 #, c-format
-msgid "Special thinker   : %7s KB\n"
+msgid "Static            : %7s KB\n"
 msgstr ""
 
 #: z_zone.c:510
 #, c-format
+msgid "Static (sound)    : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:511
+#, c-format
+msgid "Static (music)    : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:512
+#, c-format
+msgid "Locked cache      : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:513
+#, c-format
+msgid "Level             : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:514
+#, c-format
+msgid "Special thinker   : %7s KB\n"
+msgstr ""
+
+#: z_zone.c:515
+#, c-format
 msgid "All purgable      : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:516
+#: z_zone.c:521
 #, c-format
 msgid "Patch info headers: %7s KB\n"
 msgstr ""
 
-#: z_zone.c:517
+#: z_zone.c:522
 #, c-format
 msgid "Mipmap patches    : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:518
+#: z_zone.c:523
 #, c-format
 msgid "HW Texture cache  : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:519
+#: z_zone.c:524
 #, c-format
 msgid "Plane polygons    : %7s KB\n"
 msgstr ""
 
-#: z_zone.c:520
+#: z_zone.c:525
 #, c-format
 msgid "HW Texture used   : %7d KB\n"
 msgstr ""
 
-#: z_zone.c:524
+#: z_zone.c:529
 msgid "System Memory Info\n"
 msgstr ""
 
-#: z_zone.c:526
+#: z_zone.c:531
 #, c-format
 msgid "    Total physical memory: %7u KB\n"
 msgstr ""
 
-#: z_zone.c:527
+#: z_zone.c:532
 #, c-format
 msgid "Available physical memory: %7u KB\n"
 msgstr ""
