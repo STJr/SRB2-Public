@@ -1092,7 +1092,7 @@ static void HWR_SetLight(void)
 	HWD.pfnSetTexture(&lightmappatch.mipmap);
 
 	// The system-memory data can be purged now.
-	Z_ChangeTag(Data, PU_HWRCACHE_UNLOCKED);
+	Z_ChangeTag(lightmappatch.mipmap.grInfo.data, PU_HWRCACHE_UNLOCKED);
 }
 
 //**********************************************************
