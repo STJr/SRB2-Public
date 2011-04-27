@@ -90,8 +90,21 @@ void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 	// make patch ready in hardware cache
 	HWR_GetPatch(gpatch);
 
-	if (option & V_NOSCALEPATCH)
+	switch (option & V_SCALEPATCHMASK)
+	{
+	case V_NOSCALEPATCH:
 		pdupx = pdupy = 2.0f;
+		break;
+	case V_SMALLSCALEPATCH:
+		pdupx = 2.0f * vid.fsmalldupx;
+		pdupy = 2.0f * vid.fsmalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		pdupx = 2.0f * vid.fmeddupx;
+		pdupy = 2.0f * vid.fmeddupy;
+		break;
+	}
+
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -154,8 +167,21 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 	// make patch ready in hardware cache
 	HWR_GetPatch (gpatch);
 
-	if (option & V_NOSCALEPATCH)
+	switch (option & V_SCALEPATCHMASK)
+	{
+	case V_NOSCALEPATCH:
 		pdupx = pdupy = 2.0f;
+		break;
+	case V_SMALLSCALEPATCH:
+		pdupx = 2.0f * vid.fsmalldupx;
+		pdupy = 2.0f * vid.fsmalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		pdupx = 2.0f * vid.fmeddupx;
+		pdupy = 2.0f * vid.fmeddupy;
+		break;
+	}
+
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -204,8 +230,21 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 	// make patch ready in hardware cache
 	HWR_GetMappedPatch (gpatch, colormap);
 
-	if (option & V_NOSCALEPATCH)
+	switch (option & V_SCALEPATCHMASK)
+	{
+	case V_NOSCALEPATCH:
 		pdupx = pdupy = 2.0f;
+		break;
+	case V_SMALLSCALEPATCH:
+		pdupx = 2.0f * vid.fsmalldupx;
+		pdupy = 2.0f * vid.fsmalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		pdupx = 2.0f * vid.fmeddupx;
+		pdupy = 2.0f * vid.fmeddupy;
+		break;
+	}
+
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -257,8 +296,21 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, con
 	// make patch ready in hardware cache
 	HWR_GetMappedPatch (gpatch, colormap);
 
-	if (option & V_NOSCALEPATCH)
+	switch (option & V_SCALEPATCHMASK)
+	{
+	case V_NOSCALEPATCH:
 		pdupx = pdupy = 2.0f;
+		break;
+	case V_SMALLSCALEPATCH:
+		pdupx = 2.0f * vid.fsmalldupx;
+		pdupy = 2.0f * vid.fsmalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		pdupx = 2.0f * vid.fmeddupx;
+		pdupy = 2.0f * vid.fmeddupy;
+		break;
+	}
+
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 

@@ -86,6 +86,7 @@ static size_t con_totallines;      // lines of console text into the console buf
 static size_t con_width;           // columns of chars, depend on vid mode width
 
 static size_t con_scrollup;        // how many rows of text to scroll up (pgup/pgdn)
+size_t con_scalefactor;            // text size scale factor
 
 // hold 32 last lines of input for history
 #define CON_MAXPROMPTCHARS 256
@@ -424,11 +425,27 @@ static void CON_RecalcSize(void)
 	char *tmp_buffer;
 	char *string;
 
+	switch (cv_constextsize.value)
+	{
+	case V_NOSCALEPATCH:
+		con_scalefactor = 1;
+		break;
+	case V_SMALLSCALEPATCH:
+		con_scalefactor = vid.smalldupx;
+		break;
+	case V_MEDSCALEPATCH:
+		con_scalefactor = vid.meddupx;
+		break;
+	default:	// Full scaling
+		con_scalefactor = vid.dupx;
+		break;
+	}
+
 	con_recalc = false;
 
-	conw = (vid.width>>3) - 2;
+	conw = (vid.width>>3) / con_scalefactor - 2;
 
-	if (con_curlines == 200) // first init
+	if (con_curlines == vid.height) // first init
 	{
 		con_curlines = vid.height;
 		con_destlines = vid.height;
@@ -531,6 +548,7 @@ void CON_ToggleOff(void)
 void CON_Ticker(void)
 {
 	INT32 i;
+	INT32 minheight = 20 * con_scalefactor;	// 20 = 8+8+4
 
 	// cursor blinking
 	con_tick++;
@@ -551,8 +569,8 @@ void CON_Ticker(void)
 		{
 			// toggle console in
 			con_destlines = (cons_height.value*vid.height)/100;
-			if (con_destlines < 20)
-				con_destlines = 20;
+			if (con_destlines < minheight)
+				con_destlines = minheight;
 			else if (con_destlines > vid.height)
 				con_destlines = vid.height;
 
@@ -577,7 +595,7 @@ void CON_Ticker(void)
 	}
 
 	// check if console ready for prompt
-	if (con_destlines >= 20)
+	if (con_destlines >= minheight)
 		consoleready = true;
 	else
 		consoleready = false;
@@ -1100,44 +1118,50 @@ void CONS_Error(const char *msg)
 static void CON_DrawInput(void)
 {
 	char *p;
-	size_t x;
-	INT32 y;
+	size_t c;
+	INT32 x, y;
+	INT32 charwidth = (INT32)con_scalefactor << 3;
 
 	// input line scrolls left if it gets too long
 	p = inputlines[inputline];
 	if (input_cx >= con_width-11)
 		p += input_cx - (con_width-11) + 1;
 
-	y = con_curlines - 12;
+	y = con_curlines - 12 * con_scalefactor;
 
-	for (x = 0; x < con_width-11; x++)
-		V_DrawCharacter((INT32)(x+1)<<3, y, p[x]|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+	for (c = 0, x = charwidth; c < con_width-11; c++, x += charwidth)
+		V_DrawCharacter(x, y, p[c] | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
 
 	// draw the blinking cursor
 	//
-	x = (input_cx >= con_width-11) ? (con_width-11) - 1 : input_cx;
+	x = ((input_cx >= con_width-11) ? (con_width-11) : (input_cx + 1)) * charwidth;
 	if (con_tick < 4)
-		V_DrawCharacter((INT32)(x+1)<<3, y, '_'|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		V_DrawCharacter(x, y, '_' | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
 }
 
 // draw the last lines of console text to the top of the screen
 static void CON_DrawHudlines(void)
 {
 	UINT8 *p;
-	size_t i, x;
+	size_t i;
 	INT32 y;
 	INT32 charflags = 0;
+	INT32 charwidth = (INT32)con_scalefactor << 3;
+	INT32 charheight = charwidth;
 
 	if (con_hudlines <= 0)
 		return;
 
 	if (chat_on)
-		y = 8; // leave place for chat input in the first row of text
+		y = charheight; // leave place for chat input in the first row of text
 	else
 		y = 0;
 
 	for (i = con_cy - con_hudlines+1; i <= con_cy; i++)
 	{
+		size_t c;
+		INT32 x;
+
 		if ((signed)i < 0)
 			continue;
 		if (con_hudtime[i%con_hudlines] == 0)
@@ -1145,18 +1169,18 @@ static void CON_DrawHudlines(void)
 
 		p = (UINT8 *)&con_buffer[(i%con_totallines)*con_width];
 
-		for (x = 0; x < con_width; x++, p++)
+		for (c = 0, x = 0; c < con_width; c++, x += charwidth, p++)
 		{
 			while (*p & 0x80) // Graue 06-19-2004
 			{
-				charflags = (*p & 0x7f) << 8;
+				charflags = (*p & 0x7f) << V_CHARCOLORSHIFT;
 				p++;
 			}
-			V_DrawCharacter((INT32)(x)<<3, y, (INT32)(*p) | charflags | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+			V_DrawCharacter(x, y, (INT32)(*p) | charflags | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
 		}
 
-		V_DrawCharacter((INT32)(x)<<3, y, (p[x]&0xff)|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
-		y += 8;
+		V_DrawCharacter(x, y, (p[c]&0xff) | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
+		y += charheight;
 	}
 
 	// top screen lines that might need clearing when view is reduced
@@ -1226,10 +1250,13 @@ static inline void CON_DrawBackpic2(pic_t *pic, INT32 startx, INT32 destwidth)
 static void CON_DrawConsole(void)
 {
 	UINT8 *p;
-	size_t i, x;
+	size_t i;
 	INT32 y;
 	INT32 w = 0, x2 = 0;
 	INT32 charflags = 0;
+	INT32 charwidth = (INT32)con_scalefactor << 3;
+	INT32 charheight = charwidth;
+	INT32 minheight = 20 * con_scalefactor;	// 20 = 8+8+4
 
 	if (con_curlines <= 0)
 		return;
@@ -1264,7 +1291,7 @@ static void CON_DrawConsole(void)
 	}
 
 	// draw console text lines from top to bottom
-	if (con_curlines < 20) // 8+8+4
+	if (con_curlines < minheight)
 		return;
 
 	i = con_cy - con_scrollup;
@@ -1273,27 +1300,30 @@ static void CON_DrawConsole(void)
 	if (!con_scrollup && !con_cx)
 		i--;
 
-	i -= (con_curlines - 20) / 8;
+	i -= (con_curlines - minheight) / charheight;
 
 	if (rendermode == render_none) return;
 
-	for (y = (con_curlines-20) % 8; y <= con_curlines-20; y += 8, i++)
+	for (y = (con_curlines-minheight) % charheight; y <= con_curlines-minheight; y += charheight, i++)
 	{
+		INT32 x;
+		size_t c;
+
 		p = (UINT8 *)&con_buffer[((i > 0 ? i : 0)%con_totallines)*con_width];
 
-		for (x = 0; x < con_width; x++, p++)
+		for (c = 0, x = charwidth; c < con_width; c++, x += charwidth, p++)
 		{
 			while (*p & 0x80)
 			{
-				charflags = (*p & 0x7f) << 8;
+				charflags = (*p & 0x7f) << V_CHARCOLORSHIFT;
 				p++;
 			}
-			V_DrawCharacter((INT32)(x+1)<<3, y, (INT32)(*p)|charflags|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+			V_DrawCharacter(x, y, (INT32)(*p) | charflags | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
 		}
 	}
 
 	// draw prompt if enough place (not while game startup)
-	if ((con_curlines == con_destlines) && (con_curlines >= 20) && !con_startup)
+	if ((con_curlines == con_destlines) && (con_curlines >= minheight) && !con_startup)
 		CON_DrawInput();
 }
 

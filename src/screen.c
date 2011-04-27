@@ -234,10 +234,25 @@ void SCR_Startup(void)
 	vid.dupx = (INT32)vid.fdupx;
 	vid.dupy = (INT32)vid.fdupy;
 
+	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
+	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
+#ifdef HWRENDER
+	vid.fmeddupx = (float)vid.meddupx;
+	vid.fmeddupy = (float)vid.meddupy;
+#endif
+
+	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
+	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
+#ifdef HWRENDER
+	vid.fsmalldupx = (float)vid.smalldupx;
+	vid.fsmalldupy = (float)vid.smalldupy;
+#endif
+
 	vid.baseratio = FRACUNIT;
 
 	V_Init();
 	CV_RegisterVar(&cv_ticrate);
+	CV_RegisterVar(&cv_constextsize);
 
 	V_SetPalette(0);
 }
@@ -259,6 +274,20 @@ void SCR_Recalc(void)
 	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
 	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
 	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
+
+	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
+	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
+#ifdef HWRENDER
+	vid.fmeddupx = (float)vid.meddupx;
+	vid.fmeddupy = (float)vid.meddupy;
+#endif
+
+	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
+	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
+#ifdef HWRENDER
+	vid.fsmalldupx = (float)vid.smalldupx;
+	vid.fsmalldupy = (float)vid.smalldupy;
+#endif
 
 	// toggle off automap because some screensize-dependent values will
 	// be calculated next time the automap is activated.

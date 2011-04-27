@@ -849,6 +849,8 @@ static void HU_DrawChat(void)
 	size_t i = 0;
 	const char *ntalk = "Say: ", *ttalk = "Say-Team: ";
 	const char *talk = ntalk;
+	INT32 charwidth = con_scalefactor << 3;
+	INT32 charheight = charwidth;
 
 	if (teamtalk)
 	{
@@ -863,26 +865,26 @@ static void HU_DrawChat(void)
 
 	while (talk[i])
 	{
-		V_DrawCharacter(HU_INPUTX + (c<<3), y, talk[i++] | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
-		c++;
+		V_DrawCharacter(HU_INPUTX + c, y, talk[i++] | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
+		c += charwidth;
 	}
 
 	i = 0;
 	while (w_chat[i])
 	{
 		//Hurdler: isn't it better like that?
-		V_DrawCharacter(HU_INPUTX + (c<<3), y, w_chat[i++] | V_NOSCALEPATCH|V_NOSCALESTART|t, !cv_allcaps.value);
+		V_DrawCharacter(HU_INPUTX + c, y, w_chat[i++] | cv_constextsize.value | V_NOSCALESTART | t, !cv_allcaps.value);
 
-		c++;
-		if (c >= (vid.width>>3))
+		c += charwidth;
+		if (c >= vid.width)
 		{
 			c = 0;
-			y += 8;
+			y += charheight;
 		}
 	}
 
 	if (hu_tick < 4)
-		V_DrawCharacter(HU_INPUTX + (c<<3), y, '_' | V_NOSCALEPATCH|V_NOSCALESTART|t, !cv_allcaps.value);
+		V_DrawCharacter(HU_INPUTX + c, y, '_' | cv_constextsize.value |V_NOSCALESTART|t, !cv_allcaps.value);
 }
 
 

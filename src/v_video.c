@@ -51,6 +51,12 @@ consvar_t cv_usegamma = {"gamma", "0", CV_SAVE|CV_CALL, gamma_cons_t, CV_usegamm
 
 consvar_t cv_allcaps = {"allcaps", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
+static CV_PossibleValue_t constextsize_cons_t[] = {
+	{V_NOSCALEPATCH, "Small"}, {V_SMALLSCALEPATCH, "Medium"}, {V_MEDSCALEPATCH, "Large"}, {0, "Huge"},
+	{0, NULL}};
+static void CV_constextsize_OnChange(void);
+consvar_t cv_constextsize = {"con_textsize", "Medium", CV_SAVE|CV_CALL, constextsize_cons_t, CV_constextsize_OnChange, 0, NULL, NULL, 0, 0, NULL};
+
 #ifdef HWRENDER
 static void CV_Gammaxxx_ONChange(void);
 // Saved hardware mode variables
@@ -266,6 +272,11 @@ void VID_BlitLinearScreen_ASM(const UINT8 *srcptr, UINT8 *destptr, INT32 width, 
 #define HAVE_VIDCOPY
 #endif
 
+static void CV_constextsize_OnChange(void)
+{
+	con_recalc = true;
+}
+
 
 // --------------------------------------------------------------------------
 // Copy a rectangular area from one bitmap to another (8bpp)
@@ -316,12 +327,23 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 	else
 		translevel = ((tr_trans50)<<FF_TRANSSHIFT) - 0x10000 + transtables;
 
-	if (scrn & V_NOSCALEPATCH)
-		dupx = dupy = 1;
-	else
+	switch (scrn & V_SCALEPATCHMASK)
 	{
+	case V_NOSCALEPATCH:
+		dupx = dupy = 1;
+		break;
+	case V_SMALLSCALEPATCH:
+		dupx = vid.smalldupx;
+		dupy = vid.smalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		dupx = vid.meddupx;
+		dupy = vid.meddupy;
+		break;
+	default:
 		dupx = vid.dupx;
 		dupy = vid.dupy;
+		break;
 	}
 
 	y -= SHORT(patch->topoffset);
@@ -329,16 +351,16 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 
 	if (scrn & V_NOSCALESTART)
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.width) + x;
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.width) + x;
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 	}
 	else
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.dupy*vid.width) + (x*vid.dupx);
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.dupy*vid.width) + (x*vid.dupx);
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 		// Center it if necessary
-		if (!(scrn & V_NOSCALEPATCH))
+		if (!(scrn & V_SCALEPATCHMASK))
 		{
 			if (vid.fdupx != dupx)
 			{
@@ -362,7 +384,7 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
-	scrn &= 0xffff;
+	scrn &= V_PARAMMASK;
 
 	col = 0;
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
@@ -416,12 +438,23 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 	}
 #endif
 
-	if (scrn & V_NOSCALEPATCH)
-		dupx = dupy = 1;
-	else
+	switch (scrn & V_SCALEPATCHMASK)
 	{
+	case V_NOSCALEPATCH:
+		dupx = dupy = 1;
+		break;
+	case V_SMALLSCALEPATCH:
+		dupx = vid.smalldupx;
+		dupy = vid.smalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		dupx = vid.meddupx;
+		dupy = vid.meddupy;
+		break;
+	default:
 		dupx = vid.dupx;
 		dupy = vid.dupy;
+		break;
 	}
 
 	y -= SHORT(patch->topoffset);
@@ -429,16 +462,16 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 
 	if (scrn & V_NOSCALESTART)
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.width) + x;
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.width) + x;
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 	}
 	else
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.dupy*vid.width) + (x*vid.dupx);
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.dupy*vid.width) + (x*vid.dupx);
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 		// Center it if necessary
-		if (!(scrn & V_NOSCALEPATCH))
+		if (!(scrn & V_SCALEPATCHMASK))
 		{
 			if (vid.fdupx != dupx)
 			{
@@ -462,7 +495,7 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
-	scrn &= 0xffff;
+	scrn &= V_PARAMMASK;
 
 	col = 0;
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
@@ -523,12 +556,23 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	}
 #endif
 
-	if ((scrn & V_NOSCALEPATCH))
-		dupx = dupy = 1;
-	else
+	switch (scrn & V_SCALEPATCHMASK)
 	{
+	case V_NOSCALEPATCH:
+		dupx = dupy = 1;
+		break;
+	case V_SMALLSCALEPATCH:
+		dupx = vid.smalldupx;
+		dupy = vid.smalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		dupx = vid.meddupx;
+		dupy = vid.meddupy;
+		break;
+	default:
 		dupx = vid.dupx;
 		dupy = vid.dupy;
+		break;
 	}
 
 	y -= SHORT(patch->topoffset);
@@ -543,7 +587,7 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		desttop = vid.buffer;
 	else
 #endif
-		desttop = screens[scrn&0xFF];
+		desttop = screens[scrn&V_PARAMMASK];
 
 	deststop = desttop + vid.width * vid.height * vid.bpp;
 
@@ -557,7 +601,7 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		desttop += (y*dupy*vid.width) + (x*dupx);
 
 		// Center it if necessary
-		if (!(scrn & V_NOSCALEPATCH))
+		if (!(scrn & V_SCALEPATCHMASK))
 		{
 			if (vid.fdupx != dupx)
 			{
@@ -673,12 +717,23 @@ static void V_DrawClippedScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patc
 	}
 #endif
 
-	if ((scrn & V_NOSCALEPATCH))
-		dupx = dupy = 1;
-	else
+	switch (scrn & V_SCALEPATCHMASK)
 	{
+	case V_NOSCALEPATCH:
+		dupx = dupy = 1;
+		break;
+	case V_SMALLSCALEPATCH:
+		dupx = vid.smalldupx;
+		dupy = vid.smalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		dupx = vid.meddupx;
+		dupy = vid.meddupy;
+		break;
+	default:
 		dupx = vid.dupx;
 		dupy = vid.dupy;
+		break;
 	}
 
 	y -= SHORT(patch->topoffset);
@@ -690,11 +745,11 @@ static void V_DrawClippedScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patc
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
-	if (!screens[scrn&0xff])
+	if (!screens[scrn&V_PARAMMASK])
 		return;
 
-	desttop = screens[scrn&0xff] + (y*vid.width) + x;
-	deststop = screens[scrn&0xff] + vid.width * vid.height * vid.bpp;
+	desttop = screens[scrn&V_PARAMMASK] + (y*vid.width) + x;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -716,8 +771,8 @@ static void V_DrawClippedScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patc
 			source = (const UINT8 *)column + 3;
 			dest = desttop + column->topdelta*dupy*vid.width;
 			count = column->length*dupy;
-			if ((dest-screens[scrn&0xff])/vid.width + count > (unsigned)vid.height - 1)
-				count = vid.height - 1 - (dest-screens[scrn&0xff])/vid.width;
+			if ((dest-screens[scrn&V_PARAMMASK])/vid.width + count > (unsigned)vid.height - 1)
+				count = vid.height - 1 - (dest-screens[scrn&V_PARAMMASK])/vid.width;
 			if (count <= 0)
 				break;
 
@@ -817,11 +872,11 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
-		desttop = screens[scrn&0xFF] + (y * vid.width) + x;
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
 	else
-		desttop = screens[scrn&0xFF] + (y * vid.dupy * vid.width) + (x * vid.dupx);
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.dupy * vid.width) + (x * vid.dupx);
 
-	deststop = screens[scrn&0xFF] + vid.width * vid.height * vid.bpp;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -980,11 +1035,11 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
-		desttop = screens[scrn&0xFF] + (y * vid.width) + x;
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
 	else
-		desttop = screens[scrn&0xFF] + (y * vid.dupy * vid.width) + (x * vid.dupx);
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.dupy * vid.width) + (x * vid.dupx);
 
-	deststop = screens[scrn&0xFF] + vid.width * vid.height * vid.bpp;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -1143,11 +1198,11 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
-		desttop = screens[scrn&0xFF] + (y * vid.width) + x;
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
 	else
-		desttop = screens[scrn&0xFF] + (y * vid.dupy * vid.width) + (x * vid.dupx);
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.dupy * vid.width) + (x * vid.dupx);
 
-	deststop = screens[scrn&0xFF] + vid.width * vid.height * vid.bpp;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -1300,11 +1355,11 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
-		desttop = screens[scrn&0xFF] + (y * vid.width) + x;
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
 	else
-		desttop = screens[scrn&0xFF] + (y * vid.dupy * vid.width) + (x * vid.dupx);
+		desttop = screens[scrn&V_PARAMMASK] + (y * vid.dupy * vid.width) + (x * vid.dupx);
 
-	deststop = screens[scrn&0xFF] + vid.width * vid.height * vid.bpp;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -1436,12 +1491,23 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	else
 		translevel = ((tr_trans50)<<FF_TRANSSHIFT) - 0x10000 + transtables;
 
-	if ((scrn & V_NOSCALEPATCH))
-		dupx = dupy = 1;
-	else
+	switch (scrn & V_SCALEPATCHMASK)
 	{
+	case V_NOSCALEPATCH:
+		dupx = dupy = 1;
+		break;
+	case V_SMALLSCALEPATCH:
+		dupx = vid.smalldupx;
+		dupy = vid.smalldupy;
+		break;
+	case V_MEDSCALEPATCH:
+		dupx = vid.meddupx;
+		dupy = vid.meddupy;
+		break;
+	default:
 		dupx = vid.dupx;
 		dupy = vid.dupy;
+		break;
 	}
 
 	if (scrn & V_TOPLEFT)
@@ -1458,8 +1524,8 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
-	desttop = screens[scrn&0xffff];
-	deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+	desttop = screens[scrn&V_PARAMMASK];
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -1471,7 +1537,7 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		desttop += (y*dupy*vid.width) + (x*dupx);
 
 		// Center it if necessary
-		if (!(scrn & V_NOSCALEPATCH))
+		if (!(scrn & V_SCALEPATCHMASK))
 		{
 			if (vid.fdupx != dupx)
 			{
@@ -1559,7 +1625,7 @@ void V_DrawPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 #endif
 
 	desttop = screens[scrn] + y*vid.width + x;
-	deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 	w = SHORT(patch->width);
 
 	for (col = 0; col < w; x++, col++, desttop++)
@@ -1639,7 +1705,7 @@ static void V_BlitScaledPic(INT32 rx1, INT32 ry1, INT32 scrn, pic_t * pic)
 
 	width = SHORT(pic->width);
 	height = SHORT(pic->height);
-	scrn &= 0xffff;
+	scrn &= V_PARAMMASK;
 
 	if (pic->mode != 0)
 	{
@@ -2002,32 +2068,32 @@ void V_DrawCharacter(INT32 x, INT32 y, INT32 c, boolean lowercaseallowed)
 	INT32 w, flags;
 	const UINT8 *colormap = NULL;
 
-	switch (c & 0xff00)
+	switch ((c & V_CHARCOLORMASK) >> V_CHARCOLORSHIFT)
 	{
-	case 0x100: // 0x81, purple
+	case 1: // 0x81, purple
 		colormap = purplemap;
 		break;
-	case 0x200: // 0x82, yellow
+	case 2: // 0x82, yellow
 		colormap = yellowmap;
 		break;
-	case 0x300: // 0x83, lgreen
+	case 3: // 0x83, lgreen
 		colormap = lgreenmap;
 		break;
-	case 0x400: // 0x84, blue
+	case 4: // 0x84, blue
 		colormap = bluemap;
 		break;
-	case 0x500: // 0x85, red
+	case 5: // 0x85, red
 		colormap = redmap;
 		break;
-	case 0x600: // 0x86, gray
+	case 6: // 0x86, gray
 		colormap = graymap;
 		break;
-	case 0x700: // 0x87, orange
+	case 7: // 0x87, orange
 		colormap = orangemap;
 		break;
 	}
 
-	flags = c & 0xffff0000;
+	flags = c & ~(V_CHARCOLORMASK | V_PARAMMASK);
 	c &= 0x7f;
 	if (lowercaseallowed)
 		c -= HU_FONTSTART;

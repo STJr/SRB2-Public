@@ -4421,8 +4421,9 @@ static menuitem_t GameOptionsMenu[] =
 
 	{IT_STRING | IT_CVAR, NULL, "Console Color", &cons_backcolor, 60},
 	{IT_STRING | IT_CVAR, NULL, "Uppercase Console", &cv_allcaps, 70},
+	{IT_STRING | IT_CVAR, NULL, "Console Text Size", &cv_constextsize, 80},
 
-	{IT_STRING | IT_SUBMENU, NULL, "Data Options...", &DataOptionsDef, 90},
+	{IT_STRING | IT_SUBMENU, NULL, "Data Options...", &DataOptionsDef, 100},
 };
 
 menu_t GameOptionDef =
