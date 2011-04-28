@@ -57,6 +57,8 @@
 
 #include "p_polyobj.h"
 
+#include "v_video.h"
+
 #include "md5.h" // map MD5
 
 #if defined (_WIN32) || defined (_WIN32_WCE)
@@ -1954,6 +1956,16 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 
 	CON_Drawer(); // let the user know what we are going to do
 	I_FinishUpdate(); // page flip or blit buffer
+
+
+	// Reset the palette
+#ifdef HWRENDER
+	if (rendermode == render_opengl)
+		HWR_SetPaletteColor(0);
+	else
+#endif
+	if (rendermode != render_none)
+		V_SetPaletteLump("PLAYPAL");
 
 	// Initialize sector node list.
 	P_Initsecnode();

@@ -1413,12 +1413,15 @@ void G_DoLoadLevel(boolean resetplayer)
 
 	if (gamestate == GS_INTERMISSION)
 		Y_EndIntermission();
+
 	G_SetGamestate(GS_LEVEL);
+
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (resetplayer || (playeringame[i] && players[i].playerstate == PST_DEAD))
 			players[i].playerstate = PST_REBORN;
 	}
+
 #if 0 //this never worked like intended anyway! <<;
 	if (resetplayer)
 	{
@@ -1426,6 +1429,8 @@ void G_DoLoadLevel(boolean resetplayer)
 		mapmusic &= ~2048;
 	}
 #endif
+
+	// Setup the level.
 	if (!P_SetupLevel(gamemap, false))
 	{
 		// fail so reset game stuff
