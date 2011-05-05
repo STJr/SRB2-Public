@@ -176,7 +176,7 @@ static void *xm(size_t size)
 
 		if (p == NULL)
 		{
-#ifdef _NDS
+#if defined (_NDS) | defined (_PSP)
 			// Temporary-ish debugging measure
 			Command_Memfree_f();
 #endif

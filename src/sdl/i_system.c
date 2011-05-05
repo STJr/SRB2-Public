@@ -170,6 +170,13 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION2 "/dev_usb/SRB2PS3"
 #define DEFAULTSEARCHPATH1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
 #define DEFAULTSEARCHPATH2 "/dev_usb/SRB2PS3"
+#elif defined (_PSP)
+#define NOCWD
+#define NOHOME
+#define DEFAULTWADLOCATION1 "host0:/bin/Resources"
+#define DEFAULTWADLOCATION2 "ms0:/PSP/GAME/SRB2PSP"
+#define DEFAULTSEARCHPATH1 "host0:/"
+#define DEFAULTSEARCHPATH2 "ms0:/PSP/GAME/SRB2PSP"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #define DEFAULTWADLOCATION1 "/usr/local/share/games/SRB2"
 #define DEFAULTWADLOCATION2 "/usr/local/games/SRB2"
@@ -2683,7 +2690,7 @@ static const char *locateWad(void)
 	if (((envstr = I_GetEnv("SRB2WADDIR")) != NULL) && isWadPathOk(envstr))
 		return envstr;
 
-#if defined(_WIN32_WCE) || defined(_PS3)
+#if defined(_WIN32_WCE) || defined(_PS3) || defined(_PSP)
 	// examine argv[0]
 	strcpy(returnWadPath, myargv[0]);
 	pathonly(returnWadPath);

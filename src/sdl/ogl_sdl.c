@@ -60,8 +60,13 @@ PFNglClear pglClear;
 PFNglGetIntegerv pglGetIntegerv;
 PFNglGetString pglGetString;
 
+#ifdef _PSP
+static const Uint32 WOGLFlags = SDL_HWSURFACE|SDL_OPENGL/*|SDL_RESIZABLE*/;
+static const Uint32 FOGLFlags = SDL_HWSURFACE|SDL_OPENGL|SDL_FULLSCREEN;
+#else
 static const Uint32 WOGLFlags = SDL_OPENGL/*|SDL_RESIZABLE*/;
 static const Uint32 FOGLFlags = SDL_OPENGL|SDL_FULLSCREEN;
+#endif
 
 /**	\brief SDL video display surface
 */
@@ -79,6 +84,9 @@ void *GetGLFunc(const char *proc)
 
 boolean LoadGL(void)
 {
+#ifdef STATIC_OPENGL
+	return SetupGLfunc();
+#else
 	const char *OGLLibname = NULL;
 	const char *GLULibname = NULL;
 
@@ -132,6 +140,7 @@ boolean LoadGL(void)
 				 "If you know what is the GLU library's name, use -GLUlib\n");
 
 	return 0;
+#endif
 }
 
 /**	\brief	The OglSdlSurface function

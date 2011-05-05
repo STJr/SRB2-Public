@@ -174,7 +174,7 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t DMulScale16(fixed_t a, fixed_t b, 
 	}
 
 	#define __USE_C_FIXEDDIV__// Alam: I am lazy
-#elif defined (__GNUC__) && defined (__mips__) && !defined(NOASM) // PSP: MIPS CPU
+#elif defined (__GNUC__) && defined (__mips__) && !defined(NOASM) && 0 // PSP: MIPS CPU
 	FUNCMATH FUNCINLINE static inline fixed_t FixedMul(fixed_t a, fixed_t b) // asm
 	{
 		fixed_t ret;

@@ -203,12 +203,16 @@ typedef void (APIENTRY * PFNglEnable) (GLenum cap);
 static PFNglEnable pglEnable;
 typedef void (APIENTRY * PFNglDisable) (GLenum cap);
 static PFNglDisable pglDisable;
+#ifndef MINI_GL_COMPATIBILITY
 typedef void (APIENTRY * PFNglGetDoublev) (GLenum pname, GLdouble *params);
 static PFNglGetDoublev pglGetDoublev;
+#endif
 //glGetIntegerv
 //glGetString
+#ifdef KOS_GL_COMPATIBILITY
 typedef void (APIENTRY * PFNglHint) (GLenum target, GLenum mode);
 static PFNglHint pglHint;
+#endif
 
 /* Depth Buffer */
 typedef void (APIENTRY * PFNglClearDepth) (GLclampd depth);
@@ -295,8 +299,10 @@ typedef GLint (APIENTRY * PFNgluBuild2DMipmaps) (GLenum target, GLint internalFo
 static PFNgluBuild2DMipmaps pgluBuild2DMipmaps;
 typedef void (APIENTRY * PFNgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 static PFNgluPerspective pgluPerspective;
+#ifndef MINI_GL_COMPATIBILITY
 typedef GLint (APIENTRY * PFNgluProject) (GLdouble objX, GLdouble objY, GLdouble objZ, const GLdouble *model, const GLdouble *proj, const GLint *view, GLdouble* winX, GLdouble* winY, GLdouble* winZ);
 static PFNgluProject pgluProject;
+#endif
 
 #ifndef MINI_GL_COMPATIBILITY
 /* 1.2 Parms */
@@ -340,10 +346,14 @@ boolean SetupGLfunc(void)
 	pglScissor = GetGLFunc("glScissor");
 	pglEnable = GetGLFunc("glEnable");
 	pglDisable = GetGLFunc("glDisable");
+#ifndef MINI_GL_COMPATIBILITY
 	pglGetDoublev = GetGLFunc("glGetDoublev");
+#endif
 	pglGetIntegerv = GetGLFunc("glGetIntegerv");
 	pglGetString = GetGLFunc("glGetString");
+#ifdef KOS_GL_COMPATIBILITY
 	pglHint = GetGLFunc("glHint");
+#endif
 
 	pglClearDepth = GetGLFunc("glClearDepth");
 	pglDepthFunc = GetGLFunc("glDepthFunc");
@@ -387,7 +397,9 @@ boolean SetupGLfunc(void)
 
 	pgluPerspective = GetGLFunc("gluPerspective");
 	pgluBuild2DMipmaps = GetGLFunc("gluBuild2DMipmaps");
+#ifndef MINI_GL_COMPATIBILITY
 	pgluProject = GetGLFunc("gluProject");
+#endif
 
 #undef GETOPENGLFUNC
 

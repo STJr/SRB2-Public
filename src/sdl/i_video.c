@@ -190,7 +190,11 @@ static const Uint32      surfaceFlagsW = SDL_HWPALETTE; //Can't handle WinCE cha
 #else
 static const Uint32      surfaceFlagsW = SDL_HWPALETTE/*|SDL_RESIZABLE*/;
 #endif
+#ifdef _PSP
+static const Uint32      surfaceFlagsF = SDL_HWSURFACE|SDL_FULLSCREEN;
+#else
 static const Uint32      surfaceFlagsF = SDL_HWPALETTE|SDL_FULLSCREEN;
+#endif
 static       SDL_bool    mousegrabok = SDL_TRUE;
 #define HalfWarpMouse(x,y) SDL_WarpMouse((Uint16)(x/2),(Uint16)(y/2))
 #if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
@@ -661,7 +665,7 @@ static void VID_Command_Info_f (void)
 
 static void VID_Command_ModeList_f(void)
 {
-#if !defined (DC) && !defined (_WIN32_WCE)
+#if !defined (DC) && !defined (_WIN32_WCE) && !defined (_PSP) &&  !defined(GP2X)
 	INT32 i;
 #ifdef HWRENDER
 	if (rendermode == render_opengl)
@@ -1817,7 +1821,9 @@ static void* SDLGetDirect(void)
 
 INT32 VID_SetMode(INT32 modeNum)
 {
-#ifndef _WIN32_WCE
+#ifdef _WIN32_WCE
+	(void)modeNum;
+#else
 	SDLdoUngrabMouse();
 	vid.recalc = true;
 	BitsPerPixel = (Uint8)cv_scr_depth.value;
@@ -1942,7 +1948,11 @@ void I_StartupGraphics(void)
 #ifdef FILTERS
 	CV_RegisterVar (&cv_filter);
 #endif
+#ifdef _PSP // pitch is 0, mod of 0 crash
+	disable_mouse = true;
+#else
 	disable_mouse = M_CheckParm("-nomouse");
+#endif
 	if (disable_mouse)
 		I_PutEnv(SDLNOMOUSE);
 	if (!I_GetEnv("SDL_VIDEO_CENTERED"))
@@ -2022,7 +2032,7 @@ void I_StartupGraphics(void)
 	{
 		rendermode = render_opengl;
 		HWD.pfnInit             = hwSym("Init",NULL);
-		HWD.pfnFinishUpdate     = hwSym("FinishUpdate",NULL);
+		HWD.pfnFinishUpdate     = NULL;
 		HWD.pfnDraw2DLine       = hwSym("Draw2DLine",NULL);
 		HWD.pfnDrawPolygon      = hwSym("DrawPolygon",NULL);
 		HWD.pfnSetBlend         = hwSym("SetBlend",NULL);
@@ -2043,8 +2053,8 @@ void I_StartupGraphics(void)
 		HWD.pfnStartScreenWipe  = hwSym("StartScreenWipe",NULL);
 		HWD.pfnEndScreenWipe    = hwSym("EndScreenWipe",NULL);
 		HWD.pfnDoScreenWipe     = hwSym("DoScreenWipe",NULL);
-		HWD.pfnDrawIntermissionBG=hwSym("DrawIntermissionBG", NULL);
-		HWD.pfnMakeScreenTexture= hwSym("MakeScreenTexture", NULL);
+		HWD.pfnDrawIntermissionBG=hwSym("DrawIntermissionBG",NULL);
+		HWD.pfnMakeScreenTexture= hwSym("MakeScreenTexture",NULL);
 #endif
 		// check gl renderer lib
 		if (HWD.pfnGetRenderVersion() != VERSION)
