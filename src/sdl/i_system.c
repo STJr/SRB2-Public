@@ -95,7 +95,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 
 #ifdef _PSP
-#include <pspiofilemgr.h>
+//#include <pspiofilemgr.h>
 #elif !defined(_PS3)
 #if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (__HAIKU__) && !defined (_WII))
 #if defined (__linux__)
