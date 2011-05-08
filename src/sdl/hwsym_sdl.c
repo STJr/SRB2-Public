@@ -79,9 +79,9 @@
 void *hwSym(const char *funcName,void *handle)
 {
 	void *funcPointer = NULL;
+#ifdef HWRENDER
 	if (0 == strcmp("SetPalette", funcName))
                 funcPointer = &OglSdlSetPalette;
-#ifdef HWRENDER
 	GETFUNC(Init);
 	GETFUNC(Draw2DLine);
 	GETFUNC(DrawPolygon);
@@ -104,8 +104,11 @@ void *hwSym(const char *funcName,void *handle)
 	GETFUNC(DoScreenWipe);
 	GETFUNC(DrawIntermissionBG);
 	GETFUNC(MakeScreenTexture);
-#endif
-#endif
+#endif //SHUFFLE
+#else //HWRENDER
+	if (0 == strcmp("FinishUpdate", funcName))
+		return funcPointer; //&FinishUpdate;
+#endif //!HWRENDER
 #ifdef STATIC3DS
 	GETFUNC(Startup);
 	GETFUNC(AddSfx);
