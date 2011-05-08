@@ -747,8 +747,8 @@ EXPORT void HWRAPI(Draw2DLine) (F2DCoord * v1,
 
 	// DBG_Printf ("DrawLine() (%f %f %f) %d\n", v1->x, -v1->y, -v1->z, v1->argb);
 #ifdef MINI_GL_COMPATIBILITY
-	GLfloat x1, x2, x3, x4;
-	GLfloat y1, y2, y3, y4;
+	GLfloat px1, px2, px3, px4;
+	GLfloat py1, py2, py3, py4;
 	GLfloat dx, dy;
 	GLfloat angle;
 #endif
@@ -777,17 +777,17 @@ EXPORT void HWRAPI(Draw2DLine) (F2DCoord * v1,
 	dx = (float)sin(angle) / (float)screen_width;
 	dy = (float)cos(angle) / (float)screen_height;
 
-	x1 = v1->x - dx;  y1 = v1->y + dy;
-	x2 = v2->x - dx;  y2 = v2->y + dy;
-	x3 = v2->x + dx;  y3 = v2->y - dy;
-	x4 = v1->x + dx;  y4 = v1->y - dy;
+	px1 = v1->x - dx;  py1 = v1->y + dy;
+	px2 = v2->x - dx;  py2 = v2->y + dy;
+	px3 = v2->x + dx;  py3 = v2->y - dy;
+	px4 = v1->x + dx;  py4 = v1->y - dy;
 
 	pglColor4f(c.red, c.green, c.blue, c.alpha);
 	pglBegin(GL_TRIANGLE_FAN);
-		pglVertex3f(x1, -y1, 1);
-		pglVertex3f(x2, -y2, 1);
-		pglVertex3f(x3, -y3, 1);
-		pglVertex3f(x4, -y4, 1);
+		pglVertex3f(px1, -py1, 1);
+		pglVertex3f(px2, -py2, 1);
+		pglVertex3f(px3, -py3, 1);
+		pglVertex3f(px4, -py4, 1);
 	pglEnd();
 #endif
 
