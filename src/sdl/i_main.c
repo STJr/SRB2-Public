@@ -40,10 +40,10 @@ static char netmask[16] = {0};
 #ifdef _PSP
 #include <pspmoduleinfo.h>
 #include <pspthreadman.h>
-PSP_HEAP_SIZE_MAX();
+PSP_HEAP_SIZE_KB(24*1024);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU);
 PSP_MAIN_THREAD_NAME("SRB2");
-PSP_MAIN_THREAD_STACK_SIZE_KB(32);
+PSP_MAIN_THREAD_STACK_SIZE_KB(256);
 #endif
 
 #ifdef SDL
