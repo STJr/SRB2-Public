@@ -97,14 +97,6 @@
 #include <malloc.h>
 #include <assert.h>
 #include <unistd.h>
-#include <sysutil/video.h>
-#include <io/pad.h>
-#include <psl1ght/lv2.h>
-#include <rsx/gcm.h>
-#include <rsx/reality.h>
-//#include <rsx/commands.h>
-//#include <rsx/nv40.h>
-//#include <sysmodule/sysmodule.h>
 #endif
 
 #ifdef PC_DOS

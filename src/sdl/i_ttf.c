@@ -27,6 +27,7 @@
 
 // Search directories to find aforementioned TTF file.
 #ifdef _PS3
+#include <sysutil/video.h>
 #define FONTSEARCHPATH1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #define FONTSEARCHPATH1 "/usr/share/fonts"
@@ -49,7 +50,7 @@ SDL_Rect TTFRect;
 // line wrapping.
 SDL_Rect TTFRectCheck;
 // Text rendering resolution.
-VideoResolution res;
+videoResolution res;
 // Text storage buffer, the contents get printed to the SDL surface.
 char textbuffer[8192];
 
@@ -233,7 +234,7 @@ void I_StartupTTF(UINT32 fontpointsize, Uint32 initflags, Uint32 vidmodeflags)
 	char *fontpath = NULL;
 	INT32 fontstatus = -1;
 #ifdef _PS3
-	VideoState state;
+	videoState state;
 	videoGetState(0, 0, &state);
 	videoGetResolution(state.displayMode.resolution, &res);
 	bitsperpixel = 24;

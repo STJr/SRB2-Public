@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 
 #ifdef _PS3
 	// initialise controllers.
-	ioPadInit(7);
+	//ioPadInit(7);
 #endif
 
 // init Wii-specific stuff
