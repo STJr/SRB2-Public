@@ -28,6 +28,8 @@
 
 #ifdef _WII
 #include <limits.h>
+#include <network.h>
+#include <fat.h>
 #ifdef REMOTE_DEBUGGING
 #include <debug.h>
 #endif

@@ -1,4 +1,5 @@
 #include <nds.h>
+#include <fat.h>
 
 #include "../doomdef.h"
 #include "../d_main.h"

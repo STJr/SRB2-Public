@@ -80,25 +80,6 @@
 #include <io.h>
 #endif
 
-#ifdef _NDS
-#include <fat.h>
-#endif
-
-#ifdef _WII
-#include <gccore.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fat.h>
-#include <wiiuse/wpad.h>
-#include <network.h>
-#endif
-
-#ifdef _PS3
-#include <malloc.h>
-#include <assert.h>
-#include <unistd.h>
-#endif
-
 #ifdef PC_DOS
 #include <conio.h>
 #endif
