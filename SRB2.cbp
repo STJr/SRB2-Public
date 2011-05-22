@@ -146,7 +146,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="kernel32" />
 					<Add library="msvcrt" />
 					<Add library="user32" />
-					<Add library="wsock32" />
+					<Add library="ws2_32" />
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
@@ -183,7 +183,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="kernel32" />
 					<Add library="msvcrt" />
 					<Add library="user32" />
-					<Add library="wsock32" />
+					<Add library="ws2_32" />
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
@@ -222,7 +222,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="msvcrt" />
 					<Add library="winmm" />
 					<Add library="user32" />
-					<Add library="wsock32" />
+					<Add library="ws2_32" />
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />
@@ -260,7 +260,7 @@ HW3SOUND for 3D hardware sound  support
 					<Add library="msvcrt" />
 					<Add library="user32" />
 					<Add library="winmm" />
-					<Add library="wsock32" />
+					<Add library="ws2_32" />
 					<Add library="png32" />
 					<Add library="z32" />
 					<Add directory="libs/zlib/win32" />

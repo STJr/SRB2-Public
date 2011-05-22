@@ -246,8 +246,8 @@ endif
 ifdef NONET
 	OPTS+=-DNONET
 else
-ifdef NOIPX
-	OPTS+=-DNOIPX
+ifdef NO_IPV6
+	OPTS+=-DNO_IPV6
 endif
 endif
 

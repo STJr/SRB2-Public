@@ -31,9 +31,18 @@
 #endif
 
 #ifndef NONET
+
+#ifndef NO_IPV6
+#define HAVE_IPV6
+#endif
+
 #if (defined (_WIN32) || defined (_WIN32_WCE)) && !defined (_XBOX)
 #define RPC_NO_WINDOWS_H
+#ifdef HAVE_IPV6
+#include <ws2tcpip.h>
+#else
 #include <winsock.h>     // socket(),...
+#endif //!HAVE_IPV6
 #else
 #ifdef __OS2__
 #include <sys/types.h>
@@ -53,8 +62,10 @@
 #endif
 #include <sys/socket.h> // socket(),...
 #include <netinet/in.h> // sockaddr_in
-#ifndef _arch_dreamcast
-#include <netdb.h> // gethostbyname(),...
+#ifdef _PS3
+#include <net/select.h>
+#elif !defined(_arch_dreamcast)
+#include <netdb.h> // getaddrinfo(),...
 #include <sys/ioctl.h>
 #endif
 #endif
@@ -88,6 +99,8 @@
 #ifdef _WIN32_WCE
 #include "sdl/SRB2CE/cehelp.h"
 #endif
+
+#include "i_addrinfo.h"
 
 // ================================ DEFINITIONS ===============================
 
@@ -185,14 +198,9 @@ typedef struct
 #undef errno
 #define errno h_errno // some very strange things happen when not using h_error
 #endif
+#ifndef AI_ADDRCONFIG
+#define AI_ADDRCONFIG 0x00000400
 #endif
-
-#if !defined (__APPLE_CC__)  && !defined(HAVE_LWIP) && (defined (_WIN32) || defined (_WIN32_WCE) || defined (__OS2__) || defined (SOLARIS) || defined(_arch_dreamcast)) && !defined (NONET)
-// it seems windows doesn't define that... maybe some other OS? OS/2
-static INT32 inet_aton(const char *hostname, struct in_addr *addr)
-{
-	return (addr->s_addr = inet_addr(hostname)) != htonl(INADDR_NONE);
-}
 #endif
 
 static void Command_Listserv_f(void);
@@ -210,14 +218,14 @@ INT32 oldroomnum = 0;
 static enum { MSCS_NONE, MSCS_WAITING, MSCS_REGISTERED, MSCS_FAILED } con_state = MSCS_NONE;
 
 static INT32 msnode = -1;
-#define current_port sock_port
+UINT16 current_port = 0;
 
 #if (defined (_WIN32) || defined (_WIN32_WCE) || defined (_WIN32)) && !defined (NONET)
 typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
 #else
-#if (defined (__unix__) && !defined (MSDOS)) || defined (__APPLE__) || defined (__HAIKU__)
+#if (defined (__unix__) && !defined (MSDOS)) || defined (__APPLE__) || defined (__HAIKU__) || defined (_PS3)
 typedef int SOCKET_TYPE;
 #else
 typedef unsigned long SOCKET_TYPE;
@@ -232,7 +240,6 @@ typedef int socklen_t;
 
 #ifndef NONET
 static SOCKET_TYPE socket_fd = BADSOCKET; // WINSOCK socket
-static struct sockaddr_in addr;
 static struct timeval select_timeout;
 static fd_set wset;
 static size_t recvfull(SOCKET_TYPE s, char *buf, size_t len, int flags);
@@ -374,81 +381,85 @@ static inline INT32 GetMSMOTD(void)
 }
 
 //
-// MS_GetIP()
-//
-#ifndef NONET
-static INT32 MS_GetIP(const char *hostname)
-{
-	struct hostent *host_ent;
-	if (!inet_aton(hostname, (void *)&addr.sin_addr))
-	{
-		/// \todo only when we are connected to the Internet, or use a non blocking call
-		host_ent = gethostbyname(hostname);
-		if (!host_ent)
-			return MS_GETHOSTBYNAME_ERROR;
-		M_Memcpy(&addr.sin_addr, host_ent->h_addr_list[0], sizeof (struct in_addr));
-	}
-	return 0;
-}
-#endif
-
-//
 // MS_Connect()
 //
 static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 {
 #ifdef NONET
-	str_port = ip_addr = NULL;
-	async = MS_CONNECT_ERROR;
-	return async;
+	(void)ip_addr;
+	(void)str_port;
+	(void)async;
 #else
-	socklen_t j = (socklen_t)sizeof(addr);
-//	I_InitTcpNetwork(); this is already done on startup in D_SRB2Main()
+	struct my_addrinfo *ai, *runp, hints;
+	int gaie;
+
+	memset (&hints, 0x00, sizeof(hints));
+#ifdef AI_ADDRCONFIG
+	hints.ai_flags = AI_ADDRCONFIG;
+#endif
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	//I_InitTcpNetwork(); this is already done on startup in D_SRB2Main()
 	if (!I_InitTcpDriver()) // this is done only if not already done
 		return MS_SOCKET_ERROR;
-	memset(&addr, 0, sizeof (addr));
-	addr.sin_family = AF_INET;
 
-	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (socket_fd == BADSOCKET || socket_fd == (SOCKET_TYPE)ERRSOCKET)
-		return MS_SOCKET_ERROR;
-
-	if (MS_GetIP(ip_addr) == MS_GETHOSTBYNAME_ERROR)
+	gaie = I_getaddrinfo(ip_addr, str_port, &hints, &ai);
+	if (gaie != 0)
 		return MS_GETHOSTBYNAME_ERROR;
-	addr.sin_port = htons((UINT16)atoi(str_port));
+	else
+		runp = ai;
 
-	if (async) // do asynchronous connection
+	while (runp != NULL)
 	{
-#ifdef WATTCP
-		char res = 1;
-#else
-		unsigned long res = 1;
-#endif
-
-		ioctl(socket_fd, FIONBIO, &res);
-
-		if (connect(socket_fd, (void *)&addr, j) == ERRSOCKET)
+		socket_fd = socket(runp->ai_family, runp->ai_socktype, runp->ai_protocol);
+		if (socket_fd != BADSOCKET && socket_fd != (SOCKET_TYPE)ERRSOCKET)
 		{
-#ifdef _WIN32 // humm, on win32/win64 it doesn't work with EINPROGRESS (stupid windows)
-			if (WSAGetLastError() != WSAEWOULDBLOCK)
-#else
-			if (errno != EINPROGRESS)
-#endif
+			if (async) // do asynchronous connection
 			{
-				con_state = MSCS_FAILED;
-				CloseConnection();
-				return MS_CONNECT_ERROR;
+#ifdef FIONBIO
+#ifdef WATTCP
+				char res = 1;
+#else
+				unsigned long res = 1;
+#endif
+
+				ioctl(socket_fd, FIONBIO, &res);
+#endif
+
+				if (connect(socket_fd, runp->ai_addr, runp->ai_addrlen) == ERRSOCKET)
+				{
+#ifdef _WIN32 // humm, on win32/win64 it doesn't work with EINPROGRESS (stupid windows)
+					if (WSAGetLastError() != WSAEWOULDBLOCK)
+#else
+					if (errno != EINPROGRESS)
+#endif
+					{
+						con_state = MSCS_FAILED;
+						CloseConnection();
+						I_freeaddrinfo(ai);
+						return MS_CONNECT_ERROR;
+					}
+				}
+				con_state = MSCS_WAITING;
+				FD_ZERO(&wset);
+				FD_SET(socket_fd, &wset);
+				select_timeout.tv_sec = 0, select_timeout.tv_usec = 0;
+				I_freeaddrinfo(ai);
+				return 0;
+			}
+			else if (connect(socket_fd, runp->ai_addr, runp->ai_addrlen) != ERRSOCKET)
+			{
+				I_freeaddrinfo(ai);
+				return 0;
 			}
 		}
-		con_state = MSCS_WAITING;
-		FD_ZERO(&wset);
-		FD_SET(socket_fd, &wset);
-		select_timeout.tv_sec = 0, select_timeout.tv_usec = 0;
+		runp = runp->ai_next;
 	}
-	else if (connect(socket_fd, (void *)&addr, j) == ERRSOCKET)
-		return MS_CONNECT_ERROR;
-	return 0;
+	I_freeaddrinfo(ai);
 #endif
+	return MS_CONNECT_ERROR;
 }
 
 #define NUM_LIST_SERVER MAXSERVERLIST
@@ -812,18 +823,13 @@ void MSOpenUDPSocket(void)
 		// If it's already open, there's nothing to do.
 		if (msnode < 0)
 		{
-			char hostname[24];
-
-			MS_GetIP(GetMasterServerIP());
-
-			sprintf(hostname, "%s:%d",
-#ifdef _arch_dreamcast
-				inet_ntoa(*(UINT32 *)&addr.sin_addr),
-#else
-				inet_ntoa(addr.sin_addr),
-#endif
-				atoi(GetMasterServerPort())+1);
+			const char *mshost = GetMasterServerIP();
+			const char *msport = GetMasterServerPort();
+			size_t len = strlen(mshost)+strlen(msport)+1; /*hostname:65536*/
+			char *hostname = malloc(len);
+			sprintf(hostname, "%s:%s", mshost, msport);
 			msnode = I_NetMakeNode(hostname);
+			free(hostname);
 		}
 	}
 	else

@@ -1296,7 +1296,8 @@ void D_SRB2Main(void)
 
 	if (M_CheckParm("-ultimatemode"))
 	{
-		autostart = ultimatemode = true;
+		autostart = true;
+		ultimatemode = true;
 	}
 
 	if (autostart || netgame || M_CheckParm("+connect") || M_CheckParm("-connect"))
