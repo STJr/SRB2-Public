@@ -713,8 +713,8 @@ static boolean UDP_Socket(void)
 					}
 					runp = runp->ai_next;
 				}
+				I_freeaddrinfo(ai);
 			}
-			I_freeaddrinfo(ai);
 		}
 	}
 	else
@@ -732,9 +732,10 @@ static boolean UDP_Socket(void)
 					myfamily[s] = hints.ai_family;
 					s++;
 				}
-				runp = runp->ai_next;			}
+				runp = runp->ai_next;
+			}
+			I_freeaddrinfo(ai);
 		}
-		I_freeaddrinfo(ai);
 	}
 #ifdef HAVE_IPV6
 	hints.ai_family = AF_INET6;
@@ -757,8 +758,8 @@ static boolean UDP_Socket(void)
 					}
 					runp = runp->ai_next;
 				}
+				I_freeaddrinfo(ai);
 			}
-			I_freeaddrinfo(ai);
 		}
 	}
 	else
@@ -778,8 +779,8 @@ static boolean UDP_Socket(void)
 				}
 				runp = runp->ai_next;
 			}
+			I_freeaddrinfo(ai);
 		}
-		I_freeaddrinfo(ai);
 	}
 #endif
 
@@ -1183,6 +1184,8 @@ static boolean SOCK_SetBanAddress(const char *address, const char *mask)
 		numbans++;
 		runp = runp->ai_next;
 	}
+
+	I_freeaddrinfo(ai);
 
 	return true;
 #endif
