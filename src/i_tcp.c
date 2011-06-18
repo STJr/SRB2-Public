@@ -532,6 +532,19 @@ static void SOCK_Send(void)
 		}
 		return;
 	}
+	else if (nodesocket[doomcom->remotenode] == BADSOCKET)
+	{
+		size_t i;
+		for (i = 0; i < mysocketss && mysockets[i] != BADSOCKET; i++)
+		{
+			if (myfamily[i] == clientaddress[i].any.sa_family)
+				sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
+					&clientaddress[doomcom->remotenode].any, d);
+
+		}
+		return;
+	}
+
 	c = sendto(nodesocket[doomcom->remotenode], (char *)&doomcom->data, doomcom->datalength, 0,
 		&clientaddress[doomcom->remotenode].any, d);
 
@@ -671,6 +684,9 @@ static boolean UDP_Socket(void)
 	size_t s;
 	struct my_addrinfo *ai, *runp, hints;
 	int gaie;
+#ifdef HAVE_IPV6
+	const INT32 b_noipv6 = M_CheckParm("-noipv6");
+#endif
 
 	for (s = 0; s < mysocketss; s++)
 		mysockets[s] = BADSOCKET;
@@ -738,12 +754,35 @@ static boolean UDP_Socket(void)
 		}
 	}
 #ifdef HAVE_IPV6
-	hints.ai_family = AF_INET6;
-	if (M_CheckParm("-bindaddr6"))
+	if (!b_noipv6)
 	{
-		while (M_IsNextParm())
+		hints.ai_family = AF_INET6;
+		if (M_CheckParm("-bindaddr6"))
 		{
-			gaie = I_getaddrinfo(M_GetNextParm(), sock_port, &hints, &ai);
+			while (M_IsNextParm())
+			{
+				gaie = I_getaddrinfo(M_GetNextParm(), sock_port, &hints, &ai);
+				if (gaie == 0)
+				{
+					runp = ai;
+					while (runp != NULL && s < mysocketss)
+					{
+						mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
+						if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
+						{
+							FD_SET(mysockets[s], &masterset);
+							myfamily[s] = hints.ai_family;
+							s++;
+						}
+						runp = runp->ai_next;
+					}
+					I_freeaddrinfo(ai);
+				}
+			}
+		}
+		else
+		{
+			gaie = I_getaddrinfo("::", sock_port, &hints, &ai);
 			if (gaie == 0)
 			{
 				runp = ai;
@@ -760,26 +799,6 @@ static boolean UDP_Socket(void)
 				}
 				I_freeaddrinfo(ai);
 			}
-		}
-	}
-	else
-	{
-		gaie = I_getaddrinfo("::", sock_port, &hints, &ai);
-		if (gaie == 0)
-		{
-			runp = ai;
-			while (runp != NULL && s < mysocketss)
-			{
-				mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
-				if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
-				{
-					FD_SET(mysockets[s], &masterset);
-					myfamily[s] = hints.ai_family;
-					s++;
-				}
-				runp = runp->ai_next;
-			}
-			I_freeaddrinfo(ai);
 		}
 	}
 #endif
@@ -799,8 +818,9 @@ static boolean UDP_Socket(void)
 		runp = ai;
 		while (runp != NULL)
 		{
-			memcpy(&broadcastaddress[s], ai->ai_addr, ai->ai_addrlen);
+			memcpy(&clientaddress[s], ai->ai_addr, ai->ai_addrlen);
 			s++;
+			runp = runp->ai_next;
 		}
 		I_freeaddrinfo(ai);
 	}
@@ -820,6 +840,7 @@ static boolean UDP_Socket(void)
 		{
 			memcpy(&broadcastaddress[s], ai->ai_addr, ai->ai_addrlen);
 			s++;
+			runp = runp->ai_next;
 		}
 		I_freeaddrinfo(ai);
 	}
@@ -831,17 +852,21 @@ static boolean UDP_Socket(void)
 		s++;
 	}
 #ifdef HAVE_IPV6
-	hints.ai_family = AF_INET6;
-	gaie = I_getaddrinfo("ff02::1", "0", &hints, &ai);
-	if (gaie == 0)
+	if (!b_noipv6)
 	{
-		runp = ai;
-		while (runp != NULL)
+		hints.ai_family = AF_INET6;
+		gaie = I_getaddrinfo("ff02::1", "0", &hints, &ai);
+		if (gaie == 0)
 		{
-			memcpy(&broadcastaddress[s], ai->ai_addr, ai->ai_addrlen);
-			s++;
+			runp = ai;
+			while (runp != NULL)
+			{
+				memcpy(&broadcastaddress[s], ai->ai_addr, ai->ai_addrlen);
+				s++;
+				runp = runp->ai_next;
+			}
+			I_freeaddrinfo(ai);
 		}
-		I_freeaddrinfo(ai);
 	}
 #endif
 
