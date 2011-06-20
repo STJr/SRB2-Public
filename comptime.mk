@@ -3,14 +3,22 @@ SRCDIR=src
 ifdef ComSpec
 COMSPEC=$(ComSpec)
 endif
+ifdef COMSPEC
+RM=del /F
+endif
 
 all-before:
-	${RM} $(SRCDIR)/comptime.h
 ifdef COMSPEC
+	${RM} $(SRCDIR)\comptime.h
 	comptime.bat $(SRCDIR)
 else
+	${RM} $(SRCDIR)/comptime.h
 	./comptime.sh $(SRCDIR)
 endif
 
 clean-custom:
+ifdef COMSPEC
+	${RM} $(SRCDIR)\comptime.h
+else
 	${RM} $(SRCDIR)/comptime.h
+endif

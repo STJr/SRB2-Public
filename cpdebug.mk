@@ -9,15 +9,16 @@ else
 OBJCOPY=objcopy
 OBJDUMP=objdump
 endif
-DGB=$(BIN).debug
+DBGNAME=$(BIN).debug
 OBJDUMP_OPTS?=--wide --source --line-numbers
 GZIP?=gzip
 GZIP_OPTS?=-9 -f
 GZIP_OPT2=$(GZIP_OPTS) --rsyncable
 
 all-after:
-	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN) > $(DGB).txt
-	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || -$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
-	$(OBJCOPY) $(BIN) $(DGB)
+	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN) > $(DBGNAME).txt
+	$(GZIP) $(GZIP_OPT2) $(DBGNAME).txt || $(GZIP) $(GZIP_OPTS) $(DBGNAME).txt
+	$(OBJCOPY) $(BIN) $(DBGNAME)
 	$(OBJCOPY) --strip-debug $(BIN)
-	$(OBJCOPY) --add-gnu-debuglink=$(DGB) $(BIN)
+	$(OBJCOPY) --add-gnu-debuglink=$(DBGNAME) $(BIN)
+
