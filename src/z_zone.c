@@ -205,7 +205,7 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	void *given;
 
 #ifdef ZDEBUG2
-	DEBPRINT("Z_Malloc %s:%d\n", file, line);
+	DEBPRINT(va("Z_Malloc %s:%d\n", file, line));
 #endif
 
 	block = xm(sizeof *block);
@@ -273,7 +273,7 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 	size_t copysize;
 
 #ifdef ZDEBUG2
-	DEBPRINT("Z_Realloc %s:%d\n", file, line);
+	DEBPRINT(va("Z_Realloc %s:%d\n", file, line));
 #endif
 
 	if (!size)
