@@ -135,7 +135,7 @@ void Z_Free(void *ptr)
 		return;
 
 #ifdef ZDEBUG2
-	DEBPRINT("Z_Free %s:%d\n", file, line);
+	DEBPRINT(va("Z_Free %s:%d\n", file, line));
 #endif
 
 #ifdef ZDEBUG
