@@ -12,7 +12,7 @@ endif
 DBGNAME=$(BIN).debug
 OBJDUMP_OPTS?=--wide --source --line-numbers
 GZIP?=gzip
-GZIP_OPTS?=-9 -f
+GZIP_OPTS?=-9 -f -n
 GZIP_OPT2=$(GZIP_OPTS) --rsyncable
 
 all-after:
