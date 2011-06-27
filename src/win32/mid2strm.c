@@ -1263,7 +1263,7 @@ Init_Cleanup:
 // ----------------------
 static int AddEventToStreamBuffer(LPTEMPEVENT pMe, LPCONVERTINFO lpciInfo)
 {
-	DWORD      tkNow, tkDelta;
+	DWORD      tkDelta;
 	MIDIEVENT *pmeEvent;
 
 	pmeEvent = (MIDIEVENT *)(lpciInfo->mhBuffer.lpData
@@ -1286,8 +1286,6 @@ static int AddEventToStreamBuffer(LPTEMPEVENT pMe, LPCONVERTINFO lpciInfo)
 		else
 			lpciInfo->bTimesUp = TRUE;
 	}
-
-	tkNow = tkCurrentTime;
 
 	// Delta time is absolute event time minus absolute time
 	// already gone by on this track

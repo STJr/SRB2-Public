@@ -230,7 +230,7 @@ static INT32 WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 	LPCSTR renderer;
 	BOOL WantFullScreen = !(lvid->u.windowed);  //(lvid->u.windowed ? 0 : CDS_FULLSCREEN);
 
-	pcurrentmode = NULL;
+	UNREFERENCED_PARAMETER(pcurrentmode);
 	DBG_Printf ("SetMode(): %dx%d %d bits (%s)\n",
 	            lvid->width, lvid->height, lvid->bpp*8,
 	            WantFullScreen ? "fullscreen" : "windowed");
@@ -534,7 +534,7 @@ EXPORT void HWRAPI(FinishUpdate) (INT32 waitvbl)
 #ifdef USE_WGL_SWAP
 	static INT32 oldwaitvbl = 0;
 #else
-	waitvbl = 0;
+	UNREFERENCED_PARAMETER(waitvbl);
 #endif
 	// DBG_Printf ("FinishUpdate()\n");
 #ifdef DEBUG_TO_FILE

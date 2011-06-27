@@ -918,7 +918,6 @@ INT32 VID_SetMode(INT32 modenum)
 {
 	int vstat;
 	vmode_t *pnewmode;
-	vmode_t *poldmode;
 
 	if (dedicated)
 		return 0;
@@ -945,7 +944,6 @@ INT32 VID_SetMode(INT32 modenum)
 		return 1;
 
 	// initialize the new mode
-	poldmode = pcurrentmode;
 	pcurrentmode = pnewmode;
 
 	// initialize vidbuffer size for setmode

@@ -284,7 +284,7 @@ void I_Sleep(void)
 // should move to i_video
 void I_WaitVBL(INT32 count)
 {
-	count = 0;
+	UNREFERENCED_PARAMETER(count);
 }
 
 // this is probably to activate the 'loading' disc icon

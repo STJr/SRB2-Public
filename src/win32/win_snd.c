@@ -428,11 +428,10 @@ void I_SetSfxVolume(INT32 volume)
 		vol = DSBVOLUME_MIN;    // make sure 0 is silence
 	//DEBPRINT(va("setvolume to %d\n", vol));
 	hr = IDirectSoundBuffer_SetVolume(DSndPrimary, vol);
-	//if (FAILED(hr))
-//	{
-//    	DEBPRINT("setvolumne failed\n");
-//	}
-
+	if (FAILED(hr))
+	{
+		DEBPRINT("SetVolumne failed\n");
+	}
 }
 
 
@@ -443,14 +442,13 @@ void I_SetSfxVolume(INT32 volume)
 static VOID I_UpdateSoundVolume (LPDIRECTSOUNDBUFFER lpSnd, LONG volume)
 {
 	HRESULT hr;
-	volume = (volume * ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4)) / 256 +
+	LONG vol = (volume * ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4)) / 256 +
 	         (DSBVOLUME_MAX - ((DSBVOLUME_MAX-DSBVOLUME_MIN)/4));
-	hr = IDirectSoundBuffer_SetVolume(lpSnd, volume);
-	//if (FAILED(hr))
-//	{
-//	    DEBPRINT("\2SetVolume FAILED\n");
-//	}
-
+	hr = IDirectSoundBuffer_SetVolume(lpSnd, vol);
+	if (FAILED(hr))
+	{
+		DEBPRINT("SetVolume FAILED\n");
+	}
 }
 
 
@@ -463,11 +461,12 @@ static VOID I_UpdateSoundVolume (LPDIRECTSOUNDBUFFER lpSnd, LONG volume)
 static VOID I_UpdateSoundPanning (LPDIRECTSOUNDBUFFER lpSnd, int sep)
 {
 	HRESULT hr;
-	hr = IDirectSoundBuffer_SetPan(lpSnd, (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT);
-	//if (FAILED(hr))
-//	{
-//	    DEBPRINT(va("SetPan FAILED for sep %d pan %d\n", sep, (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT));
-//	}
+	const LONG septoPan = (sep * DSBPAN_RANGE)/SEP_RANGE - DSBPAN_RIGHT;
+	hr = IDirectSoundBuffer_SetPan(lpSnd, septoPan);
+	if (FAILED(hr))
+	{
+		DEBPRINT(va("SetPan FAILED for sep %d pan %ld\n", sep, septoPan));
+	}
 
 }
 
@@ -717,13 +716,12 @@ INT32 I_StartSound (sfxenum_t      id,
 void I_StopSound (INT32 handle)
 {
 	LPDIRECTSOUNDBUFFER dsbuffer;
-	HRESULT hr;
 
 	if (nosound || handle < 0)
 		return;
 
 	dsbuffer = StackSounds[handle].lpSndBuf;
-	hr = IDirectSoundBuffer_Stop(dsbuffer);
+	IDirectSoundBuffer_Stop(dsbuffer);
 
 	// free duplicates of original sound buffer (DirectSound hassles)
 	if (StackSounds[handle].duplicate)

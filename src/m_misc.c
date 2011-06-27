@@ -855,7 +855,6 @@ static void M_PNGFrame(png_structp png_ptr, png_infop png_info_ptr, png_bytep pn
 static inline boolean M_PNGfind_acTL(void)
 {
 	png_byte cn[8]; // 4 bytes for len then 4 byes for name
-	long curpos = 0; // then , [0-2^31] bytes for data, then 4 bytes for CRC
 	long endpos = ftell(apng_FILE); // not the real end of file, just what of libpng wrote
 	for (fseek(apng_FILE, 0, SEEK_SET); // let go to the start of the file
 	     ftell(apng_FILE)+12 < endpos;  // let not go over the file bound
@@ -866,7 +865,6 @@ static inline boolean M_PNGfind_acTL(void)
 			return false; // failed to read data
 		if (fseek(apng_FILE, -8, SEEK_CUR) != 0) //rewind 8 bytes
 			return false; // failed to rewird
-		curpos = ftell(apng_FILE);
 		if (!png_memcmp(cn+4, acTL_cn, 4)) //cmp for chuck header
 			return true; // found it
 	}
