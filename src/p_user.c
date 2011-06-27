@@ -10381,71 +10381,82 @@ void P_PlayerAfterThink(player_t *player)
 		player->mo->flags |= MF_NOGRAVITY;
 	}
 
-	if (!splitscreen)
+	if ((player == &players[displayplayer] && !cv_chasecam.value)
+			|| (splitscreen && player == &players[secondarydisplayplayer] && !cv_chasecam2.value))
 	{
-		if (!cv_chasecam.value)
+		sector_t *sector = player->mo->subsector->sector;
+		postimg_t *type;
+		INT32 *param;
+
+		if (splitscreen && player == &players[secondarydisplayplayer])
 		{
-			if (player == &players[displayplayer])
+			type = &postimgtype2;
+			param = &postimgparam2;
+		}
+		else
+		{
+			type = &postimgtype;
+			param = &postimgparam;
+		}
+
+		// see if we are in heat (no, not THAT kind of heat...)
+
+		if (P_FindSpecialLineFromTag(13, sector->tag, -1) != -1)
+			*type = postimg_heat;
+		else if (sector->ffloors)
+		{
+			ffloor_t *rover;
+
+			for (rover = sector->ffloors; rover; rover = rover->next)
 			{
-				sector_t *sector = player->mo->subsector->sector;
+				if (!(rover->flags & FF_EXISTS))
+					continue;
 
-				// see if we are in heat (no, not THAT kind of heat...)
+				if (*rover->topheight <= player->mo->z + player->viewheight
+					|| *rover->bottomheight > player->mo->z + player->viewheight)
+					continue;
 
-				if (P_FindSpecialLineFromTag(13, sector->tag, -1) != -1)
-					postimgtype = postimg_heat;
-				else if (sector->ffloors)
+				if (player->mo->z + player->viewheight < *rover->topheight)
 				{
-					ffloor_t *rover;
-
-					for (rover = sector->ffloors; rover; rover = rover->next)
-					{
-						if (!(rover->flags & FF_EXISTS))
-							continue;
-
-						if (*rover->topheight <= player->mo->z + player->viewheight
-							|| *rover->bottomheight > player->mo->z + player->viewheight)
-							continue;
-
-						if (player->mo->z + player->viewheight < *rover->topheight)
-						{
-							if (P_FindSpecialLineFromTag(13, rover->master->frontsector->tag, -1) != -1)
-								postimgtype = postimg_heat;
-						}
-					}
+					if (P_FindSpecialLineFromTag(13, rover->master->frontsector->tag, -1) != -1)
+						*type = postimg_heat;
 				}
-
-				// see if we are in water (water trumps heat)
-				if (sector->ffloors)
-				{
-					ffloor_t *rover;
-
-					for (rover = sector->ffloors; rover; rover = rover->next)
-					{
-						if (!(rover->flags & FF_EXISTS) || !(rover->flags & FF_SWIMMABLE) || rover->flags & FF_BLOCKPLAYER)
-							continue;
-						if (*rover->topheight <= player->mo->z + player->viewheight
-							|| *rover->bottomheight > player->mo->z + player->viewheight)
-							continue;
-
-						if (player->mo->z + player->viewheight < *rover->topheight)
-							postimgtype = postimg_water;
-					}
-				}
-
-				if (player->mo->eflags & MFE_VERTICALFLIP)
-					postimgtype = postimg_flip;
-
-				/*
-				// Motion blur
-				if (player->speed > 35)
-				{
-					postimgtype = postimg_motion;
-					postimgparam = (player->speed - 32)/4;
-
-					if (postimgparam > 5)
-						postimgparam = 5;
-				}*/
 			}
 		}
+
+		// see if we are in water (water trumps heat)
+		if (sector->ffloors)
+		{
+			ffloor_t *rover;
+
+			for (rover = sector->ffloors; rover; rover = rover->next)
+			{
+				if (!(rover->flags & FF_EXISTS) || !(rover->flags & FF_SWIMMABLE) || rover->flags & FF_BLOCKPLAYER)
+					continue;
+				if (*rover->topheight <= player->mo->z + player->viewheight
+					|| *rover->bottomheight > player->mo->z + player->viewheight)
+					continue;
+
+				if (player->mo->z + player->viewheight < *rover->topheight)
+					*type = postimg_water;
+			}
+		}
+
+		if (player->mo->eflags & MFE_VERTICALFLIP)
+			*type = postimg_flip;
+
+#if 1
+		(void)param;
+#else
+		// Motion blur
+		if (player->speed > 35)
+		{
+			*type = postimg_motion;
+			*param = (player->speed - 32)/4;
+
+			if (*param > 5)
+				*param = 5;
+		}
+#endif
 	}
 }

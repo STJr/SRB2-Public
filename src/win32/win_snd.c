@@ -1521,7 +1521,7 @@ static VOID SetAllChannelVolumes(DWORD pdwVolumePercent)
 
 
 // ----------------
-// I_SetMusicVolume
+// I_SetMIDIMusicVolume
 // Set the midi output volume
 // ----------------
 void I_SetMIDIMusicVolume(INT32 volume)

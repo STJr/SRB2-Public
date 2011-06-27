@@ -2010,7 +2010,7 @@ noscript:
 
 	P_LevelInitStuff();
 
-	postimgtype = postimg_none;
+	postimgtype = postimgtype2 = postimg_none;
 
 	if (mapheaderinfo[gamemap-1]->forcecharacter != 255)
 	{
@@ -2410,7 +2410,7 @@ boolean P_RunSOC(const char *socfilename)
 //
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 {
-	size_t i, j, sreplaces = 0, mreplaces = 0;
+	size_t i, j, sreplaces = 0, mreplaces = 0, digmreplaces = 0;
 	UINT16 numlumps, wadnum;
 	INT16 firstmapreplaced = 0, num;
 	char *name;
@@ -2453,6 +2453,11 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 				mreplaces++;
 			}
 		}
+		else if (name[0] == 'O' && name[1] == '_')
+		{
+			DEBPRINT(va("Music %.8s replaced\n", name));
+			digmreplaces++;
+		}
 #if 0
 		//
 		// search for texturechange replacements
@@ -2465,7 +2470,9 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 	if (!devparm && sreplaces)
 		CONS_Printf(M_GetText("%s sounds replaced\n"), sizeu1(sreplaces));
 	if (!devparm && mreplaces)
-		CONS_Printf(M_GetText("%s musics replaced\n"), sizeu1(mreplaces));
+		CONS_Printf(M_GetText("%s midi musics replaced\n"), sizeu1(mreplaces));
+	if (!devparm && digmreplaces)
+		CONS_Printf(M_GetText("%s digital musics replaced\n"), sizeu1(digmreplaces));
 
 	//
 	// search for sprite replacements

@@ -2506,7 +2506,7 @@ INT32 V_StringWidth(const char *string)
 
 boolean *heatshifter = NULL;
 INT32 lastheight = 0;
-INT32 heatindex = 0;
+INT32 heatindex[2] = { 0, 0 };
 
 //
 // V_DoPostProcessor
@@ -2514,8 +2514,10 @@ INT32 heatindex = 0;
 // Perform a particular image postprocessing function.
 //
 #include "p_local.h"
-void V_DoPostProcessor(postimg_t type)
+void V_DoPostProcessor(INT32 view, postimg_t type, INT32 param)
 {
+	INT32 height, yoffset;
+
 #ifdef HWRENDER
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
@@ -2526,23 +2528,33 @@ void V_DoPostProcessor(postimg_t type)
 	return; // do not enable image post processing for ARM, SH and MIPS CPUs
 #endif
 
-	if (splitscreen) // Not supported in splitscreen - someone want to add support?
+	if (view < 0 || view >= 2 || (view == 1 && !splitscreen))
 		return;
+
+	if (splitscreen)
+		height = vid.height/2;
+	else
+		height = vid.height;
+
+	if (view == 1)
+		yoffset = vid.height/2;
+	else
+		yoffset = 0;
 
 	if (type == postimg_water)
 	{
 			UINT8 *tmpscr = screens[4];
 			UINT8 *srcscr = screens[0];
 			INT32 y;
-			static angle_t disStart = 0; // in 0 to FINEANGLE
+			static angle_t disStart[2] = { 0, 0 }; // in 0 to FINEANGLE
 			INT32 newpix;
 			INT32 sine;
-			INT32 westart = disStart;
+			INT32 westart = disStart[view];
 			//UINT8 *transme = ((tr_trans50)<<FF_TRANSSHIFT) + transtables;
 
-			for (y = 0; y < vid.height; y++)
+			for (y = yoffset; y < yoffset+height; y++)
 			{
-				sine = (FINESINE(disStart)*5)>>FRACBITS;
+				sine = (FINESINE(disStart[view])*5)>>FRACBITS;
 				newpix = abs(sine);
 
 				if (sine < 0)
@@ -2581,14 +2593,15 @@ Unoptimized version
 
 					tmpscr[y*vid.width + x] = srcscr[y*vid.width+newpix]; // *(transme + (srcscr[y*vid.width+x]<<8) + srcscr[y*vid.width+newpix]);
 				}*/
-				disStart += 22;//the offset into the displacement map, increment each game loop
-				disStart &= FINEMASK; //clip it to FINEMASK
+				disStart[view] += 22;//the offset into the displacement map, increment each game loop
+				disStart[view] &= FINEMASK; //clip it to FINEMASK
 			}
 
-			disStart = westart + 128;
-			disStart &= FINEMASK;
+			disStart[view] = westart + 128;
+			disStart[view] &= FINEMASK;
 
-			VID_BlitLinearScreen(tmpscr, screens[0], vid.width*vid.bpp, vid.height, vid.width*vid.bpp, vid.width);
+			VID_BlitLinearScreen(tmpscr+vid.width*vid.bpp*yoffset, screens[0]+vid.width*vid.bpp*yoffset,
+					vid.width*vid.bpp, height, vid.width*vid.bpp, vid.width);
 	}
 	else if (type == postimg_motion) // Motion Blur!
 	{
@@ -2597,9 +2610,9 @@ Unoptimized version
 		INT32 x, y;
 
 		// TODO: Add a postimg_param so that we can pick the translucency level...
-		UINT8 *transme = ((postimgparam)<<FF_TRANSSHIFT) - 0x10000 + transtables;
+		UINT8 *transme = ((param)<<FF_TRANSSHIFT) - 0x10000 + transtables;
 
-		for (y = 0; y < vid.height; y++)
+		for (y = yoffset; y < yoffset+height; y++)
 		{
 			for (x = 0; x < vid.width; x++)
 			{
@@ -2607,7 +2620,8 @@ Unoptimized version
 					=     colormaps[*(transme     + (srcscr   [y*vid.width+x ] <<8) + (tmpscr[y*vid.width+x]))];
 			}
 		}
-		VID_BlitLinearScreen(tmpscr, screens[0], vid.width*vid.bpp, vid.height, vid.width*vid.bpp, vid.width);
+		VID_BlitLinearScreen(tmpscr+vid.width*vid.bpp*yoffset, screens[0]+vid.width*vid.bpp*yoffset,
+				vid.width*vid.bpp, height, vid.width*vid.bpp, vid.width);
 	}
 	else if (type == postimg_flip) // Flip the screen upside-down
 	{
@@ -2615,10 +2629,11 @@ Unoptimized version
 		UINT8 *srcscr = screens[0];
 		INT32 y, y2;
 
-		for (y = 0, y2 = vid.height - 1; y < vid.height; y++, y2--)
+		for (y = yoffset, y2 = yoffset+height - 1; y < yoffset+height; y++, y2--)
 			M_Memcpy(&tmpscr[y2*vid.width], &srcscr[y*vid.width], vid.width);
 
-		VID_BlitLinearScreen(tmpscr, screens[0], vid.width*vid.bpp, vid.height, vid.width*vid.bpp, vid.width);
+		VID_BlitLinearScreen(tmpscr+vid.width*vid.bpp*yoffset, screens[0]+vid.width*vid.bpp*yoffset,
+				vid.width*vid.bpp, height, vid.width*vid.bpp, vid.width);
 	}
 	else if (type == postimg_heat) // Heat wave
 	{
@@ -2627,26 +2642,26 @@ Unoptimized version
 		INT32 y;
 
 		// Make sure table is built
-		if (heatshifter == NULL || lastheight != vid.height)
+		if (heatshifter == NULL || lastheight != height)
 		{
 			if (heatshifter)
 				Z_Free(heatshifter);
 
-			heatshifter = Z_Calloc(vid.height * sizeof(boolean), PU_STATIC, NULL);
+			heatshifter = Z_Calloc(height * sizeof(boolean), PU_STATIC, NULL);
 
-			for (y = 0; y < vid.height; y++)
+			for (y = 0; y < height; y++)
 			{
 				if (M_Random() < 32)
 					heatshifter[y] = true;
 			}
 
-			heatindex = 0;
-			lastheight = vid.height;
+			heatindex[0] = heatindex[1] = 0;
+			lastheight = height;
 		}
 
-		for (y = 0; y < vid.height; y++)
+		for (y = yoffset; y < yoffset+height; y++)
 		{
-			if (heatshifter[heatindex++])
+			if (heatshifter[heatindex[view]++])
 			{
 				// Shift this row of pixels to the right by 2
 				tmpscr[y*vid.width] = srcscr[y*vid.width];
@@ -2655,13 +2670,14 @@ Unoptimized version
 			else
 				M_Memcpy(&tmpscr[y*vid.width], &srcscr[y*vid.width], vid.width);
 
-			heatindex %= vid.height;
+			heatindex[view] %= height;
 		}
 
-		heatindex++;
-		heatindex %= vid.height;
+		heatindex[view]++;
+		heatindex[view] %= vid.height;
 
-		VID_BlitLinearScreen(tmpscr, screens[0], vid.width*vid.bpp, vid.height, vid.width*vid.bpp, vid.width);
+		VID_BlitLinearScreen(tmpscr+vid.width*vid.bpp*yoffset, screens[0]+vid.width*vid.bpp*yoffset,
+				vid.width*vid.bpp, height, vid.width*vid.bpp, vid.width);
 	}
 }
 

@@ -570,7 +570,7 @@ void P_Ticker(void)
 		return;
 	}
 
-	postimgtype = postimg_none;
+	postimgtype = postimgtype2 = postimg_none;
 
 	P_MapStart();
 

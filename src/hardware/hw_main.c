@@ -4717,6 +4717,9 @@ void HWR_DoPostProcessor(void)
 	if(gamestate != GS_INTERMISSION)
 		HWD.pfnMakeScreenTexture();
 
+	if (splitscreen) // Not supported in splitscreen - someone want to add support?
+		return;
+
 	// Drunken vision! WooOOooo~
 	if (postimgtype == postimg_water)
 	{

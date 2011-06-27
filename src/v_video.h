@@ -136,7 +136,7 @@ INT32 V_CreditStringWidth(const char *string);
 // Find string width from hu_font chars
 INT32 V_StringWidth(const char *string);
 
-void V_DoPostProcessor(postimg_t type);
+void V_DoPostProcessor(INT32 view, postimg_t type, INT32 param);
 
 void V_DrawPatchFill(patch_t *pat);
 

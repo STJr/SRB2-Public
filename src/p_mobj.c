@@ -2726,10 +2726,20 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	}
 
 	// Are we in water?
-	if (!splitscreen && P_CameraCheckWater(thiscam))
-		postimgtype = postimg_water;
-	else if (!splitscreen && P_CameraCheckHeat(thiscam))
-		postimgtype = postimg_heat;
+	if (splitscreen && player == &players[secondarydisplayplayer])
+	{
+		if (P_CameraCheckWater(thiscam))
+			postimgtype2 = postimg_water;
+		else if (P_CameraCheckHeat(thiscam))
+			postimgtype2 = postimg_heat;
+	}
+	else
+	{
+		if (P_CameraCheckWater(thiscam))
+			postimgtype = postimg_water;
+		else if (P_CameraCheckHeat(thiscam))
+			postimgtype = postimg_heat;
+	}
 }
 
 //
@@ -6471,7 +6481,11 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 	else
 		mobj->z = z;
 
+#ifdef REMOVE_FOR_207
+	if (!(mobj->flags & MF_NOTHINK))
+#else
 	if (!(mobj->type & MF_NOTHINK))
+#endif
 	{
 		mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
 		P_AddThinker(&mobj->thinker);

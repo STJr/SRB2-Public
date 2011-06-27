@@ -108,6 +108,8 @@ boolean lastdraw = false;
 
 postimg_t postimgtype = postimg_none;
 INT32 postimgparam;
+postimg_t postimgtype2 = postimg_none;
+INT32 postimgparam2;
 
 #ifdef _XBOX
 boolean nomidimusic = true, nosound = true;
@@ -401,7 +403,9 @@ static void D_Display(void)
 
 			// Image postprocessing effect
 			if (postimgtype)
-				V_DoPostProcessor(postimgtype);
+				V_DoPostProcessor(0, postimgtype, postimgparam);
+			if (postimgtype2)
+				V_DoPostProcessor(1, postimgtype2, postimgparam2);
 		}
 
 		if (lastdraw)
