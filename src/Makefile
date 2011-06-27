@@ -676,6 +676,7 @@ $(OBJDIR)/comptime.o: comptime.c pre-build
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 
 $(BIN)/%.mo: locale/%.po
+	-$(MKDIR) $(BIN)
 	$(MSGFMT) -f -o $@ $<
 
 $(OBJDIR)/%.o: %.c
