@@ -4,7 +4,7 @@ ifdef ComSpec
 COMSPEC=$(ComSpec)
 endif
 ifdef COMSPEC
-RM=del /F
+#RM=del /F
 endif
 
 all-before:
