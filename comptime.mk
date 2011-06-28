@@ -3,9 +3,6 @@ SRCDIR=src
 ifdef ComSpec
 COMSPEC=$(ComSpec)
 endif
-ifdef COMSPEC
-#RM=del /F
-endif
 
 all-before:
 ifdef COMSPEC
