@@ -1093,7 +1093,7 @@ static void P_LoadLineDefs2(void)
 				M_Memcpy(&newsides[z++], &sides[i], sizeof(side_t));
 		}
 
-		DEBPRINT(va("Old sides is %s, new sides is %s\n", sizeu1(numsides), sizeu1(numnewsides)));
+		DEBPRINT(va("Old sides is %s, new sides is %s\n", sizeu1(numsides), sizeu2(numnewsides)));
 
 		Z_Free(sides);
 		sides = newsides;
