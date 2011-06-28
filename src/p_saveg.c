@@ -509,14 +509,14 @@ static void P_NetArchiveWorld(void)
 			if (si->textureoffset != SHORT(msd[li->sidenum[0]].textureoffset)<<FRACBITS)
 				diff |= LD_S1TEXOFF;
 			//SoM: 4/1/2000: Some textures are colormaps. Don't worry about invalid textures.
-			if (R_CheckTextureNumForName(msd[li->sidenum[0]].toptexture, li->sidenum[0]) != -1
-				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[0]].toptexture, li->sidenum[0]))
+			if (R_CheckTextureNumForName(msd[li->sidenum[0]].toptexture) != -1
+				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[0]].toptexture))
 				diff |= LD_S1TOPTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[0]].bottomtexture, li->sidenum[0]) != -1
-				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[0]].bottomtexture, li->sidenum[0]))
+			if (R_CheckTextureNumForName(msd[li->sidenum[0]].bottomtexture) != -1
+				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[0]].bottomtexture))
 				diff |= LD_S1BOTTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[0]].midtexture, li->sidenum[0]) != -1
-				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[0]].midtexture, li->sidenum[0]))
+			if (R_CheckTextureNumForName(msd[li->sidenum[0]].midtexture) != -1
+				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[0]].midtexture))
 				diff |= LD_S1MIDTEX;
 		}
 		if (li->sidenum[1] != 0xffff)
@@ -524,14 +524,14 @@ static void P_NetArchiveWorld(void)
 			si = &sides[li->sidenum[1]];
 			if (si->textureoffset != SHORT(msd[li->sidenum[1]].textureoffset)<<FRACBITS)
 				diff2 |= LD_S2TEXOFF;
-			if (R_CheckTextureNumForName(msd[li->sidenum[1]].toptexture, li->sidenum[1]) != -1
-				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[1]].toptexture, li->sidenum[1]))
+			if (R_CheckTextureNumForName(msd[li->sidenum[1]].toptexture) != -1
+				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[1]].toptexture))
 				diff2 |= LD_S2TOPTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[1]].bottomtexture, li->sidenum[1]) != -1
-				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[1]].bottomtexture, li->sidenum[1]))
+			if (R_CheckTextureNumForName(msd[li->sidenum[1]].bottomtexture) != -1
+				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[1]].bottomtexture))
 				diff2 |= LD_S2BOTTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[1]].midtexture, li->sidenum[1]) != -1
-				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[1]].midtexture, li->sidenum[1]))
+			if (R_CheckTextureNumForName(msd[li->sidenum[1]].midtexture) != -1
+				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[1]].midtexture))
 				diff2 |= LD_S2MIDTEX;
 			if (diff2)
 				diff |= LD_DIFF2;
@@ -571,6 +571,7 @@ static void P_NetArchiveWorld(void)
 		}
 	}
 	WRITEUINT16(put, 0xffff);
+	R_ClearTextureNumCache(false);
 
 	save_p = put;
 }

@@ -1162,15 +1162,15 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 					}
 					else
 					{
-						if ((num = R_CheckTextureNumForName(msd->toptexture, i)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->toptexture)) == -1)
 							sd->toptexture = 0;
 						else
 							sd->toptexture = num;
-						if ((num = R_CheckTextureNumForName(msd->midtexture, i)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->midtexture)) == -1)
 							sd->midtexture = 0;
 						else
 							sd->midtexture = num;
-						if ((num = R_CheckTextureNumForName(msd->bottomtexture, i)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->bottomtexture)) == -1)
 							sd->bottomtexture = 0;
 						else
 							sd->bottomtexture = num;
@@ -1201,17 +1201,17 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 					}
 					else
 					{
-						if ((num = R_CheckTextureNumForName(msd->toptexture, i)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->toptexture)) == -1)
 							sd->toptexture = 0;
 						else
 							sd->toptexture = num;
 
-						if ((num = R_CheckTextureNumForName(msd->midtexture, i)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->midtexture)) == -1)
 							sd->midtexture = 0;
 						else
 							sd->midtexture = num;
 
-						if ((num = R_CheckTextureNumForName(msd->bottomtexture, i)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->bottomtexture)) == -1)
 							sd->bottomtexture = 0;
 						else
 							sd->bottomtexture = num;
@@ -1226,19 +1226,20 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 					char *col = msd->toptexture;
 					sd->toptexture = sd->bottomtexture =
 						((col[1]-'0')*100 + (col[2]-'0')*10 + col[3]-'0') + 1;
-					sd->midtexture = R_TextureNumForName(msd->midtexture, i);
+					sd->midtexture = R_TextureNumForName(msd->midtexture);
 				}
 				else
 				{
-					sd->midtexture = R_TextureNumForName(msd->midtexture, i);
-					sd->toptexture = R_TextureNumForName(msd->toptexture, i);
-					sd->bottomtexture = R_TextureNumForName(msd->bottomtexture, i);
+					sd->midtexture = R_TextureNumForName(msd->midtexture);
+					sd->toptexture = R_TextureNumForName(msd->toptexture);
+					sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
 				}
 				break;
 		}
 	}
 
 	Z_Free(data);
+	R_ClearTextureNumCache(true);
 }
 
 static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, fixed_t bx1, fixed_t by1)
@@ -1742,7 +1743,7 @@ void P_SetupLevelSky(INT32 skynum)
 	char skytexname[12];
 
 	sprintf(skytexname, "SKY%d", skynum);
-	skytexture = R_TextureNumForName(skytexname, 0xffff);
+	skytexture = R_TextureNumForName(skytexname);
 	levelskynum = skynum;
 
 	// scale up the old skies, if needed

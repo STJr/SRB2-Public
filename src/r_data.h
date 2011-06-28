@@ -82,8 +82,9 @@ lumpnum_t R_GetFlatNumForName(const char *name);
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
-INT32 R_TextureNumForName(const char *name, UINT16 sidenum);
-INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum);
+void R_ClearTextureNumCache(boolean btell);
+INT32 R_TextureNumForName(const char *name);
+INT32 R_CheckTextureNumForName(const char *name);
 
 void R_ReInitColormaps(UINT16 num);
 void R_ClearColormaps(void);

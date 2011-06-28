@@ -259,11 +259,11 @@ void P_InitPicAnims(void)
 	{
 		if (animdefs[i].istexture)
 		{
-			if (R_CheckTextureNumForName(animdefs[i].startname, 0xffff) == -1)
+			if (R_CheckTextureNumForName(animdefs[i].startname) == -1)
 				continue;
 
-			lastanim->picnum = R_TextureNumForName(animdefs[i].endname, 0xffff);
-			lastanim->basepic = R_TextureNumForName(animdefs[i].startname, 0xffff);
+			lastanim->picnum = R_TextureNumForName(animdefs[i].endname);
+			lastanim->basepic = R_TextureNumForName(animdefs[i].startname);
 		}
 		else
 		{
@@ -291,6 +291,7 @@ void P_InitPicAnims(void)
 		lastanim++;
 	}
 	lastanim->istexture = -1;
+	R_ClearTextureNumCache(false);
 
 	if (animdefs != harddefs)
 		Z_ChangeTag(animdefs, PU_CACHE);

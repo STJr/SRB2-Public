@@ -118,6 +118,13 @@ static size_t flatmemory, spritememory, texturememory;
 INT16 color8to16[256]; // remap color index to highcolor rgb value
 INT16 *hicolormaps; // test a 32k colormap remaps high -> high
 
+// Painfully simple texture id cacheing to make maps load faster. :3
+static struct {
+	char name[9];
+	INT32 id;
+} *tidcache = NULL;
+static size_t tidcachelen = 0;
+
 //
 // MAPTEXTURE_T CACHING
 // When a texture is first needed, it counts the number of composite columns
@@ -1047,12 +1054,22 @@ void R_InitData(void)
 	R_InitColormaps();
 }
 
+void R_ClearTextureNumCache(boolean btell)
+{
+	if (tidcache)
+		Z_Free(tidcache);
+	tidcache = NULL;
+	if (btell)
+		DEBPRINT(va("Fun Fact: There are %s textures used in this map.\n", sizeu1(tidcachelen)));
+	tidcachelen = 0;
+}
+
 //
 // R_CheckTextureNumForName
 //
 // Check whether texture is available. Filter out NoTexture indicator.
 //
-INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
+INT32 R_CheckTextureNumForName(const char *name)
 {
 	size_t i;
 
@@ -1060,45 +1077,21 @@ INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 	if (name[0] == '-')
 		return 0;
 
+	for (i = 0; i < tidcachelen; i++)
+		if (!strncasecmp(tidcache[i].name, name, 8))
+			return tidcache[i].id;
+
 	for (i = 0; i < numtextures; i++)
 		if (!strncasecmp(textures[i]->name, name, 8))
-			return (INT32)i;
-
-	// Ignore texture errors of colormaps and others in dedicated mode.
-	if (!dedicated && name[0] != '#')
-	{
-		if (sidenum == 0xffff)
 		{
-			DEBPRINT(va("WARNING: R_CheckTextureNumForName: %.8s not found.\nDefaulting to REDWALL.\n", name));
-		}
-		else
-		{
-			size_t linenum = (size_t)-1;
-			int whichside = -1;
-
-			for (i = 0; i < numlines; i++)
-			{
-				if (lines[i].sidenum[0] == sidenum)
-				{
-					linenum = i;
-					whichside = 1;
-				}
-				else if (lines[i].sidenum[1] == sidenum)
-				{
-					linenum = i;
-					whichside = 2;
-				}
-			}
-
-			if (lines[linenum].special != 259) // Make-Your-Own FOF
-				DEBPRINT(va("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%s, side %d).\nDefaulting to REDWALL.\n", name, sidenum, sizeu1(linenum), whichside));
-		}
-	}
-
-	// Use a dummy texture for those not found.
-	for (i = 0; i < numtextures; i++)
-		if (!strncasecmp(textures[i]->name, "REDWALL", 8))
+			tidcachelen++;
+			Z_Realloc(tidcache, tidcachelen * sizeof(*tidcache), PU_STATIC, &tidcache);
+			strncpy(tidcache[tidcachelen-1].name, name, 8);
+			tidcache[tidcachelen-1].name[8] = '\0';
+			DEBPRINT(va("texture #%s: %s\n", sizeu1(tidcachelen), tidcache[tidcachelen-1].name));
+			tidcache[tidcachelen-1].id = (INT32)i;
 			return (INT32)i;
+		}
 
 	return -1;
 }
@@ -1108,13 +1101,18 @@ INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 //
 // Calls R_CheckTextureNumForName, aborts with error message.
 //
-INT32 R_TextureNumForName(const char *name, UINT16 sidenum)
+INT32 R_TextureNumForName(const char *name)
 {
-	const INT32 i = R_CheckTextureNumForName(name, sidenum);
+	const INT32 i = R_CheckTextureNumForName(name);
 
 	if (i == -1)
 	{
+		static INT32 redwall = -2;
 		DEBPRINT(va("WARNING: R_TextureNumForName: %.8s not found\n", name));
+		if (redwall == -2)
+			redwall = R_CheckTextureNumForName("REDWALL");
+		if (redwall != -1)
+			return redwall;
 		return 1;
 	}
 	return i;
