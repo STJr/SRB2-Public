@@ -556,7 +556,11 @@ $(BIN)/$(EXENAME): $(POS) $(OBJS)
 ifndef NOOBJDUMP
 	@echo Dumping debugging info
 	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
+ifdef WINDOWSHELL
+	-$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+else
 	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || -$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+endif
 endif
 ifndef PSP
 	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DBGNAME)
