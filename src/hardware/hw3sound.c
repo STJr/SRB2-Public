@@ -175,6 +175,20 @@ void HW3S_StopSound(void *origin)
 	}
 }
 
+void HW3S_StopSoundByID(void *origin, sfxenum_t sfx_id)
+{
+	INT32 snum;
+
+	for (snum = 0; snum < num_sources; snum++)
+	{
+		if (sources[snum].sfxinfo == &S_sfx[sfx_id] && sources[snum].origin == origin)
+		{
+			HW3S_KillSource(snum);
+			break;
+		}
+	}
+}
+
 void HW3S_StopSoundByNum(sfxenum_t sfxnum)
 {
 	INT32 snum;

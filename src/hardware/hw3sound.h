@@ -69,7 +69,7 @@ void S_StartScreamSound(const void *origin, sfxenum_t sfx_id);
 // pitch       - sound pitching value
 // Returns:    - sound id
 INT32 HW3S_I_StartSound(const void *origin, source3D_data_t *source_parm, channel_type_t channel, sfxenum_t sfx_id, INT32 vol, INT32 pitch, INT32 sep);
-
+void HW3S_StopSoundByID(void *origin, sfxenum_t sfx_id);
 void HW3S_StopSoundByNum(sfxenum_t sfxnum);
 void HW3S_StopSound(void *origin);
 void HW3S_StopSounds(void);

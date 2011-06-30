@@ -403,6 +403,31 @@ void S_StopSounds(void)
 			S_StopChannel(cnum);
 }
 
+void S_StopSoundByID(void *origin, sfxenum_t sfx_id)
+{
+	INT32 cnum;
+
+	// Sounds without origin can have multiple sources, they shouldn't
+	// be stopped by new sounds.
+	if (!origin)
+		return;
+#ifdef HW3SOUND
+	if (hws_mode != HWS_DEFAULT_MODE)
+	{
+		HW3S_StopSoundByID(origin, sfx_id);
+		return;
+	}
+#endif
+	for (cnum = 0; cnum < numofchannels; cnum++)
+	{
+		if (channels[cnum].sfxinfo == &S_sfx[sfx_id] && channels[cnum].origin == origin)
+		{
+			S_StopChannel(cnum);
+			break;
+		}
+	}
+}
+
 void S_StopSoundByNum(sfxenum_t sfxnum)
 {
 	INT32 cnum;
