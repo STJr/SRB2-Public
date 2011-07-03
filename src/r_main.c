@@ -598,6 +598,8 @@ void R_ExecuteSetViewSize(void)
 		distscale[i] = FixedDiv(FRACUNIT, cosadj);
 	}
 
+	memset(scalelight, 0xFF, sizeof(scalelight));
+
 	// Calculate the light levels to use for each level/scale combination.
 	for (i = 0; i< LIGHTLEVELS; i++)
 	{
