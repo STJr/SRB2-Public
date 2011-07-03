@@ -60,7 +60,7 @@ static fixed_t pixhigh, pixlow, pixhighstep, pixlowstep;
 static fixed_t topfrac, topstep;
 static fixed_t bottomfrac, bottomstep;
 
-lighttable_t **walllights;
+static lighttable_t **walllights;
 static INT16 *maskedtexturecol;
 
 // ==========================================================================
