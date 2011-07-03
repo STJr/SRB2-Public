@@ -136,6 +136,8 @@ void Z_Init(void)
 {
 	UINT32 total, memfree;
 
+	memset(&head, 0x00, sizeof(head));
+
 	head.next = head.prev = &head;
 
 	memfree = I_GetFreeMem(&total)>>20;
