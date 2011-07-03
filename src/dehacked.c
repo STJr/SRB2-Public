@@ -31,6 +31,9 @@
 #include "st_stuff.h"
 #include "i_system.h"
 #include "p_setup.h"
+#ifdef CALLUM_TEXTURE
+#include "r_data.h"
+#endif
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -369,13 +372,13 @@ static void readPlayer(MYFILE *f, INT32 num)
 				// For some reason, cutting the string did not work above. Most likely due to strcpy or strcat...
 				// It works down here, though.
 				{
-					INT32 numlines = 0;
+					INT32 numline = 0;
 					for (i = 0; i < MAXLINELEN-1; i++)
 					{
-						if (numlines < 7 && description[num].info[i] == '\n')
-							numlines++;
+						if (numline < 7 && description[num].info[i] == '\n')
+							numline++;
 
-						if (numlines >= 7 || description[num].info[i] == '\0' || description[num].info[i] == '#')
+						if (numline >= 7 || description[num].info[i] == '\0' || description[num].info[i] == '#')
 							break;
 					}
 				}
@@ -2123,6 +2126,177 @@ static void reademblemdata(MYFILE *f, INT32 num)
 	Z_Free(s);
 }
 
+#ifdef CALLUM_TEXTURE
+static void readtexture(MYFILE *f, const char *name)
+{
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char *word;
+	char *word2;
+	char *tmp;
+	INT32 i, j, value;
+	UINT16 width = 0, height = 0;
+	UINT32 patchcount = 0;
+	texture_t *texture;
+
+	do
+	{
+		if (myfgets(s, MAXLINELEN, f))
+		{
+			if (s[0] == '\n')
+				break;
+
+			tmp = strchr(s, '#');
+			if (tmp)
+				*tmp = '\0';
+
+			value = searchvalue(s);
+			word = strtok(s, " ");
+			if (word)
+				strupr(word);
+			else
+				break;
+
+			word2 = strtok(NULL, " ");
+			if (word2)
+				strupr(word2);
+			else
+				break;
+
+			// Width of the texture.
+			if (!strcmp(word, "WIDTH"))
+			{
+				DEH_WriteUndoline(word, va("%d", width), UNDO_NONE);
+				width = SHORT((UINT16)value);
+			}
+			// Height of the texture.
+			else if (!strcmp(word, "HEIGHT"))
+			{
+				DEH_WriteUndoline(word, va("%d", height), UNDO_NONE);
+				height = SHORT((UINT16)value);
+			}
+			// Number of patches the texture has.
+			else if (!strcmp(word, "PATCH"))
+				patchcount++;
+			else
+				deh_warning("readtexture: unknown word '%s'", word);
+		}
+	} while (!myfeof(f));
+
+	// Error checking.
+	if (!width)
+		I_Error("Texture %s has no width!\n", name);
+
+	if (!height)
+		I_Error("Texture %s has no height!\n", name);
+
+	if (!patchcount)
+		I_Error("Texture %s has no patches!\n", name);
+
+	// Allocate memory for the texture, and fill in information.
+	texture = Z_Malloc(sizeof(texture_t) + (sizeof(texpatch_t) * (SHORT(patchcount) - 1)), PU_STATIC, NULL);
+	M_Memcpy(texture->name, name, sizeof(texture->name));
+	texture->width = width;
+	texture->height = height;
+	texture->patchcount = patchcount;
+
+	// Jump to the next empty texture entry.
+	i = 0;
+	while (textures[i])
+		i++;
+
+	// Fill the global texture buffer entries.
+	j = 1;
+	while (j << 1 <= texture->width)
+		j <<= 1;
+
+	textures[i] = texture;
+	texturewidthmask[i] = j - 1;
+	textureheight[i] = texture->height << FRACBITS;
+
+	// Clean up.
+	Z_Free(s);
+}
+
+static void readpatch(MYFILE *f, const char *name)
+{
+	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	char *word;
+	char *word2;
+	char *tmp;
+	size_t i = 0, j = 0;
+	INT32 value;
+	texpatch_t patch = {UINT16_MAX, UINT16_MAX, LUMPERROR};
+
+	// Jump to the texture this patch belongs to, which,
+	// coincidentally, is always the last one on the buffer cache.
+	while (textures[i+1])
+		i++;
+
+	// Set the texture number, but only if the lump exists.
+	if ((patch.patch = W_CheckNumForName(name)) == LUMPERROR)
+		I_Error("readpatch: Missing patch in texture %s", textures[i]->name);
+
+	// Jump to the next free patch number.
+	while (textures[i]->patches[j].patch != LUMPERROR)
+		j++;
+
+	// note: undoing this patch will be done by other means
+	do
+	{
+		if (myfgets(s, MAXLINELEN, f))
+		{
+			if (s[0] == '\n')
+				break;
+
+			tmp = strchr(s, '#');
+			if (tmp)
+				*tmp = '\0';
+
+			value = searchvalue(s);
+			word = strtok(s, " ");
+			if (word)
+				strupr(word);
+			else
+				break;
+
+			word2 = strtok(NULL, " ");
+			if (word2)
+				strupr(word2);
+			else
+				break;
+
+			// X position of the patch in the texture.
+			if (!strcmp(word, "X"))
+			{
+				//DEH_WriteUndoline(word, va("%d", patch->originx), UNDO_NONE);
+				patch.originx = (UINT16)value;
+			}
+			// Y position of the patch in the texture.
+			else if (!strcmp(word, "Y"))
+			{
+				//DEH_WriteUndoline(word, va("%d", patch->originy), UNDO_NONE);
+				patch.originy = (UINT16)value;
+			}
+			else
+				deh_warning("readpatch: unknown word '%s'", word);
+		}
+	} while (!myfeof(f));
+
+	// Error checking.
+	if (patch.originx == UINT16_MAX)
+		I_Error("Patch %s on texture %s has no X position!\n", name, textures[i]->name);
+
+	if (patch.originy == UINT16_MAX)
+		I_Error("Patch %s on texture %s has no Y position!\n", name, textures[i]->name);
+
+	// Set the patch as that patch number.
+	textures[i]->patches[j] = patch;
+
+	// Clean up.
+	Z_Free(s);
+}
+#endif
+
 static void DEH_LoadDehackedFile(MYFILE *f)
 {
 	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
@@ -2177,6 +2351,21 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				strupr(word2);
 				i = atoi(word2);
 
+#ifdef CALLUM_TEXTURE
+				if (!strcmp(word, "TEXTURE"))
+				{
+					// Read texture from spec file.
+					readtexture(f, word2);
+					DEH_WriteUndoline(word, word2, UNDO_HEADER);
+				}
+				else if (!strcmp(word, "PATCH"))
+				{
+					// Read patch from spec file.
+					readpatch(f, word2);
+					DEH_WriteUndoline(word, word2, UNDO_HEADER);
+				}
+				else
+#endif
 				if (!strcmp(word, "THING"))
 				{
 					if (i < NUMMOBJTYPES && i >= 0)

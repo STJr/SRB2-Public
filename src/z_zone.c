@@ -43,6 +43,10 @@ static boolean Z_calloc = false;
 
 #define ZONEID 0xa441d13d
 
+#ifdef ZDEBUG
+//#define ZDEBUG2
+#endif
+
 struct memblock_s;
 
 typedef struct

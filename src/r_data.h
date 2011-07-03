@@ -56,6 +56,13 @@ typedef struct
 // all loaded and prepared textures from the start of the game
 extern texture_t **textures;
 
+#ifdef CALLUM_LIGHTING
+// texture width is a power of 2, so it can easily repeat along sidedefs using a simple mask
+extern INT32 *texturewidthmask;
+
+extern fixed_t *textureheight; // needed for texture pegging
+#endif
+
 extern INT16 color8to16[256]; // remap color index to highcolor
 extern INT16 *hicolormaps; // remap high colors to high colors..
 

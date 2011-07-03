@@ -18,6 +18,9 @@
 /// \brief Preparation of data for rendering,generation of lookups, caching, retrieval by name
 
 #include "doomdef.h"
+#ifdef CALLUM_TEXTURE
+#include "dehacked.h"
+#endif
 #include "g_game.h"
 #include "i_video.h"
 #include "r_local.h"
@@ -100,7 +103,11 @@ static UINT32 **texturecolumnofs; // column offset lookup table for each texture
 static UINT8 **texturecache; // graphics data for each generated full-size texture
 
 // texture width is a power of 2, so it can easily repeat along sidedefs using a simple mask
+#ifndef CALLUM_TEXTURE
 static INT32 *texturewidthmask;
+#else
+INT32 *texturewidthmask;
+#endif
 
 fixed_t *textureheight; // needed for texture pegging
 
@@ -302,6 +309,7 @@ void R_FlushTextureCache(void)
 // R_InitTextures
 // Initializes the texture list with the textures from the world map.
 //
+#ifndef CALLUM_TEXTURE
 void R_LoadTextures(void)
 {
 	maptexture_t *mtexture;
@@ -436,6 +444,120 @@ void R_LoadTextures(void)
 	for (i = 0; i < numtextures; i++)
 		texturetranslation[i] = (INT32)i;
 }
+#else
+#define TX_START "TX_START"
+#define TX_END "TX_END"
+void R_LoadTextures(void)
+{
+	size_t i;
+	INT32 j, k, w;
+	lumpnum_t texstart, texend;
+	patch_t *patchlump;
+	texpatch_t *patch;
+	texture_t *texture;
+
+	// Free previous memory before numtextures change.
+	for (i = 0; i < numtextures; i++)
+	{
+		Z_Free(textures[i]);
+		Z_Free(texturecache[i]);
+	}
+	Z_Free(texturetranslation);
+
+	// Load patches and textures.
+
+	// Get the number of textures to check.
+	// NOTE: Make SURE the system does not process
+	// the markers.
+	for (w = 0, numtextures = 0; w < numwadfiles; w++)
+	{
+		texstart = W_CheckNumForNamePwad(TX_START, w, 0) + 1;
+		texend = W_CheckNumForNamePwad(TX_END, w, 0);
+
+		if (texstart == INT16_MAX || texend == INT16_MAX)
+		{
+			if (!numtextures && w == (numwadfiles - 1))
+				I_Error("No textures detected in any WADs!\n");
+
+			continue;
+		}
+
+		numtextures += (UINT32)(texend - texstart);
+	}
+
+	// Allocate memory for all the textures we are initialising.
+	// There are actually 5 buffers allocated in one for convenience.
+	textures = Z_Malloc((numtextures * sizeof(void *)) * 5, PU_STATIC, NULL);
+
+	// Allocate texture column offset table.
+	texturecolumnofs = (void *)((UINT8 *)textures + (numtextures * sizeof(void *)));
+	// Allocate texture referencing cache.
+	texturecache     = (void *)((UINT8 *)textures + ((numtextures * sizeof(void *)) * 2));
+	// Allocate texture width mask table.
+	texturewidthmask = (void *)((UINT8 *)textures + ((numtextures * sizeof(void *)) * 3));
+	// Allocate texture height mask table.
+	textureheight    = (void *)((UINT8 *)textures + ((numtextures * sizeof(void *)) * 4));
+	// Create translation table for global animation.
+	texturetranslation = Z_Malloc((numtextures + 1) * sizeof(*texturetranslation), PU_STATIC, NULL);
+
+	for (i = 0; i < numtextures; i++)
+		texturetranslation[i] = i;
+
+	// This takes 90% of texture loading time. Precalculate whatever possible.
+	for (i = 0; i < numtextures; i++)
+		texturecache[i] = NULL;
+
+	// Loop through each WAD.
+	for (i = 0, w = 0; w < numwadfiles; w++)
+	{
+		// Get the lump numbers for the markers in the WAD, if they exist.
+		texstart = W_CheckNumForNamePwad(TX_START, w, 0) + 1;
+		texend = W_CheckNumForNamePwad(TX_END, w, 0);
+
+		if (texstart == INT16_MAX || texend == INT16_MAX)
+			continue;
+
+		// Work through each lump between the markers in the WAD.
+		for (j = 0; (unsigned)j < (texend - texstart); i++, j++)
+		{
+			patchlump = W_CacheLumpNumPwad(w, texstart + j, PU_CACHE);
+
+			// Then, check the lump directly to see if it's a texture SOC,
+			// and if it is, load it using dehacked instead.
+			if (strstr((const char *)patchlump, "TEXTURE"))
+			{
+				Z_Unlock(patchlump);
+				DEH_LoadDehackedLumpPwad(w, texstart + j);
+			}
+			else
+			{
+				texture = textures[i] = Z_Malloc(sizeof(texture_t), PU_STATIC, NULL);
+
+				// Set texture properties.
+				M_Memcpy(texture->name, W_CheckNameForNumPwad(w, texstart + j), sizeof(texture->name));
+				texture->width = SHORT(patchlump->width);
+				texture->height = SHORT(patchlump->height);
+				texture->patchcount = 1;
+
+				Z_Unlock(patchlump);
+
+				// Allocate information for the texture's patches.
+				patch = &texture->patches[0];
+
+				patch->originx = patch->originy = 0;
+				patch->patch = texstart + j;
+
+				k = 1;
+				while (k << 1 <= texture->width)
+					k <<= 1;
+
+				texturewidthmask[i] = k - 1;
+				textureheight[i] = texture->height << FRACBITS;
+			}
+		}
+	}
+}
+#endif
 
 static inline lumpnum_t R_CheckNumForNameList(const char *name, lumplist_t *list, size_t listsize)
 {
