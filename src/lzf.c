@@ -94,7 +94,7 @@
  * this is usually a loss, even with glibc's optimized memcpy
  */
 #ifndef USE_MEMCPY
-# define USE_MEMCPY 0
+# define USE_MEMCPY 1
 #endif
 
 /*
@@ -341,7 +341,7 @@ lzf_compress (const void *const in_data,size_t in_len,
 	      u8 *op = (u8 *)out_data;
 	const u8 *in_end  = ip + in_len;
 	      u8 *out_end = op + out_len;
-	const u8 *ref;
+	const u8 *ref = NULL;
 
 	unsigned int hval = FRST (ip);
 	size_t off;
@@ -460,7 +460,7 @@ lzf_compress (const void *const in_data,size_t in_len,
 
 			*op++ = MAX_LIT - 1;
 #if USE_MEMCPY
-			memcpy (op, ip - MAX_LIT, MAX_LIT);
+			M_Memcpy (op, ip - MAX_LIT, MAX_LIT);
 			op += MAX_LIT;
 			lit = 0;
 #else
