@@ -407,7 +407,9 @@ void R_AddSpriteDefs(UINT16 wadnum)
 		{
 			// if a new sprite was added (not just replaced)
 			addsprites++;
+#ifndef ZDEBUG
 			DEBPRINT(va(M_GetText("sprite %s set in pwad %d\n"), spritename, wadnum));
+#endif
 		}
 	}
 

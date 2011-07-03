@@ -498,7 +498,9 @@ INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 		// store the flat lump number
 		levelflat->lumpnum = R_GetFlatNumForName(flatname);
 
+#ifndef ZDEBUG
 		DEBPRINT(va("flat #%03d: %s\n", atoi(sizeu1(numlevelflats)), levelflat->name));
+#endif
 
 		numlevelflats++;
 
