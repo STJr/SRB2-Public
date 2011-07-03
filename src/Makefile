@@ -518,6 +518,9 @@ cleandep:
 	$(REMOVE) comptime.h
 
 pre-build:
+ifdef VALGRIND
+	-@touch z_zone.c
+endif
 ifdef NOVERSION
 	-@touch comptime.c
 else
@@ -553,6 +556,7 @@ $(BIN)/$(EXENAME): $(POS) $(OBJS)
 	-$(MKDIR) $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
+ifndef VALGRIND
 ifndef NOOBJDUMP
 	@echo Dumping debugging info
 	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
@@ -567,6 +571,7 @@ ifndef PSP
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
 ifndef DJGPPDOS
 	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DBGNAME) $(BIN)/$(EXENAME)
+endif
 endif
 endif
 
@@ -674,6 +679,11 @@ $(OBJDIR)/v_video.o: v_video.c doomdef.h doomtype.h g_state.h m_swap.h r_local.h
   r_things.h r_draw.h v_video.h hu_stuff.h d_event.h w_wad.h console.h \
   i_video.h z_zone.h doomstat.h d_clisrv.h d_netcmd.h
 	$(CC) $(CFLAGS) -fno-omit-frame-pointer $(WFLAGS) -c $< -o $@
+endif
+
+ifdef VALGRIND
+$(OBJDIR)/z_zone.o: z_zone.c
+	$(CC) $(CFLAGS) $(WFLAGS) -DHAVE_VALGRIND $(VALGRIND_CFLAGS) -c $< -o $@
 endif
 
 $(OBJDIR)/comptime.o: comptime.c pre-build

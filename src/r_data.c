@@ -217,9 +217,9 @@ static UINT8 *R_GenerateTexture(size_t texnum)
 	// multi-patch textures (or 'composite')
 	blocksize = (texture->width * 4) + (texture->width * texture->height);
 	texturememory += blocksize;
-	block = Z_Malloc(blocksize, PU_STATIC, &texturecache[texnum]);
+	block = Z_Malloc(blocksize+1, PU_STATIC, &texturecache[texnum]);
 
-	memset(block, 247, blocksize); // Transparency hack
+	memset(block, 0xF7, blocksize+1); // Transparency hack
 
 	// columns lookup table
 	colofs = (UINT32 *)(void *)block;

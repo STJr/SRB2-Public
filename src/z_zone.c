@@ -35,6 +35,12 @@
 #include "hardware/hw_main.h" // For hardware memory info
 #endif
 
+#ifdef HAVE_VALGRIND
+#include "valgrind.h"
+static boolean Z_calloc = false;
+#include "memcheck.h"
+#endif
+
 #define ZONEID 0xa441d13d
 
 struct memblock_s;
@@ -78,6 +84,7 @@ static memblock_t *Ptr2Memblock(void *ptr, const char* func)
 #endif
 {
 	memhdr_t *hdr;
+	memblock_t *block;
 
 	if (ptr == NULL)
 		return NULL;
@@ -87,6 +94,21 @@ static memblock_t *Ptr2Memblock(void *ptr, const char* func)
 #endif
 
 	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
+
+#ifdef VALGRIND_MAKE_MEM_DEFINED
+	VALGRIND_MAKE_MEM_DEFINED(hdr, sizeof *hdr);
+#endif
+
+#ifdef VALGRIND_MEMPOOL_EXISTS
+	if (!VALGRIND_MEMPOOL_EXISTS(hdr->block))
+	{
+#ifdef ZDEBUG
+		I_Error("%s: bad memblock from %s:%d", func, file, line);
+#else
+		I_Error("%s: bad memblock", func);
+#endif
+	}
+#endif
 	if (hdr->id != ZONEID)
 	{
 #ifdef ZDEBUG
@@ -95,7 +117,11 @@ static memblock_t *Ptr2Memblock(void *ptr, const char* func)
 		I_Error("%s: wrong id", func);
 #endif
 	}
-	return hdr->block;
+	block = hdr->block;
+#ifdef VALGRIND_MAKE_MEM_NOACCESS
+	VALGRIND_MAKE_MEM_NOACCESS(hdr, sizeof *hdr);
+#endif
+	return block;
 
 }
 
@@ -161,6 +187,9 @@ void Z_Free(void *ptr)
 	block->prev->next = block->next;
 	block->next->prev = block->prev;
 	free(block);
+#ifdef VALGRIND_DESTROY_MEMPOOL
+	VALGRIND_DESTROY_MEMPOOL(block);
+#endif
 }
 
 // malloc() that doesn't accept failure.
@@ -199,29 +228,43 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 #endif
 {
 	size_t extrabytes = (1<<alignbits) - 1;
+	size_t padsize = 0;
 	memblock_t *block;
 	void *ptr;
 	memhdr_t *hdr;
 	void *given;
+	size_t blocksize = extrabytes + sizeof *hdr + size;
 
 #ifdef ZDEBUG2
 	DEBPRINT(va("Z_Malloc %s:%d\n", file, line));
 #endif
 
 	block = xm(sizeof *block);
-	ptr = xm(extrabytes + sizeof *hdr + size);
+#ifdef HAVE_VALGRIND
+	padsize += (1<<sizeof(size_t))*2;
+#endif
+	ptr = xm(blocksize + padsize*2);
 
 	// This horrible calculation makes sure that "given" is aligned
 	// properly.
-	given = (void *)((size_t)((UINT8 *)ptr + extrabytes + sizeof *hdr)
+	given = (void *)((size_t)((UINT8 *)ptr + extrabytes + sizeof *hdr + padsize/2)
 		& ~extrabytes);
 
 	// The mem header lives 'sizeof (memhdr_t)' bytes before given.
 	hdr = (memhdr_t *)((UINT8 *)given - sizeof *hdr);
 
+#ifdef VALGRIND_CREATE_MEMPOOL
+	VALGRIND_CREATE_MEMPOOL(block, padsize, Z_calloc);
+	Z_calloc = false;
+#endif
+#ifdef VALGRIND_MEMPOOL_ALLOC
+	VALGRIND_MEMPOOL_ALLOC(block, hdr, size + sizeof *hdr);
+#endif
+
 	block->next = head.next;
 	block->prev = &head;
-	block->next->prev = head.next = block;
+	head.next = block;
+	block->next->prev = block;
 
 	block->real = ptr;
 	block->hdr = hdr;
@@ -231,11 +274,15 @@ void *Z_MallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 	block->ownerline = line;
 	block->ownerfile = file;
 #endif
-	block->size = size + extrabytes + sizeof *hdr;
+	block->size = blocksize;
 	block->realsize = size;
 
 	hdr->id = ZONEID;
 	hdr->block = block;
+
+#ifdef VALGRIND_MAKE_MEM_NOACCESS
+	VALGRIND_MAKE_MEM_NOACCESS(hdr, sizeof *hdr);
+#endif
 
 	if (user != NULL)
 	{
@@ -255,6 +302,9 @@ void *Z_Calloc2(size_t size, INT32 tag, void *user, INT32 alignbits, const char 
 void *Z_CallocAlign(size_t size, INT32 tag, void *user, INT32 alignbits)
 #endif
 {
+#ifdef VALGRIND_MEMPOOL_ALLOC
+	Z_calloc = true;
+#endif
 #ifdef ZDEBUG
 	return memset(Z_Malloc2    (size, tag, user, alignbits, file, line), 0, size);
 #else
@@ -283,7 +333,13 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 	}
 
 	if (!ptr)
+	{
+#ifdef ZDEBUG
+		return Z_Calloc2(size, tag, user, alignbits, file , line);
+#else
 		return Z_CallocAlign(size, tag, user, alignbits);
+#endif
+	}
 
 #ifdef ZDEBUG
 	block = Ptr2Memblock2(ptr, "Z_Realloc", file, line);
@@ -309,7 +365,11 @@ void *Z_ReallocAlign(void *ptr, size_t size,INT32 tag, void *user,  INT32 alignb
 
 	M_Memcpy(rez, ptr, copysize);
 
+#ifdef ZDEBUG
+	Z_Free2(ptr, file, line);
+#else
 	Z_Free(ptr);
+#endif
 
 	// Need to set the user in case the old block had the same one, in
 	// which case the Z_Free will just have NULLed it out.
@@ -370,16 +430,32 @@ void Z_CheckMemCleanup(void)
 void Z_CheckHeap(INT32 i)
 {
 	memblock_t *block;
+	memhdr_t *hdr;
 	UINT32 blocknumon = 0;
 	void *given;
 
 	for (block = head.next; block != &head; block = block->next)
 	{
 		blocknumon++;
-		given = (UINT8 *)block->hdr + sizeof *(block->hdr);
+		hdr = block->hdr;
+		given = (UINT8 *)hdr + sizeof *hdr;
 #ifdef ZDEBUG2
 		DEBPRINT(va("block %u owned by %s:%d\n",
 			blocknumon, block->ownerfile, block->ownerline));
+#endif
+#ifdef VALGRIND_MEMPOOL_EXISTS
+		if (!VALGRIND_MEMPOOL_EXISTS(block))
+		{
+			I_Error("Z_CheckHeap %d: block %u"
+#ifdef ZDEBUG
+				"(owned by %s:%d)"
+#endif
+				" should not exist", i, blocknumon
+#ifdef ZDEBUG
+				, block->ownerfile, block->ownerline
+#endif
+			        );
+		}
 #endif
 		if (block->user != NULL && *(block->user) != given)
 		{
@@ -417,7 +493,10 @@ void Z_CheckHeap(INT32 i)
 #endif
 			       );
 		}
-		if (block->hdr->block != block)
+#ifdef VALGRIND_MAKE_MEM_DEFINED
+		VALGRIND_MAKE_MEM_DEFINED(hdr, sizeof *hdr);
+#endif
+		if (hdr->block != block)
 		{
 			I_Error("Z_CheckHeap %d: block %u"
 #ifdef ZDEBUG
@@ -428,9 +507,9 @@ void Z_CheckHeap(INT32 i)
 #ifdef ZDEBUG
 				, block->ownerfile, block->ownerline
 #endif
-			        );
+					);
 		}
-		if (block->hdr->id != ZONEID)
+		if (hdr->id != ZONEID)
 		{
 			I_Error("Z_CheckHeap %d: block %u"
 #ifdef ZDEBUG
@@ -440,8 +519,11 @@ void Z_CheckHeap(INT32 i)
 #ifdef ZDEBUG
 				, block->ownerfile, block->ownerline
 #endif
-			        );
+					);
 		}
+#ifdef VALGRIND_MAKE_MEM_NOACCESS
+	VALGRIND_MAKE_MEM_NOACCESS(hdr, sizeof *hdr);
+#endif
 	}
 }
 
@@ -459,11 +541,29 @@ void Z_ChangeTag2(void *ptr, INT32 tag)
 
 	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
 
+#ifdef VALGRIND_MAKE_MEM_DEFINED
+	VALGRIND_MAKE_MEM_DEFINED(hdr, sizeof *hdr);
+#endif
+
+#ifdef VALGRIND_MEMPOOL_EXISTS
+	if (!VALGRIND_MEMPOOL_EXISTS(hdr->block))
+	{
+#ifdef PARANOIA
+		I_Error("Z_CT at %s:%d: bad memblock", file, line);
+#else
+		I_Error("Z_CT: bad memblock");
+#endif
+	}
+#endif
 #ifdef PARANOIA
 	if (hdr->id != ZONEID) I_Error("Z_CT at %s:%d: wrong id", file, line);
 #endif
 
 	block = hdr->block;
+
+#ifdef VALGRIND_MAKE_MEM_NOACCESS
+	VALGRIND_MAKE_MEM_NOACCESS(hdr, sizeof *hdr);
+#endif
 
 	if (tag >= PU_PURGELEVEL && block->user == NULL)
 		I_Error("Internal memory management error: "
@@ -575,11 +675,19 @@ void Z_SetUser2(void *ptr, void **newuser)
 
 	hdr = (memhdr_t *)((UINT8 *)ptr - sizeof *hdr);
 
+#ifdef VALGRIND_MAKE_MEM_DEFINED
+	VALGRIND_MAKE_MEM_DEFINED(hdr, sizeof *hdr);
+#endif
+
 #ifdef PARANOIA
 	if (hdr->id != ZONEID) I_Error("Z_CT at %s:%d: wrong id", file, line);
 #endif
 
 	block = hdr->block;
+
+#ifdef VALGRIND_MAKE_MEM_NOACCESS
+	VALGRIND_MAKE_MEM_NOACCESS(hdr, sizeof *hdr);
+#endif
 
 	if (block->tag >= PU_PURGELEVEL && newuser == NULL)
 		I_Error("Internal memory management error: "
