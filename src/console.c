@@ -443,7 +443,10 @@ static void CON_RecalcSize(void)
 
 	con_recalc = false;
 
-	conw = (vid.width>>3) / con_scalefactor - 2;
+	if (dedicated)
+		conw = 1;
+	else
+		conw = (vid.width>>3) / con_scalefactor - 2;
 
 	if (con_curlines == vid.height) // first init
 	{
