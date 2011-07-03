@@ -197,13 +197,14 @@ void Z_Free(void *ptr)
 // malloc() that doesn't accept failure.
 static void *xm(size_t size)
 {
-	void *p = malloc(size);
+	const size_t padedsize = size+sizeof (size_t);
+	void *p = malloc(padedsize);
 
 	if (p == NULL)
 	{
 		// Oh crumbs: we're out of heap. Try purging the cache and reallocating.
 		Z_FreeTags(PU_PURGELEVEL, INT32_MAX);
-		p = malloc(size);
+		p = malloc(padedsize);
 
 		if (p == NULL)
 		{
