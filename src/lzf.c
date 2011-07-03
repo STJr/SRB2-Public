@@ -47,7 +47,7 @@
 #define LZFP_h
 
 #include "lzf.h"
-#include "m_misc.h"
+#include "doomdef.h"
 
 /*
  * Size of hashtable is (1 << HLOG) * sizeof (char *)
