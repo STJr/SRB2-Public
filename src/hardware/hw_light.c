@@ -1117,8 +1117,9 @@ static inline void HWR_BuildWallLightmaps(FVector *p1, FVector *p2, int lighnum,
 
 	// (...) attention faire le backfase cull histoir de faire mieux que Q3 !
 
-	lighnum = 0;
-	p1 = p2 = NULL;
+	(void)lighnum;
+	(void)p1;
+	(void)p2;
 	lp = malloc(sizeof (*lp));
 	lp->next = line->lightmaps;
 	line->lightmaps = lp;
@@ -1276,7 +1277,7 @@ void HWR_CreateStaticLightmaps(int bspnum)
 
 	dynlights->nb = 0;
 #else
-	bspnum = 0;
+	(void)bspnum;
 #endif
 }
 
