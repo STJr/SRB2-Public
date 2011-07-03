@@ -121,7 +121,12 @@ wadfile_t *wadfiles[MAX_WADFILES]; // 0 to numwadfiles-1 are valid
 void W_Shutdown(void)
 {
 	while (numwadfiles--)
+	{
 		fclose(wadfiles[numwadfiles]->handle);
+		Z_Free(wadfiles[numwadfiles]->lumpinfo);
+		Z_Free(wadfiles[numwadfiles]->filename);
+		Z_Free(wadfiles[numwadfiles]);
+	}
 }
 
 //===========================================================================
