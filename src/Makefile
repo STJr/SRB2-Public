@@ -369,6 +369,10 @@ ifdef PROFILEMODE
 	CFLAGS:=-pg $(CFLAGS)
 endif
 
+ifdef ZDEBUG
+	CPPFLAGS+=-DZDEBUG
+endif
+
 OPTS+=$(CPPFLAGS)
 
 # default EXENAME if all else fails
