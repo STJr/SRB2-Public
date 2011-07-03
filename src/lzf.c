@@ -102,7 +102,7 @@
  * modern cpus and large (>>64k) blocks)
  */
 #ifndef INIT_HTAB
-# define INIT_HTAB 0
+# define INIT_HTAB 1
 #endif
 
 /*
