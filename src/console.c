@@ -1029,7 +1029,11 @@ void CON_LogMessage(const char *msg)
 void CONS_Printf(const char *fmt, ...)
 {
 	va_list argptr;
+#ifdef _NDS
 	char *txt = malloc(8192);
+#else
+	XBOXSTATIC char txt[8192];
+#endif
 
 	va_start(argptr, fmt);
 	vsprintf(txt, fmt, argptr);
@@ -1047,7 +1051,6 @@ void CONS_Printf(const char *fmt, ...)
 #endif
 #ifdef PC_DOS
 		CON_LogMessage(txt);
-		free(txt);
 		return;
 #endif
 	}
@@ -1088,8 +1091,9 @@ void CONS_Printf(const char *fmt, ...)
 		I_FinishUpdate(); // page flip or blit buffer
 #endif
 	}
-
+#ifdef _NDS
 	free(txt);
+#endif
 }
 
 // Print an error message, and wait for ENTER key to continue.
