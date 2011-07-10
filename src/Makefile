@@ -567,7 +567,7 @@ ifndef NOOBJDUMP
 ifdef WINDOWSHELL
 	-$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
 else
-	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || -$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || $(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
 endif
 endif
 ifndef PSP
