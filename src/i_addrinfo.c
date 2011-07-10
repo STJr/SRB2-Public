@@ -88,12 +88,13 @@ static HMODULE WS_getfunctions(HMODULE tmp)
 {
 	if (tmp != NULL)
 	{
-		WS_getaddrinfo = (p_getaddrinfo)GetProcAddress(tmp, "getddrinfo");
+		WS_getaddrinfo = (p_getaddrinfo)GetProcAddress(tmp, "getaddrinfo");
+		if (WS_getaddrinfo == NULL)
+			return NULL;
 		WS_freeaddrinfo = (p_freeaddrinfo)GetProcAddress(tmp, "freeaddrinfo");
-		if (WS_getaddrinfo == NULL && WS_freeaddrinfo == NULL)
+		if (WS_freeaddrinfo == NULL)
 		{
 			WS_getaddrinfo = NULL;
-			WS_freeaddrinfo = NULL;
 			return NULL;
 		}
 	}
