@@ -226,7 +226,7 @@ int I_getaddrinfo(const char *node, const char *service,
 	else
 		*res = ai;
 
-	addr = calloc(ailen, famsize);
+	addr = calloc(ailen*2, famsize);
 	if (addr == NULL)
 	{
 		free(ai);

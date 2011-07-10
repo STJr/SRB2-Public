@@ -825,7 +825,7 @@ void MSOpenUDPSocket(void)
 		{
 			const char *mshost = GetMasterServerIP();
 			const char *msport = GetMasterServerPort();
-			size_t len = strlen(mshost)+strlen(msport)+1; /*hostname:65536*/
+			size_t len = strlen(mshost)+1+strlen(msport)+1; /*hostname:65536*/
 			char *hostname = malloc(len);
 			sprintf(hostname, "%s:%s", mshost, msport);
 			msnode = I_NetMakeNode(hostname);
