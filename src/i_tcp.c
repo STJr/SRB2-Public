@@ -515,7 +515,10 @@ static boolean SOCK_CanGet(void)
 static void SOCK_Send(void)
 {
 	ssize_t c;
-	socklen_t d = (socklen_t)sizeof(mysockaddr_t);
+#ifdef HAVE_IPV6
+	socklen_t d6 = (socklen_t)sizeof(struct sockaddr_in6);
+#endif
+	socklen_t d = (socklen_t)sizeof(struct sockaddr_in);
 
 	if (!nodeconnected[doomcom->remotenode])
 		return;
@@ -526,8 +529,14 @@ static void SOCK_Send(void)
 		for (i = 0; i < mysocketss && mysockets[i] != BADSOCKET; i++)
 		{
 			if (myfamily[i] == broadcastaddress[i].any.sa_family)
+			{
+#ifdef HAVE_IPV6
+				if (broadcastaddress[i].any.sa_family == AF_INET6)
+					d = d6;
+#endif
 				sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
 					&broadcastaddress[i].any, d);
+			}
 
 		}
 		return;
@@ -537,17 +546,27 @@ static void SOCK_Send(void)
 		size_t i;
 		for (i = 0; i < mysocketss && mysockets[i] != BADSOCKET; i++)
 		{
-			if (myfamily[i] == clientaddress[i].any.sa_family)
+#ifdef HAVE_IPV6
+			if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
+				d = d6;
+#endif
+			if (myfamily[i] == clientaddress[doomcom->remotenode].any.sa_family)
 				sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
 					&clientaddress[doomcom->remotenode].any, d);
 
 		}
 		return;
 	}
-
-	c = sendto(nodesocket[doomcom->remotenode], (char *)&doomcom->data, doomcom->datalength, 0,
-		&clientaddress[doomcom->remotenode].any, d);
-
+	else
+	{
+#ifdef HAVE_IPV6
+		if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
+			d = d6;
+#endif
+		c = sendto(nodesocket[doomcom->remotenode], (char *)&doomcom->data, doomcom->datalength, 0,
+			   &clientaddress[doomcom->remotenode].any, d);
+	}
+		
 	if (c == ERRSOCKET && errno != ECONNREFUSED && errno != EWOULDBLOCK)
 		I_Error("SOCK_Send, error sending to node %d (%s) #%u: %s", doomcom->remotenode,
 			SOCK_GetNodeAddress(doomcom->remotenode), errno, strerror(errno));
@@ -818,7 +837,7 @@ static boolean UDP_Socket(void)
 		runp = ai;
 		while (runp != NULL)
 		{
-			memcpy(&clientaddress[s], ai->ai_addr, ai->ai_addrlen);
+			memcpy(&clientaddress[s], runp->ai_addr, runp->ai_addrlen);
 			s++;
 			runp = runp->ai_next;
 		}
@@ -838,7 +857,7 @@ static boolean UDP_Socket(void)
 		runp = ai;
 		while (runp != NULL)
 		{
-			memcpy(&broadcastaddress[s], ai->ai_addr, ai->ai_addrlen);
+			memcpy(&broadcastaddress[s], runp->ai_addr, runp->ai_addrlen);
 			s++;
 			runp = runp->ai_next;
 		}
@@ -861,7 +880,7 @@ static boolean UDP_Socket(void)
 			runp = ai;
 			while (runp != NULL)
 			{
-				memcpy(&broadcastaddress[s], ai->ai_addr, ai->ai_addrlen);
+				memcpy(&broadcastaddress[s], runp->ai_addr, runp->ai_addrlen);
 				s++;
 				runp = runp->ai_next;
 			}
