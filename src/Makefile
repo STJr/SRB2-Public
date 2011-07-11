@@ -710,7 +710,7 @@ $(OBJDIR)/%.o: %.nas
 	$(NASM) $(NASMOPTS) -o $@ -f $(NASMFORMAT) $<
 
 $(OBJDIR)/vid_copy.o: vid_copy.s asm_defs.inc
-	$(CC) $(OPTS) -x assembler-with-cpp -c $< -o $@
+	$(CC) $(OPTS) $(ASFLAGS) -x assembler-with-cpp -c $< -o $@
 
 $(OBJDIR)/%.o: %.s
 	$(CC) $(OPTS) -x assembler-with-cpp -c $< -o $@
