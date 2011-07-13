@@ -713,3 +713,118 @@ void FM_Scale(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z)
 }
 
 #endif
+
+#ifdef M_TESTCASE
+
+static inline void M_print(INT64 a)
+{
+	const fixed_t w = (a>>FRACBITS);
+	fixed_t f = a%FRACUNIT;
+	fixed_t d = FRACUNIT;
+
+	if (f == 0)
+	{
+		printf("%d", (fixed_t)w);
+		return;
+	}
+	else while (f != 1 && f/2 == f>>1)
+	{
+		d /= 2;
+		f /= 2;
+	}
+
+	if (w == 0)
+		printf("%d/%d", (fixed_t)f, d);
+	else
+		printf("%d+(%d/%d)", (fixed_t)w, (fixed_t)f, d);
+}
+
+FUNCMATH FUNCINLINE static inline fixed_t FixedMulC(fixed_t a, fixed_t b)
+{
+	return (fixed_t)((((INT64)a * b) ) / FRACUNIT);
+}
+
+FUNCMATH FUNCINLINE static inline fixed_t FixedDivC2(fixed_t a, fixed_t b)
+{
+	INT64 ret;
+
+	if (b == 0)
+		I_Error("FixedDiv: divide by zero");
+
+	ret = (((INT64)a * FRACUNIT) ) / b;
+
+	if ((ret > INT32_MAX) || (ret < INT32_MIN))
+		I_Error("FixedDiv: divide by zero");
+	return (fixed_t)ret;
+}
+
+FUNCMATH FUNCINLINE static inline fixed_t FixedDivC(fixed_t a, fixed_t b)
+{
+	if ((abs(a) >> (FRACBITS-2)) >= abs(b))
+		return (a^b) < 0 ? INT32_MIN : INT32_MAX;
+
+	return FixedDivC2(a, b);
+}
+
+int main(int argc, char** argv)
+{
+	int n = 10;
+	INT64 a, b;
+	fixed_t c, d;
+	(void)argc;
+	(void)argv;
+
+	for (a = 1; a <= INT32_MAX; a += FRACUNIT)
+	for (b = 0; b <= INT32_MAX; b += FRACUNIT)
+	{
+		c = FixedMul(a, b);
+		d = FixedMulC(a, b);
+		if (c != d)
+		{
+			printf("(");
+			M_print(a);
+			printf(") * (");
+			M_print(b);
+			printf(") = (");
+			M_print(c);
+			printf(") != (");
+			M_print(d);
+			printf(") \n");
+			n--;
+			printf("%d != %d\n", c, d);
+		}
+		c = FixedDiv(a, b);
+		d = FixedDivC(a, b);
+		if (c != d)
+		{
+			printf("(");
+			M_print(a);
+			printf(") / (");
+			M_print(b);
+			printf(") = (");
+			M_print(c);
+			printf(") != (");
+			M_print(d);
+			printf(")\n");
+			n--;
+			printf("%d != %d\n", c, d);
+		}
+		if (n <= 0)
+			exit(-1);
+	}
+	exit(0);
+}
+
+static void *cpu_cpy(void *dest, const void *src, size_t n)
+{
+	return memcpy(dest, src, n);
+}
+
+void *(*M_Memcpy)(void* dest, const void* src, size_t n) = cpu_cpy;
+
+void I_Error(const char *error, ...)
+{
+	(void)error;
+	exit(-1);
+}
+#endif
