@@ -159,13 +159,6 @@ typedef union
 #include "i_net.h"
 #include "d_net.h"
 #include "i_tcp.h"
-#ifndef NONET
-static mysockaddr_t clientaddress[MAXNETNODES+1];
-static mysockaddr_t broadcastaddress[MAXNETNODES+1];
-static boolean nodeconnected[MAXNETNODES+1];
-static mysockaddr_t banned[MAXBANS];
-static UINT8 bannedmask[MAXBANS];
-#endif
 #include "m_argv.h"
 
 #include "doomstat.h"
@@ -218,9 +211,15 @@ typedef int socklen_t;
 
 #ifndef NONET
 static SOCKET_TYPE mysockets[MAXNETNODES+1] = {BADSOCKET};
-#define mysocketss sizeof(mysockets)/sizeof(SOCKET_TYPE)
+static socklen_t mysocketses = 0;
 static int myfamily[MAXNETNODES+1] = {0};
 static SOCKET_TYPE nodesocket[MAXNETNODES+1] = {BADSOCKET};
+static mysockaddr_t clientaddress[MAXNETNODES+1];
+static mysockaddr_t broadcastaddress[MAXNETNODES+1];
+static socklen_t broadcastaddresses = 0;
+static boolean nodeconnected[MAXNETNODES+1];
+static mysockaddr_t banned[MAXBANS];
+static UINT8 bannedmask[MAXBANS];
 #endif
 
 static size_t numbans = 0;
@@ -404,7 +403,7 @@ static void SOCK_Get(void)
 	mysockaddr_t fromaddress;
 	socklen_t fromlen;
 
-	for (n = 0; n < mysocketss; n++)
+	for (n = 0; n < mysocketses; n++)
 	{
 		fromlen = (socklen_t)sizeof(fromaddress);
 		c = recvfrom(mysockets[n], (char *)&doomcom->data, MAXPACKETLENGTH, 0,
@@ -418,6 +417,7 @@ static void SOCK_Get(void)
 				{
 					doomcom->remotenode = (INT16)j; // good packet from a game player
 					doomcom->datalength = (INT16)c;
+					nodesocket[j] = mysockets[n];
 					return;
 				}
 			}
@@ -487,7 +487,7 @@ static boolean SOCK_CanSend(void)
 	fd_set tset;
 	int wselect;
 
-	if(!FD_CPY(&masterset, &tset, mysockets, mysocketss))
+	if(!FD_CPY(&masterset, &tset, mysockets, mysocketses))
 		return false;
 	wselect = select(255, NULL, &tset, NULL, &timeval_for_select);
 	if (wselect >= 1)
@@ -501,7 +501,7 @@ static boolean SOCK_CanGet(void)
 	fd_set tset;
 	int rselect;
 
-	if(!FD_CPY(&masterset, &tset, mysockets, mysocketss))
+	if(!FD_CPY(&masterset, &tset, mysockets, mysocketses))
 		return false;
 	rselect = select(255, &tset, NULL, NULL, &timeval_for_select);
 	if (rselect >= 1)
@@ -514,59 +514,77 @@ static boolean SOCK_CanGet(void)
 #ifndef NONET
 static void SOCK_Send(void)
 {
-	ssize_t c;
+	ssize_t c = ERRSOCKET;
+	socklen_t d4 = (socklen_t)sizeof(struct sockaddr_in);
 #ifdef HAVE_IPV6
 	socklen_t d6 = (socklen_t)sizeof(struct sockaddr_in6);
 #endif
-	socklen_t d = (socklen_t)sizeof(struct sockaddr_in);
+	socklen_t da = (socklen_t)sizeof(mysockaddr_t);
+	socklen_t d, i, j;
 
 	if (!nodeconnected[doomcom->remotenode])
 		return;
 
 	if (doomcom->remotenode == BROADCASTADDR)
 	{
-		size_t i;
-		for (i = 0; i < mysocketss && mysockets[i] != BADSOCKET; i++)
+		for (i = 0; i < mysocketses; i++)
 		{
-			if (myfamily[i] == broadcastaddress[i].any.sa_family)
+			for (j = 0; j < broadcastaddresses; j++)
 			{
+				if (myfamily[i] == broadcastaddress[j].any.sa_family)
+				{
+					if (broadcastaddress[i].any.sa_family == AF_INET)
+						d = d4;
 #ifdef HAVE_IPV6
-				if (broadcastaddress[i].any.sa_family == AF_INET6)
-					d = d6;
+					if (broadcastaddress[i].any.sa_family == AF_INET6)
+						d = d6;
 #endif
-				sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
-					&broadcastaddress[i].any, d);
-			}
+					else
+						d = da;
 
+					c = sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
+						&broadcastaddress[j].any, d);
+				}
+			}
 		}
 		return;
 	}
 	else if (nodesocket[doomcom->remotenode] == BADSOCKET)
 	{
-		size_t i;
-		for (i = 0; i < mysocketss && mysockets[i] != BADSOCKET; i++)
+		for (i = 0; i < mysocketses; i++)
 		{
-#ifdef HAVE_IPV6
-			if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
-				d = d6;
-#endif
 			if (myfamily[i] == clientaddress[doomcom->remotenode].any.sa_family)
+			{
+				if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET)
+					d = d4;
+#ifdef HAVE_IPV6
+				else if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
+					d = d6;
+#endif
+				else
+					d = da;
+
 				sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
 					&clientaddress[doomcom->remotenode].any, d);
-
+			}
 		}
 		return;
 	}
 	else
 	{
+		if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET)
+			d = d4;
 #ifdef HAVE_IPV6
 		if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
 			d = d6;
 #endif
+		else
+			d = da;
+
 		c = sendto(nodesocket[doomcom->remotenode], (char *)&doomcom->data, doomcom->datalength, 0,
-			   &clientaddress[doomcom->remotenode].any, d);
+			&clientaddress[doomcom->remotenode].any, d);
 	}
-		
+
 	if (c == ERRSOCKET && errno != ECONNREFUSED && errno != EWOULDBLOCK)
 		I_Error("SOCK_Send, error sending to node %d (%s) #%u: %s", doomcom->remotenode,
 			SOCK_GetNodeAddress(doomcom->remotenode), errno, strerror(errno));
@@ -707,7 +725,7 @@ static boolean UDP_Socket(void)
 	const INT32 b_ipv6 = M_CheckParm("-ipv6");
 #endif
 
-	for (s = 0; s < mysocketss; s++)
+	for (s = 0; s < mysocketses; s++)
 		mysockets[s] = BADSOCKET;
 	for (s = 0; s < MAXNETNODES+1; s++)
 		nodesocket[s] = BADSOCKET;
@@ -737,7 +755,7 @@ static boolean UDP_Socket(void)
 			if (gaie == 0)
 			{
 				runp = ai;
-				while (runp != NULL && s < mysocketss)
+				while (runp != NULL && s < MAXNETNODES+1)
 				{
 					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
 					if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
@@ -758,7 +776,7 @@ static boolean UDP_Socket(void)
 		if (gaie == 0)
 		{
 			runp = ai;
-			while (runp != NULL && s < mysocketss)
+			while (runp != NULL && s < MAXNETNODES+1)
 			{
 				mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
 				if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
@@ -784,7 +802,7 @@ static boolean UDP_Socket(void)
 				if (gaie == 0)
 				{
 					runp = ai;
-					while (runp != NULL && s < mysocketss)
+					while (runp != NULL && s < MAXNETNODES+1)
 					{
 						mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
 						if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
@@ -805,7 +823,7 @@ static boolean UDP_Socket(void)
 			if (gaie == 0)
 			{
 				runp = ai;
-				while (runp != NULL && s < mysocketss)
+				while (runp != NULL && s < MAXNETNODES+1)
 				{
 					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
 					if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
@@ -822,10 +840,11 @@ static boolean UDP_Socket(void)
 	}
 #endif
 
+	mysocketses = s;
 	if (s == 0) // no sockets?
 		return false;
-	else
-		s = 0;
+
+	s = 0;
 
 	// ip + udp
 	packetheaderlength = 20 + 8; // for stats
@@ -888,6 +907,8 @@ static boolean UDP_Socket(void)
 		}
 	}
 #endif
+
+	broadcastaddresses = s;
 
 	doomcom->extratics = 1; // internet is very high ping
 
@@ -1017,7 +1038,7 @@ boolean I_InitTcpDriver(void)
 static void SOCK_CloseSocket(void)
 {
 	size_t i;
-	for (i=0; i < mysocketss; i++)
+	for (i=0; i < MAXNETNODES+1; i++)
 	{
 		if (mysockets[i] != (SOCKET_TYPE)ERRSOCKET
 		 && mysockets[i] != BADSOCKET
