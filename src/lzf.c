@@ -364,7 +364,7 @@ lzf_compress (const void *const in_data,size_t in_len,
 			hslot = htab + IDX (hval);
 			ref = *hslot; *hslot = ip;
 
-			if ( 
+			if (
 #if INIT_HTAB && !USE_MEMCPY
 			     ref < ip /* the next test will actually take care of this, but this is faster */
 			     &&
