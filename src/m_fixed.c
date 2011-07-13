@@ -41,22 +41,7 @@
 */
 fixed_t FixedMul(fixed_t a, fixed_t b)
 {
-#if 0 //defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
-	return (fixed_t)MulDiv(a, b, FRACUNIT);
-#elif 1 // Wine's MulDiv( INT nMultiplicand, INT nMultiplier, INT nDivisor)
-	INT64 ret;
-	// If the result is positive, we "add" to round. else, we subtract to round.
-	if ( ( (a <  0) && (b <  0) ) ||
-	     ( (a >= 0) && (b >= 0) ) )
-		ret = (((INT64)a * b) /*+ (FRACUNIT/2)*/) / FRACUNIT;
-	else
-		ret = (((INT64)a * b) /*- (FRACUNIT/2)*/) / FRACUNIT;
-
-	if ((ret > 2147483647) || (ret < -2147483647)) return -1;
-	return (fixed_t)ret;
-#else
-	return (fixed_t)(((INT64) a * (INT64) b)>>FRACBITS);
-#endif
+	return (fixed_t)((((INT64)a * b) ) / FRACUNIT);
 }
 
 #endif //__USE_C_FIXEDMUL__
@@ -73,40 +58,16 @@ fixed_t FixedMul(fixed_t a, fixed_t b)
 */
 fixed_t FixedDiv2(fixed_t a, fixed_t b)
 {
-#if 0 //defined (_WIN32) && !defined (_XBOX) && !defined (_WIN32_WCE)
-	INT c = MulDiv(a, FRACUNIT, b);
-	if (c == -1)
-		I_Error("FixedDiv: divide by zero");
-	return (fixed_t)c;
-#elif 1 // Wine's MulDiv( INT nMultiplicand, INT nMultiplier, INT nDivisor)
 	INT64 ret;
 
 	if (b == 0)
 		I_Error("FixedDiv: divide by zero");
 
-	// We want to deal with a positive divisor to simplify the logic.
-	if (b < 0)
-	{
-		a = -a;
-		b = -b;
-	}
+	ret = (((INT64)a * FRACUNIT) ) / b;
 
-	// If the result is positive, we "add" to round. else, we subtract to round.
-	if (a >= 0)
-		ret = (((INT64)a * FRACUNIT) /*+ (b/2)*/) / b;
-	else
-		ret = (((INT64)a * FRACUNIT) /*- (b/2)*/) / b;
-
-	if ((ret > 2147483647) || (ret < -2147483647))
+	if ((ret > INT32_MAX) || (ret < INT32_MIN))
 		I_Error("FixedDiv: divide by zero");
 	return (fixed_t)ret;
-#else
-	double c = ((double)a) / ((double)b) * FRACUNIT;
-
-	if (c >= 2147483648.0 || c < -2147483648.0)
-		I_Error("FixedDiv: divide by zero");
-	return (fixed_t)c;
-#endif
 }
 
 #endif // __USE_C_FIXEDDIV__
