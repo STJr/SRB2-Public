@@ -48,9 +48,9 @@ fixed_t FixedMul(fixed_t a, fixed_t b)
 	// If the result is positive, we "add" to round. else, we subtract to round.
 	if ( ( (a <  0) && (b <  0) ) ||
 	     ( (a >= 0) && (b >= 0) ) )
-		ret = (((INT64)a * b) + (FRACUNIT/2)) / FRACUNIT;
+		ret = (((INT64)a * b) /*+ (FRACUNIT/2)*/) / FRACUNIT;
 	else
-		ret = (((INT64)a * b) - (FRACUNIT/2)) / FRACUNIT;
+		ret = (((INT64)a * b) /*- (FRACUNIT/2)*/) / FRACUNIT;
 
 	if ((ret > 2147483647) || (ret < -2147483647)) return -1;
 	return (fixed_t)ret;
@@ -93,9 +93,9 @@ fixed_t FixedDiv2(fixed_t a, fixed_t b)
 
 	// If the result is positive, we "add" to round. else, we subtract to round.
 	if (a >= 0)
-		ret = (((INT64)a * FRACUNIT) + (b/2)) / b;
+		ret = (((INT64)a * FRACUNIT) /*+ (b/2)*/) / b;
 	else
-		ret = (((INT64)a * FRACUNIT) - (b/2)) / b;
+		ret = (((INT64)a * FRACUNIT) /*- (b/2)*/) / b;
 
 	if ((ret > 2147483647) || (ret < -2147483647))
 		I_Error("FixedDiv: divide by zero");
