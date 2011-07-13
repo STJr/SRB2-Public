@@ -704,7 +704,7 @@ static boolean UDP_Socket(void)
 	struct my_addrinfo *ai, *runp, hints;
 	int gaie;
 #ifdef HAVE_IPV6
-	const INT32 b_noipv6 = M_CheckParm("-noipv6");
+	const INT32 b_ipv6 = M_CheckParm("-ipv6");
 #endif
 
 	for (s = 0; s < mysocketss; s++)
@@ -773,7 +773,7 @@ static boolean UDP_Socket(void)
 		}
 	}
 #ifdef HAVE_IPV6
-	if (!b_noipv6)
+	if (b_ipv6)
 	{
 		hints.ai_family = AF_INET6;
 		if (M_CheckParm("-bindaddr6"))
@@ -871,7 +871,7 @@ static boolean UDP_Socket(void)
 		s++;
 	}
 #ifdef HAVE_IPV6
-	if (!b_noipv6)
+	if (b_ipv6)
 	{
 		hints.ai_family = AF_INET6;
 		gaie = I_getaddrinfo("ff02::1", "0", &hints, &ai);
