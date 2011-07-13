@@ -211,12 +211,12 @@ typedef int socklen_t;
 
 #ifndef NONET
 static SOCKET_TYPE mysockets[MAXNETNODES+1] = {BADSOCKET};
-static socklen_t mysocketses = 0;
+static size_t mysocketses = 0;
 static int myfamily[MAXNETNODES+1] = {0};
 static SOCKET_TYPE nodesocket[MAXNETNODES+1] = {BADSOCKET};
 static mysockaddr_t clientaddress[MAXNETNODES+1];
 static mysockaddr_t broadcastaddress[MAXNETNODES+1];
-static socklen_t broadcastaddresses = 0;
+static size_t broadcastaddresses = 0;
 static boolean nodeconnected[MAXNETNODES+1];
 static mysockaddr_t banned[MAXBANS];
 static UINT8 bannedmask[MAXBANS];
@@ -519,8 +519,8 @@ static void SOCK_Send(void)
 #ifdef HAVE_IPV6
 	socklen_t d6 = (socklen_t)sizeof(struct sockaddr_in6);
 #endif
-	socklen_t da = (socklen_t)sizeof(mysockaddr_t);
-	socklen_t d, i, j;
+	socklen_t d, da = (socklen_t)sizeof(mysockaddr_t);
+	size_t i, j;
 
 	if (!nodeconnected[doomcom->remotenode])
 		return;
