@@ -564,10 +564,9 @@ ifndef VALGRIND
 ifndef NOOBJDUMP
 	@echo Dumping debugging info
 	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
-ifdef WINDOWSHELL
 	-$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
-else
-	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || $(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+ifndef WINDOWSHELL
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt
 endif
 endif
 ifndef PSP
@@ -582,7 +581,10 @@ endif
 reobjdump:
 	@echo Redumping debugging info
 	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(DBGNAME) > $(BIN)/$(DBGNAME).txt
-	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt || -$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+	-$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+ifndef WINDOWSHELL
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt
+endif
 
 $(OBJDIR):
 	-$(MKDIR) $(OBJDIR)
