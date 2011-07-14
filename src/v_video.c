@@ -313,9 +313,11 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 	UINT8 *desttop, *dest;
 	const UINT8 *source, *translevel, *deststop;
 
+	if (rendermode == render_none)
+		return;
 #ifdef HWRENDER
 	// draw a hardware converted patch
-	if (rendermode != render_soft && rendermode != render_none)
+	else if (rendermode != render_soft)
 	{
 		HWR_DrawMappedPatch((GLPatch_t *)patch, x, y, scrn, colormap);
 		return;
@@ -543,13 +545,15 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	UINT8 *desttop, *dest, *destend;
 	const UINT8 *source, *deststop;
 
+	if (rendermode == render_none
+#ifdef _WINDOWS
+		|| con_startup
+#endif
+	    )
+		return;
 #ifdef HWRENDER
 	// draw a hardware converted patch
-	if (rendermode != render_soft && rendermode != render_none
-#ifdef _WINDOWS
-		&& !con_startup
-#endif
-		)
+	else if (rendermode != render_soft)
 	{
 		HWR_DrawPatch((GLPatch_t *)patch, x, y, scrn);
 		return;
