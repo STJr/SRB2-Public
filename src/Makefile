@@ -169,7 +169,7 @@ NOHW=1
 NOPOSTPROCESSING=1
 endif
 
-ifdef PS3
+ifdef PS3N
 NONX86=1
 NOHW=1
 endif
@@ -473,7 +473,7 @@ ifdef XBOX
 all:	 pre-build $(BIN)/$(BINNAME)
 endif
 
-ifdef PS3
+ifdef PS3N
 all:	 pre-build $(BIN)/$(PKGNAME)
 endif
 
