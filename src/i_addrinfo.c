@@ -272,7 +272,7 @@ int I_getaddrinfo(const char *node, const char *service,
 #ifdef _PS3
 		addr[i].sin_len = famsize;
 #endif
-		addr[i].sin_port = htons(sockport);
+		addr[i].sin_port = htons((UINT16)sockport);
 		if (nodename)
 		{
 			memcpy(&addr[i].sin_addr, nodename->h_addr_list[j], ai->ai_addrlen);
@@ -314,7 +314,10 @@ void I_freeaddrinfo(struct my_addrinfo *res)
 {
 #ifdef USE_WINSOCK2
 	if (WS_freeaddrinfo)
-		return WS_freeaddrinfo(res);
+	{
+		WS_freeaddrinfo(res);
+		return;
+	}
 #endif
 	if (!res)
 		return;

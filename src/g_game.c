@@ -3010,7 +3010,7 @@ char *G_BuildMapTitle(INT32 mapnum)
 
 	if (strcmp(mapheaderinfo[mapnum-1]->lvlttl, ""))
 	{
-		UINT32 len = 1;
+		size_t len = 1;
 		const char *zonetext = NULL;
 		const INT32 actnum = mapheaderinfo[mapnum-1]->actnum;
 

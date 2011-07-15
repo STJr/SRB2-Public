@@ -3251,7 +3251,7 @@ static gr_vissprite_t gr_vsprsortedhead;
 
 static void HWR_SortVisSprites(void)
 {
-	size_t i;
+	UINT32 i;
 	gr_vissprite_t *ds, *dsprev, *dsnext, *dsfirst;
 	gr_vissprite_t *best = NULL;
 	gr_vissprite_t unsorted;
@@ -3815,7 +3815,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 		// New colormap stuff for skins Tails 06-07-2002
 #ifdef TRANSFIX
 		if (vis->mobj->skin && vis->mobj->sprite == SPR_PLAY) // This thing is a player!
-			vis->colormap = R_GetTranslationColormap((skin_t*)vis->mobj->skin-skins, vis->mobj->color, GTC_CACHE);
+			vis->colormap = R_GetTranslationColormap((INT32)((skin_t*)vis->mobj->skin-skins), vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
 			vis->colormap = R_GetTranslationColormap((vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);

@@ -722,7 +722,7 @@ static void R_DrawVisSprite(vissprite_t *vis)
 		// New colormap stuff for skins Tails 06-07-2002
 #ifdef TRANSFIX
 		if (vis->mobj->skin && vis->mobj->sprite == SPR_PLAY) // This thing is a player!
-			dc_translation = R_GetTranslationColormap((skin_t*)vis->mobj->skin-skins, vis->mobj->color, GTC_CACHE);
+			dc_translation = R_GetTranslationColormap((INT32)((skin_t*)vis->mobj->skin-skins), vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
 		{
@@ -1638,7 +1638,7 @@ static vissprite_t vsprsortedhead;
 
 void R_SortVisSprites(void)
 {
-	size_t       i;
+	UINT32       i;
 	vissprite_t *ds, *dsprev, *dsnext, *dsfirst;
 	vissprite_t *best = NULL;
 	vissprite_t  unsorted;

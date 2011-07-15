@@ -86,7 +86,7 @@ static size_t con_totallines;      // lines of console text into the console buf
 static size_t con_width;           // columns of chars, depend on vid mode width
 
 static size_t con_scrollup;        // how many rows of text to scroll up (pgup/pgdn)
-size_t con_scalefactor;            // text size scale factor
+UINT32 con_scalefactor;            // text size scale factor
 
 // hold 32 last lines of input for history
 #define CON_MAXPROMPTCHARS 256
@@ -1137,7 +1137,7 @@ static void CON_DrawInput(void)
 
 	// draw the blinking cursor
 	//
-	x = ((input_cx >= con_width-11) ? (con_width-11) : (input_cx + 1)) * charwidth;
+	x = ((input_cx >= con_width-11) ? (INT32)(con_width-11) : (INT32)((input_cx + 1)) * charwidth);
 	if (con_tick < 4)
 		V_DrawCharacter(x, y, '_' | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
 }

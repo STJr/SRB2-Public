@@ -245,7 +245,7 @@ static void wattcp_outch(char s)
 #ifdef USE_WINSOCK2
 #define inet_ntop inet_ntopA
 #define HAVE_NTOP
-static const char* inet_ntopA(int af, const void *cp, char *buf, socklen_t len)
+static const char* inet_ntopA(ADDRESS_FAMILY af, const void *cp, char *buf, socklen_t len)
 {
 	DWORD Dlen = len;
 	SIZE_T AFlen = 0;
@@ -628,7 +628,7 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 #endif
 
 	if (s == (SOCKET_TYPE)ERRSOCKET || s == BADSOCKET)
-		return ERRSOCKET;
+		return (SOCKET_TYPE)ERRSOCKET;
 #ifdef USE_WINSOCK
 	{ // Alam_GBC: disable the new UDP connection reset behavior for Win2k and up
 #ifdef USE_WINSOCK2
@@ -683,7 +683,7 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 	if (bind(s, addr, addrlen) == ERRSOCKET)
 	{
 		close(s);
-		return ERRSOCKET;
+		return (SOCKET_TYPE)ERRSOCKET;
 	}
 
 #ifdef FIONBIO
@@ -692,7 +692,7 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 	if (ioctl(s, FIONBIO, &trueval) != 0)
 	{
 		close(s);
-		return ERRSOCKET;
+		return (SOCKET_TYPE)ERRSOCKET;
 	}
 #endif
 
@@ -757,7 +757,7 @@ static boolean UDP_Socket(void)
 				runp = ai;
 				while (runp != NULL && s < MAXNETNODES+1)
 				{
-					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
+					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
 					if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
 					{
 						FD_SET(mysockets[s], &masterset);
@@ -778,7 +778,7 @@ static boolean UDP_Socket(void)
 			runp = ai;
 			while (runp != NULL && s < MAXNETNODES+1)
 			{
-				mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
+				mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
 				if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
 				{
 					FD_SET(mysockets[s], &masterset);
@@ -804,7 +804,7 @@ static boolean UDP_Socket(void)
 					runp = ai;
 					while (runp != NULL && s < MAXNETNODES+1)
 					{
-						mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
+						mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
 						if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
 						{
 							FD_SET(mysockets[s], &masterset);
@@ -825,7 +825,7 @@ static boolean UDP_Socket(void)
 				runp = ai;
 				while (runp != NULL && s < MAXNETNODES+1)
 				{
-					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, runp->ai_addrlen);
+					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
 					if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
 					{
 						FD_SET(mysockets[s], &masterset);

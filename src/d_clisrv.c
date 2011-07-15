@@ -2782,7 +2782,8 @@ static void SV_SendConsistency(INT32 node)
 // used at txtcmds received to check packetsize bound
 static size_t TotalTextCmdPerTic(tic_t tic)
 {
-	size_t i, total = 1; // num of textcmds in the tic (ntextcmd byte)
+	INT32 i;
+	size_t total = 1; // num of textcmds in the tic (ntextcmd byte)
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{

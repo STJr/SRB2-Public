@@ -428,7 +428,7 @@ static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 				ioctl(socket_fd, FIONBIO, &res);
 #endif
 
-				if (connect(socket_fd, runp->ai_addr, runp->ai_addrlen) == ERRSOCKET)
+				if (connect(socket_fd, runp->ai_addr, (socklen_t)runp->ai_addrlen) == ERRSOCKET)
 				{
 #ifdef _WIN32 // humm, on win32/win64 it doesn't work with EINPROGRESS (stupid windows)
 					if (WSAGetLastError() != WSAEWOULDBLOCK)
@@ -449,7 +449,7 @@ static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 				I_freeaddrinfo(ai);
 				return 0;
 			}
-			else if (connect(socket_fd, runp->ai_addr, runp->ai_addrlen) != ERRSOCKET)
+			else if (connect(socket_fd, runp->ai_addr, (socklen_t)runp->ai_addrlen) != ERRSOCKET)
 			{
 				I_freeaddrinfo(ai);
 				return 0;
