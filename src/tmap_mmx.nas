@@ -73,6 +73,7 @@ cextern centeryfrac
 cextern dc_transmap
 
 cextern R_DrawColumn_8_ASM
+cextern R_Draw2sMultiPatchColumn_8_ASM
 
 ;; spans
 cextern nflatshiftup
@@ -440,7 +441,7 @@ R_Draw2sMultiPatchColumn_8_MMX:
 		ret
 
 .usenonMMX:
-		call		R_DrawColumn_8_ASM
+		call		R_Draw2sMultiPatchColumn_8_ASM
 		jmp			.done
 
 
