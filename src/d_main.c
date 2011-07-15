@@ -1092,7 +1092,8 @@ void D_SRB2Main(void)
 	if (M_CheckParm("-warp") && M_IsNextParm())
 	{
 		pstartmap = atoi(M_GetNextParm());
-		modifiedgame = true;
+		if (!M_Check("-server"))
+			modifiedgame = true;
 		autostart = true;
 		savemoddata = false;
 	}
