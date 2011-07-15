@@ -283,6 +283,26 @@ FUNCMATH fixed_t FixedSqrt(fixed_t x);
 */
 FUNCMATH fixed_t FixedHypot(fixed_t x, fixed_t y);
 
+/**	\brief	The FixedFloor function
+
+	\param	x	fixed_t number
+
+	\return	floor(x)
+
+
+*/
+FUNCMATH fixed_t FixedFloor(fixed_t x);
+
+/**	\brief	The FixedCeil function
+
+	\param	x	fixed_t number
+
+	\return	ceil(x)
+
+
+*/
+FUNCMATH fixed_t FixedCeil(fixed_t x);
+
 typedef struct
 {
 	fixed_t x, y, z;
