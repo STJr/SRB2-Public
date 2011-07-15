@@ -716,18 +716,19 @@ static void R_DrawVisSprite(vissprite_t *vis)
 	}
 	else if (vis->mobjflags & MF_TRANSLATION)
 	{
+		 size_t skinnum = (skin_t*)vis->mobj->skin-skins;
 		// translate green skin to another color
 		colfunc = transcolfunc;
 
 		// New colormap stuff for skins Tails 06-07-2002
 #ifdef TRANSFIX
 		if (vis->mobj->skin && vis->mobj->sprite == SPR_PLAY) // This thing is a player!
-			dc_translation = R_GetTranslationColormap((INT32)((skin_t*)vis->mobj->skin-skins), vis->mobj->color, GTC_CACHE);
+			dc_translation = R_GetTranslationColormap((INT32)skinnum, vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
 		{
 			if (vis->mobj->player->skincolor)
-				dc_translation = G_GetTranslationColormap(vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
+				dc_translation = G_GetTranslationColormap((INT32)skinnum, vis->mobj->color, GTC_CACHE);
 			else
 			{
 				static INT32 firsttime = 1;

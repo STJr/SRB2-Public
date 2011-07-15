@@ -3812,13 +3812,14 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	//Hurdler: 25/04/2000: now support colormap in hardware mode
 	if (thing->flags & MF_TRANSLATION)
 	{
+		size_t skinnum = (skin_t*)vis->mobj->skin-skins;
 		// New colormap stuff for skins Tails 06-07-2002
 #ifdef TRANSFIX
 		if (vis->mobj->skin && vis->mobj->sprite == SPR_PLAY) // This thing is a player!
-			vis->colormap = R_GetTranslationColormap((INT32)((skin_t*)vis->mobj->skin-skins), vis->mobj->color, GTC_CACHE);
+			vis->colormap = R_GetTranslationColormap((INT32)skinnum, vis->mobj->color, GTC_CACHE);
 #else
 		if (vis->mobj->player) // This thing is a player!
-			vis->colormap = R_GetTranslationColormap((vis->mobj->player->skin, vis->mobj->color, GTC_CACHE);
+			vis->colormap = R_GetTranslationColormap(((INT32)skinnum, vis->mobj->color, GTC_CACHE);
 #endif
 		else if ((vis->mobj->flags & MF_BOSS) && (vis->mobj->flags2 & MF2_FRET) && (leveltime & 1)) // Bosses "flash"
 			vis->colormap = R_GetTranslationColormap(TC_BOSS, 0, GTC_CACHE);
