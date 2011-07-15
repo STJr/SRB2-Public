@@ -115,9 +115,21 @@
 	#undef errno
 	//#define errno WSAGetLastError() //Alam_GBC: this is the correct way, right?
 	#define errno h_errno // some very strange things happen when not using h_error?!?
+	#ifdef EWOULDBLOCK
+	#undef EWOULDBLOCK
+	#endif
 	#define EWOULDBLOCK WSAEWOULDBLOCK
+	#ifdef EMSGSIZE
+	#undef EMSGSIZE
+	#endif
 	#define EMSGSIZE WSAEMSGSIZE
+	#ifdef ECONNREFUSED
+	#undef ECONNREFUSED
+	#endif
 	#define ECONNREFUSED WSAECONNREFUSED
+	#ifdef ETIMEDOUT
+	#undef ETIMEDOUT
+	#endif
 	#define ETIMEDOUT WSAETIMEDOUT
 	#ifndef IOC_VENDOR
 	#define IOC_VENDOR 0x18000000
