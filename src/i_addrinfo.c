@@ -55,7 +55,12 @@
  */
 
 #ifndef I_getaddrinfo
+
+#ifndef _MSC_VER
 #include <stdbool.h>
+#else
+typedef char bool;
+#endif
 
 #ifdef _WIN32
 // it seems windows doesn't define that... maybe some other OS? OS/2
