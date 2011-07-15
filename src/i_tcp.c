@@ -257,7 +257,7 @@ static void wattcp_outch(char s)
 #ifdef USE_WINSOCK2
 #define inet_ntop inet_ntopA
 #define HAVE_NTOP
-static const char* inet_ntopA(ADDRESS_FAMILY af, const void *cp, char *buf, socklen_t len)
+static const char* inet_ntopA(short af, const void *cp, char *buf, socklen_t len)
 {
 	DWORD Dlen = len;
 	SIZE_T AFlen = 0;
