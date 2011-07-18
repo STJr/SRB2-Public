@@ -205,5 +205,3 @@ void strrand(char *s, const int len) {
 
     s[len] = 0;
 }
-
-

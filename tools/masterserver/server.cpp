@@ -123,7 +123,7 @@ char *str_replace(char * t1, char * t2, char * t6)
 // Cue was here
 char *str_quakeformat(char *msg)
 {
-   	char *quakemsg , *quakemsg1, *quakemsg2;
+    char *quakemsg , *quakemsg1, *quakemsg2;
     char *quakemsg3, *quakemsg4, *quakemsg5;
     char *quakemsg6, *quakemsg7, *quakemsg8;
 
@@ -148,7 +148,7 @@ char *str_quakeformat(char *msg)
 
     return quakemsg;
 }
-  */ 
+  */
 void MySQL_Conn(bool force) {
 	//if(mysql_ping(conn))
 		//mysqlconnected = 0;
@@ -162,14 +162,14 @@ void MySQL_Conn(bool force) {
 		const char *database = DATABASE;
 
 		conn = mysql_init(NULL);
-   
+
 		/* Connect to database */
 		if (!mysql_real_connect(conn, server,
 			user, password, database, 8219, NULL, 0)) {
 			logPrintf(errorfile, "%s\n", mysql_error(conn));
 		}
 		conn = mysql_init(NULL);
-   
+
 		/* Connect to database */
 		if (!mysql_real_connect(conn, server, user, password, database, 0, NULL, 0)) {
 			logPrintf(errorfile, "%s\n", mysql_error(conn));
@@ -331,7 +331,7 @@ void MySQL_AddServer(const char *ip, const char *port, const char *name, const c
              sprintf(insertquery, queryp1, escapedName, ip, escapedPort, escapedVersion, timestamp, room, escapedKey);
              logPrintf(mysqlfile, "Executing MySQL Query: %s\n", insertquery);
 	     if(mysql_query(conn, insertquery)) {
-                logPrintf(errorfile, "MYSQL ERROR: %s\n", mysql_error(conn));	
+                logPrintf(errorfile, "MYSQL ERROR: %s\n", mysql_error(conn));
 				MySQL_Conn(true);
              } else {
                 logPrintf(logfile, "Server added successfully!\n");
@@ -382,13 +382,13 @@ void MySQL_ListServers(UINT32 id, UINT32 type, const char *ip, UINT32 room) {
           logPrintf(logfile, "Found %d servers...\n", mysql_num_rows(res));
           while ((row = mysql_fetch_row(res)) != NULL)
           {
-		    msg_server_t *info = (msg_server_t *) msg.buffer;
+		msg_server_t *info = (msg_server_t *) msg.buffer;
 
-      		info->header[0] = '\0'; // nothing interresting in it (for now)
-       		strcpy(info->ip,      row[0]);
-         	strcpy(info->port,    row[1]);
-          	strcpy(info->name,    row[2]);
-           	strcpy(info->version, row[3]);
+		info->header[0] = '\0'; // nothing interresting in it (for now)
+		strcpy(info->ip,      row[0]);
+		strcpy(info->port,    row[1]);
+		strcpy(info->name,    row[2]);
+		strcpy(info->version, row[3]);
 
             msg.length = sizeof (msg_server_t);
 			msg.room = 0;
@@ -397,9 +397,9 @@ void MySQL_ListServers(UINT32 id, UINT32 type, const char *ip, UINT32 room) {
             logPrintf(logfile, "Message sent! :D\n");
             if (writecode < 0)
             {
-            	dbgPrintf(LIGHTRED, "Write error... %d client %d "
-             	"deleted\n", writecode, id);
-              	return;
+		dbgPrintf(LIGHTRED, "Write error... %d client %d "
+		"deleted\n", writecode, id);
+		return;
             }
        }
          mysql_free_result(res);
@@ -1035,4 +1035,3 @@ int main(int argc, char *argv[])
 	return 0;
 #endif
 }
-
