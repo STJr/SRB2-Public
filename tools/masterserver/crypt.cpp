@@ -1,6 +1,6 @@
 #include "common.h"
 
-static char IP[] =
+static SINT8 IP[] =
 {
 	58,50,42,34,26,18,10, 2,
 	60,52,44,36,28,20,12, 4,
@@ -11,7 +11,7 @@ static char IP[] =
 	61,53,45,37,29,21,13, 5,
 	63,55,47,39,31,23,15, 7,
 };
-static char FP[] =
+static SINT8 FP[] =
 {
 	40, 8,48,16,56,24,64,32,
 	39, 7,47,15,55,23,63,31,
@@ -22,40 +22,40 @@ static char FP[] =
 	34, 2,42,10,50,18,58,26,
 	33, 1,41, 9,49,17,57,25,
 };
-static char PC1_C[] =
+static SINT8 PC1_C[] =
 {
 	57,49,41,33,25,17, 9,
 	 1,58,50,42,34,26,18,
 	10, 2,59,51,43,35,27,
 	19,11, 3,60,52,44,36,
 };
-static char PC1_D[] =
+static SINT8 PC1_D[] =
 {
 	63,55,47,39,31,23,15,
 	 7,62,54,46,38,30,22,
 	14, 6,61,53,45,37,29,
 	21,13, 5,28,20,12, 4,
 };
-static char shifts[] = {1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1};
-static char PC2_C[] =
+static SINT8 shifts[] = {1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1};
+static SINT8 PC2_C[] =
 {
 	14,17,11,24, 1, 5,
 	 3,28,15, 6,21,10,
 	23,19,12, 4,26, 8,
 	16, 7,27,20,13, 2,
 };
-static char PC2_D[] =
+static SINT8 PC2_D[] =
 {
 	41,52,31,37,47,55,
 	30,40,51,45,33,48,
 	44,49,39,56,34,53,
 	46,42,50,36,29,32,
 };
-static char C[28];
-static char D[28];
-static char KS[16][48];
-static char E[48];
-static char e2[] =
+static SINT8 C[28];
+static SINT8 D[28];
+static SINT8 KS[16][48];
+static SINT8 E[48];
+static SINT8 e2[] =
 {
 	32, 1, 2, 3, 4, 5,
 	 4, 5, 6, 7, 8, 9,
@@ -66,7 +66,7 @@ static char e2[] =
 	24,25,26,27,28,29,
 	28,29,30,31,32, 1,
 };
-static char S[8][64] =
+static SINT8 S[8][64] =
 {
 	{
 		14, 4,13, 1, 2,15,11, 8, 3,10, 6,12, 5, 9, 0, 7,
@@ -117,7 +117,7 @@ static char S[8][64] =
 		 2, 1,14, 7, 4,10, 8,13,15,12, 9, 0, 3, 5, 6,11,
 	}
 };
-static char P[] =
+static SINT8 P[] =
 {
 	16, 7,20,21,
 	29,12,28,17,
@@ -128,22 +128,17 @@ static char P[] =
 	19,13,30, 6,
 	22,11, 4,25,
 };
-static char L[64], *R = L + 32;
-static char tempL[32];
-static char f[32];
-static char preS[48];
-
-#ifdef _MSC_VER
-#pragma warning(disable :  4244)
-#pragma warning(disable :  4706)
-#endif
+static SINT8 L[64], *R = L + 32;
+static SINT8 tempL[32];
+static SINT8 f[32];
+static SINT8 preS[48];
 
 //=======================================================================
 
-static void setKey(char *key)
+static void setKey(const SINT8 *key)
 {
-	register int i, j, k;
-	int t;
+	register INT32 i, j, k;
+	INT32 t;
 
 	for (i = 0; i < 28; i++)
 	{
@@ -173,10 +168,10 @@ static void setKey(char *key)
 		E[i] = e2[i];
 }
 
-static void enCrypt(char *block)
+void enCrypt(SINT8 *block)
 {
-	int i, ii;
-	register int t, j, k;
+	INT32 i, ii;
+	register INT32 t, j, k;
 
 	for (j = 0; j < 64; j++)
 		L[j] = block[IP[j]-1];
@@ -219,13 +214,14 @@ static void enCrypt(char *block)
 
 const char *pCrypt(const char *pw, const char *salt)
 {
-	register int i, j, c;
-	char temp;
-	static char block[66], iobuf[16];
+	register INT32 i, j, c;
+	INT32 temp;
+	static SINT8 block[66];
+	static char iobuf[16];
 
 	for (i = 0; i < 66; i++)
-		block[i] = '\0';
-	for (i = 0; (c = *pw) && i < 64; pw++)
+		block[i] = 0;
+	for (i = 0; (c = *pw) != '\0' && i < 64; pw++)
 	{
 		for (j = 0; j < 7; j++, i++)
 			block[i] = (c>>(6-j)) & 01;
@@ -235,7 +231,7 @@ const char *pCrypt(const char *pw, const char *salt)
 	setKey(block);
 
 	for (i = 0; i < 66; i++)
-		block[i] = '\0';
+		block[i] = 0;
 
 	for (i = 0; i < 2; i++)
 	{
@@ -275,8 +271,8 @@ const char *pCrypt(const char *pw, const char *salt)
 			c += 6;
 		iobuf[i+2] = c;
 	}
-	iobuf[i+2] = '\0';
-	if (iobuf[1] == '\0')
+	iobuf[i+2] = 0;
+	if (iobuf[1] == 0)
 		iobuf[1] = iobuf[0];
 	return(iobuf);
 }

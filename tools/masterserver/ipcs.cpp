@@ -53,7 +53,7 @@ static Sigfunc *mySignal(int signo, Sigfunc *func);
 
 #if defined (_WIN32) || defined (__OS2__)
 // it seems windows doesn't define that... maybe some other OS? OS/2
-static int inet_aton(char *hostname, struct in_addr *addr)
+static int inet_aton(const char *hostname, struct in_addr *addr)
 {
 	return ((addr->s_addr=inet_addr(hostname)) != INADDR_NONE);
 }
@@ -69,7 +69,7 @@ CSocket::CSocket()
 //#warning SIGPIPE needed
 	WSADATA winsockdata;
 	if (WSAStartup(MAKEWORD(1, 1), &winsockdata))
-		conPrintf(RED,"No TCP/IP driver detected\n");
+		conPrintf(RED,"No TCP/IP driver detected");
 #else
 	signal(SIGPIPE, sigHandler);
 #endif
@@ -94,7 +94,7 @@ CSocket::~CSocket()
 /*
 ** getIP()
 */
-int CSocket::getIP(char *ip_addr)
+int CSocket::getIP(const char *ip_addr)
 {
 	struct hostent *host_ent;
 
@@ -136,7 +136,7 @@ CClientSocket::~CClientSocket()
 /*
 ** connect()
 */
-int CClientSocket::connect(char *ip_addr, char *str_port)
+int CClientSocket::connect(const char *ip_addr, const char *str_port)
 {
 	dbgPrintf(DEFCOL, "Connect to %s %s...\n", ip_addr, str_port);
 
@@ -166,16 +166,19 @@ int CClientSocket::write(msg_t *msg)
 	int len;
 
 	if (msg->length < 0)
-		msg->length = strlen(msg->buffer);
+		msg->length = (INT32)strlen(msg->buffer);
+	if (msg->length > PACKET_SIZE)
+		return WRITE_ERROR; // too big
 	len = msg->length + HEADER_SIZE;
 
 	msg->id = htonl(msg->id);
 	msg->type = htonl(msg->type);
 	msg->length = htonl(msg->length);
+	msg->room = htonl(msg->room);
 
 	dbgPrintf(DEFCOL, "Write a message %d (%s)... ", len, msg->buffer);
 
-	if (send(socket_fd, (char *)msg, len, 0) != len)
+	if (send(socket_fd, (const char *)msg, len, 0) != len)
 		return WRITE_ERROR;
 
 	dbgPrintf(DEFCOL, "DONE7.\n");
@@ -209,9 +212,13 @@ int CClientSocket::read(msg_t *msg)
 	msg->id = ntohl(msg->id);
 	msg->type = ntohl(msg->type);
 	msg->length = ntohl(msg->length);
+	msg->room = ntohl(msg->room);
 
 	if (!msg->length) // work around a bug in Windows 2000
 		return 0;
+
+	if (msg->length > PACKET_SIZE)
+		return READ_ERROR; // packet too big
 
 	if (recv(socket_fd, msg->buffer, msg->length, 0) != msg->length)
 		return READ_ERROR;
@@ -244,37 +251,25 @@ CServerSocket::~CServerSocket()
 	size_t id;
 	dbgPrintf(DEFCOL, "Freeing server socket... ");
 	if (udp_fd != (SOCKET)-1)
-	{
-		shutdown(udp_fd, SHUT_RD);
 		close(udp_fd);
-	}
 	if (accept_fd != (SOCKET)-1)
-	{
-		shutdown(accept_fd, SHUT_RD);
 		close(accept_fd);
-	}
-	for (id = 0; id < MAX_CLIENT; id++)
+	for (id = 0; id < num_clients || id < MAX_CLIENT; id++)
 		if (client_fd[id] != (SOCKET)-1)
-		{
-			shutdown(client_fd[id], SHUT_RD);
 			close(client_fd[id]);
-		}
 	dbgPrintf(DEFCOL, "DONE10.\n");
 }
 
 /*
 ** listen()
 */
-int CServerSocket::listen(char *str_port)
+int CServerSocket::listen(const char *str_port)
 {
-	int val = 1;
 	dbgPrintf(DEFCOL, "Listen on %s... ", str_port);
-
 	// Init TCP socket
 	if ((accept_fd = socket(AF_INET, SOCK_STREAM, 0)) == (SOCKET)-1)
 		return SOCKET_ERROR;
-
-	setsockopt(accept_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&val, sizeof val);
+	int one = 1; setsockopt(accept_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&one, sizeof(int));
 
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	addr.sin_port = htons(atoi(str_port));
@@ -291,13 +286,11 @@ int CServerSocket::listen(char *str_port)
 	if ((udp_fd = socket(AF_INET, SOCK_DGRAM, 0)) == (SOCKET)-1)
 		return SOCKET_ERROR;
 
-	setsockopt(udp_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&val, sizeof val);
-
 	udp_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	udp_addr.sin_port = htons(atoi(str_port)+1);
 
 	if (bind(udp_fd, (struct sockaddr *) &udp_addr, sizeof (udp_addr)) < 0)
-		return BIND_ERROR;
+	return BIND_ERROR;
 
 	FD_SET(udp_fd, &rset);
 
@@ -312,7 +305,6 @@ int CServerSocket::listen(char *str_port)
 int CServerSocket::deleteClient(size_t id)
 {
 	dbgPrintf(DEFCOL, "Deleting (client %u) of %u... ", id+1, num_clients);
-
 	FD_CLR(client_fd[id], &rset);
 	close(client_fd[id]);
 	if (num_clients != 0)
@@ -330,7 +322,7 @@ int CServerSocket::deleteClient(size_t id)
 /*
  * getUdpIP()
  */
-const char *CServerSocket::getUdpIP()
+const char *CServerSocket::getUdpIP(void)
 {
 	return inet_ntoa(udp_in_addr.sin_addr);
 }
@@ -341,7 +333,7 @@ const char *CServerSocket::getUdpIP()
 const char *CServerSocket::getUdpPort(bool offset)
 {
 	static char buffer[8];
-	unsigned short port = htons(udp_in_addr.sin_port);
+	UINT16 port = htons(udp_in_addr.sin_port);
 	if (offset)
 		port--;
 	snprintf(buffer, sizeof buffer, "%d", port);
@@ -357,7 +349,7 @@ int CServerSocket::read(msg_t *msg)
 {
 	struct timeval timeout;
 	fd_set tset;
-	size_t id;
+	UINT32 id;
 	socklen_t lg = sizeof (addr);
 
 	timeout.tv_sec = 20, timeout.tv_usec = 0;
@@ -403,8 +395,9 @@ int CServerSocket::read(msg_t *msg)
 	//msg->id = ntohl(msg->id); // see comment above
 	msg->type = ntohl(msg->type);
 	msg->length = ntohl(msg->length);
+	msg->room = ntohl(msg->room);
 
-	if ((msg->length > 0) && (msg->length < PACKET_SIZE))
+	if ((0 < msg->length) && (msg->length < PACKET_SIZE))
 	{
 		timeout.tv_sec = 0, timeout.tv_usec = 0; // the info should be already in the socket, so don't wait
 		memcpy(&tset, &rset, sizeof (tset));
@@ -443,7 +436,6 @@ int CServerSocket::write(msg_t *msg)
 	int len;
 
 	dbgPrintf(DEFCOL, "Write a message... ");
-
 	FD_ZERO(&tset);
 	/*
 	 * Be sure the msg->id is still valid; we cannot do
@@ -453,29 +445,27 @@ int CServerSocket::write(msg_t *msg)
 	 * it's the responsibility of server code.
 	 */
 	FD_SET(client_fd[msg->id], &tset);
-
 	timeout.tv_sec = 0, timeout.tv_usec = 0;
 	if ((select(255, NULL, &tset, NULL, &timeout)) <= 0)
 	{
 		deleteClient(msg->id); // this shouldn't happen if the net connection is good
 		return TIMEOUT_ERROR;
 	}
-
 	if (msg->length < 0)
-		msg->length = strlen(msg->buffer);
+		msg->length = (INT32)strlen(msg->buffer);
+	if (msg->length > PACKET_SIZE)
+		return WRITE_ERROR; // too big
 	len = msg->length+HEADER_SIZE;
-
 	//msg->id = htonl(msg->id);  // same comment as for read
 	msg->type = htonl(msg->type);
 	msg->length = htonl(msg->length);
-
-	if (send(client_fd[msg->id], (char *)msg, len, 0) != len)
+	if (send(client_fd[msg->id], (const char *)msg, len, 0) != len)
 	{
 		deleteClient(msg->id);
 		return WRITE_ERROR;
 	}
 
-	dbgPrintf(DEFCOL, "DONE14. ");
+	dbgPrintf(DEFCOL, "DONE14.\n");
 
 	return 0;
 }
@@ -483,7 +473,7 @@ int CServerSocket::write(msg_t *msg)
 /*
  * writeUDP()
  */
-int CServerSocket::writeUDP(char *data, int length, char *ip, unsigned short port)
+int CServerSocket::writeUDP(const char *data, size_t length, const char *ip, UINT16 port)
 {
 	sockaddr_in sin;
 	struct timeval timeout;
@@ -501,7 +491,7 @@ int CServerSocket::writeUDP(char *data, int length, char *ip, unsigned short por
 	inet_aton(ip, &sin.sin_addr);
 	sin.sin_port = htons(port);
 
-	sendto(udp_fd, data, length, 0, (sockaddr*)&sin, sizeof(sin));
+	sendto(udp_fd, data, (int)length, 0, (sockaddr*)&sin, sizeof(sin));
 
 	return 0;
 }
@@ -524,9 +514,9 @@ int CServerSocket::accept()
 
 	if (num_clients < MAX_CLIENT-1)
 	{
-		extern FILE *logfile;
+		extern FILE *sockfile;
 
-		logPrintf(logfile, "Accepting on socket %u for client %u (%s:%i)\n",
+		logPrintf(sockfile, "Accepting on socket %u for client %u (%s:%i)\n",
 		client_fd[num_clients], num_clients+1, inet_ntoa(addr.sin_addr), htons(addr.sin_port));
 		memcpy(&client_addr[num_clients], &addr, sizeof (addr));
 		FD_SET(client_fd[num_clients], &rset);
@@ -562,7 +552,7 @@ const char *CServerSocket::getClientPort(size_t id)
 	static char buffer[8];
 
 	dbgPrintf(DEFCOL, "getClientPort: %u\n", id);
-	unsigned short port = htons(client_addr[id].sin_port);
+	UINT16 port = htons(client_addr[id].sin_port);
 	snprintf(buffer, sizeof buffer, "%d", port);
 	return buffer;
 }

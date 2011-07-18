@@ -20,9 +20,40 @@
 
 #ifdef __GNUC__
 #include <unistd.h>
+#include <stdint.h>
+
+#define UINT8 uint8_t
+#define SINT8 int8_t
+
+#define UINT16 uint16_t
+#define INT16 int16_t
+
+#define INT32 int32_t
+#define UINT32 uint32_t
+#define INT64  int64_t
+#define UINT64 uint64_t
+#define ATTRPACK __attribute__ ((packed))
 #elif defined ( _MSC_VER)
 #include <wtypes.h>
+#define UINT8 unsigned __int8
+#define SINT8 signed __int8
+
+#define UINT16 unsigned __int16
+#define INT16 __int16
+
+#define INT32 __int32
+#define UINT32 unsigned __int32
+
+#define INT64  __int64
+#define UINT64 unsigned __int64
+
+typedef long ssize_t;
 #endif
+
+#ifndef ATTRPACK
+#define ATTRPACK
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -31,7 +62,7 @@
 #if defined (_WIN32) || defined (__OS2__)
 #ifdef __GNUC__
 #define strcasecmp stricmp
-#elif defined ( _MSC_VER)
+#elif defined (_MSC_VER)
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
 #define strcasecmp _stricmp
@@ -89,11 +120,19 @@
 
 #endif
 
-#define NUM_ELEMENTS(arr)	(sizeof(arr)/sizeof(arr[0]))
+typedef enum
+{
+	FE_SIGNAL_ERR,
+	FE_SELECT_ERR,
+	FE_READ_ERR,
+	FE_WRITE_ERR,
+	NUM_FATAL_ERROR
+} fatal_error_t;
 
 // ================================== PROTOS ==================================
 
 void clearScreen();
+void fatalError(fatal_error_t);
 void logPrintf(FILE *, const char *, ...);
 #ifdef _WIN32
 void dbgPrintf(DWORDLONG col, const char *lpFmt, ...);
@@ -105,6 +144,8 @@ void conPrintf(const char *col, const char *lpFmt, ...);
 FILE *openFile(const char *filename);
 const char *pCrypt(const char *pw, const char *salt);
 
-// ================================== EXTERNS =================================
+// ================================== STRINGS =================================
+void strrand(char *s, const int len);
 
+// ================================== EXTERNS =================================
 #endif

@@ -18,18 +18,23 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdarg.h>
-#ifdef HAVE_SYSLOG
-#include <syslog.h>
-#endif
 #include "common.h"
 
 // ================================== GLOBALS =================================
 
+static const char *fatal_error_msg[NUM_FATAL_ERROR] =
+{
+	"Error: signal()",
+	"Error: select()",
+	"Error: read()",
+	"Error: write()",
+};
+
 // used by xxxPrintf() functions as temporary variable
 static char str[1024] ="";
 static va_list arglist;
-static int len = 0;
 #ifdef _WIN32
+static size_t len = 0;
 static HANDLE co = INVALID_HANDLE_VALUE;
 static DWORD bytesWritten = 0;
 static CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -49,6 +54,19 @@ void clearScreen()
 }
 
 /*
+ * fatalError():
+ */
+void fatalError(fatal_error_t num)
+{
+	clearScreen();
+	printf("\n");
+	perror(fatal_error_msg[num]);
+	printf("\n");
+	exit(-1);
+}
+
+
+/*
  * dbgPrintf():
  */
 #ifdef _WIN32
@@ -59,16 +77,15 @@ void dbgPrintf(const char *col, const char *lpFmt, ...)
 {
 #if defined (__DEBUG__)
 	va_start(arglist, lpFmt);
-	len = vsnprintf(str, sizeof str, lpFmt, arglist);
+	vsnprintf(str, sizeof str, lpFmt, arglist);
 	va_end(arglist);
-	if (len <= 0)
-		return;
 
 #ifdef _WIN32
+	len = strlen(str);
 	co = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	if (co == INVALID_HANDLE_VALUE)
-	return;
+		return;
 
 	if (col == DEFCOL)
 	{
@@ -76,7 +93,7 @@ void dbgPrintf(const char *col, const char *lpFmt, ...)
 			ConsoleScreenBufferInfo.wAttributes =
 				FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE;
 
-		SetConsoleTextAttribute(co, (DWORD)col);
+		SetConsoleTextAttribute(co, (WORD)col);
 	}
 
 	if (GetFileType(co) == FILE_TYPE_CHAR)
@@ -107,12 +124,11 @@ void conPrintf(const char *col, const char *lpFmt, ...)
 #endif
 {
 	va_start(arglist, lpFmt);
-	len = vsnprintf(str, sizeof str, lpFmt, arglist);
+	vsnprintf(str, sizeof str, lpFmt, arglist);
 	va_end(arglist);
-	if (len <= 0)
-		return;
 
 #ifdef _WIN32
+	len = strlen(str);
 	co = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	if (col == DEFCOL)
@@ -146,25 +162,21 @@ void conPrintf(const char *col, const char *lpFmt, ...)
  */
 void logPrintf(FILE *f, const char *lpFmt, ...)
 {
-	va_start(arglist, lpFmt);
-	len = vsnprintf(str, sizeof str, lpFmt, arglist);
-	va_end(arglist);
-	if (len <= 0)
-		return;
+	char *ct;
+	time_t t;
 
-	if (f)
-	{
-		time_t t = time(NULL);
-		char *ct = ctime(&t);
-		ct[strlen(ct)-1] = '\0';
-		fprintf(f, "%s: %s", ct, str);
-		fflush(f);
-	}
-#ifdef HAVE_SYSLOG
-	syslog(LOG_INFO, "%s", str);
-#endif
+	va_start(arglist, lpFmt);
+	vsnprintf(str, sizeof str, lpFmt, arglist);
+	va_end(arglist);
+
+	t = time(NULL);
+	ct = ctime(&t);
+	ct[strlen(ct)-1] = '\0';
+	fprintf(f, "%s: %s", ct, str);
+	fflush(f);
 #if defined (__DEBUG__)
 #ifdef _WIN32
+	len = strlen(str);
 	printf("%s", str);
 #else
 	printf("%s%s", DEFCOL, str);
@@ -180,4 +192,18 @@ FILE *openFile(const char *filename)
 {
 	return fopen(filename, "a+t");
 }
+
+void strrand(char *s, const int len) {
+    static const char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    for (int i = 0; i < len; ++i) {
+        s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+
+    s[len] = 0;
+}
+
 
