@@ -627,9 +627,11 @@ static void M_PNGhdr(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_
 static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_byte movie)
 {
 #ifdef PNG_TEXT_SUPPORTED
-#define SRB2PNGTXT 8
+#define SRB2PNGTXT 11 //PNG_KEYWORD_MAX_LENGTH(79) is the max
 	png_text png_infotext[SRB2PNGTXT];
-	char keytxt[SRB2PNGTXT][12] = {"Title", "Author", "Description", "Playername", "Mapnum", "Mapname", "Location", "Interface"}; //PNG_KEYWORD_MAX_LENGTH(79) is the max
+	char keytxt[SRB2PNGTXT][12] = {
+	"Title", "Author", "Description", "Playername", "Mapnum", "Mapname",
+	"Location", "Interface", "Revision", "Build Date", "Build Time"};
 	char titletxt[] = "Sonic Robo Blast 2"VERSIONSTRING;
 	png_charp authortxt = I_GetUserName();
 	png_charp playertxt =  cv_playername.zstring;
@@ -649,6 +651,9 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	char maptext[8];
 	char lvlttltext[48];
 	char locationtxt[40];
+	char ctrevision[40];
+	char ctdate[40];
+	char cttime[40];
 
 	if (gamestate == GS_LEVEL)
 		snprintf(maptext, 8, "%s", G_BuildMapName(gamemap));
@@ -688,6 +693,9 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	png_infotext[5].text = lvlttltext;
 	png_infotext[6].text = locationtxt;
 	png_infotext[7].text = interfacetxt;
+	png_infotext[8].text = strncpy(ctrevision, comprevision, sizeof(ctrevision)-1);
+	png_infotext[9].text = strncpy(ctdate, compdate, sizeof(ctdate)-1);
+	png_infotext[10].text = strncpy(cttime, comptime, sizeof(cttime)-1);
 
 	png_set_text(png_ptr, png_info_ptr, png_infotext, SRB2PNGTXT);
 #undef SRB2PNGTXT
