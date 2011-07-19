@@ -229,23 +229,23 @@ void SCR_Startup(void)
 
 	vid.modenum = 0;
 
-	vid.fdupx = (float)vid.width/BASEVIDWIDTH;
-	vid.fdupy = (float)vid.height/BASEVIDHEIGHT;
-	vid.dupx = (INT32)vid.fdupx;
-	vid.dupy = (INT32)vid.fdupy;
+	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
+	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
+	vid.dupx = FixedInt(vid.fdupx);
+	vid.dupy = FixedInt(vid.fdupy);
 
 	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
 	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
 #ifdef HWRENDER
-	vid.fmeddupx = (float)vid.meddupx;
-	vid.fmeddupy = (float)vid.meddupy;
+	vid.fmeddupx = FixedDiv(vid.fdupx, 2*FRACUNIT)+FRACUNIT;
+	vid.fmeddupy = FixedDiv(vid.fdupy, 2*FRACUNIT)+FRACUNIT;
 #endif
 
 	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
 	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
 #ifdef HWRENDER
-	vid.fsmalldupx = (float)vid.smalldupx;
-	vid.fsmalldupy = (float)vid.smalldupy;
+	vid.fsmalldupx = FixedDiv(vid.fdupx, 3*FRACUNIT)+FRACUNIT;
+	vid.fsmalldupy = FixedDiv(vid.fdupy, 3*FRACUNIT)+FRACUNIT;
 #endif
 
 	vid.baseratio = FRACUNIT;
@@ -271,22 +271,22 @@ void SCR_Recalc(void)
 	// calculated once and for all, used by routines in v_video.c
 	vid.dupx = vid.width / BASEVIDWIDTH;
 	vid.dupy = vid.height / BASEVIDHEIGHT;
-	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
-	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
+	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
+	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
 	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 
 	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
 	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
 #ifdef HWRENDER
-	vid.fmeddupx = (float)vid.meddupx;
-	vid.fmeddupy = (float)vid.meddupy;
+	vid.fmeddupx = FixedDiv(vid.fdupx, 2*FRACUNIT)+FRACUNIT;
+	vid.fmeddupy = FixedDiv(vid.fdupy, 2*FRACUNIT)+FRACUNIT;
 #endif
 
 	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
 	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
 #ifdef HWRENDER
-	vid.fsmalldupx = (float)vid.smalldupx;
-	vid.fsmalldupy = (float)vid.smalldupy;
+	vid.fsmalldupx = FixedDiv(vid.fdupx, 3*FRACUNIT)+FRACUNIT;
+	vid.fsmalldupy = FixedDiv(vid.fdupy, 3*FRACUNIT)+FRACUNIT;
 #endif
 
 	// toggle off automap because some screensize-dependent values will

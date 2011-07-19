@@ -507,16 +507,17 @@ static void CON_RecalcSize(void)
 //
 static void CON_MoveConsole(void)
 {
+	const INT32 conspeed = FixedInt(FixedMul(cons_speed.value*FRACUNIT, vid.fdupy)/NEWTICRATERATIO);
 	// up/down move to dest
 	if (con_curlines < con_destlines)
 	{
-		con_curlines += (INT32)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
+		con_curlines += conspeed;
 		if (con_curlines > con_destlines)
 			con_curlines = con_destlines;
 	}
 	else if (con_curlines > con_destlines)
 	{
-		con_curlines -= (INT32)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
+		con_curlines -= conspeed;
 		if (con_curlines < con_destlines)
 			con_curlines = con_destlines;
 	}
