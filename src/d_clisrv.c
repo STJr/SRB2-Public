@@ -1406,7 +1406,10 @@ static void Ban_Load_File(boolean warning)
 	if (I_ClearBans)
 		Command_ClearBans();
 	else
+	{
+		fclose(f);
 		return;
+	}
 
 	for (i=0; fgets(buffer, (int)sizeof(buffer), f); i++)
 	{
