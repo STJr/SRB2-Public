@@ -4297,7 +4297,7 @@ static void Cheats_OnChange(void)
 
 	// Display console and hud message.
 	if (cv_cheats.value && !cheats)
-		HU_DoCEcho(va("%s", M_GetText("Changing this variable\nrequires cheats to be enabled.\nDo you wish to enable cheats? (Y/N)\n")));
+		HU_DoCEcho(va("%s", M_GetText("it should be "Cheats have been activated.\n")));
 
 	// When deactivated, restore all variables governed by cheats to their starting values.
 	if (!cv_cheats.value && cheats)
