@@ -5822,11 +5822,11 @@ static void M_DrawGameStats(void)
 	}
 
 	if (savegameinfo[saveSlotSelected].skincolor == 0)
-		V_DrawScaledPatch( FixedMul(LoadDef.x+4, vid.fdupx), FixedMul(144+8, vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
+		V_DrawScaledPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
 	else
 	{
 		UINT8 *colormap = R_GetTranslationColormap(savegameinfo[saveSlotSelected].skinnum, savegameinfo[saveSlotSelected].skincolor, 0);
-		V_DrawMappedPatch( FixedMul(LoadDef.x+4, vid.fdupx),FixedMul(144+8, vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
+		V_DrawMappedPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
 	}
 
 	V_DrawString(ecks + 16, 152, 0, savegameinfo[saveSlotSelected].playername);

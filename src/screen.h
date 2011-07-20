@@ -81,7 +81,7 @@ typedef struct viddef_s
 	INT32 recalc; // if true, recalc vid-based stuff
 	UINT8 *direct; // linear frame buffer, or vga base mem.
 	INT32 dupx, dupy; // scale 1, 2, 3 value for menus & overlays
-	INT32/*fixed_t*/ fdupx, fdupy; // same as dupx, dupy, but exact value when aspect ratio isn't 320/200
+	float fdupx, fdupy; // same as dupx, dupy, but exact value when aspect ratio isn't 320/200
 	INT32 bpp; // BYTES per pixel: 1 = 256color, 2 = highcolor
 
 	INT32 baseratio; // Used to get the correct value for lighting walls
@@ -91,8 +91,8 @@ typedef struct viddef_s
 	UINT8 smalldupx, smalldupy; // factor for a little bit of scaling
 	UINT8 meddupx, meddupy; // factor for moderate, but not full, scaling
 #ifdef HWRENDER
-	INT32/*fixed_t*/ fsmalldupx, fsmalldupy;
-	INT32/*fixed_t*/ fmeddupx, fmeddupy;
+	float fsmalldupx, fsmalldupy;
+	float fmeddupx, fmeddupy;
 #endif
 } viddef_t;
 #define VIDWIDTH vid.width

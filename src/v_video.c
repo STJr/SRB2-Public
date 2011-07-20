@@ -364,7 +364,7 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 		// Center it if necessary
 		if (!(scrn & V_SCALEPATCHMASK))
 		{
-			if (vid.fdupx != dupx*FRACUNIT)
+			if (vid.fdupx != dupx)
 			{
 				// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 				// so center this imaginary screen
@@ -373,7 +373,7 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 				else if (!(scrn & V_SNAPTOLEFT))
 					desttop += (vid.width - (BASEVIDWIDTH * dupx)) / 2;
 			}
-			if (vid.fdupy != dupy*FRACUNIT)
+			if (vid.fdupy != dupy)
 			{
 				// same thing here
 				if (scrn & V_SNAPTOBOTTOM)
@@ -475,7 +475,7 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 		// Center it if necessary
 		if (!(scrn & V_SCALEPATCHMASK))
 		{
-			if (vid.fdupx != dupx*FRACUNIT)
+			if (vid.fdupx != dupx)
 			{
 				// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 				// so center this imaginary screen
@@ -484,7 +484,7 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 				else if (!(scrn & V_SNAPTOLEFT))
 					desttop += (vid.width - (BASEVIDWIDTH * dupx)) / 2;
 			}
-			if (vid.fdupy != dupy*FRACUNIT)
+			if (vid.fdupy != dupy)
 			{
 				// same thing here
 				if (scrn & V_SNAPTOBOTTOM)
@@ -607,7 +607,7 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		// Center it if necessary
 		if (!(scrn & V_SCALEPATCHMASK))
 		{
-			if (vid.fdupx != dupx*FRACUNIT)
+			if (vid.fdupx != dupx)
 			{
 				// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 				// so center this imaginary screen
@@ -616,7 +616,7 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 				else if (!(scrn & V_SNAPTOLEFT))
 					desttop += (vid.width - (BASEVIDWIDTH * dupx)) / 2;
 			}
-			if (vid.fdupy != dupy*FRACUNIT)
+			if (vid.fdupy != dupy)
 			{
 				// same thing here
 				if (scrn & V_SNAPTOBOTTOM)
@@ -845,8 +845,8 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = FixedMul(vid.fdupx, x);
-			y = FixedMul(vid.fdupy, y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
@@ -889,7 +889,7 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	{
 		/// \bug yeah... the Y still seems to be off a few lines...
 		/// see rankings in 640x480 or 800x600
-		if (vid.fdupx != vid.dupx*FRACUNIT)
+		if (vid.fdupx != vid.dupx)
 		{
 			// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 			// so center this imaginary screen
@@ -898,7 +898,7 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != dupy*FRACUNIT)
+		if (vid.fdupy != dupy)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1008,8 +1008,8 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = FixedMul(vid.fdupx, x);
-			y = FixedMul(vid.fdupy, y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
@@ -1052,7 +1052,7 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 	{
 		/// \bug yeah... the Y still seems to be off a few lines...
 		/// see rankings in 640x480 or 800x600
-		if (vid.fdupx != vid.dupx*FRACUNIT)
+		if (vid.fdupx != vid.dupx)
 		{
 			// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 			// so center this imaginary screen
@@ -1061,7 +1061,7 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != dupy*FRACUNIT)
+		if (vid.fdupy != dupy)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1166,8 +1166,8 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = FixedMul(vid.fdupx, x);
-			y = FixedMul(vid.fdupy, y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
@@ -1215,7 +1215,7 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	{
 		/// \bug yeah... the Y still seems to be off a few lines...
 		/// see rankings in 640x480 or 800x600
-		if (vid.fdupx != vid.dupx*FRACUNIT)
+		if (vid.fdupx != vid.dupx)
 		{
 			// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 			// so center this imaginary screen
@@ -1224,7 +1224,7 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != dupy*FRACUNIT)
+		if (vid.fdupy != dupy)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1328,8 +1328,8 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 	{
 		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
 		{
-			x = FixedMul(vid.fdupx, x);
-			y = FixedMul(vid.fdupy, y);
+			x = (INT32)(vid.fdupx*x);
+			y = (INT32)(vid.fdupy*y);
 			scrn |= V_NOSCALESTART;
 		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
@@ -1372,7 +1372,7 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 	{
 		/// \bug yeah... the Y still seems to be off a few lines...
 		/// see rankings in 640x480 or 800x600
-		if (vid.fdupx != vid.dupx*FRACUNIT)
+		if (vid.fdupx != vid.dupx)
 		{
 			// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 			// so center this imaginary screen
@@ -1381,7 +1381,7 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != dupy*FRACUNIT)
+		if (vid.fdupy != dupy)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1543,7 +1543,7 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		// Center it if necessary
 		if (!(scrn & V_SCALEPATCHMASK))
 		{
-			if (vid.fdupx != dupx*FRACUNIT)
+			if (vid.fdupx != dupx)
 			{
 				// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 				// so center this imaginary screen
@@ -1552,7 +1552,7 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 				else if (!(scrn & V_SNAPTOLEFT))
 					desttop += (vid.width - (BASEVIDWIDTH * dupx)) / 2;
 			}
-			if (vid.fdupy != dupy*FRACUNIT)
+			if (vid.fdupy != dupy)
 			{
 				// same thing here
 				if (scrn & V_SNAPTOBOTTOM)
@@ -1771,7 +1771,7 @@ void V_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 c)
 	if (x && y && x + w < vid.width && y + h < vid.height)
 	{
 		// Center it if necessary
-		if (vid.fdupx != dupx*FRACUNIT)
+		if (vid.fdupx != dupx)
 		{
 			// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 			// so center this imaginary screen
@@ -1780,7 +1780,7 @@ void V_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 c)
 			else if (!(c & V_SNAPTOLEFT))
 				dest += (vid.width - (BASEVIDWIDTH * dupx)) / 2;
 		}
-		if (vid.fdupy != dupy*FRACUNIT)
+		if (vid.fdupy != dupy)
 		{
 			// same thing here
 			if (c & V_SNAPTOBOTTOM)
@@ -1863,13 +1863,13 @@ void V_DrawFlatFill(INT32 x, INT32 y, INT32 w, INT32 h, lumpnum_t flatnum)
 	deststop = screens[0] + vid.width * vid.height * vid.bpp;
 
 	// from V_DrawScaledPatch
-	if (vid.fdupx != vid.dupx*FRACUNIT)
+	if (vid.fdupx != vid.dupx)
 	{
 		// dupx adjustments pretend that screen width is BASEVIDWIDTH * dupx,
 		// so center this imaginary screen
 		dest += (vid.width - (BASEVIDWIDTH * dupx)) / 2;
 	}
-	if (vid.fdupy != vid.dupy*FRACUNIT)
+	if (vid.fdupy != vid.dupy)
 	{
 		// same thing here
 		dest += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
