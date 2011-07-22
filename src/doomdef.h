@@ -172,11 +172,11 @@ void I_OutputMsg(const char *error, ...) FUNCPRINTF;
 // console.h
 void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #define DEBPRINT(msg) { if (cv_debug || devparm) { CONS_Printf("%s", msg); } else { I_OutputMsg("%s", msg); } }
-//#else
-//#define DEBPRINT(msg) { if (devparm) { I_OutputMsg(msg); } }
-//#endif
+#else
+#define DEBPRINT(msg) { if (devparm) { I_OutputMsg("%s", msg); } }
+#endif
 
 #include "m_swap.h"
 
@@ -254,7 +254,7 @@ extern const char *compdate, *comptime, *comprevision;
 //#define JOHNNYFUNCODE
 //#define DUMPCONSISTENCY // dumps the contents of a network save game upon consistency failure for debugging.
 #if !defined (_NDS) && !defined (_PSP)
-#define SHUFFLE //Incomplete OpenGL sorting code
+//#define SHUFFLE //Incomplete OpenGL sorting code
 #endif
 //#define CHAOSISNOTDEADYET // Pre-1.08 Chaos gametype code
 //#define POLYOBJECTS_PLANES // Polyobject fake flat code

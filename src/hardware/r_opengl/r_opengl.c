@@ -1484,12 +1484,10 @@ EXPORT void HWRAPI(SetSpecialState) (hwdspecialstate_t IdState, INT32 Value)
 					mag_filter = GL_NEAREST;
 					min_filter = GL_LINEAR;
 					break;
-#ifdef SHUFFLE
 				case HWD_SET_TEXTUREFILTER_MIXED3 :
 					mag_filter = GL_NEAREST;
 					min_filter = GL_LINEAR_MIPMAP_LINEAR;
 					break;
-#endif
 #endif
 				default:
 #ifdef KOS_GL_COMPATIBILITY

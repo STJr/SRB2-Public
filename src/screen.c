@@ -237,15 +237,15 @@ void SCR_Startup(void)
 	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
 	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
 #ifdef HWRENDER
-	vid.fmeddupx = (float)vid.meddupx;
-	vid.fmeddupy = (float)vid.meddupy;
+	vid.fmeddupx = vid.meddupx*FRACUNIT;
+	vid.fmeddupy = vid.meddupy*FRACUNIT;
 #endif
 
 	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
 	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
 #ifdef HWRENDER
-	vid.fsmalldupx = (float)vid.smalldupx;
-	vid.fsmalldupy = (float)vid.smalldupy;
+	vid.fsmalldupx = vid.smalldupx*FRACUNIT;
+	vid.fsmalldupy = vid.smalldupy*FRACUNIT;
 #endif
 
 	vid.baseratio = FRACUNIT;
@@ -278,15 +278,15 @@ void SCR_Recalc(void)
 	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
 	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
 #ifdef HWRENDER
-	vid.fmeddupx = (float)vid.meddupx;
-	vid.fmeddupy = (float)vid.meddupy;
+	vid.fmeddupx = vid.meddupx*FRACUNIT;
+	vid.fmeddupy = vid.meddupy*FRACUNIT;
 #endif
 
 	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
 	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
 #ifdef HWRENDER
-	vid.fsmalldupx = (float)vid.smalldupx;
-	vid.fsmalldupy = (float)vid.smalldupy;
+	vid.fsmalldupx = vid.smalldupx*FRACUNIT;
+	vid.fsmalldupy = vid.smalldupy*FRACUNIT;
 #endif
 
 	// toggle off automap because some screensize-dependent values will

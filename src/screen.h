@@ -91,8 +91,8 @@ typedef struct viddef_s
 	UINT8 smalldupx, smalldupy; // factor for a little bit of scaling
 	UINT8 meddupx, meddupy; // factor for moderate, but not full, scaling
 #ifdef HWRENDER
-	float fsmalldupx, fsmalldupy;
-	float fmeddupx, fmeddupy;
+	INT32/*fixed_t*/ fsmalldupx, fsmalldupy;
+	INT32/*fixed_t*/ fmeddupx, fmeddupy;
 #endif
 } viddef_t;
 #define VIDWIDTH vid.width

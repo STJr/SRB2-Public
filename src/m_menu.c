@@ -205,7 +205,7 @@ static void M_NetOption(INT32 choice);
 
 static void M_GametypeOptions(INT32 choice);
 
-#if defined (HWRENDER) && defined (SHUFFLE)
+#ifdef HWRENDER
 static void M_OpenGLOption(INT32 choice);
 #endif
 
@@ -4349,7 +4349,7 @@ static menuitem_t VideoOptionsMenu[] =
 #if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
 	{IT_STRING|IT_CVAR,      NULL, "Fullscreen",          &cv_fullscreen,    10},
 #endif
-#if defined (HWRENDER) && defined (SHUFFLE)
+#ifdef HWRENDER
 	//17/10/99: added by Hurdler
 	{IT_CALL|IT_WHITESTRING, NULL, "3D Card Options...",  M_OpenGLOption,    20},
 #endif
@@ -7367,7 +7367,6 @@ static void M_OGL_DrawColorMenu(void)
 //======================================================================
 // M_OpenGLOption()
 //======================================================================
-#ifdef SHUFFLE
 static void M_OpenGLOption(INT32 choice)
 {
 	(void)choice;
@@ -7376,7 +7375,7 @@ static void M_OpenGLOption(INT32 choice)
 	else
 		M_StartMessage("You are in software mode\nYou can't change the options\n", NULL, MM_NOTHING);
 }
-#endif
+
 //======================================================================
 // M_HandleFogColor()
 //======================================================================

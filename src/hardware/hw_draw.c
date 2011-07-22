@@ -96,12 +96,12 @@ void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 		pdupx = pdupy = 2.0f;
 		break;
 	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * vid.fsmalldupx;
-		pdupy = 2.0f * vid.fsmalldupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
 		break;
 	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * vid.fmeddupx;
-		pdupy = 2.0f * vid.fmeddupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
 		break;
 	}
 
@@ -173,12 +173,12 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 		pdupx = pdupy = 2.0f;
 		break;
 	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * vid.fsmalldupx;
-		pdupy = 2.0f * vid.fsmalldupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
 		break;
 	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * vid.fmeddupx;
-		pdupy = 2.0f * vid.fmeddupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
 		break;
 	}
 
@@ -236,12 +236,12 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 		pdupx = pdupy = 2.0f;
 		break;
 	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * vid.fsmalldupx;
-		pdupy = 2.0f * vid.fsmalldupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
 		break;
 	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * vid.fmeddupx;
-		pdupy = 2.0f * vid.fmeddupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
 		break;
 	}
 
@@ -302,12 +302,12 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, con
 		pdupx = pdupy = 2.0f;
 		break;
 	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * vid.fsmalldupx;
-		pdupy = 2.0f * vid.fsmalldupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
 		break;
 	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * vid.fmeddupx;
-		pdupy = 2.0f * vid.fmeddupy;
+		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
+		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
 		break;
 	}
 
