@@ -1388,7 +1388,7 @@ static void F_SkyScroll(INT32 scrollspeed)
 	{
 		INT32 yr = 0;
 
-		if (vid.fdupy > vid.dupy)
+		if (vid.fdupy > vid.dupy*FRACUNIT)
 			yr = vid.height - vid.dupy*SHORT(pat->height);
 
 		scrolled = BASEVIDWIDTH - animtimer;

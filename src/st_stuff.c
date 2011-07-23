@@ -536,12 +536,17 @@ void ST_changeDemoView(void)
 
 boolean st_overlay;
 
+static INT32 SCZ(INT32 z)
+{
+	return FixedInt(FixedMul(z*FRACUNIT, vid.fdupy));
+}
+
 static INT32 SCY(INT32 y)
 {
 	//31/10/99: fixed by Hurdler so it _works_ also in hardware mode
 	// do not scale to resolution for hardware accelerated
 	// because these modes always scale by default
-	y = (INT32)(y * vid.fdupy); // scale to resolution
+	y = SCZ(y); // scale to resolution
 	if (splitscreen)
 	{
 		y >>= 1;
@@ -567,7 +572,23 @@ static INT32 STRINGY(INT32 y)
 
 static INT32 SCX(INT32 x)
 {
-	return (INT32)(x * vid.fdupx);
+	return FixedInt(FixedMul(x*FRACUNIT, vid.fdupx));
+}
+
+static inline INT32 SCR(INT32 r)
+{
+	fixed_t y;
+		//31/10/99: fixed by Hurdler so it _works_ also in hardware mode
+	// do not scale to resolution for hardware accelerated
+	// because these modes always scale by default
+	y = FixedMul(r*FRACUNIT, vid.fdupy); // scale to resolution
+	if (splitscreen)
+	{
+		y >>= 1;
+		if (stplyr != &players[displayplayer])
+			y += vid.height / 2;
+	}
+	return FixedInt(FixedDiv(y, vid.fdupy));
 }
 
 // Draw a number, scaled, over the view
@@ -781,7 +802,7 @@ static void ST_drawLevelTitle(void)
 	if (timeinmap == 2)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(200*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(200), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 0, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -792,7 +813,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 3)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(188*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(188), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 12, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -803,7 +824,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 4)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(0), (INT32)(176*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(0), SCZ(76), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 24, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -814,7 +835,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 5)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(164*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(164), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 36, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -825,7 +846,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 6)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(152*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(152), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 48, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -836,7 +857,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 7)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(140*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(140), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 60, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -847,7 +868,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 8)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(128*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(128), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 72, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -858,7 +879,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 106)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(80*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(80), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 104, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -869,7 +890,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 107)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(56*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(56), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 128, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -880,7 +901,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 108)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(32*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(32), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 152, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -891,7 +912,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 109)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(8*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(8), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 176, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -902,7 +923,7 @@ static void ST_drawLevelTitle(void)
 	else if (timeinmap == 110)
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(0*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(0), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 200, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -913,7 +934,7 @@ static void ST_drawLevelTitle(void)
 	else
 	{
 		if (!nonumber)
-			V_DrawScaledPatch(SCX(ttlnumxpos), (INT32)(104*vid.fdupy), V_NOSCALESTART, ttlnum);
+			V_DrawScaledPatch(SCX(ttlnumxpos), SCZ(104), V_NOSCALESTART, ttlnum);
 		V_DrawLevelTitle(lvlttlxpos, 80, 0, lvlttl);
 
 		if (!mapheaderinfo[gamemap-1]->nozone)
@@ -1124,7 +1145,7 @@ static void ST_drawNiGHTSHUD(void)
 		V_DrawCenteredString(BASEVIDWIDTH/2, STRINGY(100), 0, "BONUS TIME START!");
 
 	V_DrawScaledPatch(SCX(16), SCY(8), V_NOSCALESTART|V_TRANSLUCENT, nbracket);
-	V_DrawScaledPatch(SCX(24), (INT32)(SCY(8) + 8*vid.fdupy), V_NOSCALESTART|V_TRANSLUCENT, nhud[(leveltime/2)%12]);
+	V_DrawScaledPatch(SCX(24), SCY(8) + SCZ(8), V_NOSCALESTART|V_TRANSLUCENT, nhud[(leveltime/2)%12]);
 
 	if (stplyr->capsule && !cv_objectplace.value)
 	{
@@ -1133,7 +1154,7 @@ static void ST_drawNiGHTSHUD(void)
 		const INT32 length = 88;
 
 		V_DrawScaledPatch(SCX(72), SCY(8), V_NOSCALESTART|V_TRANSLUCENT, nbracket);
-		V_DrawScaledPatch(SCX(74), (INT32)(SCY(8) + 4*vid.fdupy), V_NOSCALESTART|V_TRANSLUCENT,
+		V_DrawScaledPatch(SCX(74), SCY(8) + SCZ(4), V_NOSCALESTART|V_TRANSLUCENT,
 			minicaps);
 
 		if (stplyr->capsule->reactiontime != 0)
@@ -1202,12 +1223,12 @@ static void ST_drawNiGHTSHUD(void)
 					V_DrawFill(16, STRINGY(8) + 35, amount, 3, 229);
 			}
 		}
-		V_DrawScaledPatch(SCX(40), (INT32)(SCY(8) + 5*vid.fdupy), V_NOSCALESTART|V_TRANSLUCENT, narrow[(leveltime/2)%8]);
+		V_DrawScaledPatch(SCX(40), SCY(8) + SCZ(5), V_NOSCALESTART|V_TRANSLUCENT, narrow[(leveltime/2)%8]);
 	}
 	else
-		V_DrawScaledPatch(SCX(40), (INT32)(SCY(8) + 5*vid.fdupy), V_NOSCALESTART|V_TRANSLUCENT, narrow[8]);
+		V_DrawScaledPatch(SCX(40), SCY(8) + SCZ(5), V_NOSCALESTART|V_TRANSLUCENT, narrow[8]);
 
-	ST_DrawOverlayNum(SCX(68), (INT32)(SCY(8) + 11*vid.fdupy), stplyr->health > 0 ? stplyr->health - 1 : 0, tallnum);
+	ST_DrawOverlayNum(SCX(68), SCY(8) + SCZ(11), stplyr->health > 0 ? stplyr->health - 1 : 0, tallnum);
 
 	ST_DrawNightsOverlayNum(SCX(288), SCY(12), stplyr->score, nightsnum, 7); // Blue
 
@@ -1733,7 +1754,7 @@ static void ST_drawSpecialStageHUD(void)
 
 	if (leveltime < 5*TICRATE && totalrings > 0)
 	{
-		V_DrawScaledPatch(hudinfo[HUD_GETRINGS].x, (INT32)(SCY(hudinfo[HUD_GETRINGS].y)/vid.fdupy), V_TRANSLUCENT, getall);
+		V_DrawScaledPatch(hudinfo[HUD_GETRINGS].x, SCR(hudinfo[HUD_GETRINGS].y), V_TRANSLUCENT, getall);
 		ST_DrawOverlayNum(SCX(hudinfo[HUD_GETRINGSNUM].x), SCY(hudinfo[HUD_GETRINGSNUM].y), totalrings, tallnum);
 	}
 

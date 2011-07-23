@@ -229,10 +229,10 @@ void SCR_Startup(void)
 
 	vid.modenum = 0;
 
-	vid.fdupx = (float)vid.width/BASEVIDWIDTH;
-	vid.fdupy = (float)vid.height/BASEVIDHEIGHT;
-	vid.dupx = (INT32)vid.fdupx;
-	vid.dupy = (INT32)vid.fdupy;
+	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
+	vid.fdupy =  FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
+	vid.dupx = vid.width / BASEVIDWIDTH;
+	vid.dupy = vid.height / BASEVIDHEIGHT;
 
 	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
 	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
@@ -271,8 +271,8 @@ void SCR_Recalc(void)
 	// calculated once and for all, used by routines in v_video.c
 	vid.dupx = vid.width / BASEVIDWIDTH;
 	vid.dupy = vid.height / BASEVIDHEIGHT;
-	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
-	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
+	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
+	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
 	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 
 	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
