@@ -59,7 +59,7 @@ extern extracolormap_t extra_colormaps[MAXCOLORMAPS];
 extern INT32 *texturetranslation;
 
 // Sprites
-extern size_t numspritelumps;
+extern size_t numspritelumps, max_spritelumps;
 
 //
 // Lookup tables for map data.

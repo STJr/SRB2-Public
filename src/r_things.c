@@ -241,8 +241,11 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 				R_InstallSpriteLump(wadnum, l, numspritelumps, frame, rotation, 1);
 			}
 
-			if (++numspritelumps >= MAXSPRITELUMPS)
-				I_Error("R_AddSingleSpriteDef: too much sprite replacements (numspritelumps)\n");
+			if (++numspritelumps >= max_spritelumps)
+			{
+				max_spritelumps *= 2;
+				Z_Realloc(spritecachedinfo, max_spritelumps*sizeof(*spritecachedinfo), PU_STATIC, &spritecachedinfo);
+			}
 		}
 	}
 
@@ -1109,7 +1112,7 @@ static void R_ProjectSprite(mobj_t *thing)
 		flip = sprframe->flip[0];
 	}
 
-	I_Assert(lump < MAXSPRITELUMPS);
+	I_Assert(lump < max_spritelumps);
 
 	// calculate edges of the shape
 	if (thing->scale > 400)

@@ -92,7 +92,7 @@ typedef struct
 // a patch or sprite is composed of zero or more columns.
 //
 
-size_t numspritelumps;
+size_t numspritelumps, max_spritelumps;
 
 // textures
 size_t numtextures = 0; // total number of textures found,
@@ -635,12 +635,10 @@ lumpnum_t R_GetFlatNumForName(const char *name)
 //
 static void R_InitSpriteLumps(void)
 {
-	// Doom used to set numspritelumps from S_END - S_START + 1
-
-	// FIXME: find a better solution for adding new sprites dynamically
 	numspritelumps = 0;
+	max_spritelumps = 8192;
 
-	spritecachedinfo = Z_Malloc(MAXSPRITELUMPS*sizeof(*spritecachedinfo), PU_STATIC, NULL);
+	Z_Malloc(max_spritelumps*sizeof(*spritecachedinfo), PU_STATIC, &spritecachedinfo);
 }
 
 //
