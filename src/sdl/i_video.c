@@ -162,7 +162,7 @@ static SDL_bool disable_fullscreen = SDL_FALSE;
 #define USE_FULLSCREEN (disable_fullscreen||!allow_fullscreen)?0:cv_fullscreen.value
 static SDL_bool disable_mouse = SDL_FALSE;
 #define USE_MOUSEINPUT (!disable_mouse && cv_usemouse.value && SDL_GetAppState() & SDL_APPACTIVE)
-#define MOUSE_MENU false //(!disable_mouse && cv_usemouse.value && menuactive && !USE_FULLSCREEN && !windownnow)
+#define MOUSE_MENU false //(!disable_mouse && cv_usemouse.value && menuactive && !USE_FULLSCREEN)
 #define MOUSEBUTTONS_MAX MOUSEBUTTONS
 
 // first entry in the modelist which is not bigger than MAXVIDWIDTHxMAXVIDHEIGHT
@@ -203,7 +203,6 @@ static       SDL_bool    videoblitok = SDL_TRUE;
 static       SDL_bool    videoblitok = SDL_FALSE;
 #endif
 static       SDL_bool    exposevideo = SDL_FALSE;
-static       SDL_bool    windownnow  = SDL_FALSE;
 
 // windowed video modes from which to choose from.
 static INT32 windowedModes[MAXWINMODES][2] =
@@ -1051,20 +1050,6 @@ void I_GetEvent(void)
 						//S_PauseSound();
 						if (gamestate == GS_LEVEL || gamestate == GS_DEMOSCREEN)
 							I_PauseSong(0); //pause it
-#if 0 //let not track the fullscreen mode
-						if (cv_fullscreen.value && windownnow)
-						{
-							if (SDL_WM_ToggleFullScreen(vidSurface))
-							{
-								cv_fullscreen.value = 0;
-								vid.modenum = VID_GetModeForSize(realwidth,realheight);
-							}
-							else CV_SetValue(&cv_fullscreen,0);
-						}
-						else if (cv_fullscreen.value && !windownnow)
-							windownnow = SDL_TRUE;
-						else windownnow = SDL_FALSE;
-#endif
 					}
 				}
 				if (MOUSE_MENU)
