@@ -831,9 +831,10 @@ doneclipping:
 // Draws a patch 2x as small.
 void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
-	fixed_t col, ofs, colfrac, rowfrac;
+	size_t count;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
-	UINT8 *desttop, *dest;
+	UINT8 *desttop, *dest, *destend;
 	const UINT8 *source, *deststop;
 	boolean skippixels = false;
 	INT32 skiprowcnt;
@@ -855,18 +856,24 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 
 	if (vid.dupx > 1 && vid.dupy > 1)
 	{
-		colfrac = FixedDiv(FRACUNIT, vid.fdupx/2);
-		rowfrac = FixedDiv(FRACUNIT, vid.fdupy/2);
+		dupx = vid.dupx / 2;
+		dupy = vid.dupy / 2;
 	}
 	else
 	{
-		colfrac = FRACUNIT>>1;
-		rowfrac = FRACUNIT>>1;
+		dupx = dupy = 1;
 		skippixels = true;
 	}
 
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
+
+	if (skippixels)
+		colfrac = FixedDiv(FRACUNIT, (dupx)<<(FRACBITS-1));
+	else
+		colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
+
+	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
 		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
@@ -891,7 +898,7 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != vid.dupy*FRACUNIT)
+		if (vid.fdupy != dupy*FRACUNIT)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -905,7 +912,12 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
-	for (col = 0; (col>>FRACBITS) < SHORT(patch->width); col += colfrac, desttop++)
+	if (skippixels)
+		destend = desttop + SHORT(patch->width)/2 * dupx;
+	else
+		destend = desttop + SHORT(patch->width) * dupx;
+
+	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
 		register INT32 heightmask;
 
@@ -914,36 +926,60 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		while (column->topdelta != 0xff)
 		{
 			source = (const UINT8 *)(column) + 3;
-			dest = desttop + column->topdelta*FixedInt(vid.fdupy/2)*vid.width;
+			dest = desttop + column->topdelta*dupy*vid.width;
+			count = column->length*dupy;
 			skiprowcnt = 0;
 
+			ofs = 0;
+
 			heightmask = column->length - 1;
+
 			if (column->length & heightmask)
 			{
-				heightmask = column->length<<FRACBITS;
+				heightmask++;
+				heightmask <<= FRACBITS;
+
 				if (rowfrac < 0)
 					while ((rowfrac += heightmask) < 0)
 						;
 				else
 					while (rowfrac >= heightmask)
 						rowfrac -= heightmask;
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length && (ofs + rowfrac) <= heightmask; ofs += rowfrac, skiprowcnt++)
+
+				do
 				{
-					*dest = source[ofs>>FRACBITS];
+					if (dest < deststop)
+						*dest = source[ofs>>FRACBITS];
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
-				}
-				break;
+
+					ofs += rowfrac;
+					if ((ofs + rowfrac) > heightmask)
+						goto donesmalling;
+
+					skiprowcnt++;
+				} while (count--);
 			}
 			else
 			{
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length; ofs += rowfrac, skiprowcnt++)
+				while (count--)
 				{
-					*dest = source[ofs>>FRACBITS];
+					if (dest < deststop)
+						*dest = source[ofs>>FRACBITS];
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
+
+					ofs += rowfrac;
+					skiprowcnt++;
 				}
 			}
+donesmalling:
 			column = (const column_t *)((const UINT8 *)column + column->length + 4);
 		}
 	}
@@ -952,13 +988,19 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 // Draws a patch 2x as small, translucent, and colormapped.
 void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap)
 {
-	fixed_t col, ofs, colfrac, rowfrac;
+	size_t count;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
-	UINT8 *desttop, *dest;
+	UINT8 *desttop, *dest, *destend;
 	const UINT8 *source, *deststop;
-	UINT8 *translevel;
 	boolean skippixels = false;
 	INT32 skiprowcnt;
+	UINT8 *translevel;
+
+	if (scrn & V_8020TRANS)
+		translevel = ((tr_trans80)<<FF_TRANSSHIFT) - 0x10000 + transtables;
+	else
+		translevel = ((tr_trans50)<<FF_TRANSSHIFT) - 0x10000 + transtables;
 
 #ifdef HWRENDER
 	// draw a hardware converted patch
@@ -975,25 +1017,26 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 	}
 #endif
 
-	if (scrn & V_8020TRANS)
-		translevel = ((tr_trans80)<<FF_TRANSSHIFT) - 0x10000 + transtables;
-	else
-		translevel = ((tr_trans50)<<FF_TRANSSHIFT) - 0x10000 + transtables;
-
 	if (vid.dupx > 1 && vid.dupy > 1)
 	{
-		colfrac = FixedDiv(FRACUNIT, vid.fdupx/2);
-		rowfrac = FixedDiv(FRACUNIT, vid.fdupy/2);
+		dupx = vid.dupx / 2;
+		dupy = vid.dupy / 2;
 	}
 	else
 	{
-		colfrac = FRACUNIT>>1;
-		rowfrac = FRACUNIT>>1;
+		dupx = dupy = 1;
 		skippixels = true;
 	}
 
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
+
+	if (skippixels)
+		colfrac = FixedDiv(FRACUNIT, (dupx)<<(FRACBITS-1));
+	else
+		colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
+
+	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
 		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
@@ -1018,7 +1061,7 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != vid.dupy*FRACUNIT)
+		if (vid.fdupy != dupy*FRACUNIT)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1032,7 +1075,12 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
-	for (col = 0; (col>>FRACBITS) < SHORT(patch->width); col += colfrac, desttop++)
+	if (skippixels)
+		destend = desttop + SHORT(patch->width)/2 * dupx;
+	else
+		destend = desttop + SHORT(patch->width) * dupx;
+
+	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
 		register INT32 heightmask;
 
@@ -1041,36 +1089,60 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 		while (column->topdelta != 0xff)
 		{
 			source = (const UINT8 *)(column) + 3;
-			dest = desttop + column->topdelta*FixedInt(vid.fdupy/2)*vid.width;
+			dest = desttop + column->topdelta*dupy*vid.width;
+			count = column->length*dupy;
 			skiprowcnt = 0;
 
+			ofs = 0;
+
 			heightmask = column->length - 1;
+
 			if (column->length & heightmask)
 			{
-				heightmask = column->length<<FRACBITS;
+				heightmask++;
+				heightmask <<= FRACBITS;
+
 				if (rowfrac < 0)
 					while ((rowfrac += heightmask) < 0)
 						;
 				else
 					while (rowfrac >= heightmask)
 						rowfrac -= heightmask;
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length && (ofs + rowfrac) <= heightmask; ofs += rowfrac, skiprowcnt++)
+
+				do
 				{
-					*dest = *(translevel + (colormap[source[ofs>>FRACBITS]]<<8) + (*dest));
+					if (dest < deststop)
+						*dest = *(translevel + (colormap[source[ofs>>FRACBITS]]<<8) + (*dest));
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
-				}
-				break;
+
+					ofs += rowfrac;
+					if ((ofs + rowfrac) > heightmask)
+						goto donesmallmapping;
+
+					skiprowcnt++;
+				} while (count--);
 			}
 			else
 			{
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length; ofs += rowfrac, skiprowcnt++)
+				while (count--)
 				{
-					*dest = *(translevel + (colormap[source[ofs>>FRACBITS]]<<8) + (*dest));
+					if (dest < deststop)
+						*dest = *(translevel + (colormap[source[ofs>>FRACBITS]]<<8) + (*dest));
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
+
+					ofs += rowfrac;
+					skiprowcnt++;
 				}
 			}
+donesmallmapping:
 			column = (const column_t *)((const UINT8 *)column + column->length + 4);
 		}
 	}
@@ -1079,9 +1151,10 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 // Draws a patch 2x as small, and translucent.
 void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 {
-	fixed_t col, ofs, colfrac, rowfrac;
+	size_t count;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
-	UINT8 *desttop, *dest;
+	UINT8 *desttop, *dest, *destend;
 	const UINT8 *source, *deststop;
 	UINT8 *translevel;
 	boolean skippixels = false;
@@ -1109,18 +1182,24 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 
 	if (vid.dupx > 1 && vid.dupy > 1)
 	{
-		colfrac = FixedDiv(FRACUNIT, vid.fdupx/2);
-		rowfrac = FixedDiv(FRACUNIT, vid.fdupy/2);
+		dupx = vid.dupx / 2;
+		dupy = vid.dupy / 2;
 	}
 	else
 	{
-		colfrac = FRACUNIT>>1;
-		rowfrac = FRACUNIT>>1;
+		dupx = dupy = 1;
 		skippixels = true;
 	}
 
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
+
+	if (skippixels)
+		colfrac = FixedDiv(FRACUNIT, (dupx)<<(FRACBITS-1));
+	else
+		colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
+
+	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
 		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
@@ -1145,7 +1224,7 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != vid.dupy*FRACUNIT)
+		if (vid.fdupy != dupy*FRACUNIT)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1159,7 +1238,12 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
-	for (col = 0; (col>>FRACBITS) < SHORT(patch->width); col += colfrac, desttop++)
+	if (skippixels)
+		destend = desttop + SHORT(patch->width)/2 * dupx;
+	else
+		destend = desttop + SHORT(patch->width) * dupx;
+
+	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
 		register INT32 heightmask;
 
@@ -1168,36 +1252,60 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 		while (column->topdelta != 0xff)
 		{
 			source = (const UINT8 *)(column) + 3;
-			dest = desttop + column->topdelta*FixedInt(vid.fdupy/2)*vid.width;
+			dest = desttop + column->topdelta*dupy*vid.width;
+			count = column->length*dupy;
 			skiprowcnt = 0;
 
+			ofs = 0;
+
 			heightmask = column->length - 1;
+
 			if (column->length & heightmask)
 			{
-				heightmask = column->length<<FRACBITS;
+				heightmask++;
+				heightmask <<= FRACBITS;
+
 				if (rowfrac < 0)
 					while ((rowfrac += heightmask) < 0)
 						;
 				else
 					while (rowfrac >= heightmask)
 						rowfrac -= heightmask;
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length && (ofs + rowfrac) <= heightmask; ofs += rowfrac, skiprowcnt++)
+
+				do
 				{
-					*dest = *(translevel + ((source[ofs>>FRACBITS]<<8)&0xff00) + (*dest&0xff));
+					if (dest < deststop)
+						*dest = *(translevel + ((source[ofs>>FRACBITS]<<8)&0xff00) + (*dest&0xff));
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
-				}
-				break;
+
+					ofs += rowfrac;
+					if ((ofs + rowfrac) > heightmask)
+						goto donesmallmapping;
+
+					skiprowcnt++;
+				} while (count--);
 			}
 			else
 			{
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length; ofs += rowfrac, skiprowcnt++)
+				while (count--)
 				{
-					*dest = *(translevel + ((source[ofs>>FRACBITS]<<8)&0xff00) + (*dest&0xff));
+					if (dest < deststop)
+						*dest = *(translevel + ((source[ofs>>FRACBITS]<<8)&0xff00) + (*dest&0xff));
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
+
+					ofs += rowfrac;
+					skiprowcnt++;
 				}
 			}
+donesmallmapping:
 			column = (const column_t *)((const UINT8 *)column + column->length + 4);
 		}
 	}
@@ -1206,9 +1314,10 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 // Draws a patch 2x as small, and colormapped.
 void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap)
 {
-	fixed_t col, ofs, colfrac, rowfrac;
+	size_t count;
+	INT32 col, dupx, dupy, ofs, colfrac, rowfrac;
 	const column_t *column;
-	UINT8 *desttop, *dest;
+	UINT8 *desttop, *dest, *destend;
 	const UINT8 *source, *deststop;
 	boolean skippixels = false;
 	INT32 skiprowcnt;
@@ -1230,18 +1339,24 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 
 	if (vid.dupx > 1 && vid.dupy > 1)
 	{
-		colfrac = FixedDiv(FRACUNIT, vid.fdupx/2);
-		rowfrac = FixedDiv(FRACUNIT, vid.fdupy/2);
+		dupx = vid.dupx / 2;
+		dupy = vid.dupy / 2;
 	}
 	else
 	{
-		colfrac = FRACUNIT>>1;
-		rowfrac = FRACUNIT>>1;
+		dupx = dupy = 1;
 		skippixels = true;
 	}
 
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
+
+	if (skippixels)
+		colfrac = FixedDiv(FRACUNIT, (dupx)<<(FRACBITS-1));
+	else
+		colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
+
+	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
 	if (scrn & V_NOSCALESTART)
 		desttop = screens[scrn&V_PARAMMASK] + (y * vid.width) + x;
@@ -1266,7 +1381,7 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 			else if (!(scrn & V_SNAPTOLEFT))
 				desttop += (vid.width - (BASEVIDWIDTH * vid.dupx)) / 2;
 		}
-		if (vid.fdupy != vid.dupy*FRACUNIT)
+		if (vid.fdupy != dupy*FRACUNIT)
 		{
 			// same thing here
 			if (scrn & V_SNAPTOBOTTOM)
@@ -1280,7 +1395,12 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	}
 
-	for (col = 0; (col>>FRACBITS) < SHORT(patch->width); col += colfrac, desttop++)
+	if (skippixels)
+		destend = desttop + SHORT(patch->width)/2 * dupx;
+	else
+		destend = desttop + SHORT(patch->width) * dupx;
+
+	for (col = 0; desttop < destend; col += colfrac, desttop++)
 	{
 		register INT32 heightmask;
 
@@ -1289,36 +1409,61 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 		while (column->topdelta != 0xff)
 		{
 			source = (const UINT8 *)(column) + 3;
-			dest = desttop + column->topdelta*FixedInt(vid.fdupy/2)*vid.width;
+			dest = desttop + column->topdelta*dupy*vid.width;
+			count = column->length*dupy;
 			skiprowcnt = 0;
 
+			ofs = 0;
+
 			heightmask = column->length - 1;
+
 			if (column->length & heightmask)
 			{
-				heightmask = column->length<<FRACBITS;
+				heightmask++;
+				heightmask <<= FRACBITS;
+
 				if (rowfrac < 0)
 					while ((rowfrac += heightmask) < 0)
 						;
 				else
 					while (rowfrac >= heightmask)
 						rowfrac -= heightmask;
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length && (ofs + rowfrac) <= heightmask; ofs += rowfrac, skiprowcnt++)
+
+				do
 				{
-					*dest = *(colormap + source[ofs>>FRACBITS]);
+					if (dest < deststop)
+						*dest = *(colormap + source[ofs>>FRACBITS]);
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
-				}
-				break;
+
+					ofs += rowfrac;
+					if ((ofs + rowfrac) > heightmask)
+						goto donesmallmapping;
+
+					skiprowcnt++;
+				} while (count--);
 			}
 			else
 			{
-				for (ofs = 0; dest < deststop && (ofs>>FRACBITS) < column->length; ofs += rowfrac, skiprowcnt++)
+				while (count--)
 				{
-					*dest = *(colormap + source[ofs>>FRACBITS]);
+					if (dest < deststop)
+						*dest = *(colormap + source[ofs>>FRACBITS]);
+					else
+						count = 0;
+
 					if (!(skippixels && (skiprowcnt & 1)))
 						dest += vid.width;
+
+					ofs += rowfrac;
+					skiprowcnt++;
 				}
 			}
+donesmallmapping:
+
 			column = (const column_t *)((const UINT8 *)column + column->length + 4);
 		}
 	}
@@ -1617,23 +1762,11 @@ void V_DrawFill(INT32 x, INT32 y, INT32 w, INT32 h, INT32 c)
 	if (!screens[0])
 		return;
 
-	if (x == 0 && y == 0 && w == BASEVIDWIDTH && h == BASEVIDHEIGHT)
-	{ // Clear the entire screen, from dest to deststop. Yes, this really works.
-		memset(screens[0], (UINT8)(c&255), vid.width * vid.height * vid.bpp);
-		return;
-	}
-
 	dest = screens[0] + y*dupy*vid.width + x*dupx;
 	deststop = screens[0] + vid.width * vid.height * vid.bpp;
 
-	if (w == BASEVIDWIDTH)
-		w = vid.width;
-	else
-		w *= dupx;
-	if (h == BASEVIDHEIGHT)
-		h = vid.height;
-	else
-		h *= dupy;
+	w *= dupx;
+	h *= dupy;
 
 	if (x && y && x + w < vid.width && y + h < vid.height)
 	{
