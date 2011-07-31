@@ -2060,7 +2060,7 @@ void I_StartupGraphics(void)
 			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
 			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
 			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
-			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 			if (!OglSdlSurface(vid.width, vid.height, (USE_FULLSCREEN)))
 				if (!OglSdlSurface(vid.width, vid.height, !(USE_FULLSCREEN)))
 					rendermode = render_soft;
