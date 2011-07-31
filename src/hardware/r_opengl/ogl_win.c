@@ -136,15 +136,17 @@ void *GetGLFunc(const char *proc)
 boolean LoadGL(void)
 {
 	OGL32 = LoadLibrary("OPENGL32.DLL");
+
+	if (!OGL32)
+		return 0;
+
 	GLU32 = LoadLibrary("GLU32.DLL");
 
-	if (OGL32)
-		pwglCreateContext = NULL;
-	else
-		return 0;
-
 	if (!GLU32)
+	{
+		FreeLibrary(OGL32);
 		return 0;
+	}
 
 	pwglGetProcAddress = GetGLFunc("wglGetProcAddress");
 	pwglCreateContext = GetGLFunc("wglCreateContext");
