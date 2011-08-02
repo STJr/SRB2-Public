@@ -222,13 +222,11 @@ static boolean R_AddSingleSpriteDef(const char *sprname, spritedef_t *spritedef,
 			spritecachedinfo[numspritelumps].topoffset = SHORT(patch.topoffset)<<FRACBITS;
 			spritecachedinfo[numspritelumps].height = SHORT(patch.height)<<FRACBITS;
 
-#ifdef HWRENDER
 			//BP: we cannot use special tric in hardware mode because feet in ground caused by z-buffer
-			if (rendermode != render_soft && rendermode != render_none // not for psprite
+			if (rendermode != render_none // not for psprite
 			 && SHORT(patch.topoffset)>0 && SHORT(patch.topoffset)<SHORT(patch.height))
 				// perfect is patch.height but sometime it is too high
 				spritecachedinfo[numspritelumps].topoffset = min(SHORT(patch.topoffset)+4,SHORT(patch.height))<<FRACBITS;
-#endif
 
 			//----------------------------------------------------
 
