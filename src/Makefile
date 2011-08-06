@@ -321,6 +321,14 @@ ifdef STATIC
 LIBS:=-static $(LIBS)
 endif
 
+ifdef HAVE_MINIUPNPC
+LIBS+=-lminiupnpc
+ifdef MINGW
+LIBS+=-lws2_32 -liphlpapi
+endif
+CFLAGS+=-DHAVE_MINIUPNPC
+endif
+
 ifdef NOMD5
 	OPTS+=-DNOMD5
 else
@@ -522,9 +530,6 @@ cleandep:
 	$(REMOVE) comptime.h
 
 pre-build:
-ifdef VALGRIND
-	-@touch z_zone.c
-endif
 ifdef NOVERSION
 	-@touch comptime.c
 else

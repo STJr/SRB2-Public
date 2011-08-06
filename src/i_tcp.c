@@ -163,6 +163,16 @@ typedef union
 #endif
 } mysockaddr_t;
 
+#ifdef HAVE_MINIUPNPC
+#ifdef STATIC_MINIUPNPC
+#define STATICLIB
+#endif
+#include "miniupnpc/miniwget.h"
+#include "miniupnpc/miniupnpc.h"
+#include "miniupnpc/upnpcommands.h"
+#undef STATICLIB
+#endif
+
 #endif // !NONET
 
 #define MAXBANS 100
@@ -281,6 +291,80 @@ static const char* inet_ntopA(short af, const void *cp, char *buf, socklen_t len
 }
 #elif !defined (USE_WINSOCK1)
 #define HAVE_NTOP
+#endif
+
+#ifdef HAVE_MINIUPNPC // based on old XChat patch
+static struct UPNPUrls urls;
+static struct IGDdatas data;
+static char lanaddr[64];
+
+static void I_ShutdownUPnP(void)
+{
+	FreeUPNPUrls(&urls);
+}
+
+static inline void I_InitUPnP(void)
+{
+	struct UPNPDev * devlist = NULL;
+	int upnp_error = -2;
+	CONS_Printf("Looking for UPnP Internet Gatewaty Device\n");
+	devlist = upnpDiscover(2000, NULL, NULL, 0, false, &upnp_error);
+	if (devlist)
+	{
+		struct UPNPDev *dev = devlist;
+		char * descXML;
+		int descXMLsize = 0;
+		while (dev)
+		{
+			if (strstr (dev->st, "InternetGatewayDevice"))
+				break;
+			dev = dev->pNext;
+		}
+		if (!dev)
+			dev = devlist; /* defaulting to first device */
+
+		CONS_Printf("Found UPnP device :\n"
+		           " desc: %s\n st: %s\n",
+		           dev->descURL, dev->st);
+
+		UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr));
+		CONS_Printf("Local LAN ip address : %s\n", lanaddr);
+		descXML = miniwget(dev->descURL, &descXMLsize);
+		if (descXML)
+		{
+			parserootdesc(descXML, descXMLsize, &data);
+			free(descXML);
+			descXML = NULL;
+			memset(&urls, 0, sizeof(struct UPNPUrls));
+			memset(&data, 0, sizeof(struct IGDdatas));
+			GetUPNPUrls(&urls, &data, dev->descURL);
+			I_AddExitFunc(I_ShutdownUPnP);
+		}
+		freeUPNPDevlist(devlist);
+	}
+	else if (upnp_error == UPNPDISCOVER_SOCKET_ERROR)
+	{
+		CONS_Printf("Failed to talk to any UPnP device\n");
+	}
+}
+
+static inline void I_UPnP_add(const char * addr, const char *port, const char * servicetype)
+{
+	if (addr == NULL)
+		addr = lanaddr;
+	if(urls.controlURL[0] == '\0')
+		return;
+	UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
+	                    port, port, addr, 0, servicetype, NULL, NULL);
+}
+
+static inline void I_UPnP_rem(const char *port, const char * servicetype)
+{
+	if(urls.controlURL[0] == '\0')
+		return;
+	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype,
+	                       port, servicetype, NULL);
+}
 #endif
 
 static const char *SOCK_AddrToStr(mysockaddr_t *sk)
@@ -737,6 +821,7 @@ static boolean UDP_Socket(void)
 	const INT32 b_ipv6 = M_CheckParm("-ipv6");
 #endif
 
+
 	for (s = 0; s < mysocketses; s++)
 		mysockets[s] = BADSOCKET;
 	for (s = 0; s < MAXNETNODES+1; s++)
@@ -796,6 +881,10 @@ static boolean UDP_Socket(void)
 					FD_SET(mysockets[s], &masterset);
 					myfamily[s] = hints.ai_family;
 					s++;
+#ifdef HAVE_MINIUPNPC
+				I_UPnP_rem(sock_port, "UDP");
+				I_UPnP_add(NULL, sock_port, "UDP");
+#endif
 				}
 				runp = runp->ai_next;
 			}
@@ -1043,6 +1132,9 @@ boolean I_InitTcpDriver(void)
 #endif
 	if (!tcp_was_up && init_tcp_driver)
 		I_AddExitFunc(I_ShutdownTcpDriver);
+#ifdef HAVE_MINIUPNPC
+	I_InitUPnP();
+#endif
 	return init_tcp_driver;
 }
 
@@ -1286,7 +1378,7 @@ boolean I_InitTcpNetwork(void)
 		if (M_IsNextParm())
 			strcpy(port_name, M_GetNextParm());
 		else
-			strcpy(port_name, "0");;
+			strcpy(port_name, "0");
 	}
 	current_port = (UINT16)atoi(port_name);
 
