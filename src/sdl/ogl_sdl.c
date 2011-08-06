@@ -56,9 +56,11 @@ typedef int (*PFNGLXSWAPINTERVALPROC) (int);
 PFNGLXSWAPINTERVALPROC glXSwapIntervalSGIEXT = NULL;
 #endif
 
+#ifndef STATIC_OPENGL
 PFNglClear pglClear;
 PFNglGetIntegerv pglGetIntegerv;
 PFNglGetString pglGetString;
+#endif
 
 #ifdef _PSP
 static const Uint32 WOGLFlags = SDL_HWSURFACE|SDL_OPENGL/*|SDL_RESIZABLE*/;
@@ -74,19 +76,23 @@ SDL_Surface *vidSurface = NULL;
 INT32 oglflags = 0;
 void *GLUhandle = NULL;
 
+#ifndef STATIC_OPENGL
 void *GetGLFunc(const char *proc)
 {
-	void *func = hwSym(proc, GLUhandle);
-	if (!func)
-		func = SDL_GL_GetProcAddress(proc);
-	return func;
+	if (strncmp(proc, "glu", 3) == 0)
+	{
+		if (GLUhandle)
+			return hwSym(proc, GLUhandle);
+		else
+			return NULL;
+	}
+	return SDL_GL_GetProcAddress(proc);
 }
+#endif
 
 boolean LoadGL(void)
 {
-#ifdef STATIC_OPENGL
-	return SetupGLfunc();
-#else
+#ifndef STATIC_OPENGL
 	const char *OGLLibname = NULL;
 	const char *GLULibname = NULL;
 
@@ -128,19 +134,18 @@ boolean LoadGL(void)
 			return SetupGLfunc();
 		else
 		{
-			DEBPRINT(va("Could not load GLU Library: %s\n"
-						"Falling back to Software mode.\n", GLULibname));
+			DEBPRINT(va("Could not load GLU Library: %s\n", GLULibname));
 			if (!M_CheckParm ("-GLUlib"))
 				DEBPRINT("If you know what is the GLU library's name, use -GLUlib\n");
 		}
 	}
 	else
-		DEBPRINT("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS\n"
-				 "Falling back to Software mode.\n"
-				 "If you know what is the GLU library's name, use -GLUlib\n");
-
-	return 0;
+	{
+		DEBPRINT("Could not load GLU Library\n");
+		DEBPRINT("If you know what is the GLU library's name, use -GLUlib\n");
+	}
 #endif
+	return SetupGLfunc();
 }
 
 /**	\brief	The OglSdlSurface function
@@ -225,9 +230,11 @@ boolean OglSdlSurface(INT32 w, INT32 h, boolean isFullscreen)
 		glXSwapIntervalSGIEXT = NULL;
 #endif
 
+#ifndef KOS_GL_COMPATIBILITY
 	if (isExtAvailable("GL_EXT_texture_filter_anisotropic", gl_extensions))
 		pglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
 	else
+#endif
 		maximumAnisotropy = 0;
 
 	granisotropicmode_cons_t[1].value = maximumAnisotropy;

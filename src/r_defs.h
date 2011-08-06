@@ -75,7 +75,10 @@ typedef struct
 
 /** Your plain vanilla vertex.
   */
-typedef vector_t vertex_t;
+typedef struct
+{
+	fixed_t x, y, z;
+} vertex_t;
 
 // Forward of linedefs, for sectors.
 struct line_s;

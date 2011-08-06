@@ -111,30 +111,45 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.
 }
 
-typedef void *(WINAPI *PFNwglGetProcAddress) (const char *);
-typedef HGLRC (WINAPI *PFNwglCreateContext) (HDC hdc);
-typedef BOOL (WINAPI *PFNwglDeleteContext) (HGLRC hglrc);
-typedef BOOL (WINAPI *PFNwglMakeCurrent) (HDC hdc, HGLRC hglrc);
+#ifdef STATIC_OPENGL
+#define pwglGetProcAddress wglGetProcAddress;
+#define pwglCreateContext wglCreateContext;
+#define pwglDeleteContext wglDeleteContext;
+#define pwglMakeCurrent wglMakeCurrent;
+#else
 static HMODULE OGL32, GLU32;
+typedef void *(WINAPI *PFNwglGetProcAddress) (const char *);
 static PFNwglGetProcAddress pwglGetProcAddress;
+typedef HGLRC (WINAPI *PFNwglCreateContext) (HDC hdc);
 static PFNwglCreateContext pwglCreateContext;
+typedef BOOL (WINAPI *PFNwglDeleteContext) (HGLRC hglrc);
 static PFNwglDeleteContext pwglDeleteContext;
+typedef BOOL (WINAPI *PFNwglMakeCurrent) (HDC hdc, HGLRC hglrc);
 static PFNwglMakeCurrent pwglMakeCurrent;
+#endif
 
+#ifndef STATIC_OPENGL
 void *GetGLFunc(const char *proc)
 {
 	void *func = NULL;
+	if (strncmp(proc, "glu", 3) == 0)
+	{
+		if (GLU32)
+			func = GetProcAddress(GLU32, proc);
+		else
+			return NULL;
+	}
 	if (pwglGetProcAddress)
 		func = pwglGetProcAddress(proc);
 	if (!func)
 		func = GetProcAddress(OGL32, proc);
-	if (!func)
-		func = GetProcAddress(GLU32, proc);
 	return func;
 }
+#endif
 
 boolean LoadGL(void)
 {
+#ifndef STATIC_OPENGL
 	OGL32 = LoadLibrary("OPENGL32.DLL");
 
 	if (!OGL32)
@@ -142,16 +157,11 @@ boolean LoadGL(void)
 
 	GLU32 = LoadLibrary("GLU32.DLL");
 
-	if (!GLU32)
-	{
-		FreeLibrary(OGL32);
-		return 0;
-	}
-
 	pwglGetProcAddress = GetGLFunc("wglGetProcAddress");
 	pwglCreateContext = GetGLFunc("wglCreateContext");
 	pwglDeleteContext = GetGLFunc("wglDeleteContext");
 	pwglMakeCurrent = GetGLFunc("wglMakeCurrent");
+#endif
 	return SetupGLfunc();
 }
 

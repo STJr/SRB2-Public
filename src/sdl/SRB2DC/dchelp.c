@@ -45,6 +45,24 @@ int access(const char *path, int amode)
 	return -1;
 }
 
+double hypot(double x, double y)
+{
+	double ax, yx, yx2, yx1;
+	if (abs(y) > abs(x)) // |y|>|x|
+	{
+		ax = abs(y); // |y| => ax
+		yx = (x/y);
+	}
+	else // |x|>|y|
+	{
+		ax = abs(x); // |x| => ax
+		yx = (x/y);
+	}
+	yx2 = yx*yx; // (x/y)^2
+	yx1 = sqrt(1+yx2); // (1 + (x/y)^2)^1/2
+	return ax*yx1; // |x|*((1 + (x/y)^2)^1/2)
+}
+
 #if !(defined (NONET) || defined (NOMD5))
 #ifdef HAVE_LWIP
 
