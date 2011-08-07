@@ -243,7 +243,7 @@ static const char *error;
  */
 static const char *get_next_line(const char ***lines, SDL_RWops *src, int len)
 {
-        static char *linebufnew;
+        char *linebufnew;
         if (lines) {
                 return *(*lines)++;
         } else {
