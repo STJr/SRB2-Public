@@ -56,7 +56,7 @@ typedef struct GLRGBAFloat GLRGBAFloat;
 #define NOTEXTURE_NUM     1     // small white texture
 #define FIRST_TEX_AVAIL   (NOTEXTURE_NUM + 1)
 
-#define      N_PI_DEMI               (M_PI/2) //(1.5707963268f)
+#define      N_PI_DEMI               (M_PIl/2.0f) //(1.5707963268f)
 
 #define      ASPECT_RATIO            (1.0f)  //(320.0f/200.0f)
 #define      FAR_CLIPPING_PLANE      150000.0f // Draw further! Tails 01-21-2001
@@ -513,19 +513,19 @@ static void GLPerspective(GLdouble fovy, GLdouble aspect)
 	GLdouble m[4][4] =
 #endif
 	{
-		{ 1.0, 0.0, 0.0, 0.0},
-		{ 0.0, 1.0, 0.0, 0.0},
-		{ 0.0, 0.0, 1.0,-1.0},
-		{ 0.0, 0.0, 0.0, 0.0},
+		{ 1.0f, 0.0f, 0.0f, 0.0f},
+		{ 0.0f, 1.0f, 0.0f, 0.0f},
+		{ 0.0f, 0.0f, 1.0f,-1.0f},
+		{ 0.0f, 0.0f, 0.0f, 0.0f},
 	};
 	const GLdouble zNear = NEAR_CLIPPING_PLANE;
 	const GLdouble zFar = FAR_CLIPPING_PLANE;
-	const GLdouble radians = fovy / 2 * M_PI / 180;
+	const GLdouble radians = fovy / 2.0f * M_PIl / 180.0f;
 	const GLdouble sine = sin(radians);
 	const GLdouble deltaZ = zFar - zNear;
 	GLdouble cotangent;
 
-	if ((deltaZ == 0.0) || (sine == 0.0) || (aspect == 0.0)) {
+	if ((deltaZ == 0.0f) || (sine == 0.0f) || (aspect == 0.0f)) {
 		return;
 	}
 	cotangent = cos(radians) / sine;
@@ -533,7 +533,7 @@ static void GLPerspective(GLdouble fovy, GLdouble aspect)
 	m[0][0] = cotangent / aspect;
 	m[1][1] = cotangent;
 	m[2][2] = -(zFar + zNear) / deltaZ;
-	m[3][2] = -2.0 * zNear * zFar / deltaZ;
+	m[3][2] = -2.0f * zNear * zFar / deltaZ;
 #ifdef MINI_GL_COMPATIBILITY
 	pglMultMatrixf(&m[0][0]);
 #else
@@ -564,14 +564,14 @@ static void GLProject(GLdouble objX, GLdouble objY, GLdouble objZ,
 			out[2] * projMatrix[2*4+i] +
 			out[3] * projMatrix[3*4+i];
 	}
-	if (in[3] == 0.0) return;
+	if (in[3] == 0.0f) return;
 	in[0] /= in[3];
 	in[1] /= in[3];
 	in[2] /= in[3];
 	/* Map x, y and z to range 0-1 */
-	in[0] = in[0] * 0.5 + 0.5;
-	in[1] = in[1] * 0.5 + 0.5;
-	in[2] = in[2] * 0.5 + 0.5;
+	in[0] = in[0] * 0.5f + 0.5f;
+	in[1] = in[1] * 0.5f + 0.5f;
+	in[2] = in[2] * 0.5f + 0.5f;
 
 	/* Map x,y to viewport */
 	in[0] = in[0] * viewport[2] + viewport[0];
@@ -1471,7 +1471,7 @@ EXPORT void HWRAPI(DrawPolygon) (FSurfaceInfo  *pSurf,
 		//rem: all 8 (or 8.0f) values are hard coded: it can be changed to a higher value
 		GLfloat     buf[8][8];
 		GLdouble    cx, cy, cz;
-		GLdouble    px = 0.0, py = 0.0, pz = -1.0;
+		GLdouble    px = 0.0f, py = 0.0f, pz = -1.0f;
 		GLfloat     scalef = 0.0f;
 
 		cx = (pOutVerts[0].x + pOutVerts[2].x) / 2.0f; // we should change the coronas' ...
