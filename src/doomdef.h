@@ -184,7 +184,6 @@ void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
 #define DEVMAPS "devmaps"
 #define DEVDATA "devdata"
 
-#define NUM_QUITMESSAGES 22
 #define SAVEGAMENAME "srb2sav"
 
 char savegamename[256];

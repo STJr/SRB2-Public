@@ -112,7 +112,7 @@ static INT32 oldlastmapnum;
 
 typedef enum
 {
-	QUITMSG,
+	QUITMSG = 0,
 	QUITMSG1,
 	QUITMSG2,
 	QUITMSG3,
@@ -135,7 +135,8 @@ typedef enum
 	QUIT3MSG3,
 	QUIT3MSG4,
 	QUIT3MSG5,
-	QUIT3MSG6
+	QUIT3MSG6,
+	NUM_QUITMESSAGES
 } text_enum;
 
 const char *quitmsg[NUM_QUITMESSAGES];
