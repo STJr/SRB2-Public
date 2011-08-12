@@ -318,8 +318,8 @@ static PFNglPopMatrix pglPopMatrix;
 typedef void (APIENTRY * PFNglLoadIdentity) (void);
 static PFNglLoadIdentity pglLoadIdentity;
 #ifdef MINI_GL_COMPATIBILITY
-typedef void (APIENTRY * PFNglMultMatrixd) (const GLfloat *m);
-static PFNglMultMatrixd pglMultMatrixf;
+typedef void (APIENTRY * PFNglMultMatrixf) (const GLfloat *m);
+static PFNglMultMatrixf pglMultMatrixf;
 #else
 typedef void (APIENTRY * PFNglMultMatrixd) (const GLdouble *m);
 static PFNglMultMatrixd pglMultMatrixd;
@@ -431,9 +431,7 @@ boolean SetupGLfunc(void)
 	GETOPENGLFUNC(pglScissor , glScissor)
 	GETOPENGLFUNC(pglEnable , glEnable)
 	GETOPENGLFUNC(pglDisable , glDisable)
-#ifdef MINI_GL_COMPATIBILITY
-	GETOPENGLFUNC(pglGetFloatv , glGetFloatv)
-#else
+#ifndef MINI_GL_COMPATIBILITY
 	GETOPENGLFUNC(pglGetDoublev , glGetDoublev)
 #endif
 	GETOPENGLFUNC(pglGetIntegerv , glGetIntegerv)
