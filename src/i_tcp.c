@@ -307,7 +307,7 @@ static inline void I_InitUPnP(void)
 {
 	struct UPNPDev * devlist = NULL;
 	int upnp_error = -2;
-	CONS_Printf("Looking for UPnP Internet Gatewaty Device\n");
+	CONS_Printf("%s", M_GetText("Looking for UPnP Internet Gatewaty Device\n"));
 	devlist = upnpDiscover(2000, NULL, NULL, 0, false, &upnp_error);
 	if (devlist)
 	{
@@ -323,12 +323,11 @@ static inline void I_InitUPnP(void)
 		if (!dev)
 			dev = devlist; /* defaulting to first device */
 
-		CONS_Printf("Found UPnP device :\n"
-		           " desc: %s\n st: %s\n",
+		CONS_Printf("%s", M_GetText("Found UPnP device :\n desc: %s\n st: %s\n"),
 		           dev->descURL, dev->st);
 
 		UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr));
-		CONS_Printf("Local LAN ip address : %s\n", lanaddr);
+		CONS_Printf("%s", M_GetText("Local LAN ip address : %s\n"), lanaddr);
 		descXML = miniwget(dev->descURL, &descXMLsize);
 		if (descXML)
 		{
@@ -344,7 +343,7 @@ static inline void I_InitUPnP(void)
 	}
 	else if (upnp_error == UPNPDISCOVER_SOCKET_ERROR)
 	{
-		CONS_Printf("Failed to talk to any UPnP device\n");
+		CONS_Printf("%s", M_GetText("Failed to talk to any UPnP device\n"));
 	}
 }
 

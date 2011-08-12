@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-11 12:19-0400\n"
+"POT-Creation-Date: 2011-08-11 20:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1960,29 +1960,50 @@ msgstr ""
 msgid "[Message unsent]\n"
 msgstr ""
 
-#: i_tcp.c:755
+#: i_tcp.c:310
+msgid "Looking for UPnP Internet Gatewaty Device\n"
+msgstr ""
+
+#: i_tcp.c:326
+#, c-format
+msgid ""
+"Found UPnP device :\n"
+" desc: %s\n"
+" st: %s\n"
+msgstr ""
+
+#: i_tcp.c:330
+#, c-format
+msgid "Local LAN ip address : %s\n"
+msgstr ""
+
+#: i_tcp.c:346
+msgid "Failed to talk to any UPnP device\n"
+msgstr ""
+
+#: i_tcp.c:754
 msgid "Could not get broadcast rights\n"
 msgstr ""
 
-#: i_tcp.c:773
+#: i_tcp.c:772
 msgid "Could not limit IPv6 bind\n"
 msgstr ""
 
-#: i_tcp.c:797
+#: i_tcp.c:796
 #, c-format
 msgid "Network system buffer: %dKb\n"
 msgstr ""
 
-#: i_tcp.c:806
+#: i_tcp.c:805
 msgid "Can't set buffer length to 64k, file transfer will be bad\n"
 msgstr ""
 
-#: i_tcp.c:808
+#: i_tcp.c:807
 #, c-format
 msgid "Network system buffer set to: %dKb\n"
 msgstr ""
 
-#: i_tcp.c:1187 sdl/i_cdmus.c:383 sdl/i_sound.c:1138 sdl/i_sound.c:1463
+#: i_tcp.c:1186 sdl/i_cdmus.c:383 sdl/i_sound.c:1138 sdl/i_sound.c:1463
 #: sdl/i_video.c:2154
 msgid "shut down\n"
 msgstr ""
