@@ -323,11 +323,11 @@ static inline void I_InitUPnP(void)
 		if (!dev)
 			dev = devlist; /* defaulting to first device */
 
-		CONS_Printf("%s", M_GetText("Found UPnP device :\n desc: %s\n st: %s\n"),
+		CONS_Printf(M_GetText("Found UPnP device :\n desc: %s\n st: %s\n"),
 		           dev->descURL, dev->st);
 
 		UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr));
-		CONS_Printf("%s", M_GetText("Local LAN ip address : %s\n"), lanaddr);
+		CONS_Printf(M_GetText("Local LAN ip address : %s\n"), lanaddr);
 		descXML = miniwget(dev->descURL, &descXMLsize);
 		if (descXML)
 		{
