@@ -1054,12 +1054,21 @@ boolean I_InitTcpDriver(void)
 			if (WSAresult != WSAVERNOTSUPPORTED)
 				DEBPRINT(va("WinSock(TCP/IP) error: %s\n",WSError));
 		}
+#ifdef USE_WINSOCK2
+		if(LOBYTE(WSAData.wVersion) != 2 ||
+			HIBYTE(WSAData.wVersion) != 2)
+		{
+			WSACleanup();
+			DEBPRINT("No WinSock(TCP/IP) 2.2 driver detected");
+		}
+#else
 		if (LOBYTE(WSAData.wVersion) != 1 ||
 			HIBYTE(WSAData.wVersion) != 1)
 		{
 			WSACleanup();
 			DEBPRINT("No WinSock(TCP/IP) 1.1 driver detected");
 		}
+#endif
 		DEBPRINT(va("WinSock description: %s\n",WSAData.szDescription));
 		DEBPRINT(va("WinSock System Status: %s\n",WSAData.szSystemStatus));
 #endif
