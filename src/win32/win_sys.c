@@ -541,7 +541,9 @@ void I_OutputMsg(const char *fmt, ...)
 	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
 
+#ifdef _MSC_VER
 	OutputDebugStringA(txt);
+#endif
 
 #ifdef LOGMESSAGES
 	if (logstream)

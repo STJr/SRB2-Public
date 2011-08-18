@@ -761,7 +761,7 @@ void I_OutputMsg(const char *fmt, ...)
 	DEFAULTFONTBGR, DEFAULTFONTBGG, DEFAULTFONTBGB, DEFAULTFONTBGA, txt);
 #endif
 
-#if defined (_WIN32) && !defined (_XBOX)
+#if defined (_WIN32) && !defined (_XBOX) && defined (_MSC_VER)
 	OutputDebugStringA(txt);
 #endif
 
