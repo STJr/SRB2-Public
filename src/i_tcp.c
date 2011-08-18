@@ -1059,14 +1059,14 @@ boolean I_InitTcpDriver(void)
 			HIBYTE(WSAData.wVersion) != 2)
 		{
 			WSACleanup();
-			DEBPRINT("No WinSock(TCP/IP) 2.2 driver detected");
+			DEBPRINT("No WinSock(TCP/IP) 2.2 driver detected\n");
 		}
 #else
 		if (LOBYTE(WSAData.wVersion) != 1 ||
 			HIBYTE(WSAData.wVersion) != 1)
 		{
 			WSACleanup();
-			DEBPRINT("No WinSock(TCP/IP) 1.1 driver detected");
+			DEBPRINT("No WinSock(TCP/IP) 1.1 driver detected\n");
 		}
 #endif
 		DEBPRINT(va("WinSock description: %s\n",WSAData.szDescription));
