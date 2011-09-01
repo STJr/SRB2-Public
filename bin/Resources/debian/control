@@ -3,7 +3,7 @@
 Source: srb2-data
 Section: games
 Priority: extra
-Maintainer: Callum Dickinson <gcfreak_ag20@hotmail.com>
+Maintainer: Alam Ed Arias <alam@srb2.org>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
 Homepage: http://www.srb2.org

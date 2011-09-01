@@ -1,3 +1,9 @@
+srb2-data (2.0.6-3) lenny; urgency=low
+
+  * Took over ownership of srb2-data package
+
+ -- Alam Ed Arias <alam@srb2.org>  Thu, 01 Sep 2011 12:59:43 +0500
+
 srb2-data (2.0.6-2) maverick; urgency=high
 
   * Initial proper release..
