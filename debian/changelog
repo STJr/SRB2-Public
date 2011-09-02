@@ -1,3 +1,10 @@
+srb2 (2.0.6-6+svn7211) lenny; urgency=low
+
+  * Updated source code to trunk r7211
+    the real reason to test builds make by my workstation, RigginStereo
+
+ -- Alam Ed Arias <alam@srb2.org>  Sat, 29 Jan 2011 03:04:13 +0500
+ 
 srb2 (2.0.6-6+svn7210) lenny; urgency=low
 
   * Updated source code to trunk r7210
