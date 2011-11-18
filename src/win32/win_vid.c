@@ -602,7 +602,7 @@ INT32 VID_GetModeForSize(INT32 w, INT32 h)
 // Enumerate DirectDraw modes available
 //
 static int nummodes = 0;
-static BOOL GetExtraModesCallback(int width, int height, int bpp)
+static BOOL GetExtraModesCallback(int width, int height, int bpp, int pitch)
 {
 	CONS_Printf("mode %d x %d x %d bpp\n", width, height, bpp);
 
@@ -657,7 +657,7 @@ static BOOL GetExtraModesCallback(int width, int height, int bpp)
 
 	// exactly, the current FinishUdpate() gets the rowbytes itself after locking the video buffer
 	// so for now we put anything here
-	extra_modes[nummodes].rowbytes = width;
+	extra_modes[nummodes].rowbytes = pitch;
 	extra_modes[nummodes].windowed = false;
 	extra_modes[nummodes].misc = 0; // unused
 	extra_modes[nummodes].pextradata = NULL;

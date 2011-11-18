@@ -102,7 +102,8 @@ static HRESULT WINAPI myEnumModesCallback (LPDDSURFACEDESC surf, LPVOID lpContex
 #ifdef DUMMYUNIONNAMEN
 		DUMMYUNIONNAMEN(1).
 #endif
-		dwRGBBitCount
+		dwRGBBitCount,
+		surf->lPitch
 		);
 
 		/*DEBPRINT (va("%dx%dx%d bpp %d refresh\n",

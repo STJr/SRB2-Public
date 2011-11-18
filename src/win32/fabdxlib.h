@@ -33,7 +33,7 @@
 #undef DUMMYUNIONNAMEN
 #endif
 // format of function in app called with width,height
-typedef BOOL (*APPENUMMODESCALLBACK)(int width, int height, int bpp);
+typedef BOOL (*APPENUMMODESCALLBACK)(int width, int height, int bpp, int pitch);
 
 
 // globals
