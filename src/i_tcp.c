@@ -359,7 +359,7 @@ static inline void I_UPnP_add(const char * addr, const char *port, const char * 
 
 static inline void I_UPnP_rem(const char *port, const char * servicetype)
 {
-	if(urls.controlURL[0] == '\0')
+	if(urls.controlURL && urls.controlURL[0] == '\0')
 		return;
 	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype,
 	                       port, servicetype, NULL);
