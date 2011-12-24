@@ -351,7 +351,7 @@ static inline void I_UPnP_add(const char * addr, const char *port, const char * 
 {
 	if (addr == NULL)
 		addr = lanaddr;
-	if(urls.controlURL[0] == '\0')
+	if(!urls.controlURL || urls.controlURL[0] == '\0')
 		return;
 	UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
 	                    port, port, addr, "SRB2", servicetype, NULL, NULL);
