@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-11 20:51-0400\n"
+"POT-Creation-Date: 2011-12-23 22:09-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1961,7 +1961,7 @@ msgid "[Message unsent]\n"
 msgstr ""
 
 #: i_tcp.c:310
-msgid "Looking for UPnP Internet Gatewaty Device\n"
+msgid "Looking for UPnP Internet Gateway Device\n"
 msgstr ""
 
 #: i_tcp.c:326
@@ -2003,7 +2003,7 @@ msgstr ""
 msgid "Network system buffer set to: %dKb\n"
 msgstr ""
 
-#: i_tcp.c:1186 sdl/i_cdmus.c:383 sdl/i_sound.c:1138 sdl/i_sound.c:1463
+#: i_tcp.c:1195 sdl/i_cdmus.c:383 sdl/i_sound.c:1138 sdl/i_sound.c:1463
 #: sdl/i_video.c:2154
 msgid "shut down\n"
 msgstr ""
@@ -3279,11 +3279,11 @@ msgstr ""
 msgid "Couldn't open joystick2: %s\n"
 msgstr ""
 
-#: sdl/i_system.c:1789 win32/win_sys.c:977
+#: sdl/i_system.c:1789 win32/win_sys.c:979
 msgid "Read Error on secondary mouse port\n"
 msgstr ""
 
-#: sdl/i_system.c:1885 win32/win_sys.c:1038
+#: sdl/i_system.c:1885 win32/win_sys.c:1040
 #, c-format
 msgid "Error opening %s!\n"
 msgstr ""
@@ -3293,7 +3293,7 @@ msgstr ""
 msgid "Can't open %s: Access denied\n"
 msgstr ""
 
-#: sdl/i_system.c:1955 win32/win_sys.c:1040
+#: sdl/i_system.c:1955 win32/win_sys.c:1042
 #, c-format
 msgid "Can't open %s: error %d\n"
 msgstr ""
@@ -3834,69 +3834,69 @@ msgstr ""
 msgid "I_RegisterSong: StreamBufferSetup FAILED"
 msgstr ""
 
-#: win32/win_sys.c:892
+#: win32/win_sys.c:894
 msgid "Could not create IDirectInput device 2"
 msgstr ""
 
-#: win32/win_sys.c:1185
+#: win32/win_sys.c:1187
 msgid "\tMouse will not use DirectInput.\n"
 msgstr ""
 
-#: win32/win_sys.c:1722 win32/win_sys.c:2081
+#: win32/win_sys.c:1724 win32/win_sys.c:2083
 #, c-format
 msgid "Capabilities: %lu axes, %lu buttons, %lu POVs, poll %u, Gamepad %d\n"
 msgstr ""
 
-#: win32/win_sys.c:1954
+#: win32/win_sys.c:1956
 msgid "Joystick disabled\n"
 msgstr ""
 
-#: win32/win_sys.c:1968 win32/win_sys.c:2330
+#: win32/win_sys.c:1970 win32/win_sys.c:2332
 msgid "Looking for joystick devices:\n"
 msgstr ""
 
-#: win32/win_sys.c:1975 win32/win_sys.c:2338
+#: win32/win_sys.c:1977 win32/win_sys.c:2340
 msgid "Joystick initialize failed.\n"
 msgstr ""
 
-#: win32/win_sys.c:1983 win32/win_sys.c:2346
+#: win32/win_sys.c:1985 win32/win_sys.c:2348
 msgid "none found\n"
 msgstr ""
 
-#: win32/win_sys.c:1986 win32/win_sys.c:2349
+#: win32/win_sys.c:1988 win32/win_sys.c:2351
 msgid "none used\n"
 msgstr ""
 
-#: win32/win_sys.c:1989
+#: win32/win_sys.c:1991
 msgid "Set the use_joystick variable to one of the enumerated joystick numbers\n"
 msgstr ""
 
-#: win32/win_sys.c:2002
+#: win32/win_sys.c:2004
 msgid "I_InitJoystick: SetCooperativeLevel FAILED"
 msgstr ""
 
-#: win32/win_sys.c:2006 win32/win_sys.c:2373
+#: win32/win_sys.c:2008 win32/win_sys.c:2375
 msgid "Joystick already initialized\n"
 msgstr ""
 
-#: win32/win_sys.c:2316
+#: win32/win_sys.c:2318
 msgid "Joystick2 disabled\n"
 msgstr ""
 
-#: win32/win_sys.c:2353
+#: win32/win_sys.c:2355
 msgid "Set the use_joystick2 variable to one of the enumerated joysticks number\n"
 msgstr ""
 
-#: win32/win_sys.c:2364
+#: win32/win_sys.c:2366
 msgid "I_InitJoystick2: SetCooperativeLevel FAILED"
 msgstr ""
 
-#: win32/win_sys.c:3466
+#: win32/win_sys.c:3468
 #, c-format
 msgid "Couldn't create DirectInput (reason: %s)"
 msgstr ""
 
-#: win32/win_sys.c:3469
+#: win32/win_sys.c:3471
 msgid "Using DirectX3 interface\n"
 msgstr ""
 
