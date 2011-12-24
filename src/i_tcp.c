@@ -307,7 +307,7 @@ static inline void I_InitUPnP(void)
 {
 	struct UPNPDev * devlist = NULL;
 	int upnp_error = -2;
-	CONS_Printf("%s", M_GetText("Looking for UPnP Internet Gatewaty Device\n"));
+	CONS_Printf("%s", M_GetText("Looking for UPnP Internet Gateway Device\n"));
 	devlist = upnpDiscover(2000, NULL, NULL, 0, false, &upnp_error);
 	if (devlist)
 	{
