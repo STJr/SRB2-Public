@@ -2338,6 +2338,10 @@ void V_DrawCreditString(INT32 x, INT32 y, INT32 option, const char *string)
 	INT32 w, c, cx = x, cy = y, dupx, dupy, scrwidth = BASEVIDWIDTH;
 	const char *ch = string;
 
+	// It's possible for string to be a null pointer
+	if (!string)
+		return;
+
 	if (option & V_NOSCALESTART)
 	{
 		dupx = vid.dupx;
@@ -2381,6 +2385,10 @@ INT32 V_CreditStringWidth(const char *string)
 {
 	INT32 c, w = 0;
 	size_t i;
+
+	// It's possible for string to be a null pointer
+	if (!string)
+		return 0;
 
 	for (i = 0; i < strlen(string); i++)
 	{
