@@ -143,6 +143,9 @@
 	#ifndef AI_ADDRCONFIG
 	#define AI_ADDRCONFIG 0x00000400
 	#endif
+	#ifndef STATUS_INVALID_PARAMETER
+	#define STATUS_INVALID_PARAMETER 0xC000000D
+	#endif
 #endif
 
 #ifdef __DJGPP__
@@ -171,6 +174,7 @@ typedef union
 #include "miniupnpc/miniupnpc.h"
 #include "miniupnpc/upnpcommands.h"
 #undef STATICLIB
+static UINT8 UPNP_support = TRUE;
 #endif
 
 #endif // !NONET
@@ -372,7 +376,7 @@ static inline void I_UPnP_add(const char * addr, const char *port, const char * 
 {
 	if (addr == NULL)
 		addr = lanaddr;
-	if(!urls.controlURL || urls.controlURL[0] == '\0')
+	if (!urls.controlURL || urls.controlURL[0] == '\0')
 		return;
 	UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
 	                    port, port, addr, "SRB2", servicetype, NULL, NULL);
@@ -380,7 +384,7 @@ static inline void I_UPnP_add(const char * addr, const char *port, const char * 
 
 static inline void I_UPnP_rem(const char *port, const char * servicetype)
 {
-	if(!urls.controlURL || urls.controlURL[0] == '\0')
+	if (!urls.controlURL || urls.controlURL[0] == '\0')
 		return;
 	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype,
 	                       port, servicetype, NULL);
@@ -402,8 +406,10 @@ static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 	else
 		addr = NULL;
 
-	if(addr == NULL || inet_ntop(sk->any.sa_family, addr, s, sizeof (s)) == NULL)
-		sprintf(s, "Unknown family type");
+	if(addr == NULL)
+		sprintf(s, "No address");
+	else if(inet_ntop(sk->any.sa_family, addr, s, sizeof (s)) == NULL)
+		sprintf(s, "Unknown family type, error #%u", errno);
 #ifdef HAVE_IPV6
 	else if(sk->any.sa_family == AF_INET6 && sk->ip6.sin6_port != 0)
 		strcat(s, va(":%d", ntohs(sk->ip6.sin6_port)));
@@ -759,6 +765,8 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 	}
 #endif
 
+	I_OutputMsg("Binding to %s\n", SOCK_AddrToStr((mysockaddr_t *)addr));
+
 	if (family == AF_INET)
 	{
 		if (((struct sockaddr_in *)addr)->sin_addr.s_addr == htonl(INADDR_ANY))
@@ -799,6 +807,7 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 	if (bind(s, addr, addrlen) == ERRSOCKET)
 	{
 		close(s);
+		I_OutputMsg("Binding failed\n");
 		return (SOCKET_TYPE)ERRSOCKET;
 	}
 
@@ -808,6 +817,7 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 	if (ioctl(s, FIONBIO, &trueval) != 0)
 	{
 		close(s);
+		I_OutputMsg("Seting FIOBIO on failed\n");
 		return (SOCKET_TYPE)ERRSOCKET;
 	}
 #endif
@@ -902,8 +912,11 @@ static boolean UDP_Socket(void)
 					myfamily[s] = hints.ai_family;
 					s++;
 #ifdef HAVE_MINIUPNPC
-				I_UPnP_rem(sock_port, "UDP");
-				I_UPnP_add(NULL, sock_port, "UDP");
+					if (UPNP_support)
+					{
+						I_UPnP_rem(sock_port, "UDP");
+						I_UPnP_add(NULL, sock_port, "UDP");
+					}
 #endif
 				}
 				runp = runp->ai_next;
@@ -1152,7 +1165,7 @@ boolean I_InitTcpDriver(void)
 #endif // libsocket
 #endif // __DJGPP__
 #ifdef _PS3
-	netInitialize();
+		netInitialize();
 #endif
 #ifndef __DJGPP__
 		init_tcp_driver = true;
@@ -1160,10 +1173,15 @@ boolean I_InitTcpDriver(void)
 	}
 #endif
 	if (!tcp_was_up && init_tcp_driver)
+	{
 		I_AddExitFunc(I_ShutdownTcpDriver);
 #ifdef HAVE_MINIUPNPC
-	I_InitUPnP();
+		if (M_CheckParm("-useUPnP"))
+			I_InitUPnP();
+		else
+			UPNP_support = false;
 #endif
+	}
 	return init_tcp_driver;
 }
 
@@ -1261,7 +1279,10 @@ static SINT8 SOCK_NetMakeNode(const char *hostname)
 	free(localhostname);
 	free(portchar);
 	if (newnode == -1)
+	{
+		I_freeaddrinfo(ai);
 		return -1;
+	}
 	else
 		runp = ai;
 
