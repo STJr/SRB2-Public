@@ -1953,6 +1953,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 {
 	INT32 i, loadprecip = 1;
 	INT32 loademblems = 1;
+	INT32 fromnetsave = 0;
 	boolean loadedbm = false;
 	sector_t *ss;
 
@@ -2114,6 +2115,7 @@ noscript:
 	/// \note for not spawning precipitation, etc. when loading netgame snapshots
 	if (skipprecip)
 	{
+		fromnetsave = 1;
 		loadprecip = 0;
 		loademblems = 0;
 	}
@@ -2180,7 +2182,7 @@ noscript:
 			break;
 
 	// set up world state
-	P_SpawnSpecials();
+	P_SpawnSpecials(fromnetsave);
 
 	if (loadprecip) //  ugly hack for P_NetUnArchiveMisc (and P_LoadNetGame)
 		P_SpawnPrecipitation();

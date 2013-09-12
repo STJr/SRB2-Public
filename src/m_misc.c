@@ -132,6 +132,7 @@ consvar_t cv_zlib_window_bitsa = {"apng_z_window_bits", "Default", CV_SAVE, zlib
 
 consvar_t cv_apng_disable = {"apng_disable", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
+boolean takescreenshot = false; // Take a screenshot this tic
 boolean moviemode = false; // disable screenshot message in Movie mode
 
 /** Returns the map number for a map identified by the last two characters in
@@ -1228,6 +1229,11 @@ static boolean WritePCXfile(const char *filename, const UINT8 *data, int width, 
 #endif
 #endif
 
+void M_ScreenShot(void)
+{
+	takescreenshot = true;
+}
+
 /** Takes a screenshot.
   * The screenshot is saved as "srb2xxxx.pcx" (or "srb2xxxx.tga" in hardware
   * rendermode) where xxxx is the lowest four-digit number for which a file
@@ -1235,12 +1241,15 @@ static boolean WritePCXfile(const char *filename, const UINT8 *data, int width, 
   *
   * \sa HWR_ScreenShot
   */
-void M_ScreenShot(void)
+void M_DoScreenShot(void)
 {
 #if NUMSCREENS > 2
 	const char *freename = NULL, *pathname = ".";
 	boolean ret = false;
 	UINT8 *linear = NULL;
+
+	// Don't take multiple screenshots, obviously
+	takescreenshot = false;
 
 	if (cv_screenshot_option.value == 0)
 		pathname = usehome ? srb2home : srb2path;

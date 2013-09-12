@@ -76,6 +76,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "y_inter.h"
 #include "p_local.h" // chasecam
 #include "mserv.h" // cv_internetserver
+#include "m_misc.h" // screenshot functionality
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -475,7 +476,12 @@ static void D_Display(void)
 			snprintf(s, sizeof s - 1, "SysMiss %.2f%%", lostpercent);
 			V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT-10, V_YELLOWMAP, s);
 		}
+
 		I_FinishUpdate(); // page flip or blit buffer
+
+		if (takescreenshot) // Only take screenshots after drawing.
+			M_DoScreenShot();
+
 		return;
 	}
 

@@ -59,7 +59,9 @@ void M_SaveFrame(void);
 boolean M_StopMovie(void);
 #endif
 
+extern boolean takescreenshot;
 void M_ScreenShot(void);
+void M_DoScreenShot(void);
 
 extern char configfile[MAX_WADPATH];
 

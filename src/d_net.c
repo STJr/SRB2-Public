@@ -78,6 +78,7 @@ void (*I_NetFreeNodenum)(INT32 nodenum) = NULL;
 SINT8 (*I_NetMakeNode)(const char *address) = NULL;
 boolean (*I_NetOpenSocket)(void) = NULL;
 boolean (*I_Ban) (INT32 node) = NULL;
+boolean (*I_Shun) (INT32 node) = NULL;
 void (*I_ClearBans)(void) = NULL;
 const char *(*I_GetNodeAddress) (INT32 node) = NULL;
 const char *(*I_GetBanAddress) (size_t ban) = NULL;
@@ -930,41 +931,48 @@ boolean HGetPacket(void)
 	if (!netgame)
 		return false;
 
-	I_NetGet();
-
-	if (doomcom->remotenode == -1)
-		return false;
-
-	getbytes += packetheaderlength + doomcom->datalength; // for stat
-
-	if (doomcom->remotenode >= MAXNETNODES)
+	while(true)
 	{
-		DEBFILE(va("receive packet from node %d !\n", doomcom->remotenode));
-		return false;
-	}
+		I_NetGet();
 
-	nodes[doomcom->remotenode].lasttimepacketreceived = I_GetTime();
+		if (doomcom->remotenode == -1)
+			return false;
 
-	if (netbuffer->checksum != NetbufferChecksum())
-	{
-		DEBFILE("Bad packet checksum\n");
-		return false;
-	}
+		getbytes += packetheaderlength + doomcom->datalength; // for stat
+
+		if (doomcom->remotenode >= MAXNETNODES)
+		{
+			DEBFILE(va("receive packet from node %d !\n", doomcom->remotenode));
+			continue;
+		}
+
+		nodes[doomcom->remotenode].lasttimepacketreceived = I_GetTime();
+
+		if (netbuffer->checksum != NetbufferChecksum())
+		{
+			DEBFILE("Bad packet checksum\n");
+			if (I_Shun)
+				I_Shun(doomcom->remotenode);
+			Net_CloseConnection(doomcom->remotenode);
+			continue;
+		}
 
 #ifdef DEBUGFILE
-	if (debugfile)
-		DebugPrintpacket("GET");
+		if (debugfile)
+			DebugPrintpacket("GET");
 #endif
 
-	// proceed the ack and ackreturn field
-	if (!Processackpak())
-		return false; // discarded (duplicated)
+		// proceed the ack and ackreturn field
+		if (!Processackpak())
+			continue; // discarded (duplicated)
 
-	// a packet with just ackreturn
-	if (netbuffer->packettype == PT_NOTHING)
-	{
-		GotAcks();
-		return false;
+		// a packet with just ackreturn
+		if (netbuffer->packettype == PT_NOTHING)
+		{
+			GotAcks();
+			continue;
+		}
+	break;
 	}
 
 	return true;

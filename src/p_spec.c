@@ -4930,7 +4930,7 @@ static void P_RunLevelLoadExecutors(void)
   * \todo Get rid of all the magic numbers.
   * \sa P_SpawnPrecipitation, P_SpawnFriction, P_SpawnPushers, P_SpawnScrollers
   */
-void P_SpawnSpecials(void)
+void P_SpawnSpecials(INT32 fromnetsave)
 {
 	sector_t *sector;
 	size_t i;
@@ -5674,10 +5674,13 @@ void P_SpawnSpecials(void)
 				break;
 
 			case 258: // Laser block
-				sec = sides[*lines[i].sidenum].sector - sectors;
+				if (!fromnetsave) // Don't load in netsaves, this call creates an FOF which causes LOTS of problems
+				{
+					sec = sides[*lines[i].sidenum].sector - sectors;
 
-				for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
-					EV_AddLaserThinker(&sectors[s], &sectors[sec], lines + i);
+					for (s = -1; (s = P_FindSectorFromLineTag(lines + i, s)) >= 0 ;)
+						EV_AddLaserThinker(&sectors[s], &sectors[sec], lines + i);
+				}
 				break;
 
 			case 259: // Make-Your-Own FOF!

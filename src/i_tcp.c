@@ -196,6 +196,8 @@ static mysockaddr_t clientaddress[MAXNETNODES+1];
 static boolean nodeconnected[MAXNETNODES+1];
 static mysockaddr_t banned[MAXBANS];
 static UINT8 bannedmask[MAXBANS];
+static mysockaddr_t shunned[MAXBANS];
+static UINT8 shunnedmask[MAXBANS];
 #endif
 #include "m_argv.h"
 
@@ -250,6 +252,7 @@ typedef int socklen_t;
 
 static SOCKET_TYPE mysocket = BADSOCKET;
 
+static int numshun = 0;
 static size_t numbans = 0;
 static boolean SOCK_bannednode[MAXNETNODES+1]; /// \note do we really need the +1?
 static boolean init_tcp_driver = false;
@@ -442,30 +445,38 @@ static void SOCK_Get(void)
 	socklen_t fromlen;
 	mysockaddr_t fromaddress;
 
-	fromlen = (socklen_t)sizeof(fromaddress);
-	c = recvfrom(mysocket, (char *)&doomcom->data, MAXPACKETLENGTH, 0,
-		(void *)&fromaddress, &fromlen);
-	if (c == ERRSOCKET)
+	do
 	{
-		if ((errno == EWOULDBLOCK) || (errno == EMSGSIZE) || (errno == ECONNREFUSED) || (errno == ETIMEDOUT))
+		fromlen = (socklen_t)sizeof(fromaddress);
+		c = recvfrom(mysocket, (char *)&doomcom->data, MAXPACKETLENGTH, 0,
+			(void *)&fromaddress, &fromlen);
+		if (c == ERRSOCKET)
 		{
-			doomcom->remotenode = -1; // no packet
-			return;
-		}
+			if ((errno == EWOULDBLOCK) || (errno == EMSGSIZE) || (errno == ECONNREFUSED) || (errno == ETIMEDOUT))
+			{
+				doomcom->remotenode = -1; // no packet
+				return;
+			}
 #if defined (_WIN32)
-		else if (errno == WSAECONNRESET) // 2k has some extra errors
-		{
-			DEBFILE("Connection reset (likely that the server isn't running)\n"); //Alam_GBC: how about DEBFILE instead of annoying the user?
-			//D_QuitNetGame(); // Graue 07-04-2004: win32 only and quit
-			doomcom->remotenode = -1;      // no packet too
-			return;
-			/// \todo see if the D_QuitNetGame actually fixes it, or whether it crashes or something
-			/// Alam_GBC: this WSAECONNRESET happends alot when talking to a masterlist server, i am guess when talking too much at a time
-			/// Later, hmmm, SIO_UDP_CONNRESET turned off should fix this
-		}
+			else if (errno == WSAECONNRESET) // 2k has some extra errors
+			{
+				DEBFILE("Connection reset (likely that the server isn't running)\n"); //Alam_GBC: how about DEBFILE instead of annoying the user?
+				//D_QuitNetGame(); // Graue 07-04-2004: win32 only and quit
+				doomcom->remotenode = -1;      // no packet too
+				return;
+				/// \todo see if the D_QuitNetGame actually fixes it, or whether it crashes or something
+				/// Alam_GBC: this WSAECONNRESET happends alot when talking to a masterlist server, i am guess when talking too much at a time
+				/// Later, hmmm, SIO_UDP_CONNRESET turned off should fix this
+			}
 #endif
-		I_Error("SOCK_Get error #%u: %s\n\n(Disabling any firewalls and/or rebooting your computer may fix this problem)", errno, strerror(errno));
-	}
+			I_Error("SOCK_Get error #%u: %s\n\n(Disabling any firewalls and/or rebooting your computer may fix this problem)", errno, strerror(errno));
+		}
+
+		// check if it's a DoS attacker and don't respond.
+		for (j = 0; j < numshun; j++)
+			if (SOCK_cmpaddr(&fromaddress, &shunned[j], shunnedmask[j]))
+				break;
+	} while (j < numshun);
 
 	// find remote node number
 	for (j = 0; j < MAXNETNODES; j++)
@@ -1121,6 +1132,25 @@ static boolean SOCK_Ban(INT32 node)
 #endif
 }
 
+static boolean SOCK_Shun(INT32 node)
+{
+	if (node > MAXNETNODES)
+		return false;
+#ifdef NONET
+	return false;
+#else
+	if (numshun == MAXBANS)
+		return false;
+
+	shunnedmask[numshun] = 32;
+	M_Memcpy(&shunned[numshun], &clientaddress[node], sizeof (mysockaddr_t));
+	if (shunned[numshun].sa_family == AF_INET)
+		shunned[numshun].ip.sin_port = 0;
+	numshun++;
+	return true;
+#endif
+}
+
 static boolean SOCK_SetBanAddress(const char *address, const char *mask)
 {
 #ifdef NONET
@@ -1241,6 +1271,7 @@ boolean I_InitTcpNetwork(void)
 
 	I_NetOpenSocket = SOCK_OpenSocket;
 	I_Ban = SOCK_Ban;
+	I_Shun = SOCK_Shun;
 	I_ClearBans = SOCK_ClearBans;
 	I_GetNodeAddress = SOCK_GetNodeAddress;
 	I_GetBanAddress = SOCK_GetBanAddress;

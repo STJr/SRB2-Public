@@ -25,7 +25,7 @@
 #include "d_player.h"
 
 // more precise version number to compare in network
-#define SUBVERSION 006
+#define SUBVERSION 7
 
 // Network play related stuff.
 // There is a data struct that stores network

@@ -2827,7 +2827,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 				return false;
 			else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
 			{
-				if (source && source->player && (source->player->ctfteam == target->target->player->ctfteam))
+				if (target && source && target->target && source->player && target->target->player && (source->player->ctfteam == target->target->player->ctfteam))
 					return false;
 			}
 		}

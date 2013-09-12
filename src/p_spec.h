@@ -36,7 +36,7 @@ void P_InitPicAnims(void);
 void P_SetupLevelFlatAnims(void);
 
 // at map load
-void P_SpawnSpecials(void);
+void P_SpawnSpecials(INT32 fromnetsave);
 
 // every tic
 void P_UpdateSpecials(void);

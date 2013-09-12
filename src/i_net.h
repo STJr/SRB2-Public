@@ -135,6 +135,7 @@ extern void (*I_NetCloseSocket)(void);
 
 
 extern boolean (*I_Ban) (INT32 node);
+extern boolean (*I_Shun) (INT32 node);
 extern void (*I_ClearBans)(void);
 extern const char *(*I_GetNodeAddress) (INT32 node);
 extern const char *(*I_GetBanAddress) (size_t ban);
