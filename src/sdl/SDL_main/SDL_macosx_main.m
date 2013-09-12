@@ -42,11 +42,6 @@ static BOOL   gFinderLaunch;
 
 static void addArgument(const char *value)
 {
-#if 1
-#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
-    (void)value;
-#endif
-#else
 	if(!gArgc)
 		gArgv = (char **)malloc(sizeof(*gArgv));
 	else
@@ -63,7 +58,6 @@ static void addArgument(const char *value)
 	gArgc++;
 	gArgv[gArgc - 1] = (char *)malloc(sizeof(char) * (strlen(value) + 1));
 	strcpy(gArgv[gArgc - 1], value);
-#endif
 }
 
 static NSString *getApplicationName(void)

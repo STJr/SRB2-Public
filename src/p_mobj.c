@@ -34,6 +34,7 @@
 #include "m_misc.h"
 #include "info.h"
 #include "i_video.h"
+#include "dstrings.h"
 
 //Real Prototypes to A_*
 void A_Boss1Chase(mobj_t *actor);
@@ -66,8 +67,7 @@ void P_RunCachedActions(void)
 	{
 		var1 = states[ac->statenum].var1;
 		var2 = states[ac->statenum].var2;
-		if (ac->mobj) // just in case...
-			states[ac->statenum].action.acp1(ac->mobj);
+		states[ac->statenum].action.acp1(ac->mobj);
 		next = ac->next;
 		Z_Free(ac);
 	}
@@ -199,7 +199,7 @@ boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	} while (!mobj->tics && !seenstate[state]);
 
 	if (ret && !mobj->tics)
-		DEBPRINT(va("%s", M_GetText("Warning: State Cycle Detected\n")));
+		CONS_Printf("%s", text[CYCLE_DETECT]);
 
 	if (!--recursion)
 		for (;(state = seenstate[i]) > S_NULL; i = state - 1)
@@ -261,7 +261,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 	} while (!mobj->tics && !seenstate[state]);
 
 	if (ret && !mobj->tics)
-		DEBPRINT(va("%s", M_GetText("Warning: State Cycle Detected\n")));
+		CONS_Printf("%s", text[CYCLE_DETECT]);
 
 	if (!--recursion)
 		for (;(state = seenstate[i]) > S_NULL; i = state - 1)
@@ -1502,8 +1502,8 @@ static void P_ZMovement(mobj_t *mo)
 #endif
 		case MT_REDTEAMRING:
 		case MT_BLUETEAMRING:
-		case MT_FLINGRING:
 		case MT_FLINGCOIN:
+		case MT_FLINGRING:
 #ifdef BLUE_SPHERES
 		case MT_FLINGBALL:
 #endif
@@ -2284,6 +2284,7 @@ static void P_SceneryZMovement(mobj_t *mo)
 void P_MobjCheckWater(mobj_t *mobj)
 {
 	sector_t *sector;
+	UINT32 oldeflags;
 	UINT32 wasinwater;
 
 	wasinwater = mobj->eflags & MFE_UNDERWATER; // important: not boolean!
@@ -2293,6 +2294,7 @@ void P_MobjCheckWater(mobj_t *mobj)
 
 	// see if we are in water, and set some flags for later
 	sector = mobj->subsector->sector;
+	oldeflags = mobj->eflags;
 
 	if (sector->ffloors) // 3D water
 	{
@@ -2589,9 +2591,11 @@ static boolean P_CameraCheckWater(camera_t *thiscam)
 void P_DestroyRobots(void)
 {
 	// Search through all the thinkers for enemies.
+	INT32 count;
 	mobj_t *mo;
 	thinker_t *think;
 
+	count = 0;
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
 		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
@@ -2613,7 +2617,7 @@ void P_DestroyRobots(void)
 		modifiedgame = true;
 		savemoddata = false;
 		if (!(netgame || multiplayer))
-			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+			CONS_Printf("%s", text[GAMEMODIFIED]);
 	}
 }
 
@@ -2634,6 +2638,7 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	if (thiscam->momx || thiscam->momy)
 	{
 		fixed_t ptryx, ptryy, xmove, ymove;
+		fixed_t oldx, oldy; // reducing bobbing/momentum on ice when up against walls
 
 		if (thiscam->momx > MAXMOVE)
 			thiscam->momx = MAXMOVE;
@@ -2647,6 +2652,9 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 
 		xmove = thiscam->momx;
 		ymove = thiscam->momy;
+
+		oldx = thiscam->x;
+		oldy = thiscam->y;
 
 		do
 		{
@@ -2700,7 +2708,7 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 			if (player == &players[secondarydisplayplayer])
 				cam_height = cv_cam2_height.value;
 			if (thiscam->z > player->mo->z + player->mo->height + cam_height*FRACUNIT + 16*FRACUNIT)
-				P_ResetCamera(player, thiscam);
+				P_ResetCamera(player, &camera);
 		}
 
 		if (thiscam->z + thiscam->height > thiscam->ceilingz)
@@ -2714,7 +2722,7 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 			thiscam->z = thiscam->ceilingz - thiscam->height;
 
 			if (thiscam->z + thiscam->height < player->mo->z - player->mo->height)
-				P_ResetCamera(player, thiscam);
+				P_ResetCamera(player, &camera);
 		}
 	}
 
@@ -2726,20 +2734,10 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	}
 
 	// Are we in water?
-	if (splitscreen && player == &players[secondarydisplayplayer])
-	{
-		if (P_CameraCheckWater(thiscam))
-			postimgtype2 = postimg_water;
-		else if (P_CameraCheckHeat(thiscam))
-			postimgtype2 = postimg_heat;
-	}
-	else
-	{
-		if (P_CameraCheckWater(thiscam))
-			postimgtype = postimg_water;
-		else if (P_CameraCheckHeat(thiscam))
-			postimgtype = postimg_heat;
-	}
+	if (!splitscreen && P_CameraCheckWater(thiscam))
+		postimgtype = postimg_water;
+	else if (!splitscreen && P_CameraCheckHeat(thiscam))
+		postimgtype = postimg_heat;
 }
 
 //
@@ -2824,8 +2822,10 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 	{
 		fixed_t watertop;
 		fixed_t waterbottom;
+		boolean roverfound;
 
 		watertop = waterbottom = 0;
+		roverfound = false;
 
 		for (node = mobj->touching_sectorlist; node; node = node->m_snext)
 		{
@@ -2842,6 +2842,7 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 					{
 						watertop = *rover->topheight;
 						waterbottom = *rover->bottomheight;
+						roverfound = true;
 						break;
 					}
 				}
@@ -3071,8 +3072,11 @@ static boolean P_Look4Players(mobj_t *actor, boolean allaround)
 {
 	INT32 stop, c = 0;
 	player_t *player;
+	sector_t *sector;
 	angle_t an;
 	fixed_t dist;
+
+	sector = actor->subsector->sector;
 
 	// first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
@@ -3483,7 +3487,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 
 		if (!mobj->target) // Should NEVER happen
 		{
-			DEBPRINT(va("Error: Boss 3 was unable to find specified waypoint: %d\n", mobj->threshold));
+			CONS_Printf("Error: Boss 3 was unable to find specified waypoint: %d\n", mobj->threshold);
 			return;
 		}
 
@@ -3551,7 +3555,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 				}
 			}
 			else // This should never happen, as well
-				DEBPRINT("Error: Boss 3 waypoint has no spawnpoint associated with it.\n");
+				CONS_Printf("Error: Boss 3 waypoint has no spawnpoint associated with it.\n");
 		}
 	}
 }
@@ -4221,7 +4225,7 @@ RetryAttack:
 
 		if (hitspot == NULL)
 		{
-			DEBPRINT(va("BlackEggman unable to find waypoint #%d!\n", waypointNum));
+			CONS_Printf("BlackEggman unable to find waypoint #%d!\n", waypointNum);
 			P_SetMobjState(mobj, mobj->info->spawnstate);
 			return;
 		}
@@ -4410,7 +4414,7 @@ mobj_t *P_GetClosestAxis(mobj_t *source)
 	}
 
 	if (closestaxis == NULL)
-		DEBPRINT("ERROR: No axis points found!\n");
+		CONS_Printf("ERROR: No axis points found!\n");
 
 	return closestaxis;
 }
@@ -4478,7 +4482,7 @@ void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT
 
 	if (!axis)
 	{
-		DEBPRINT("You forgot to put axis points in the map!\n");
+		CONS_Printf("You forgot to put axis points in the map!\n");
 		return;
 	}
 
@@ -4532,8 +4536,15 @@ void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 numb
 	TVector v;
 	TVector *res;
 	fixed_t finalx, finaly, finalz, dist;
+	mobj_t hoopcenter;
 	angle_t degrees, fa, closestangle;
 	fixed_t mobjx, mobjy, mobjz;
+
+	hoopcenter.x = x;
+	hoopcenter.y = y;
+	hoopcenter.z = z;
+
+	hoopcenter.z = z - mobjinfo[type].height/2;
 
 	degrees = FINEANGLES/number;
 
@@ -5697,7 +5708,7 @@ void P_MobjThinker(mobj_t *mobj)
 						if (mobj->type == MT_REDFLAG)
 						{
 							if (!(mobj->flags2 & MF2_JUSTATTACKED))
-								CONS_Printf("%s", M_GetText("The red flag has returned to base.\n"));
+								CONS_Printf("The red flag has returned to base.\n");
 
 							if (players[consoleplayer].ctfteam == 1)
 								S_StartSound(NULL, sfx_hoop1);
@@ -5707,7 +5718,7 @@ void P_MobjThinker(mobj_t *mobj)
 						else // MT_BLUEFLAG
 						{
 							if (!(mobj->flags2 & MF2_JUSTATTACKED))
-								CONS_Printf("%s", M_GetText("The blue flag has returned to base.\n"));
+								CONS_Printf("The blue flag has returned to base.\n");
 
 							if (players[consoleplayer].ctfteam == 2)
 								S_StartSound(NULL, sfx_hoop1);
@@ -6481,11 +6492,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 	else
 		mobj->z = z;
 
-#ifdef REMOVE_FOR_207
-	if (!(mobj->flags & MF_NOTHINK))
-#else
 	if (!(mobj->type & MF_NOTHINK))
-#endif
 	{
 		mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
 		P_AddThinker(&mobj->thinker);
@@ -6707,6 +6714,18 @@ static CV_PossibleValue_t flagtime_cons_t[] = {{0, "MIN"}, {300, "MAX"}, {0, NUL
 consvar_t cv_flagtime = {"flagtime", "30", CV_NETVAR, flagtime_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_suddendeath = {"suddendeath", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
+static fixed_t P_Rand(void)
+{
+//#if RANDMAX > FRACUNIT/2
+	const unsigned d = (unsigned)rand()*FRACUNIT;
+	const fixed_t t = (fixed_t)(d/RAND_MAX); //RAND_MAX is 2147483647 under linux, eeeee.... vs 0x7FFF(32767) in Window's rand()
+//#else
+//	const fixed_t d = rand()*FRACUNIT;
+//	const fixed_t t = FixedDiv(d,RAND_MAX*FRACUNIT);
+//#endif
+	return (t-FRACUNIT/2)<<FRACBITS;
+}
+
 static boolean P_ObjectInWater(sector_t *sector, fixed_t z)
 {
 	if (sector->ffloors)
@@ -6731,7 +6750,7 @@ static boolean P_ObjectInWater(sector_t *sector, fixed_t z)
 
 void P_SpawnPrecipitation(void)
 {
-	const INT32 preloop = 192*FRACUNIT;
+	const INT32 preloop = 1048576*12;
 	INT32 i;
 	fixed_t x = 0, y = 0, height;
 	subsector_t *precipsector = NULL;
@@ -6745,9 +6764,9 @@ void P_SpawnPrecipitation(void)
 
 		for (i = 0; i < snowloop; i++)
 		{
-			x = M_RandomPrecip();
-			y = M_RandomPrecip();
-			height = M_RandomPrecip();
+			x = P_Rand();
+			y = P_Rand();
+			height = P_Rand();
 
 			precipsector = R_IsPointInSubsector(x, y);
 
@@ -6783,9 +6802,9 @@ void P_SpawnPrecipitation(void)
 
 		for (i = 0; i < rainloop; i++)
 		{
-			x = M_RandomPrecip();
-			y = M_RandomPrecip();
-			height = M_RandomPrecip();
+			x = P_Rand();
+			y = P_Rand();
+			height = P_Rand();
 
 			precipsector = R_IsPointInSubsector(x, y);
 
@@ -6853,7 +6872,7 @@ void P_RespawnSpecials(void)
 			{
 				sector_t *ss = sectors;
 
-				for (i = 0; i < numsectors; i++, ss++)
+				for (i = 0; i <= numsectors; i++, ss++)
 					if (ss->ceilingpic == skyflatnum) // Only for the sky.
 						P_SpawnLightningFlash(ss); // Spawn a quick flash thinker
 			}
@@ -6868,13 +6887,15 @@ void P_RespawnSpecials(void)
 			else
 			{
 				fixed_t yl, yh, xl, xh;
-				fixed_t closedist, newdist;
+				fixed_t closex, closey, closedist, newdist;
 
 				// Essentially check in a 1024 unit radius of the player for an outdoor area.
 				yl = players[displayplayer].mo->y - 1024*FRACUNIT;
 				yh = players[displayplayer].mo->y + 1024*FRACUNIT;
 				xl = players[displayplayer].mo->x - 1024*FRACUNIT;
 				xh = players[displayplayer].mo->x + 1024*FRACUNIT;
+				closex = players[displayplayer].mo->x + 2048*FRACUNIT;
+				closey = players[displayplayer].mo->y + 2048*FRACUNIT;
 				closedist = 2048*FRACUNIT;
 				for (y = yl; y <= yh; y += FRACUNIT*64)
 					for (x = xl; x <= xh; x += FRACUNIT*64)
@@ -6884,6 +6905,8 @@ void P_RespawnSpecials(void)
 							newdist = S_CalculateSoundDistance(players[displayplayer].mo->x, players[displayplayer].mo->y, 0, x, y, 0);
 							if (newdist < closedist)
 							{
+								closex = x;
+								closey = y;
 								closedist = newdist;
 							}
 						}
@@ -7115,7 +7138,7 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 			P_ResetCamera(p, &camera2);
 	}
 
-	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't.
+	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't. 
 	P_SetScale(mobj, mobj->destscale);
 }
 
@@ -7290,16 +7313,13 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	if (i == NUMMOBJTYPES)
 	{
 		if (mthing->type != 3328) // 3D Thing Mode start
-			DEBPRINT(va("\2P_SpawnMapThing: Unknown type %d at (%d, %d)\n", mthing->type, mthing->x, mthing->y));
+			CONS_Printf("\2P_SpawnMapThing: Unknown type %d at (%d, %d)\n", mthing->type, mthing->x, mthing->y);
 
 		return;
 	}
 
 	if (i >= MT_EMERALD1 && i <= MT_EMERALD7) // Pickupable Emeralds
 	{
-		if (gametype != GT_COOP) // Don't place emeralds in non-coop modes
-			return;
-
 		if (emeralds & mobjinfo[i].speed) // You already have this emerald!
 			return;
 	}
@@ -7327,12 +7347,20 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		}
 	}
 
+	// Hunt should only work in Cooperative.
+	if (gametype != GT_COOP)
+	{
+		switch (i)
+		{
+			case MT_EMERHUNT:
+				return;
+			default:
+				break;
+		}
+	}
+
 	if (i == MT_EMERHUNT)
 	{
-		// Emerald Hunt is Coop only.
-		if (gametype != GT_COOP)
-			return;
-
 		ss = R_PointInSubsector(mthing->x << FRACBITS, mthing->y << FRACBITS);
 		mthing->z = (INT16)((ss->sector->floorheight>>FRACBITS) + (mthing->options >> ZSHIFT));
 
@@ -7352,6 +7380,12 @@ void P_SpawnMapThing(mapthing_t *mthing)
 		runemeraldmanager = true;
 	}
 
+	// No outright emerald placement in match, CTF or tag.
+	if ((mthing->type >= mobjinfo[MT_EMERALD1].doomednum &&
+	     mthing->type <= mobjinfo[MT_EMERALD7].doomednum) &&
+	    (gametype == GT_MATCH || gametype == GT_CTF || gametype == GT_TAG))
+		return;
+
 	if (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF) // No enemies in match or CTF modes
 		if ((mobjinfo[i].flags & MF_ENEMY) || (mobjinfo[i].flags & MF_BOSS) || i == MT_EGGGUARD)
 			return;
@@ -7359,14 +7393,17 @@ void P_SpawnMapThing(mapthing_t *mthing)
 	// Set powerup boxes to user settings for race.
 	if (gametype == GT_RACE)
 	{
-		if ((mobjinfo[i].flags & MF_MONITOR) && cv_raceitemboxes.value) // not Normal
+		if (cv_raceitemboxes.value) // not Normal
 		{
-			if (cv_raceitemboxes.value == 1) // Random
-				i = MT_QUESTIONBOX;
-			else if (cv_raceitemboxes.value == 2) // Teleports
-				i = MT_MIXUPBOX;
-			else if (cv_raceitemboxes.value == 3) // None
-				return; // Don't spawn!
+			if (mobjinfo[i].flags & MF_MONITOR)
+			{
+				if (cv_raceitemboxes.value == 1) // Random
+					i = MT_QUESTIONBOX;
+				else if (cv_raceitemboxes.value == 2) // Teleports
+					i = MT_MIXUPBOX;
+				else if (cv_raceitemboxes.value == 3) // None
+					return; // Don't spawn!
+			}
 		}
 	}
 
@@ -7377,44 +7414,54 @@ void P_SpawnMapThing(mapthing_t *mthing)
 #endif
 		)
 	{
-		if ((mobjinfo[i].flags & MF_MONITOR) && cv_matchboxes.value) // not Normal
+		if (cv_matchboxes.value) // not Normal
 		{
 			if (cv_matchboxes.value == 1) // Random
-				i = MT_QUESTIONBOX;
+			{
+				if (mobjinfo[i].flags & MF_MONITOR)
+					i = MT_QUESTIONBOX;
+			}
 			else if (cv_matchboxes.value == 3) // Don't spawn
-				return;
+			{
+				if (mobjinfo[i].flags & MF_MONITOR)
+					return;
+			}
 			else // cv_matchboxes.value == 2, Non-Random
 			{
-				if (i == MT_QUESTIONBOX)
-					return; // don't spawn in Non-Random
+				if (i == MT_QUESTIONBOX) return; // don't spawn in Non-Random
 
-				mthing->options &= ~(MTF_AMBUSH + MTF_OBJECTSPECIAL); // no random respawning!
+				if (mobjinfo[i].flags & MF_MONITOR)
+					mthing->options &= ~(MTF_AMBUSH + MTF_OBJECTSPECIAL); // no random respawning!
 			}
 		}
 	}
 
-	if (gametype != GT_CTF) // CTF specific things
-	{
-		if (i == MT_BLUETEAMRING || i == MT_REDTEAMRING)
-			i = MT_RING;
-		else if (i == MT_BLUERINGBOX || i == MT_REDRINGBOX)
-			i = MT_SUPERRINGBOX;
-		else if (i == MT_BLUEFLAG || i == MT_REDFLAG)
-			return; // No flags in non-CTF modes!
-	}
-
-#ifdef REMOVE_FOR_207
-	if (gametype != GT_COOP && gametype != GT_RACE
-	    && (i == MT_SIGN || i == MT_STARPOST))
-		return; // Don't spawn exit signs or starposts in wrong game modes
-#else
 	if (i == MT_SIGN && gametype != GT_COOP && gametype != GT_RACE)
 		return; // Don't spawn the level exit sign when it isn't needed.
+
+#ifdef BLUE_SPHERES
+	// Spawn rings as blue spheres in special stages.
+	if (G_IsSpecialStage(gamemap))
+		if (i == MT_RING)
+			i = MT_BLUEBALL;
 #endif
 
-	if (ultimatemode && !G_IsSpecialStage(gamemap)
-	    && (i == MT_SUPERRINGBOX || i == MT_GREENTV || i == MT_YELLOWTV || i == MT_BLUETV || i == MT_BLACKTV || i == MT_WHITETV))
-		return; // No rings/shields in Ultimate mode
+	if ((i == MT_BLUETEAMRING || i == MT_REDTEAMRING) && gametype != GT_CTF)
+		i = MT_RING; //spawn team rings as regular rings in non-CTF modes
+
+	if ((i == MT_BLUERINGBOX || i == MT_REDRINGBOX) && gametype != GT_CTF)
+		i = MT_SUPERRINGBOX; //spawn team boxes as regular boxes in non-CTF modes
+
+	if ((i == MT_SUPERRINGBOX || i == MT_GREENTV
+		|| i == MT_YELLOWTV || i == MT_BLUETV || i == MT_BLACKTV || i == MT_WHITETV)
+		&& ultimatemode && !G_IsSpecialStage(gamemap))
+	{
+		// Don't have rings/shields in Ultimate mode
+		return;
+	}
+
+	if ((i == MT_BLUEFLAG || i == MT_REDFLAG) && gametype != GT_CTF)
+		return; // Don't spawn flags if you aren't in CTF Mode!
 
 	if (i == MT_EMMY && (tokenbits == 30 || tokenlist & (1<<tokenbits) || gametype != GT_COOP || ultimatemode))
 		return; // you already got this token, or there are too many, or the gametype's not right
@@ -7554,7 +7601,7 @@ void P_SpawnMapThing(mapthing_t *mthing)
 
 		if (line == numlines)
 		{
-			DEBPRINT(va("Mace chain (mapthing #%s) needs tagged to a #9 parameter line (trying to find tag %d).\n", sizeu1(mthingi), mthing->angle));
+			CONS_Printf("Mace chain (mapthing #%"PRIdS") needs tagged to a #9 parameter line (trying to find tag %d).\n", mthingi, mthing->angle);
 			return;
 		}
 /*
@@ -7574,14 +7621,16 @@ ML_NOCLIMB : Direction not controllable
 		mxspeed %= 360;
 		mzspeed %= 360;
 
-		DEBPRINT(va("Mace Chain (mapthing #%s):\n"
-				"Length is %d\n"
-				"Speed is %d\n"
-				"Xspeed is %d\n"
-				"Zspeed is %d\n"
-				"startangle is %d\n"
-				"maxspeed is %d\n",
-				sizeu1(mthingi), mlength, mspeed, mxspeed, mzspeed, mstartangle, mmaxspeed));
+		if (cv_debug)
+		{
+			CONS_Printf("Mace Chain (mapthing #%"PRIdS"):\n", mthingi);
+			CONS_Printf("Length is %d\n", mlength);
+			CONS_Printf("Speed is %d\n", mspeed);
+			CONS_Printf("Xspeed is %d\n", mxspeed);
+			CONS_Printf("Zspeed is %d\n", mzspeed);
+			CONS_Printf("startangle is %d\n", mstartangle);
+			CONS_Printf("maxspeed is %d\n", mmaxspeed);
+		}
 
 		mobj->lastlook = mspeed << 4;
 		mobj->movecount = mobj->lastlook;

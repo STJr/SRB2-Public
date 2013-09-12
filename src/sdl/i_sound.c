@@ -248,19 +248,12 @@ static inline void Snd_UnlockAudio(void) //Alam: Unlock audio data and reinstall
 #endif
 }
 
-FUNCMATH static inline Uint16 Snd_LowerRate(Uint16 sr)
+FUNCMATH static inline SDL_bool Snd_Convert(Uint16 sr)
 {
-	if (sr <= audio.freq) // already lowered rate?
-		return sr; // good then
-	for (;sr > audio.freq;) // not good?
-	{ // then let see...
-		if (sr % 2) // can we div by half?
-			return sr; // no, just use the currect rate
-		sr /= 2; // we can? wonderful
-	} // let start over again
-	if (sr == audio.freq) // did we drop to the desired rate?
-		return sr; // perfect! but if not
-	return sr*2; // just keep it just above the output sample rate
+#if 1
+	return SDL_FALSE;
+#endif
+	return (sr > audio.freq) || (sr % 11025); // more samples then needed or odd samplerate
 }
 
 #ifdef _MSC_VER
@@ -273,7 +266,7 @@ typedef struct
 	Uint16 header;     // 3?
 	Uint16 samplerate; // 11025+
 	Uint16 samples;    // number of samples
-	Uint16 dummy;      // 0
+	Uint16 dummy;     // 0
 	Uint8  data[0];    // data;
 } ATTRPACK dssfx_t;
 
@@ -289,7 +282,7 @@ typedef struct
 static void *getsfx(lumpnum_t sfxlump, size_t *len)
 {
 	dssfx_t *sfx, *paddedsfx;
-	Uint16 sr , csr;
+	Uint16 sr;
 	size_t size = *len;
 	SDL_AudioCVT sfxcvt;
 
@@ -297,9 +290,8 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 	if (sfx) W_ReadLump(sfxlump, (void *)sfx);
 	else return NULL;
 	sr = SHORT(sfx->samplerate);
-	csr = Snd_LowerRate(sr);
 
-	if (sr > csr && SDL_BuildAudioCVT(&sfxcvt, AUDIO_U8, 1, sr, AUDIO_U8, 1, csr))
+	if (Snd_Convert(sr) && SDL_BuildAudioCVT(&sfxcvt, AUDIO_U8, 1, sr, AUDIO_U8, 1, audio.freq))
 	{//Alam: Setup the AudioCVT for the SFX
 
 		sfxcvt.len = (INT32)size-8; //Alam: Chop off the header
@@ -315,12 +307,12 @@ static void *getsfx(lumpnum_t sfxlump, size_t *len)
 				paddedsfx = (dssfx_t *) Z_Malloc(size, PU_SOUND, NULL);
 
 				// Now copy and pad.
-				M_Memcpy(paddedsfx->data, sfxcvt.buf, sfxcvt.len_cvt);
+				M_Memcpy(paddedsfx+8, sfxcvt.buf, sfxcvt.len_cvt);
 				free(sfxcvt.buf);
 				M_Memcpy(paddedsfx,sfx,8);
-				paddedsfx->samplerate = SHORT(csr); // new freq
+				paddedsfx->samplerate = SHORT((Uint16)audio.freq); // new freq
 		}
-		else //Alam: the convert failed, not needed or I couldn't malloc the buf
+		else //Alam: the convert failed, not needed or i couldn't malloc the buf
 		{
 			if (sfxcvt.buf) free(sfxcvt.buf);
 			*len = size - 8;
@@ -1135,7 +1127,7 @@ void I_ShutdownSound(void)
 
 	if (nomidimusic && nodigimusic)
 		SDL_CloseAudio();
-	CONS_Printf("%s", M_GetText("shut down\n"));
+	CONS_Printf("shut down\n");
 	sound_started = false;
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	if (Snd_Mutex)
@@ -1180,8 +1172,8 @@ void I_StartupSound(void)
 	{
 		audio.freq = atoi(M_GetNextParm());
 		if (!audio.freq) audio.freq = cv_samplerate.value;
-		audio.samples = (Uint16)((samplecount/2)*(INT32)(audio.freq/11025)); //Alam: to keep it around the same XX ms
-		CONS_Printf (M_GetText(" requested frequency of %d hz\n"), audio.freq);
+		audio.samples = (Uint16)(samplecount*(INT32)(audio.freq/22050)); //Alam: to keep it around the same XX ms
+		CONS_Printf (" requested frequency of %d hz\n", audio.freq);
 	}
 	else
 	{
@@ -1261,34 +1253,34 @@ void I_StartupSound(void)
 			if (HW3S_Init(I_Error, &snddev))
 			{
 				audio.userdata = NULL;
-				CONS_Printf("%s", M_GetText(" Using 3D sound driver\n"));
+				CONS_Printf(" Using 3D sound driver\n");
 				return;
 			}
-			CONS_Printf("%s", M_GetText(" Failed loading 3D sound driver\n"));
+			CONS_Printf(" Failed 3D sound Init\n");
 			// Falls back to default sound system
 			HW3S_Shutdown();
 			hwClose(soundso);
 		}
-		CONS_Printf("%s", M_GetText(" Failed loading 3D sound driver\n"));
+		CONS_Printf(" Failed loading 3D sound driver\n");
 		hws_mode = HWS_DEFAULT_MODE;
 	}
 #endif
 	if (!musicStarted && SDL_OpenAudio(&audio, &audio) < 0)
 	{
-		CONS_Printf("%s", M_GetText(" couldn't open audio with desired format\n"));
+		CONS_Printf(" couldn't open audio with desired format\n");
 		nosound = true;
 		return;
 	}
 	else
 	{
 		char ad[100];
-		CONS_Printf(M_GetText(" Starting up with audio driver : %s\n"), SDL_AudioDriverName(ad, (int)sizeof ad));
+		CONS_Printf(" Starting up with audio driver : %s\n", SDL_AudioDriverName(ad, (int)sizeof ad));
 	}
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
-	CONS_Printf(M_GetText(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n"), samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0f) / audio.freq));
+	CONS_Printf(" configured audio device with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) (((float)audio.samples * 1000.0f) / audio.freq));
 	// Finished initialization.
-	CONS_Printf("%s", M_GetText(" Sound module ready\n"));
+	CONS_Printf("I_InitSound: sound module ready\n");
 	//[segabor]
 	if (!musicStarted) SDL_PauseAudio(0);
 	//Mix_Pause(0);
@@ -1314,37 +1306,35 @@ static void I_ShutdownFMODMusic(void)
 	if (fmod375 && fmod375->FSOUND_GetError() != FMOD_ERR_UNINITIALIZED)
 	{
 		if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER)
-		{
-			DEBPRINT(va("FMOD(Shutdown,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
-		}
+			if (devparm) I_OutputMsg("FMOD(Shutdown,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (mod)
 		{
 			if (fmod375->FMUSIC_IsPlaying(mod))
 				if (!fmod375->FMUSIC_StopSong(mod))
-					DEBPRINT(va("FMOD(Shutdown,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Shutdown,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			if (!fmod375->FMUSIC_FreeSong(mod))
-				DEBPRINT(va("FMOD(Shutdown,FMUSIC_FreeSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (devparm) I_OutputMsg("FMOD(Shutdown,FMUSIC_FreeSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		if (fmus)
 		{
 			if (fmod375->FSOUND_IsPlaying(fsoundchannel))
 				if (!fmod375->FSOUND_Stream_Stop(fmus))
-					DEBPRINT(va("FMOD(Shutdown,FSOUND_Stream_Stop): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Shutdown,FSOUND_Stream_Stop): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			if (!fmod375->FSOUND_Stream_Close(fmus))
-				DEBPRINT(va("FMOD(Shutdown,FSOUND_Stream_Close): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (devparm) I_OutputMsg("FMOD(Shutdown,FSOUND_Stream_Close): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		fmod375->FSOUND_Close();
 #ifndef FMODMEMORY
 		remove("fmod.tmp"); // Delete the temp file
 #endif
 		//if (!fmod375->FSOUND_StopSound(FSOUND_ALL))
-			//if (fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) DEBPRINT(va("FMOD(Shutdown,FSOUND_StopSound): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			//if (fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) CONS_Printf("FMOD(Shutdown,FSOUND_StopSound): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		//fmod375->FMUSIC_StopAllSongs();
-			//if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) DEBPRINT(va("FMOD(Shutdown,FMUSIC_StopAllSongs): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			//if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) CONS_Printf("FMOD(Shutdown,FMUSIC_StopAllSongs): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 	}
 	FMOD_FreeInstance(fmod375);
 	fmod375 = NULL;
-	CONS_Printf("%s", M_GetText("Done\n"));
+	CONS_Printf(" Done\n");
 }
 #endif
 
@@ -1374,7 +1364,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 		SDLRW = SDL_RWFromConstMem(data, (int)lumplength); //new RWops from Z_zone
 		if (!SDLRW) //ERROR while making RWops!
 		{
-			CONS_Printf(M_GetText("Couldn't load music lump: %s\n"), SDL_GetError());
+			CONS_Printf("Couldn't load music lump: %s\n", SDL_GetError());
 			Z_Free(data);
 			return false;
 		}
@@ -1384,7 +1374,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 			Smidi[selectpos] = data; //all done
 		else //ERROR while making Mix_Chuck
 		{
-			CONS_Printf(M_GetText("Couldn't load music data: %s\n"), Mix_GetError());
+			CONS_Printf("Couldn't load music data: %s\n", Mix_GetError());
 			Z_Free(data);
 			SDL_RWclose(SDLRW);
 			Smidi[selectpos] = NULL;
@@ -1418,14 +1408,14 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 
 	if (!midfile)
 	{
-		CONS_Printf(M_GetText("Couldn't open file %s to write music in\n"), tempname);
+		CONS_Printf("Couldn't open file %s to write music in\n", tempname);
 		Z_Free(data);
 		return false;
 	}
 
 	if (fwrite(data, lumplength, 1, midfile) == 0)
 	{
-		CONS_Printf(M_GetText("Couldn't write music into file %s because %s\n"), tempname, strerror(ferror(midfile)));
+		CONS_Printf("Couldn't write music into file %s because %s\n", tempname, strerror(ferror(midfile)));
 		Z_Free(data);
 		fclose(midfile);
 		return false;
@@ -1438,7 +1428,7 @@ static boolean LoadSong(void *data, size_t lumplength, size_t selectpos)
 	music[selectpos] = Mix_LoadMUS(tempname);
 	if (!music[selectpos]) //ERROR while making Mix_Chuck
 	{
-		CONS_Printf(M_GetText("Couldn't load music file %s: %s\n"), tempname, Mix_GetError());
+		CONS_Printf("Couldn't load music file %s: %s\n", tempname, Mix_GetError());
 		return false;
 	}
 	return true;
@@ -1452,7 +1442,7 @@ void I_ShutdownMusic(void)
 	if ((nomidimusic && nodigimusic) || !musicStarted)
 		return;
 
-	CONS_Printf("%s", M_GetText("I_ShutdownMusic: "));
+	CONS_Printf("I_ShutdownMusic: ");
 
 	I_UnRegisterSong(0);
 	I_StopDigSong();
@@ -1460,7 +1450,7 @@ void I_ShutdownMusic(void)
 #ifdef MIX_INIT
 	Mix_Quit();
 #endif
-	CONS_Printf("%s", M_GetText("shut down\n"));
+	CONS_Printf("shut down\n");
 	musicStarted = SDL_FALSE;
 	if (Msc_Mutex)
 		SDL_DestroyMutex(Msc_Mutex);
@@ -1491,7 +1481,7 @@ static SDL_bool I_InitFMODMusic(void)
 
 	if (M_CheckParm("-nofmod"))
 	{
-		CONS_Printf("%s", M_GetText(" disabled loading FMOD\n"));
+		CONS_Printf(" disabled loading FMOD\n");
 		return SDL_FALSE;
 	}
 
@@ -1510,7 +1500,7 @@ static SDL_bool I_InitFMODMusic(void)
 		I_AddExitFunc(I_ShutdownFMODMusic);
 	else
 	{
-		CONS_Printf("%s", M_GetText(" failed to load FMOD\n"));
+		CONS_Printf(" failling loading FMOD\n");
 		return SDL_FALSE;
 	}
 
@@ -1519,7 +1509,8 @@ static SDL_bool I_InitFMODMusic(void)
 		// Tails 11-21-2002
 		if (fmod375->FSOUND_GetVersion() < FMOD_VERSION)
 		{
-			CONS_Printf(M_GetText("Wrong FMOD DLL version.\nYou should be using FMOD %s\n"), "FMOD_VERSION");
+			//I_Error("FMOD Error : You are using the wrong DLL version!\nYou should be using FMOD %s\n", "FMOD_VERSION");
+			CONS_Printf("FMOD Error : You are using the wrong DLL version!\nYou should be using FMOD %s\n", "FMOD_VERSION");
 			return SDL_FALSE;
 		}
 
@@ -1537,7 +1528,7 @@ static SDL_bool I_InitFMODMusic(void)
 
 		if (!fmod375->FSOUND_Init(44100, 32, FSOUND_INIT_DONTLATENCYADJUST))
 		{
-			DEBPRINT(va("FMOD(Init,FSOUND_Init): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			CONS_Printf("FMOD(Init,FSOUND_Init): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			return SDL_FALSE;
 		}
 		return SDL_TRUE;
@@ -1575,21 +1566,19 @@ void I_InitMusic(void)
 #ifdef HAVE_MIXER
 	MIX_VERSION(&MIXcompiled)
 	MIXlinked = Mix_Linked_Version();
-	DEBPRINT(va("Compiled for SDL_mixer version: %d.%d.%d\n",
-	            MIXcompiled.major, MIXcompiled.minor, MIXcompiled.patch));
+	CONS_Printf("Compiled for SDL_mixer version: %d.%d.%d\n",
+	            MIXcompiled.major, MIXcompiled.minor, MIXcompiled.patch);
 #ifdef MIXER_POS
-#ifndef _WII
 	if (MIXlinked->major == 1 && MIXlinked->minor == 2 && MIXlinked->patch < 7)
-#endif
 		canlooping = SDL_FALSE;
 #endif
 #ifdef USE_RWOPS
 	if (M_CheckParm("-noRW"))
 		canuseRW = SDL_FALSE;
 #endif
-	DEBPRINT(va("Linked with SDL_mixer version: %d.%d.%d\n",
-	            MIXlinked->major, MIXlinked->minor, MIXlinked->patch));
-#if !(defined (DC) || defined (PSP) || defined(GP2X) || defined (WII))
+	CONS_Printf("Linked with SDL_mixer version: %d.%d.%d\n",
+	            MIXlinked->major, MIXlinked->minor, MIXlinked->patch);
+#if !(defined (DC) || defined (PSP) || defined(GP2X))
 	if (audio.freq < 44100 && !M_CheckParm ("-freq")) //I want atleast 44Khz
 	{
 		audio.samples = (Uint16)(audio.samples*(INT32)(44100/audio.freq));
@@ -1603,36 +1592,37 @@ void I_InitMusic(void)
 #endif
 		)
 	{
-		DEBPRINT("Temp Shutdown of SDL Audio System");
+		CONS_Printf("Temp Shutdown of SDL Audio System");
 		SDL_CloseAudio();
-		DEBPRINT(" Done\n");
+		CONS_Printf(" Done\n");
 	}
 
-	CONS_Printf("%s", M_GetText("I_InitMusic:"));
+	CONS_Printf("I_InitMusic:");
 
 #ifdef MIXER_INIT
 	mixflags = Mix_Init(mixstart);
 	if ((mixstart & MIX_INIT_FLAC) != (mixflags & MIX_INIT_FLAC))
 	{
-		CONS_Printf("%s", M_GetText(" Unable to load FLAC support\n"));
+		CONS_Printf(" Unable to load FLAC support\n");
 	}
 	if ((mixstart & MIX_INIT_MOD ) != (mixflags & MIX_INIT_MOD ))
 	{
-		CONS_Printf("%s", M_GetText(" Unable to load MOD support\n"));
+		CONS_Printf(" Unable to load MOD support\n");
 	}
 	if ((mixstart & MIX_INIT_MP3 ) != (mixflags & MIX_INIT_MP3 ))
 	{
-		CONS_Printf("%s", M_GetText(" Unable to load MP3 support\n"));
+		CONS_Printf(" Unable to load MP3 support\n");
 	}
 	if ((mixstart & MIX_INIT_OGG ) != (mixflags & MIX_INIT_OGG ))
 	{
-		CONS_Printf("%s", M_GetText(" Unable to load OGG support\n"));
+		CONS_Printf(" Unable to load OGG support\n");
+		CONS_Printf(" This is bad news for you!\n");
 	}
 #endif
 
 	if (Mix_OpenAudio(audio.freq, audio.format, audio.channels, audio.samples) < 0) //open_music(&audio)
 	{
-		CONS_Printf(M_GetText(" Unable to open music: %s\n"), Mix_GetError());
+		CONS_Printf(" Unable to open music: %s\n", Mix_GetError());
 		nomidimusic = nodigimusic = true;
 		if (sound_started
 #ifdef HW3SOUND
@@ -1642,19 +1632,19 @@ void I_InitMusic(void)
 		{
 			if (SDL_OpenAudio(&audio, NULL) < 0) //retry
 			{
-				CONS_Printf("%s", M_GetText(" couldn't open audio with desired format\n"));
+				CONS_Printf(" couldn't reopen audio with desired format\n");
 				nosound = true;
 				sound_started = false;
 			}
 			else
 			{
-				CONS_Printf(M_GetText(" Starting with audio driver : %s\n"), SDL_AudioDriverName(ad, (int)sizeof ad));
+				CONS_Printf(" Restarting with audio driver : %s\n", SDL_AudioDriverName(ad, (int)sizeof ad));
 			}
 		}
 		return;
 	}
 	else
-		CONS_Printf(M_GetText(" Starting up with audio driver : %s with SDL_Mixer\n"), SDL_AudioDriverName(ad, (int)sizeof ad));
+		CONS_Printf(" Starting up with audio driver : %s with SDL_Mixer\n", SDL_AudioDriverName(ad, (int)sizeof ad));
 
 	samplecount = audio.samples;
 	CV_SetValue(&cv_samplerate, audio.freq);
@@ -1663,12 +1653,12 @@ void I_InitMusic(void)
 		&& hws_mode == HWS_DEFAULT_MODE
 #endif
 		)
-		DEBPRINT(" Reconfigured SDL Audio System")
-	else DEBPRINT(" Configured SDL_Mixer System")
-	DEBPRINT(va(" with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) ((audio.samples * 1000.0f) / audio.freq)));
+		CONS_Printf(" Reconfigured SDL Audio System");
+	else CONS_Printf(" Configured SDL_Mixer System");
+	CONS_Printf(" with %d samples/slice at %ikhz(%dms buffer)\n", samplecount, audio.freq/1000, (INT32) ((audio.samples * 1000.0f) / audio.freq));
 	Mix_SetPostMix(audio.callback, audio.userdata);  // after mixing music, add sound effects
 	Mix_Resume(-1);
-	CONS_Printf("%s", M_GetText("Music initialized\n"));
+	CONS_Printf("I_InitMusic: music initialized\n");
 	musicStarted = SDL_TRUE;
 	Msc_Mutex = SDL_CreateMutex();
 #endif
@@ -1687,7 +1677,7 @@ boolean I_PlaySong(INT32 handle, INT32 looping)
 #endif
 
 	if (Mix_FadeInMusic(music[handle], looping ? -1 : 0, MIDIfade) == -1)
-		CONS_Printf(M_GetText("Couldn't play song because %s\n"), Mix_GetError());
+		CONS_Printf("I_PlaySong: Couldn't play song because %s\n", Mix_GetError());
 	else
 	{
 		Mix_VolumeMusic(musicvol);
@@ -1705,18 +1695,18 @@ static void I_PauseFMOD(void)
 	if (!nofmodmusic && fmod375)
 	{
 		if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER)
-			DEBPRINT(va("FMOD(Pause,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Pause,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (mod)
 		{
 			if (!fmod375->FMUSIC_GetPaused(mod))
 				if (!fmod375->FMUSIC_SetPaused(mod, true))
-					DEBPRINT(va("FMOD(Pause,FMUSIC_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Pause,FMUSIC_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		if (fmus)
 		{
 			if (!fmod375->FSOUND_GetPaused(fsoundchannel))
 				if (!fmod375->FSOUND_SetPaused(fsoundchannel, true))
-					DEBPRINT(va("FMOD(Pause,FSOUND_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Pause,FSOUND_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 	}
 #endif
@@ -1741,18 +1731,18 @@ static void I_ResumeFMOD(void)
 	if (!nofmodmusic && fmod375)
 	{
 		if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER)
-			DEBPRINT(va("FMOD(Resume,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Resume,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (mod != NULL)
 		{
 			if (fmod375->FMUSIC_GetPaused(mod))
 				if (!fmod375->FMUSIC_SetPaused(mod, false))
-					DEBPRINT(va("FMOD(Resume,FMUSIC_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Resume,FMUSIC_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		if (fmus != NULL)
 		{
 			if (fmod375->FSOUND_GetPaused(fsoundchannel))
 				if (!fmod375->FSOUND_SetPaused(fsoundchannel, false))
-					DEBPRINT(va("FMOD(Resume,FSOUND_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Resume,FSOUND_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 	}
 #endif
@@ -1813,7 +1803,7 @@ INT32 I_RegisterSong(void *data, size_t len)
 	if (music[0])
 		return true;
 
-	CONS_Printf(M_GetText("Couldn't load MIDI: %s\n"), Mix_GetError());
+	CONS_Printf("Couldn't load MIDI: %s\n", Mix_GetError());
 #else
 	(void)len;
 	(void)data;
@@ -1840,7 +1830,7 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 {
 #ifdef FMODSOUND
 	char lumpname[9];
-	static UINT8 *data = NULL;
+	static void *data = NULL;
 	size_t len;
 	lumpnum_t lumpnum = LUMPERROR;
 
@@ -1849,15 +1839,15 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 
 	if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC &&
 	    fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM)
-		DEBPRINT(va("FMOD(Start,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+		if (devparm) I_OutputMsg("FMOD(Start,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 
 	if (fmus)
 	{
 		if (fmod375->FSOUND_IsPlaying(fsoundchannel))
 			if (!fmod375->FSOUND_Stream_Stop(fmus))
-				DEBPRINT(va("FMOD(Start,FSOUND_Stream_Stop): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (devparm) I_OutputMsg("FMOD(Start,FSOUND_Stream_Stop): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (!fmod375->FSOUND_Stream_Close(fmus))
-			DEBPRINT(va("FMOD(Start,FSOUND_Stream_Close): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Start,FSOUND_Stream_Close): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		fsoundchannel = -1;
 		fmus = NULL;
 	}
@@ -1865,15 +1855,15 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 	{
 		if (fmod375->FMUSIC_IsPlaying(mod))
 			if (!fmod375->FMUSIC_StopSong(mod))
-				DEBPRINT(va("FMOD(Start,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (!fmod375->FMUSIC_FreeSong(mod))
-			DEBPRINT(va("FMOD(Start,FMUSIC_FreeSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_FreeSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		mod = NULL;
 	}
 	//if (!fmod375->FSOUND_StopSound(FSOUND_ALL))
-		//if (fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) DEBPRINT(va("FMOD(Start,FSOUND_StopSound): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+		//if (fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) CONS_Printf("FMOD(Start,FSOUND_StopSound): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 	//fmod375->FMUSIC_StopAllSongs();
-	//if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) DEBPRINT(va("FMOD(Start,FMUSIC_StopAllSongs): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+	//if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) CONS_Printf("FMOD(Start,FMUSIC_StopAllSongs): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 
 	// Create the lumpname we need
 	sprintf(lumpname, "o_%s", musicname);
@@ -1897,7 +1887,7 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 	data = W_CacheLumpNum(lumpnum, PU_MUSIC);
 
 #ifdef FMODMEMORY
-	mod = fmod375->FMUSIC_LoadSongEx((const char *)data, 0, (INT32)len, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, NULL, 0);
+	mod = fmod375->FMUSIC_LoadSongEx(data, 0, (INT32)len, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, NULL, 0);
 #else
 	I_SaveMemToFile(data, len, "fmod.tmp");
 
@@ -1907,15 +1897,15 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 	if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE)
 	{
 		if (fmod375->FSOUND_GetError() != FMOD_ERR_FILE_FORMAT)
-			DEBPRINT(va("FMOD(Start,FMUSIC_LoadSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_LoadSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 
 		if (mod)
 		{
 			if (fmod375->FMUSIC_IsPlaying(mod))
 				if (!fmod375->FMUSIC_StopSong(mod))
-					DEBPRINT(va("FMOD(Start,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			if (!fmod375->FMUSIC_FreeSong(mod))
-				DEBPRINT(va("FMOD(Start,FMUSIC_FreeSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_FreeSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			mod = NULL;
 		}
 	}
@@ -1924,28 +1914,28 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 	{
 		if (!fmod375->FMUSIC_SetLooping(mod, (signed char)looping))
 		{
-			DEBPRINT(va("FMOD(Start,FMUSIC_SetLooping): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_SetLooping): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 //		else if (fmod375->FMUSIC_GetType(mod) == FMUSIC_TYPE_MOD || fmod375->FMUSIC_GetType(mod) == FMUSIC_TYPE_S3M)
 //		{
 //			if (!fmod375->FMUSIC_SetPanSeperation(mod, 0.85f))		/* 15% crossover */
-//				DEBPRINT(va("FMOD(Start,FMUSIC_SetPanSeperation): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+//				CONS_Printf("FMOD(Start,FMUSIC_SetPanSeperation): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 //		}
 		else if (!fmod375->FMUSIC_SetPanSeperation(mod, 0.0f))
 		{
-			DEBPRINT(va("FMOD(Start,FMUSIC_SetPanSeperation): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Start,FMUSIC_SetPanSeperation): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 	}
 	else
 	{
 #ifdef FMODMEMORY
-		fmus = fmod375->FSOUND_Stream_Open((const char *)data, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, 0, (INT32)len);
+		fmus = fmod375->FSOUND_Stream_Open(data, ((looping) ? (FSOUND_LOOP_NORMAL) : (0))|FSOUND_LOADMEMORY, 0, (INT32)len);
 #else
 		fmus = fmod375->FSOUND_Stream_Open("fmod.tmp", ((looping) ? (FSOUND_LOOP_NORMAL) : (0)), 0, len);
 #endif
 		if (fmus == NULL)
 		{
-			DEBPRINT(va("FMOD(Start,FSOUND_Stream_Open): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Start,FSOUND_Stream_Open): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			return false;
 		}
 	}
@@ -1953,28 +1943,74 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 	// Scan the Ogg Vorbis file for the COMMENT= field for a custom loop point
 	if (fmus && looping)
 	{
-		const char key[] = "COMMENT=LOOPPOINT=";
-		const INT32 keylen = sizeof(key) - 1;
+		const char *dataum = data;
 		size_t scan;
 		unsigned int loopstart = 0;
 		UINT8 newcount = 0;
 		char looplength[64];
 
-
-		for (scan = 0; scan < len - keylen; scan++)
+		for (scan = 0;scan < len; scan++)
 		{
-			if (memcmp(&data[scan], key, keylen) == 0)
+			if (*dataum++ == 'C'){
+			if (*dataum++ == 'O'){
+			if (*dataum++ == 'M'){
+			if (*dataum++ == 'M'){
+			if (*dataum++ == 'E'){
+			if (*dataum++ == 'N'){
+			if (*dataum++ == 'T'){
+			if (*dataum++ == '='){
+			if (*dataum++ == 'L'){
+			if (*dataum++ == 'O'){
+			if (*dataum++ == 'O'){
+			if (*dataum++ == 'P'){
+			if (*dataum++ == 'P'){
+			if (*dataum++ == 'O'){
+			if (*dataum++ == 'I'){
+			if (*dataum++ == 'N'){
+			if (*dataum++ == 'T'){
+			if (*dataum++ == '=')
 			{
-				const UINT8 *dataum = &data[scan + keylen];
-				while ((UINT32)(dataum - data) < len && *dataum != 1 && newcount != 63)
+				while (*dataum != 1 && newcount != 63)
 					looplength[newcount++] = *dataum++;
 
 				looplength[newcount] = '\0';
 
 				loopstart = atoi(looplength);
-
-				break;
 			}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
+			else
+				dataum--;}
 		}
 
 		if (loopstart > 0)
@@ -1983,8 +2019,9 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 			const INT32 freq = 44100; //= FSOUND_GetFrequency(fsoundchannel);
 			const UINT32 loopend = (UINT32)((freq/1000.0f)*length-(freq/1000.0f));
 			//const UINT32 loopend = (((freq/2)*length)/500)-8;
-			if (!fmod375->FSOUND_Stream_SetLoopPoints(fmus, loopstart, loopend))
-				DEBPRINT(va("FMOD(Start,FSOUND_Stream_SetLoopPoints): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (!fmod375->FSOUND_Stream_SetLoopPoints(fmus, loopstart, loopend) && devparm)
+				I_OutputMsg("FMOD(Start,FSOUND_Stream_SetLoopPoints): %s\n",
+					FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 	}
 
@@ -2001,7 +2038,9 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 		}
 		else
 		{
-			DEBPRINT(va("FMOD(Start,FMUSIC_PlaySong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm)
+				I_OutputMsg("FMOD(Start,FMUSIC_PlaySong): %s\n",
+				            FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			return false;
 		}
 	}
@@ -2011,12 +2050,16 @@ static boolean I_StartFMODSong(const char *musicname, INT32 looping)
 
 		if (fsoundchannel == -1)
 		{
-			DEBPRINT(va("FMOD(Start,FSOUND_Stream_PlayEx): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm)
+				I_OutputMsg("FMOD(Start,FSOUND_Stream_PlayEx): %s\n",
+				            FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			return false;
 		}
 		else if (!fmod375->FSOUND_SetPaused(fsoundchannel, FALSE))
 		{
-			DEBPRINT(va("FMOD(Start,FSOUND_SetPaused): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm)
+				I_OutputMsg("FMOD(Start,FSOUND_SetPaused): %s\n",
+					FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			return false;
 		}
 
@@ -2056,7 +2099,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 	if (lumpnum == LUMPERROR)
 	{
 		// Alam_GBC: like in win32/win_snd.c: Graue 02-29-2004: don't worry about missing music, there might still be a MIDI
-		//DEBPRINT(va("Music lump %s not found!\n", filename));
+		//CONS_Printf("Music lump %s not found!\n", filename);
 		return false; // No music found. Oh well!
 	}
 	else
@@ -2152,7 +2195,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 		{
 			loopstartDig = (double)((44.1l+loopstart) / 44100.0l); //8 PCM chucks off and PCM to secs
 //#ifdef GP2X//#ifdef PARANOIA
-			//DEBPRINT(va("I_StartDigSong: setting looping point to %ul PCMs(%f seconds)\n", loopstart, loopstartDig));
+			//I_OutputMsg("I_StartDigSong: setting looping point to %ul PCMs(%f seconds)\n", loopstart, loopstartDig);
 //#endif
 		}
 		else
@@ -2164,7 +2207,7 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 		loopstartDig = 0.0l;
 #else
 	if (looping && strcmp(data, "OggS")  == 0)
-		DEBPRINT(va("I_StartDigSong: SRB2 was not compiled with looping music support(no Mix_FadeInMusicPos)\n"));
+		I_OutputMsg("I_StartDigSong: SRB2 was not compiled with looping music support(no Mix_FadeInMusicPos)\n");
 #endif
 
 	if (!LoadSong(data, lumplength, 1))
@@ -2180,7 +2223,8 @@ boolean I_StartDigSong(const char *musicname, INT32 looping)
 	if (Mix_FadeInMusic(music[1], looping ? -1 : 0, Digfade) == -1)
 	{
 		if (Msc_Mutex) SDL_UnlockMutex(Msc_Mutex);
-		DEBPRINT(va("I_StartDigSong: Couldn't play song %s because %s\n", musicname, Mix_GetError()));
+		if (devparm)
+			I_OutputMsg("I_StartDigSong: Couldn't play song %s because %s\n", musicname, Mix_GetError());
 		return false;
 	}
 	Mix_VolumeMusic(musicvol);
@@ -2200,15 +2244,13 @@ static void I_StopFMOD(void)
 	if (!nofmodmusic)
 	{
 		if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_INVALID_PARAM && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER)
-			DEBPRINT(va("FMOD(Stop,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Stop,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (mod)
 		{
 			if (fmod375->FMUSIC_IsPlaying(mod))
 			{
 				if (!fmod375->FMUSIC_StopSong(mod))
-				{
-					DEBPRINT(va("FMOD(Stop,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
-				}
+					if (devparm) I_OutputMsg("FMOD(Stop,FMUSIC_StopSong): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			}
 		}
 		if (fmus)
@@ -2216,13 +2258,13 @@ static void I_StopFMOD(void)
 			if (fmod375->FSOUND_IsPlaying(fsoundchannel))
 			{
 				if (!fmod375->FSOUND_Stream_Stop(fmus))
-					DEBPRINT(va("FMOD(Stop,FSOUND_Stream_Stop): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+					if (devparm) I_OutputMsg("FMOD(Stop,FSOUND_Stream_Stop): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			}
 		}
 		//if (!fmod375->FSOUND_StopSound(FSOUND_ALL))
-			//if (fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) DEBPRINT(va("FMOD(Stop,FSOUND_StopSound): %s\n", fmod375->FMOD_ErrorString(FSOUND_GetError())));
+			//if (fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) CONS_Printf("FMOD(Stop,FSOUND_StopSound): %s\n", fmod375->FMOD_ErrorString(FSOUND_GetError()));
 		//fmod375->FMUSIC_StopAllSongs();
-			//if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) DEBPRINT(va("FMOD(Stop,FMUSIC_StopAllSongs): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			//if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER) CONS_Printf("FMOD(Stop,FMUSIC_StopAllSongs): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 	}
 #endif
 }
@@ -2259,21 +2301,22 @@ static void I_SetFMODMusicVolume(INT32 volume)
 	if (!nofmodmusic)
 	{
 		if (fmod375->FSOUND_GetError() != FMOD_ERR_NONE && fmod375->FSOUND_GetError() != FMOD_ERR_CHANNEL_ALLOC && fmod375->FSOUND_GetError() != FMOD_ERR_MEDIAPLAYER)
-			DEBPRINT(va("FMOD(Volume,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm) I_OutputMsg("FMOD(Volume,Unknown): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		if (mod)
 		{
 			if (fmod375->FMUSIC_GetType(mod) != FMUSIC_TYPE_NONE)
 			{
-				if (!fmod375->FMUSIC_SetMasterVolume(mod, fmodvol))
-					DEBPRINT(va("FMOD(Volume,FMUSIC_SetMasterVolume): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (!fmod375->FMUSIC_SetMasterVolume(mod, fmodvol) && devparm)
+					I_OutputMsg("FMOD(Volume,FMUSIC_SetMasterVolume): %s\n",
+						FMOD_ErrorString(fmod375->FSOUND_GetError()));
 			}
-			else
-				DEBPRINT(va("FMOD(Volume,FMUSIC_GetType): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			else if (devparm)
+				I_OutputMsg("FMOD(Volume,FMUSIC_GetType): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		if (fmus)
 		{
 			if (!fmod375->FSOUND_SetVolume(fsoundchannel, fmodvol))
-				DEBPRINT(va("FMOD(Volume,FSOUND_SetVolume): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+				if (devparm) I_OutputMsg("FMOD(Volume,FSOUND_SetVolume): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 	}
 #else
@@ -2306,7 +2349,8 @@ boolean I_SetSongSpeed(float speed)
 	{
 		if (!fmod375->FSOUND_SetFrequency(fsoundchannel,(INT32)(speed*fsoundfreq)))
 		{
-			DEBPRINT(va("FMOD(ChangeSpeed,FSOUND_SetFrequency): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())));
+			if (devparm)
+				I_OutputMsg("FMOD(ChangeSpeed,FSOUND_SetFrequency): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		else
 			return true;
@@ -2315,7 +2359,8 @@ boolean I_SetSongSpeed(float speed)
 	{
 		if (fmod375->FMUSIC_SetMasterSpeed(mod, speed))
 		{
-			DEBPRINT(va("FMOD(ChangeSpeed,FMUSIC_SetMasterSpeed): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError())))
+			if (devparm)
+				I_OutputMsg("FMOD(ChangeSpeed,FMUSIC_SetMasterSpeed): %s\n", FMOD_ErrorString(fmod375->FSOUND_GetError()));
 		}
 		else
 			return true;
@@ -2332,13 +2377,17 @@ static void SDLCALL I_FinishMusic(void)
 	if (!music[1])
 		return;
 	else if (Msc_Mutex) SDL_LockMutex(Msc_Mutex);
-//		DEBPRINT(va("I_FinishMusic: Loopping song to %g seconds\n", loopstartDig));
-
-	if (Mix_FadeInMusicPos(music[1], loopstartDig ? 0 : -1, Digfade, loopstartDig) == 0)
+	//I_OutputMsg("I_FinishMusic: Loopping song to %g seconds\n", loopstartDig);
+	if (Mix_FadeInMusicPos(music[1], loopstartDig ? 0 : -1, Digfade,
+		loopstartDig) == 0)
+	{
 		Mix_VolumeMusic(musicvol);
-	else
-		DEBPRINT(va("I_FinishMusic: Couldn't loop song because %s\n", Mix_GetError()));
-
+	}
+	else if (devparm)
+	{
+		I_OutputMsg("I_FinishMusic: Couldn't loop song because %s\n",
+			Mix_GetError());
+	}
 	if (Msc_Mutex) SDL_UnlockMutex(Msc_Mutex);
 }
 #endif

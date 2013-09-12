@@ -56,13 +56,6 @@ typedef struct
 // all loaded and prepared textures from the start of the game
 extern texture_t **textures;
 
-#ifdef CALLUM_LIGHTING
-// texture width is a power of 2, so it can easily repeat along sidedefs using a simple mask
-extern INT32 *texturewidthmask;
-
-extern fixed_t *textureheight; // needed for texture pegging
-#endif
-
 extern INT16 color8to16[256]; // remap color index to highcolor
 extern INT16 *hicolormaps; // remap high colors to high colors..
 
@@ -89,9 +82,8 @@ lumpnum_t R_GetFlatNumForName(const char *name);
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
-void R_ClearTextureNumCache(boolean btell);
-INT32 R_TextureNumForName(const char *name);
-INT32 R_CheckTextureNumForName(const char *name);
+INT32 R_TextureNumForName(const char *name, UINT16 sidenum);
+INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum);
 
 void R_ReInitColormaps(UINT16 num);
 void R_ClearColormaps(void);

@@ -31,7 +31,6 @@
 #define ANGLETOFINESHIFT 19 // 0x100000000 to 0x2000
 #define FINEANGLE_C(x) ((FixedAngle((x)*FRACUNIT)>>ANGLETOFINESHIFT) & FINEMASK) // ((x*(ANGLE_45/45))>>ANGLETOFINESHIFT) & FINEMASK
 
-#if !(defined _NDS) || !(defined NONET)
 // Effective size is 10240.
 extern fixed_t finesine[5*FINEANGLES/4];
 
@@ -40,7 +39,6 @@ extern fixed_t *finecosine;
 
 // Effective size is 4096.
 extern fixed_t finetangent[FINEANGLES/2];
-#endif
 
 #define ANG1   0x00B60B61 //0.B6~
 #define ANG2   0x016C16C1 //.6C1~
@@ -98,37 +96,23 @@ FUNCMATH angle_t FixedAngle(fixed_t fa);
 FUNCMATH angle_t FixedAngleC(fixed_t fa, fixed_t factor);
 
 
-#ifdef NEED_FIXED_VECTOR
-
 /// The FixedAcos function
 FUNCMATH angle_t FixedAcos(fixed_t x);
 
 /// Fixed Point Vector functions
-angle_t FV2_AngleBetweenVectors(const vector2_t *Vector1, const vector2_t *Vector2);
-angle_t FV3_AngleBetweenVectors(const vector3_t *Vector1, const vector3_t *Vector2);
-boolean FV2_InsidePolygon(const vector2_t *vIntersection, const vector2_t *Poly, const INT32 vertexCount);
-boolean FV3_InsidePolygon(const vector3_t *vIntersection, const vector3_t *Poly, const INT32 vertexCount);
-boolean FV3_IntersectedPolygon(const vector3_t *vPoly, const vector3_t *vLine, const INT32 vertexCount, vector3_t *collisionPoint);
-void FV3_Rotate(vector3_t *rotVec, const vector3_t *axisVec, const angle_t angle);
+angle_t FV_AngleBetweenVectors(const vector_t *Vector1, const vector_t *Vector2);
+boolean FV_InsidePolygon(const vector_t *vIntersection, const vector_t *Poly, const INT32 vertexCount);
+boolean FV_IntersectedPolygon(const vector_t *vPoly, const vector_t *vLine, const INT32 vertexCount, vector_t *collisionPoint);
+void FV_Rotate(vector_t *rotVec, const vector_t *axisVec, const angle_t angle);
 /// Fixed Point Matrix functions
 void FM_Rotate(matrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z);
-
-#endif // defined NEED_FIXED_VECTOR
 
 // The table values in tables.c are calculated with this many fractional bits.
 #define FINE_FRACBITS 16
 
-#if (defined _NDS) && (defined NONET)
-// Use the NDS's trig functions. This would break netplay, so we only do
-// it if NONET is defined.
-#define FINESINE(n) ((fixed_t)sinLerp((INT16)(((INT32)(n))<<(ANGLETOFINESHIFT-17))) << (FRACBITS - 12))
-#define FINECOSINE(n) ((fixed_t)cosLerp((INT16)(((INT32)(n))<<(ANGLETOFINESHIFT-17))) << (FRACBITS - 12))
-#define FINETANGENT(n) ((fixed_t)tanLerp((INT16)(((INT32)(n)-(FINEANGLES>>2))<<(ANGLETOFINESHIFT-17))) << (FRACBITS - 12))
-#else
 // These macros should be used in case FRACBITS < FINE_FRACBITS.
 #define FINESINE(n) (finesine[n]>>(FINE_FRACBITS-FRACBITS))
 #define FINECOSINE(n) (finecosine[n]>>(FINE_FRACBITS-FRACBITS))
 #define FINETANGENT(n) (finetangent[n]>>(FINE_FRACBITS-FRACBITS))
-#endif
 
 #endif

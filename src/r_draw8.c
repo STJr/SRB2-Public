@@ -33,7 +33,7 @@ void R_DrawColumn_8(void)
 {
 	INT32 count;
 	register UINT8 *dest;
-	register fixed_t frac;
+	register INT64 frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -65,7 +65,7 @@ void R_DrawColumn_8(void)
 	{
 		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register INT32 heightmask = dc_texheight-1;
+		register INT64 heightmask = dc_texheight-1;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
 			heightmask++;
@@ -84,14 +84,86 @@ void R_DrawColumn_8(void)
 				// heightmask is the Tutti-Frutti fix
 				*dest = colormap[source[frac>>FRACBITS]];
 				dest += vid.width;
+				if ((frac += fracstep) >= heightmask)
+					frac -= heightmask;
+			} while (--count);
+		}
+		else
+		{
+			while ((count -= 2) >= 0) // texture height is a power of 2
+			{
+				*dest = colormap[source[(frac>>FRACBITS) & heightmask]];
+				dest += vid.width;
+				frac += fracstep;
+				*dest = colormap[source[(frac>>FRACBITS) & heightmask]];
+				dest += vid.width;
+				frac += fracstep;
+			}
+			if (count & 1)
+				*dest = colormap[source[(frac>>FRACBITS) & heightmask]];
+		}
+	}
+}
 
-				// Avoid overflow.
-				if (fracstep > 0x7FFFFFFF - frac)
-					frac += fracstep - heightmask;
-				else
-					frac += fracstep;
+/**	\brief The R_DrawWallColumn_8 function
+	Experiment to make software go faster. Taken from the Boom source
+*/
+void R_DrawWallColumn_8(void)
+{
+	INT32 count;
+	register UINT8 *dest;
+	register INT64 frac;
+	fixed_t fracstep;
 
+	count = dc_yh - dc_yl;
+
+	if (count < 0) // Zero length, column does not exceed a pixel.
+		return;
+
+#ifdef RANGECHECK
+	if ((unsigned)dc_x >= (unsigned)vid.width || dc_yl < 0 || dc_yh >= vid.height)
+		return;
+#endif
+
+	// Framebuffer destination address.
+	// Use ylookup LUT to avoid multiply with ScreenWidth.
+	// Use columnofs LUT for subwindows?
+
+	//dest = ylookup[dc_yl] + columnofs[dc_x];
+	dest = &topleft[dc_yl*vid.width + dc_x];
+
+	count++;
+
+	// Determine scaling, which is the only mapping to be done.
+	fracstep = dc_iscale;
+	//frac = dc_texturemid + (dc_yl - centery)*fracstep;
+	frac = (dc_texturemid + FixedMul((dc_yl << FRACBITS) - centeryfrac, fracstep))*(!dc_hires);
+
+	// Inner loop that does the actual texture mapping, e.g. a DDA-like scaling.
+	// This is as fast as it gets.
+	{
+		register const UINT8 *source = dc_source;
+		register const lighttable_t *colormap = dc_colormap;
+		register INT64 heightmask = dc_texheight-1;
+		if (dc_texheight & heightmask)   // not a power of 2 -- killough
+		{
+			heightmask++;
+			heightmask <<= FRACBITS;
+
+			if (frac < 0)
+				while ((frac += heightmask) <  0);
+			else
 				while (frac >= heightmask)
+					frac -= heightmask;
+
+			do
+			{
+				// Re-map color indices from wall texture column
+				//  using a lighting/special effects LUT.
+				// heightmask is the Tutti-Frutti fix
+				*dest = colormap[source[frac>>FRACBITS]];
+				dest += vid.width;
+				if ((frac += fracstep) >= heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -118,7 +190,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 {
 	INT32 count;
 	register UINT8 *dest;
-	register fixed_t frac;
+	register INT64 frac;
 	fixed_t fracstep;
 
 	count = dc_yh - dc_yl;
@@ -150,7 +222,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 	{
 		register const UINT8 *source = dc_source;
 		register const lighttable_t *colormap = dc_colormap;
-		register INT32 heightmask = dc_texheight-1;
+		register INT64 heightmask = dc_texheight-1;
 		register UINT8 val;
 		if (dc_texheight & heightmask)   // not a power of 2 -- killough
 		{
@@ -174,14 +246,7 @@ void R_Draw2sMultiPatchColumn_8(void)
 					*dest = colormap[val];
 
 				dest += vid.width;
-
-				// Avoid overflow.
-				if (fracstep > 0x7FFFFFFF - frac)
-					frac += fracstep - heightmask;
-				else
-					frac += fracstep;
-
-				while (frac >= heightmask)
+				if ((frac += fracstep) >= heightmask)
 					frac -= heightmask;
 			} while (--count);
 		}
@@ -565,10 +630,8 @@ void R_DrawSplat_8 (void)
 		// SoM: Why didn't I see this earlier? the spot variable is a waste now because we don't
 		// have the uber complicated math to calculate it now, so that was a memory write we didn't
 		// need!
-		//
-		// <Callum> 4194303 = (2048x2048)-1 (2048x2048 is maximum flat size)
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[0] = colormap[val];
@@ -576,7 +639,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[1] = colormap[val];
@@ -584,7 +647,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[2] = colormap[val];
@@ -592,7 +655,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[3] = colormap[val];
@@ -600,7 +663,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[4] = colormap[val];
@@ -608,7 +671,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[5] = colormap[val];
@@ -616,7 +679,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[6] = colormap[val];
@@ -624,7 +687,7 @@ void R_DrawSplat_8 (void)
 		yposition += ystep;
 
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			dest[7] = colormap[val];
@@ -637,7 +700,7 @@ void R_DrawSplat_8 (void)
 	while (count--)
 	{
 		val = ((yposition >> nflatyshift) & nflatmask) | (xposition >> nflatxshift);
-		val &= 4194303;
+		val &= 4095;
 		val = source[val];
 		if (val != TRANSPARENTPIXEL)
 			*dest = colormap[val];
@@ -832,11 +895,13 @@ void R_DrawTranslucentSpan_8 (void)
 void R_DrawFogSpan_8(void)
 {
 	UINT8 *colormap;
+	UINT8 *transmap;
 	UINT8 *dest;
 
 	size_t count;
 
 	colormap = ds_colormap;
+	transmap = ds_transmap;
 	//dest = ylookup[ds_y] + columnofs[ds_x1];
 	dest = &topleft[ds_y *vid.width + ds_x1];
 
@@ -901,9 +966,10 @@ void R_DrawFogColumn_8(void)
 */
 void R_DrawColumnShadowed_8(void)
 {
-	INT32 count, realyh, i, height, bheight = 0, solid = 0;
+	INT32 count, realyh, realyl, i, height, bheight = 0, solid = 0;
 
 	realyh = dc_yh;
+	realyl = dc_yl;
 
 	count = dc_yh - dc_yl;
 
@@ -938,7 +1004,7 @@ void R_DrawColumnShadowed_8(void)
 
 		if (dc_yh > realyh)
 			dc_yh = realyh;
-		basecolfunc();		// R_DrawColumn_8 for the appropriate architecture
+		R_DrawColumn_8();
 		if (solid)
 			dc_yl = bheight;
 		else
@@ -948,5 +1014,5 @@ void R_DrawColumnShadowed_8(void)
 	}
 	dc_yh = realyh;
 	if (dc_yl <= realyh)
-		walldrawerfunc();		// R_DrawWallColumn_8 for the appropriate architecture
+		R_DrawWallColumn_8();
 }

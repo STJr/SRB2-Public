@@ -28,6 +28,7 @@
 #include "i_video.h"
 #include "d_net.h"
 #include "d_main.h"
+#include "dstrings.h"
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "keys.h"
@@ -46,7 +47,6 @@
 #include "r_local.h"
 #include "m_argv.h"
 #include "p_setup.h"
-#include "lzf.h"
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -113,27 +113,8 @@ SINT8 servernode = 0; // the number of the server node
 boolean acceptnewnode = true;
 
 // engine
-
-// Must be a power of two
-#define TEXTCMD_HASH_SIZE 4
-
-typedef struct textcmdplayer_s
-{
-	INT32 playernum;
-	UINT8 cmd[MAXTEXTCMD];
-	struct textcmdplayer_s *next;
-} textcmdplayer_t;
-
-typedef struct textcmdtic_s
-{
-	tic_t tic;
-	textcmdplayer_t *playercmds[TEXTCMD_HASH_SIZE];
-	struct textcmdtic_s *next;
-} textcmdtic_t;
-
 ticcmd_t netcmds[BACKUPTICS][MAXPLAYERS];
-static textcmdtic_t *textcmds[TEXTCMD_HASH_SIZE] = {NULL};
-
+static UINT8 textcmds[BACKUPTICS][MAXPLAYERS][MAXTEXTCMD];
 
 static consvar_t cv_showjoinaddress = {"showjoinaddress", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_playdemospeed = {"playdemospeed", "0", 0, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -217,9 +198,9 @@ void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam)
 	{
 		// Don't allow stupid users to fill up the command buffer.
 		if (cv_debug) // If you're not in debug, it just ain't gonna happen...
-			I_Error(M_GetText("No more place in the buffer for netcmd %d\nlocaltextcmd is %d\nnparam is %s\n"), id, localtextcmd[0], sizeu1(nparam));
+			I_Error(text[NOROOMNETBUF], id, localtextcmd[0], nparam);
 		else // ...but it will warn you.
-			CONS_Printf(M_GetText("No more place in the buffer for netcmd %d\nlocaltextcmd is %d\nnparam is %s\n"), id, localtextcmd[0], sizeu1(nparam));
+			CONS_Printf(text[NOROOMNETBUF], id, localtextcmd[0], nparam);
 		return;
 	}
 	localtextcmd[0]++;
@@ -257,158 +238,56 @@ UINT8 GetFreeXCmdSize(void)
 	return (UINT8)(localtextcmd[0] - 2);
 }
 
-// Frees all textcmd memory for the specified tic
-static void D_FreeTextcmd(tic_t tic)
-{
-	textcmdtic_t **tctprev = &textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
-	textcmdtic_t *textcmdtic = *tctprev;
-
-	while (textcmdtic && textcmdtic->tic != tic)
-	{
-		tctprev = &textcmdtic->next;
-		textcmdtic = textcmdtic->next;
-	}
-
-	if (textcmdtic)
-	{
-		INT32 i;
-
-		// Remove this tic from the list.
-		*tctprev = textcmdtic->next;
-
-		// Free all players.
-		for (i = 0; i < TEXTCMD_HASH_SIZE; i++)
-		{
-			textcmdplayer_t *textcmdplayer = textcmdtic->playercmds[i];
-
-			while (textcmdplayer)
-			{
-				textcmdplayer_t *tcpnext = textcmdplayer->next;
-				Z_Free(textcmdplayer);
-				textcmdplayer = tcpnext;
-			}
-		}
-
-		// Free this tic's own memory.
-		Z_Free(textcmdtic);
-	}
-}
-
-// Gets the buffer for the specified ticcmd, or NULL if there isn't one
-static UINT8* D_GetExistingTextcmd(tic_t tic, INT32 playernum)
-{
-	textcmdtic_t *textcmdtic = textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
-	while (textcmdtic && textcmdtic->tic != tic) textcmdtic = textcmdtic->next;
-
-	// Do we have an entry for the tic? If so, look for player.
-	if (textcmdtic)
-	{
-		textcmdplayer_t *textcmdplayer = textcmdtic->playercmds[playernum & (TEXTCMD_HASH_SIZE - 1)];
-		while (textcmdplayer && textcmdplayer->playernum != playernum) textcmdplayer = textcmdplayer->next;
-
-		if (textcmdplayer) return textcmdplayer->cmd;
-	}
-
-	return NULL;
-}
-
-// Gets the buffer for the specified ticcmd, creating one if necessary
-static UINT8* D_GetTextcmd(tic_t tic, INT32 playernum)
-{
-	textcmdtic_t *textcmdtic = textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
-	textcmdtic_t **tctprev = &textcmds[tic & (TEXTCMD_HASH_SIZE - 1)];
-	textcmdplayer_t *textcmdplayer, **tcpprev;
-
-	// Look for the tic.
-	while (textcmdtic && textcmdtic->tic != tic)
-	{
-		tctprev = &textcmdtic->next;
-		textcmdtic = textcmdtic->next;
-	}
-
-	// If we don't have an entry for the tic, make it.
-	if (!textcmdtic)
-	{
-		textcmdtic = *tctprev = Z_Calloc(sizeof (textcmdtic_t), PU_STATIC, NULL);
-		textcmdtic->tic = tic;
-	}
-
-	tcpprev = &textcmdtic->playercmds[playernum & (TEXTCMD_HASH_SIZE - 1)];
-	textcmdplayer = *tcpprev;
-
-	// Look for the player.
-	while (textcmdplayer && textcmdplayer->playernum != playernum)
-	{
-		tcpprev = &textcmdplayer->next;
-		textcmdplayer = textcmdplayer->next;
-	}
-
-	// If we don't have an entry for the player, make it.
-	if (!textcmdplayer)
-	{
-		textcmdplayer = *tcpprev = Z_Calloc(sizeof (textcmdplayer_t), PU_STATIC, NULL);
-		textcmdplayer->playernum = playernum;
-	}
-
-	return textcmdplayer->cmd;
-}
-
 static void ExtraDataTicker(void)
 {
-	INT32 i;
+	INT32 i, tic;
+	UINT8 *curpos, *bufferend;
+
+	tic = gametic % BACKUPTICS;
 
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i] || i == 0)
 		{
-			UINT8 *bufferstart = D_GetExistingTextcmd(gametic, i);
-
-			if (bufferstart)
+			curpos = (UINT8 *)&(textcmds[tic][i]);
+			bufferend = &curpos[curpos[0]+1];
+			curpos++;
+			while (curpos < bufferend)
 			{
-				UINT8 *curpos = bufferstart;
-				UINT8 *bufferend = &curpos[curpos[0]+1];
-
-				curpos++;
-				while (curpos < bufferend)
+				if (*curpos < MAXNETXCMD && listnetxcmd[*curpos])
 				{
-					if (*curpos < MAXNETXCMD && listnetxcmd[*curpos])
+					const UINT8 id = *curpos;
+					curpos++;
+					DEBFILE(va("executing x_cmd %u ply %u ", id, i));
+					(listnetxcmd[id])(&curpos, i);
+					DEBFILE("done\n");
+				}
+				else
+				{
+					if (server)
 					{
-						const UINT8 id = *curpos;
-						curpos++;
-						DEBFILE(va("executing x_cmd %u ply %u ", id, i));
-						(listnetxcmd[id])(&curpos, i);
-						DEBFILE("done\n");
-					}
-					else
-					{
-						if (server)
-						{
-							XBOXSTATIC UINT8 buf[3];
+						XBOXSTATIC UINT8 buf[3];
 
-							buf[0] = (UINT8)i;
-							buf[1] = KICK_MSG_CON_FAIL;
-							SendNetXCmd(XD_KICK, &buf, 2);
-							DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
-						}
-						CONS_Printf(M_GetText("Got unknown net command [%s]=%d (max %d)\n"), sizeu1(curpos - bufferstart), *curpos, bufferstart[0]);
-						D_FreeTextcmd(gametic);
-						return;
+						buf[0] = (UINT8)i;
+						buf[1] = KICK_MSG_CON_FAIL;
+						SendNetXCmd(XD_KICK, &buf, 2);
+						DEBFILE(va("player %d kicked [gametic=%u] reason as follows:\n", i, gametic));
 					}
+					CONS_Printf(text[UNKNOWNNETCMD], curpos - (UINT8 *)&(textcmds[tic][i]), *curpos, textcmds[tic][i][0]);
+					return;
 				}
 			}
 		}
-
-	D_FreeTextcmd(gametic);
 }
 
 static void D_Clearticcmd(tic_t tic)
 {
 	INT32 i;
 
-	D_FreeTextcmd(tic);
-
 	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		textcmds[tic%BACKUPTICS][i][0] = 0;
 		netcmds[tic%BACKUPTICS][i].angleturn = 0;
-
+	}
 	DEBFILE(va("clear tic %5u (%2u)\n", tic, tic%BACKUPTICS));
 }
 
@@ -439,27 +318,28 @@ static void D_Clearticcmd(tic_t tic)
 // endif
 boolean AddLmpExtradata(UINT8 **demo_point, INT32 playernum)
 {
-	UINT8 *textcmd = D_GetExistingTextcmd(gametic, playernum);
+	INT32 tic;
 
-	if (!textcmd)
+	tic = gametic % BACKUPTICS;
+	if (textcmds[tic][playernum][0] == 0)
 		return false;
 
-	M_Memcpy(*demo_point, textcmd, textcmd[0]+1);
-	*demo_point += textcmd[0]+1;
+	M_Memcpy(*demo_point, textcmds[tic][playernum], textcmds[tic][playernum][0]+1);
+	*demo_point += textcmds[tic][playernum][0]+1;
 	return true;
 }
 
 void ReadLmpExtraData(UINT8 **demo_pointer, INT32 playernum)
 {
 	UINT8 nextra;
-	UINT8 *textcmd;
 
 	if (!demo_pointer)
+	{
+		textcmds[gametic%BACKUPTICS][playernum][0] = 0;
 		return;
-
-	textcmd = D_GetTextcmd(gametic, playernum);
+	}
 	nextra = **demo_pointer;
-	M_Memcpy(textcmd, *demo_pointer, nextra + 1);
+	M_Memcpy(textcmds[gametic%BACKUPTICS][playernum], *demo_pointer, nextra + 1);
 	// increment demo pointer
 	*demo_pointer += nextra + 1;
 }
@@ -498,7 +378,7 @@ static cl_mode_t cl_mode = cl_searching;
 // used only in arbitratrenetstart()
 static boolean CL_SendJoin(void)
 {
-	CONS_Printf("%s", M_GetText("Sending join request...\n"));
+	CONS_Printf("%s",text[JOINREQUEST]);
 	netbuffer->packettype = PT_CLIENTJOIN;
 
 	netbuffer->u.clientcfg.localplayers = (UINT8)((UINT8)splitscreen + 1);
@@ -531,19 +411,19 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 
 	M_Memcpy(netbuffer->u.serverinfo.mapmd5, mapmd5, 16);
 
-	if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
-		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1]->lvlttl, 33);
+	if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
+		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1].lvlttl, 33);
 	else
 		strncpy(netbuffer->u.serverinfo.maptitle, "UNKNOWN", 33);
 
 	netbuffer->u.serverinfo.maptitle[32] = '\0';
 
-	if (!mapheaderinfo[gamemap-1]->nozone)
+	if (!mapheaderinfo[gamemap-1].nozone)
 		netbuffer->u.serverinfo.iszone = 1;
 	else
 		netbuffer->u.serverinfo.iszone = 0;
 
-	netbuffer->u.serverinfo.actnum = mapheaderinfo[gamemap-1]->actnum;
+	netbuffer->u.serverinfo.actnum = mapheaderinfo[gamemap-1].actnum;
 
 	p = PutFileNeeded();
 
@@ -655,8 +535,8 @@ static boolean SV_SendServerConfig(INT32 node)
 #ifdef DEBUGFILE
 		if (debugfile)
 		{
-			fprintf(debugfile, "ServerConfig Packet about to be sent, size of packet:%s to node:%d\n",
-				sizeu1(len), node);
+			fprintf(debugfile, "ServerConfig Packet about to be sent, size of packet:%"PRIdS" to node:%d\n",
+				len, node);
 		}
 #endif
 
@@ -687,22 +567,14 @@ static void SV_SendSaveGame(INT32 node)
 {
 	size_t length;
 	UINT8 *savebuffer;
-#ifdef ADD_FOR_207
-	UINT8 *compressedsave;
-	size_t compressedlen;
-#endif
-	UINT8 *buffertosend;
 
 	// first save it in a malloced buffer
-	savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
-	if (!savebuffer)
+	save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
+	if (!save_p)
 	{
-		CONS_Printf("%s", M_GetText("No more free memory for savegame\n"));
+		CONS_Printf("%s",text[NOSAVEGAMEMEM]);
 		return;
 	}
-
-	// Leave room for the uncompressed length.
-	save_p = savebuffer + sizeof(size_t);
 
 	P_SaveNetGame();
 
@@ -714,49 +586,13 @@ static void SV_SendSaveGame(INT32 node)
 		I_Error("Savegame buffer overrun");
 	}
 
-#ifdef ADD_FOR_207
-	// Allocate space for compressed save: one byte fewer than for the
-	// uncompressed data to ensure that the compression is worthwhile.
-	compressedsave = malloc(length - 1);
-	if (!compressedsave)
-	{
-		CONS_Printf("%s", M_GetText("No more free memory for savegame\n"));
-		return;
-	}
-
-	// Attempt to compress it.
-	if((compressedlen = lzf_compress(savebuffer + sizeof(size_t), length - sizeof(size_t), compressedsave + sizeof(size_t), length - sizeof(size_t) - 1)))
-	{
-		// Compressing succeeded; send compressed data
-
-		free(savebuffer);
-
-		// State that we're compressed.
-		buffertosend = compressedsave;
-		WRITEUINT32(compressedsave, length - sizeof(size_t));
-		length = compressedlen + sizeof(size_t);
-	}
-	else
-#endif
-	{
-#ifdef ADD_FOR_207
-		// Compression failed to make it smaller; send original
-
-		free(compressedsave);
-#endif
-
-		// State that we're not compressed
-		buffertosend = savebuffer;
-#ifdef ADD_FOR_207
-		WRITEUINT32(savebuffer, 0);
-#endif
-	}
-
-	SendRam(node, buffertosend, length, SF_RAM, 0);
+	// then send it!
+	SendRam(node, savebuffer, length, SF_RAM, 0);
+	//free(savebuffer); //but don't free the data, we will do that later after the real send
 	save_p = NULL;
 }
 
-#ifdef DUMPCONSISTENCY
+/*
 #define TMPSAVENAME "badmath.sav"
 static consvar_t cv_dumpconsistency = {"dumpconsistency", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
@@ -775,7 +611,7 @@ static void SV_SavedGame(void)
 	save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
 	if (!save_p)
 	{
-		CONS_Printf("%s", M_GetText("No more free memory for savegame\n"));
+		CONS_Printf("%s",NOSAVEGAMEMEM);
 		return;
 	}
 
@@ -791,14 +627,14 @@ static void SV_SavedGame(void)
 
 	// then save it!
 	if (!FIL_WriteFile(tmpsave, savebuffer, length))
-		CONS_Printf(M_GetText("Didn't save %s for netgame"), tmpsave);
+		CONS_Printf("Didn't save %s for netgame",tmpsave);
 
 	free(savebuffer);
 	save_p = NULL;
 }
 
 #undef  TMPSAVENAME
-#endif
+*/
 #define TMPSAVENAME "$$$.sav"
 
 
@@ -806,35 +642,20 @@ static void CL_LoadReceivedSavegame(void)
 {
 	UINT8 *savebuffer = NULL;
 	size_t length;
-#ifdef ADD_FOR_207
-	size_t decompressedlen;
-#endif
 	XBOXSTATIC char tmpsave[256];
 
 	sprintf(tmpsave, "%s" PATHSEP TMPSAVENAME, srb2home);
 
 	length = FIL_ReadFile(tmpsave, &savebuffer);
 
-	CONS_Printf(M_GetText("Loading savegame length %s\n"), sizeu1(length));
+	CONS_Printf(text[LOADSAVEGAME], length);
 	if (!length)
 	{
-		I_Error("%s", M_GetText("Can't read savegame sent"));
+		I_Error("Can't read savegame sent");
 		return;
 	}
 
 	save_p = savebuffer;
-
-#ifdef ADD_FOR_207
-	// Decompress saved game if necessary.
-	decompressedlen = READUINT32(save_p);
-	if(decompressedlen > 0)
-	{
-		UINT8 *decompressedbuffer = Z_Malloc(decompressedlen, PU_STATIC, NULL);
-		lzf_decompress(save_p, length - sizeof(size_t), decompressedbuffer, decompressedlen);
-		Z_Free(savebuffer);
-		save_p = savebuffer = decompressedbuffer;
-	}
-#endif
 
 	paused = false;
 	demoplayback = false;
@@ -845,13 +666,13 @@ static void CL_LoadReceivedSavegame(void)
 
 	if (P_LoadNetGame())
 	{
-		const INT32 actnum = mapheaderinfo[gamemap-1]->actnum;
-		CONS_Printf(M_GetText("Map is now \"%s"), G_BuildMapName(gamemap));
-		if (strcmp(mapheaderinfo[gamemap-1]->lvlttl, ""))
+		const INT32 actnum = mapheaderinfo[gamemap-1].actnum;
+		CONS_Printf(text[MAPISNOW], G_BuildMapName(gamemap));
+		if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
 		{
-			CONS_Printf(": %s", mapheaderinfo[gamemap-1]->lvlttl);
-			if (!mapheaderinfo[gamemap-1]->nozone)
-				CONS_Printf("%s", M_GetText("ZONE"));
+			CONS_Printf(": %s", mapheaderinfo[gamemap-1].lvlttl);
+			if (!mapheaderinfo[gamemap-1].nozone)
+				CONS_Printf(" %s",text[ZONE]);
 			if (actnum > 0)
 				CONS_Printf(" %2d", actnum);
 		}
@@ -859,11 +680,11 @@ static void CL_LoadReceivedSavegame(void)
 	}
 	else
 	{
-		CONS_Printf("%s", M_GetText("Can't load the level!\n"));
+		CONS_Printf("%s",text[CANNOTLOADLEVEL]);
 		Z_Free(savebuffer);
 		save_p = NULL;
 		if (unlink(tmpsave) == -1)
-			CONS_Printf(M_GetText("WARNING: Can't delete %s"), tmpsave);
+			CONS_Printf(text[CANNOTDELETE], tmpsave);
 		return;
 	}
 
@@ -871,13 +692,12 @@ static void CL_LoadReceivedSavegame(void)
 	Z_Free(savebuffer);
 	save_p = NULL;
 	if (unlink(tmpsave) == -1)
-		CONS_Printf(M_GetText("WARNING: Can't delete %s"), tmpsave);
+		CONS_Printf(text[CANNOTDELETE], tmpsave);
 	consistancy[gametic%BACKUPTICS] = Consistancy();
 	CON_ToggleOff();
 }
 #endif
 
-#ifndef NONET
 static void SendAskInfo(INT32 node, boolean viams)
 {
 	const tic_t asktime = I_GetTime();
@@ -1048,8 +868,6 @@ void CL_UpdateServerList(boolean internetsearch, INT32 room)
 	}
 }
 
-#endif // ifndef NONET
-
 // use adaptive send using net_bandwidth and stat.sendbytes
 static void CL_ConnectToServer(boolean viams)
 {
@@ -1067,14 +885,14 @@ static void CL_ConnectToServer(boolean viams)
 #ifdef JOININGAME
 	// don't get a corrupt savegame error because tmpsave already exists
 	if (FIL_WriteFileOK(tmpsave) && unlink(tmpsave) == -1)
-		I_Error(M_GetText("Can't delete %s"), tmpsave);
+		I_Error("Can't delete %s", tmpsave);
 #endif
 
-	CONS_Printf("%s", M_GetText("Press ESC to abort\n"));
+	CONS_Printf("%s",text[ESCABORT]);
 	if (servernode < 0 || servernode >= MAXNETNODES)
-		CONS_Printf("%s", M_GetText("Searching the server...\n"));
+		CONS_Printf("%s",text[SEARCHSERV]);
 	else
-		CONS_Printf("%s", M_GetText("Contacting the server...\n"));
+		CONS_Printf("%s",text[CONTACTSERV]);
 
 	if (gamestate == GS_INTERMISSION)
 		Y_EndIntermission(); // clean up intermission graphics etc
@@ -1087,15 +905,12 @@ static void CL_ConnectToServer(boolean viams)
 	pnumnodes = 1;
 	oldtic = I_GetTime() - 1;
 	asksent = (tic_t)-TICRATE;
-
-#ifndef NONET
 	i = SL_SearchServer(servernode);
-
 	if (i != -1)
 	{
 		INT32 j;
 		const char *gametypestr = NULL;
-		CONS_Printf(M_GetText("Connecting to: %s\n"), serverlist[i].info.servername);
+		CONS_Printf(text[CONNECTINGTO],serverlist[i].info.servername);
 		for (j = 0; gametype_cons_t[j].strvalue; j++)
 		{
 			if (gametype_cons_t[j].value == serverlist[i].info.gametype)
@@ -1105,19 +920,16 @@ static void CL_ConnectToServer(boolean viams)
 			}
 		}
 		if (gametypestr)
-			CONS_Printf(M_GetText("Gametype: %s\n"), gametypestr);
-		CONS_Printf(M_GetText("Version: %d.%.2d.%u\n"), serverlist[i].info.version/100,
+			CONS_Printf(text[NETGAMETYPE], gametypestr);
+		CONS_Printf(text[NETVERSION], serverlist[i].info.version/100,
 		 serverlist[i].info.version%100, serverlist[i].info.subversion);
 	}
 	SL_ClearServerList(servernode);
-#endif
-
 	do
 	{
 		switch (cl_mode)
 		{
 			case cl_searching:
-#ifndef NONET
 				// serverlist is updated by GetPacket function
 				if (serverlistcount > 0)
 				{
@@ -1126,7 +938,7 @@ static void CL_ConnectToServer(boolean viams)
 					{
 						i = 0;
 						servernode = serverlist[i].node;
-						CONS_Printf("%s", M_GetText("Found, "));
+						CONS_Printf("%s",text[FOUND]);
 					}
 					else
 					{
@@ -1138,7 +950,7 @@ static void CL_ConnectToServer(boolean viams)
 					// Quit here rather than downloading files and being refused later.
 					if (serverlist[i].info.numberofplayer >= serverlist[i].info.maxplayer)
 					{
-						M_StartMessage(va(M_GetText("Maximum players reached: %d\nPress ESC"), serverlist[i].info.maxplayer), NULL, MM_NOTHING);
+						M_StartMessage(va("Maximum players reached: %d\nPress ESC", serverlist[i].info.maxplayer), NULL, MM_NOTHING);
 						D_QuitNetGame();
 						CL_Reset();
 						D_StartTitle();
@@ -1149,7 +961,7 @@ static void CL_ConnectToServer(boolean viams)
 					{
 						D_ParseFileneeded(serverlist[i].info.fileneedednum,
 							serverlist[i].info.fileneeded);
-						CONS_Printf("%s", M_GetText("Checking files...\n"));
+						CONS_Printf("%s",text[CHECKINGFILES]);
 						i = CL_CheckFiles();
 						if (i == 2) // cannot join for some reason
 						{
@@ -1177,11 +989,6 @@ static void CL_ConnectToServer(boolean viams)
 					SendAskInfo(servernode, viams);
 					asksent = I_GetTime();
 				}
-#else
-				(void)viams;
-				// No netgames, so we skip this state.
-				cl_mode = cl_askjoin;
-#endif // ifndef NONET/else
 				break;
 			case cl_downloadfiles:
 				waitmore = false;
@@ -1241,8 +1048,8 @@ static void CL_ConnectToServer(boolean viams)
 			key = I_GetKey();
 			if (key == KEY_ESCAPE)
 			{
-				CONS_Printf("%s", M_GetText("Network game synchronization aborted.\n"));
-//				M_StartMessage(M_GetText("Network game synchronization aborted.\n\nPress ESC\n"), NULL, MM_NOTHING);
+				CONS_Printf("%s",text[NETSYNCABORT]);
+//				M_StartMessage("Network game synchronization aborted.\n\nPress ESC\n", NULL, MM_NOTHING);
 				D_QuitNetGame();
 				CL_Reset();
 				D_StartTitle();
@@ -1270,8 +1077,12 @@ static void CL_ConnectToServer(boolean viams)
 
 	DEBFILE(va("Synchronisation Finished\n"));
 
-	if (cv_cheats.value && !server)
-		HU_DoCEcho(va("%s", M_GetText("Cheats have been activated.\n")));
+	if (cv_cheats.value)
+	{
+		if (!server)
+			HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
+		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
+	}
 
 	displayplayer = consoleplayer;
 }
@@ -1294,25 +1105,25 @@ static void Command_ShowBan(void) //Print out ban list
 	banreason_t *reasonlist = reasonhead;
 
 	if (I_GetBanAddress)
-		CONS_Printf("%s", M_GetText("Ban List:\n"));
+		CONS_Printf("%s", text[BANLIST]);
 	else
 		return;
 
 	for (i = 0;(address = I_GetBanAddress(i)) != NULL;i++)
 	{
 		if (!I_GetBanMask || (mask = I_GetBanMask(i)) == NULL)
-			CONS_Printf("%s: %s\n", sizeu1(i+1), address);
+			CONS_Printf(text[BANLIST2], i+1, address);
 		else
-			CONS_Printf("%s: %s/%s\n", sizeu1(i+1), address, mask);
+			CONS_Printf(text[BANLIST3], i+1, address, mask);
 
 		if (reasonlist && reasonlist->reason)
-			CONS_Printf(M_GetText("Why: %s\n"), reasonlist->reason);
+			CONS_Printf(text[BANREASON], reasonlist->reason);
 
 		if (reasonlist) reasonlist = reasonlist->next;
 	}
 
 	if (i == 0 && !address)
-		CONS_Printf("%s", M_GetText(" None\n"));
+		CONS_Printf("%s", text[BANNONE]);
 }
 
 void D_SaveBan(void)
@@ -1329,7 +1140,7 @@ void D_SaveBan(void)
 
 	if (!f)
 	{
-		CONS_Printf("%s", M_GetText("Could not save ban list into ban.txt\n"));
+		CONS_Printf("%s",text[CANNOTSAVEBANLIST]);
 		return;
 	}
 
@@ -1399,17 +1210,14 @@ static void Ban_Load_File(boolean warning)
 	if (!f)
 	{
 		if (warning)
-			CONS_Printf("%s", M_GetText("Could not open ban.txt for ban list\n"));
+			CONS_Printf("%s", text[CANNOTLOADBANLIST]);
 		return;
 	}
 
 	if (I_ClearBans)
 		Command_ClearBans();
 	else
-	{
-		fclose(f);
 		return;
-	}
 
 	for (i=0; fgets(buffer, (int)sizeof(buffer), f); i++)
 	{
@@ -1436,21 +1244,19 @@ static void Command_connect(void)
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("Connect <serveraddress>: connect to a server\n"
-		"Connect ANY: connect to the first lan server found\n"
-		"Connect SELF: connect to your own server.\n"));
+		CONS_Printf("%s", text[CONNECTHELP]);
 		return;
 	}
 
 	if (Playing())
 	{
-		CONS_Printf("%s", M_GetText("You cannot connect while in a game\nEnd this game first\n"));
+		CONS_Printf("%s", text[NOCONNECTINGAME]);
 		return;
 	}
 
 	if (modifiedgame)
 	{
-		M_StartMessage(M_GetText("You have wad files loaded and/or\nmodified the game in some way.\nPlease restart SRB2 before\nconnecting."), NULL, MM_NOTHING);
+		M_StartMessage("You have wad files loaded and/or\nmodified the game in some way.\nPlease restart SRB2 before\nconnecting.", NULL, MM_NOTHING);
 		return;
 	}
 
@@ -1475,7 +1281,7 @@ static void Command_connect(void)
 		}
 		else if (netgame)
 		{
-			CONS_Printf("%s", M_GetText("You cannot connect while in a game\nEnd this game first\n"));
+			CONS_Printf("%s", text[NOCONNECTINGAME]);
 			return;
 		}
 		else if (I_NetOpenSocket)
@@ -1491,13 +1297,13 @@ static void Command_connect(void)
 				servernode = I_NetMakeNode(COM_Argv(1));
 			else
 			{
-				CONS_Printf("%s", M_GetText("There is no server identification with this network driver\n"));
+				CONS_Printf("%s", text[NOSERVERIDENTIFY]);
 				D_CloseConnection();
 				return;
 			}
 		}
 		else
-			CONS_Printf("%s", M_GetText("There is no network driver\n"));
+			CONS_Printf("There is no network driver\n");
 	}
 
 	splitscreen = false;
@@ -1657,9 +1463,9 @@ static void Command_GetPlayerNum(void)
 		if (playeringame[i])
 		{
 			if (serverplayer == i)
-				CONS_Printf(M_GetText("num:%2d  node:%2d  %s\n"), i, playernode[i], player_names[i]);
+				CONS_Printf(text[SERVERPLAYERNUM], i, playernode[i], player_names[i]);
 			else
-				CONS_Printf(M_GetText("\2num:%2d  node:%2d  %s\n"), i, playernode[i], player_names[i]);
+				CONS_Printf(text[PLAYERNUM], i, playernode[i], player_names[i]);
 		}
 }
 
@@ -1687,7 +1493,7 @@ SINT8 nametonum(const char *name)
 		if (playeringame[i] && !stricmp(player_names[i], name))
 			return (SINT8)i;
 
-	CONS_Printf(M_GetText("There is no player named \"%s\"\n"), name);
+	CONS_Printf(text[NOPLAYERNAMED], name);
 
 	return -1;
 }
@@ -1713,16 +1519,16 @@ static void Command_Nodes(void)
 	{
 		if (playeringame[i])
 		{
-			CONS_Printf("%.2u: %*s", i, (int)maxlen, player_names[i]);
-			CONS_Printf(" - %.2d", playernode[i]);
+			CONS_Printf(text[NODESCMDTXT], i, maxlen, player_names[i]);
+			CONS_Printf(text[NODESCMDTXT2], playernode[i]);
 			if (I_GetNodeAddress && (address = I_GetNodeAddress(playernode[i])) != NULL)
-				CONS_Printf(" - %s", address);
+				CONS_Printf(text[NODESCMDTXT3], address);
 
 			if (i == adminplayer)
-				CONS_Printf("%s", M_GetText(" (verified admin)"));
+				CONS_Printf("%s", text[NODESCMDADMIN]);
 
 			if (players[i].spectator)
-				CONS_Printf("%s", M_GetText(" (spectator)"));
+				CONS_Printf("%s", text[NODESCMDSPEC]);
 
 			CONS_Printf("\n");
 		}
@@ -1733,7 +1539,7 @@ static void Command_Ban(void)
 {
 	if (COM_Argc() == 1)
 	{
-		CONS_Printf("%s", M_GetText("Ban <playername> or <playernum> <reason>: ban and kick a player\n"));
+		CONS_Printf("%s", text[BANHELP]);
 		return;
 	}
 
@@ -1750,7 +1556,7 @@ static void Command_Ban(void)
 			WRITEUINT8(p, pn);
 		if (I_Ban && !I_Ban(node))
 		{
-			CONS_Printf("%s", M_GetText("Too many bans! Geez, that's a lot of people you're excluding...\n"));
+			CONS_Printf("%s", text[TOOMANYBANS]);
 			WRITEUINT8(p, KICK_MSG_GO_AWAY);
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
@@ -1783,7 +1589,7 @@ static void Command_Ban(void)
 		}
 	}
 	else
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[YOUARENOTTHESERVER]);
 
 }
 
@@ -1794,7 +1600,7 @@ static void Command_Kick(void)
 
 	if (COM_Argc() == 1)
 	{
-		CONS_Printf("%s", M_GetText("Kick <playername> or <playernum> <reason>: kick a player\n"));
+		CONS_Printf("%s", text[KICKHELP]);
 		return;
 	}
 
@@ -1828,7 +1634,7 @@ static void Command_Kick(void)
 		}
 	}
 	else
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[YOUARENOTTHESERVER]);
 }
 #endif
 
@@ -1843,7 +1649,7 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 
 	if (pnum == serverplayer && playernum == adminplayer)
 	{
-		CONS_Printf("%s", M_GetText("Server is being shut down remotely. Goodbye!\n"));
+		CONS_Printf("%s", text[SERVERREMOTESHUTDOWN]);
 
 		if (server)
 			COM_BufAddText("quit\n");
@@ -1872,10 +1678,13 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 		// clients cannot always determine if a kick is
 		// legitimate.
 
-		CONS_Printf(M_GetText("Illegal kick command received from %s for player %d\n"), player_names[playernum], pnum);
+		CONS_Printf(text[ILLEGALKICKCMD], player_names[playernum], pnum);
 		// In debug, print a longer message with more details.
-		// TODO Callum: Should we translate this?
-		DEBPRINT(va(M_GetText("So, you must be asking, why is this an illegal kick?\n"
+#ifndef _DEBUG
+		if (cv_debug || devparm)
+#endif
+		{
+			CONS_Printf("So, you must be asking, why is this an illegal kick?\n"
 			            "Well, let's take a look at the facts, shall we?\n"
 			            "\n"
 			            "playernum (this is the guy who did it), he's %d.\n"
@@ -1887,17 +1696,18 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 			            "That node has %d players.\n"
 			            "Player 2 on that node is %d.\n"
 			            "\n"
-			            "If you think this is a bug, please report it, including all of the details above.\n"),
+			            "If you think this is a bug, please report it, including all of the details above.\n",
 				playernum, pnum,
 				playernode[playernum], playerpernode[playernode[playernum]],
 				nodetoplayer2[playernode[playernum]],
 				playernode[pnum], playerpernode[playernode[pnum]],
-				nodetoplayer2[playernode[pnum]]));
+				nodetoplayer2[playernode[pnum]]);
+		};
 		pnum = playernum;
 		msg = KICK_MSG_CON_FAIL;
 	}
 
-	CONS_Printf("\2%s ", player_names[pnum]);
+	CONS_Printf(text[KICKEDPLAYERNAME], player_names[pnum]);
 
 	// If a verified admin banned someone, the server needs to know about it.
 	// If the playernum isn't zero (the server) then the server needs to record the ban.
@@ -1905,84 +1715,82 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 	{
 		if (I_Ban && !I_Ban(playernode[(INT32)pnum]))
 		{
-			CONS_Printf("%s", M_GetText("Too many bans! Geez, that's a lot of people you're excluding...\n"));
+			CONS_Printf("%s", text[TOOMANYBANS]);
 		}
 	}
 
 	switch (msg)
 	{
 		case KICK_MSG_GO_AWAY:
-			CONS_Printf("%s", M_GetText("has been kicked (Go away)\n"));
+			CONS_Printf("%s", text[KICKEDGOAWAY]);
 			break;
 #ifdef NEWPING
 		case KICK_MSG_PING_HIGH:
-			CONS_Printf("%s", M_GetText("left the game (Broke ping limit)\n"));
+			CONS_Printf("%s", text[KICKEDPINGTOOHIGH]);
 			break;
 #endif
 		case KICK_MSG_CON_FAIL:
-			CONS_Printf("%s", M_GetText("left the game (Consistency failure)\n"));
+			CONS_Printf("%s", text[KICKEDCONSFAIL]);
 
 			if (M_CheckParm("-consisdump")) // Helps debugging some problems
 			{
 				INT32 i;
 
-				CONS_Printf(M_GetText("Player kicked is #%d\n"), pnum);
+				CONS_Printf(text[CONSIS_DUMP1], pnum);
 
 				for (i = 0; i < MAXPLAYERS; i++)
 				{
 					CONS_Printf("-------------------------------------\n");
 					if (players[i].mo)
-						CONS_Printf(M_GetText("Player %d is at %d, %d, %d\n"), i, players[i].mo->x, players[i].mo->y, players[i].mo->z);
+						CONS_Printf(text[CONSIS_DUMP2], i, players[i].mo->x, players[i].mo->y, players[i].mo->z);
 					else
-						CONS_Printf(M_GetText("Player %d has a null mo\n"), i);
+						CONS_Printf(text[CONSIS_DUMP3], i);
 					CONS_Printf("-------------------------------------\n");
 				}
 			}
 			break;
 		case KICK_MSG_TIMEOUT:
-			CONS_Printf("%s", M_GetText("left the game (Connection timeout)\n"));
+			CONS_Printf("%s", text[LEFTGAME_TIMEOUT]);
 			break;
 		case KICK_MSG_PLAYER_QUIT:
-			CONS_Printf("%s", M_GetText("left the game\n"));
+			CONS_Printf("%s", text[LEFTGAME]);
 			break;
 		case KICK_MSG_BANNED:
-			CONS_Printf("%s", M_GetText("has been banned (Don't come back)\n"));
+			CONS_Printf("%s", text[KICKEDBANNED]);
 			break;
 		case KICK_MSG_CUSTOM_KICK:
 			READSTRINGN(*p, reason, MAX_REASONLENGTH+1);
-			CONS_Printf(M_GetText("has been kicked (%s)\n"), reason);
+			CONS_Printf(text[CUSTOMKICKMSG], reason);
 			break;
 		case KICK_MSG_CUSTOM_BAN:
 			READSTRINGN(*p, reason, MAX_REASONLENGTH+1);
-			CONS_Printf(M_GetText("has been banned (%s)\n"), reason);
+			CONS_Printf(text[CUSTOMBANMSG], reason);
 			break;
 	}
 
 	if (pnum == consoleplayer)
 	{
-#ifdef DUMPCONSISTENCY
-		if (msg == KICK_MSG_CON_FAIL) SV_SavedGame();
-#endif
+//		if (msg == KICK_MSG_CON_FAIL) SV_SavedGame();
 		D_QuitNetGame();
 		CL_Reset();
 		D_StartTitle();
 		if (msg == KICK_MSG_CON_FAIL)
 		{
-			M_StartMessage(M_GetText("Server closed connection\n(consistency failure)\nPress ESC\n"), NULL,
+			M_StartMessage("You have been kicked\n(consistency failure)\nPress ESC\n", NULL,
 				MM_NOTHING);
 		}
 #ifdef NEWPING
 		else if (msg == KICK_MSG_PING_HIGH)
-			M_StartMessage(M_GetText("Server closed connection\n(Broke ping limit)\nPress ESC\n"), NULL, MM_NOTHING);
+			M_StartMessage("You have been kicked\n(Broke ping limit)\nPress ESC\n", NULL, MM_NOTHING);
 #endif
 		else if (msg == KICK_MSG_BANNED)
-			M_StartMessage(M_GetText("You have been banned by the server\n\nPress ESC\n"), NULL, MM_NOTHING);
+			M_StartMessage("You have been banned by the server\n\nPress ESC\n", NULL, MM_NOTHING);
 		else if (msg == KICK_MSG_CUSTOM_KICK)
-			M_StartMessage(va(M_GetText("You have been kicked\n(%s)\nPress ESC\n"), reason), NULL, MM_NOTHING);
+			M_StartMessage(va("You have been kicked\n(%s)\nPress ESC\n", reason), NULL, MM_NOTHING);
 		else if (msg == KICK_MSG_CUSTOM_BAN)
-			M_StartMessage(va(M_GetText("You have been banned\n(%s)\nPress ESC\n"), reason), NULL, MM_NOTHING);
+			M_StartMessage(va("You have been banned\n(%s)\nPress ESC\n", reason), NULL, MM_NOTHING);
 		else
-			M_StartMessage(M_GetText("You have been kicked by the server\n\nPress ESC\n"), NULL, MM_NOTHING);
+			M_StartMessage("You have been kicked by the server\n\nPress ESC\n", NULL, MM_NOTHING);
 	}
 	else
 		CL_RemovePlayer(pnum);
@@ -2027,9 +1835,7 @@ void D_ClientServerInit(void)
 	CV_RegisterVar(&cv_showjoinaddress);
 	CV_RegisterVar(&cv_consfailprotect);
 	CV_RegisterVar(&cv_blamecfail);
-#ifdef DUMPCONSISTENCY
-	CV_RegisterVar(&cv_dumpconsistency);
-#endif
+//	CV_RegisterVar(&cv_dumpconsistency);
 	Ban_Load_File(false);
 #endif
 
@@ -2165,7 +1971,7 @@ static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
 		// protect against hacked/buggy client
-		CONS_Printf(M_GetText("Illegal add player command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALADDPLRCMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -2187,7 +1993,7 @@ static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 	if (newplayernum+1 > doomcom->numslots)
 		doomcom->numslots = (INT16)(newplayernum+1);
 
-	CONS_Printf(M_GetText("Player %d has joined the game (node %d)\n"), newplayernum+1, node);
+	CONS_Printf(text[PLAYERINGAME], newplayernum+1, node);
 
 	// the server is creating my player
 	if (node == mynode)
@@ -2211,7 +2017,7 @@ static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 	{
 		const char *address;
 		if (I_GetNodeAddress && (address = I_GetNodeAddress(node)) != NULL)
-			CONS_Printf(M_GetText("Player Address is %s\n"), address);
+			CONS_Printf(text[PLAYERADDRESS], address);
 	}
 
 	// the new player sends his config
@@ -2232,7 +2038,7 @@ static void Got_AddPlayer(UINT8 **p, INT32 playernum)
 		D_SendPlayerConfig();
 	}
 
-	if (server && multiplayer && motd[0] != '\0')
+	if (server && motd[0] != '\0')
 		COM_BufAddText(va("sayto %d %s\n", newplayernum, motd));
 }
 
@@ -2283,7 +2089,7 @@ static boolean SV_AddWaitingPlayers(void)
 
 			SendNetXCmd(XD_ADDPLAYER, &buf, 2);
 
-			DEBFILE(va(M_GetText("Server added player %d node %d\n"), newplayernum, node));
+			DEBFILE(va("Server added player %d node %d\n", newplayernum, node));
 			// use the next free slot (we can't put playeringame[newplayernum] = true here)
 			newplayernum++;
 		}
@@ -2323,7 +2129,7 @@ boolean SV_SpawnServer(void)
 
 	if (!serverrunning)
 	{
-		CONS_Printf("%s", M_GetText("Starting Server....\n"));
+		CONS_Printf("%s", text[STARTINGSERVER]);
 		serverrunning = true;
 		SV_ResetServer();
 		if (netgame && I_NetOpenSocket)
@@ -2522,7 +2328,7 @@ static inline void writeconplayer(cons_pak *con, const size_t i)
 	con->scalespeed = players[i].mo->scalespeed;
 }
 
-static void readconplayer(cons_pak *con, const INT32 playernum)
+static inline void readconplayer(cons_pak *con, const INT32 playernum)
 {
 	size_t i;
 	mobj_t *savedmo = players[playernum].mo;
@@ -2785,15 +2591,13 @@ static void SV_SendConsistency(INT32 node)
 // used at txtcmds received to check packetsize bound
 static size_t TotalTextCmdPerTic(tic_t tic)
 {
-	INT32 i;
-	size_t total = 1; // num of textcmds in the tic (ntextcmd byte)
+	size_t i, total = 1; // num of textcmds in the tic (ntextcmd byte)
+
+	tic %= BACKUPTICS;
 
 	for (i = 0; i < MAXPLAYERS; i++)
-	{
-		UINT8 *textcmd = D_GetExistingTextcmd(tic, i);
-		if ((!i || playeringame[i]) && textcmd)
-			total += 2 + textcmd[0]; // "+2" for size and playernum
-	}
+		if ((!i || playeringame[i]) && textcmds[tic][i][0])
+			total += 2 + textcmds[tic][i][0]; // "+2" for size and playernum
 
 	return total;
 }
@@ -2808,6 +2612,7 @@ static void GetPackets(void)
 	XBOXSTATIC SINT8 node;
 	XBOXSTATIC tic_t realend,realstart;
 	XBOXSTATIC UINT8 *pak, *txtpak, numtxtpak;
+	INT32 p = maketic%BACKUPTICS;
 FILESTAMP
 	while (HGetPacket())
 	{
@@ -2815,18 +2620,19 @@ FILESTAMP
 		if (netbuffer->packettype == PT_CLIENTJOIN && server)
 		{
 			if (bannednode && bannednode[node])
-				SV_SendRefuse(node, M_GetText("You have been banned\nfrom the server"));
+				SV_SendRefuse(node, "You have been banned\nfrom the server");
 			else if (netbuffer->u.clientcfg.version != VERSION
 				|| netbuffer->u.clientcfg.subversion != SUBVERSION)
-				SV_SendRefuse(node, va(M_GetText("Different SRB2 versions cannot\nplay a netgame!\n(server version %d.%d.%d)"), VERSION/100, VERSION%100, SUBVERSION));
+				SV_SendRefuse(node, va("Different SRB2 versions cannot\nplay a netgame!\n"
+				"(server version %d.%d.%d)", VERSION/100, VERSION%100, SUBVERSION));
 			else if (!cv_allownewplayer.value && node)
-				SV_SendRefuse(node, M_GetText("The server is not accepting\njoins for the moment"));
+				SV_SendRefuse(node, "The server is not accepting\njoins for the moment");
 			else if (D_NumPlayers() >= cv_maxplayers.value)
-				SV_SendRefuse(node, va(M_GetText("Maximum players reached: %d"), cv_maxplayers.value));
+				SV_SendRefuse(node, va("Maximum players reached: %d", cv_maxplayers.value));
 			else if (netgame && netbuffer->u.clientcfg.localplayers > 1)	// Hacked client?
-				SV_SendRefuse(node, M_GetText("Too many players from\nthis node."));
+				SV_SendRefuse(node, va("Too many players from\nthis node."));
 			else if (netgame && !netbuffer->u.clientcfg.localplayers) // Stealth join?
-				SV_SendRefuse(node, M_GetText("No players from\nthis node."));
+				SV_SendRefuse(node, va("No players from\nthis node."));
 			else
 			{
 				boolean newnode = false;
@@ -2844,8 +2650,9 @@ FILESTAMP
 					{
 						G_SetGamestate(backupstate);
 						ResetNode(node);
-						SV_SendRefuse(node, M_GetText("Server couldn't send info, please try again"));
+						SV_SendRefuse(node, "Server couldn't send info, please try again");
 						/// \todo fix this !!!
+						//CONS_Printf("Internal Error 5: node %d lost\n",node);
 						continue; // restart the while
 					}
 					G_SetGamestate(backupstate);
@@ -2868,7 +2675,7 @@ FILESTAMP
 		if (netbuffer->packettype == PT_SERVERSHUTDOWN && node == servernode
 			&& !server && cl_mode != cl_searching)
 		{
-			M_StartMessage(M_GetText("Server has shutdown\n\nPress Esc"), NULL, MM_NOTHING);
+			M_StartMessage("Server has shutdown\n\nPress Esc", NULL, MM_NOTHING);
 			D_QuitNetGame();
 			CL_Reset();
 			D_StartTitle();
@@ -2877,14 +2684,13 @@ FILESTAMP
 		if (netbuffer->packettype == PT_NODETIMEOUT && node == servernode
 			&& !server && cl_mode != cl_searching)
 		{
-			M_StartMessage(M_GetText("Server Timeout\n\nPress Esc"), NULL, MM_NOTHING);
+			M_StartMessage("Server Timeout\n\nPress Esc", NULL, MM_NOTHING);
 			D_QuitNetGame();
 			CL_Reset();
 			D_StartTitle();
 			continue;
 		}
 
-#ifndef NONET
 		if (netbuffer->packettype == PT_SERVERINFO)
 		{
 			// compute ping in ms
@@ -2897,7 +2703,6 @@ FILESTAMP
 			SL_InsertServer(&netbuffer->u.serverinfo, node);
 			continue;
 		}
-#endif
 
 		if (netbuffer->packettype == PT_PLAYERINFO)
 			continue; // We do nothing with PLAYERINFO, that's for the MS browser.
@@ -2905,7 +2710,7 @@ FILESTAMP
 		if (!nodeingame[node])
 		{
 			if (node != servernode)
-				DEBFILE(va(M_GetText("Received packet from unknown host %d\n"), node));
+				DEBFILE(va("Received packet from unknown host %d\n", node));
 
 			// anyone trying to join
 			switch (netbuffer->packettype)
@@ -2932,7 +2737,7 @@ FILESTAMP
 				case PT_SERVERREFUSE: // negative response of client join request
 					if (cl_mode == cl_waitjoinresponse)
 					{
-						M_StartMessage(va(M_GetText("Server refuses connection\n\nReason:\n%s"),
+						M_StartMessage(va("Server refuses connection\n\nReason:\n%s",
 							netbuffer->u.serverrefuse.reason), NULL, MM_NOTHING);
 						D_QuitNetGame();
 						CL_Reset();
@@ -2967,8 +2772,8 @@ FILESTAMP
 					if (serverplayer >= 0)
 						playernode[(UINT8)serverplayer] = servernode;
 
-					CONS_Printf("%s", M_GetText("Join accepted, waiting for next level change...\n"));
-					DEBFILE(va(M_GetText("Server accept join gametic=%u mynode=%d\n"), gametic, mynode));
+					CONS_Printf("%s", text[JOINACCEPTED]);
+					DEBFILE(va("Server accept join gametic=%u mynode=%d\n", gametic, mynode));
 
 					playermask = LONG(netbuffer->u.servercfg.playerdetected);
 					for (j = 0; j < MAXPLAYERS; j++)
@@ -3006,7 +2811,7 @@ FILESTAMP
 				case PT_CLIENTCMD:
 					break; // this is not an "unknown packet"
 				default:
-					DEBFILE(va(M_GetText("unknown packet received (%d) from unknown host\n"),
+					DEBFILE(va("unknown packet received (%d) from unknown host\n",
 						netbuffer->packettype));
 					Net_CloseConnection(node);
 					break; // ignore it
@@ -3066,7 +2871,7 @@ FILESTAMP
 					|| netcmds[maketic%BACKUPTICS][netconsole].sidemove > MAXPLMOVE || netcmds[maketic%BACKUPTICS][netconsole].sidemove < -MAXPLMOVE)
 				{
 					XBOXSTATIC char buf[2];
-					CONS_Printf(M_GetText("Illegal movement value recieved from node %d\n"), netconsole);
+					CONS_Printf("Illegal movement value recieved from node %d\n", netconsole);
 					//D_Clearticcmd(k);
 
 					buf[0] = (char)netconsole;
@@ -3091,7 +2896,7 @@ FILESTAMP
 						if (!consfailstatus[netconsole])
 						{
 							if (cv_blamecfail.value)
-								CONS_Printf(M_GetText("Consistency failure for player %d, restoring...\n"), netconsole);
+								CONS_Printf(text[CONSFAILRESTORE], netconsole);
 
 							DEBFILE(va("Restoring player %d (consistency failure) [%update] %d!=%d\n",
 								netconsole, realstart, consistancy[realstart%BACKUPTICS],
@@ -3140,37 +2945,33 @@ FILESTAMP
 				{
 					size_t j;
 					tic_t tic = maketic;
-					UINT8 *textcmd;
 
 					// check if tic that we are making isn't too large else we cannot send it :(
 					// doomcom->numslots+1 "+1" since doomcom->numslots can change within this time and sent time
 					j = software_MAXPACKETLENGTH
 						- (netbuffer->u.textcmd[0]+2+BASESERVERTICSSIZE
-						+ (doomcom->numslots+1)*sizeof(ticcmd_t));
+						+ (doomcom->numslots+1)*sizeof (ticcmd_t));
 
 					// search a tic that have enougth space in the ticcmd
-					while ((textcmd = D_GetExistingTextcmd(tic, netconsole)),
-						(TotalTextCmdPerTic(tic) > j || netbuffer->u.textcmd[0] + (textcmd ? textcmd[0] : 0) > MAXTEXTCMD)
+					while ((TotalTextCmdPerTic(tic) > j || netbuffer->u.textcmd[0]
+						+ textcmds[tic%BACKUPTICS][netconsole][0] > MAXTEXTCMD)
 						&& tic < firstticstosend + BACKUPTICS)
 						tic++;
 
 					if (tic >= firstticstosend + BACKUPTICS)
 					{
-						DEBFILE(va("GetPacket: Textcmd too long (max %s, used %s, mak %d, "
-							"tosend %u, node %u, player %d)\n", sizeu1(j), sizeu2(TotalTextCmdPerTic(maketic)),
+						DEBFILE(va("GetPacket: Textcmd too long (max %"PRIdS", used %"PRIdS", mak %d, "
+							"tosend %u, node %u, player %d)\n", j, TotalTextCmdPerTic(maketic),
 							maketic, firstticstosend, node, netconsole));
 						Net_UnAcknowledgPacket(node);
 						break;
 					}
-
-					// Make sure we have a buffer
-					if (!textcmd) textcmd = D_GetTextcmd(tic, netconsole);
-
 					DEBFILE(va("textcmd put in tic %u at position %d (player %d) ftts %u mk %u\n",
-						tic, textcmd[0]+1, netconsole, firstticstosend, maketic));
-
-					M_Memcpy(&textcmd[textcmd[0]+1], netbuffer->u.textcmd+1, netbuffer->u.textcmd[0]);
-					textcmd[0] += (UINT8)netbuffer->u.textcmd[0];
+						tic, textcmds[p][netconsole][0]+1, netconsole, firstticstosend, maketic));
+					p = tic % BACKUPTICS;
+					M_Memcpy(&textcmds[p][netconsole][textcmds[p][netconsole][0]+1],
+						netbuffer->u.textcmd+1, netbuffer->u.textcmd[0]);
+					textcmds[p][netconsole][0] = (UINT8)(textcmds[p][netconsole][0] + (UINT8)netbuffer->u.textcmd[0]);
 				}
 				break;
 			case PT_NODETIMEOUT:
@@ -3207,12 +3008,12 @@ FILESTAMP
 				// Only accept PT_SERVERTICS from the server.
 				if (node != servernode)
 				{
-					DEBFILE(va(M_GetText("PT_SERVERTICS recieved from non-host %d\n"), node));
+					DEBFILE(va("PT_SERVERTICS recieved from non-host %d\n", node));
 
 					if (server)
 					{
 						XBOXSTATIC UINT8 buf[2];
-						CONS_Printf(M_GetText("PT_SERVERTICS recieved from non-host %d\n"), node);
+						CONS_Printf("PT_SERVERTICS recieved from non-host %d\n", node);
 
 						buf[0] = (UINT8)node;
 						buf[1] = KICK_MSG_CON_FAIL;
@@ -3253,7 +3054,7 @@ FILESTAMP
 							INT32 k = *txtpak++; // playernum
 							const size_t txtsize = txtpak[0]+1;
 
-							M_Memcpy(D_GetTextcmd(i, k), txtpak, txtsize);
+							M_Memcpy(textcmds[i%BACKUPTICS][k], txtpak, txtsize);
 							txtpak += txtsize;
 						}
 					}
@@ -3267,12 +3068,12 @@ FILESTAMP
 				// Only accept PT_CONSISTENCY from the server.
 				if (node != servernode)
 				{
-					DEBFILE(va(M_GetText("PT_CONSISTENCY recieved from non-host %d\n"), node));
+					DEBFILE(va("PT_CONSISTENCY recieved from non-host %d\n", node));
 
 					if (server)
 					{
 						XBOXSTATIC char buf[2];
-						CONS_Printf(M_GetText("PT_CONSISTENCY recieved from non-host %d\n"), node);
+						CONS_Printf("PT_CONSISTENCY recieved from non-host %d\n", node);
 
 						buf[0] = (char)node;
 						buf[1] = KICK_MSG_CON_FAIL;
@@ -3290,12 +3091,12 @@ FILESTAMP
 				// Only accept PT_PING from the server.
 				if (node != servernode)
 				{
-					DEBFILE(va(M_GetText("PT_PING recieved from non-host %d\n"), node));
+					DEBFILE(va("PT_PING recieved from non-host %d\n", node));
 
 					if (server)
 					{
 						XBOXSTATIC char buf[2];
-						CONS_Printf(M_GetText("PT_PING recieved from non-host %d\n"), node);
+						CONS_Printf("PT_PING recieved from non-host %d\n", node);
 
 						buf[0] = (char)node;
 						buf[1] = KICK_MSG_CON_FAIL;
@@ -3463,8 +3264,8 @@ static void SV_SendTics(void)
 
 				if (packsize > software_MAXPACKETLENGTH)
 				{
-					DEBFILE(va("packet too large (%s) at tic %d (should be from %d to %d)\n",
-						sizeu1(packsize), i, realfirsttic, lasttictosend));
+					DEBFILE(va("packet too large (%"PRIdS") at tic %d (should be from %d to %d)\n",
+						packsize, i, realfirsttic, lasttictosend));
 					lasttictosend = i;
 
 					// too bad: too much player have send extradata and there is too
@@ -3474,9 +3275,9 @@ static void SV_SendTics(void)
 					if (lasttictosend == realfirsttic)
 					{
 						if (packsize > MAXPACKETLENGTH)
-							I_Error("Too many players: can't send %s data for %d players to node %d\n"
+							I_Error("Too many players: can't send %"PRIdS" data for %d players to node %d\n"
 							        "Well sorry nobody is perfect....\n",
-							        sizeu1(packsize), doomcom->numslots, n);
+							        packsize, doomcom->numslots, n);
 						else
 						{
 							lasttictosend++; // send it anyway!
@@ -3506,14 +3307,13 @@ static void SV_SendTics(void)
 				*ntextcmd = 0;
 				for (j = 0; j < MAXPLAYERS; j++)
 				{
-					UINT8 *textcmd = D_GetExistingTextcmd(i, j);
-					INT32 size = textcmd ? textcmd[0] : 0;
+					INT32 size = textcmds[i%BACKUPTICS][j][0];
 
 					if ((!j || playeringame[j]) && size)
 					{
 						(*ntextcmd)++;
 						WRITEUINT8(bufpos, j);
-						M_Memcpy(bufpos, textcmd, size + 1);
+						M_Memcpy(bufpos, textcmds[i%BACKUPTICS][j], size + 1);
 						bufpos += size + 1;
 					}
 				}
@@ -3553,10 +3353,9 @@ static void Local_Maketic(INT32 realtics)
 void SV_SpawnPlayer(INT32 playernum, INT32 x, INT32 y, angle_t angle)
 {
 	// for future copytic use the good x, y, and angle!
-	(void)x;
-	(void)y;
 	if (server)
 	{
+		x = y = 0;
 		netcmds[maketic%BACKUPTICS][playernum].angleturn = (INT16)((INT16)(angle>>16) | TICCMD_RECEIVED);
 	}
 }
@@ -3576,7 +3375,8 @@ static void SV_Maketic(void)
 
 				DEBFILE(va("MISS tic%4d for node %d\n", maketic, j));
 #if defined(PARANOIA) && 0
-				DEBPRINT(va("Client Misstic %d\n", maketic));
+				if (devparm)
+					I_OutputMsg("Client Misstic %d\n", maketic);
 #endif
 				// copy the old tic
 				for (i = 0; i < playerpernode[j]; i++, player = nodetoplayer2[j])

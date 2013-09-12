@@ -127,7 +127,6 @@ void S_SetSfxVolume(INT32 volume);
 INT32 S_SoundPlaying(void *origin, sfxenum_t id);
 void S_StartSoundName(void *mo, const  char *soundname);
 
-void S_StopSoundByID(void *origin, sfxenum_t sfx_id);
 void S_StopSoundByNum(sfxenum_t sfxnum);
 
 #ifndef HW3SOUND

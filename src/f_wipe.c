@@ -89,7 +89,7 @@ static INT32 F_DoWipe(INT32 width, INT32 height, tic_t ticks)
 			return false;
 		}
 
-#if defined (SHUFFLE) && defined (HWRENDER)
+#ifdef SHUFFLE
 		if(rendermode != render_soft)
 		{
 
@@ -129,7 +129,7 @@ void F_WipeStartScreen(void)
 #ifndef NOWIPE
 	if(rendermode != render_soft)
 	{
-#if defined (SHUFFLE) && defined (HWRENDER)
+#ifdef SHUFFLE
 		HWR_StartScreenWipe();
 #endif
 		return;

@@ -10,7 +10,7 @@
 #ifdef COMPVERSION
 #include "comptime.h"
 #else
-const char *comprevision = "illegal";
+const char *comprevision = "Unknown";
 #endif
 
 const char *compdate = __DATE__;

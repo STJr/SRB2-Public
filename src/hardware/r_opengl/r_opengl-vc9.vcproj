@@ -45,7 +45,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -138,7 +138,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC9\Debug\r_opengl/r_opengl.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -231,7 +231,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -326,7 +326,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\r_opengl\r_opengl.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC9\Release\r_opengl/r_opengl.tlb"
 				HeaderFileName=""
 			/>
 			<Tool

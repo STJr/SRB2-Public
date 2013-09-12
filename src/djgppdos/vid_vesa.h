@@ -46,7 +46,7 @@ typedef struct vbeinfoblock_s
 	UINT8          OemProductRevPtr[4];
 	UINT8          Reserved[222];
 	UINT8          OemData[256];
-}  ATTRPACK vbeinfoblock_t;
+}  ATTTPACK vbeinfoblock_t;
 
 
 // VESA information for a specific mode

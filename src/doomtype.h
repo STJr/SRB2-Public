@@ -29,10 +29,6 @@
 #include <windows.h>
 #endif
 
-#ifdef _NDS
-#include <nds.h>
-#endif
-
 /* 7.18.1.1  Exact-width integer types */
 #ifdef _MSC_VER
 #define UINT8 unsigned __int8
@@ -70,17 +66,6 @@ typedef long ssize_t;
 #define UINT32 unsigned int
 #define INT64  int64
 #define UINT64 uint64
-#elif defined (__DJGPP__)
-#define UINT8 unsigned char
-#define SINT8 signed char
-
-#define UINT16 unsigned short int
-#define INT16 signed short int
-
-#define INT32 signed long
-#define UINT32 unsigned long
-#define INT64  signed long long
-#define UINT64 unsigned long long
 #else
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
@@ -126,7 +111,7 @@ typedef long ssize_t;
 #endif
 #ifdef _PSP
 	#include <malloc.h>
-#elif (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
+#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 	#undef stricmp
 	#define stricmp(x,y) strcasecmp(x,y)
 	#undef strnicmp
@@ -160,7 +145,7 @@ typedef long ssize_t;
 	#endif
 #endif //macintosh
 
-#if defined (PC_DOS) || defined (_WIN32) || defined (_WII) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__) || defined(_NDS)  || defined(_PS3)
+#if defined (PC_DOS) || defined (_WIN32) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__)
 #define HAVE_DOSSTR_FUNCS
 #endif
 
@@ -192,11 +177,6 @@ size_t strlcpy(char *dst, const char *src, size_t siz);
 		#define false   FALSE           // use windows types
 		#define true    TRUE
 		#define boolean BOOL
-	#elif defined(_NDS)
-		#define boolean bool
-	#elif defined(_PS3) // defined(__GNUC__)?
-		#include <stdbool.h>  //_bool_true_false_are_defined?
-		#define boolean bool
 	#else
 		typedef enum {false, true} boolean;
 	#endif
@@ -253,7 +233,7 @@ union FColorRGBA
 		UINT8 blue;
 		UINT8 alpha;
 	} s;
-} ATTRPACK;
+};
 typedef union FColorRGBA RGBA_t;
 
 typedef enum
@@ -277,19 +257,24 @@ typedef UINT32 tic_t;
 #define UINT2RGBA(a) (UINT32)((a&0xff)<<24)|((a&0xff00)<<8)|((a&0xff0000)>>8)|(((UINT32)a&0xff000000)>>24)
 #endif
 
+#if defined (_WIN32)
+#define PRIdS "Iu"
+#elif defined (_PSP) || defined (_arch_dreamcast)
+#define PRIdS "u"
+#else
+#define PRIdS "zu"
+#endif
+
 #ifdef __GNUC__ // __attribute__ ((X))
 #define FUNCNORETURN __attribute__ ((noreturn))
 #if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) && defined (__MINGW32__)
 #include "inttypes.h"
-#if 0 //defined  (__USE_MINGW_ANSI_STDIO) && __USE_MINGW_ANSI_STDIO > 0
+#if defined  (__USE_MINGW_ANSI_STDIO) && __USER_MINGW_ANSI_STDIO > 0
 #define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
-#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
+#else // !__USE_MINGW_ANSI_STDIO
 #define FUNCPRINTF __attribute__ ((format(ms_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(ms_printf, 1, 2),noreturn))
-#else
-#define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
-#define FUNCIERROR __attribute__ ((format(printf, 1, 2),noreturn))
 #endif
 #else
 #define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))

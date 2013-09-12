@@ -19,9 +19,6 @@
 ///
 ///	Blockmap iterator functions, and some PIT_* functions to use for iteration
 
-#include "doomdef.h"
-#include "doomstat.h"
-
 #include "p_local.h"
 #include "r_main.h"
 #include "p_maputl.h"
@@ -579,7 +576,7 @@ void P_UnsetThingPosition(mobj_t *thing)
 	// Better safe than sorry!
 	if (!thing)
 	{
-		DEBPRINT("P_SetUnsetThingPosition: Tried to unset a thing that doesn't exist!\n");
+		CONS_Printf("P_SetUnsetThingPosition: Tried to unset a thing that doesn't exist!\n");
 		return;
 	}
 
@@ -658,7 +655,7 @@ void P_SetThingPosition(mobj_t *thing)
 	// Better safe than sorry!
 	if (!thing)
 	{
-		DEBPRINT("P_SetThingPosition: Tried to set a thing that doesn't exist!\n");
+		CONS_Printf("P_SetThingPosition: Tried to set a thing that doesn't exist!\n");
 		return;
 	}
 

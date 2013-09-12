@@ -20,7 +20,11 @@
 #include "doomdef.h"
 #include "doomtype.h"
 #include "m_random.h"
-#include "m_fixed.h"
+
+/**	\brief M_Random
+
+	Returns a 0-255 number
+*/
 
 static UINT8 rndtable[256] =
 {
@@ -44,12 +48,17 @@ static UINT8 rndtable[256] =
 	197, 242,  98,  43,  39, 175, 254, 145, 190,  84, 118, 222, 187, 136,
 	120, 163, 236, 249
 };
+/**	\brief M_Random seed
+*/
 
+static UINT8 rndindex = 0;
 /**	\brief P_Random seed
 */
+
 static UINT8 prndindex = 0;
 
 #ifndef DEBUGRANDOM
+
 /** Provides a random byte.
   * Used throughout all the p_xxx game code.
   *
@@ -75,75 +84,36 @@ INT32 P_SignedRandom(void)
 	return r - P_Random();
 }
 
-/** Provides a random number in between a specific range.
-  *
-  * \return A random number, arg1 to arg2.
-  */
-INT32 P_RandomRange(INT32 a, INT32 b)
-{
-	return (P_Random() % b + a);
-}
 #else
+
 UINT8 P_Random2(const char *a, INT32 b)
 {
-	DEBPRINT(va("P_Random at: %sp %d\n", a, b));
+	CONS_Printf("P_Random at: %sp %d\n", a, b);
 	return rndtable[++prndindex];
 }
 
 INT32 P_SignedRandom2(const char *a, INT32 b)
 {
 	INT32 r;
-	DEBPRINT(va("P_SignedRandom at: %sp %d\n", a, b));
+	CONS_Printf("P_SignedRandom at: %sp %d\n",a,b);
 	r = rndtable[++prndindex];
 	return r - rndtable[++prndindex];
 }
 
-INT32 P_RandomRange2(const char *a, INT32 b, UINT8 c, UINT8 d)
-{
-	DEBPRINT(va("P_RandomRange2 at: %sp %d\n", a, b));
-	return (P_Random2() % d + c);
-}
 #endif
 
 /** Provides a random byte.
   * Used outside the p_xxx game code and not synchronized in netgames. This is
   * for anything that doesn't need to be synced. In practice many applications
-  * e.g. precipitation.
+  * just use rand() instead, e.g. precipitation.
   *
   * \return A random byte, 0 to 255.
   * \sa P_Random
+  * \todo Consider replacing in favor of rand().
   */
 UINT8 M_Random(void)
 {
-	return (rand() % 256);
-}
-
-/** Provides a random signed byte.
-  *
-  * \return A random byte, -128 to 127.
-  * \sa P_Random
-  */
-INT32 M_SignedRandom(void)
-{
-	return M_Random() - 128;
-}
-
-/** Provides a random number in between a specific range.
-  *
-  * \return A random number, arg1 to arg2.
-  */
-INT32 M_RandomRange(INT32 a, INT32 b)
-{
-	return (rand() % b + a);
-}
-
-// Provides a random fixed_t for use in percipitation.
-fixed_t M_RandomPrecip(void)
-{
-	const unsigned d = (unsigned)rand()*FRACUNIT;
-	const fixed_t t = (fixed_t)(d/INT16_MAX);
-
-	return (t-FRACUNIT/2)<<FRACBITS;
+	return rndtable[++rndindex];
 }
 
 /** Resets both the random number indices.
@@ -153,8 +123,9 @@ fixed_t M_RandomPrecip(void)
   */
 void M_ClearRandom(void)
 {
-	prndindex = 0;
+	rndindex = prndindex = 0;
 }
+
 
 /** Returns the current random number index used by p_xxx game code.
   * Used by servers when archiving netgames, as well as for debugging purposes.

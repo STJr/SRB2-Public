@@ -48,6 +48,9 @@ extern UINT8 *dc_transmap;
 
 // translation stuff here
 
+extern UINT8 *translationtables[MAXSKINS];
+extern UINT8 *defaulttranslationtables;
+extern UINT8 *bosstranslationtables;
 extern UINT8 *dc_translation;
 
 extern struct r_lightlist_s *dc_lightlist;
@@ -95,37 +98,13 @@ extern lumpnum_t viewborderlump[8];
 // r_draw.c COMMON ROUTINES FOR BOTH 8bpp and 16bpp
 // ------------------------------------------------
 
-typedef enum
-{
-	SKINCOLOR_NONE = 0,
-	SKINCOLOR_CYAN,
-	SKINCOLOR_PEACH,
-	SKINCOLOR_LAVENDER,
-	SKINCOLOR_SILVER,
-	SKINCOLOR_ORANGE,
-	SKINCOLOR_LIGHTRED,
-	SKINCOLOR_LIGHTBLUE,
-	SKINCOLOR_STEELBLUE,
-	SKINCOLOR_PINK,
-	SKINCOLOR_BEIGE,
-	SKINCOLOR_PURPLE,
-	SKINCOLOR_GREEN,
-	SKINCOLOR_WHITE,
-	SKINCOLOR_GOLD,
-	SKINCOLOR_YELLOW
-} skincolors_t;
-
-#define GTC_CACHE 1
-
-#define TC_DEFAULT -1
-#define TC_BOSS    -2
-
 // Initialize color translation tables, for player rendering etc.
 void R_InitTranslationTables(void);
-UINT8* R_GetTranslationColormap(INT32 skinnum, skincolors_t color, UINT8 flags);
-void R_FlushTranslationColormapCache(void);
+
+void R_LoadSkinTable(void);
 
 // Custom player skin translation
+void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum);
 void R_InitViewBuffer(INT32 width, INT32 height);
 void R_InitViewBorder(void);
 void R_VideoErase(size_t ofs, INT32 count);
@@ -143,22 +122,19 @@ void R_DrawViewBorder(void);
 // -----------------
 
 void R_DrawColumn_8(void);
-#define R_DrawWallColumn_8	R_DrawColumn_8
+void R_DrawWallColumn_8(void);
 void R_DrawShadeColumn_8(void);
 void R_DrawTranslucentColumn_8(void);
 
 #ifdef USEASM
 void ASMCALL R_DrawColumn_8_ASM(void);
-#define R_DrawWallColumn_8_ASM	R_DrawColumn_8_ASM
+void ASMCALL R_DrawWallColumn_8_ASM(void);
 void ASMCALL R_DrawShadeColumn_8_ASM(void);
 void ASMCALL R_DrawTranslucentColumn_8_ASM(void);
-void ASMCALL R_Draw2sMultiPatchColumn_8_ASM(void);
 
-void ASMCALL R_DrawColumn_8_MMX(void);
-#define R_DrawWallColumn_8_MMX	R_DrawColumn_8_MMX
-
-void ASMCALL R_Draw2sMultiPatchColumn_8_MMX(void);
-void ASMCALL R_DrawSpan_8_MMX(void);
+void ASMCALL R_DrawColumn_8_Pentium(void); // Optimised for Pentium
+void ASMCALL R_DrawColumn_8_NOMMX(void);   // DOSDoom original
+void ASMCALL R_DrawColumn_8_K6_MMX(void);  // MMX asm version, optimised for K6
 #endif
 
 void R_DrawTranslatedColumn_8(void);

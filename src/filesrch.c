@@ -367,14 +367,6 @@ filestatus_t filesearch(char *filename, const char *startpath, const UINT8 *want
 
 	dirhandle[depthleft] = opendir(searchpath);
 
-	if (dirhandle[depthleft] == NULL)
-	{
-		free(searchname);
-		free(dirhandle);
-		free(searchpathindex);
-		return FS_NOTFOUND;
-	}
-
 	if (searchpath[searchpathindex[depthleft]-2] != '/')
 	{
 		searchpath[searchpathindex[depthleft]-1] = '/';

@@ -82,29 +82,16 @@ void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
 //  | /|
 //  |/ |
 //  0--1
-	float sdupx = FIXED_TO_FLOAT(vid.fdupx)*2.0f;
-	float sdupy = FIXED_TO_FLOAT(vid.fdupy)*2.0f;
-	float pdupx = FIXED_TO_FLOAT(vid.fdupx)*2.0f;
-	float pdupy = FIXED_TO_FLOAT(vid.fdupy)*2.0f;
+	float sdupx = vid.fdupx*2;
+	float sdupy = vid.fdupy*2;
+	float pdupx = vid.fdupx*2;
+	float pdupy = vid.fdupy*2;
 
 	// make patch ready in hardware cache
 	HWR_GetPatch(gpatch);
 
-	switch (option & V_SCALEPATCHMASK)
-	{
-	case V_NOSCALEPATCH:
+	if (option & V_NOSCALEPATCH)
 		pdupx = pdupy = 2.0f;
-		break;
-	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
-		break;
-	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
-		break;
-	}
-
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -158,30 +145,17 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 //  | /|
 //  |/ |
 //  0--1
-	float sdupx = FIXED_TO_FLOAT(vid.fdupx)*2.0f;
-	float sdupy = FIXED_TO_FLOAT(vid.fdupy)*2.0f;
-	float pdupx = FIXED_TO_FLOAT(vid.fdupx)*2.0f;
-	float pdupy = FIXED_TO_FLOAT(vid.fdupy)*2.0f;
+	float sdupx = vid.fdupx*2;
+	float sdupy = vid.fdupy*2;
+	float pdupx = vid.fdupx*2;
+	float pdupy = vid.fdupy*2;
 	FSurfaceInfo Surf;
 
 	// make patch ready in hardware cache
 	HWR_GetPatch (gpatch);
 
-	switch (option & V_SCALEPATCHMASK)
-	{
-	case V_NOSCALEPATCH:
+	if (option & V_NOSCALEPATCH)
 		pdupx = pdupy = 2.0f;
-		break;
-	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
-		break;
-	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
-		break;
-	}
-
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -222,29 +196,16 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 	FOutVector      v[4];
 	FBITFIELD flags;
 
-	float sdupx = FIXED_TO_FLOAT(vid.fdupx);
-	float sdupy = FIXED_TO_FLOAT(vid.fdupy);
-	float pdupx = FIXED_TO_FLOAT(vid.fdupx);
-	float pdupy = FIXED_TO_FLOAT(vid.fdupy);
+	float sdupx = vid.fdupx;
+	float sdupy = vid.fdupy;
+	float pdupx = vid.fdupx;
+	float pdupy = vid.fdupy;
 
 	// make patch ready in hardware cache
 	HWR_GetMappedPatch (gpatch, colormap);
 
-	switch (option & V_SCALEPATCHMASK)
-	{
-	case V_NOSCALEPATCH:
+	if (option & V_NOSCALEPATCH)
 		pdupx = pdupy = 2.0f;
-		break;
-	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
-		break;
-	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
-		break;
-	}
-
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -288,29 +249,16 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, con
 	FOutVector      v[4];
 	FBITFIELD flags;
 
-	float sdupx = FIXED_TO_FLOAT(vid.fdupx)*2.0f;
-	float sdupy = FIXED_TO_FLOAT(vid.fdupy)*2.0f;
-	float pdupx = FIXED_TO_FLOAT(vid.fdupx)*2.0f;
-	float pdupy = FIXED_TO_FLOAT(vid.fdupy)*2.0f;
+	float sdupx = vid.fdupx*2;
+	float sdupy = vid.fdupy*2;
+	float pdupx = vid.fdupx*2;
+	float pdupy = vid.fdupy*2;
 
 	// make patch ready in hardware cache
 	HWR_GetMappedPatch (gpatch, colormap);
 
-	switch (option & V_SCALEPATCHMASK)
-	{
-	case V_NOSCALEPATCH:
+	if (option & V_NOSCALEPATCH)
 		pdupx = pdupy = 2.0f;
-		break;
-	case V_SMALLSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fsmalldupy);
-		break;
-	case V_MEDSCALEPATCH:
-		pdupx = 2.0f * FIXED_TO_FLOAT(vid.fmeddupx);
-		pdupy = 2.0f * FIXED_TO_FLOAT(vid.fmeddupy);
-		break;
-	}
-
 	if (option & V_NOSCALESTART)
 		sdupx = sdupy = 2.0f;
 
@@ -360,9 +308,9 @@ void HWR_DrawPic(INT32 x, INT32 y, lumpnum_t lumpnum)
 //  0--1
 
 	v[0].x = v[3].x = 2.0f * (float)x/vid.width - 1;
-	v[2].x = v[1].x = 2.0f * (float)(x + patch->width*FIXED_TO_FLOAT(vid.fdupx))/vid.width - 1;
+	v[2].x = v[1].x = 2.0f * (float)(x + patch->width*vid.fdupx)/vid.width - 1;
 	v[0].y = v[1].y = 1.0f - 2.0f * (float)y/vid.height;
-	v[2].y = v[3].y = 1.0f - 2.0f * (float)(y + patch->height*FIXED_TO_FLOAT(vid.fdupy))/vid.height;
+	v[2].y = v[3].y = 1.0f - 2.0f * (float)(y + patch->height*vid.fdupy)/vid.height;
 
 	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
@@ -552,10 +500,10 @@ void HWR_DrawViewBorder(INT32 clearlines)
 		clearlines = BASEVIDHEIGHT; // refresh all
 
 	// calc view size based on original game resolution
-	baseviewwidth =  FixedInt(FixedDiv(FLOAT_TO_FIXED(gr_viewwidth), vid.fdupx)); //(cv_viewsize.value * BASEVIDWIDTH/10)&~7;
-	baseviewheight = FixedInt(FixedDiv(FLOAT_TO_FIXED(gr_viewheight), vid.fdupy));
-	top = FixedInt(FixedDiv(FLOAT_TO_FIXED(gr_baseviewwindowy), vid.fdupy));
-	side = FixedInt(FixedDiv(FLOAT_TO_FIXED(gr_viewwindowx), vid.fdupx));
+	baseviewwidth = (INT32)(gr_viewwidth/vid.fdupx); //(cv_viewsize.value * BASEVIDWIDTH/10)&~7;
+	baseviewheight = (INT32)(gr_viewheight/vid.fdupy);
+	top = (INT32)(gr_baseviewwindowy/vid.fdupy);
+	side = (INT32)(gr_viewwindowx/vid.fdupx);
 
 	// top
 	HWR_DrawFlatFill(0, 0,

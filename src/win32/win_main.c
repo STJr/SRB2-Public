@@ -27,6 +27,11 @@
 #include <stdio.h>
 
 #ifdef _WINDOWS
+//#define PHONE_HOME Remove completely for release!
+
+#ifdef PHONE_HOME
+#include <winsock.h>
+#endif
 
 #include "../doomstat.h"  // netgame
 #include "resource.h"
@@ -72,7 +77,8 @@ static LPCSTR wClassName = "SRB2WC";
 boolean appActive = false; // app window is active
 
 #ifdef LOGMESSAGES
-FILE *logstream;
+// this is were I log debug text, cons_printf, I_error ect for window port debugging
+HANDLE logstream = INVALID_HANDLE_VALUE;
 #endif
 
 BOOL nodinput = FALSE;
@@ -92,7 +98,7 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			wParam <<= 16;
 	}
 
-	//DEBPRINT(va("MainWndproc: %p,%i,%i,%i",hWnd, message, wParam, (UINT)lParam));
+	//CONS_Printf("MainWndproc: %p,%i,%i,%i",hWnd, message, wParam, (UINT)lParam);
 
 	switch (message)
 	{
@@ -261,7 +267,7 @@ static LRESULT CALLBACK MainWndproc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 
 		case WM_MOUSEWHEEL:
-			//DEBPRINT(va("MW_WHEEL dispatched.\n"));
+			//CONS_Printf("MW_WHEEL dispatched.\n");
 			ev.type = ev_keydown;
 			if ((INT16)HIWORD(wParam) > 0)
 				ev.data1 = KEY_MOUSEWHEELUP;
@@ -317,14 +323,16 @@ static inline VOID OpenTextConsole(VOID)
 	{
 		if (FreeConsole())
 		{
-			DEBPRINT("Detatched console.\n");
+			CONS_Printf("We lost a Console, let hope it was Mingw's Bash\n");
 			console = TRUE; //lets get back a console
 		}
+#if 1
 		else
 		{
-			DEBPRINT("No console to detatch.\n");
+			CONS_Printf("We did not lost a Console\n");
 			I_ShowLastError(FALSE);
 		}
+#endif
 	}
 
 	if (dedicated || console)
@@ -332,11 +340,11 @@ static inline VOID OpenTextConsole(VOID)
 		if (AllocConsole()) //Let get the real console HANDLEs, because Mingw's Bash is bad!
 		{
 			SetConsoleTitleA("SRB2 Console");
-			CONS_Printf("%s", M_GetText("Hello, it's me, SRB2's Console Window\n"));
+			CONS_Printf("Hello, it's me, SRB2's Console Window\n");
 		}
 		else
 		{
-			DEBPRINT(va("%s", M_GetText("We have a console already.\n")));
+			CONS_Printf("We have a Console Already? Why?\n");
 			I_ShowLastError(FALSE);
 			return;
 		}
@@ -350,33 +358,31 @@ static inline VOID OpenTextConsole(VOID)
 		HANDLE sih = GetStdHandle(STD_INPUT_HANDLE);
 		if (sih != ci)
 		{
-			DEBPRINT(va("Old STD_INPUT_HANDLE: %p\nNew STD_INPUT_HANDLE: %p\n", sih, ci));
+			CONS_Printf("Old STD_INPUT_HANDLE: %p\nNew STD_INPUT_HANDLE: %p\n", sih, ci);
 			SetStdHandle(STD_INPUT_HANDLE,ci);
 		}
 		else
-			DEBPRINT(va("STD_INPUT_HANDLE already set at %p\n", ci));
+			CONS_Printf("STD_INPUT_HANDLE already set at %p\n", ci);
 
 		if (GetFileType(ci) == FILE_TYPE_CHAR)
 		{
 #if 0
 			const DWORD CM = ENABLE_LINE_INPUT|ENABLE_ECHO_INPUT|ENABLE_PROCESSED_INPUT; //default mode but no ENABLE_MOUSE_INPUT
 			if (SetConsoleMode(ci,CM))
-			{
-				DEBPRINT("Disabled mouse input on the console\n");
-			}
+				CONS_Printf("Disabled mouse input on the console\n");
 			else
 			{
-				DEBPRINT("Could not disable mouse input on the console\n");
+				CONS_Printf("Could not disable mouse input on the console\n");
 				I_ShowLastError(FALSE);
 			}
 #endif
 		}
 		else
-			DEBPRINT("Handle CONIN$ in not a Console HANDLE\n");
+			CONS_Printf("Handle CONIN$ in not a Console HANDLE\n");
 	}
 	else
 	{
-		DEBPRINT("Could not get a CONIN$ HANDLE\n");
+		CONS_Printf("Could not get a CONIN$ HANDLE\n");
 		I_ShowLastError(FALSE);
 	}
 
@@ -387,33 +393,31 @@ static inline VOID OpenTextConsole(VOID)
 		HANDLE seh = GetStdHandle(STD_ERROR_HANDLE);
 		if (soh != co)
 		{
-			DEBPRINT(va("Old STD_OUTPUT_HANDLE: %p\nNew STD_OUTPUT_HANDLE: %p\n", soh, co));
+			CONS_Printf("Old STD_OUTPUT_HANDLE: %p\nNew STD_OUTPUT_HANDLE: %p\n", soh, co);
 			SetStdHandle(STD_OUTPUT_HANDLE,co);
 		}
 		else
-			DEBPRINT(va("STD_OUTPUT_HANDLE already set at %p\n", co));
+			CONS_Printf("STD_OUTPUT_HANDLE already set at %p\n", co);
 		if (seh != co)
 		{
-			DEBPRINT(va("Old STD_ERROR_HANDLE: %p\nNew STD_ERROR_HANDLE: %p\n", seh, co));
+			CONS_Printf("Old STD_ERROR_HANDLE: %p\nNew STD_ERROR_HANDLE: %p\n", seh, co);
 			SetStdHandle(STD_ERROR_HANDLE,co);
 		}
 		else
-			DEBPRINT(va("STD_ERROR_HANDLE already set at %p\n", co));
+			CONS_Printf("STD_ERROR_HANDLE already set at %p\n", co);
 	}
 	else
-		DEBPRINT("Could not get a CONOUT$ HANDLE\n");
+		CONS_Printf("Could not get a CONOUT$ HANDLE\n");
 }
-
 
 //
 // Do that Windows initialization stuff...
 //
 static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 {
-	const LONG	styles = WS_CAPTION|WS_POPUP|WS_SYSMENU, exstyles = 0;
 	HWND        hWnd;
 	WNDCLASSEXA wc;
-	RECT		bounds;
+	int specialmode = 0;
 
 	// Set up and register window class
 	ZeroMemory(&wc, sizeof(wc));
@@ -429,7 +433,7 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 
 	if (!RegisterClassExA(&wc))
 	{
-		DEBPRINT("Error doing RegisterClassExA\n");
+		CONS_Printf("Error doing RegisterClassExA\n");
 		I_ShowLastError(TRUE);
 		return INVALID_HANDLE_VALUE;
 	}
@@ -437,22 +441,23 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 	// Create a window
 	// CreateWindowEx - seems to create just the interior, not the borders
 
-	bounds.left = 0;
-	bounds.right = dedicated ? 0 : specialmodes[0].width;
-	bounds.top = 0;
-	bounds.bottom = dedicated ? 0 : specialmodes[0].height;
+	if (M_CheckParm("-width") && M_IsNextParm())
+		specialmode = atoi(M_GetNextParm());
 
-	AdjustWindowRectEx(&bounds, styles, FALSE, exstyles);
+	if (specialmode > BASEVIDWIDTH)
+		specialmode = 1;
+	else
+		specialmode = 0;
 
 	hWnd = CreateWindowExA(
-	       exstyles,                                 //ExStyle
+	       0,                                 //ExStyle
 	       wClassName,                        //Classname
 	       wTitle,                            //Windowname
-	       styles,    //dwStyle       //WS_VISIBLE|WS_POPUP for bAppFullScreen
+	       WS_CAPTION|WS_POPUP|WS_SYSMENU,    //dwStyle       //WS_VISIBLE|WS_POPUP for bAppFullScreen
 	       0,
 	       0,
-	       bounds.right - bounds.left,        //GetSystemMetrics(SM_CXSCREEN),
-	       bounds.bottom - bounds.top,        //GetSystemMetrics(SM_CYSCREEN),
+	       dedicated ? 0:specialmodes[specialmode].width,        //GetSystemMetrics(SM_CXSCREEN),
+	       dedicated ? 0:specialmodes[specialmode].height,       //GetSystemMetrics(SM_CYSCREEN),
 	       NULL,                              //hWnd Parent
 	       NULL,                              //hMenu Menu
 	       hInstance,
@@ -460,7 +465,7 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 
 	if (hWnd == INVALID_HANDLE_VALUE)
 	{
-		DEBPRINT("Error doing CreateWindowExA\n");
+		CONS_Printf("Error doing CreateWindowExA\n");
 		I_ShowLastError(TRUE);
 	}
 
@@ -557,6 +562,82 @@ static VOID     GetArgcArgv (LPSTR cmdline)
 	myargv = myWargv;
 }
 
+static inline VOID MakeCodeWritable(VOID)
+{
+#ifdef USEASM // Disable write-protection of code segment
+	DWORD OldRights;
+	const DWORD NewRights = PAGE_EXECUTE_READWRITE;
+	PBYTE pBaseOfImage = (PBYTE)GetModuleHandle(NULL);
+	PIMAGE_DOS_HEADER dosH =(PIMAGE_DOS_HEADER)pBaseOfImage;
+	PIMAGE_NT_HEADERS ntH = (PIMAGE_NT_HEADERS)(pBaseOfImage + dosH->e_lfanew);
+	PIMAGE_OPTIONAL_HEADER oH = (PIMAGE_OPTIONAL_HEADER)
+		((PBYTE)ntH + sizeof (IMAGE_NT_SIGNATURE) + sizeof (IMAGE_FILE_HEADER));
+	LPVOID pA = pBaseOfImage+oH->BaseOfCode;
+	SIZE_T pS = oH->SizeOfCode;
+#if 1 // try to find the text section
+	PIMAGE_SECTION_HEADER ntS = IMAGE_FIRST_SECTION (ntH);
+	WORD s;
+	for (s = 0; s < ntH->FileHeader.NumberOfSections; s++)
+	{
+		if (memcmp (ntS[s].Name, ".text\0\0", 8) == 0)
+		{
+			pA = pBaseOfImage+ntS[s].VirtualAddress;
+			pS = ntS[s].Misc.VirtualSize;
+			break;
+		}
+	}
+#endif
+
+	if (!VirtualProtect(pA,pS,NewRights,&OldRights))
+		I_Error("Could not make code writable\n");
+#endif
+}
+
+#ifdef PHONE_HOME
+static inline SOCKET ConnectSocket(const char* IPAddress)
+{
+	DWORD dwDestAddr;
+	SOCKADDR_IN sockAddrDest;
+	int sockDest;
+
+	// Create socket
+	sockDest = socket(AF_INET, SOCK_STREAM, 0);
+
+	if(sockDest == SOCKET_ERROR)
+		return INVALID_SOCKET;
+
+	// Convert address to in_addr (binary) format
+	dwDestAddr = inet_addr(IPAddress);
+
+	if(dwDestAddr == INADDR_NONE)
+	{
+		// It's not a xxx.xxx.xxx.xxx IP, so resolve through DNS
+		struct hostent* pHE = gethostbyname(IPAddress);
+		if(pHE == 0)
+			return INVALID_SOCKET;
+
+		dwDestAddr = *((u_long*)pHE->h_addr_list[0]);
+	}
+
+	// Initialize SOCKADDR_IN with IP address, port number and address family
+	memcpy(&sockAddrDest.sin_addr, &dwDestAddr, sizeof(DWORD));
+
+	sockAddrDest.sin_port = htons(4242);
+	sockAddrDest.sin_family = AF_INET;
+
+	// Attempt to connect to server
+	if(connect(sockDest, (LPSOCKADDR)&sockAddrDest, sizeof(sockAddrDest)) == SOCKET_ERROR)
+	{
+		closesocket(sockDest);
+		MessageBox(NULL, "Unable to connect for verification.", "Oops!", MB_OK|MB_APPLMODAL);
+
+		return INVALID_SOCKET;
+	}
+
+	return sockDest;
+}
+#endif
+
 // -----------------------------------------------------------------------------
 // HandledWinMain : called by exception handler
 // -----------------------------------------------------------------------------
@@ -564,11 +645,81 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 {
 	int             i;
 	LPSTR          args;
+#ifdef PHONE_HOME
+	WSADATA wsaData;
+	char szBuffer[100];
+	SOCKET sock;
+#endif
 
 #ifdef LOGMESSAGES
 	// DEBUG!!! - set logstream to NULL to disable debug log
-	// Replace WIN32 filehandle with standard C calls, because WIN32 doesn't handle \n properly.
-	logstream = fopen(va("%s"PATHSEP"%s", srb2home, "log.txt"), "wt");
+	logstream = CreateFile (TEXT("log.txt"), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS,
+	                        FILE_ATTRIBUTE_NORMAL, NULL);  //file flag writethrough?
+#endif
+
+#ifdef PHONE_HOME
+	// Initialize WinSock
+	if(WSAStartup(MAKEWORD(1, 1), &wsaData) != 0)
+	{
+		MessageBox(NULL, "Could not initialize sockets.", "Error", MB_OK|MB_APPLMODAL);
+		return FALSE;
+	}
+
+	// Create socket and connect to server
+	sock = ConnectSocket("ssntails.isa-geek.net");
+	if(sock == INVALID_SOCKET)
+	{
+		MessageBox(NULL, "Invalid socket error.", "Error", MB_OK|MB_APPLMODAL);
+		return FALSE;
+	}
+
+	// We're connected!
+	// Now send information to server
+	{
+		int nSent, nToSend, nRecv, nReceived;
+		strcpy(szBuffer, "SRB2");
+		strcat(szBuffer, VERSIONSTRING);
+		nToSend = strlen(szBuffer) + 1;
+		// send this line to the server
+		nSent = send(sock, szBuffer, nToSend, 0);
+
+		if(nSent == SOCKET_ERROR)
+		{
+			MessageBox(NULL, "Connection broken.", "Error", MB_OK|MB_APPLMODAL);
+			return FALSE;
+		}
+
+		// Now read back the number of chars received.
+		nRecv = recv(sock, (char*)&nReceived, sizeof(nReceived), 0);
+
+		if(nRecv != sizeof(nReceived))
+		{
+			MessageBox(NULL, "You aren't allowed to have this.", "Error", MB_OK|MB_APPLMODAL);
+			return FALSE;
+		}
+
+		if(nReceived != 42)
+		{
+			MessageBox(NULL, "You aren't allowed to have this.", "Error", MB_OK|MB_APPLMODAL);
+			return FALSE;
+		}
+	}
+
+	if (shutdown(sock, 2) == SOCKET_ERROR)
+	{
+		MessageBox(NULL, "shutdown(): Error cleaning up sockets.", "Error", MB_OK|MB_APPLMODAL);
+		return FALSE;
+	}
+
+	// close socket
+	closesocket(sock);
+
+	// Clean up WinSock
+	if(WSACleanup() == SOCKET_ERROR)
+	{
+		MessageBox(NULL, "WSACleanup(): Error cleaning up sockets.", "Error", MB_OK|MB_APPLMODAL);
+		return FALSE;
+	}
 #endif
 
 	// fill myargc,myargv for m_argv.c retrieval of cmdline arguments
@@ -593,11 +744,12 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 	// currently starts DirectInput
 	CONS_Printf("I_StartupSystem() ...\n");
 	I_StartupSystem();
+	MakeCodeWritable();
 
 	// startup SRB2
-	CONS_Printf("%s", M_GetText("Setting up SRB2...\n"));
+	CONS_Printf("D_SRB2Main() ...\n");
 	D_SRB2Main();
-	CONS_Printf("%s", M_GetText("Entering main game loop...\n"));
+	CONS_Printf("Entering main app loop...\n");
 	// never return
 	D_SRB2Loop();
 

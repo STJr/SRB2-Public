@@ -596,6 +596,19 @@ void T_ContinuousFalling(levelspecthink_t *faller)
 #define ceilingwasheight vars[3]
 #define floordestheight vars[4]
 #define ceilingdestheight vars[5]
+	fixed_t destfloor, destceiling;
+	fixed_t dist = faller->ceilingwasheight-faller->floorwasheight;
+
+	if (faller->direction == -1) // Down
+	{
+		destceiling = faller->ceilingdestheight;
+		destfloor = faller->ceilingdestheight-dist;
+	}
+	else // Up!
+	{
+		destceiling = faller->floordestheight+dist;
+		destfloor = faller->floordestheight;
+	}
 
 	if (faller->direction == -1)
 	{
@@ -1303,12 +1316,12 @@ wegotit:
 //			INT32 tagstart = STARTTAG - midpoint;
 //			INT32 tagend = ENDTAG - midpoint;
 
-//			DEBPRINT(va("tagstart is %d, tagend is %d\n", tagstart, tagend));
+//			CONS_Printf("tagstart is %d, tagend is %d\n", tagstart, tagend);
 
 			// Sag is adjusted by how close you are to the center
 			dist = ((ENDCONTROLTAG - STARTCONTROLTAG))/2 - abs(bridge->sector->tag - midpoint);
 
-//			DEBPRINT(va("Dist is %d\n", dist));
+//			CONS_Printf("Dist is %d\n", dist);
 			LOWCEILINGHEIGHT -= (SAGAMT) * dist;
 			LOWFLOORHEIGHT -= (SAGAMT) * dist;
 		}
@@ -1352,7 +1365,7 @@ wegotit:
 				CURSPEED = origspeed;
 		}
 
-//		DEBPRINT(va("Curspeed is %d\n", CURSPEED>>FRACBITS));
+//		CONS_Printf("Curspeed is %d\n", CURSPEED>>FRACBITS);
 
 		res = T_MovePlane
 		(
@@ -1392,7 +1405,7 @@ wegotit:
 			{
 				interval = heightdiff/divisor;
 
-//				DEBPRINT(va("interval is %d\n", interval>>FRACBITS));
+//				CONS_Printf("interval is %d\n", interval>>FRACBITS);
 
 				// TODO: Use T_MovePlane
 
@@ -1425,7 +1438,7 @@ wegotit:
 							ceilingdestination = ORIGCEILINGHEIGHT;
 							floordestination = ORIGFLOORHEIGHT;
 
-//							DEBPRINT(va("ceildest: %d, floordest: %d\n", ceilingdestination>>FRACBITS, floordestination>>FRACBITS));
+//							CONS_Printf("ceildest: %d, floordest: %d\n", ceilingdestination>>FRACBITS, floordestination>>FRACBITS);
 
 							if ((bridge->sector->ceilingheight - LOWCEILINGHEIGHT)
 								< (ORIGCEILINGHEIGHT - bridge->sector->ceilingheight))
@@ -1489,7 +1502,7 @@ wegotit:
 				interval = heightdiff/divisor;
 				plusplusme = 0;
 
-//				DEBPRINT(va("interval2 is %d\n", interval>>FRACBITS));
+//				CONS_Printf("interval2 is %d\n", interval>>FRACBITS);
 
 				for (j = (INT16)(sourcesec->tag+1); j <= ENDTAG + (ENDTAG-STARTTAG) + 1; j++, plusplusme++)
 				{
@@ -1520,7 +1533,7 @@ wegotit:
 							ceilingdestination = ORIGCEILINGHEIGHT;
 							floordestination = ORIGFLOORHEIGHT;
 
-//							DEBPRINT(va("ceildest: %d, floordest: %d\n", ceilingdestination>>FRACBITS, floordestination>>FRACBITS));
+//							CONS_Printf("ceildest: %d, floordest: %d\n", ceilingdestination>>FRACBITS, floordestination>>FRACBITS);
 
 							if ((bridge->sector->ceilingheight - LOWCEILINGHEIGHT)
 								< (ORIGCEILINGHEIGHT - bridge->sector->ceilingheight))
@@ -1604,7 +1617,7 @@ wegotit:
 				ceilingdestination = ORIGCEILINGHEIGHT;
 				floordestination = ORIGFLOORHEIGHT;
 
-//				DEBPRINT(va("ceildest: %d, floordest: %d\n", ceilingdestination>>FRACBITS, floordestination>>FRACBITS));
+//				CONS_Printf("ceildest: %d, floordest: %d\n", ceilingdestination>>FRACBITS, floordestination>>FRACBITS);
 
 				if ((bridge->sector->ceilingheight - LOWCEILINGHEIGHT)
 					< (ORIGCEILINGHEIGHT - bridge->sector->ceilingheight))
@@ -1908,7 +1921,8 @@ foundenemy:
 
 	s = P_AproxDistance(nobaddies->sourceline->dx, nobaddies->sourceline->dy)>>FRACBITS;
 
-	DEBPRINT(va("Running no-more-enemies exec with tag of %d\n", s));
+	if (cv_debug)
+		CONS_Printf("Running no-more-enemies exec with tag of %d\n", s);
 
 	// Otherwise, run the linedef exec and terminate this thinker
 	P_LinedefExecute(s, NULL, NULL);
@@ -2054,12 +2068,12 @@ void T_EachTimeThinker(levelspecthink_t *eachtime)
 	}
 
 	// # of players in this area has changed, so execute.
-	if ((affectPlayer = P_HavePlayersEnteredArea(playersInArea, oldPlayersInArea, (eachtime->sourceline->flags & ML_BOUNCY) == ML_BOUNCY)) != -1)
+	if ((affectPlayer = P_HavePlayersEnteredArea(playersInArea, oldPlayersInArea, eachtime->sourceline->flags & ML_BOUNCY)) != -1)
 	{
-		DEBPRINT(va("Trying to activate each time executor with tag %d\n", eachtime->sourceline->tag));
+		if (cv_debug)
+			CONS_Printf("Running each time executor with tag %d\n", eachtime->sourceline->tag);
 
 		// Fake-out P_LinedefExecute into thinking you are a continuous.
-		// <Callum> I HATE THIS HACK!!!! FIXME eventually
 		eachtime->sourceline->special--;
 		P_LinedefExecute(eachtime->sourceline->tag, players[affectPlayer].mo, (FOFsector && targetsec) ? targetsec : sec);
 		eachtime->sourceline->special++;
@@ -2885,7 +2899,7 @@ INT32 EV_MarioBlock(sector_t *sec, sector_t *roversector, fixed_t topheight, mob
 
 	if (sec->touching_thinglist && (thing = sec->touching_thinglist->m_thing) != NULL)
 	{
-		const boolean itsamonitor = (thing->flags & MF_MONITOR) == MF_MONITOR;
+		const boolean itsamonitor = thing->flags & MF_MONITOR;
 		// things are touching this sector
 		if (itsamonitor && thing->threshold == 68)
 		{

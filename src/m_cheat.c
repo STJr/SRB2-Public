@@ -18,6 +18,7 @@
 /// \brief Cheat sequence checking
 
 #include "doomdef.h"
+#include "dstrings.h"
 
 #include "g_game.h"
 #include "s_sound.h"
@@ -142,8 +143,12 @@ static inline void cht_GetParam(cheatseq_t *cht, char *buffer)
 
 boolean cht_Responder(event_t *ev)
 {
+	static player_t *plyr;
+
 	if (ev->type == ev_keydown && 0x00 <= ev->data1 && ev->data1 <= 0xFF)
 	{
+		plyr = &players[consoleplayer];
+
 		// devmode cheat
 		if (cht_CheckCheat(&cheat_bulmer, (char)ev->data1))
 		{
@@ -269,14 +274,14 @@ void Command_CheatNoClip_f(void)
 
 	plyr = &players[consoleplayer];
 	plyr->pflags ^= PF_NOCLIP;
-	CONS_Printf(M_GetText("No Clipping %s\n"), plyr->pflags & PF_NOCLIP ? M_GetText("On") : M_GetText("Off"));
+	CONS_Printf("No Clipping %s\n", plyr->pflags & PF_NOCLIP ? "On" : "Off");
 
 	if (!modifiedgame || savemoddata)
 	{
 		modifiedgame = true;
 		savemoddata = false;
 		if (!(netgame || multiplayer))
-			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+			CONS_Printf("%s", text[GAMEMODIFIED]);
 	}
 }
 
@@ -289,14 +294,14 @@ void Command_CheatGod_f(void)
 
 	plyr = &players[consoleplayer];
 	plyr->pflags ^= PF_GODMODE;
-	CONS_Printf(M_GetText("Sissy Mode %s\n"), plyr->pflags & PF_GODMODE ? M_GetText("On") : M_GetText("Off"));
+	CONS_Printf("Sissy Mode %s\n", plyr->pflags & PF_GODMODE ? "On" : "Off");
 
 	if (!modifiedgame || savemoddata)
 	{
 		modifiedgame = true;
 		savemoddata = false;
 		if (!(netgame || multiplayer))
-			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+			CONS_Printf("%s", text[GAMEMODIFIED]);
 	}
 }
 
@@ -306,19 +311,19 @@ void Command_Scale_f(void)
 
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("This only works in single player.\n"));
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
 		return;
 	}
 
 	if (!(scale >= 5 && scale <= 400)) //COM_Argv(1) will return a null string if they did not give a paramater, so...
 	{
-		CONS_Printf("%s", M_GetText("scale <value> (5-400): set player scale size\n"));
+		CONS_Printf("SCALE <value> (5-400): Set player scale size.\n");
 		return;
 	}
 
@@ -327,26 +332,26 @@ void Command_Scale_f(void)
 
 	players[consoleplayer].mo->destscale = (UINT16)scale;
 
-	CONS_Printf(M_GetText("Scale set to %d\n"), players[consoleplayer].mo->destscale);
+	CONS_Printf("Scale set to %d\n", players[consoleplayer].mo->destscale);
 }
 
 void Command_Gravflip_f(void)
 {
 	if (gamestate != GS_LEVEL || demoplayback)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
 		return;
 	}
 
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("This only works in single player.\n"));
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
 		return;
 	}
 
@@ -360,25 +365,25 @@ void Command_Hurtme_f(void)
 {
 	if (gamestate != GS_LEVEL || demoplayback)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
 		return;
 	}
 
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("You can't use this in a netgame.\n"));
+		CONS_Printf("%s", text[CANTUSEMULTIPLAYER]);
 		return;
 	}
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("hurtme <damage>\n"));
+		CONS_Printf("hurtme <damage>\n");
 		return;
 	}
 
@@ -389,25 +394,25 @@ void Command_Charability_f(void)
 {
 	if (gamestate != GS_LEVEL || demoplayback)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
 		return;
 	}
 
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (COM_Argc() < 3)
 	{
-		CONS_Printf("%s", M_GetText("charability <1/2> <value>\n"));
+		CONS_Printf("charability <1/2> <value>\n");
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("You can't use this in a netgame.\n"));
+		CONS_Printf("%s", text[CANTUSEMULTIPLAYER]);
 		return;
 	}
 
@@ -416,32 +421,32 @@ void Command_Charability_f(void)
 	else if (atoi(COM_Argv(1)) == 2)
 		players[consoleplayer].charability2 = atoi(COM_Argv(2));
 	else
-		CONS_Printf("%s", M_GetText("charability <1/2> <value>\n"));
+		CONS_Printf("charability <1/2> <value>\n");
 }
 
 void Command_Charspeed_f(void)
 {
 	if (gamestate != GS_LEVEL || demoplayback)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
 		return;
 	}
 
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (COM_Argc() < 3)
 	{
-		CONS_Printf("%s", M_GetText("charspeed <normalspeed/runspeed/thrustfactor/accelstart/acceleration/actionspd> <value>\n"));
+		CONS_Printf("charspeed <normalspeed/runspeed/thrustfactor/accelstart/acceleration/actionspd> <value>\n");
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("You can't use this in a netgame.\n"));
+		CONS_Printf("%s", text[CANTUSEMULTIPLAYER]);
 		return;
 	}
 
@@ -458,7 +463,7 @@ void Command_Charspeed_f(void)
 	else if (!strcasecmp(COM_Argv(1), "actionspd"))
 		players[consoleplayer].actionspd = atoi(COM_Argv(2));
 	else
-		CONS_Printf("%s", M_GetText("charspeed <normalspeed/runspeed/thrustfactor/accelstart/acceleration/actionspd> <value>\n"));
+		CONS_Printf("charspeed <normalspeed/runspeed/thrustfactor/accelstart/acceleration/actionspd> <value>\n");
 }
 
 #ifdef _DEBUG
@@ -470,7 +475,7 @@ void Command_CauseCfail_f(void)
 {
 	if (consoleplayer == serverplayer)
 	{
-		CONS_Printf("%s", M_GetText("Your reality is everyone's reality. Therefore, you should not use this command.\n"));
+		CONS_Printf("Your reality is everyone's reality. Therefore, you should not use this command.\n");
 		return;
 	}
 
@@ -505,13 +510,13 @@ void Command_Savecheckpoint_f(void)
 {
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("This only works in single player.\n"));
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
 		return;
 	}
 
@@ -521,7 +526,7 @@ void Command_Savecheckpoint_f(void)
 	players[consoleplayer].starpostz = players[consoleplayer].mo->floorz>>FRACBITS;
 	players[consoleplayer].starpostangle = players[consoleplayer].mo->angle;
 
-	CONS_Printf(M_GetText("Temporary checkpoint created at %d, %d, %d\n"), players[consoleplayer].starpostx, players[consoleplayer].starposty, players[consoleplayer].starpostz);
+	CONS_Printf("Temporary checkpoint created at %d, %d, %d\n", players[consoleplayer].starpostx, players[consoleplayer].starposty, players[consoleplayer].starpostz);
 }
 
 // Like M_GetAllEmeralds() but for console devmode junkies.
@@ -529,57 +534,57 @@ void Command_Getallemeralds_f(void)
 {
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("This only works in single player.\n"));
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
 		return;
 	}
 
 	emeralds = ((EMERALD7)*2)-1;
 
-	CONS_Printf("%s", M_GetText("You now have all 7 emeralds.\n"));
+	CONS_Printf("You now have all 7 emeralds.\n");
 }
 
 void Command_Resetemeralds_f(void)
 {
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("This only works in single player.\n"));
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
 		return;
 	}
 
 	emeralds = 0;
 
-	CONS_Printf("%s", M_GetText("Emeralds reset to zero.\n"));
+	CONS_Printf("Emeralds reset to zero.\n");
 }
 
 void Command_Unlockall_f(void)
 {
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("This only works in single player.\n"));
+		CONS_Printf("%s", text[SINGLEPLAYERONLY]);
 		return;
 	}
 
 	grade |= 4095;
 
-	CONS_Printf("%s", M_GetText("All secrets unlocked.\n"));
+	CONS_Printf("All secrets unlocked.\n");
 }
 
 void Command_Devmode_f(void)
@@ -599,6 +604,6 @@ void Command_Devmode_f(void)
 		modifiedgame = true;
 		savemoddata = false;
 		if (!(netgame || multiplayer))
-			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+			CONS_Printf("%s", text[GAMEMODIFIED]);
 	}
 }

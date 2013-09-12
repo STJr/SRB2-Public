@@ -102,15 +102,14 @@ static HRESULT WINAPI myEnumModesCallback (LPDDSURFACEDESC surf, LPVOID lpContex
 #ifdef DUMMYUNIONNAMEN
 		DUMMYUNIONNAMEN(1).
 #endif
-		dwRGBBitCount,
-		surf->lPitch
+		dwRGBBitCount
 		);
 
-		/*DEBPRINT (va("%dx%dx%d bpp %d refresh\n",
+		/*CONS_Printf ("%dx%dx%d bpp %d refresh\n",
 		surf->dwWidth,
 		surf->dwHeight,
 		surf->ddpfPixelFormat.dwRGBBitCount,
-	surf->dwRefreshRate));*/
+	surf->dwRefreshRate);*/
 
 	return  DDENUMRET_OK;
 }
@@ -260,7 +259,7 @@ int  InitDirectDrawe (HWND appWin, int width, int height, int bpp, int fullScr)
 		// for fullscreen we use page flipping, for windowed mode, we blit the hidden surface to
 		// the visible surface, in both cases we have a visible (or 'real') surface, and a hidden
 		// (or 'virtual', or 'backbuffer') surface.
-		ddsd.dwBackBufferCount = 2;
+		ddsd.dwBackBufferCount = 1;
 
 		ddrval = IDirectDraw2_CreateSurface(DDr2,&ddsd, &ScreenReal, NULL);
 		if (ddrval != DD_OK)
@@ -277,8 +276,8 @@ int  InitDirectDrawe (HWND appWin, int width, int height, int bpp, int fullScr)
 	{
 		rect.top = 0;
 		rect.left = 0;
-		rect.bottom = height;
-		rect.right = width;
+		rect.bottom = height-1;
+		rect.right = width-1;
 
 		// Change window attributes
 
@@ -437,12 +436,13 @@ BOOL ScreenFlip(int waitflip)
 	HRESULT hr;
 	RECT rect;
 
+	UNREFERENCED_PARAMETER(waitflip);
 	if (bAppFullScreen)
 	{
 		//hr = IDirectDrawSurface_GetFlipStatus (ScreenReal, DDGFS_);
 
 		// In full-screen exclusive mode, do a hardware flip.
-		hr = IDirectDrawSurface_Flip(ScreenReal, NULL, DDFLIP_WAIT | (waitflip ? 0 : DDFLIP_NOVSYNC));   //return immediately
+		hr = IDirectDrawSurface_Flip(ScreenReal, NULL, DDFLIP_WAIT);   //return immediately
 
 		// If the surface was lost, restore it.
 		if (hr == DDERR_SURFACELOST)
@@ -450,7 +450,7 @@ BOOL ScreenFlip(int waitflip)
 			IDirectDrawSurface_Restore(ScreenReal);
 
 			// The restore worked, so try the flip again.
-			hr = IDirectDrawSurface_Flip(ScreenReal, 0, DDFLIP_WAIT | (waitflip ? 0 : DDFLIP_NOVSYNC));
+			hr = IDirectDrawSurface_Flip(ScreenReal, 0, DDFLIP_WAIT);
 		}
 	}
 	else

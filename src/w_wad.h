@@ -62,19 +62,13 @@ typedef struct
 
 #define lumpcache_t void *
 
-// Annoying cyclic dependency workaround: this inlcusion must come after
-// the definition of MAX_WADPATH.
-#ifdef HWRENDER
-#include "m_misc.h"
-#endif
-
 typedef struct wadfile_s
 {
 	char *filename;
 	lumpinfo_t *lumpinfo;
 	lumpcache_t *lumpcache;
 #ifdef HWRENDER
-	aatree_t *hwrcache; // patches are cached in renderer's native format
+	GLPatch_t *hwrcache; // patches are cached in renderer's native format
 #endif
 	UINT16 numlumps; // this wad's number of resources
 	FILE *handle;
@@ -94,9 +88,7 @@ void W_Shutdown(void);
 
 // Load and add a wadfile to the active wad files, returns numbers of lumps, INT16_MAX on error
 UINT16 W_LoadWadFile(const char *filename);
-#ifdef DELFILE
 void W_UnloadWadFile(UINT16 num);
-#endif
 
 // W_InitMultipleFiles returns 1 if all is okay, 0 otherwise,
 // so that it stops with a message if a file was not found, but not if all is okay.
@@ -133,8 +125,6 @@ void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag); // return a patch_t
 //#define W_CachePatchNumPwad(wad, lump, tag) W_CacheLumpNumPwad(wad, lump, tag)
 #define W_CachePatchNum(lumpnum, tag) W_CacheLumpNum(lumpnum, tag)
 #endif
-
-void W_UnlockCachedPatch(void *patch);
 
 void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5);
 

@@ -19,7 +19,7 @@
 #ifndef __I_TCP__
 #define __I_TCP__
 
-extern UINT16 current_port;
+extern UINT16 sock_port;
 
 /**	\brief	The I_InitTcpNetwork function
 

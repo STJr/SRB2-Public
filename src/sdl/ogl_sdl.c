@@ -56,19 +56,12 @@ typedef int (*PFNGLXSWAPINTERVALPROC) (int);
 PFNGLXSWAPINTERVALPROC glXSwapIntervalSGIEXT = NULL;
 #endif
 
-#ifndef STATIC_OPENGL
 PFNglClear pglClear;
 PFNglGetIntegerv pglGetIntegerv;
 PFNglGetString pglGetString;
-#endif
 
-#ifdef _PSP
-static const Uint32 WOGLFlags = SDL_HWSURFACE|SDL_OPENGL/*|SDL_RESIZABLE*/;
-static const Uint32 FOGLFlags = SDL_HWSURFACE|SDL_OPENGL|SDL_FULLSCREEN;
-#else
 static const Uint32 WOGLFlags = SDL_OPENGL/*|SDL_RESIZABLE*/;
 static const Uint32 FOGLFlags = SDL_OPENGL|SDL_FULLSCREEN;
-#endif
 
 /**	\brief SDL video display surface
 */
@@ -76,23 +69,16 @@ SDL_Surface *vidSurface = NULL;
 INT32 oglflags = 0;
 void *GLUhandle = NULL;
 
-#ifndef STATIC_OPENGL
 void *GetGLFunc(const char *proc)
 {
-	if (strncmp(proc, "glu", 3) == 0)
-	{
-		if (GLUhandle)
-			return hwSym(proc, GLUhandle);
-		else
-			return NULL;
-	}
-	return SDL_GL_GetProcAddress(proc);
+	void *func = SDL_GL_GetProcAddress(proc);
+	if (!func)
+		func = hwSym(proc, GLUhandle);
+	return func;
 }
-#endif
 
 boolean LoadGL(void)
 {
-#ifndef STATIC_OPENGL
 	const char *OGLLibname = NULL;
 	const char *GLULibname = NULL;
 
@@ -101,10 +87,10 @@ boolean LoadGL(void)
 
 	if (SDL_GL_LoadLibrary(OGLLibname) != 0)
 	{
-		DEBPRINT(va("Could not load OpenGL Library: %s\n"
-					"Falling back to Software mode.\n", SDL_GetError()));
+		I_OutputMsg("Could not load OpenGL Library: %s\n", SDL_GetError());
+		I_OutputMsg("falling back to Software mode\n");
 		if (!M_CheckParm ("-OGLlib"))
-			DEBPRINT("If you know what is the OpenGL library's name, use -OGLlib\n");
+			I_OutputMsg("if you know what is the OpenGL library's name, use -OGLlib\n");
 		return 0;
 	}
 
@@ -116,9 +102,7 @@ boolean LoadGL(void)
 	GLULibname = "/System/Library/Frameworks/OpenGL.framework/Libraries/libGLU.dylib";
 #elif defined (macintos)
 	GLULibname = "OpenGLLibrary";
-#elif defined (__unix__)
-	GLULibname = "libGLU.so.1";
-#elif defined (__HAIKU__)
+#elif defined (__unix__) || defined (__HAIKU__)
 	GLULibname = "libGLU.so";
 #else
 	GLULibname = NULL;
@@ -134,18 +118,19 @@ boolean LoadGL(void)
 			return SetupGLfunc();
 		else
 		{
-			DEBPRINT(va("Could not load GLU Library: %s\n", GLULibname));
+			I_OutputMsg("Could not load GLU Library: %s\n", GLULibname);
+			I_OutputMsg("falling back to Software mode\n");
 			if (!M_CheckParm ("-GLUlib"))
-				DEBPRINT("If you know what is the GLU library's name, use -GLUlib\n");
+				I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
 		}
 	}
 	else
 	{
-		DEBPRINT("Could not load GLU Library\n");
-		DEBPRINT("If you know what is the GLU library's name, use -GLUlib\n");
+		I_OutputMsg("Please fill a bug report to tell SRB2 where to find the default GLU library for this unknown OS\n");
+		I_OutputMsg("falling back to Software mode\n");
+		I_OutputMsg("if you know what is the GLU library's name, use -GLUlib\n");
 	}
-#endif
-	return SetupGLfunc();
+	return 0;
 }
 
 /**	\brief	The OglSdlSurface function
@@ -230,11 +215,9 @@ boolean OglSdlSurface(INT32 w, INT32 h, boolean isFullscreen)
 		glXSwapIntervalSGIEXT = NULL;
 #endif
 
-#ifndef KOS_GL_COMPATIBILITY
 	if (isExtAvailable("GL_EXT_texture_filter_anisotropic", gl_extensions))
 		pglGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
 	else
-#endif
 		maximumAnisotropy = 0;
 
 	granisotropicmode_cons_t[1].value = maximumAnisotropy;

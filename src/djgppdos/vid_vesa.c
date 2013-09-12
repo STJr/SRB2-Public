@@ -39,7 +39,7 @@
 static vmode_t *VID_GetModePtr (int modenum);
 static int  VID_VesaGetModeInfo (int modenum);
 static void VID_VesaGetExtraModes (void);
-static INT32  VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode);
+static int  VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode);
 
 static void VID_Command_NumModes_f (void);
 static void VID_Command_ModeInfo_f (void);
@@ -65,7 +65,7 @@ static vesa_extra_t vesa_extra[MAX_VESA_MODES];
 
 //this is the only supported non-vesa mode : standard 320x200x256c.
 #define NUMVGAVIDMODES  1
-static INT32 VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode);
+static int VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode);
 static char vgamode1[] ="320x200";
 static vmode_t      vgavidmodes[NUMVGAVIDMODES] = {
   {
@@ -128,7 +128,7 @@ static vesamodeinfo_t vesamodeinfo;
 // ------------------------------------------------------------------------
 static unsigned long conventional_memory = (unsigned long)-1;
 
-FUNCINLINE static ATTRINLINE void map_in_conventional_memory(void)
+static inline void map_in_conventional_memory(void)
 {
 	if (conventional_memory == (unsigned long)-1)
 	{
@@ -149,7 +149,7 @@ unsigned int ptr2real(void *ptr)
 #endif
 
 // Converts 0x12345 (seg<<4+offs) realmode ptr to a flat 32bit ptr
-FUNCINLINE static ATTRINLINE void *real2ptr(unsigned int real)
+static inline void *real2ptr(unsigned int real)
 {
 	map_in_conventional_memory();
 	return (void *) (real + conventional_memory);
@@ -170,13 +170,13 @@ static inline void VGA_Init(void)
 
 
 //added:30-01-98: return number of video modes in pvidmodes list
-INT32 VID_NumModes(void)
+int VID_NumModes(void)
 {
 	return numvidmodes;
 }
 
 //added:21-03-98: return info on video mode
-FUNCINLINE static ATTRINLINE const char *VID_ModeInfo (int modenum, char **ppheader)
+static inline const char *VID_ModeInfo (int modenum, char **ppheader)
 {
 	static const char *badmodestr = "Bad video mode number\n";
 	vmode_t     *pv;
@@ -200,7 +200,7 @@ FUNCINLINE static ATTRINLINE const char *VID_ModeInfo (int modenum, char **pphea
 
 
 //added:03-02-98: return a video mode number from the dimensions
-INT32 VID_GetModeForSize( INT32 w, INT32 h)
+int VID_GetModeForSize( int w, int h)
 {
 	vmode_t *pv;
 	int modenum;
@@ -288,7 +288,7 @@ vmode_t *VID_GetModePtr (int modenum)
 
 
 //added:30-01-98:return the name of a video mode
-const char *VID_GetModeName (INT32 modenum)
+const char *VID_GetModeName (int modenum)
 {
 	return (VID_GetModePtr(modenum))->name;
 }
@@ -297,9 +297,9 @@ const char *VID_GetModeName (INT32 modenum)
 // ========================================================================
 // Sets a video mode
 // ========================================================================
-INT32 VID_SetMode (INT32 modenum)  //, UINT8 *palette)
+int VID_SetMode (int modenum)  //, UINT8 *palette)
 {
-	int     vstat;
+	int     stat;
 	vmode_t *pnewmode, *poldmode;
 
 	if ((modenum >= numvidmodes) || (modenum < 0))
@@ -338,11 +338,11 @@ INT32 VID_SetMode (INT32 modenum)  //, UINT8 *palette)
 	//if (vid.rowbytes != vid.width)
 	//    I_Error("vidrowbytes (%d) <> vidwidth(%d)\n",vid.rowbytes,vid.width);
 
-	vstat = (*pcurrentmode->setmode) (&vid, pcurrentmode);
+	stat = (*pcurrentmode->setmode) (&vid, pcurrentmode);
 
-	if (vstat < 1)
+	if (stat < 1)
 	{
-		if (vstat == 0)
+		if (stat == 0)
 		{
 			// harware could not setup mode
 			//if (!VID_SetMode (vid.modenum))
@@ -350,7 +350,7 @@ INT32 VID_SetMode (INT32 modenum)  //, UINT8 *palette)
 			I_Error("Couldn't set video mode %d\n", modenum);
 		}
 		else
-		if (vstat == -1)
+		if (stat == -1)
 		{
 			CONS_Printf ("Not enough mem for VID_SetMode...\n");
 
@@ -531,7 +531,7 @@ void VID_VesaGetExtraModes (void)
 
 	dosmemget(MASK_LINEAR(__tb), sizeof (vbeinfoblock_t), &vesainfo);
 
-	if (strncmp((void *)vesainfo.VESASignature, "VESA", 4) != 0)
+	if (strncmp(vesainfo.VESASignature, "VESA", 4) != 0)
 	{
 no_vesa:
 		CONS_Printf ("No VESA driver\n");
@@ -687,7 +687,7 @@ no_vesa:
 // Free the video buffer of the last video mode,
 // allocate a new buffer for the video mode to set.
 // ========================================================================
-static boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
+static inline boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
 {
 	int  vidbuffersize;
 
@@ -719,7 +719,7 @@ static boolean VID_FreeAndAllocVidbuffer (viddef_t *lvid)
 //      0 hardware could not set mode,
 //     -1 no mem
 // ========================================================================
-static INT32 VGA_InitMode (viddef_t *lvid, vmode_t *currentmodep)
+static int VGA_InitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 {
 	__dpmi_regs   regs;
 
@@ -737,7 +737,7 @@ static INT32 VGA_InitMode (viddef_t *lvid, vmode_t *currentmodep)
 	// (you could have 320x200x256c with LFB in the vesa modes)
 	lvid->direct = (UINT8 *) real2ptr (0xa0000);
 	lvid->u.numpages = 1;
-	lvid->bpp = currentmodep->bytesperpixel;
+	lvid->bpp = pcurrentmode->bytesperpixel;
 
 	return 1;
 }
@@ -749,22 +749,22 @@ static INT32 VGA_InitMode (viddef_t *lvid, vmode_t *currentmodep)
 //      0 hardware could not set mode,
 //     -1 no mem
 // ========================================================================
-INT32 VID_VesaInitMode (viddef_t *lvid, vmode_t *currentmodep)
+int VID_VesaInitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 {
 	vesa_extra_t    *pextra;
 	__dpmi_regs     regs;
 
-	pextra = currentmodep->pextradata;
+	pextra = pcurrentmode->pextradata;
 
 #ifdef DEBUG
 	CONS_Printf("VID_VesaInitMode...\n");
-	CONS_Printf(" currentmodep->name %s\n",currentmodep->name);
-	CONS_Printf("               width %d\n",currentmodep->width);
-	CONS_Printf("               height %d\n",currentmodep->height);
-	CONS_Printf("               rowbytes %d\n",currentmodep->rowbytes);
-	CONS_Printf("               windowed %d\n",currentmodep->windowed);
-	CONS_Printf("               numpages %d\n",currentmodep->numpages);
-	CONS_Printf(" currentmodep->pextradata :\n");
+	CONS_Printf(" pcurrentmode->name %s\n",pcurrentmode->name);
+	CONS_Printf("               width %d\n",pcurrentmode->width);
+	CONS_Printf("               height %d\n",pcurrentmode->height);
+	CONS_Printf("               rowbytes %d\n",pcurrentmode->rowbytes);
+	CONS_Printf("               windowed %d\n",pcurrentmode->windowed);
+	CONS_Printf("               numpages %d\n",pcurrentmode->numpages);
+	CONS_Printf(" pcurrentmode->pextradata :\n");
 	CONS_Printf("                ->vesamode %x\n",pextra->vesamode);
 	CONS_Printf("                ->plinearmem %x\n\n",pextra->plinearmem);
 #endif
@@ -795,7 +795,7 @@ INT32 VID_VesaInitMode (viddef_t *lvid, vmode_t *currentmodep)
 
 	// points to LFB, or the start of VGA mem.
 	lvid->direct = pextra->plinearmem;
-	lvid->bpp    = currentmodep->bytesperpixel;
+	lvid->bpp    = pcurrentmode->bytesperpixel;
 
 	return 1;
 }

@@ -21,6 +21,7 @@
 #include "sounds.h"
 #include "info.h"
 #include "d_think.h"
+#include "dstrings.h"
 #include "m_argv.h"
 #include "z_zone.h"
 #include "w_wad.h"
@@ -30,10 +31,6 @@
 #include "dehacked.h"
 #include "st_stuff.h"
 #include "i_system.h"
-#include "p_setup.h"
-#ifdef CALLUM_TEXTURE
-#include "r_data.h"
-#endif
 
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
@@ -47,9 +44,7 @@ int	vsnprintf(char *str, size_t n, const char *fmt, va_list ap);
 
 boolean deh_loaded = false;
 boolean modcredits = false; // Whether a mod creator's name will show in the credits.
-char modcreditname[32];
 
-#ifdef DELFILE
 typedef struct undehacked_s
 {
 	char *undata;
@@ -138,7 +133,6 @@ void DEH_WriteUndoline(const char *value, const char *data, undotype_f flags)
 	newdata->next = unsocdata[unsocwad];
 	unsocdata[unsocwad] = newdata;
 }
-#endif
 
 char *myfgets(char *buf, size_t bufsize, MYFILE *f)
 {
@@ -186,17 +180,15 @@ static INT32 deh_num_warning = 0;
 FUNCPRINTF static void deh_warning(const char *first, ...)
 {
 	va_list argptr;
-	char *buf = Z_Malloc(1000, PU_STATIC, NULL);
+	XBOXSTATIC char buf[1000];
 
 	va_start(argptr, first);
-	vsnprintf(buf, 1000, first, argptr);
+	vsnprintf(buf, sizeof buf, first, argptr);
 	va_end(argptr);
 
 	CONS_Printf("%s\n", buf);
 
 	deh_num_warning++;
-
-	Z_Free(buf);
 }
 
 /* ======================================================================== */
@@ -243,7 +235,7 @@ static INT32 searchvalue(const char *s)
 	}
 }
 
-#ifdef HWRENDER
+#if 0
 static float searchfvalue(const char *s)
 {
 	while (s[0] != '=' && s[0])
@@ -325,7 +317,7 @@ static boolean findFreeSlot(INT32 *num)
 // For modifying the character select screen
 static void readPlayer(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *word2;
 	INT32 i;
@@ -335,7 +327,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -351,7 +343,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 				char *playertext = NULL;
 
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					goto done;
+					return;
 
 				for (i = 0; i < MAXLINELEN-3; i++)
 				{
@@ -372,13 +364,13 @@ static void readPlayer(MYFILE *f, INT32 num)
 				// For some reason, cutting the string did not work above. Most likely due to strcpy or strcat...
 				// It works down here, though.
 				{
-					INT32 numline = 0;
+					INT32 numlines = 0;
 					for (i = 0; i < MAXLINELEN-1; i++)
 					{
-						if (numline < 7 && description[num].info[i] == '\n')
-							numline++;
+						if (numlines < 7 && description[num].info[i] == '\n')
+							numlines++;
 
-						if (numline >= 7 || description[num].info[i] == '\0' || description[num].info[i] == '#')
+						if (numlines >= 7 || description[num].info[i] == '\0' || description[num].info[i] == '#')
 							break;
 					}
 				}
@@ -399,25 +391,23 @@ static void readPlayer(MYFILE *f, INT32 num)
 			if (!strcmp(word, "PLAYERNAME"))
 			{
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					goto done;
+					return;
 				DEH_WriteUndoline(word, description[num].text, UNDO_NONE);
 				strlcpy(description[num].text, word2, sizeof (description[num].text));
 				PlayerMenu[num].text = description[num].text;
 			}
 			else if (!strcmp(word, "MENUPOSITION"))
 			{
-#ifdef DELFILE
 				if (disableundo) // NO SCREWING UP MY MENU, FOOL!
 				{
 					slotfound = true;
 					num = i;
 				}
-#endif
 			}
 			else if (!strcmp(word, "PICNAME"))
 			{
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					goto done;
+					return;
 				DEH_WriteUndoline(word, &description[num].picname[0], UNDO_NONE);
 				strlcpy(description[num].picname, word2, 9);
 			}
@@ -437,7 +427,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 					signal that you are purposely doing so by disabling and then reenabling the slot.
 				*/
 				if (i != IT_DISABLED && !slotfound && (slotfound = findFreeSlot(&num)) == false)
-					goto done;
+					return;
 				DEH_WriteUndoline(word, va("%d", PlayerMenu[num].status), UNDO_NONE);
 				PlayerMenu[num].status = (INT16)i;
 			}
@@ -445,7 +435,7 @@ static void readPlayer(MYFILE *f, INT32 num)
 			{
 				// Send to free slot.
 				if (!slotfound && (slotfound = findFreeSlot(&num)) == false)
-					goto done;
+					return;
 				DEH_WriteUndoline(word, description[num].skinname, UNDO_NONE);
 				strcpy(description[num].skinname, word2);
 			}
@@ -454,25 +444,20 @@ static void readPlayer(MYFILE *f, INT32 num)
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
-#ifdef DELFILE
 	if (slotfound)
 		DEH_WriteUndoline("MENUPOSITION", va("%d", num), UNDO_NONE);
-#endif
-
-done:
-	Z_Free(s);
 }
 
 static void readthing(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -613,130 +598,11 @@ static void readthing(MYFILE *f, INT32 num)
 				deh_warning("Thing %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
 }
-
-#ifdef HWRENDER
-static void readlight(MYFILE *f, INT32 num)
-{
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
-	char *word;
-	char *tmp;
-	INT32 value;
-	float fvalue;
-
-	do
-	{
-		if (myfgets(s, MAXLINELEN, f))
-		{
-			if (s[0] == '\n')
-				break;
-
-			tmp = strchr(s, '#');
-			if (tmp)
-				*tmp = '\0';
-
-			fvalue = searchfvalue(s);
-			value = searchvalue(s);
-
-			word = strtok(s, " ");
-			if (word)
-				strupr(word);
-			else
-				break;
-
-			if (!strcmp(word, "TYPE"))
-			{
-				DEH_WriteUndoline(word, va("%d", lspr[num].type), UNDO_NONE);
-				lspr[num].type = (UINT16)value;
-			}
-			else if (!strcmp(word, "OFFSETX"))
-			{
-				DEH_WriteUndoline(word, va("%f", lspr[num].light_xoffset), UNDO_NONE);
-				lspr[num].light_xoffset = fvalue;
-			}
-			else if (!strcmp(word, "OFFSETY"))
-			{
-				DEH_WriteUndoline(word, va("%f", lspr[num].light_yoffset), UNDO_NONE);
-				lspr[num].light_yoffset = fvalue;
-			}
-			else if (!strcmp(word, "CORONACOLOR"))
-			{
-				DEH_WriteUndoline(word, va("%u", lspr[num].corona_color), UNDO_NONE);
-				lspr[num].corona_color = value;
-			}
-			else if (!strcmp(word, "CORONARADIUS"))
-			{
-				DEH_WriteUndoline(word, va("%f", lspr[num].corona_radius), UNDO_NONE);
-				lspr[num].corona_radius = fvalue;
-			}
-			else if (!strcmp(word, "DYNAMICCOLOR"))
-			{
-				DEH_WriteUndoline(word, va("%u", lspr[num].dynamic_color), UNDO_NONE);
-				lspr[num].dynamic_color = value;
-			}
-			else if (!strcmp(word, "DYNAMICRADIUS"))
-			{
-				DEH_WriteUndoline(word, va("%f", lspr[num].dynamic_radius), UNDO_NONE);
-				lspr[num].dynamic_radius = fvalue;
-
-				/// \note Update the sqrradius! unnecessary?
-				lspr[num].dynamic_sqrradius = fvalue * fvalue;
-			}
-			else
-				deh_warning("Light %d: unknown word '%s'", num, word);
-		}
-	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
-}
-
-static void readspritelight(MYFILE *f, INT32 num)
-{
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
-	char *word;
-	char *tmp;
-	INT32 value;
-
-	do
-	{
-		if (myfgets(s, MAXLINELEN, f))
-		{
-			if (s[0] == '\n')
-				break;
-
-			tmp = strchr(s, '#');
-			if (tmp)
-				*tmp = '\0';
-
-			value = searchvalue(s);
-
-			word = strtok(s, " ");
-			if (word)
-				strupr(word);
-			else
-				break;
-
-			if (!strcmp(word, "LIGHTTYPE"))
-			{
-				INT32 oldvar;
-				for (oldvar = 0; t_lspr[num] != &lspr[oldvar]; oldvar++);
-				DEH_WriteUndoline(word, va("%d", oldvar), UNDO_NONE);
-				t_lspr[num] = &lspr[value];
-			}
-			else
-				deh_warning("Sprite %d: unknown word '%s'", num, word);
-		}
-	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
-}
-#endif // HWRENDER
 
 static void readlevelheader(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -744,7 +610,7 @@ static void readlevelheader(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -769,31 +635,28 @@ static void readlevelheader(MYFILE *f, INT32 num)
 
 			i = atoi(word2); // used for numerical settings
 
-			if(!mapheaderinfo[num-1])
-				P_AllocMapHeader((INT16)(num-1));
-
 			if (!strcmp(word, "LEVELNAME"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1]->lvlttl, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1]->lvlttl, word2, 33);
+				DEH_WriteUndoline(word, mapheaderinfo[num-1].lvlttl, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1].lvlttl, word2, 33);
 			}
 			else if (!strcmp(word, "SUBTITLE"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1]->subttl, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1]->subttl, word2, 33);
+				DEH_WriteUndoline(word, mapheaderinfo[num-1].subttl, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1].subttl, word2, 33);
 			}
 			else if (!strcmp(word, "ACT"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->actnum), UNDO_NONE);
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].actnum), UNDO_NONE);
 				if (i >= 0 && i < 20) // 0 for no act number, TTL1 through TTL19
-					mapheaderinfo[num-1]->actnum = (UINT8)i;
+					mapheaderinfo[num-1].actnum = (UINT8)i;
 				else
 					deh_warning("Level header %d: invalid act number %d", num, i);
 			}
 			else if (!strcmp(word, "TYPEOFLEVEL"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->typeoflevel), UNDO_NONE);
-				mapheaderinfo[num-1]->typeoflevel = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].typeoflevel), UNDO_NONE);
+				mapheaderinfo[num-1].typeoflevel = (INT16)i;
 			}
 			else if (!strcmp(word, "NEXTLEVEL"))
 			{
@@ -804,131 +667,129 @@ static void readlevelheader(MYFILE *f, INT32 num)
 				if (word2[0] >= 'A' && word2[0] <= 'Z')
 					i = M_MapNumber(word2[0], word2[1]);
 
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->nextlevel), UNDO_NONE);
-				mapheaderinfo[num-1]->nextlevel = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nextlevel), UNDO_NONE);
+				mapheaderinfo[num-1].nextlevel = (INT16)i;
 			}
 			else if (!strcmp(word, "MUSICSLOT"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->musicslot), UNDO_NONE);
-				mapheaderinfo[num-1]->musicslot = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].musicslot), UNDO_NONE);
+				mapheaderinfo[num-1].musicslot = i;
 			}
 			else if (!strcmp(word, "FORCECHARACTER"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->forcecharacter), UNDO_NONE);
-				mapheaderinfo[num-1]->forcecharacter = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].forcecharacter), UNDO_NONE);
+				mapheaderinfo[num-1].forcecharacter = (UINT8)i;
 			}
 			else if (!strcmp(word, "WEATHER"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->weather), UNDO_NONE);
-				mapheaderinfo[num-1]->weather = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].weather), UNDO_NONE);
+				mapheaderinfo[num-1].weather = (UINT8)i;
 			}
 			else if (!strcmp(word, "SKYNUM"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->skynum), UNDO_NONE);
-				mapheaderinfo[num-1]->skynum = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].skynum), UNDO_NONE);
+				mapheaderinfo[num-1].skynum = (INT16)i;
 			}
 			else if (!strcmp(word, "INTERSCREEN"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1]->interscreen, UNDO_NONE);
-				strncpy(mapheaderinfo[num-1]->interscreen, word2, 8);
+				DEH_WriteUndoline(word, mapheaderinfo[num-1].interscreen, UNDO_NONE);
+				strncpy(mapheaderinfo[num-1].interscreen, word2, 8);
 				// TODO: This needs fixed. DEH_WriteUndoline expects a terminated string.
 			}
 			else if (!strcmp(word, "SCRIPTNAME"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1]->scriptname, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1]->scriptname, word2, sizeof (mapheaderinfo[num-1]->scriptname));
+				DEH_WriteUndoline(word, mapheaderinfo[num-1].scriptname, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1].scriptname, word2, sizeof (mapheaderinfo[num-1].scriptname));
 			}
 			else if (!strcmp(word, "SCRIPTISLUMP"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->scriptislump), UNDO_NONE);
-				mapheaderinfo[num-1]->scriptislump = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].scriptislump), UNDO_NONE);
+				mapheaderinfo[num-1].scriptislump = i;
 			}
 			else if (!strcmp(word, "PRECUTSCENENUM"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->precutscenenum), UNDO_NONE);
-				mapheaderinfo[num-1]->precutscenenum = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].precutscenenum), UNDO_NONE);
+				mapheaderinfo[num-1].precutscenenum = (UINT8)i;
 			}
 			else if (!strcmp(word, "CUTSCENENUM"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->cutscenenum), UNDO_NONE);
-				mapheaderinfo[num-1]->cutscenenum = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].cutscenenum), UNDO_NONE);
+				mapheaderinfo[num-1].cutscenenum = (UINT8)i;
 			}
 			else if (!strcmp(word, "COUNTDOWN"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->countdown), UNDO_NONE);
-				mapheaderinfo[num-1]->countdown = (INT16)i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].countdown), UNDO_NONE);
+				mapheaderinfo[num-1].countdown = (INT16)i;
 			}
 			else if (!strcmp(word, "NOZONE"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->nozone), UNDO_NONE);
-				mapheaderinfo[num-1]->nozone = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nozone), UNDO_NONE);
+				mapheaderinfo[num-1].nozone = i;
 			}
 			else if (!strcmp(word, "HIDDEN"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->hideinmenu), UNDO_NONE);
-				mapheaderinfo[num-1]->hideinmenu = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].hideinmenu), UNDO_NONE);
+				mapheaderinfo[num-1].hideinmenu = i;
 			}
 			else if (!strcmp(word, "NOSSMUSIC"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->nossmusic), UNDO_NONE);
-				mapheaderinfo[num-1]->nossmusic = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].nossmusic), UNDO_NONE);
+				mapheaderinfo[num-1].nossmusic = i;
 			}
 			else if (!strcmp(word, "SPEEDMUSIC"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->speedmusic), UNDO_NONE);
-				mapheaderinfo[num-1]->speedmusic = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].speedmusic), UNDO_NONE);
+				mapheaderinfo[num-1].speedmusic = i;
 			}
 			else if (!strcmp(word, "NORELOAD"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->noreload), UNDO_NONE);
-				mapheaderinfo[num-1]->noreload = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].noreload), UNDO_NONE);
+				mapheaderinfo[num-1].noreload = i;
 			}
 			else if (!strcmp(word, "TIMEATTACK"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->timeattack), UNDO_NONE);
-				mapheaderinfo[num-1]->timeattack = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].timeattack), UNDO_NONE);
+				mapheaderinfo[num-1].timeattack = i;
 			}
 			else if (!strcmp(word, "LEVELSELECT"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->levelselect), UNDO_NONE);
-				mapheaderinfo[num-1]->levelselect = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].levelselect), UNDO_NONE);
+				mapheaderinfo[num-1].levelselect = i;
 			}
 			else if (!strcmp(word, "NOPERFECTBONUS"))
 			{
-				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1]->noperfectbns), UNDO_NONE);
-				mapheaderinfo[num-1]->noperfectbns = i;
+				DEH_WriteUndoline(word, va("%d", mapheaderinfo[num-1].noperfectbns), UNDO_NONE);
+				mapheaderinfo[num-1].noperfectbns = i;
 			}
 			else if (!strcmp(word, "RUNSOC"))
 			{
-				DEH_WriteUndoline(word, mapheaderinfo[num-1]->runsoc, UNDO_NONE);
-				strlcpy(mapheaderinfo[num-1]->runsoc, word2, sizeof (mapheaderinfo[num-1]->runsoc));
+				DEH_WriteUndoline(word, mapheaderinfo[num-1].runsoc, UNDO_NONE);
+				strlcpy(mapheaderinfo[num-1].runsoc, word2, sizeof (mapheaderinfo[num-1].runsoc));
 			}
 			else if (!strcmp(word, "PALETTE"))
 			{
-				DEH_WriteUndoline(word, va("%u", mapheaderinfo[num-1]->palette), UNDO_NONE);
-				mapheaderinfo[num-1]->palette = (UINT16)i;
+				DEH_WriteUndoline(word, va("%u", mapheaderinfo[num-1].palette), UNDO_NONE);
+				mapheaderinfo[num-1].palette = (UINT16)i;
 			}
 			else
 				deh_warning("Level header %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
 }
 
 static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 {
-	char *s = Z_Calloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN] = "";
 	char *word;
 	char *word2;
 	INT32 i;
 	UINT16 usi;
 
-	DEH_WriteUndoline("SCENETEXT", cutscenes[num]->scene[scenenum].text, UNDO_ENDTEXT);
+	DEH_WriteUndoline("SCENETEXT", cutscenes[num].scene[scenenum].text, UNDO_ENDTEXT);
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -942,9 +803,7 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 			if (!strcmp(word, "SCENETEXT"))
 			{
 				char *scenetext = NULL;
-				char *buffer;
-				const int bufferlen = 4096;
-
+				XBOXSTATIC char buffer[4096] = "";
 				for (i = 0; i < MAXLINELEN; i++)
 				{
 					if (s[i] == '=')
@@ -956,8 +815,8 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 				if (!scenetext)
 				{
-					Z_Free(cutscenes[num]->scene[scenenum].text);
-					cutscenes[num]->scene[scenenum].text = NULL;
+					Z_Free(cutscenes[num].scene[scenenum].text);
+					cutscenes[num].scene[scenenum].text = NULL;
 					continue;
 				}
 
@@ -971,19 +830,16 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 					}
 				}
 
-				buffer = Z_Malloc(4096, PU_STATIC, NULL);
 				strcpy(buffer, scenetext);
 
 				strcat(buffer,
-					myhashfgets(scenetext, bufferlen
+					myhashfgets(scenetext, sizeof (buffer)
 					- strlen(buffer) - 1, f));
 
 				// A cutscene overwriting another one...
-				Z_Free(cutscenes[num]->scene[scenenum].text);
+				Z_Free(cutscenes[num].scene[scenenum].text);
 
-				cutscenes[num]->scene[scenenum].text = Z_StrDup(buffer);
-
-				Z_Free(buffer);
+				cutscenes[num].scene[scenenum].text = Z_StrDup(buffer);
 
 				continue;
 			}
@@ -1001,255 +857,247 @@ static void readcutscenescene(MYFILE *f, INT32 num, INT32 scenenum)
 
 			if (!strcmp(word, "NUMBEROFPICS"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].numpics), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].numpics = (UINT8)i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].numpics), UNDO_NONE);
+				cutscenes[num].scene[scenenum].numpics = (UINT8)i;
 			}
 			else if (!strcmp(word, "PIC1NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[0], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[0], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[0], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[0], word2, 8);
 			}
 			else if (!strcmp(word, "PIC2NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[1], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[1], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[1], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[1], word2, 8);
 			}
 			else if (!strcmp(word, "PIC3NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[2], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[2], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[2], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[2], word2, 8);
 			}
 			else if (!strcmp(word, "PIC4NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[3], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[3], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[3], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[3], word2, 8);
 			}
 			else if (!strcmp(word, "PIC5NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[4], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[4], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[4], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[4], word2, 8);
 			}
 			else if (!strcmp(word, "PIC6NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[5], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[5], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[5], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[5], word2, 8);
 			}
 			else if (!strcmp(word, "PIC7NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[6], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[6], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[6], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[6], word2, 8);
 			}
 			else if (!strcmp(word, "PIC8NAME"))
 			{
-				DEH_WriteUndoline(word, cutscenes[num]->scene[scenenum].picname[7], UNDO_NONE);
-				strncpy(cutscenes[num]->scene[scenenum].picname[7], word2, 8);
+				DEH_WriteUndoline(word, cutscenes[num].scene[scenenum].picname[7], UNDO_NONE);
+				strncpy(cutscenes[num].scene[scenenum].picname[7], word2, 8);
 			}
 			else if (!strcmp(word, "PIC1HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[0]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[0] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[0]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[0] = i;
 			}
 			else if (!strcmp(word, "PIC2HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[1]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[1] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[1]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[1] = i;
 			}
 			else if (!strcmp(word, "PIC3HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[2]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[2] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[2]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[2] = i;
 			}
 			else if (!strcmp(word, "PIC4HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[3]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[3] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[3]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[3] = i;
 			}
 			else if (!strcmp(word, "PIC5HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[4]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[4] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[4]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[4] = i;
 			}
 			else if (!strcmp(word, "PIC6HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[5]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[5] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[5]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[5] = i;
 			}
 			else if (!strcmp(word, "PIC7HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[6]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[6] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[6]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[6] = i;
 			}
 			else if (!strcmp(word, "PIC8HIRES"))
 			{
-				DEH_WriteUndoline(word, va("%d", cutscenes[num]->scene[scenenum].pichires[7]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].pichires[7] = i;
+				DEH_WriteUndoline(word, va("%d", cutscenes[num].scene[scenenum].pichires[7]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].pichires[7] = i;
 			}
 			else if (!strcmp(word, "PIC1DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[0]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[0] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[0]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[0] = usi;
 			}
 			else if (!strcmp(word, "PIC2DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[1]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[1] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[1]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[1] = usi;
 			}
 			else if (!strcmp(word, "PIC3DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[2]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[2] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[2]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[2] = usi;
 			}
 			else if (!strcmp(word, "PIC4DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[3]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[3] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[3]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[3] = usi;
 			}
 			else if (!strcmp(word, "PIC5DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[4]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[4] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[4]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[4] = usi;
 			}
 			else if (!strcmp(word, "PIC6DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[5]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[5] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[5]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[5] = usi;
 			}
 			else if (!strcmp(word, "PIC7DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[6]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[6] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[6]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[6] = usi;
 			}
 			else if (!strcmp(word, "PIC8DURATION"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].picduration[7]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].picduration[7] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].picduration[7]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].picduration[7] = usi;
 			}
 			else if (!strcmp(word, "PIC1XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[0]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[0] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[0]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[0] = usi;
 			}
 			else if (!strcmp(word, "PIC2XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[1]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[1] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[1]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[1] = usi;
 			}
 			else if (!strcmp(word, "PIC3XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[2]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[2] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[2]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[2] = usi;
 			}
 			else if (!strcmp(word, "PIC4XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[3]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[3] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[3]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[3] = usi;
 			}
 			else if (!strcmp(word, "PIC5XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[4]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[4] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[4]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[4] = usi;
 			}
 			else if (!strcmp(word, "PIC6XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[5]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[5] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[5]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[5] = usi;
 			}
 			else if (!strcmp(word, "PIC7XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[6]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[6] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[6]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[6] = usi;
 			}
 			else if (!strcmp(word, "PIC8XCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].xcoord[7]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].xcoord[7] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].xcoord[7]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].xcoord[7] = usi;
 			}
 			else if (!strcmp(word, "PIC1YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[0]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[0] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[0]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[0] = usi;
 			}
 			else if (!strcmp(word, "PIC2YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[1]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[1] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[1]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[1] = usi;
 			}
 			else if (!strcmp(word, "PIC3YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[2]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[2] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[2]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[2] = usi;
 			}
 			else if (!strcmp(word, "PIC4YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[3]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[3] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[3]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[3] = usi;
 			}
 			else if (!strcmp(word, "PIC5YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[4]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[4] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[4]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[4] = usi;
 			}
 			else if (!strcmp(word, "PIC6YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[5]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[5] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[5]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[5] = usi;
 			}
 			else if (!strcmp(word, "PIC7YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[6]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[6] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[6]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[6] = usi;
 			}
 			else if (!strcmp(word, "PIC8YCOORD"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].ycoord[7]), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].ycoord[7] = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].ycoord[7]), UNDO_NONE);
+				cutscenes[num].scene[scenenum].ycoord[7] = usi;
 			}
 			else if (!strcmp(word, "MUSICSLOT"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].musicslot), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].musicslot = (musicenum_t)i;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].musicslot), UNDO_NONE);
+				cutscenes[num].scene[scenenum].musicslot = (musicenum_t)i;
 			}
 			else if (!strcmp(word, "MUSICLOOP"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].musicloop), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].musicloop = i;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].musicloop), UNDO_NONE);
+				cutscenes[num].scene[scenenum].musicloop = i;
 			}
 			else if (!strcmp(word, "TEXTXPOS"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].textxpos), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].textxpos = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].textxpos), UNDO_NONE);
+				cutscenes[num].scene[scenenum].textxpos = usi;
 			}
 			else if (!strcmp(word, "TEXTYPOS"))
 			{
-				DEH_WriteUndoline(word, va("%u", cutscenes[num]->scene[scenenum].textypos), UNDO_NONE);
-				cutscenes[num]->scene[scenenum].textypos = usi;
+				DEH_WriteUndoline(word, va("%u", cutscenes[num].scene[scenenum].textypos), UNDO_NONE);
+				cutscenes[num].scene[scenenum].textypos = usi;
 			}
 			else
 				deh_warning("CutSceneScene %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
 }
 
 static void readcutscene(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *word2;
 	char *tmp;
 	INT32 value;
-#ifdef DELFILE
-	const INT32 oldnumscenes = cutscenes[num]->numscenes;
-#endif
-
-	// Allocate memory for this cutscene if we don't yet have any
-	if (!cutscenes[num])
-		cutscenes[num] = Z_Calloc(sizeof (cutscene_t), PU_STATIC, NULL);
+	const INT32 oldnumscenes = cutscenes[num].numscenes;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1275,7 +1123,7 @@ static void readcutscene(MYFILE *f, INT32 num)
 
 			if (!strcmp(word, "NUMSCENES"))
 			{
-				cutscenes[num]->numscenes = value;
+				cutscenes[num].numscenes = value;
 			}
 			else if (!strcmp(word, "SCENE"))
 			{
@@ -1293,13 +1141,11 @@ static void readcutscene(MYFILE *f, INT32 num)
 				deh_warning("Cutscene %d: unknown word '%s', Scene <num> expected.", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
 }
 
 static void readunlockable(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1315,7 +1161,7 @@ static void readunlockable(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1389,13 +1235,11 @@ static void readunlockable(MYFILE *f, INT32 num)
 				deh_warning("Unlockable %d: unknown word '%s'", num+1, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
 }
 
 static void readhuditem(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1403,7 +1247,7 @@ static void readhuditem(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1442,8 +1286,6 @@ static void readhuditem(MYFILE *f, INT32 num)
 				deh_warning("Level header %d: unknown word '%s'", num, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
-
-	Z_Free(s);
 }
 
 /*
@@ -1593,7 +1435,7 @@ static actionpointer_t actionpointers[] =
 
 static void readframe(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word1;
 	char *word2 = NULL;
 	char *tmp;
@@ -1601,7 +1443,7 @@ static void readframe(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1713,20 +1555,18 @@ static void readframe(MYFILE *f, INT32 num)
 				deh_warning("Frame %d: unknown word '%s'", num, word1);
 		}
 	} while (!myfeof(f));
-
-	Z_Free(s);
 }
 
 static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *tmp;
 	INT32 value;
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -1776,9 +1616,6 @@ static void readsound(MYFILE *f, INT32 num, const char *savesfxnames[])
 				deh_warning("Sound %d : unknown word '%s'",num,word);
 		}
 	} while (!myfeof(f));
-
-	Z_Free(s);
-
 	(void)savesfxnames;
 }
 
@@ -1810,18 +1647,14 @@ static boolean GoodDataFileName(const char *s)
 	p = s + strlen(s) - strlen(tail);
 	if (p <= s) return false; // too short
 	if (stricmp(p, tail) != 0) return false; // doesn't end in .dat
-#ifdef DELFILE
 	if (stricmp(s, "gamedata.dat") == 0 && !disableundo) return false;
-#else
-	if (stricmp(s, "gamedata.dat") == 0) return false;
-#endif
 
 	return true;
 }
 
 static void readmaincfg(MYFILE *f)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word = s;
 	char *word2;
 	char *tmp;
@@ -1830,7 +1663,7 @@ static void readmaincfg(MYFILE *f)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -2050,13 +1883,11 @@ static void readmaincfg(MYFILE *f)
 
 	if (reload)
 		G_LoadGameData();
-
-	Z_Free(s);
 }
 
 static void reademblemdata(MYFILE *f, INT32 num)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[MAXLINELEN];
 	char *word;
 	char *word2;
 	char *tmp;
@@ -2064,7 +1895,7 @@ static void reademblemdata(MYFILE *f, INT32 num)
 
 	do
 	{
-		if (myfgets(s, MAXLINELEN, f))
+		if (myfgets(s, sizeof (s), f))
 		{
 			if (s[0] == '\n')
 				break;
@@ -2122,211 +1953,36 @@ static void reademblemdata(MYFILE *f, INT32 num)
 				deh_warning("Emblem: unknown word '%s'", word);
 		}
 	} while (!myfeof(f));
-
-	Z_Free(s);
 }
-
-#ifdef CALLUM_TEXTURE
-static void readtexture(MYFILE *f, const char *name)
-{
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
-	char *word;
-	char *word2;
-	char *tmp;
-	INT32 i, j, value;
-	UINT16 width = 0, height = 0;
-	UINT32 patchcount = 0;
-	texture_t *texture;
-
-	do
-	{
-		if (myfgets(s, MAXLINELEN, f))
-		{
-			if (s[0] == '\n')
-				break;
-
-			tmp = strchr(s, '#');
-			if (tmp)
-				*tmp = '\0';
-
-			value = searchvalue(s);
-			word = strtok(s, " ");
-			if (word)
-				strupr(word);
-			else
-				break;
-
-			word2 = strtok(NULL, " ");
-			if (word2)
-				strupr(word2);
-			else
-				break;
-
-			// Width of the texture.
-			if (!strcmp(word, "WIDTH"))
-			{
-				DEH_WriteUndoline(word, va("%d", width), UNDO_NONE);
-				width = SHORT((UINT16)value);
-			}
-			// Height of the texture.
-			else if (!strcmp(word, "HEIGHT"))
-			{
-				DEH_WriteUndoline(word, va("%d", height), UNDO_NONE);
-				height = SHORT((UINT16)value);
-			}
-			// Number of patches the texture has.
-			else if (!strcmp(word, "PATCH"))
-				patchcount++;
-			else
-				deh_warning("readtexture: unknown word '%s'", word);
-		}
-	} while (!myfeof(f));
-
-	// Error checking.
-	if (!width)
-		I_Error("Texture %s has no width!\n", name);
-
-	if (!height)
-		I_Error("Texture %s has no height!\n", name);
-
-	if (!patchcount)
-		I_Error("Texture %s has no patches!\n", name);
-
-	// Allocate memory for the texture, and fill in information.
-	texture = Z_Malloc(sizeof(texture_t) + (sizeof(texpatch_t) * (SHORT(patchcount) - 1)), PU_STATIC, NULL);
-	M_Memcpy(texture->name, name, sizeof(texture->name));
-	texture->width = width;
-	texture->height = height;
-	texture->patchcount = patchcount;
-
-	// Jump to the next empty texture entry.
-	i = 0;
-	while (textures[i])
-		i++;
-
-	// Fill the global texture buffer entries.
-	j = 1;
-	while (j << 1 <= texture->width)
-		j <<= 1;
-
-	textures[i] = texture;
-	texturewidthmask[i] = j - 1;
-	textureheight[i] = texture->height << FRACBITS;
-
-	// Clean up.
-	Z_Free(s);
-}
-
-static void readpatch(MYFILE *f, const char *name)
-{
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
-	char *word;
-	char *word2;
-	char *tmp;
-	size_t i = 0, j = 0;
-	INT32 value;
-	texpatch_t patch = {UINT16_MAX, UINT16_MAX, LUMPERROR};
-
-	// Jump to the texture this patch belongs to, which,
-	// coincidentally, is always the last one on the buffer cache.
-	while (textures[i+1])
-		i++;
-
-	// Set the texture number, but only if the lump exists.
-	if ((patch.patch = W_CheckNumForName(name)) == LUMPERROR)
-		I_Error("readpatch: Missing patch in texture %s", textures[i]->name);
-
-	// Jump to the next free patch number.
-	while (textures[i]->patches[j].patch != LUMPERROR)
-		j++;
-
-	// note: undoing this patch will be done by other means
-	do
-	{
-		if (myfgets(s, MAXLINELEN, f))
-		{
-			if (s[0] == '\n')
-				break;
-
-			tmp = strchr(s, '#');
-			if (tmp)
-				*tmp = '\0';
-
-			value = searchvalue(s);
-			word = strtok(s, " ");
-			if (word)
-				strupr(word);
-			else
-				break;
-
-			word2 = strtok(NULL, " ");
-			if (word2)
-				strupr(word2);
-			else
-				break;
-
-			// X position of the patch in the texture.
-			if (!strcmp(word, "X"))
-			{
-				//DEH_WriteUndoline(word, va("%d", patch->originx), UNDO_NONE);
-				patch.originx = (UINT16)value;
-			}
-			// Y position of the patch in the texture.
-			else if (!strcmp(word, "Y"))
-			{
-				//DEH_WriteUndoline(word, va("%d", patch->originy), UNDO_NONE);
-				patch.originy = (UINT16)value;
-			}
-			else
-				deh_warning("readpatch: unknown word '%s'", word);
-		}
-	} while (!myfeof(f));
-
-	// Error checking.
-	if (patch.originx == UINT16_MAX)
-		I_Error("Patch %s on texture %s has no X position!\n", name, textures[i]->name);
-
-	if (patch.originy == UINT16_MAX)
-		I_Error("Patch %s on texture %s has no Y position!\n", name, textures[i]->name);
-
-	// Set the patch as that patch number.
-	textures[i]->patches[j] = patch;
-
-	// Clean up.
-	Z_Free(s);
-}
-#endif
 
 static void DEH_LoadDehackedFile(MYFILE *f)
 {
-	char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
+	XBOXSTATIC char s[1000];
 	char *word;
 	char *word2;
 	INT32 i;
 	// do a copy of this for cross references probleme
-	//XBOXSTATIC actionf_t saveactions[NUMSTATES];
-	//XBOXSTATIC const char *savesprnames[NUMSPRITES];
+	XBOXSTATIC actionf_t saveactions[NUMSTATES];
+	XBOXSTATIC const char *savesprnames[NUMSPRITES];
 	XBOXSTATIC const char *savesfxnames[NUMSFX];
 
 	deh_num_warning = 0;
 	// save values for cross reference
-	/*
 	for (i = 0; i < NUMSTATES; i++)
 		saveactions[i] = states[i].action;
 	for (i = 0; i < NUMSPRITES; i++)
 		savesprnames[i] = sprnames[i];
-	*/
 	for (i = 0; i < NUMSFX; i++)
 		savesfxnames[i] = S_sfx[i].name;
 
 	// it doesn't test the version of SRB2 and version of dehacked file
 	while (!myfeof(f))
 	{
-		XBOXSTATIC char origpos[128];
+		XBOXSTATIC char origpos[32];
 		INT32 size = 0;
 		char *traverse;
 
-		myfgets(s, MAXLINELEN, f);
+		myfgets(s, sizeof (s), f);
 		if (s[0] == '\n' || s[0] == '#')
 			continue;
 
@@ -2351,33 +2007,21 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				strupr(word2);
 				i = atoi(word2);
 
-#ifdef CALLUM_TEXTURE
-				if (!strcmp(word, "TEXTURE"))
-				{
-					// Read texture from spec file.
-					readtexture(f, word2);
-					DEH_WriteUndoline(word, word2, UNDO_HEADER);
-				}
-				else if (!strcmp(word, "PATCH"))
-				{
-					// Read patch from spec file.
-					readpatch(f, word2);
-					DEH_WriteUndoline(word, word2, UNDO_HEADER);
-				}
-				else
-#endif
 				if (!strcmp(word, "THING"))
 				{
 					if (i < NUMMOBJTYPES && i >= 0)
 						readthing(f, i);
 					else
-						deh_warning(M_GetText("Thing %d doesn't exist"), i);
+						deh_warning(text[THING_NOTEXIST], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "MODBY"))
 				{
-					memset(modcreditname, 0, sizeof(char) * 32);
-					strcpy(modcreditname, origpos+6);
+					const INT32 mod = 18;
+					strcpy(credits[mod].fakenames[0], origpos+6);
+					strcpy(credits[mod].realnames[0], origpos+6);
+					credits[mod].numnames = 1;
+					strcpy(&credits[mod].header[0], text[MOD_BY]);
 					modcredits = true;
 				}
 /*				else if (!strcmp(word, "ANIMTEX"))
@@ -2389,28 +2033,14 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i < 15)
 						readPlayer(f, i);
 					else
-						deh_warning(M_GetText("Character %d out of range"), i);
+						deh_warning(text[CHAR_OUTOFRANGE], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "LIGHT"))
 				{
-#ifdef HWRENDER
-					if (i > 0 && i < NUMLIGHTS)
-						readlight(f, i);
-					else
-						deh_warning("Light number %d out of range", i);
-					DEH_WriteUndoline(word, word2, UNDO_HEADER);
-#endif
 				}
 				else if (!strcmp(word, "SPRITE"))
 				{
-#ifdef HWRENDER
-					if (i < NUMSPRITES && i >= 0)
-						readspritelight(f, i);
-					else
-						deh_warning("Sprite number %d out of range", i);
-					DEH_WriteUndoline(word, word2, UNDO_HEADER);
-#endif
 				}
 				else if (!strcmp(word, "LEVEL"))
 				{
@@ -2424,7 +2054,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i <= NUMMAPS)
 						readlevelheader(f, i);
 					else
-						deh_warning(M_GetText("Level number %d out of range"), i);
+						deh_warning(text[LEVEL_OUTOFRANGE], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "CUTSCENE"))
@@ -2432,7 +2062,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i < 129)
 						readcutscene(f, i - 1);
 					else
-						deh_warning(M_GetText("Cutscene number %d out of range"), i);
+						deh_warning(text[CUTSCENE_OUTOFRANGE], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "UNLOCKABLE"))
@@ -2440,7 +2070,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i < 16)
 						readunlockable(f, i - 1);
 					else
-						deh_warning(M_GetText("Unlockable number %d out of range"), i);
+						deh_warning(text[UNLOCKABLE_OUTOFRANGE], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "FRAME"))
@@ -2448,10 +2078,9 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i < NUMSTATES && i >= 0)
 						readframe(f, i);
 					else
-						deh_warning(M_GetText("Frame %d doesn't exist"), i);
+						deh_warning(text[FRAME_NOTEXIST], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
-				// <Callum> Added translations to this just in case its re-enabled
 /*				else if (!strcmp(word, "POINTER"))
 				{
 					word = strtok(NULL, " "); // get frame
@@ -2461,46 +2090,46 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 						i = atoi(word);
 						if (i < NUMSTATES && i >= 0)
 						{
-							if (myfgets(s, MAXLINELEN, f))
+							if (myfgets(s, sizeof (s), f))
 								states[i].action = saveactions[searchvalue(s)];
 						}
 						else
-							deh_warning(M_GetText("Pointer: Frame %d doesn't exist"), i);
+							deh_warning("Pointer: Frame %d doesn't exist", i);
 					}
 					else
-						deh_warning(M_GetText("pointer (Frame %d) : missing ')'"), i);
+						deh_warning("pointer (Frame %d) : missing ')'", i);
 				}*/
 				else if (!strcmp(word, "SOUND"))
 				{
 					if (i < NUMSFX && i >= 0)
 						readsound(f, i, savesfxnames);
 					else
-						deh_warning(M_GetText("Sound %d doesn't exist"), i);
+						deh_warning(text[SOUND_NOTEXIST], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 /*				else if (!strcmp(word, "SPRITE"))
 				{
 					if (i < NUMSPRITES && i >= 0)
 					{
-						if (myfgets(s, MAXLINELEN, f))
+						if (myfgets(s, sizeof (s), f))
 						{
 							INT32 k;
 							k = (searchvalue(s) - 151328)/8;
 							if (k >= 0 && k < NUMSPRITES)
 								sprnames[i] = savesprnames[k];
 							else
-								deh_warning(M_GetText("Sprite %d: offset out of bound"), i);
+								deh_warning("Sprite %d: offset out of bound", i);
 						}
 					}
 					else
-						deh_warning(M_GetText("Sprite %d doesn't exist"),i);
+						deh_warning("Sprite %d doesn't exist",i);
 				}*/
 				else if (!strcmp(word, "HUDITEM"))
 				{
 					if (i >= 0 && i < NUMHUDITEMS)
 						readhuditem(f, i);
 					else
-						deh_warning(M_GetText("HUD item number %d out of range"), i);
+						deh_warning(text[HUDITEM_OUTOFRANGE], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "EMBLEM"))
@@ -2508,7 +2137,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					if (i > 0 && i <= MAXEMBLEMS)
 						reademblemdata(f, i);
 					else
-						deh_warning(M_GetText("Emblem number %d out of range"), i);
+						deh_warning(text[EMBLEM_OUTOFRANGE], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
 				else if (!strcmp(word, "MAINCFG"))
@@ -2521,24 +2150,23 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 					INT32 ver = searchvalue(strtok(NULL, "\n"));
 					if (ver != 200)
 					{
-						deh_warning(M_GetText("Warning: patch from a different SRB2 version (%d), "), ver);
-						// TODO: change this every time major version number is changed?
-						deh_warning("%s", M_GetText("only version 2.0 is supported\n"));
+						deh_warning(text[WRONG_VERSION_WARNING], ver);
+						deh_warning("%s", text[SUPPORTED_VERSION]);
 					}
 					//DEH_WriteUndoline(word, va("%d", ver), UNDO_NONE);
 				}
 				else
-					deh_warning(M_GetText("Unknown word: %s"), word);
+					deh_warning(text[UNKNOWN_WORD], word);
 			}
 			else
-				deh_warning(M_GetText("missing argument for '%s'"), word);
+				deh_warning(text[MISSING_ARGUMENT], word);
 		}
 		else
-			deh_warning(M_GetText("No word in this line: %s"), s);
+			deh_warning(text[MISSING_WORD], s);
 	} // end while
 	if (deh_num_warning)
 	{
-		CONS_Printf(M_GetText("%d warning%s in the SOC lump\n"), deh_num_warning,
+		CONS_Printf(text[WARNING_IN_SOC_LUMP], deh_num_warning,
 			deh_num_warning == 1 ? "" : "s");
 		if (devparm)
 			while (!I_GetKey())
@@ -2546,7 +2174,6 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	}
 
 	deh_loaded = true;
-	Z_Free(s);
 }
 
 // read dehacked lump in a wad (there is special trick for for deh
@@ -2554,9 +2181,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 void DEH_LoadDehackedLumpPwad(UINT16 wad, UINT16 lump)
 {
 	MYFILE f;
-#ifdef DELFILE
 	unsocwad = wad;
-#endif
 	f.size = W_LumpLengthPwad(wad,lump);
 	f.data = Z_Malloc(f.size + 1, PU_STATIC, NULL);
 	W_ReadLumpPwad(wad, lump, f.data);
@@ -2572,7 +2197,6 @@ void DEH_LoadDehackedLump(lumpnum_t lumpnum)
 	DEH_LoadDehackedLumpPwad(WADFILENUM(lumpnum),LUMPNUM(lumpnum));
 }
 
-#ifdef DELFILE
 #define DUMPUNDONE
 
 // read (un)dehacked lump in wad's memory
@@ -2585,7 +2209,7 @@ void DEH_UnloadDehackedWad(UINT16 wad)
 #ifdef DUMPUNDONE
 	FILE *UNDO = fopen("undo.soc", "wt");
 #endif
-	CONS_Printf("%s", M_GetText("Unloading WAD SOC edits\n"));
+	CONS_Printf("%s", text[UNLOADING_SOC_EDITS]);
 	while (curundo)
 	{
 		data = curundo->undata;
@@ -2629,4 +2253,3 @@ void DEH_UnloadDehackedWad(UINT16 wad)
 	disableundo = false;
 	Z_Free(f.data);
 }
-#endif //DELFILE

@@ -17,7 +17,6 @@
 /// \brief cd music interface (uses MCI).
 
 #include "../doomdef.h"
-#include "../doomstat.h"
 #ifdef _WINDOWS
 #include "win_main.h"
 #include <mmsystem.h>
@@ -60,8 +59,8 @@ static VOID MCIErrorMessageBox (MCIERROR iErrorCode)
 {
 	char szErrorText[128];
 	if (!mciGetErrorStringA (iErrorCode, szErrorText, sizeof (szErrorText)))
-		wsprintfA(szErrorText,"MCI CD Audio Unknown Error #%d\n", iErrorCode);
-	DEBPRINT(va("%s", szErrorText));
+		wsprintfA(szErrorText,"MCI CD Audio Unknow Error #%d\n", iErrorCode);
+	CONS_Printf("%s", szErrorText);
 	/*MessageBox (GetActiveWindow(), szTemp+1, "LEGACY",
 				MB_OK | MB_ICONSTOP);*/
 }
@@ -194,11 +193,11 @@ static void Command_Cd_f(void)
 	if (!cdaudio_started)
 		return;
 
-	if (COM_Argc() < 2)
+	if (COM_Argc()<2)
 	{
-		CONS_Printf ("%s", M_GetText("cd [on] [off] [remap] [reset] [select]\n"
-		"   [open] [info] [play <track>] [resume]\n"
-		"   [stop] [pause] [loop <track>]\n"));
+		CONS_Printf ("cd [on] [off] [remap] [reset] [open]\n"
+		             "   [info] [play <track>] [loop <track>]\n"
+		             "   [stop] [resume]\n");
 		return;
 	}
 
@@ -212,28 +211,28 @@ static void Command_Cd_f(void)
 	}
 
 	// stop/deactivate cd music
-	if (!strncmp(s, "off", 3))
+	if (!strncmp(s,"off",3))
 	{
 		if (cdPlaying)
-			I_StopCD();
+			I_StopCD ();
 		cdEnabled = FALSE;
 		return;
 	}
 
 	// remap tracks
-	if (!strncmp(s, "remap", 5))
+	if (!strncmp(s,"remap",5))
 	{
 		i = (int)COM_Argc() - 2;
 		if (i <= 0)
 		{
-			CONS_Printf("%s", M_GetText("CD tracks remapped in that order :\n"));
+			CONS_Printf ("CD tracks remapped in that order :\n");
 			for (j = 1; j < MAX_CD_TRACKS; j++)
 				if (cdRemap[j] != j)
-					CONS_Printf(" %2d -> %2d\n", j, cdRemap[j]);
+					CONS_Printf (" %2d -> %2d\n", j, cdRemap[j]);
 			return;
 		}
 		for (j = 1; j <= i; j++)
-			cdRemap[j] = (UINT8)atoi(COM_Argv(j+1));
+			cdRemap[j] = (UINT8)atoi (COM_Argv (j+1));
 		return;
 	}
 
@@ -253,7 +252,7 @@ static void Command_Cd_f(void)
 	// any other command is not allowed until we could retrieve cd information
 	if (!cdValid)
 	{
-		CONS_Printf ("%s", M_GetText("CD is not ready.\n"));
+		CONS_Printf ("CD is not ready.\n");
 		return;
 	}
 
@@ -278,7 +277,7 @@ static void Command_Cd_f(void)
 		cdValid = TRUE;
 
 		if (m_nTracksCount <= 0)
-			CONS_Printf("%s", M_GetText("No audio tracks\n"));
+			CONS_Printf ("No audio tracks\n");
 		else
 		{
 			// display list of tracks
@@ -287,14 +286,15 @@ static void Command_Cd_f(void)
 			{
 				CONS_Printf("%s%2d. %s  %s\n",
 				            cdPlaying && (cdPlayTrack == i) ? "\2 " : " ",
-				            i+1, m_nTracks[i].IsAudio ? M_GetText("audio") : M_GetText("data "),
+				            i+1, m_nTracks[i].IsAudio ? "audio" : "data ",
 				            hms(m_nTracks[i].Length));
 			}
-			CONS_Printf(M_GetText("\2Total time : %s\n"), hms(CD_TotalTime()));
+			CONS_Printf ("\2Total time : %s\n", hms(CD_TotalTime()));
 		}
 		if (cdPlaying)
 		{
-			CONS_Printf(M_GetText("Currently %s track %u\n"), cdLooping ? M_GetText("looping") : M_GetText("playing"), cdPlayTrack);
+			CONS_Printf ("%s track : %d\n", cdLooping ? "looping" : "playing",
+			             cdPlayTrack);
 		}
 		return;
 	}
@@ -323,7 +323,7 @@ static void Command_Cd_f(void)
 		return;
 	}
 
-	CONS_Printf (M_GetText("Invalid CD command \"CD %s\"\n"), s);
+	CONS_Printf ("cd command '%s' unknown\n", s);
 }
 
 
@@ -338,7 +338,7 @@ void I_ShutdownCD(void)
 	if (!cdaudio_started)
 		return;
 
-	CONS_Printf("I_ShutdownCD: ");
+	CONS_Printf ("I_ShutdownCD()\n");
 
 	I_StopCD();
 
@@ -386,7 +386,7 @@ void I_InitCD(void)
 	I_AddExitFunc (I_ShutdownCD);
 	cdaudio_started = true;
 
-	CONS_Printf ("%s", M_GetText("CD audio Initialized\n"));
+	CONS_Printf ("I_InitCD: CD Audio started\n");
 
 	// last saved in config.cfg
 	i = cd_volume.value;
@@ -398,7 +398,7 @@ void I_InitCD(void)
 
 	if (!CD_ReadTrackInfo())
 	{
-		CONS_Printf("%s", M_GetText("No CD in drive\n"));
+		CONS_Printf("\2I_InitCD: no CD in player.\n");
 		cdEnabled = FALSE;
 		cdValid = FALSE;
 	}
@@ -454,7 +454,7 @@ void I_PlayCD(UINT8 nTrack, UINT8 bLooping)
 
 	if (!m_nTracks[nTrack].IsAudio)
 	{
-		//DEBPRINT ("\2CD Play: not an audio track\n"); // Tails 03-25-2001
+		//CONS_Printf ("\2CD Play: not an audio track\n"); // Tails 03-25-2001
 		return;
 	}
 

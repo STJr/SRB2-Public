@@ -38,10 +38,6 @@ static const UINT8 GRAYSRANGE = 16;
 static const UINT8 DBLACK     = 31;
 static const UINT8 DWHITE     = 0;
 
-#ifdef _NDS
-#undef BACKGROUND
-#endif
-
 // Automap colors
 #define BACKGROUND       DBLACK
 #define YOURCOLORS       DWHITE
@@ -892,7 +888,7 @@ static void AM_drawFline_soft(const fline_t *fl, INT32 color)
 	|| fl->b.x < 0 || fl->b.x >= f_w
 	|| fl->b.y < 0 || fl->b.y >= f_h)
 	{
-		DEBPRINT(va("line clipping problem %d\n", num++));
+		CONS_Printf("line clipping problem %d\n", num++);
 		return;
 	}
 #endif
@@ -1101,7 +1097,7 @@ static inline void AM_drawPlayers(void)
 		if (p->skincolor == 0)
 			color = GREENS;
 		else
-			color = R_GetTranslationColormap(TC_DEFAULT, p->skincolor, GTC_CACHE)[GREENS + 8];
+			color = *(defaulttranslationtables + ((p->skincolor - 1)<<8) + GREENS + 8);
 
 		AM_drawLineCharacter(player_arrow, NUMPLYRLINES, 0, p->mo->angle,
 			color, p->mo->x, p->mo->y);
@@ -1113,7 +1109,7 @@ static inline void AM_drawThings(INT32 colors, INT32 colorrange)
 	size_t i;
 	mobj_t *t;
 
-	(void)colorrange;
+	colorrange = 0;
 	for (i = 0; i < numsectors; i++)
 	{
 		t = sectors[i].thinglist;

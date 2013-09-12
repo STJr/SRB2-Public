@@ -86,7 +86,6 @@ static size_t con_totallines;      // lines of console text into the console buf
 static size_t con_width;           // columns of chars, depend on vid mode width
 
 static size_t con_scrollup;        // how many rows of text to scroll up (pgup/pgdn)
-UINT32 con_scalefactor;            // text size scale factor
 
 // hold 32 last lines of input for history
 #define CON_MAXPROMPTCHARS 256
@@ -97,6 +96,8 @@ static char inputlines[32][CON_MAXPROMPTCHARS]; // hold last 32 prompt lines
 static INT32 inputline;    // current input line number
 static INT32 inputhist;    // line number of history input line to restore
 static size_t input_cx;  // position in current input line
+
+static patch_t *con_backpic; // console background picture, loaded static
 
 // protos.
 static void CON_InputInit(void);
@@ -161,7 +162,7 @@ static void CONS_hudlines_Change(void)
 
 	con_hudlines = cons_hudlines.value;
 
-	CONS_Printf(M_GetText("Number of console HUD lines is now %d\n"), con_hudlines);
+	CONS_Printf("Number of console HUD lines is now %d\n", con_hudlines);
 }
 
 // Check CONS_speed value (must be positive)
@@ -189,7 +190,7 @@ static void CONS_Clear_f(void)
 static void CONS_English_f(void)
 {
 	shiftxform = english_shiftxform;
-	CONS_Printf("%s", M_GetText("English keymap.\n"));
+	CONS_Printf("English keymap.\n");
 }
 
 static char *bindtable[NUMINPUTS];
@@ -203,8 +204,8 @@ static void CONS_Bind_f(void)
 
 	if (na != 2 && na != 3)
 	{
-		CONS_Printf("%s", M_GetText("bind <keyname> [<command>]\n"));
-		CONS_Printf("\2%s", M_GetText("bind table :\n"));
+		CONS_Printf("bind <keyname> [<command>]\n");
+		CONS_Printf("\2bind table :\n");
 		na = 0;
 		for (key = 0; key < NUMINPUTS; key++)
 			if (bindtable[key])
@@ -213,14 +214,14 @@ static void CONS_Bind_f(void)
 				na = 1;
 			}
 		if (!na)
-			CONS_Printf("%s", M_GetText("Empty\n"));
+			CONS_Printf("Empty\n");
 		return;
 	}
 
 	key = G_KeyStringtoNum(COM_Argv(1));
 	if (!key)
 	{
-		CONS_Printf("%s", M_GetText("Invalid key name\n"));
+		CONS_Printf("Invalid key name\n");
 		return;
 	}
 
@@ -340,12 +341,7 @@ static void CON_SetupBackColormap(void)
 
 // Setup the console text buffer
 //
-// for WII, libogc already has a CON_Init function, we must rename it here
-#ifdef _WII
-void CON_InitWii(void)
-#else
 void CON_Init(void)
-#endif
 {
 	INT32 i;
 
@@ -368,6 +364,9 @@ void CON_Init(void)
 
 	// setup console input filtering
 	CON_InputInit();
+
+	// load console background pic
+	con_backpic = (patch_t *)W_CacheLumpName("CONSBACK",PU_STATIC);
 
 	// register our commands
 	//
@@ -422,33 +421,14 @@ static void CON_InputInit(void)
 static void CON_RecalcSize(void)
 {
 	size_t conw, oldcon_width, oldnumlines, i, oldcon_cy;
-	char *tmp_buffer;
-	char *string;
-
-	switch (cv_constextsize.value)
-	{
-	case V_NOSCALEPATCH:
-		con_scalefactor = 1;
-		break;
-	case V_SMALLSCALEPATCH:
-		con_scalefactor = vid.smalldupx;
-		break;
-	case V_MEDSCALEPATCH:
-		con_scalefactor = vid.meddupx;
-		break;
-	default:	// Full scaling
-		con_scalefactor = vid.dupx;
-		break;
-	}
+	XBOXSTATIC char tmp_buffer[CON_BUFFERSIZE];
+	XBOXSTATIC char string[CON_BUFFERSIZE]; // BP: it is a line but who know
 
 	con_recalc = false;
 
-	if (dedicated)
-		conw = 1;
-	else
-		conw = (vid.width>>3) / con_scalefactor - 2;
+	conw = (vid.width>>3) - 2;
 
-	if (con_curlines == vid.height) // first init
+	if (con_curlines == 200) // first init
 	{
 		con_curlines = vid.height;
 		con_destlines = vid.height;
@@ -457,9 +437,6 @@ static void CON_RecalcSize(void)
 	// check for change of video width
 	if (conw == con_width)
 		return; // didn't change
-
-	tmp_buffer = Z_Malloc(CON_BUFFERSIZE, PU_STATIC, NULL);
-	string = Z_Malloc(CON_BUFFERSIZE, PU_STATIC, NULL); // BP: it is a line but who know
 
 	oldcon_width = con_width;
 	oldnumlines = con_totallines;
@@ -498,26 +475,22 @@ static void CON_RecalcSize(void)
 			}
 		}
 	}
-
-	Z_Free(string);
-	Z_Free(tmp_buffer);
 }
 
 // Handles Console moves in/out of screen (per frame)
 //
 static void CON_MoveConsole(void)
 {
-	const fixed_t conspeed = FixedDiv(cons_speed.value*vid.fdupy, NEWTICRATERATIO*FRACUNIT);
 	// up/down move to dest
 	if (con_curlines < con_destlines)
 	{
-		con_curlines += FixedInt(conspeed);
+		con_curlines += (INT32)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
 		if (con_curlines > con_destlines)
 			con_curlines = con_destlines;
 	}
 	else if (con_curlines > con_destlines)
 	{
-		con_curlines -= FixedInt(conspeed);
+		con_curlines -= (INT32)(cons_speed.value*vid.fdupy)/NEWTICRATERATIO;
 		if (con_curlines < con_destlines)
 			con_curlines = con_destlines;
 	}
@@ -552,7 +525,6 @@ void CON_ToggleOff(void)
 void CON_Ticker(void)
 {
 	INT32 i;
-	INT32 minheight = 20 * con_scalefactor;	// 20 = 8+8+4
 
 	// cursor blinking
 	con_tick++;
@@ -573,8 +545,8 @@ void CON_Ticker(void)
 		{
 			// toggle console in
 			con_destlines = (cons_height.value*vid.height)/100;
-			if (con_destlines < minheight)
-				con_destlines = minheight;
+			if (con_destlines < 20)
+				con_destlines = 20;
 			else if (con_destlines > vid.height)
 				con_destlines = vid.height;
 
@@ -599,7 +571,7 @@ void CON_Ticker(void)
 	}
 
 	// check if console ready for prompt
-	if (con_destlines >= minheight)
+	if (con_destlines >= 20)
 		consoleready = true;
 	else
 		consoleready = false;
@@ -1004,13 +976,22 @@ static void CON_Print(char *msg)
 
 void CON_LogMessage(const char *msg)
 {
-	XBOXSTATIC char txt[8192], *t;
+	XBOXSTATIC char txt[128], *t;
+#if defined (LOGMESSAGES) && defined (_WINDOWS)
+	const boolean ls = (logstream != INVALID_HANDLE_VALUE);
+#endif
 	const char *p = msg, *e = txt+sizeof (txt)-2;
 
 	for (t = txt; *p != '\0'; p++)
 	{
 		if (*p == '\n' || *p >= ' ') // don't log or console print CON_Print's control characters
+		{
+#if defined (LOGMESSAGES) && defined (_WINDOWS)
+			if (*p == '\n' && (p == msg || *(p-1) != '\r') && ls)
+				*t++ = '\r';
+#endif
 			*t++ = *p;
+		}
 
 		if (t >= e)
 		{
@@ -1030,7 +1011,7 @@ void CON_LogMessage(const char *msg)
 void CONS_Printf(const char *fmt, ...)
 {
 	va_list argptr;
-	char *txt = malloc(8192);
+	XBOXSTATIC char txt[8192];
 
 	va_start(argptr, fmt);
 	vsprintf(txt, fmt, argptr);
@@ -1048,7 +1029,6 @@ void CONS_Printf(const char *fmt, ...)
 #endif
 #ifdef PC_DOS
 		CON_LogMessage(txt);
-		free(txt);
 		return;
 #endif
 	}
@@ -1067,21 +1047,10 @@ void CONS_Printf(const char *fmt, ...)
 	if (con_startup)
 	{
 #if (defined (_WINDOWS)) || (defined (__OS2__) && !defined (SDL))
-		static lumpnum_t con_backpic_lumpnum = UINT32_MAX;
-		patch_t *con_backpic;
-
-		if (con_backpic_lumpnum == UINT32_MAX)
-			con_backpic_lumpnum = W_GetNumForName("CONSBACK");
-
-		// We load the raw lump, even in hardware mode
-		con_backpic = (patch_t*)W_CacheLumpNum(con_backpic_lumpnum, PU_CACHE);
-
 		// show startup screen and message using only 'software' graphics
 		// (rendermode may be hardware accelerated, but the video mode is not set yet)
 		CON_DrawBackpic(con_backpic, 0, vid.width); // put console background
 		I_LoadingScreen(txt);
-
-		Z_Unlock(con_backpic);
 #else
 		// here we display the console background and console text
 		// (no hardware accelerated support for these versions)
@@ -1089,8 +1058,6 @@ void CONS_Printf(const char *fmt, ...)
 		I_FinishUpdate(); // page flip or blit buffer
 #endif
 	}
-
-	free(txt);
 }
 
 // Print an error message, and wait for ENTER key to continue.
@@ -1106,7 +1073,7 @@ void CONS_Error(const char *msg)
 	}
 #endif
 	CONS_Printf("\2%s", msg); // write error msg in different colour
-	CONS_Printf("%s", M_GetText("Press ENTER to continue\n"));
+	CONS_Printf("Press ENTER to continue\n");
 
 	// dirty quick hack, but for the good cause
 	while (I_GetKey() != KEY_ENTER)
@@ -1122,50 +1089,44 @@ void CONS_Error(const char *msg)
 static void CON_DrawInput(void)
 {
 	char *p;
-	size_t c;
-	INT32 x, y;
-	INT32 charwidth = (INT32)con_scalefactor << 3;
+	size_t x;
+	INT32 y;
 
 	// input line scrolls left if it gets too long
 	p = inputlines[inputline];
 	if (input_cx >= con_width-11)
 		p += input_cx - (con_width-11) + 1;
 
-	y = con_curlines - 12 * con_scalefactor;
+	y = con_curlines - 12;
 
-	for (c = 0, x = charwidth; c < con_width-11; c++, x += charwidth)
-		V_DrawCharacter(x, y, p[c] | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
+	for (x = 0; x < con_width-11; x++)
+		V_DrawCharacter((INT32)(x+1)<<3, y, p[x]|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 
 	// draw the blinking cursor
 	//
-	x = ((input_cx >= con_width-11) ? (INT32)(con_width-11) : (INT32)((input_cx + 1)) * charwidth);
+	x = (input_cx >= con_width-11) ? (con_width-11) - 1 : input_cx;
 	if (con_tick < 4)
-		V_DrawCharacter(x, y, '_' | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
+		V_DrawCharacter((INT32)(x+1)<<3, y, '_'|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 }
 
 // draw the last lines of console text to the top of the screen
 static void CON_DrawHudlines(void)
 {
 	UINT8 *p;
-	size_t i;
+	size_t i, x;
 	INT32 y;
 	INT32 charflags = 0;
-	INT32 charwidth = (INT32)con_scalefactor << 3;
-	INT32 charheight = charwidth;
 
 	if (con_hudlines <= 0)
 		return;
 
 	if (chat_on)
-		y = charheight; // leave place for chat input in the first row of text
+		y = 8; // leave place for chat input in the first row of text
 	else
 		y = 0;
 
 	for (i = con_cy - con_hudlines+1; i <= con_cy; i++)
 	{
-		size_t c;
-		INT32 x;
-
 		if ((signed)i < 0)
 			continue;
 		if (con_hudtime[i%con_hudlines] == 0)
@@ -1173,18 +1134,18 @@ static void CON_DrawHudlines(void)
 
 		p = (UINT8 *)&con_buffer[(i%con_totallines)*con_width];
 
-		for (c = 0, x = 0; c < con_width; c++, x += charwidth, p++)
+		for (x = 0; x < con_width; x++, p++)
 		{
 			while (*p & 0x80) // Graue 06-19-2004
 			{
-				charflags = (*p & 0x7f) << V_CHARCOLORSHIFT;
+				charflags = (*p & 0x7f) << 8;
 				p++;
 			}
-			V_DrawCharacter(x, y, (INT32)(*p) | charflags | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
+			V_DrawCharacter((INT32)(x)<<3, y, (INT32)(*p) | charflags | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 		}
 
-		V_DrawCharacter(x, y, (p[c]&0xff) | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
-		y += charheight;
+		V_DrawCharacter((INT32)(x)<<3, y, (p[x]&0xff)|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		y += 8;
 	}
 
 	// top screen lines that might need clearing when view is reduced
@@ -1197,8 +1158,7 @@ static void CON_DrawHudlines(void)
 // The pic must be sized BASEVIDHEIGHT height.
 static void CON_DrawBackpic(patch_t *pic, INT32 startx, INT32 destwidth)
 {
-	(void)startx;
-	(void)destwidth;
+	startx = destwidth = 0;
 	V_DrawScaledPatch(0, 0, 0, pic);
 }
 
@@ -1254,13 +1214,10 @@ static inline void CON_DrawBackpic2(pic_t *pic, INT32 startx, INT32 destwidth)
 static void CON_DrawConsole(void)
 {
 	UINT8 *p;
-	size_t i;
+	size_t i, x;
 	INT32 y;
 	INT32 w = 0, x2 = 0;
 	INT32 charflags = 0;
-	INT32 charwidth = (INT32)con_scalefactor << 3;
-	INT32 charheight = charwidth;
-	INT32 minheight = 20 * con_scalefactor;	// 20 = 8+8+4
 
 	if (con_curlines <= 0)
 		return;
@@ -1272,20 +1229,10 @@ static void CON_DrawConsole(void)
 	// draw console background
 	if (cons_backpic.value || con_forcepic)
 	{
-		static lumpnum_t con_backpic_lumpnum = UINT32_MAX;
-		patch_t *con_backpic;
-
-		if (con_backpic_lumpnum == UINT32_MAX)
-			con_backpic_lumpnum = W_GetNumForName("CONSBACK");
-
-		con_backpic = (patch_t*)W_CachePatchNum(con_backpic_lumpnum, PU_CACHE);
-
 		if (rendermode != render_soft)
 			V_DrawScaledPatch(0, 0, 0, con_backpic);
 		else if (rendermode != render_none)
 			CON_DrawBackpic(con_backpic, 0, vid.width); // picture as background
-
-		W_UnlockCachedPatch(con_backpic);
 	}
 	else
 	{
@@ -1295,7 +1242,7 @@ static void CON_DrawConsole(void)
 	}
 
 	// draw console text lines from top to bottom
-	if (con_curlines < minheight)
+	if (con_curlines < 20) // 8+8+4
 		return;
 
 	i = con_cy - con_scrollup;
@@ -1304,30 +1251,27 @@ static void CON_DrawConsole(void)
 	if (!con_scrollup && !con_cx)
 		i--;
 
-	i -= (con_curlines - minheight) / charheight;
+	i -= (con_curlines - 20) / 8;
 
 	if (rendermode == render_none) return;
 
-	for (y = (con_curlines-minheight) % charheight; y <= con_curlines-minheight; y += charheight, i++)
+	for (y = (con_curlines-20) % 8; y <= con_curlines-20; y += 8, i++)
 	{
-		INT32 x;
-		size_t c;
-
 		p = (UINT8 *)&con_buffer[((i > 0 ? i : 0)%con_totallines)*con_width];
 
-		for (c = 0, x = charwidth; c < con_width; c++, x += charwidth, p++)
+		for (x = 0; x < con_width; x++, p++)
 		{
 			while (*p & 0x80)
 			{
-				charflags = (*p & 0x7f) << V_CHARCOLORSHIFT;
+				charflags = (*p & 0x7f) << 8;
 				p++;
 			}
-			V_DrawCharacter(x, y, (INT32)(*p) | charflags | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
+			V_DrawCharacter((INT32)(x+1)<<3, y, (INT32)(*p)|charflags|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 		}
 	}
 
 	// draw prompt if enough place (not while game startup)
-	if ((con_curlines == con_destlines) && (con_curlines >= minheight) && !con_startup)
+	if ((con_curlines == con_destlines) && (con_curlines >= 20) && !con_startup)
 		CON_DrawInput();
 }
 

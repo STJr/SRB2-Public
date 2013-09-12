@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Srb2win", "src\win32\Srb2wi
 		{72B01ACA-7A1A-4F7B-ACEF-2607299CF052} = {72B01ACA-7A1A-4F7B-ACEF-2607299CF052}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libs\libpng-src\projects\visualc9\libpng.vcproj", "{72B01ACA-7A1A-4F7B-ACEF-2607299CF052}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "tools\libpng-src\projects\visualc9\libpng.vcproj", "{72B01ACA-7A1A-4F7B-ACEF-2607299CF052}"
 	ProjectSection(ProjectDependencies) = postProject
 		{73A5729C-7323-41D4-AB48-8A03C9F81603} = {73A5729C-7323-41D4-AB48-8A03C9F81603}
 	EndProjectSection
@@ -17,7 +17,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "r_opengl", "src\hardware\r_
 		{0F554F1D-ED49-4D65-A9A7-F63C57F277BE} = {0F554F1D-ED49-4D65-A9A7-F63C57F277BE}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "libs\zlib\projects\visualc9\zlib.vcproj", "{73A5729C-7323-41D4-AB48-8A03C9F81603}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "tools\zlib\projects\visualc9\zlib.vcproj", "{73A5729C-7323-41D4-AB48-8A03C9F81603}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "s_openal", "src\hardware\s_openal\s_openal-vc9.vcproj", "{E662D0B3-412D-4D55-A5EC-8CBD680DDCBE}"
 	ProjectSection(ProjectDependencies) = postProject

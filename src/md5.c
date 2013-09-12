@@ -322,7 +322,6 @@ static void *md5_finish_ctx (struct md5_ctx *ctx, void *resbuf)
   /* Take yet unprocessed bytes into account.  */
   md5_uint32 bytes = ctx->buflen;
   size_t pad;
-  md5_uint32 *buffer = NULL;
 
   /* Now count remaining bytes.  */
   ctx->total[0] += bytes;
@@ -333,10 +332,9 @@ static void *md5_finish_ctx (struct md5_ctx *ctx, void *resbuf)
   memcpy (&ctx->buffer[bytes], fillbuf, pad);
 
   /* Put the 64-bit file length in *bits* at the end of the buffer.  */
-  buffer = (void *)&ctx->buffer[bytes + pad];
-  *buffer = SWAP (ctx->total[0] << 3);
-  buffer = (void *)&ctx->buffer[bytes + pad + 4];
-  *buffer = SWAP ((ctx->total[1] << 3) | (ctx->total[0] >> 29));
+  *(md5_uint32 *) &ctx->buffer[bytes + pad] = SWAP (ctx->total[0] << 3);
+  *(md5_uint32 *) &ctx->buffer[bytes + pad + 4] = SWAP ((ctx->total[1] << 3) |
+                                                       (ctx->total[0] >> 29));
 
   /* Process last bytes.  */
   md5_process_block (ctx->buffer, bytes + pad + 8, ctx);

@@ -60,7 +60,7 @@ consvar_t cdUpdate  = {"cd_update","1",CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0,
 
 
 // hour,minutes,seconds
-FUNCINLINE static ATTRINLINE char *hms(int hsg)
+static inline char *hms(int hsg)
 {
 	int hours, minutes, seconds;
 	static char s[9];
@@ -418,7 +418,7 @@ void I_PlayCD (UINT8 track, UINT8 looping)
 
 
 // volume : logical cd audio volume 0-31 (hardware is 0-255)
-boolean I_SetVolumeCD (INT32 volume)
+boolean I_SetVolumeCD (int volume)
 {
 	int  hardvol;
 

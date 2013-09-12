@@ -56,7 +56,7 @@ rendermode_t    rendermode=render_soft;
 //
 // I_OsPolling
 //
-void I_OsPolling(void)
+void I_OsPolling()
 {
 	I_GetEvent();
 	//i dont think i have to do anything else here
@@ -95,6 +95,7 @@ static void displayticrate(fixed_t value)
 	int j,l,i;
 	static tic_t lasttic;
 	tic_t tics,t;
+	int k;
 
 	t = I_GetTime();
 	tics = (t - lasttic)/NEWTICRATERATIO;
@@ -114,22 +115,18 @@ static void displayticrate(fixed_t value)
 	if (value == 1)
 		return;
 
-	if (rendermode == render_soft)
+	// draw dots
+	for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
 	{
-		int k;
-		// draw dots
-		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
-		{
-			l=(vid.height-1-j)*vid.width*vid.bpp;
-			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
-				screens[0][l+i]=0xff;
-		}
-
-		// draw the graph
-		for (i=0;i<OLDTICRATE;i++)
-			for (k=0;k<SCALE*vid.dupx;k++)
-				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
+		l=(vid.height-1-j)*vid.width*vid.bpp;
+		for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+			screens[0][l+i]=0xff;
 	}
+
+	// draw the graph
+	for (i=0;i<OLDTICRATE;i++)
+		for (k=0;k<SCALE*vid.dupx;k++)
+			PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
 }
 #undef SCALE
 #undef PUTDOT

@@ -107,6 +107,7 @@ typedef struct planemgr_s
 {
 	visplane_t *plane;
 	fixed_t height;
+	boolean mark;
 	fixed_t f_pos; // F for Front sector
 	fixed_t b_pos; // B for Back sector
 	fixed_t f_frac, f_step;

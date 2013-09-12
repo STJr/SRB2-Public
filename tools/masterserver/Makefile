@@ -22,24 +22,20 @@ PORT=28900
 
 #*******************************************************************#
 
-CCFILES=common.cpp ipcs.cpp crypt.cpp md5.cpp
-Main_CCFILES=server.cpp #client.cpp
+CCFILES=common.cpp ipcs.cpp srvlist.cpp crypt.cpp stats.cpp
+Main_CCFILES=server.cpp client.cpp
 
 #******************************************************************#
 
-MYSQL_CONFIG?= mysql_config
-MYSQL_CFLAGS?=$(shell $(MYSQL_CONFIG) --cflags)
-MYSQL_LIBS?=$(shell $(MYSQL_CONFIG) --libs)
-
-CXXFLAGS+=-Wall -O3 -Wextra
+CXXFLAGS+=-Wall -W -O3
 ifdef MINGW
-LIBS+=-lws2_32
+LIBS+=-lwsock32
 else
+ifndef NOSYSLOG
+CXXFLAGS+=-DHAVE_SYSLOG
+endif
 LIBS+=-lm
 endif
-
-CXXFLAGS+=$(MYSQL_CFLAGS)
-LIBS+=$(MYSQL_LIBS)
 
 ifdef DEBUG
 CXXFLAGS+=-g -D__DEBUG__

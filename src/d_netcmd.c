@@ -24,6 +24,7 @@
 #include "console.h"
 #include "command.h"
 #include "i_system.h"
+#include "dstrings.h"
 #include "g_game.h"
 #include "hu_stuff.h"
 #include "g_input.h"
@@ -53,6 +54,8 @@
 #else
 #define CV_JOHNNY 0
 #endif
+
+//#define DELFILE
 
 // ------
 // protos
@@ -176,7 +179,7 @@ static void Command_Togglemodified_f(void);
 static void SendWeaponPref(void);
 
 static CV_PossibleValue_t usemouse_cons_t[] = {{0, "Off"}, {1, "On"}, {2, "Force"}, {0, NULL}};
-#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 static CV_PossibleValue_t mouse2port_cons_t[] = {{0, "/dev/gpmdata"}, {1, "/dev/ttyS0"},
 	{2, "/dev/ttyS1"}, {3, "/dev/ttyS2"}, {4, "/dev/ttyS3"}, {0, NULL}};
 #else
@@ -260,12 +263,12 @@ INT32 cv_debug;
 consvar_t cv_usemouse = {"use_mouse", "On", CV_SAVE|CV_CALL,usemouse_cons_t, I_StartupMouse, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_usemouse2 = {"use_mouse2", "Off", CV_SAVE|CV_CALL,usemouse_cons_t, I_StartupMouse2, 0, NULL, NULL, 0, 0, NULL};
 
-#if defined (DC) || defined (_XBOX) || defined (WMINPUT) || defined (_WII) //joystick 1 and 2
+#if defined (DC) || defined (_XBOX) //joystick 1 and 2
 consvar_t cv_usejoystick = {"use_joystick", "1", CV_SAVE|CV_CALL, usejoystick_cons_t,
 	I_InitJoystick, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_usejoystick2 = {"use_joystick2", "2", CV_SAVE|CV_CALL, usejoystick_cons_t,
 	I_InitJoystick2, 0, NULL, NULL, 0, 0, NULL};
-#elif defined (PSP) || defined (GP2X) || defined (_NDS) //only one joystick
+#elif defined (PSP) || defined(GP2X) //only one joystick
 consvar_t cv_usejoystick = {"use_joystick", "1", CV_SAVE|CV_CALL, usejoystick_cons_t,
 	I_InitJoystick, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_usejoystick2 = {"use_joystick2", "0", CV_SAVE|CV_CALL, usejoystick_cons_t,
@@ -287,7 +290,7 @@ consvar_t cv_joyscale2 = {"joyscale2", "1", CV_SAVE|CV_CALL, NULL, I_JoyScale2, 
 consvar_t cv_joyscale = {"joyscale", "1", CV_SAVE|CV_HIDEN, NULL, NULL, 0, NULL, NULL, 0, 0, NULL}; //Alam: Dummy for save
 consvar_t cv_joyscale2 = {"joyscale2", "1", CV_SAVE|CV_HIDEN, NULL, NULL, 0, NULL, NULL, 0, 0, NULL}; //Alam: Dummy for save
 #endif
-#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 consvar_t cv_mouse2port = {"mouse2port", "/dev/gpmdata", CV_SAVE, mouse2port_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_mouse2opt = {"mouse2opt", "0", CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
 #else
@@ -326,11 +329,9 @@ consvar_t cv_bombshield = {"bombshield", "Medium", CV_NETVAR|CV_CHEAT, chances_c
 consvar_t cv_1up = {"1up", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_eggmanbox = {"eggmantv", "Medium", CV_NETVAR|CV_CHEAT, chances_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-#ifndef REMOVE_FOR_207
 // Question boxes aren't spawned by randomly respawning monitors, so there is no need
 // for chances. Rather, a simple on/off is used.
 consvar_t cv_questionbox = {"randomtv", "On", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-#endif
 
 consvar_t cv_ringslinger = {"ringslinger", "No", CV_NETVAR|CV_NOSHOWHELP|CV_CALL|CV_CHEAT, CV_YesNo,
 	Ringslinger_OnChange, 0, NULL, NULL, 0, 0, NULL};
@@ -556,9 +557,7 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_bombshield);
 	CV_RegisterVar(&cv_1up);
 	CV_RegisterVar(&cv_eggmanbox);
-#ifndef REMOVE_FOR_207
 	CV_RegisterVar(&cv_questionbox);
-#endif
 
 	CV_RegisterVar(&cv_ringslinger);
 	CV_RegisterVar(&cv_setrings);
@@ -736,7 +735,7 @@ void D_RegisterClientCommands(void)
 	// WARNING: the order is important when initialising mouse2
 	// we need the mouse2port
 	CV_RegisterVar(&cv_mouse2port);
-#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 	CV_RegisterVar(&cv_mouse2opt);
 #endif
 	CV_RegisterVar(&cv_mousesens);
@@ -1059,14 +1058,14 @@ static void SetPlayerName(INT32 playernum, char *newname)
 		if (strcasecmp(newname, player_names[playernum]) != 0)
 		{
 			if (gamestate != GS_INTRO && gamestate != GS_INTRO2)
-				CONS_Printf(M_GetText("%s renamed to %s\n"),
+				CONS_Printf(text[RENAMED_TO],
 					player_names[playernum], newname);
 			strcpy(player_names[playernum], newname);
 		}
 	}
 	else
 	{
-		CONS_Printf(M_GetText("Player %d sent a bad name change\n"), playernum+1);
+		CONS_Printf(text[ILLEGALNAMECMD], playernum+1);
 		if (server && netgame)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -1403,7 +1402,7 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 
 #ifdef PARANOIA
 	if (playernum < 0 || playernum > MAXPLAYERS)
-		I_Error(M_GetText("There is no player %d!"), playernum);
+		I_Error("There is no player %d!", playernum);
 #endif
 
 	if (netgame && !server && !addedtogame)
@@ -1508,7 +1507,7 @@ static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
 		if (kick)
 		{
 			XBOXSTATIC UINT8 buf[2];
-			CONS_Printf(M_GetText("Illegal color change received from %s (team: %d), color: %d)\n"), player_names[playernum], p->ctfteam, p->skincolor);
+			CONS_Printf(text[ILLEGALCOLORCMD], player_names[playernum], p->ctfteam, p->skincolor);
 
 			buf[0] = (UINT8)playernum;
 			buf[1] = KICK_MSG_CON_FAIL;
@@ -1600,7 +1599,7 @@ static void Command_OrderPizza_f(void)
 {
 	if (COM_Argc() < 6 || COM_Argc() > 7)
 	{
-		CONS_Printf("%s", M_GetText("orderpizza -size <value> -address <value> -toppings <value>: order a pizza!\n"));
+		CONS_Printf("%s", text[ORDERPIZZAHELP]);
 		return;
 	}
 
@@ -1609,8 +1608,8 @@ static void Command_OrderPizza_f(void)
 
 static void Got_PizzaOrder(UINT8 **cp, INT32 playernum)
 {
-	(void)cp;
-	CONS_Printf(M_GetText("%s has ordered a delicious pizza.\n"), player_names[playernum]);
+	cp = NULL;
+	CONS_Printf(text[ORDEREDPIZZA], player_names[playernum]);
 }
 
 // Only works for displayplayer, sorry!
@@ -1628,25 +1627,25 @@ static void Command_RTeleport_f(void)
 
 	if (!(cv_debug || devparm))
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s", text[NEED_DEVMODE]);
 		return;
 	}
 
 	if (COM_Argc() < 3 || COM_Argc() > 7)
 	{
-		CONS_Printf("%s", M_GetText("rteleport -x <value> -y <value> -z <value>: relative teleport to a location\n"));
+		CONS_Printf("%s", text[RTELEPORTHELP]);
 		return;
 	}
 
 	if (netgame)
 	{
-		CONS_Printf("%s", M_GetText("You can't teleport while in a netgame!\n"));
+		CONS_Printf("%s", text[NETGAME_TELEPORT]);
 		return;
 	}
 
 	if (!p->mo)
 	{
-		CONS_Printf("%s", M_GetText("Player is dead, etc.\n"));
+		CONS_Printf("%s", text[PDEAD_ETC]);
 		return;
 	}
 
@@ -1665,7 +1664,7 @@ static void Command_RTeleport_f(void)
 	ss = R_PointInSubsector(p->mo->x + intx*FRACUNIT, p->mo->y + inty*FRACUNIT);
 	if (!ss || ss->sector->ceilingheight - ss->sector->floorheight < p->mo->height)
 	{
-		CONS_Printf("%s", M_GetText("Not a valid location\n"));
+		CONS_Printf("%s", text[INVALIDLOCATION]);
 		return;
 	}
 	i = COM_CheckParm("-z");
@@ -1682,11 +1681,11 @@ static void Command_RTeleport_f(void)
 	else
 		intz = 0;
 
-	CONS_Printf(M_GetText("Teleporting by %d, %d, %d...\n"), intx, inty, FixedInt((intz-p->mo->z)));
+	CONS_Printf(text[TELEPORTINGBY], intx, inty, FixedInt((intz-p->mo->z)));
 
 	P_MapStart();
 	if (!P_TeleportMove(p->mo, p->mo->x+intx*FRACUNIT, p->mo->y+inty*FRACUNIT, intz))
-		CONS_Printf("%s", M_GetText("Unable to teleport to that spot!\n"));
+		CONS_Printf("%s",text[UNABLE_TELEPORT]);
 	else
 		S_StartSound(p->mo, sfx_mixup);
 	P_MapEnd();
@@ -1704,19 +1703,19 @@ static void Command_Teleport_f(void)
 
 	if (COM_Argc() < 3 || COM_Argc() > 7)
 	{
-		CONS_Printf("%s", M_GetText("teleport -x <value> -y <value> -z <value>: teleport to a location\n"));
+		CONS_Printf("%s", text[TELEPORT_HELP]);
 		return;
 	}
 
 	if (netgame)
 	{
-		CONS_Printf("%s", M_GetText("You can't teleport while in a netgame!\n"));
+		CONS_Printf("%s",text[NETGAME_TELEPORT]);
 		return;
 	}
 
 	if (!p->mo)
 	{
-		CONS_Printf("%s", M_GetText("Player is dead, etc.\n"));
+		CONS_Printf("%s",text[PDEAD_ETC]);
 		return;
 	}
 
@@ -1725,7 +1724,7 @@ static void Command_Teleport_f(void)
 		intx = atoi(COM_Argv(i + 1));
 	else
 	{
-		CONS_Printf("%s", M_GetText("X value not specified\n"));
+		CONS_Printf("%s", text[XNOTSPECIFIED]);
 		return;
 	}
 
@@ -1734,14 +1733,14 @@ static void Command_Teleport_f(void)
 		inty = atoi(COM_Argv(i + 1));
 	else
 	{
-		CONS_Printf("%s", M_GetText("Y value not specified\n"));
+		CONS_Printf("%s", text[YNOTSPECIFIED]);
 		return;
 	}
 
 	ss = R_PointInSubsector(intx*FRACUNIT, inty*FRACUNIT);
 	if (!ss || ss->sector->ceilingheight - ss->sector->floorheight < p->mo->height)
 	{
-		CONS_Printf("%s", M_GetText("Not a valid location\n"));
+		CONS_Printf("%s",text[INVALID_LOCATION]);
 		return;
 	}
 	i = COM_CheckParm("-z");
@@ -1757,11 +1756,11 @@ static void Command_Teleport_f(void)
 	else
 		intz = ss->sector->floorheight;
 
-	CONS_Printf(M_GetText("Teleporting to %d, %d, %d...\n"), intx, inty, FixedInt(intz));
+	CONS_Printf(text[TELEPORTINGTO], intx, inty, FixedInt(intz));
 
 	P_MapStart();
 	if (!P_TeleportMove(p->mo, intx*FRACUNIT, inty*FRACUNIT, intz))
-		CONS_Printf("%s", M_GetText("Unable to teleport to that spot!\n"));
+		CONS_Printf("%s",text[UNABLE_TELEPORT]);
 	else
 		S_StartSound(p->mo, sfx_mixup);
 	P_MapEnd();
@@ -1779,7 +1778,7 @@ static void Command_Playdemo_f(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("playdemo <demoname>: playback a demo\n"));
+		CONS_Printf("%s", text[PLAYDEMO_HELP]);
 		return;
 	}
 
@@ -1788,7 +1787,7 @@ static void Command_Playdemo_f(void)
 		G_StopDemo();
 	if (netgame)
 	{
-		CONS_Printf("%s", M_GetText("\nYou can't play a demo while in a netgame.\n"));
+		CONS_Printf("%s",text[NETGAME_DEMO]);
 		return;
 	}
 
@@ -1796,7 +1795,7 @@ static void Command_Playdemo_f(void)
 	strcpy(name, COM_Argv(1));
 	// dont add .lmp so internal game demos can be played
 
-	CONS_Printf(M_GetText("Playing back demo '%s'.\n"), name);
+	CONS_Printf(text[PLAYBACK_DEMO], name);
 
 	G_DoPlayDemo(name);
 }
@@ -1807,7 +1806,7 @@ static void Command_Timedemo_f(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("timedemo <demoname>: time a demo\n"));
+		CONS_Printf("%s", text[TIMEDEMO_HELP]);
 		return;
 	}
 
@@ -1816,7 +1815,7 @@ static void Command_Timedemo_f(void)
 		G_StopDemo();
 	if (netgame)
 	{
-		CONS_Printf("%s", M_GetText("\nYou can't play a demo while in a netgame.\n"));
+		CONS_Printf("%s",text[NETGAME_DEMO]);
 		return;
 	}
 
@@ -1824,7 +1823,7 @@ static void Command_Timedemo_f(void)
 	strcpy (name, COM_Argv(1));
 	// dont add .lmp so internal game demos can be played
 
-	CONS_Printf(M_GetText("Timing demo '%s'.\n"), name);
+	CONS_Printf(text[TIMING_DEMO], name);
 
 	G_TimeDemo(name);
 }
@@ -1833,7 +1832,7 @@ static void Command_Timedemo_f(void)
 static void Command_Stopdemo_f(void)
 {
 	G_CheckDemoStatus();
-	CONS_Printf("%s", M_GetText("Stopped demo.\n"));
+	CONS_Printf("%s", text[STOPPED_DEMO]);
 }
 
 static void Command_StartMovie_f(void)
@@ -1878,7 +1877,8 @@ void D_MapChange(INT32 mapnum, INT32 newgametype, boolean pultmode, INT32 resetp
 	// The supplied data are assumed to be good.
 	I_Assert(delay >= 0 && delay <= 2);
 
-	DEBPRINT(va(M_GetText("Map change: mapnum=%d gametype=%d ultmode=%d resetplayers=%d delay=%d skipprecutscene=%d\n"), mapnum, newgametype, pultmode, resetplayers, delay, skipprecutscene));
+	if (devparm)
+		CONS_Printf(text[MAPCHANGE_DEBUG], mapnum, newgametype, pultmode, resetplayers, delay, skipprecutscene);
 	if (delay != 2)
 	{
 		const char *mapname = G_BuildMapName(mapnum);
@@ -1942,26 +1942,26 @@ static void Command_Map_f(void)
 	// = 8 arg max
 	if (COM_Argc() < 2 || COM_Argc() > 8)
 	{
-		CONS_Printf("%s", M_GetText("map <mapname> [-gametype <type> [-force]: warp to map\n"));
+		CONS_Printf("%s", text[MAPCHANGE_HELP]);
 		return;
 	}
 
 	if (!server && !(adminplayer == consoleplayer))
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVER_CHANGELEVEL]);
 		return;
 	}
 
 	// internal wad lump always: map command doesn't support external files as in doom legacy
 	if (W_CheckNumForName(COM_Argv(1)) == LUMPERROR)
 	{
-		CONS_Printf(M_GetText("\2Internal game level '%s' not found\n"), COM_Argv(1));
+		CONS_Printf(text[LEVEL_NOTFOUND], COM_Argv(1));
 		return;
 	}
 
 	if (!(netgame || multiplayer) && (!modifiedgame || savemoddata))
 	{
-		CONS_Printf("%s", M_GetText("Sorry, level change disabled in single player.\n"));
+		CONS_Printf("%s", text[NOLVLCHANGE]);
 		return;
 	}
 
@@ -1969,7 +1969,7 @@ static void Command_Map_f(void)
 
 	if (!newresetplayers && !cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s",text[NEED_DEVMODE]);
 		newresetplayers = true;
 	}
 
@@ -1977,7 +1977,7 @@ static void Command_Map_f(void)
 	if (strlen(mapname) != 5
 	|| (newmapnum = M_MapNumber(mapname[3], mapname[4])) == 0)
 	{
-		CONS_Printf(M_GetText("Invalid level name %s\n"), mapname);
+		CONS_Printf(text[INVALID_LEVELNAME], mapname);
 		return;
 	}
 
@@ -2002,7 +2002,7 @@ static void Command_Map_f(void)
 	{
 		if (!multiplayer)
 		{
-			CONS_Printf("%s", M_GetText("You can't switch gametypes in single player!\n"));
+			CONS_Printf("%s", text[NOGTCHANGE]);
 			return;
 		}
 
@@ -2010,7 +2010,7 @@ static void Command_Map_f(void)
 			if (!strcasecmp(gametype_cons_t[j].strvalue, COM_Argv(i+1)))
 			{
 				// Don't do any variable setting here. Wait until you get your
-				// map packet first to avoid sending the same info twice!
+				// map packet first to avoid sending the same info twice! -Jazz
 				if (gametype_cons_t[j].value == GT_MATCH)
 					newgametype = GT_MATCH;
 				else if (gametype_cons_t[j].value == GT_RACE)
@@ -2049,12 +2049,7 @@ static void Command_Map_f(void)
 		;
 	else if (multiplayer)
 	{
-		INT16 tol, tolflag = 0;
-
-		if(!mapheaderinfo[newmapnum-1])
-			P_AllocMapHeader((INT16)(newmapnum-1));
-
-		tol = mapheaderinfo[newmapnum-1]->typeoflevel;
+		INT16 tol = mapheaderinfo[newmapnum-1].typeoflevel, tolflag = 0;
 
 		switch (newgametype)
 		{
@@ -2081,13 +2076,13 @@ static void Command_Map_f(void)
 				}
 			}
 
-			CONS_Printf(M_GetText("That level doesn't support %s mode!\n(Use -force to override)\n"), gametypestring);
+			CONS_Printf(text[GTNOTSUPPORTED], gametypestring);
 			return;
 		}
 	}
-	else if (!(mapheaderinfo[newmapnum-1]->typeoflevel & TOL_SP))
+	else if (!(mapheaderinfo[newmapnum-1].typeoflevel & TOL_SP))
 	{
-		CONS_Printf("%s", M_GetText("That level doesn't support Single Player mode!\n"));
+		CONS_Printf("%s", text[SPNOTSUPPORTED]);
 		return;
 	}
 
@@ -2110,7 +2105,7 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
-		CONS_Printf(M_GetText("Illegal map change received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALMAPCMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -2187,7 +2182,7 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 	{
 		DEBFILE(va("Warping to %s [resetplayer=%d lastgametype=%d gametype=%d cpnd=%d]\n",
 			mapname, resetplayer, lastgametype, gametype, chmappending));
-		CONS_Printf(M_GetText("Speeding off to %s...\n"), devparm ? mapname:"level");
+		CONS_Printf(text[STSTR_CLEV], devparm ? mapname:"level");
 	}
 	if (demoplayback && !timingdemo)
 		precache = false;
@@ -2200,7 +2195,7 @@ static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
 
 	// why here? because, this is only called the first time a level is loaded.
 	// also, this needs to be done before the level is loaded, duh :p
-	mapmusic = mapheaderinfo[gamemap-1]->musicslot;
+	mapmusic = mapheaderinfo[gamemap-1].musicslot;
 
 	G_InitNew(ultimatemode, mapname, resetplayer, skipprecutscene);
 	if (demoplayback && !timingdemo)
@@ -2243,13 +2238,13 @@ static void Command_Pause(void)
 	{
 		if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
 		{
-			CONS_Printf("%s", M_GetText("You can't pause here.\n"));
+			CONS_Printf("%s",text[PAUSEINFO]);
 			return;
 		}
 		SendNetXCmd(XD_PAUSE, &buf, 2);
 	}
 	else
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s",text[SERVERPAUSE]);
 }
 
 static void Got_Pause(UINT8 **cp, INT32 playernum)
@@ -2259,7 +2254,7 @@ static void Got_Pause(UINT8 **cp, INT32 playernum)
 
 	if (netgame && !cv_pause.value && playernum != serverplayer && playernum != adminplayer)
 	{
-		CONS_Printf(M_GetText("Illegal pause command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALPAUSECMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -2284,9 +2279,9 @@ static void Got_Pause(UINT8 **cp, INT32 playernum)
 				playername = player_names[playernum];
 
 			if (paused)
-				CONS_Printf(M_GetText("Game paused by %s\n"), playername);
+				CONS_Printf(text[GAME_PAUSED],playername);
 			else
-				CONS_Printf(M_GetText("Game unpaused by %s\n"), playername);
+				CONS_Printf(text[GAME_UNPAUSED],playername);
 		}
 
 		if (paused)
@@ -2351,7 +2346,7 @@ static void Got_Clearscores(UINT8 **cp, INT32 playernum)
 	(void)cp;
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
-		CONS_Printf(M_GetText("Illegal clear scores command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALCLRSCRCMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -2366,7 +2361,7 @@ static void Got_Clearscores(UINT8 **cp, INT32 playernum)
 	for (i = 0; i < MAXPLAYERS; i++)
 		players[i].score = 0;
 
-	CONS_Printf("%s", M_GetText("Scores have been reset by the server.\n"));
+	CONS_Printf("%s", text[SCORESRESET]);
 }
 
 // Team changing functions
@@ -2383,11 +2378,11 @@ static void Command_Teamchange_f(void)
 	if (COM_Argc() <= 1)
 	{
 		if ((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG)
-			CONS_Printf("%s", M_GetText("changeteam <team>: switch to a new team (spectator or playing)\n"));
+			CONS_Printf("%s", text[CHANGETEAM_HELP1]);
 		else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-			CONS_Printf("%s", M_GetText("changeteam <team>: switch to a new team (red, blue or spectator)\n"));
+			CONS_Printf("%s", text[CHANGETEAM_HELP2]);
 		else
-			CONS_Printf("%s", M_GetText("This command cannot be used outside of Match, Tag or CTF.\n"));
+			CONS_Printf("%s", text[NOMTF]);
 		return;
 	}
 
@@ -2413,16 +2408,16 @@ static void Command_Teamchange_f(void)
 	}
 	else
 	{
-		CONS_Printf("%s", M_GetText("This command cannot be used outside of Match, Tag or CTF.\n"));
+		CONS_Printf("%s", text[NOMTF]);
 		return;
 	}
 
 	if (error)
 	{
 		if ((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG)
-			CONS_Printf("%s", M_GetText("changeteam <team>: switch to a new team (spectator or playing)\n"));
+			CONS_Printf("%s", text[CHANGETEAM_HELP1]);
 		else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-			CONS_Printf("%s", M_GetText("changeteam <team>: switch to a new team (red, blue or spectator)\n"));
+			CONS_Printf("%s", text[CHANGETEAM_HELP2]);
 		return;
 	}
 
@@ -2439,17 +2434,17 @@ static void Command_Teamchange_f(void)
 			error = true;
 	}
 	else
-		I_Error("%s", M_GetText("Invalid gametype after initial checks!"));
+		I_Error("Invalid gametype after initial checks!");
 
 	if (error)
 	{
-		CONS_Printf("%s", M_GetText("You're already on that team!\n"));
+		CONS_Printf("%s",text[ALREADYONTEAM]);
 		return;
 	}
 
 	if (!cv_allowteamchange.value && !NetPacket.packet.newteam) // allow swapping to spectator even in locked teams.
 	{
-		CONS_Printf("%s", M_GetText("The server does not allow team change.\n"));
+		CONS_Printf("%s",text[NOTEAMCHANGE]);
 		return;
 	}
 
@@ -2458,7 +2453,7 @@ static void Command_Teamchange_f(void)
 	{
 		if (NetPacket.packet.newteam)
 		{
-			CONS_Printf("%s", M_GetText("No tag status changes after hidetime!\n"));
+			CONS_Printf("%s", text[NO_TAGCHANGE]);
 			return;
 		}
 	}
@@ -2480,11 +2475,11 @@ static void Command_Teamchange2_f(void)
 	if (COM_Argc() <= 1)
 	{
 		if ((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG)
-			CONS_Printf("%s", M_GetText("changeteam2 <team>: switch to a new team (spectator or playing)\n"));
+			CONS_Printf("%s", text[CHANGETEAM2_HELP1]);
 		else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-			CONS_Printf("%s", M_GetText("changeteam2 <team>: switch to a new team (red, blue or spectator)\n"));
+			CONS_Printf("%s", text[CHANGETEAM2_HELP2]);
 		else
-			CONS_Printf("%s", M_GetText("This command cannot be used outside of Match, Tag or CTF.\n"));
+			CONS_Printf("%s", text[NOMTF]);
 		return;
 	}
 
@@ -2510,16 +2505,16 @@ static void Command_Teamchange2_f(void)
 	}
 	else
 	{
-		CONS_Printf("%s", M_GetText("This command cannot be used outside of Match, Tag or CTF.\n"));
+		CONS_Printf("%s", text[NOMTF]);
 		return;
 	}
 
 	if (error)
 	{
 		if ((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG)
-			CONS_Printf("%s", M_GetText("changeteam2 <team>: switch to a new team (spectator or playing)\n"));
+			CONS_Printf("%s", text[CHANGETEAM2_HELP1]);
 		else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-			CONS_Printf("%s", M_GetText("changeteam2 <team>: switch to a new team (red, blue or spectator)\n"));
+			CONS_Printf("%s", text[CHANGETEAM2_HELP2]);
 		return;
 	}
 
@@ -2536,17 +2531,17 @@ static void Command_Teamchange2_f(void)
 			error = true;
 	}
 	else
-		I_Error("%s", M_GetText("Invalid gametype after initial checks!"));
+		I_Error("Invalid gametype after initial checks!");
 
 	if (error)
 	{
-		CONS_Printf("%s", M_GetText("You're already on that team!\n"));
+		CONS_Printf("%s",text[ALREADYONTEAM]);
 		return;
 	}
 
 	if (!cv_allowteamchange.value && !NetPacket.packet.newteam) // allow swapping to spectator even in locked teams.
 	{
-		CONS_Printf("%s", M_GetText("The server does not allow team change.\n"));
+		CONS_Printf("%s",text[NOTEAMCHANGE]);
 		return;
 	}
 
@@ -2555,7 +2550,7 @@ static void Command_Teamchange2_f(void)
 	{
 		if (NetPacket.packet.newteam)
 		{
-			CONS_Printf("%s", M_GetText("No tag status changes after hidetime!\n"));
+			CONS_Printf("%s", text[NO_TAGCHANGE]);
 			return;
 		}
 	}
@@ -2573,7 +2568,7 @@ static void Command_ServerTeamChange_f(void)
 
 	if (!(server || (adminplayer == consoleplayer)))
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVER_CHANGETEAM]);
 		return;
 	}
 
@@ -2583,13 +2578,13 @@ static void Command_ServerTeamChange_f(void)
 	if (COM_Argc() < 3)
 	{
 		if (gametype == GT_MATCH && !cv_matchtype.value)
-			CONS_Printf("%s", M_GetText("serverchangeteam <playernum> <team>: switch player to a new team (spectator or playing)\n"));
+			CONS_Printf("%s", text[SERVERCHANGETEAM_HELP1]);
 		else if (gametype == GT_TAG)
-			CONS_Printf("%s", M_GetText("serverchangeteam <playernum> <team>: switch player to a new team (it, notit, playing, or spectator)\n"));
+			CONS_Printf("%s", text[SERVERCHANGETEAM_HELP2]);
 		else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-			CONS_Printf("%s", M_GetText("serverchangeteam <playernum> <team>: switch player to a new team (red, blue or spectator)\n"));
+			CONS_Printf("%s", text[SERVERCHANGETEAM_HELP3]);
 		else
-			CONS_Printf("%s", M_GetText("This command cannot be used outside of Match, Tag or CTF.\n"));
+			CONS_Printf("%s", text[NOMTF]);
 		return;
 	}
 
@@ -2628,18 +2623,18 @@ static void Command_ServerTeamChange_f(void)
 	}
 	else
 	{
-		CONS_Printf("%s", M_GetText("This command cannot be used outside of Match, Tag or CTF.\n"));
+		CONS_Printf("%s", text[NOMTF]);
 		return;
 	}
 
 	if (error)
 	{
 		if (gametype == GT_MATCH && !cv_matchtype.value)
-			CONS_Printf("%s", M_GetText("serverchangeteam <playernum> <team>: switch player to a new team (spectator or playing)\n"));
+			CONS_Printf("%s", text[SERVERCHANGETEAM_HELP1]);
 		else if (gametype == GT_TAG)
-			CONS_Printf("%s", M_GetText("serverchangeteam <playernum> <team>: switch player to a new team (it, notit, playing, or spectator)\n"));
+			CONS_Printf("%s", text[SERVERCHANGETEAM_HELP2]);
 		else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-			CONS_Printf("%s", M_GetText("serverchangeteam <playernum> <team>: switch player to a new team (red, blue or spectator)\n"));
+			CONS_Printf("%s", text[SERVERCHANGETEAM_HELP3]);
 		return;
 	}
 
@@ -2666,11 +2661,11 @@ static void Command_ServerTeamChange_f(void)
 			error = true;
 	}
 	else
-		I_Error("%s", M_GetText("Invalid gametype after initial checks!"));
+		I_Error("Invalid gametype after initial checks!");
 
 	if (error)
 	{
-		CONS_Printf("%s", M_GetText("That player is already on that team!\n"));
+		CONS_Printf("%s", text[PLAYER_ONTEAM]);
 		return;
 	}
 
@@ -2679,7 +2674,7 @@ static void Command_ServerTeamChange_f(void)
 	{
 		if (NetPacket.packet.newteam)
 		{
-			CONS_Printf("%s", M_GetText("No tag status changes after hidetime!\n"));
+			CONS_Printf("%s", text[NO_TAGCHANGE]);
 			return;
 		}
 	}
@@ -2700,7 +2695,7 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)) //Make sure you're in the right gametype.
 	{
 		// this should never happen unless the client is hacked/buggy
-		CONS_Printf(M_GetText("Illegal team change received from player %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -2715,7 +2710,7 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 	{
 		if (playernum != serverplayer && (playernum != adminplayer))
 		{
-			CONS_Printf(M_GetText("Illegal team change received from player %s\n"), player_names[playernum]);
+			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
 			if (server)
 			{
 				XBOXSTATIC UINT8 buf[2];
@@ -2754,7 +2749,7 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 	{
 		if (playernum != serverplayer && (playernum != adminplayer))
 		{
-			CONS_Printf(M_GetText("Illegal team change received from player %s\n"), player_names[playernum]);
+			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
 			if (server)
 			{
 				XBOXSTATIC UINT8 buf[2];
@@ -2804,7 +2799,7 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 
 		buf[0] = (UINT8)playernum;
 		buf[1] = KICK_MSG_CON_FAIL;
-		CONS_Printf(M_GetText("Player %s sent illegal team change to team %d\n"), player_names[playernum], NetPacket.packet.newteam);
+		CONS_Printf(text[SENTILLEGALTEAMCHANGE], player_names[playernum], NetPacket.packet.newteam);
 		SendNetXCmd(XD_KICK, &buf, 2);
 	}
 
@@ -2868,27 +2863,27 @@ static void Got_Teamchange(UINT8 **cp, INT32 playernum)
 	}
 
 	if (NetPacket.packet.autobalance)
-		CONS_Printf(M_GetText("%s was autobalanced to even the teams.\n"), player_names[playernum]);
+		CONS_Printf(text[AUTOBALANCE_SWITCH], player_names[playernum]);
 	else if (NetPacket.packet.scrambled)
-		CONS_Printf(M_GetText("%s was scrambled to a different team.\n"), player_names[playernum]);
+		CONS_Printf(text[SCRAMBLE_SWITCH], player_names[playernum]);
 	else if (NetPacket.packet.newteam == 1)
 	{
 		if (gametype == GT_TAG)
-			CONS_Printf(M_GetText("%s is now IT!\n"), player_names[playernum]);
+			CONS_Printf(text[NOW_IT], player_names[playernum]);
 		else
-			CONS_Printf(M_GetText("%s switched to the red team\n"), player_names[playernum]);
+			CONS_Printf(text[REDTEAM_SWITCH], player_names[playernum]);
 	}
 	else if (NetPacket.packet.newteam == 2)
 	{
 		if (gametype == GT_TAG)
-			CONS_Printf(M_GetText("%s is no longer IT!\n"), player_names[playernum]);
+			CONS_Printf(text[NO_LONGER_IT], player_names[playernum]);
 		else
-			CONS_Printf(M_GetText("%s switched to the blue team\n"), player_names[playernum]);
+			CONS_Printf(text[BLUETEAM_SWITCH], player_names[playernum]);
 	}
 	else if (NetPacket.packet.newteam == 3)
-		CONS_Printf(M_GetText("%s entered the game.\n"), player_names[playernum]);
+		CONS_Printf(text[INGAME_SWITCH], player_names[playernum]);
 	else
-		CONS_Printf(M_GetText("%s became a spectator.\n"), player_names[playernum]);
+		CONS_Printf(text[SPECTATOR_SWITCH], player_names[playernum]);
 
 	//reset view if you are changed, or viewing someone who was changed.
 	if (playernum == consoleplayer || displayplayer == playernum)
@@ -2924,13 +2919,13 @@ static void Command_Changepassword_f(void)
 {
 	if (!server) // cannot change remotely
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVER_CHANGEPASSWORD]);
 		return;
 	}
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("password <password>: change password\n"));
+		CONS_Printf("%s", text[PASSWORD_HELP]);
 		return;
 	}
 
@@ -2954,7 +2949,7 @@ static void Command_Login_f(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("login <password>: Administrator login\n"));
+		CONS_Printf("%s", text[LOGIN_HELP]);
 		return;
 	}
 
@@ -2970,7 +2965,7 @@ static void Command_Login_f(void)
 
 	password[8] = '\0';
 
-	CONS_Printf(M_GetText("Sending Login...%s\n(Notice only given if password is correct.)\n"), password);
+	CONS_Printf(text[SENDING_LOGIN], password);
 
 	SendNetXCmd(XD_LOGIN, password, 9);
 }
@@ -2988,11 +2983,11 @@ static void Got_Login(UINT8 **cp, INT32 playernum)
 
 	if (!strcmp(compareword, adminpassword))
 	{
-		CONS_Printf(M_GetText("%s passed authentication. (%s)\n"), player_names[playernum], compareword);
+		CONS_Printf(text[PASSED_AUTH], player_names[playernum], compareword);
 		COM_BufInsertText(va("verify %d\n", playernum)); // do this immediately
 	}
 	else
-		CONS_Printf(M_GetText("Password from %d failed (%s)\n"), playernum, compareword);
+		CONS_Printf(text[PASSWORD_FAILED], playernum, compareword);
 }
 
 static void Command_Verify_f(void)
@@ -3003,13 +2998,13 @@ static void Command_Verify_f(void)
 
 	if (!server)
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVER_VERIFY]);
 		return;
 	}
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("verify <node>: give admin privileges to a node\n"));
+		CONS_Printf("%s", text[VERIFY_HELP]);
 		return;
 	}
 
@@ -3031,7 +3026,7 @@ static void Got_Verification(UINT8 **cp, INT32 playernum)
 
 	if (playernum != serverplayer) // it's not from the server (hacker or bug)
 	{
-		CONS_Printf(M_GetText("Illegal verification received from %s (serverplayer is %s)\n"), player_names[playernum], player_names[serverplayer]);
+		CONS_Printf(text[ILLEGALVERIFYCMD], player_names[playernum], player_names[serverplayer]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -3048,61 +3043,54 @@ static void Got_Verification(UINT8 **cp, INT32 playernum)
 	if (num != consoleplayer)
 		return;
 
-	CONS_Printf("%s", M_GetText("Password correct. You are now a server administrator.\n"));
+	CONS_Printf("%s", text[PASSWORD_CORRECT]);
 }
 
 static void Command_MotD_f(void)
 {
 	size_t i, j;
-	char *mymotd;
+	XBOXSTATIC char mymotd[sizeof(motd)];
 
 	if ((j = COM_Argc()) < 2)
 	{
-		CONS_Printf("%s", M_GetText("motd <message>: Set a message that clients see upon join.\n"));
+		CONS_Printf("%s", text[MOTD_HELP]);
 		return;
 	}
 
 	if (!(server || (adminplayer == consoleplayer)))
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVERONLY]);
 		return;
 	}
 
-	mymotd = Z_Malloc(sizeof(motd), PU_STATIC, NULL);
-
-	strlcpy(mymotd, COM_Argv(1), sizeof motd);
+	strlcpy(mymotd, COM_Argv(1), sizeof mymotd);
 	for (i = 2; i < j; i++)
 	{
-		strlcat(mymotd, " ", sizeof motd);
-		strlcat(mymotd, COM_Argv(i), sizeof motd);
+		strlcat(mymotd, " ", sizeof mymotd);
+		strlcat(mymotd, COM_Argv(i), sizeof mymotd);
 	}
 
 	// Disallow non-printing characters and semicolons.
 	for (i = 0; mymotd[i] != '\0'; i++)
 		if (!isprint(mymotd[i]) || mymotd[i] == ';')
-		{
-			Z_Free(mymotd);
 			return;
-		}
 
 	if ((netgame || multiplayer) && !server)
-		SendNetXCmd(XD_SETMOTD, mymotd, sizeof(motd));
+		SendNetXCmd(XD_SETMOTD, mymotd, sizeof(mymotd));
 	else
 	{
 		strcpy(motd, mymotd);
-		CONS_Printf("%s", M_GetText("Message of the day set.\n"));
+		CONS_Printf("%s", text[MOTD_SET]);
 	}
-
-	Z_Free(mymotd);
 }
 
 static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 {
-	char *mymotd = Z_Malloc(sizeof(motd), PU_STATIC, NULL);
+	XBOXSTATIC char mymotd[sizeof(motd)];
 	INT32 i;
 	boolean kick = false;
 
-	READSTRINGN(*cp, mymotd, sizeof(motd));
+	READSTRINGN(*cp, mymotd, sizeof(mymotd));
 
 	// Disallow non-printing characters and semicolons.
 	for (i = 0; mymotd[i] != '\0'; i++)
@@ -3111,7 +3099,7 @@ static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 
 	if ((playernum != serverplayer && playernum != adminplayer) || kick)
 	{
-		CONS_Printf(M_GetText("Illegal motd change received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALMOTDCMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -3120,16 +3108,12 @@ static void Got_MotD_f(UINT8 **cp, INT32 playernum)
 			buf[1] = KICK_MSG_CON_FAIL;
 			SendNetXCmd(XD_KICK, &buf, 2);
 		}
-
-		Z_Free(mymotd);
 		return;
 	}
 
 	strcpy(motd, mymotd);
 
-	CONS_Printf("%s", M_GetText("Message of the day set.\n"));
-
-	Z_Free(mymotd);
+	CONS_Printf("%s", text[MOTD_SET]);
 }
 
 static void Command_RunSOC(void)
@@ -3140,7 +3124,7 @@ static void Command_RunSOC(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("runsoc <socfile.soc> or <lumpname>: run a soc\n"));
+		CONS_Printf("%s", text[RUNSOC_HELP]);
 		return;
 	}
 	else
@@ -3148,18 +3132,18 @@ static void Command_RunSOC(void)
 
 	if (netgame && !(server || consoleplayer == adminplayer))
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVERONLY]);
 		return;
 	}
 
 	if (!(netgame || multiplayer))
 	{
 		if (!P_RunSOC(fn))
-			CONS_Printf("%s", M_GetText("Could not find SOC.\n"));
+			CONS_Printf("Could not find SOC.\n");
 		else if (!modifiedgame)
 		{
 			modifiedgame = true;
-			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+			CONS_Printf("%s", text[GAMEMODIFIED]);
 		}
 		return;
 	}
@@ -3177,7 +3161,7 @@ static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
-		CONS_Printf(M_GetText("Illegal runsoc command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALRUNSOCCMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -3201,12 +3185,12 @@ static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
 			Command_ExitGame_f();
 			if (ncs == FS_NOTFOUND)
 			{
-				CONS_Printf(M_GetText("The server tried to add %s,\nbut you don't have this file.\nYou need to find it in order\nto play on this server."), filename);
+				CONS_Printf(text[CLIENT_NEEDFILE], filename);
 				M_StartMessage(va("The server added a file\n(%s)\nthat you do not have.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 			}
 			else
 			{
-				CONS_Printf(M_GetText("Unknown error finding soc file (%s) the server added.\n"), filename);
+				CONS_Printf(text[SOC_NOTFOUND], filename);
 				M_StartMessage(va("Unknown error trying to load a file\nthat the server added\n(%s).\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 			}
 			return;
@@ -3229,7 +3213,7 @@ static void Command_Addfile(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("addfile <wadfile.wad>: load wad file\n"));
+		CONS_Printf("%s", text[ADDFILE_HELP]);
 		return;
 	}
 	else
@@ -3245,11 +3229,11 @@ static void Command_Addfile(void)
 		// ... But only so long as they contain nothing more then music and sprites.
 		if (netgame && !(server || adminplayer == consoleplayer))
 		{
-			CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+			CONS_Printf("%s", text[SERVERONLY]);
 			return;
 		}
 		if (!(netgame || multiplayer) && !modifiedgame) // Only announce modifiedgame ONCE.
-			CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+			CONS_Printf("%s", text[GAMEMODIFIED]);
 		modifiedgame = true;
 	}
 
@@ -3273,14 +3257,20 @@ static void Command_Addfile(void)
 		if (fhandle)
 		{
 			tic_t t = I_GetTime();
-			DEBPRINT(va("Making MD5 for %s\n",fn));
+#ifdef _arch_dreamcast
+			CONS_Printf("Making MD5 for %s\n",fn);
+#endif
 			md5_stream(fhandle, md5sum);
-			DEBPRINT(va(M_GetText("MD5 calc for %s took %f second\n"), fn, (float)(I_GetTime() - t)/TICRATE));
+#ifndef _arch_dreamcast
+			if (devparm)
+#endif
+				CONS_Printf("MD5 calc for %s took %f second\n",
+					fn, (float)(I_GetTime() - t)/TICRATE);
 			fclose(fhandle);
 		}
 		else
 		{
-			CONS_Printf(M_GetText("File %s not found.\n"), fn);
+			CONS_Printf("%s", text[FILE_NOT_FOUND]);
 			return;
 		}
 #endif
@@ -3302,13 +3292,13 @@ static void Command_Delfile(void)
 {
 	if (gamestate == GS_LEVEL)
 	{
-		CONS_Printf("%s", M_GetText("You must NOT be in a level to use this.\n"));
+		CONS_Printf("%s", text[NEED_NO_LEVEL]);
 		return;
 	}
 
 	if (netgame && !(server || adminplayer))
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s", text[SERVERONLY]);
 		return;
 	}
 
@@ -3351,7 +3341,7 @@ static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
 	{
 		XBOXSTATIC UINT8 buf[2];
 
-		CONS_Printf(M_GetText("Illegal addfile command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALADDFILECMD], player_names[playernum]);
 
 		buf[0] = (UINT8)playernum;
 		buf[1] = KICK_MSG_CON_FAIL;
@@ -3366,11 +3356,11 @@ static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
 		char message[256];
 
 		if (ncs == FS_NOTFOUND)
-			sprintf(message, M_GetText("The server doesn't have %s\n"), filename);
+			sprintf(message, "The server doesn't have %s\n", filename);
 		else if (ncs == FS_MD5SUMBAD)
-			sprintf(message, M_GetText("Checksum mismatch on %s\n"), filename);
+			sprintf(message, "Checksum mismatch on %s\n", filename);
 		else
-			sprintf(message, M_GetText("Unknown error finding wad file (%s)\n"), filename);
+			sprintf(message, "Unknown error finding wad file (%s)\n", filename);
 
 		CONS_Printf("%s",message);
 
@@ -3388,7 +3378,7 @@ static void Got_Delfilecmd(UINT8 **cp, INT32 playernum)
 {
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
-		CONS_Printf(M_GetText("Illegal delfile command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALDELFILECMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -3421,7 +3411,7 @@ static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
 
 	if (playernum != serverplayer)
 	{
-		CONS_Printf(M_GetText("Illegal addfile command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALADDFILECMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -3440,17 +3430,17 @@ static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
 		Command_ExitGame_f();
 		if (ncs == FS_NOTFOUND)
 		{
-			CONS_Printf(M_GetText("The server tried to add %s,\nbut you don't have this file.\nYou need to find it in order\nto play on this server."), filename);
+			CONS_Printf(text[CLIENT_NEEDFILE], filename);
 			M_StartMessage(va("The server added a file \n(%s)\nthat you do not have.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 		}
 		else if (ncs == FS_MD5SUMBAD)
 		{
-			CONS_Printf("%s", M_GetText("Checksum mismatch while loading %s.\nMake sure you have the copy of\nthis file that the server has.\n"));
+			CONS_Printf(text[CHECKSUM_MISMATCH], filename);
 			M_StartMessage(va("Checksum mismatch while loading \n%s.\nThe server seems to have a\ndifferent version of this file.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 		}
 		else
 		{
-			CONS_Printf(M_GetText("Unknown error finding wad file (%s) the server added.\n"), filename);
+			CONS_Printf(text[WAD_NOTFOUND], filename);
 			M_StartMessage(va("Unknown error trying to load a file\nthat the server added \n(%s).\n\nPress ESC\n",filename), NULL, MM_NOTHING);
 		}
 		return;
@@ -3464,16 +3454,16 @@ static void Command_ListWADS_f(void)
 {
 	INT32 i = numwadfiles;
 	char *tempname;
-	CONS_Printf(M_GetText("There are %d wads loaded:\n"),numwadfiles);
+	CONS_Printf(text[NUMWADSLOADED],numwadfiles);
 	for (i--; i; i--)
 	{
 		nameonly(tempname = va("%s", wadfiles[i]->filename));
 		if (i > mainwads)
-			CONS_Printf("   %.2d: %s\n", i, tempname);
+			CONS_Printf(text[LISTWAD1], i, tempname);
 		else
-			CONS_Printf("*  %.2d: %s\n", i, tempname);
+			CONS_Printf(text[LISTWAD2], i, tempname);
 	}
-	CONS_Printf("  IWAD: %s\n", wadfiles[0]->filename);
+	CONS_Printf(text[LISTIWAD], wadfiles[0]->filename);
 }
 
 // =========================================================================
@@ -3484,21 +3474,20 @@ static void Command_ListWADS_f(void)
   */
 static void Command_Version_f(void)
 {
-	CONS_Printf(M_GetText("SRB2%s (%s %s %s)\n"), VERSIONSTRING, compdate, comptime, comprevision);
+	CONS_Printf(text[VERSIONCMD], VERSIONSTRING, compdate, comptime, comprevision);
 }
 
 #ifdef UPDATE_ALERT
 static void Command_ModDetails_f(void)
 {
-	CONS_Printf(M_GetText("Mod ID: %d\nMod Version: %d\nCode Base:%d\n"), MODID, MODVERSION, CODEBASE);
+	CONS_Printf(text[MODDETAILSCMD], MODID, MODVERSION, CODEBASE);
 }
 #endif
-
 // Returns current gametype being used.
 //
 static void Command_ShowGametype_f(void)
 {
-	CONS_Printf(M_GetText("Current gametype is %d\n"), gametype);
+	CONS_Printf(text[GAMETYPECMD], gametype);
 }
 
 // Moves the NiGHTS player to another axis within the current mare
@@ -3507,11 +3496,11 @@ static void Command_ShowGametype_f(void)
 static void Command_JumpToAxis_f(void)
 {
 	if (!cv_debug)
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
+		CONS_Printf("%s",text[NEED_DEVMODE]);
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("jumptoaxis <axisnum>: Jump to axis within current mare.\n"));
+		CONS_Printf("%s",text[JUMPTOAXIS_HELP]);
 		return;
 	}
 
@@ -3548,7 +3537,7 @@ void ObjectPlace_OnChange(void)
 {
 	if (gamestate != GS_LEVEL && cv_objectplace.value)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s",text[MUSTBEINLEVEL]);
 		CV_StealthSetValue(&cv_objectplace, false);
 		return;
 	}
@@ -3556,7 +3545,7 @@ void ObjectPlace_OnChange(void)
 	if ((netgame || multiplayer) && cv_objectplace.value) // You spoon!
 	{
 		CV_StealthSetValue(&cv_objectplace, 0);
-		CONS_Printf("%s", M_GetText("You can't use this in a netgame.\n"));
+		CONS_Printf("%s",text[CANTUSEMULTIPLAYER]);
 		return;
 	}
 #else
@@ -3592,7 +3581,7 @@ void ObjectPlace_OnChange(void)
 				modifiedgame = true;
 				savemoddata = false;
 				if (!(netgame || multiplayer))
-					CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+					CONS_Printf("%s",GAMEMODIFIED);
 			}
 		}
 	}
@@ -3639,19 +3628,12 @@ void ObjectPlace_OnChange(void)
 			modifiedgame = true;
 			savemoddata = false;
 			if (!(netgame || multiplayer))
-				CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+				CONS_Printf("%s",text[GAMEMODIFIED]);
 		}
 
 		HU_SetCEchoFlags(1048576);
 		HU_SetCEchoDuration(10);
-		HU_DoCEcho(va("%s", M_GetText("Objectplace Controls:\\"
-		"\\"
-		"Camera L: Cycle backwards      \\"
-		"Camera R: Cycle forwards       \\"
-		"     Jump: Float up             \\"
-		"     Spin: Float down           \\"
-		"    Throw: Place object         \\"
-		"Toss Flag: Remove object (buggy)\\")));
+		HU_DoCEcho(text[OBJPLACEINFO]);
 		HU_SetCEchoDuration(5);
 		HU_SetCEchoFlags(0);
 
@@ -3709,14 +3691,14 @@ static void PointLimit_OnChange(void)
 
 	if (cv_pointlimit.value)
 	{
-		CONS_Printf(M_GetText("Levels will end after %s scores %d point%s.\n"),
+		CONS_Printf(text[POINTLIMIT_MESSAGE],
 			cv_matchtype.value == 1 || gametype == GT_CTF
-				? M_GetText("a team") : M_GetText("someone"),
+				? text[A_TEAM] : text[SOMEONE],
 			cv_pointlimit.value,
 			cv_pointlimit.value > 1 ? "s" : "");
 	}
 	else if (netgame || multiplayer)
-		CONS_Printf("%s", M_GetText("Point limit disabled\n"));
+		CONS_Printf("%s", text[POINTLIMIT_DISABLED]);
 }
 
 static void NumLaps_OnChange(void)
@@ -3724,7 +3706,7 @@ static void NumLaps_OnChange(void)
 	if (gametype != GT_RACE)
 		return; // Just don't be verbose
 
-	CONS_Printf(M_GetText("Number of laps set to %d\n"), cv_numlaps.value);
+	CONS_Printf(text[NUMLAPS_MESSAGE], cv_numlaps.value);
 }
 
 static void NetTimeout_OnChange(void)
@@ -3754,7 +3736,7 @@ static void TimeLimit_OnChange(void)
 
 	if (cv_timelimit.value != 0)
 	{
-		CONS_Printf(M_GetText("Levels will end after %d minute%s.\n"),cv_timelimit.value,cv_timelimit.value == 1 ? "" : "s"); // Graue 11-17-2003
+		CONS_Printf(text[TIMELIMIT_MESSAGE],cv_timelimit.value,cv_timelimit.value == 1 ? "" : "s"); // Graue 11-17-2003
 		timelimitintics = cv_timelimit.value * 60 * TICRATE;
 
 		//add hidetime for tag too!
@@ -3766,7 +3748,7 @@ static void TimeLimit_OnChange(void)
 		// Some people might like to use them together. It works.
 	}
 	else if (netgame || multiplayer)
-		CONS_Printf("%s", M_GetText("Time limit disabled\n"));
+		CONS_Printf("%s", text[TIMELIMIT_DISABLED]);
 }
 
 /** Adjusts certain settings to match a changed gametype.
@@ -3790,7 +3772,7 @@ void D_GameTypeChanged(INT32 lastgametype)
 				newgt = gametype_cons_t[j].strvalue;
 		}
 		if (oldgt && newgt)
-			CONS_Printf(M_GetText("Gametype was changed from %s to %s\n"), oldgt, newgt);
+			CONS_Printf(text[GAMETYPE_CHANGED], oldgt, newgt);
 	}
 	// Only do the following as the server, not as remote admin.
 	// There will always be a server, and this only needs to be done once.
@@ -3926,7 +3908,7 @@ void D_GameTypeChanged(INT32 lastgametype)
 	}
 
 	// make sure no players retain the color yellow if swapping to match or CTF.
-	// todo: This block is very unwieldy. Make a way for the server to force changing of color.
+	// todo: This block is very unwieldy. Make a way for the server to force changing of color. -Jazz
 	if (gametype == GT_CTF || gametype == GT_MATCH)
 	{
 		INT32 i;
@@ -3954,8 +3936,7 @@ void D_GameTypeChanged(INT32 lastgametype)
 				if (players[i].skincolor == 15)
 				{
 					XBOXSTATIC UINT8 buf[2];
-					// FIXME: is %ld really necessary???? why not use normal decimals? ~Callum (produces warnings...)
-					CONS_Printf(M_GetText("Illegal color change received from %s (team: %d, color: %d)\n"), player_names[i], players[i].ctfteam, players[i].skincolor);
+					CONS_Printf(text[ILLEGALCOLORCMD], player_names[i], players[i].ctfteam, players[i].skincolor);
 
 					buf[0] = (UINT8)i;
 					buf[1] = KICK_MSG_CON_FAIL;
@@ -3971,7 +3952,7 @@ static void Ringslinger_OnChange(void)
 	// If you've got a grade less than 3, you can't use this.
 	if ((grade&7) < 3 && !netgame && cv_ringslinger.value && !cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("You haven't earned this yet.\n"));
+		CONS_Printf("%s", text[NOTEARNED]);
 		CV_StealthSetValue(&cv_ringslinger, 0);
 		return;
 	}
@@ -3983,7 +3964,7 @@ static void Ringslinger_OnChange(void)
 			modifiedgame = true;
 			savemoddata = false;
 			if (!(netgame || multiplayer))
-				CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+				CONS_Printf("%s", text[GAMEMODIFIED]);
 		}
 	}
 }
@@ -3992,7 +3973,7 @@ static void Setrings_OnChange(void)
 {
 	if ((grade&7) < 5 && !netgame && cv_setrings.value && !cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("You haven't earned this yet.\n"));
+		CONS_Printf("%s", text[NOTEARNED]);
 		CV_StealthSetValue(&cv_setrings, 0);
 		return;
 	}
@@ -4013,7 +3994,7 @@ static void Setrings_OnChange(void)
 			modifiedgame = true;
 			savemoddata = false;
 			if (!(netgame || multiplayer))
-				CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+				CONS_Printf("%s", text[GAMEMODIFIED]);
 		}
 
 		if (adminplayer == consoleplayer || server)
@@ -4025,7 +4006,7 @@ static void Setlives_OnChange(void)
 {
 	if ((grade&7) < 4 && !netgame && cv_setlives.value && !cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("You haven't earned this yet.\n"));
+		CONS_Printf("%s", text[NOTEARNED]);
 		CV_StealthSetValue(&cv_setlives, 0);
 		return;
 	}
@@ -4045,7 +4026,7 @@ static void Setlives_OnChange(void)
 			modifiedgame = true;
 			savemoddata = false;
 			if (!(netgame || multiplayer))
-				CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+				CONS_Printf("%s", text[GAMEMODIFIED]);
 		}
 
 		if (adminplayer == consoleplayer || server)
@@ -4057,7 +4038,7 @@ static void Setcontinues_OnChange(void)
 {
 	if ((grade&7) < 4 && !netgame && cv_setcontinues.value && !cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("You haven't earned this yet.\n"));
+		CONS_Printf("%s", text[NOTEARNED]);
 		CV_StealthSetValue(&cv_setcontinues, 0);
 		return;
 	}
@@ -4074,7 +4055,7 @@ static void Setcontinues_OnChange(void)
 			modifiedgame = true;
 			savemoddata = false;
 			if (!(netgame || multiplayer))
-				CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
+				CONS_Printf("%s", text[GAMEMODIFIED]);
 		}
 
 		if (adminplayer == consoleplayer || server)
@@ -4087,7 +4068,7 @@ static void Gravity_OnChange(void)
 	if ((grade&7) < 2 && !netgame
 		&& strcmp(cv_gravity.string, cv_gravity.defaultvalue))
 	{
-		CONS_Printf("%s", M_GetText("You haven't earned this yet.\n"));
+		CONS_Printf("%s", text[NOTEARNED]);
 		CV_StealthSet(&cv_gravity, cv_gravity.defaultvalue);
 		return;
 	}
@@ -4144,7 +4125,7 @@ static void TeamScramble_OnChange(void)
 	if (((gametype != GT_MATCH && !cv_matchtype.value) && gametype != GT_CTF) &&
 		(server || (consoleplayer == adminplayer)))
 	{
-		CONS_Printf("%s", M_GetText("This command cannot be used outside of Team Match or CTF.\n"));
+		CONS_Printf("%s", text[NOTMCTF]);
 		CV_StealthSetValue(&cv_teamscramble, 0);
 		return;
 	}
@@ -4271,7 +4252,7 @@ retryscramble:
 		teamscramble = (INT16)cv_teamscramble.value;
 
 		if (!(gamestate == GS_INTERMISSION && cv_scrambleonchange.value))
-			CONS_Printf("%s", M_GetText("Teams will be scrambled next round.\n"));
+			CONS_Printf("%s", text[TEAMS_SCRAMBLED]);
 	}
 }
 
@@ -4279,14 +4260,14 @@ static void Cheats_OnChange(void)
 {
 	if (cheats && (netgame || multiplayer) && !cv_cheats.value)
 	{
-		CONS_Printf("%s", M_GetText("Cheats cannot be disabled after they are activated. You must restart the server to disable cheats.\n"));
+		CONS_Printf("%s", text[CANNOT_CHANGE_CHEATS]);
 		CV_StealthSetValue(&cv_cheats, 1);
 		return;
 	}
 
 	if (gamestate == GS_LEVEL && !(netgame || multiplayer) && cv_cheats.value)
 	{
-		CONS_Printf("%s", M_GetText("You can't use this in single player.\n"));
+		CONS_Printf("%s", text[CANTUSESINGLEPLAYER]);
 		CV_StealthSetValue(&cv_cheats, 0);
 		return;
 	}
@@ -4297,7 +4278,10 @@ static void Cheats_OnChange(void)
 
 	// Display console and hud message.
 	if (cv_cheats.value && !cheats)
-		HU_DoCEcho(va("%s", M_GetText("Cheats have been activated.\n")));
+	{
+		HU_DoCEcho(va("%s", text[CHEATS_ACTIVATED]));
+		I_OutputMsg("%s", text[CHEATS_ACTIVATED]);
+	}
 
 	// When deactivated, restore all variables governed by cheats to their starting values.
 	if (!cv_cheats.value && cheats)
@@ -4380,7 +4364,7 @@ static void Hidetime_OnChange(void)
 {
 	if ((gamestate == GS_LEVEL && gametype == GT_TAG) && ((cv_timelimit.value * 60) <= cv_hidetime.value))
 	{
-		CONS_Printf("%s", M_GetText("HIDETIME cannot be greater or equal to the time limit!\n"));
+		CONS_Printf("%s", text[HIDETIME_ERROR]);
 		CV_StealthSetValue(&cv_hidetime, hidetime);
 		return;
 	}
@@ -4395,36 +4379,36 @@ static void Command_Showmap_f(void)
 {
 	if (gamestate == GS_LEVEL)
 	{
-		if (mapheaderinfo[gamemap-1]->actnum)
-			CONS_Printf("%s (%d): %s %d\n", G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1]->lvlttl, mapheaderinfo[gamemap-1]->actnum);
+		if (mapheaderinfo[gamemap-1].actnum)
+			CONS_Printf(text[SHOWMAP1], G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1].lvlttl, mapheaderinfo[gamemap-1].actnum);
 		else
-			CONS_Printf("%s (%d): %s\n", G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1]->lvlttl);
+			CONS_Printf(text[SHOWMAP2], G_BuildMapName(gamemap), gamemap, mapheaderinfo[gamemap-1].lvlttl);
 	}
 	else
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s",text[MUSTBEINLEVEL]);
 }
 
 static void Command_ExitLevel_f(void)
 {
 	if (!(netgame || (multiplayer && gametype != GT_COOP)) && !cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("You can't use this in single player.\n"));
+		CONS_Printf("%s",text[CANTUSESINGLEPLAYER]);
 		return;
 	}
 	if (!(server || (adminplayer == consoleplayer)))
 	{
-		CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+		CONS_Printf("%s",text[SERVERONLY]);
 		return;
 	}
 	if (gamestate != GS_LEVEL || demoplayback)
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s",text[MUSTBEINLEVEL]);
 
 	SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 }
 
 static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
 {
-	(void)cp;
+	cp = NULL;
 
 	// Ignore duplicate XD_EXITLEVEL commands.
 	if (gameaction == ga_completed)
@@ -4432,7 +4416,7 @@ static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
 
 	if (playernum != serverplayer && playernum != adminplayer)
 	{
-		CONS_Printf(M_GetText("Illegal exitlevel command received from %s\n"), player_names[playernum]);
+		CONS_Printf(text[ILLEGALEXITLVLCMD], player_names[playernum]);
 		if (server)
 		{
 			XBOXSTATIC UINT8 buf[2];
@@ -4453,31 +4437,31 @@ static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
   */
 static void Command_Displayplayer_f(void)
 {
-	CONS_Printf(M_GetText("Displayplayer is %d\n"), displayplayer);
+	CONS_Printf(text[DISPLAYPLAYERCMD], displayplayer);
 }
 
 static void Command_Skynum_f(void)
 {
 	if (!cv_debug)
 	{
-		CONS_Printf("%s", M_GetText("DEVMODE must be enabled.\n"));
-		CONS_Printf("%s", M_GetText("If you want to change the sky interactively on a map, use the linedef executor feature instead.\n"));
+		CONS_Printf("%s",text[NEED_DEVMODE]);
+		CONS_Printf("%s",text[CHANGESKY_HELP]);
 		return;
 	}
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("skynum <sky#>: change the sky\n"));
+		CONS_Printf("%s",text[SKYNUM_HELP]);
 		return;
 	}
 
 	if (netgame || multiplayer)
 	{
-		CONS_Printf("%s", M_GetText("You can't use this in a netgame.\n"));
+		CONS_Printf("%s",text[CANTUSEMULTIPLAYER]);
 		return;
 	}
 
-	CONS_Printf(M_GetText("Previewing sky %s...\n"), COM_Argv(1));
+	CONS_Printf(text[SKYNUM_PREVIEW], COM_Argv(1));
 
 	P_SetupLevelSky(atoi(COM_Argv(1)));
 }
@@ -4489,8 +4473,8 @@ static void Command_Tunes_f(void)
 
 	if (argc < 2) //tunes slot ...
 	{
-		CONS_Printf("%s", M_GetText("tunes <slot#/default> <speed>: play a slot or the default stage tune at the specified speed(100%%)\n"));
-		CONS_Printf(M_GetText("The current tune is: %d\n"), (mapmusic &= ~2048));
+		CONS_Printf("%s", text[TUNES_HELP]);
+		CONS_Printf(text[TUNES_CURRENT], (mapmusic &= ~2048));
 		return;
 	}
 
@@ -4498,12 +4482,12 @@ static void Command_Tunes_f(void)
 
 	if (tune < mus_None || tune >= NUMMUSIC)
 	{
-		CONS_Printf(M_GetText("Valid slots are 1 to %d, or 0 to stop music\n"), NUMMUSIC - 1);
+		CONS_Printf(text[TUNES_VALIDSLOTS], NUMMUSIC - 1);
 		return;
 	}
 
 	if (!strcasecmp(COM_Argv(1), "default"))
-		tune = mapheaderinfo[gamemap-1]->musicslot;
+		tune = mapheaderinfo[gamemap-1].musicslot;
 
 	mapmusic = (INT16)(tune | 2048);
 
@@ -4559,8 +4543,8 @@ static void Fishcake_OnChange(void)
 				modifiedgame = true;
 				savemoddata = false;
 				if (!(netgame || multiplayer))
+					CONS_Printf("%s",GAMEMODIFIED);
 			}
-				CONS_Printf("%s", M_GetText("WARNING: Game must be restarted to record statistics.\n"));
 		}
 	}
 
@@ -4578,11 +4562,11 @@ static void Fishcake_OnChange(void)
 static void Command_Isgamemodified_f(void)
 {
 	if (savemoddata)
-		CONS_Printf("%s", M_GetText("modifiedgame is true, but you can save emblem and time data in this mod.\n"));
+		CONS_Printf("%s", text[GAMEMODIFIEDHELP1]);
 	else if (modifiedgame)
-		CONS_Printf("%s", M_GetText("modifiedgame is true, secrets will not be unlocked\n"));
+		CONS_Printf("%s", text[GAMEMODIFIEDHELP2]);
 	else
-		CONS_Printf("%s", M_GetText("modifiedgame is false, you can unlock secrets\n"));
+		CONS_Printf("%s", text[GAMEMODIFIEDHELP3]);
 }
 
 #ifdef _DEBUG
@@ -4609,7 +4593,7 @@ static void ForceSkin_OnChange(void)
 		{
 			// hack because I can't restrict this and still allow added skins to be used with forceskin.
 			if (!menuactive)
-				CONS_Printf(M_GetText("Valid skin numbers are 0 to %d (-1 disables)\n"), numskins - 1);
+				CONS_Printf(text[FORCESKIN_HELP], numskins - 1);
 			CV_SetValue(&cv_forceskin, -1);
 			return;
 		}
@@ -4627,7 +4611,7 @@ static void Name_OnChange(void)
 {
 	if (cv_mute.value && !(server || adminplayer == consoleplayer))
 	{
-		CONS_Printf("%s", M_GetText("You may not change your name when chat is muted.\n"));
+		CONS_Printf("%s", text[NO_NAME_CHANGE]);
 		CV_StealthSet(&cv_playername, player_names[consoleplayer]);
 	}
 	else
@@ -4639,7 +4623,7 @@ static void Name2_OnChange(void)
 {
 	if (cv_mute.value) //Secondary player can't be admin.
 	{
-		CONS_Printf("%s", M_GetText("You may not change your name when chat is muted.\n"));
+		CONS_Printf("%s", text[NO_NAME_CHANGE]);
 		CV_StealthSet(&cv_playername2, player_names[secondarydisplayplayer]);
 	}
 	else
@@ -4765,9 +4749,9 @@ static void Mute_OnChange(void)
 		return;
 
 	if (cv_mute.value)
-		CONS_Printf("%s", M_GetText("Chat has been muted.\n"));
+		CONS_Printf("%s", text[CHAT_MUTED]);
 	else
-		CONS_Printf("%s", M_GetText("Chat is no longer muted.\n"));
+		CONS_Printf("%s", text[CHAT_NOT_MUTED]);
 }
 
 /** Hack to clear all changed flags after game start.
@@ -4799,17 +4783,16 @@ static void Command_ShowScores_f(void)
 
 	if (!(netgame || multiplayer))
 	{
-		CONS_Printf("%s", M_GetText("This only works in a netgame.\n"));
+		CONS_Printf("%s", text[NETGAMEONLY]);
 		return;
 	}
 
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (playeringame[i])
-			// FIXME: %lu? what's wrong with %u? ~Callum (produces warnings...)
-			CONS_Printf(M_GetText("%s's score is %u\n"), player_names[i], players[i].score);
+			CONS_Printf(text[SHOWSCORESCMD], player_names[i], players[i].score);
 	}
-	CONS_Printf(M_GetText("The pointlimit is %d\n"), cv_pointlimit.value);
+	CONS_Printf(text[SHOWSCORES_POINTLIMIT], cv_pointlimit.value);
 
 }
 
@@ -4817,9 +4800,9 @@ static void Command_ShowTime_f(void)
 {
 	if (!(netgame || multiplayer))
 	{
-		CONS_Printf("%s", M_GetText("This only works in a netgame.\n"));
+		CONS_Printf("%s", text[NETGAMEONLY]);
 		return;
 	}
 
-	CONS_Printf(M_GetText("The current time is %f.\nThe timelimit is %f\n"), (double)leveltime/TICRATE, (double)timelimitintics/TICRATE);
+	CONS_Printf(text[SHOWTIMECMD], (double)leveltime/TICRATE, (double)timelimitintics/TICRATE);
 }

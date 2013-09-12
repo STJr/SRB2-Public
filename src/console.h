@@ -19,11 +19,10 @@
 #include "d_event.h"
 #include "command.h"
 
-#ifdef _WII
-void CON_InitWii(void);
-#else
+// for debugging shopuld be replaced by nothing later.. so debug is inactive
+#define LOG(x) CONS_Printf(x)
+
 void CON_Init(void);
-#endif
 
 boolean CON_Responder(event_t *ev);
 
@@ -40,7 +39,6 @@ extern INT32 con_destlines;
 
 extern INT32 con_clearlines; // lines of top of screen to refresh
 extern boolean con_hudupdate; // hud messages have changed, need refresh
-extern UINT32 con_scalefactor; // console text scale factor
 
 extern consvar_t cons_backcolor;
 

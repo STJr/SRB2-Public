@@ -35,7 +35,6 @@
 #include "r_data.h"
 #include "r_things.h"
 #include "r_sky.h"
-#include "r_draw.h"
 
 #include "s_sound.h"
 #include "st_stuff.h"
@@ -55,9 +54,9 @@
 
 #include "m_argv.h"
 
-#include "p_polyobj.h"
+#include "dstrings.h"
 
-#include "v_video.h"
+#include "p_polyobj.h"
 
 #include "md5.h" // map MD5
 
@@ -163,65 +162,67 @@ FUNCNORETURN static ATTRNORETURN void CorruptMapError(const char *msg)
 static void P_ClearSingleMapHeaderInfo(INT16 i)
 {
 	const INT16 num = (INT16)(i-1);
-	DEH_WriteUndoline("LEVELNAME", mapheaderinfo[num]->lvlttl, UNDO_NONE);
-	mapheaderinfo[num]->lvlttl[0] = '\0';
-	DEH_WriteUndoline("SUBTITLE", mapheaderinfo[num]->subttl, UNDO_NONE);
-	mapheaderinfo[num]->subttl[0] = '\0';
-	DEH_WriteUndoline("ACT", va("%d", mapheaderinfo[num]->actnum), UNDO_NONE);
-	mapheaderinfo[num]->actnum = 0;
-	DEH_WriteUndoline("TYPEOFLEVEL", va("%d", mapheaderinfo[num]->typeoflevel), UNDO_NONE);
-	mapheaderinfo[num]->typeoflevel = 0;
-	DEH_WriteUndoline("NEXTLEVEL", va("%d", mapheaderinfo[num]->nextlevel), UNDO_NONE);
-	mapheaderinfo[num]->nextlevel = (INT16)(i + 1);
-	DEH_WriteUndoline("MUSICSLOT", va("%d", mapheaderinfo[num]->musicslot), UNDO_NONE);
-	mapheaderinfo[num]->musicslot = mus_map01m + num;
-	DEH_WriteUndoline("FORCECHARACTER", va("%d", mapheaderinfo[num]->forcecharacter), UNDO_NONE);
-	mapheaderinfo[num]->forcecharacter = 255;
-	DEH_WriteUndoline("WEATHER", va("%d", mapheaderinfo[num]->weather), UNDO_NONE);
-	mapheaderinfo[num]->weather = 0;
-	DEH_WriteUndoline("SKYNUM", va("%d", mapheaderinfo[num]->skynum), UNDO_NONE);
-	mapheaderinfo[num]->skynum = i;
-	DEH_WriteUndoline("INTERSCREEN", mapheaderinfo[num]->interscreen, UNDO_NONE);
-	mapheaderinfo[num]->interscreen[0] = '#';
-	DEH_WriteUndoline("SCRIPTNAME", mapheaderinfo[num]->scriptname, UNDO_NONE);
-	mapheaderinfo[num]->scriptname[0] = '#';
-	DEH_WriteUndoline("SCRIPTISLUMP", va("%d", mapheaderinfo[num]->scriptislump), UNDO_NONE);
-	mapheaderinfo[num]->scriptislump = false;
-	DEH_WriteUndoline("PRECUTSCENENUM", va("%d", mapheaderinfo[num]->precutscenenum), UNDO_NONE);
-	mapheaderinfo[num]->precutscenenum = 0;
-	DEH_WriteUndoline("CUTSCENENUM", va("%d", mapheaderinfo[num]->cutscenenum), UNDO_NONE);
-	mapheaderinfo[num]->cutscenenum = 0;
-	DEH_WriteUndoline("COUNTDOWN", va("%d", mapheaderinfo[num]->countdown), UNDO_NONE);
-	mapheaderinfo[num]->countdown = 0;
-	DEH_WriteUndoline("NOZONE", va("%d", mapheaderinfo[num]->nozone), UNDO_NONE);
-	mapheaderinfo[num]->nozone = false;
-	DEH_WriteUndoline("HIDDEN", va("%d", mapheaderinfo[num]->hideinmenu), UNDO_NONE);
-	mapheaderinfo[num]->hideinmenu = false;
-	DEH_WriteUndoline("NOSSMUSIC", va("%d", mapheaderinfo[num]->nossmusic), UNDO_NONE);
-	mapheaderinfo[num]->nossmusic = false;
-	DEH_WriteUndoline("SPEEDMUSIC", va("%d", mapheaderinfo[num]->speedmusic), UNDO_NONE);
-	mapheaderinfo[num]->speedmusic = false;
-	DEH_WriteUndoline("NORELOAD", va("%d", mapheaderinfo[num]->noreload), UNDO_NONE);
-	mapheaderinfo[num]->noreload = false;
-	DEH_WriteUndoline("TIMEATTACK", va("%d", mapheaderinfo[num]->timeattack), UNDO_NONE);
-	mapheaderinfo[num]->timeattack = false;
-	DEH_WriteUndoline("LEVELSELECT", va("%d", mapheaderinfo[num]->levelselect), UNDO_NONE);
-	mapheaderinfo[num]->levelselect = false;
-	DEH_WriteUndoline("RUNSOC", mapheaderinfo[num]->runsoc, UNDO_NONE);
-	mapheaderinfo[num]->runsoc[0] = '#';
+	DEH_WriteUndoline("LEVELNAME", mapheaderinfo[num].lvlttl, UNDO_NONE);
+	mapheaderinfo[num].lvlttl[0] = '\0';
+	DEH_WriteUndoline("SUBTITLE", mapheaderinfo[num].subttl, UNDO_NONE);
+	mapheaderinfo[num].subttl[0] = '\0';
+	DEH_WriteUndoline("ACT", va("%d", mapheaderinfo[num].actnum), UNDO_NONE);
+	mapheaderinfo[num].actnum = 0;
+	DEH_WriteUndoline("TYPEOFLEVEL", va("%d", mapheaderinfo[num].typeoflevel), UNDO_NONE);
+	mapheaderinfo[num].typeoflevel = 0;
+	DEH_WriteUndoline("NEXTLEVEL", va("%d", mapheaderinfo[num].nextlevel), UNDO_NONE);
+	mapheaderinfo[num].nextlevel = (INT16)(i + 1);
+	DEH_WriteUndoline("MUSICSLOT", va("%d", mapheaderinfo[num].musicslot), UNDO_NONE);
+	mapheaderinfo[num].musicslot = mus_map01m + num;
+	DEH_WriteUndoline("FORCECHARACTER", va("%d", mapheaderinfo[num].forcecharacter), UNDO_NONE);
+	mapheaderinfo[num].forcecharacter = 255;
+	DEH_WriteUndoline("WEATHER", va("%d", mapheaderinfo[num].weather), UNDO_NONE);
+	mapheaderinfo[num].weather = 0;
+	DEH_WriteUndoline("SKYNUM", va("%d", mapheaderinfo[num].skynum), UNDO_NONE);
+	mapheaderinfo[num].skynum = i;
+	DEH_WriteUndoline("INTERSCREEN", mapheaderinfo[num].interscreen, UNDO_NONE);
+	mapheaderinfo[num].interscreen[0] = '#';
+	DEH_WriteUndoline("SCRIPTNAME", mapheaderinfo[num].scriptname, UNDO_NONE);
+	mapheaderinfo[num].scriptname[0] = '#';
+	DEH_WriteUndoline("SCRIPTISLUMP", va("%d", mapheaderinfo[num].scriptislump), UNDO_NONE);
+	mapheaderinfo[num].scriptislump = false;
+	DEH_WriteUndoline("PRECUTSCENENUM", va("%d", mapheaderinfo[num].precutscenenum), UNDO_NONE);
+	mapheaderinfo[num].precutscenenum = 0;
+	DEH_WriteUndoline("CUTSCENENUM", va("%d", mapheaderinfo[num].cutscenenum), UNDO_NONE);
+	mapheaderinfo[num].cutscenenum = 0;
+	DEH_WriteUndoline("COUNTDOWN", va("%d", mapheaderinfo[num].countdown), UNDO_NONE);
+	mapheaderinfo[num].countdown = 0;
+	DEH_WriteUndoline("NOZONE", va("%d", mapheaderinfo[num].nozone), UNDO_NONE);
+	mapheaderinfo[num].nozone = false;
+	DEH_WriteUndoline("HIDDEN", va("%d", mapheaderinfo[num].hideinmenu), UNDO_NONE);
+	mapheaderinfo[num].hideinmenu = false;
+	DEH_WriteUndoline("NOSSMUSIC", va("%d", mapheaderinfo[num].nossmusic), UNDO_NONE);
+	mapheaderinfo[num].nossmusic = false;
+	DEH_WriteUndoline("SPEEDMUSIC", va("%d", mapheaderinfo[num].speedmusic), UNDO_NONE);
+	mapheaderinfo[num].speedmusic = false;
+	DEH_WriteUndoline("NORELOAD", va("%d", mapheaderinfo[num].noreload), UNDO_NONE);
+	mapheaderinfo[num].noreload = false;
+	DEH_WriteUndoline("TIMEATTACK", va("%d", mapheaderinfo[num].timeattack), UNDO_NONE);
+	mapheaderinfo[num].timeattack = false;
+	DEH_WriteUndoline("LEVELSELECT", va("%d", mapheaderinfo[num].levelselect), UNDO_NONE);
+	mapheaderinfo[num].levelselect = false;
+	DEH_WriteUndoline("RUNSOC", mapheaderinfo[num].runsoc, UNDO_NONE);
+	mapheaderinfo[num].runsoc[0] = '#';
 	DEH_WriteUndoline(va("# uload for map %d", i), NULL, UNDO_DONE);
-	DEH_WriteUndoline("PALLETE", va("%u", mapheaderinfo[num]->palette), UNDO_NONE);
-	mapheaderinfo[num]->palette = UINT16_MAX;
+	DEH_WriteUndoline("PALLETE", va("%u", mapheaderinfo[num].palette), UNDO_NONE);
+	mapheaderinfo[num].palette = UINT16_MAX;
 }
 
-/** Allocates a new map-header structure.
+/** Clears the data from the map headers for all levels.
   *
-  * \param i Index of header to allocate.
+  * \sa P_ClearSingleMapHeaderInfo, P_InitMapHeaders
   */
-void P_AllocMapHeader(INT16 i)
+void P_ClearMapHeaderInfo(void)
 {
-	mapheaderinfo[i] = Z_Malloc(sizeof(mapheader_t), PU_STATIC, NULL);
-	P_ClearSingleMapHeaderInfo(i + 1);
+	INT16 i;
+
+	for (i = 1; i <= NUMMAPS; i++)
+		P_ClearSingleMapHeaderInfo(i);
 }
 
 /** Initializes the map headers.
@@ -234,15 +235,12 @@ void P_InitMapHeaders(void)
 {
 	char mapheader[7];
 	lumpnum_t lumpnum;
-	INT32 mapnum;
-
-	// Make sure that the map header is valid for the
-	// initial value of gamemap
-	if(!mapheaderinfo[gamemap-1])
-		P_AllocMapHeader(gamemap-1);
+	INT32 moremapnumbers, mapnum;
 
 	for (mapnum = 1; mapnum <= NUMMAPS; mapnum++)
 	{
+		moremapnumbers = mapnum - 1;
+
 		strncpy(mapheader, G_BuildMapName(mapnum), 5);
 
 		mapheader[5] = 'D'; // New header
@@ -274,8 +272,7 @@ static inline void P_LoadMapHeader(INT16 mapnum)
 
 	if (!(lumpnum == LUMPERROR || W_LumpLength(lumpnum) == 0))
 	{
-		if (mapheaderinfo[mapnum - 1])
-			P_ClearSingleMapHeaderInfo(mapnum);
+		P_ClearSingleMapHeaderInfo(mapnum);
 		DEH_LoadDehackedLump(lumpnum);
 		return;
 	}
@@ -498,9 +495,8 @@ INT32 P_AddLevelFlat(const char *flatname, levelflat_t *levelflat)
 		// store the flat lump number
 		levelflat->lumpnum = R_GetFlatNumForName(flatname);
 
-#ifndef ZDEBUG
-		DEBPRINT(va("flat #%03d: %s\n", atoi(sizeu1(numlevelflats)), levelflat->name));
-#endif
+		if (devparm)
+			I_OutputMsg("flat #%03"PRIdS": %s\n", numlevelflats, levelflat->name);
 
 		numlevelflats++;
 
@@ -608,16 +604,16 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 		if (!dedicated) // to prevent dedicated server error.
 		{
 			// Keep players out of secret levels!
-			if (ss->tag == 4240 && !(grade & 4)) // Mario
-				I_Error("%s", M_GetText("You need to unlock this level first!\n"));
+			if (ss->tag == 4240 && !(grade & 2)) // Mario
+				I_Error("You need to unlock this level first!\n");
 			else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
-				I_Error("%s", M_GetText("You need to unlock this level first!\n"));
+				I_Error("You need to unlock this level first!\n");
 			else if (ss->tag == 4260 && (modifiedgame || netgame || multiplayer) && !(grade & 2048)) // NAGZ
 			{
 				if (netgame || multiplayer)
-					I_Error("%s", M_GetText("You need to unlock this level in single player first!\n"));
+					I_Error("You need to unlock this level in single player first!\n");
 				else
-					I_Error("%s", M_GetText("You need to unlock this level first!\n"));
+					I_Error("You need to unlock this level first!\n");
 			}
 		}
 	}
@@ -872,17 +868,17 @@ void P_WriteThings(lumpnum_t lumpnum)
 {
 	size_t i, length;
 	mapthing_t *mt;
-	UINT8 *data;
+	UINT8 *data, *datastart;
 	UINT8 *savebuffer, *savebuf_p;
 	INT16 temp;
 
-	data = W_CacheLumpNum(lumpnum, PU_LEVEL);
+	data = datastart = W_CacheLumpNum(lumpnum, PU_LEVEL);
 
 	savebuf_p = savebuffer = (UINT8 *)malloc(nummapthings * sizeof (mapthing_t));
 
 	if (!savebuf_p)
 	{
-		CONS_Printf("%s", M_GetText("No more free memory for thing writing!\n"));
+		CONS_Printf("No more free memory for thingwriting!\n");
 		return;
 	}
 
@@ -899,7 +895,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 		WRITEUINT16(savebuf_p, mt->options);
 	}
 
-	Z_Free(data);
+	Z_Free(datastart);
 
 	length = savebuf_p - savebuffer;
 
@@ -907,7 +903,7 @@ void P_WriteThings(lumpnum_t lumpnum)
 	free(savebuffer);
 	savebuf_p = NULL;
 
-	CONS_Printf(M_GetText("newthings%d.lmp saved.\n"), gamemap);
+	CONS_Printf("newthings%d.lmp saved.\n", gamemap);
 }
 
 //
@@ -987,7 +983,7 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 				if (ld->sidenum[j] != 0xffff && ld->sidenum[j] >= (UINT16)numsides)
 				{
 					ld->sidenum[j] = 0xffff;
-					DEBPRINT(va("P_LoadLineDefs: linedef %s has out-of-range sidedef number\n", sizeu1(numlines-i-1)));
+					CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has out-of-range sidedef number\n",numlines-i-1);
 				}
 			}
 		}
@@ -1001,14 +997,14 @@ static void P_LoadLineDefs(lumpnum_t lumpnum)
 		{
 			ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
 			// cph - print a warning about the bug
-			DEBPRINT(va("P_LoadLineDefs: linedef %s missing first sidedef\n", sizeu1(numlines-i-1)));
+			CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" missing first sidedef\n",numlines-i-1);
 		}
 
 		if ((ld->sidenum[1] == 0xffff) && (ld->flags & ML_TWOSIDED))
 		{
 			ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
 			// cph - print a warning about the bug
-			DEBPRINT(va("P_LoadLineDefs: linedef %s has two-sided flag set, but no second sidedef\n", sizeu1(numlines-i-1)));
+			CONS_Printf("P_LoadLineDefs: linedef %"PRIdS" has two-sided flag set, but no second sidedef\n",numlines-i-1);
 		}
 
 		if (ld->sidenum[0] != 0xffff && ld->special)
@@ -1095,7 +1091,7 @@ static void P_LoadLineDefs2(void)
 				M_Memcpy(&newsides[z++], &sides[i], sizeof(side_t));
 		}
 
-		DEBPRINT(va("Old sides is %s, new sides is %s\n", sizeu1(numsides), sizeu2(numnewsides)));
+		CONS_Printf("Old sides is %"PRIdS", new sides is %"PRIdS"\n", numsides, numnewsides);
 
 		Z_Free(sides);
 		sides = newsides;
@@ -1136,7 +1132,7 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 
 			if (sector_num >= numsectors)
 			{
-				DEBPRINT(va("P_LoadSideDefs2: sidedef %u has out-of-range sector num %u\n", i, sector_num));
+				CONS_Printf("P_LoadSideDefs2: sidedef %u has out-of-range sector num %u\n", i, sector_num);
 				sector_num = 0;
 			}
 			sd->sector = sec = &sectors[sector_num];
@@ -1164,15 +1160,15 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 					}
 					else
 					{
-						if ((num = R_CheckTextureNumForName(msd->toptexture)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->toptexture, i)) == -1)
 							sd->toptexture = 0;
 						else
 							sd->toptexture = num;
-						if ((num = R_CheckTextureNumForName(msd->midtexture)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->midtexture, i)) == -1)
 							sd->midtexture = 0;
 						else
 							sd->midtexture = num;
-						if ((num = R_CheckTextureNumForName(msd->bottomtexture)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->bottomtexture, i)) == -1)
 							sd->bottomtexture = 0;
 						else
 							sd->bottomtexture = num;
@@ -1203,17 +1199,17 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 					}
 					else
 					{
-						if ((num = R_CheckTextureNumForName(msd->toptexture)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->toptexture, i)) == -1)
 							sd->toptexture = 0;
 						else
 							sd->toptexture = num;
 
-						if ((num = R_CheckTextureNumForName(msd->midtexture)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->midtexture, i)) == -1)
 							sd->midtexture = 0;
 						else
 							sd->midtexture = num;
 
-						if ((num = R_CheckTextureNumForName(msd->bottomtexture)) == -1)
+						if ((num = R_CheckTextureNumForName(msd->bottomtexture, i)) == -1)
 							sd->bottomtexture = 0;
 						else
 							sd->bottomtexture = num;
@@ -1228,26 +1224,26 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 					char *col = msd->toptexture;
 					sd->toptexture = sd->bottomtexture =
 						((col[1]-'0')*100 + (col[2]-'0')*10 + col[3]-'0') + 1;
-					sd->midtexture = R_TextureNumForName(msd->midtexture);
+					sd->midtexture = R_TextureNumForName(msd->midtexture, i);
 				}
 				else
 				{
-					sd->midtexture = R_TextureNumForName(msd->midtexture);
-					sd->toptexture = R_TextureNumForName(msd->toptexture);
-					sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
+					sd->midtexture = R_TextureNumForName(msd->midtexture, i);
+					sd->toptexture = R_TextureNumForName(msd->toptexture, i);
+					sd->bottomtexture = R_TextureNumForName(msd->bottomtexture, i);
 				}
 				break;
 		}
 	}
 
 	Z_Free(data);
-	R_ClearTextureNumCache(true);
 }
 
 static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, fixed_t bx1, fixed_t by1)
 {
 	fixed_t bx2 = bx1 + MAPBLOCKUNITS;
 	fixed_t by2 = by1 + MAPBLOCKUNITS;
+	fixed_t bbox[4];
 	line_t boxline, testline;
 	vertex_t vbox, vtest;
 
@@ -1276,6 +1272,10 @@ static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, f
 	bx2 <<= FRACBITS;
 	by2 <<= FRACBITS;
 
+	bbox[BOXTOP] = by2;
+	bbox[BOXBOTTOM] = by1;
+	bbox[BOXRIGHT] = bx2;
+	bbox[BOXLEFT] = bx1;
 	boxline.v1 = &vbox;
 	testline.v1 = &vtest;
 
@@ -1643,21 +1643,21 @@ static void P_GroupLines(void)
 	{
 		if (ss->firstline >= numsegs)
 			CorruptMapError(va("P_GroupLines: ss->firstline invalid "
-				"(subsector %s, firstline refers to %d of %s)", sizeu1(i), ss->firstline,
-				sizeu2(numsegs)));
+				"(subsector %"PRIdS", firstline refers to %d of %"PRIdS")", i, ss->firstline,
+				numsegs));
 		seg = &segs[ss->firstline];
 		sidei = (size_t)(seg->sidedef - sides);
 		if (!seg->sidedef)
 			CorruptMapError(va("P_GroupLines: seg->sidedef is NULL "
-				"(subsector %s, firstline is %d)", sizeu1(i), ss->firstline));
+				"(subsector %"PRIdS", firstline is %d)", i, ss->firstline));
 		if (seg->sidedef - sides < 0 || seg->sidedef - sides > (UINT16)numsides)
-			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %s of %s "
-				"(subsector %s, firstline is %d)", sizeu1(sidei), sizeu2(numsides),
-				sizeu3(i), ss->firstline));
+			CorruptMapError(va("P_GroupLines: seg->sidedef refers to sidedef %"PRIdS" of %"PRIdS" "
+				"(subsector %"PRIdS", firstline is %d)", sidei, numsides,
+				i, ss->firstline));
 		if (!seg->sidedef->sector)
 			CorruptMapError(va("P_GroupLines: seg->sidedef->sector is NULL "
-				"(subsector %s, firstline is %d, sidedef is %s)", sizeu1(i), ss->firstline,
-				sizeu1(sidei)));
+				"(subsector %"PRIdS", firstline is %d, sidedef is %"PRIdS")", i, ss->firstline,
+				sidei));
 		ss->sector = seg->sidedef->sector;
 	}
 
@@ -1745,7 +1745,7 @@ void P_SetupLevelSky(INT32 skynum)
 	char skytexname[12];
 
 	sprintf(skytexname, "SKY%d", skynum);
-	skytexture = R_TextureNumForName(skytexname);
+	skytexture = R_TextureNumForName(skytexname, 0xffff);
 	levelskynum = skynum;
 
 	// scale up the old skies, if needed
@@ -1808,8 +1808,8 @@ static void P_LevelInitStuff(void)
 	localaiming = 0;
 	localaiming2 = 0;
 
-	if (mapheaderinfo[gamemap-1]->countdown)
-		countdowntimer = mapheaderinfo[gamemap-1]->countdown * TICRATE;
+	if (mapheaderinfo[gamemap-1].countdown)
+		countdowntimer = mapheaderinfo[gamemap-1].countdown * TICRATE;
 	else
 		countdowntimer = 0;
 
@@ -1896,10 +1896,17 @@ static INT32 P_MakeBufferMD5(const char *buffer, size_t len, void *resblock)
 	return 1;
 #else
 	tic_t t = I_GetTime();
-	DEBPRINT("Making MD5\n");
+#ifndef _arch_dreamcast
+	if (devparm)
+#endif
+	CONS_Printf("Making MD5\n");
 	if (md5_buffer(buffer, len, resblock) == NULL)
 		return 1;
-	DEBPRINT(va("MD5 calc took %f seconds\n", (float)(I_GetTime() - t)/TICRATE));
+#ifndef _arch_dreamcast
+	if (devparm)
+#endif
+	CONS_Printf("MD5 calc took %f seconds\n",
+		(float)(I_GetTime() - t)/TICRATE);
 	return 0;
 #endif
 }
@@ -1952,23 +1959,15 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	levelloading = true;
 
 	// This is needed. Don't touch.
-	maptol = mapheaderinfo[gamemap-1]->typeoflevel;
+	maptol = mapheaderinfo[gamemap-1].typeoflevel;
 
 	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated) // to prevent dedicated server error.
 		I_Error("You have to unlock this level first!");
 
+	HU_clearChatChars();
+
 	CON_Drawer(); // let the user know what we are going to do
 	I_FinishUpdate(); // page flip or blit buffer
-
-
-	// Reset the palette
-#ifdef HWRENDER
-	if (rendermode == render_opengl)
-		HWR_SetPaletteColor(0);
-	else
-#endif
-	if (rendermode != render_none)
-		V_SetPaletteLump("PLAYPAL");
 
 	// Initialize sector node list.
 	P_Initsecnode();
@@ -1979,17 +1978,17 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	// Clear CECHO messages
 	HU_ClearCEcho();
 
-	if (mapheaderinfo[gamemap-1]->runsoc[0] != '#')
-		P_RunSOC(mapheaderinfo[gamemap-1]->runsoc);
+	if (mapheaderinfo[gamemap-1].runsoc[0] != '#')
+		P_RunSOC(mapheaderinfo[gamemap-1].runsoc);
 
-	if (cv_runscripts.value && mapheaderinfo[gamemap-1]->scriptname[0] != '#')
+	if (cv_runscripts.value && mapheaderinfo[gamemap-1].scriptname[0] != '#')
 	{
-		if (mapheaderinfo[gamemap-1]->scriptislump)
+		if (mapheaderinfo[gamemap-1].scriptislump)
 		{
 			lumpnum_t lumpnum;
 			char newname[9];
 
-			strncpy(newname, mapheaderinfo[gamemap-1]->scriptname, 8);
+			strncpy(newname, mapheaderinfo[gamemap-1].scriptname, 8);
 
 			newname[8] = '\0';
 
@@ -1997,7 +1996,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 
 			if (lumpnum == LUMPERROR || W_LumpLength(lumpnum) == 0)
 			{
-				DEBPRINT(va("SOC Error: script lump %s not found/not valid.\n", newname));
+				CONS_Printf("SOC Error: script lump %s not found/not valid.\n", newname);
 				goto noscript;
 			}
 
@@ -2005,7 +2004,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 		}
 		else
 		{
-			COM_BufAddText(va("exec %s\n", mapheaderinfo[gamemap-1]->scriptname));
+			COM_BufAddText(va("exec %s\n", mapheaderinfo[gamemap-1].scriptname));
 		}
 		COM_BufExecute(); // Run it!
 	}
@@ -2013,18 +2012,18 @@ noscript:
 
 	P_LevelInitStuff();
 
-	postimgtype = postimgtype2 = postimg_none;
+	postimgtype = postimg_none;
 
-	if (mapheaderinfo[gamemap-1]->forcecharacter != 255)
+	if (mapheaderinfo[gamemap-1].forcecharacter != 255)
 	{
 		char skincmd[33];
 		if (splitscreen)
 		{
-			sprintf(skincmd, "skin2 %s\n", skins[mapheaderinfo[gamemap-1]->forcecharacter].name);
-			CV_Set(&cv_skin2, skins[mapheaderinfo[gamemap-1]->forcecharacter].name);
+			sprintf(skincmd, "skin2 %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
+			CV_Set(&cv_skin2, skins[mapheaderinfo[gamemap-1].forcecharacter].name);
 		}
 
-		sprintf(skincmd, "skin %s\n", skins[mapheaderinfo[gamemap-1]->forcecharacter].name);
+		sprintf(skincmd, "skin %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
 
 		COM_BufAddText(skincmd);
 
@@ -2032,7 +2031,7 @@ noscript:
 		{
 			if (splitscreen)
 			{
-				SetPlayerSkinByNum(secondarydisplayplayer, mapheaderinfo[gamemap-1]->forcecharacter);
+				SetPlayerSkinByNum(secondarydisplayplayer, mapheaderinfo[gamemap-1].forcecharacter);
 				if (cv_playercolor2.value != players[secondarydisplayplayer].prefcolor)
 				{
 					CV_StealthSetValue(&cv_playercolor2, players[secondarydisplayplayer].prefcolor);
@@ -2047,7 +2046,7 @@ noscript:
 				}
 			}
 
-			SetPlayerSkinByNum(consoleplayer, mapheaderinfo[gamemap-1]->forcecharacter);
+			SetPlayerSkinByNum(consoleplayer, mapheaderinfo[gamemap-1].forcecharacter);
 			// normal player colors in single player
 			if (cv_playercolor.value != players[consoleplayer].prefcolor)
 			{
@@ -2102,9 +2101,6 @@ noscript:
 		Z_Free(ss->attachedsolid);
 	}
 
-	// Clear pointers that would be left dangling by the purge
-	R_FlushTranslationColormapCache();
-
 	Z_FreeTags(PU_LEVEL, PU_PURGELEVEL - 1);
 
 #if defined (WALLSPLATS) || defined (FLOORSPLATS)
@@ -2125,11 +2121,8 @@ noscript:
 	// internal game map
 	lastloadedmaplumpnum = W_GetNumForName(maplumpname = G_BuildMapName(map));
 
-	if(!mapheaderinfo[map-1])
-		P_AllocMapHeader((INT16)(map-1));
-
-	R_ReInitColormaps(mapheaderinfo[map-1]->palette);
-	CON_ReSetupBackColormap(mapheaderinfo[map-1]->palette);
+	R_ReInitColormaps(mapheaderinfo[map-1].palette);
+	CON_ReSetupBackColormap(mapheaderinfo[map-1].palette);
 
 	// Start the music!
 	S_Start();
@@ -2141,11 +2134,11 @@ noscript:
 	// SRB2 determines the sky texture to be used depending on the map header.
 	if (!dedicated)
 	{
-		P_SetupLevelSky(mapheaderinfo[gamemap-1]->skynum);
+		P_SetupLevelSky(mapheaderinfo[gamemap-1].skynum);
 		globallevelskynum = levelskynum;
 	}
 	else
-		globallevelskynum = levelskynum = mapheaderinfo[gamemap-1]->skynum;
+		globallevelskynum = levelskynum = mapheaderinfo[gamemap-1].skynum;
 
 	P_MakeMapMD5(lastloadedmaplumpnum, &mapmd5);
 
@@ -2192,15 +2185,13 @@ noscript:
 	if (loadprecip) //  ugly hack for P_NetUnArchiveMisc (and P_LoadNetGame)
 		P_SpawnPrecipitation();
 
-	globalweather = mapheaderinfo[gamemap-1]->weather;
+	globalweather = mapheaderinfo[gamemap-1].weather;
 
+// Moved this down. This modifies the seg information which causes polyobjects to break.
+// By moving it down below P_SpawnSpecials(), polyobjects can now function properly. -Jazz
 #ifdef HWRENDER // not win32 only 19990829 by Kin
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-#ifdef ALAM_LIGHTING
-		// BP: reset light between levels (we draw preview frame lights on current frame)
-		HWR_ResetLights();
-#endif
 		// Correct missing sidedefs & deep water trick
 		HWR_CorrectSWTricks();
 		HWR_CreatePlanePolygons((INT32)numnodes - 1);
@@ -2245,7 +2236,7 @@ noscript:
 		//What if one player is node 0 and the other node 31?
 		//The solution? Make a temp array of all players that are currently playing and pick from them.
 		//Future todo? When a player leaves, shift all nodes down so D_NumPlayers() can be used as intended?
-		//Also, you'd never have to loop through all 32 players slots to find anything ever again.
+		//Also, you'd never have to loop through all 32 players slots to find anything ever again. =P -Jazz
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
 			if (playeringame[i] && !players[i].spectator)
@@ -2274,7 +2265,7 @@ noscript:
 			G_DeathMatchSpawnPlayer(playersactive[i]); //respawn the lucky player in his dedicated spawn location.
 		}
 		else
-			CONS_Printf("%s", M_GetText("No player currently available to become IT. Awaiting available players.\n"));
+			CONS_Printf("No player currently available to become IT. Awaiting available players.\n");
 
 	}
 
@@ -2369,8 +2360,8 @@ noscript:
 
 	if (!(netgame || multiplayer || demoplayback || demorecording || timeattacking || players[consoleplayer].lives <= 0)
 		&& (!modifiedgame || savemoddata) && cursaveslot != -1 && !ultimatemode
-		&& !mapheaderinfo[gamemap-1]->hideinmenu
-		&& (!G_IsSpecialStage(gamemap)) && gamemap != lastmapsaved && (mapheaderinfo[gamemap-1]->actnum < 2 || gamecomplete))
+		&& !mapheaderinfo[gamemap-1].hideinmenu
+		&& (!G_IsSpecialStage(gamemap)) && gamemap != lastmapsaved && (mapheaderinfo[gamemap-1].actnum < 2 || gamecomplete))
 		G_SaveGame((UINT32)cursaveslot);
 
 	if (savedata.lives > 0)
@@ -2401,7 +2392,7 @@ boolean P_RunSOC(const char *socfilename)
 	if (lump == LUMPERROR)
 		return false;
 
-	CONS_Printf(M_GetText("Loading SOC lump: %s\n"), socfilename);
+	CONS_Printf("Loading SOC lump: %s\n", socfilename);
 	DEH_LoadDehackedLump(lump);
 
 	return true;
@@ -2413,7 +2404,7 @@ boolean P_RunSOC(const char *socfilename)
 //
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 {
-	size_t i, j, sreplaces = 0, mreplaces = 0, digmreplaces = 0;
+	size_t i, j, sreplaces = 0, mreplaces = 0;
 	UINT16 numlumps, wadnum;
 	INT16 firstmapreplaced = 0, num;
 	char *name;
@@ -2423,7 +2414,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 
 	if ((numlumps = W_LoadWadFile(wadfilename)) == INT16_MAX)
 	{
-		CONS_Printf(M_GetText("Couldn't load wad file %s\n"), wadfilename);
+		CONS_Printf("couldn't load wad file %s\n", wadfilename);
 		return false;
 	}
 	else wadnum = (UINT16)(numwadfiles-1);
@@ -2443,7 +2434,8 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 				{
 					// the sound will be reloaded when needed,
 					// since sfx->data will be NULL
-					DEBPRINT(va("Sound %.8s replaced\n", name));
+					if (devparm)
+						I_OutputMsg("Sound %.8s replaced\n", name);
 
 					I_FreeSfx(&S_sfx[j]);
 
@@ -2452,14 +2444,10 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 			}
 			else if (name[1] == '_')
 			{
-				DEBPRINT(va("Music %.8s replaced\n", name));
+				if (devparm)
+					I_OutputMsg("Music %.8s replaced\n", name);
 				mreplaces++;
 			}
-		}
-		else if (name[0] == 'O' && name[1] == '_')
-		{
-			DEBPRINT(va("Music %.8s replaced\n", name));
-			digmreplaces++;
 		}
 #if 0
 		//
@@ -2471,11 +2459,9 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 			texturechange = true;
 	}
 	if (!devparm && sreplaces)
-		CONS_Printf(M_GetText("%s sounds replaced\n"), sizeu1(sreplaces));
+		CONS_Printf("%"PRIdS" sounds replaced\n", sreplaces);
 	if (!devparm && mreplaces)
-		CONS_Printf(M_GetText("%s midi musics replaced\n"), sizeu1(mreplaces));
-	if (!devparm && digmreplaces)
-		CONS_Printf(M_GetText("%s digital musics replaced\n"), sizeu1(digmreplaces));
+		CONS_Printf("%"PRIdS" musics replaced\n", mreplaces);
 
 	//
 	// search for sprite replacements
@@ -2534,7 +2520,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 		}
 	}
 	if (!firstmapreplaced)
-		CONS_Printf("%s", M_GetText("No maps added\n"));
+		CONS_Printf("no maps added\n");
 
 	// reload status bar (warning should have valid player!)
 	if (gamestate == GS_LEVEL)
@@ -2542,7 +2528,7 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 
 	if (replacedcurrentmap && gamestate == GS_LEVEL && (netgame || multiplayer))
 	{
-		CONS_Printf(M_GetText("Current map %d replaced by added file, ending the level to ensure consistiency.\n"), gamemap);
+		CONS_Printf("Current map %d replaced by added file, ending the level to ensure consistiency.\n", gamemap);
 		if (server)
 			SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 	}
@@ -2550,7 +2536,6 @@ boolean P_AddWadFile(const char *wadfilename, char **firstmapname)
 	return true;
 }
 
-#ifdef DELFILE
 boolean P_DelWadFile(void)
 {
 	sfxenum_t i;
@@ -2576,4 +2561,3 @@ boolean P_DelWadFile(void)
 	R_LoadTextures();
 	return false;
 }
-#endif

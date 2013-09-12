@@ -32,6 +32,7 @@
 #include "s_sound.h"
 #include "w_wad.h"
 #include "z_zone.h"
+#include "dstrings.h" //SoM: 3/10/2000
 #include "r_main.h" //Two extra includes.
 #include "r_sky.h"
 #include "p_polyobj.h"
@@ -259,11 +260,11 @@ void P_InitPicAnims(void)
 	{
 		if (animdefs[i].istexture)
 		{
-			if (R_CheckTextureNumForName(animdefs[i].startname) == -1)
+			if (R_CheckTextureNumForName(animdefs[i].startname, 0xffff) == -1)
 				continue;
 
-			lastanim->picnum = R_TextureNumForName(animdefs[i].endname);
-			lastanim->basepic = R_TextureNumForName(animdefs[i].startname);
+			lastanim->picnum = R_TextureNumForName(animdefs[i].endname, 0xffff);
+			lastanim->basepic = R_TextureNumForName(animdefs[i].startname, 0xffff);
 		}
 		else
 		{
@@ -291,7 +292,6 @@ void P_InitPicAnims(void)
 		lastanim++;
 	}
 	lastanim->istexture = -1;
-	R_ClearTextureNumCache(false);
 
 	if (animdefs != harddefs)
 		Z_ChangeTag(animdefs, PU_CACHE);
@@ -331,9 +331,10 @@ static inline void P_FindAnimatedFlat(INT32 animnum)
 			foundflats->numpics = endflatnum - startflatnum + 1;
 			foundflats->speed = anims[animnum].speed;
 
-			DEBPRINT(va("animflat: #%03d name:%.8s animseq:%d numpics:%d speed:%d\n",
-					atoi(sizeu1(i)), foundflats->name, foundflats->animseq,
-					foundflats->numpics,foundflats->speed));
+			if (devparm)
+				I_OutputMsg("animflat: #%03"PRIdS" name:%.8s animseq:%d numpics:%d speed:%d\n",
+					i, foundflats->name, foundflats->animseq,
+					foundflats->numpics,foundflats->speed);
 		}
 	}
 }
@@ -407,7 +408,7 @@ static inline boolean twoSided(INT32 sector, INT32 line)
   * \sa getSide, getSector, twoSided
   * \author Steven McGranahan
   */
-static sector_t *getNextSector(line_t *line, sector_t *sec)
+static inline sector_t *getNextSector(line_t *line, sector_t *sec)
 {
 	if (line->frontsector == sec)
 	{
@@ -1044,7 +1045,8 @@ static void PolyInvisible(line_t *line)
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
 	{
-		DEBPRINT(va("PolyInvisible: bad polyobj %d\n", polyObjNum));
+		CONS_Printf("PolyInvisible: bad polyobj %d\n",
+			polyObjNum);
 		return;
 	}
 
@@ -1072,7 +1074,8 @@ static void PolyVisible(line_t *line)
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
 	{
-		DEBPRINT(va("PolyVisible: bad polyobj %d\n", polyObjNum));
+		CONS_Printf("PolyVisible: bad polyobj %d\n",
+			polyObjNum);
 		return;
 	}
 
@@ -1100,7 +1103,8 @@ static void PolyTranslucency(line_t *line)
 
 	if (!(po = Polyobj_GetForNum(polyObjNum)))
 	{
-		DEBPRINT(va("EV_DoPolyObjWaypoint: bad polyobj %d\n", polyObjNum));
+		CONS_Printf("EV_DoPolyObjWaypoint: bad polyobj %d\n",
+			polyObjNum);
 		return;
 	}
 
@@ -1504,7 +1508,7 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 			if (masterlineindex == (size_t)-1)
 			{
 				const size_t li = (size_t)(ctlsector->lines[i] - lines);
-				I_Error("Line %s isn't linked into its front sector", sizeu1(li));
+				I_Error("Line %"PRIdS" isn't linked into its front sector", li);
 			}
 #endif
 
@@ -1532,8 +1536,9 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 					if (j == linecnt)
 					{
 						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
-						DEBPRINT(va("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
-							sizeu1(sectori), sizeu2(vertexei), ctlsector->lines[i]->v1->x, ctlsector->lines[i]->v1->y));
+						CONS_Printf("Warning: Sector %"PRIdS" is not closed at vertex %"PRIdS" (%d, %d)\n",
+							sectori, vertexei,
+							ctlsector->lines[i]->v1->x, ctlsector->lines[i]->v1->y);
 						return; // abort
 					}
 				}
@@ -1558,8 +1563,9 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 					if (j == linecnt)
 					{
 						const size_t vertexei = (size_t)(ctlsector->lines[i]->v1 - vertexes);
-						DEBPRINT(va("Warning: Sector %s is not closed at vertex %s (%d, %d)\n",
-							sizeu1(sectori), sizeu2(vertexei), ctlsector->lines[i]->v2->x, ctlsector->lines[i]->v2->y));
+						CONS_Printf("Warning: Sector %"PRIdS" is not closed at vertex %"PRIdS" (%d, %d)\n",
+							sectori, vertexei,
+							ctlsector->lines[i]->v2->x, ctlsector->lines[i]->v2->y);
 						return; // abort
 					}
 				}
@@ -1644,7 +1650,7 @@ void P_SwitchWeather(INT32 weathernum)
 				return;
 			break;
 		default:
-			DEBPRINT(va("P_SwitchWeather: Unknown weather type %d.\n", weathernum));
+			CONS_Printf("Unknown weather type %d.\n", weathernum);
 			break;
 	}
 
@@ -2010,10 +2016,10 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 						return;
 
 					if (line->flags & ML_BLOCKMONSTERS)
-						P_Teleport(mo, dest->x, dest->y, dest->z, (line->flags & ML_NOCLIMB) ?  mo->angle : dest->angle, false, (line->flags & ML_EFFECT4) == ML_EFFECT4);
+						P_Teleport(mo, dest->x, dest->y, dest->z, (line->flags & ML_NOCLIMB) ?  mo->angle : dest->angle, false, (line->flags & ML_EFFECT4));
 					else
 					{
-						P_Teleport(mo, dest->x, dest->y, dest->z, (line->flags & ML_NOCLIMB) ?  mo->angle : dest->angle, true, (line->flags & ML_EFFECT4) == ML_EFFECT4);
+						P_Teleport(mo, dest->x, dest->y, dest->z, (line->flags & ML_NOCLIMB) ?  mo->angle : dest->angle, true, (line->flags & ML_EFFECT4));
 						// Play the 'bowrwoosh!' sound
 						S_StartSound(dest, sfx_mixup);
 					}
@@ -2146,9 +2152,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 				lumpnum = W_CheckNumForName(newname);
 
 				if (lumpnum == LUMPERROR || W_LumpLength(lumpnum) == 0)
-				{
-					DEBPRINT(va("SOC Error: script lump %s not found/not valid.\n", newname));
-				}
+					CONS_Printf("SOC Error: script lump %s not found/not valid.\n", newname);
 				else
 					COM_BufInsertText(W_CacheLumpNum(lumpnum, PU_CACHE));
 			}
@@ -2477,7 +2481,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					if (!sec->ffloors)
 					{
-						DEBPRINT(va("Line type 436 Executor: Target sector #%d has no FOFs.\n", secnum));
+						CONS_Printf("Line type 436 Executor: Target sector #%d has no FOFs.\n", secnum);
 						return;
 					}
 
@@ -2489,7 +2493,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					if (!rover)
 					{
-						DEBPRINT(va("Line type 436 Executor: Can't find a FOF control sector with tag %d\n", foftag));
+						CONS_Printf("Line type 436 Executor: Can't find a FOF control sector with tag %d\n", foftag);
 						return;
 					}
 
@@ -3152,7 +3156,8 @@ DoneSection2:
 
 						HU_SetCEchoFlags(0);
 						HU_SetCEchoDuration(5);
-						HU_DoCEcho(va(M_GetText("%s\\captured the blue flag.\\\\\\\\"), player_names[player-players]));
+						HU_DoCEcho(va("%s\\captured the blue flag.\\\\\\\\", player_names[player-players]));
+						I_OutputMsg("%s captured the blue flag.\n", player_names[player-players]);
 
 						if (players[consoleplayer].ctfteam == 1)
 							S_StartSound(NULL, sfx_flgcap);
@@ -3187,10 +3192,14 @@ DoneSection2:
 						HU_SetCEchoDuration(5);
 
 						if (players[consoleplayer].ctfteam == 2)
-							HU_DoCEcho(va("%s", M_GetText("the enemy has returned\\their flag.\\\\\\\\")));
+						{
+							HU_DoCEcho("the enemy has returned\\their flag.\\\\\\\\");
+							I_OutputMsg("the blue team has returned their flag.\n");
+						}
 						else if (players[consoleplayer].ctfteam == 1)
 						{
-							HU_DoCEcho(va("%s", M_GetText("your flag was returned\\to base.\\\\\\\\")));
+							HU_DoCEcho("your flag was returned\\to base.\\\\\\\\");
+							I_OutputMsg("your red flag was returned to base.\n");
 							S_StartSound(NULL, sfx_chchng);
 						}
 					}
@@ -3234,7 +3243,8 @@ DoneSection2:
 
 						HU_SetCEchoFlags(0);
 						HU_SetCEchoDuration(5);
-						HU_DoCEcho(va(M_GetText("%s\\captured the red flag.\\\\\\\\"), player_names[player-players]));
+						HU_DoCEcho(va("%s\\captured the red flag.\\\\\\\\", player_names[player-players]));
+						I_OutputMsg("%s captured the red flag.\n", player_names[player-players]);
 
 						if (players[consoleplayer].ctfteam == 2)
 							S_StartSound(NULL, sfx_flgcap);
@@ -3266,10 +3276,14 @@ DoneSection2:
 						mo->fuse = TICRATE;
 						mo->spawnpoint = bflagpoint;
 						if (players[consoleplayer].ctfteam == 1)
-							HU_DoCEcho(va("%s", M_GetText("the enemy has returned\\their flag.\\\\\\\\")));
+						{
+							HU_DoCEcho("the enemy has returned\\their flag.\\\\\\\\");
+							I_OutputMsg("the red team has returned their flag.\n");
+						}
 						else if (players[consoleplayer].ctfteam == 2)
 						{
-							HU_DoCEcho(va("%s", M_GetText("your flag was returned\\to base.\\\\\\\\")));
+							HU_DoCEcho("your flag was returned\\to base.\\\\\\\\");
+							I_OutputMsg("your blue flag was returned to base.\n");
 							S_StartSound(NULL, sfx_chchng);
 						}
 					}
@@ -3332,7 +3346,7 @@ DoneSection2:
 
 				if (lineindex == -1)
 				{
-					DEBPRINT(va("ERROR: Sector special %d missing line special #3.\n", sector->special));
+					CONS_Printf("ERROR: Sector special %d missing line special #3.\n", sector->special);
 					break;
 				}
 
@@ -3359,13 +3373,14 @@ DoneSection2:
 
 				if (!waypoint)
 				{
-					DEBPRINT(va("ERROR: FIRST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence));
+					CONS_Printf("ERROR: FIRST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence);
 					break;
 				}
-				else
-				{
-					DEBPRINT(va("Waypoint %d found in sequence %d - speed = %d\n", waypoint->health, sequence, speed));
-				}
+				else if (cv_debug)
+					CONS_Printf("Waypoint %d found in sequence %d - speed = %d\n",
+																waypoint->health,
+																sequence,
+																speed);
 
 				an = R_PointToAngle2(player->mo->x, player->mo->y, waypoint->x, waypoint->y) - player->mo->angle;
 
@@ -3406,7 +3421,7 @@ DoneSection2:
 
 				if (lineindex == -1)
 				{
-					DEBPRINT(va("ERROR: Sector special %d missing line special #3.\n", sector->special));
+					CONS_Printf("ERROR: Sector special %d missing line special #3.\n", sector->special);
 					break;
 				}
 
@@ -3434,13 +3449,14 @@ DoneSection2:
 
 				if (!waypoint)
 				{
-					DEBPRINT(va("ERROR: LAST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence));
+					CONS_Printf("ERROR: LAST WAYPOINT IN SEQUENCE %d NOT FOUND.\n", sequence);
 					break;
 				}
-				else
-				{
-					DEBPRINT(va("Waypoint %d found in sequence %d - speed = %d\n", waypoint->health, sequence, speed));
-				}
+				else if (cv_debug)
+					CONS_Printf("Waypoint %d found in sequence %d - speed = %d\n",
+																waypoint->health,
+																sequence,
+																speed);
 
 				an = R_PointToAngle2(player->mo->x, player->mo->y, waypoint->x, waypoint->y) - player->mo->angle;
 
@@ -3475,9 +3491,9 @@ DoneSection2:
 						player->drillmeter += 48*20;
 
 					if (player->laps >= (unsigned)cv_numlaps.value)
-						CONS_Printf(M_GetText("%s has finished the race.\n"), player_names[player-players]);
+						CONS_Printf(text[FINISHEDFINALLAP], player_names[player-players]);
 					else
-						CONS_Printf(M_GetText("%s started lap %d\n"), player_names[player-players],player->laps+1);
+						CONS_Printf(text[STARTEDLAP], player_names[player-players],player->laps+1);
 
 					// Reset starposts (checkpoints) info
 					player->starpostangle = player->starposttime = player->starpostnum = player->starpostbit = 0;
@@ -3548,7 +3564,7 @@ DoneSection2:
 
 				if (lineindex == -1)
 				{
-					DEBPRINT(va("ERROR: Sector special %d missing line special #11.\n", sector->special));
+					CONS_Printf("ERROR: Sector special %d missing line special #11.\n", sector->special);
 					break;
 				}
 
@@ -3598,7 +3614,7 @@ DoneSection2:
 
 				if (waypointmid == NULL)
 				{
-					DEBPRINT(va("ERROR: WAYPOINT(S) IN SEQUENCE %d NOT FOUND.\n", sequence));
+					CONS_Printf("ERROR: WAYPOINT(S) IN SEQUENCE %d NOT FOUND.\n", sequence);
 					break;
 				}
 
@@ -3656,8 +3672,8 @@ DoneSection2:
 					break;
 				}
 
-				DEBPRINT(va("WaypointMid: %d; WaypointLow: %d; WaypointHigh: %d\n",
-								waypointmid->health, waypointlow ? waypointlow->health : -1, waypointhigh ? waypointhigh->health : -1));
+				if (cv_debug)
+					CONS_Printf("WaypointMid: %d; WaypointLow: %d; WaypointHigh: %d\n", waypointmid->health, waypointlow ? waypointlow->health : -1, waypointhigh ? waypointhigh->health : -1);
 
 				// Now we have three waypoints... the closest one we're near, and the one that comes before, and after.
 				// Next, we need to find the closest point on the line between each set, and determine which one we're
@@ -4168,7 +4184,7 @@ void P_UpdateSpecials(void)
 
 				if (!(players[i].pflags & PF_TAGGED) && !(players[i].pflags & PF_TAGIT))
 				{
-					CONS_Printf(M_GetText("%s recieved double points for surviving the round.\n"), player_names[i]);
+					CONS_Printf("%s recieved double points for surviving the round.\n", player_names[i]);
 					P_AddPlayerScore(&players[i], players[i].score);
 				}
 			}
@@ -4868,7 +4884,7 @@ static INT32 axtoi(char *hexStg)
 	{
 		if (hexStg[n] == '\0')
 			break;
-		if (hexStg[n] >= '0' && hexStg[n] <= '9') // 0-9
+		if (hexStg[n] > 0x29 && hexStg[n] < 0x40) // 0-9
 			digit[n] = (hexStg[n] & 0x0f);
 		else if (hexStg[n] >= 'a' && hexStg[n] <= 'f') // a-f
 			digit[n] = (hexStg[n] & 0x0f) + 9;
@@ -4976,17 +4992,17 @@ void P_SpawnSpecials(void)
 		}
 	}
 
-	if (mapheaderinfo[gamemap-1]->weather == 2) // snow
+	if (mapheaderinfo[gamemap-1].weather == 2) // snow
 		curWeather = PRECIP_SNOW;
-	else if (mapheaderinfo[gamemap-1]->weather == 3) // rain
+	else if (mapheaderinfo[gamemap-1].weather == 3) // rain
 		curWeather = PRECIP_RAIN;
-	else if (mapheaderinfo[gamemap-1]->weather == 1) // storm
+	else if (mapheaderinfo[gamemap-1].weather == 1) // storm
 		curWeather = PRECIP_STORM;
-	else if (mapheaderinfo[gamemap-1]->weather == 5) // storm w/o rain
+	else if (mapheaderinfo[gamemap-1].weather == 5) // storm w/o rain
 		curWeather = PRECIP_STORM_NORAIN;
-	else if (mapheaderinfo[gamemap-1]->weather == 6) // storm w/o lightning
+	else if (mapheaderinfo[gamemap-1].weather == 6) // storm w/o lightning
 		curWeather = PRECIP_STORM_NOSTRIKES;
-	else if (mapheaderinfo[gamemap-1]->weather == 7) // heat wave
+	else if (mapheaderinfo[gamemap-1].weather == 7) // heat wave
 		curWeather = PRECIP_HEATWAVE;
 	else
 		curWeather = PRECIP_NONE;
@@ -5165,11 +5181,6 @@ void P_SpawnSpecials(void)
 			case 57: // New super cool and awesome moving floor crush type
 				if (lines[i].backsector)
 					EV_DoFloor(&lines[i], bounceFloorCrush);
-
-#ifdef REMOVE_FOR_207
-				if (lines[i].special == 57)
-						break; //only move the floor
-#endif
 
 			case 58: // New super cool and awesome moving ceiling crush type
 				if (lines[i].backsector)
@@ -6327,7 +6338,7 @@ static void P_SpawnScrollers(void)
 				if (s != 0xffff)
 					Add_Scroller(sc_side, -sides[s].textureoffset, sides[s].rowoffset, -1, lines[i].sidenum[0], accel, 0);
 				else
-					DEBPRINT(va("Line special 506 (line #%s) missing 2nd side!\n", sizeu1(i)));
+					CONS_Printf("Line special 506 (line #%"PRIdS") missing 2nd side!\n", i);
 				break;
 
 			case 500: // scroll first side
@@ -6909,11 +6920,7 @@ void T_Pusher(pusher_t *p)
 			{
 				if (referrer->floorheight > thing->z + thing->height
 					|| referrer->ceilingheight < (thing->z + (thing->height >> 1)))
-#ifdef REMOVE_FOR_207
-					continue;
-#else
 					return;
-#endif
 
 				if (thing->z < referrer->floorheight)
 					touching = true;
@@ -6925,11 +6932,8 @@ void T_Pusher(pusher_t *p)
 			else
 			{
 				if (referrer->ceilingheight < thing->z || referrer->floorheight > (thing->z + (thing->height >> 1)))
-#ifdef REMOVE_FOR_207
-					continue;
-#else
 					return;
-#endif
+
 				if (thing->z + thing->height > referrer->ceilingheight)
 					touching = true;
 

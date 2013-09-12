@@ -81,10 +81,6 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 
 #include "SDL.h"
 
-#ifdef HAVE_TTF
-#include "i_ttf.h"
-#endif
-
 #ifdef _MSC_VER
 #pragma warning(default : 4214 4244)
 #endif
@@ -95,9 +91,9 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 
 #ifdef _PSP
-//#include <pspiofilemgr.h>
-#elif !defined(_PS3)
-#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (__HAIKU__) && !defined (_WII))
+#include <pspiofilemgr.h>
+#else
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined(__HAIKU__))
 #if defined (__linux__)
 #include <sys/vfs.h>
 #else
@@ -114,17 +110,15 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #endif
 
-#ifndef _PS3
-#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__) && !defined (_WII))
+#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__))
 #ifndef NOTERMIOS
 #include <termios.h>
 #include <sys/ioctl.h> // ioctl
 #define HAVE_TERMIOS
 #endif
 #endif
-#endif
 
-#if defined (__linux__) && !defined(_PS3) // need -lrt
+#if defined (__linux__) // need -lrt
 #include <sys/mman.h>
 #ifdef MAP_FAILED
 #define HAVE_SHM
@@ -154,35 +148,12 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION4 "/tmp/mnt/sd/SRB2"
 #define DEFAULTSEARCHPATH1 "/mnt/sd"
 #define DEFAULTSEARCHPATH2 "/tmp/mnt/sd"
-#elif defined (_WII)
-#define NOCWD
-#define NOHOME
-#define NEED_SDL_GETENV
-#define DEFAULTWADLOCATION1 "sd:/srb2wii"
-#define DEFAULTWADLOCATION2 "usb:/srb2wii"
-#define DEFAULTSEARCHPATH1 "sd:/srb2wii"
-#define DEFAULTSEARCHPATH2 "usb:/srb2wii"
-// PS3: TODO: this will need modification most likely
-#elif defined (_PS3)
-#define NOCWD
-#define NOHOME
-#define DEFAULTWADLOCATION1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
-#define DEFAULTWADLOCATION2 "/dev_usb/SRB2PS3"
-#define DEFAULTSEARCHPATH1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
-#define DEFAULTSEARCHPATH2 "/dev_usb/SRB2PS3"
-#elif defined (_PSP)
-#define NOCWD
-#define NOHOME
-#define DEFAULTWADLOCATION1 "host0:/bin/Resources"
-#define DEFAULTWADLOCATION2 "ms0:/PSP/GAME/SRB2PSP"
-#define DEFAULTSEARCHPATH1 "host0:/"
-#define DEFAULTSEARCHPATH2 "ms0:/PSP/GAME/SRB2PSP"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#define DEFAULTWADLOCATION1 "/usr/local/share/games/SRB2"
-#define DEFAULTWADLOCATION2 "/usr/local/games/SRB2"
-#define DEFAULTWADLOCATION3 "/usr/share/games/SRB2"
-#define DEFAULTWADLOCATION4 "/usr/games/SRB2"
-#define DEFAULTSEARCHPATH1 "/usr/local/games"
+#define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2"
+#define DEFAULTWADLOCATION2 "/usr/local/games/srb2"
+#define DEFAULTWADLOCATION3 "/usr/share/games/srb2"
+#define DEFAULTWADLOCATION4 "/usr/games/srb2"
+#define DEFAULTSEARCHPATH1 "/usr/local/games/"
 #define DEFAULTSEARCHPATH2 "/usr/games"
 #define DEFAULTSEARCHPATH3 "/usr/local"
 #elif defined (_XBOX)
@@ -371,7 +342,7 @@ static struct termios tty_tc;
 //   so we provide tty_Clear and tty_Show to be called before and after a stdout or stderr output
 // =============================================================
 
-// flush stdin, I suspect some terminals are sending a LOT of garbage
+// flush stdin, I suspect some terminals are sending a LOT of shit
 // FIXME TTimo relevant?
 #if 0
 static inline void tty_FlushIn(void)
@@ -395,7 +366,6 @@ static void tty_Back(void)
 	d = write(STDOUT_FILENO, &key, 1);
 	key = '\b';
 	d = write(STDOUT_FILENO, &key, 1);
-	(void)d;
 }
 
 static void tty_Clear(void)
@@ -441,7 +411,6 @@ static inline void tty_Show(void)
 			d = write(STDOUT_FILENO, tty_con.buffer+i, 1);
 		}
 	}
-	(void)d;
 }
 
 // never exit without calling this, or your terminal will be left in a pretty bad state
@@ -552,7 +521,7 @@ void I_GetConsoleEvents(void)
 	}
 	if (ev.data1) D_PostEvent(&ev);
 	//tty_FlushIn();
-	(void)d;
+
 }
 
 #elif defined (_WIN32) && !(defined (_XBOX) || defined (_WIN32_WCE))
@@ -745,7 +714,10 @@ void I_StartupKeyboard (void)
 void I_OutputMsg(const char *fmt, ...)
 {
 	size_t len;
-	XBOXSTATIC char txt[8192];
+#ifdef LOGMESSAGES
+	size_t d;
+#endif
+	XBOXSTATIC char txt[128];
 	va_list  argptr;
 
 #ifdef _arch_dreamcast
@@ -756,12 +728,7 @@ void I_OutputMsg(const char *fmt, ...)
 	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
 
-#ifdef HAVE_TTF
-	if (TTF_WasInit()) I_TTFDrawText(currentfont, solid, DEFAULTFONTFGR, DEFAULTFONTFGG, DEFAULTFONTFGB,  DEFAULTFONTFGA,
-	DEFAULTFONTBGR, DEFAULTFONTBGG, DEFAULTFONTBGB, DEFAULTFONTBGA, txt);
-#endif
-
-#if defined (_WIN32) && !defined (_XBOX) && defined (_MSC_VER)
+#if defined (_WIN32) && !defined (_XBOX)
 	OutputDebugStringA(txt);
 #endif
 
@@ -770,9 +737,8 @@ void I_OutputMsg(const char *fmt, ...)
 #ifdef LOGMESSAGES
 	if (logstream)
 	{
-		size_t d = fwrite(txt, len, 1, logstream);
+		d = fwrite(txt, len, 1, logstream);
 		fflush(logstream);
-		(void)d;
 	}
 #endif
 
@@ -962,10 +928,7 @@ static void I_ShutdownJoystick(void)
 	if (!joystick_started && !joystick2_started && SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK)
 	{
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		if (cv_usejoystick.value == 0)
-		{
-			DEBPRINT("I_Joystick: SDL's Joystick system has been shutdown\n");
-		}
+		if (cv_usejoystick.value==0) CONS_Printf("I_Joystick: SDL's Joystick system has been shutdown\n");
 	}
 }
 
@@ -1124,7 +1087,7 @@ static int joy_open(const char *fname)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 		{
-			CONS_Printf(M_GetText("Couldn't initialize joystick: %s\n"), SDL_GetError());
+			CONS_Printf("Couldn't initialize SDL Joystick: %s\n", SDL_GetError());
 			return -1;
 		}
 		else
@@ -1134,9 +1097,9 @@ static int joy_open(const char *fname)
 
 		if (num_joy < joyindex)
 		{
-			CONS_Printf(M_GetText("Cannot use joystick #%d/(%s), it doesn't exist\n"),joyindex,fname);
+			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
 			I_ShutdownJoystick();
 			return -1;
 		}
@@ -1152,24 +1115,24 @@ static int joy_open(const char *fname)
 
 	if (joyindex <= 0 || num_joy == 0 || JoyInfo.oldjoy == joyindex)
 	{
-//		DEBPRINT(va("Unable to use that joystick #(%s), non-number\n",fname));
+//		CONS_Printf("Unable to use that joystick #(%s), non-number\n",fname);
 		if (num_joy != 0)
 		{
-			CONS_Printf(M_GetText("Found %d joysticks on this system\n"), num_joy);
+			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
 		}
 		else
-			CONS_Printf("%s", M_GetText("Found no joysticks on this system\n"));
+			CONS_Printf("Hmm, I was unable to found any joysticks on this system\n");
 		if (joyindex <= 0 || num_joy == 0) return 0;
 	}
 
 	JoyInfo.dev = SDL_JoystickOpen(joyindex-1);
-	CONS_Printf(M_GetText("Joystick: %s\n"), SDL_JoystickName(joyindex-1));
+	CONS_Printf("Joystick: %s\n",SDL_JoystickName(joyindex-1));
 
 	if (JoyInfo.dev == NULL)
 	{
-		CONS_Printf(M_GetText("Couldn't open joystick: %s\n"), SDL_GetError());
+		CONS_Printf("Couldn't open joystick: %s\n", SDL_GetError());
 		I_ShutdownJoystick();
 		return -1;
 	}
@@ -1180,7 +1143,7 @@ static int joy_open(const char *fname)
 			JoyInfo.axises = JOYAXISSET*2;
 /*		if (joyaxes<2)
 		{
-			DEBPRINT("Not enought axes?\n");
+			CONS_Printf("Not enought axes?\n");
 			I_ShutdownJoystick();
 			return 0;
 		}*/
@@ -1256,10 +1219,7 @@ static void I_ShutdownJoystick2(void)
 	if (!joystick_started && !joystick2_started && SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK)
 	{
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		if (cv_usejoystick2.value == 0)
-		{
-			DEBFILE("I_Joystick2: SDL's Joystick system has been shutdown\n");
-		}
+		if (cv_usejoystick2.value == 0) CONS_Printf("I_Joystick2: SDL's Joystick system has been shutdown\n");
 	}
 }
 
@@ -1418,7 +1378,7 @@ static int joy_open2(const char *fname)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 		{
-			CONS_Printf(M_GetText("Couldn't initialize joystick: %s\n"), SDL_GetError());
+			CONS_Printf("Couldn't initialize SDL Joystick: %s\n", SDL_GetError());
 			return -1;
 		}
 		else
@@ -1426,9 +1386,9 @@ static int joy_open2(const char *fname)
 
 		if (num_joy < joyindex)
 		{
-			CONS_Printf(M_GetText("Cannot use joystick #%d/(%s), it doesn't exist\n"),joyindex,fname);
+			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
 			I_ShutdownJoystick2();
 			return -1;
 		}
@@ -1444,24 +1404,24 @@ static int joy_open2(const char *fname)
 
 	if (joyindex <= 0 || num_joy == 0 || JoyInfo2.oldjoy == joyindex)
 	{
-//		DEBPRINT(va("Unable to use that joystick #(%s), non-number\n",fname));
+//		CONS_Printf("Unable to use that joystick #(%s), non-number\n",fname);
 		if (num_joy != 0)
 		{
-			CONS_Printf(M_GetText("Found %d joysticks on this system\n"), num_joy);
+			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
 		}
 		else
-			CONS_Printf("%s", M_GetText("Found no joysticks on this system\n"));
+			CONS_Printf("Hmm, I was unable to found any joysticks on this system\n");
 		if (joyindex <= 0 || num_joy == 0) return 0;
 	}
 
 	JoyInfo2.dev = SDL_JoystickOpen(joyindex-1);
-	CONS_Printf(M_GetText("Joystick2: %s\n"), SDL_JoystickName(joyindex-1));
+	CONS_Printf("Joystick2: %s\n", SDL_JoystickName(joyindex-1));
 
 	if (!JoyInfo2.dev)
 	{
-		CONS_Printf(M_GetText("Couldn't open joystick2: %s\n"), SDL_GetError());
+		CONS_Printf("Couldn't open joystick2: %s\n", SDL_GetError());
 		I_ShutdownJoystick2();
 		return -1;
 	}
@@ -1472,7 +1432,7 @@ static int joy_open2(const char *fname)
 			JoyInfo2.axises = JOYAXISSET*2;
 /*		if (joyaxes < 2)
 		{
-			DEBPRINT("Not enought axes?\n");
+			CONS_Printf("Not enought axes?\n");
 			I_ShutdownJoystick2();
 			return 0;
 		}*/
@@ -1786,7 +1746,7 @@ static void I_PoolMouse2(void)
 
 	if (!ReadFile(mouse2filehandle, buffer, dwLength, &dwLength, NULL))
 	{
-		CONS_Printf("\2%s", M_GetText("Read Error on secondary mouse port\n"));
+		CONS_Printf("\2Read Error on secondary mouse port\n");
 		return;
 	}
 
@@ -1882,7 +1842,7 @@ void I_StartupMouse2(void)
 	if (cv_usemouse2.value == 0) return;
 	if ((fdmouse2 = open(cv_mouse2port.string, O_RDONLY|O_NONBLOCK|O_NOCTTY)) == -1)
 	{
-		CONS_Printf(M_GetText("Error opening %s!\n"), cv_mouse2port.string);
+		CONS_Printf("Error opening %s!\n", cv_mouse2port.string);
 		return;
 	}
 	tcflush(fdmouse2, TCIOFLUSH);
@@ -1950,9 +1910,10 @@ void I_StartupMouse2(void)
 		{
 			INT32 e = GetLastError();
 			if (e == 5)
-				CONS_Printf(M_GetText("\2Can't open %s: Access denied\n"), cv_mouse2port.string);
+				CONS_Printf("\2Can't open %s: Access denied\n"
+				            "The port is probably already used by one other device (mouse, modem,...)\n", cv_mouse2port.string);
 			else
-				CONS_Printf(M_GetText("\2Can't open %s: error %d\n"), cv_mouse2port.string, e);
+				CONS_Printf("\2Can't open %s: error %d\n", cv_mouse2port.string, e);
 			return;
 		}
 	}
@@ -2128,7 +2089,7 @@ void I_StartupTimer(void)
 	if (M_CheckParm("-gettickcount"))
 	{
 		starttickcount = GetTickCount();
-		CONS_Printf("%s", M_GetText("Using GetTickCount()\n"));
+		CONS_Printf("Using GetTickCount()\n");
 	}
 	winmm = LoadLibraryA("winmm.dll");
 	if (winmm)
@@ -2181,10 +2142,10 @@ INT32 I_StartupSystem(void)
 	SDL_VERSION(&SDLcompiled)
 	SDLlinked = SDL_Linked_Version();
 	I_StartupConsole();
-	DEBPRINT(va("Compiled for SDL version: %d.%d.%d\n",
-	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch));
-	DEBPRINT(va("Linked with SDL version: %d.%d.%d\n",
-	 SDLlinked->major, SDLlinked->minor, SDLlinked->patch));
+	CONS_Printf("Compiled for SDL version: %d.%d.%d\n",
+	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch);
+	CONS_Printf("Linked with SDL version: %d.%d.%d\n",
+	 SDLlinked->major, SDLlinked->minor, SDLlinked->patch);
 #if 0 //#ifdef GP2X //start up everything
 	if (SDL_Init(SDL_INIT_NOPARACHUTE|SDL_INIT_EVERYTHING) < 0)
 #else
@@ -2461,10 +2422,7 @@ void I_ShutdownSystem(void)
 			(*quit_funcs[c])();
 #ifdef  LOGMESSAGES
 	if (logstream)
-	{
 		fclose(logstream);
-		logstream = NULL;
-	}
 #endif
 
 }
@@ -2474,7 +2432,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 #if defined (_arch_dreamcast) || defined (_PSP)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#if defined (SOLARIS) || defined (__HAIKU__) || defined (_WII) || defined (_PS3)
+#if defined (SOLARIS) || defined (__HAIKU__)
 	*freespace = INT32_MAX;
 	return;
 #else // Both Linux and BSD have this, apparently.
@@ -2565,7 +2523,7 @@ INT32 I_mkdir(const char *dirname, INT32 unixright)
 #if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) || defined (__CYGWIN__) || defined (__OS2__)
 	return mkdir(dirname, unixright);
 #elif (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
-	UNREFERENCED_PARAMETER(unixright); /// \todo should implement ntright under nt...
+	unixright = 0; /// \todo should implement ntright under nt...
 	return CreateDirectoryA(dirname, NULL);
 #else
 	(void)dirname;
@@ -2685,12 +2643,12 @@ static const char *locateWad(void)
 	const char *envstr;
 	const char *WadPath;
 
-	DEBPRINT("SRB2WADDIR");
+	I_OutputMsg("SRB2WADDIR");
 	// does SRB2WADDIR exist?
 	if (((envstr = I_GetEnv("SRB2WADDIR")) != NULL) && isWadPathOk(envstr))
 		return envstr;
 
-#if defined(_WIN32_WCE) || defined(_PS3) || defined(_PSP)
+#ifdef _WIN32_WCE
 	// examine argv[0]
 	strcpy(returnWadPath, myargv[0]);
 	pathonly(returnWadPath);
@@ -2700,7 +2658,7 @@ static const char *locateWad(void)
 #endif
 
 #ifndef NOCWD
-	DEBPRINT(",.");
+	I_OutputMsg(",.");
 	// examine current dir
 	strcpy(returnWadPath, ".");
 	if (isWadPathOk(returnWadPath))
@@ -2709,50 +2667,50 @@ static const char *locateWad(void)
 
 	// examine default dirs
 #ifdef DEFAULTWADLOCATION1
-	DEBPRINT(","DEFAULTWADLOCATION1);
+	I_OutputMsg(","DEFAULTWADLOCATION1);
 	strcpy(returnWadPath, DEFAULTWADLOCATION1);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION2
-	DEBPRINT(","DEFAULTWADLOCATION2);
+	I_OutputMsg(","DEFAULTWADLOCATION2);
 	strcpy(returnWadPath, DEFAULTWADLOCATION2);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION3
-	DEBPRINT(","DEFAULTWADLOCATION3);
+	I_OutputMsg(","DEFAULTWADLOCATION3);
 	strcpy(returnWadPath, DEFAULTWADLOCATION3);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION4
-	DEBPRINT(","DEFAULTWADLOCATION4);
+	I_OutputMsg(","DEFAULTWADLOCATION4);
 	strcpy(returnWadPath, DEFAULTWADLOCATION4);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION5
-	DEBPRINT(","DEFAULTWADLOCATION5);
+	I_OutputMsg(","DEFAULTWADLOCATION5);
 	strcpy(returnWadPath, DEFAULTWADLOCATION5);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION6
-	DEBPRINT(","DEFAULTWADLOCATION6);
+	I_OutputMsg(","DEFAULTWADLOCATION6);
 	strcpy(returnWadPath, DEFAULTWADLOCATION6);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifdef DEFAULTWADLOCATION7
-	DEBPRINT(","DEFAULTWADLOCATION7);
+	I_OutputMsg(","DEFAULTWADLOCATION7);
 	strcpy(returnWadPath, DEFAULTWADLOCATION7);
 	if (isWadPathOk(returnWadPath))
 		return returnWadPath;
 #endif
 #ifndef NOHOME
 	// find in $HOME
-	DEBPRINT(",HOME");
+	I_OutputMsg(",HOME");
 	if ((envstr = I_GetEnv("HOME")) != NULL)
 	{
 		WadPath = searchWad(envstr);
@@ -2762,21 +2720,21 @@ static const char *locateWad(void)
 #endif
 #ifdef DEFAULTSEARCHPATH1
 	// find in /usr/local
-	DEBPRINT(", in:"DEFAULTSEARCHPATH1);
+	I_OutputMsg(", in:"DEFAULTSEARCHPATH1);
 	WadPath = searchWad(DEFAULTSEARCHPATH1);
 	if (WadPath)
 		return WadPath;
 #endif
 #ifdef DEFAULTSEARCHPATH2
 	// find in /usr/games
-	DEBPRINT(", in:"DEFAULTSEARCHPATH2);
+	I_OutputMsg(", in:"DEFAULTSEARCHPATH2);
 	WadPath = searchWad(DEFAULTSEARCHPATH2);
 	if (WadPath)
 		return WadPath;
 #endif
 #ifdef DEFAULTSEARCHPATH3
 	// find in ???
-	DEBPRINT(", in:"DEFAULTSEARCHPATH3);
+	I_OutputMsg(", in:"DEFAULTSEARCHPATH3);
 	WadPath = searchWad(DEFAULTSEARCHPATH3);
 	if (WadPath)
 		return WadPath;
@@ -2789,18 +2747,18 @@ const char *I_LocateWad(void)
 {
 	const char *waddir;
 
-	DEBPRINT("Looking for WADs in: ");
+	I_OutputMsg("Looking for WADs in: ");
 	waddir = locateWad();
-	DEBPRINT("\n");
+	I_OutputMsg("\n");
 
 	if (waddir)
 	{
 		// change to the directory where we found srb2.srb
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 		SetCurrentDirectoryA(waddir);
-#elif !defined (_WIN32_WCE) && !defined (_PS3)
+#elif !defined (_WIN32_WCE)
 		if (chdir(waddir) == -1)
-			DEBPRINT("Couldn't change working directory\n");
+			CONS_Printf("Couldn't change working directory\n");
 #endif
 	}
 	return waddir;

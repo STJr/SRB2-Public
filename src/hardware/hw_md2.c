@@ -18,16 +18,12 @@
 ///	Inspired from md2.c by Mete Ciragan (mete@swissquake.ch)
 
 
-#ifdef __GNUC__
-#include <unistd.h>
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
 #include "../doomdef.h"
-#include "../doomstat.h"
 
 #ifdef HWRENDER
 #include "hw_drv.h"
@@ -446,7 +442,7 @@ static inline void md2_getBoundingBox (md2_model_t *model, float *minmax)
 static inline INT32 md2_getAnimationCount(md2_model_t *model)
 {
 	size_t i, pos;
-	INT32 j = 0, count;
+	INT32 j = 0, count, lastId;
 	char name[16], last[16];
 
 	strcpy(last, model->frames[0].name);
@@ -458,6 +454,7 @@ static inline INT32 md2_getAnimationCount(md2_model_t *model)
 	}
 	last[pos + 1] = '\0';
 
+	lastId = 0;
 	count = 0;
 
 	for (i = 0; i <= model->header.numFrames; i++)
@@ -488,7 +485,7 @@ static inline INT32 md2_getAnimationCount(md2_model_t *model)
 static inline const char * md2_getAnimationName (md2_model_t *model, INT32 animation)
 {
 	size_t i, pos;
-	INT32 j = 0, count;
+	INT32 j = 0, count, lastId;
 	static char last[32];
 	char name[32];
 
@@ -501,6 +498,7 @@ static inline const char * md2_getAnimationName (md2_model_t *model, INT32 anima
 	}
 	last[pos + 1] = '\0';
 
+	lastId = 0;
 	count = 0;
 
 	for (i = 0; i <= model->header.numFrames; i++)
@@ -535,7 +533,7 @@ static inline void md2_getAnimationFrames(md2_model_t *model,
 	INT32 animation, INT32 *startFrame, INT32 *endFrame)
 {
 	size_t i, pos;
-	INT32 j = 0, count, numFrames, frameCount;
+	INT32 j = 0, count, numFrames, frameCount, lastId;
 	char name[16], last[16];
 
 	strcpy(last, model->frames[0].name);
@@ -547,6 +545,7 @@ static inline void md2_getAnimationFrames(md2_model_t *model,
 	}
 	last[pos + 1] = '\0';
 
+	lastId = 0;
 	count = 0;
 	numFrames = 0;
 	frameCount = 0;
@@ -591,45 +590,45 @@ static inline void md2_printModelInfo (md2_model_t *model)
 #if 0
 	INT32 i;
 
-	DEBPRINT(va("magic:\t\t\t%c%c%c%c\n", model->header.magic>>24,
+	CONS_Printf("magic:\t\t\t%c%c%c%c\n", model->header.magic>>24,
 	            (model->header.magic>>16)&0xff,
 	            (model->header.magic>>8)&0xff,
-	             model->header.magic&0xff));
-	DEBPRINT(va("version:\t\t%d\n", model->header.version));
-	DEBPRINT(va("skinWidth:\t\t%d\n", model->header.skinWidth));
-	DEBPRINT(va("skinHeight:\t\t%d\n", model->header.skinHeight));
-	DEBPRINT(va("frameSize:\t\t%d\n", model->header.frameSize));
-	DEBPRINT(va("numSkins:\t\t%d\n", model->header.numSkins));
-	DEBPRINT(va("numVertices:\t\t%d\n", model->header.numVertices));
-	DEBPRINT(va("numTexCoords:\t\t%d\n", model->header.numTexCoords));
-	DEBPRINT(va("numTriangles:\t\t%d\n", model->header.numTriangles));
-	DEBPRINT(va("numGlCommands:\t\t%d\n", model->header.numGlCommands));
-	DEBPRINT(va("numFrames:\t\t%d\n", model->header.numFrames));
-	DEBPRINT(va("offsetSkins:\t\t%d\n", model->header.offsetSkins));
-	DEBPRINT(va("offsetTexCoords:\t%d\n", model->header.offsetTexCoords));
-	DEBPRINT(va("offsetTriangles:\t%d\n", model->header.offsetTriangles));
-	DEBPRINT(va("offsetFrames:\t\t%d\n", model->header.offsetFrames));
-	DEBPRINT(va("offsetGlCommands:\t%d\n", model->header.offsetGlCommands));
-	DEBPRINT(va("offsetEnd:\t\t%d\n", model->header.offsetEnd));
+	             model->header.magic&0xff);
+	CONS_Printf("version:\t\t%d\n", model->header.version);
+	CONS_Printf("skinWidth:\t\t%d\n", model->header.skinWidth);
+	CONS_Printf("skinHeight:\t\t%d\n", model->header.skinHeight);
+	CONS_Printf("frameSize:\t\t%d\n", model->header.frameSize);
+	CONS_Printf("numSkins:\t\t%d\n", model->header.numSkins);
+	CONS_Printf("numVertices:\t\t%d\n", model->header.numVertices);
+	CONS_Printf("numTexCoords:\t\t%d\n", model->header.numTexCoords);
+	CONS_Printf("numTriangles:\t\t%d\n", model->header.numTriangles);
+	CONS_Printf("numGlCommands:\t\t%d\n", model->header.numGlCommands);
+	CONS_Printf("numFrames:\t\t%d\n", model->header.numFrames);
+	CONS_Printf("offsetSkins:\t\t%d\n", model->header.offsetSkins);
+	CONS_Printf("offsetTexCoords:\t%d\n", model->header.offsetTexCoords);
+	CONS_Printf("offsetTriangles:\t%d\n", model->header.offsetTriangles);
+	CONS_Printf("offsetFrames:\t\t%d\n", model->header.offsetFrames);
+	CONS_Printf("offsetGlCommands:\t%d\n", model->header.offsetGlCommands);
+	CONS_Printf("offsetEnd:\t\t%d\n", model->header.offsetEnd);
 
 	for (i = 0; i < model->header.numFrames; i++)
-		DEBPRINT("%s ", model->frames[i].name);
-	DEBPRINT("\n");
+		CONS_Printf("%s ", model->frames[i].name);
+	CONS_Printf("\n");
 #else
-	(void)model;
+	model = NULL;
 #endif
 }
 
 #ifdef HAVE_PNG
 static void PNG_error(png_structp PNG, png_const_charp pngtext)
 {
-	DEBPRINT(va("libpng error at %p: %s", PNG, pngtext));
+	CONS_Printf("libpng error at %p: %s", PNG, pngtext);
 	//I_Error("libpng error at %p: %s", PNG, pngtext);
 }
 
 static void PNG_warn(png_structp PNG, png_const_charp pngtext)
 {
-	DEBPRINT(va("libpng warning at %p: %s", PNG, pngtext));
+	CONS_Printf("libpng warning at %p: %s", PNG, pngtext);
 }
 
 static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_t *grpatch)
@@ -650,7 +649,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	png_FILE = fopen(pngfilename, "rb");
 	if (!png_FILE)
 	{
-		//DEBPRINT(va("M_SavePNG: Error on opening %s for loading\n", filename));
+		//CONS_Printf("M_SavePNG: Error on opening %s for loading\n", filename);
 		return 0;
 	}
 
@@ -658,7 +657,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 		PNG_error, PNG_warn);
 	if (!png_ptr)
 	{
-		DEBPRINT("PNG_Load: Error on initialize libpng\n");
+		CONS_Printf("PNG_Load: Error on initialize libpng\n");
 		fclose(png_FILE);
 		return 0;
 	}
@@ -666,7 +665,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	png_info_ptr = png_create_info_struct(png_ptr);
 	if (!png_info_ptr)
 	{
-		DEBPRINT("PNG_Load: Error on allocate for libpng\n");
+		CONS_Printf("PNG_Load: Error on allocate for libpng\n");
 		png_destroy_read_struct(&png_ptr, NULL, NULL);
 		fclose(png_FILE);
 		return 0;
@@ -678,7 +677,7 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
 	{
-		//DEBPRINT(va("libpng load error on %s\n", filename));
+		//CONS_Printf("libpng load error on %s\n", filename);
 		png_destroy_read_struct(&png_ptr, &png_info_ptr, NULL);
 		fclose(png_FILE);
 		Z_Free(grpatch->mipmap.grInfo.data);
@@ -874,7 +873,6 @@ static void md2_loadTexture(md2_t *model)
 		grpatch->mipmap.grInfo.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
 	}
 	HWD.pfnSetTexture(&grpatch->mipmap);
-	HWR_UnlockCachedPatch(grpatch);
 }
 
 void HWR_InitMD2(void)
@@ -896,7 +894,7 @@ void HWR_InitMD2(void)
 	f = fopen("md2.dat", "rt");
 	if (!f)
 	{
-		CONS_Printf("%s", M_GetText("Error while loading md2.dat\n"));
+		CONS_Printf("Error while loading md2.dat\n");
 		return;
 	}
 	while (fscanf(f, "%4s %31s %f %f", name, filename, &scale, &offset) == 4)
@@ -905,7 +903,7 @@ void HWR_InitMD2(void)
 		{
 			if (strcmp(name, sprnames[i]) == 0)
 			{
-				//DEBPRINT("  Found: %s %s %f %f\n", name, filename, scale, offset);
+				//CONS_Printf("  Found: %s %s %f %f\n", name, filename, scale, offset);
 				md2_models[i].scale = scale;
 				md2_models[i].offset = offset;
 				strcpy(md2_models[i].filename, filename);
@@ -913,7 +911,7 @@ void HWR_InitMD2(void)
 			}
 		}
 		if (i == NUMSPRITES)
-			CONS_Printf(M_GetText("    Not found: %s\n"), name);
+			CONS_Printf("    Not found: %s\n", name);
 	}
 	fclose(f);
 }
@@ -941,6 +939,7 @@ void HWR_InitMD2(void)
 	*/
 void HWR_DrawMD2(gr_vissprite_t *spr)
 {
+	GLPatch_t *gpatch; // sprite patch converted to hardware
 	FSurfaceInfo Surf;
 
 	char filename[64];
@@ -948,6 +947,17 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	FTransform p;
 	md2_t *md2;
 	UINT8 color[4];
+
+	// cache model graphics
+	//12/12/99: Hurdler:
+	//          OK, I don't change anything for MD2 support because I want to be
+	//          sure to do it the right way. So actually, we keep normal sprite
+	//          in memory and we add the md2 model if it exists for that sprite
+
+	gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
+
+	//12/12/99: Hurdler: same comment as above (for md2)
+	HWR_GetMappedPatch(gpatch, spr->colormap);
 
 	// model lighting by modulating the RGB components
 	/// \todo Handled colored lighting
@@ -981,8 +991,8 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	// Look at HWR_ProjetctSprite for more
 	if (cv_grmd2.value && (md2_models[spr->mobj->sprite].scale > 0) && !spr->precip)
 	{
-		GLPatch_t *gpatch;
 		FBITFIELD blend = 0;
+		GLPatch_t *oldgpatch = gpatch;
 		INT32 *buff;
 		UINT32 durs = spr->mobj->state->tics;
 		UINT32 tics = spr->mobj->tics;
@@ -1010,7 +1020,7 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		md2 = &md2_models[spr->mobj->sprite];
 		if (!md2->model)
 		{
-			//DEBPRINT(va("Loading MD2... (%s)", sprnames[spr->mobj->sprite]));
+			//CONS_Printf("Loading MD2... (%s)", sprnames[spr->mobj->sprite]);
 			sprintf(filename, "md2/%s", md2->filename);
 			md2->model = md2_readModel(filename);
 
@@ -1020,26 +1030,18 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 			}
 			else
 			{
-				//DEBPRINT(" FAILED\n");
+				//CONS_Printf(" FAILED\n");
 				return;
 			}
 		}
-		HWD.pfnSetBlend(blend);
 		//Hurdler: arf, I don't like that implementation at all... too much crappy
 		gpatch = md2->grpatch;
-		if (!gpatch || !gpatch->mipmap.grInfo.format || !gpatch->mipmap.downloaded)
+		if (!gpatch || !gpatch->mipmap.grInfo.format ||!gpatch->mipmap.downloaded)
 			md2_loadTexture(md2);
 		else if (gpatch->mipmap.grInfo.format)
-		{
-			// This is safe, since we know the texture has been downloaded
 			HWD.pfnSetTexture(&gpatch->mipmap);
-		}
 		else
-		{
-			// Sprite
-			gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
-			HWR_GetMappedPatch(gpatch, spr->colormap);
-		}
+			HWD.pfnSetTexture(&oldgpatch->mipmap);
 
 		//FIXME: this is not yet correct
 		frame = spr->mobj->frame % md2->model->header.numFrames;

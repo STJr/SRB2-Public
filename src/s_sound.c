@@ -47,7 +47,7 @@ extern INT32 msg_id;
 // 3D Sound Interface
 #include "hardware/hw3sound.h"
 #else
-static INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *vol, INT32 *sep, INT32 *pitch, sfxinfo_t *sfxinfo);
+static int S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, int *vol, int *sep, int *pitch, sfxinfo_t *sfxinfo);
 #endif
 
 CV_PossibleValue_t soundvolume_cons_t[] = {{0, "MIN"}, {31, "MAX"}, {0, NULL}};
@@ -71,8 +71,6 @@ consvar_t sndserver_arg = {"sndserver_arg", "-quiet", CV_SAVE, NULL, 0, NULL, NU
 consvar_t cv_samplerate = {"samplerate", "11025", 0, CV_Unsigned, NULL, 11025, NULL, NULL, 0, 0, NULL}; //Alam: For easy hacking?
 #elif defined(_PSP)
 consvar_t cv_samplerate = {"samplerate", "44100", 0, CV_Unsigned, NULL, 44100, NULL, NULL, 0, 0, NULL}; //Alam: For easy hacking?
-#elif defined(_WII)
-consvar_t cv_samplerate = {"samplerate", "32000", 0, CV_Unsigned, NULL, 32000, NULL, NULL, 0, 0, NULL}; //Alam: For easy hacking?
 #else
 consvar_t cv_samplerate = {"samplerate", "22050", 0, CV_Unsigned, NULL, 22050, NULL, NULL, 0, 0, NULL}; //Alam: For easy hacking?
 #endif
@@ -84,9 +82,9 @@ consvar_t stereoreverse = {"stereoreverse", "Off", CV_SAVE, CV_OnOff, NULL, 0, N
 static consvar_t precachesound = {"precachesound", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 // actual general (maximum) sound & music volume, saved into the config
-consvar_t cv_soundvolume = {"soundvolume", "31", CV_SAVE, soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_digmusicvolume = {"digmusicvolume", "18", CV_SAVE, soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_midimusicvolume = {"midimusicvolume", "18", CV_SAVE, soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_soundvolume = {"soundvolume", "15", CV_SAVE, soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_digmusicvolume = {"digmusicvolume", "31", CV_SAVE, soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_midimusicvolume = {"midimusicvolume", "31", CV_SAVE, soundvolume_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 // number of channels available
 #if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
 consvar_t cv_numChannels = {"snd_channels", "8", CV_SAVE|CV_CALL, CV_Unsigned, SetChannelsNum, 0, NULL, NULL, 0, 0, NULL};
@@ -218,7 +216,7 @@ static INT32 S_getChannel(const void *origin, sfxinfo_t *sfxinfo)
 
 		if (cnum == numofchannels)
 		{
-			// No lower priority. Sorry, Charlie.
+			// FUCK! No lower priority. Sorry, Charlie.
 			return -1;
 		}
 		else
@@ -346,13 +344,13 @@ void S_Init(INT32 sfxVolume, INT32 digMusicVolume, INT32 midiMusicVolume)
 	if (!nosound && (M_CheckParm("-precachesound") || precachesound.value))
 	{
 		// Initialize external data (all sounds) at start, keep static.
-		CONS_Printf("%s", M_GetText("Loading sounds... "));
+		CONS_Printf("Loading sounds... ");
 
 		for (i = 1; i < NUMSFX; i++)
 			if (S_sfx[i].name)
 				S_sfx[i].data = I_GetSfx(&S_sfx[i]);
 
-		CONS_Printf("%s", M_GetText(" pre-cached all sound data\n"));
+		CONS_Printf(" pre-cached all sound data\n");
 	}
 }
 
@@ -403,31 +401,6 @@ void S_StopSounds(void)
 			S_StopChannel(cnum);
 }
 
-void S_StopSoundByID(void *origin, sfxenum_t sfx_id)
-{
-	INT32 cnum;
-
-	// Sounds without origin can have multiple sources, they shouldn't
-	// be stopped by new sounds.
-	if (!origin)
-		return;
-#ifdef HW3SOUND
-	if (hws_mode != HWS_DEFAULT_MODE)
-	{
-		HW3S_StopSoundByID(origin, sfx_id);
-		return;
-	}
-#endif
-	for (cnum = 0; cnum < numofchannels; cnum++)
-	{
-		if (channels[cnum].sfxinfo == &S_sfx[sfx_id] && channels[cnum].origin == origin)
-		{
-			S_StopChannel(cnum);
-			break;
-		}
-	}
-}
-
 void S_StopSoundByNum(sfxenum_t sfxnum)
 {
 	INT32 cnum;
@@ -452,7 +425,7 @@ void S_StopSoundByNum(sfxenum_t sfxnum)
 void S_Start(void)
 {
 	if (!(mapmusic & 2048))
-		mapmusic = mapheaderinfo[gamemap-1]->musicslot;
+		mapmusic = mapheaderinfo[gamemap-1].musicslot;
 
 	mus_paused = 0;
 
@@ -753,7 +726,7 @@ void S_PauseSound(void)
 	}
 
 	// pause cd music
-#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	I_PauseCD();
 #else
 	I_StopCD();
@@ -785,6 +758,7 @@ static INT32 actualmidimusicvolume;
 void S_UpdateSounds(void)
 {
 	INT32 audible, cnum, volume, sep, pitch;
+	sfxinfo_t *sfx;
 	channel_t *c;
 	MumblePos_t MPos;
 
@@ -867,8 +841,6 @@ void S_UpdateSounds(void)
 	{
 		static tic_t nextcleanup = 0;
 		size_t i;
-		sfxinfo_t *sfx;
-
 		if (!gametic) nextcleanup = 0;
 		if (gametic > nextcleanup)
 		{
@@ -884,7 +856,7 @@ void S_UpdateSounds(void)
 					I_FreeSfx(S_sfx+i);
 					//S_sfx[i].data = 0;
 
-					DEBPRINT(va("\2flushed sfx %.6s\n", S_sfx[i].name));
+					CONS_Printf("\2flushed sfx %.6s\n", S_sfx[i].name);
 				}
 			}
 			nextcleanup = gametic + 15;
@@ -897,6 +869,7 @@ void S_UpdateSounds(void)
 	for (cnum = 0; cnum < numofchannels; cnum++)
 	{
 		c = &channels[cnum];
+		sfx = c->sfxinfo;
 
 		if (c->sfxinfo)
 		{
@@ -964,7 +937,7 @@ void S_UpdateSounds(void)
 void S_SetDigMusicVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
-		DEBPRINT("musicvolume should be between 0-31\n");
+		CONS_Printf("musicvolume should be between 0-31\n");
 
 	CV_SetValue(&cv_digmusicvolume, volume&31);
 	actualdigmusicvolume = cv_digmusicvolume.value;   //check for change of var
@@ -980,7 +953,7 @@ void S_SetDigMusicVolume(INT32 volume)
 void S_SetMIDIMusicVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
-		DEBPRINT("musicvolume should be between 0-31\n");
+		CONS_Printf("musicvolume should be between 0-31\n");
 
 	CV_SetValue(&cv_midimusicvolume, volume&31);
 	actualmidimusicvolume = cv_midimusicvolume.value;   //check for change of var
@@ -995,7 +968,7 @@ void S_SetMIDIMusicVolume(INT32 volume)
 void S_SetSfxVolume(INT32 volume)
 {
 	if (volume < 0 || volume > 31)
-		DEBPRINT("sfxvolume should be between 0-31\n");
+		CONS_Printf("sfxvolume should be between 0-31\n");
 
 	CV_SetValue(&cv_soundvolume, volume&31);
 	actualsfxvolume = cv_soundvolume.value; // check for change of var
@@ -1103,7 +1076,7 @@ void S_ChangeMusic(musicenum_t music_num, INT32 looping)
 		S_StopMusic(); // shutdown old music
 
 	if (!S_DigMusic(music, looping) && !S_MIDIMusic(music, looping) && (!nodigimusic || !nomidimusic || !digital_disabled || !music_disabled))
-		CONS_Printf(M_GetText("ERROR: Music lump %.6s not found!\n"), music->name);
+		CONS_Printf("ERROR: Music lump %.6s not found!\n", music->name);
 }
 
 boolean S_SpeedMusic(float speed)
@@ -1210,7 +1183,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 
 	listener_t listensource;
 
-	(void)pitch;
+	pitch = NULL;
 	if (!listener)
 		return false;
 
@@ -1238,7 +1211,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 
 	if (sfxinfo->pitch & SF_OUTSIDESOUND) // Rain special case
 	{
-		fixed_t x, y, yl, yh, xl, xh, newdist;
+		fixed_t x, y, yl, yh, xl, xh, closex, closey, newdist;
 
 		if (R_PointInSubsector(listensource.x, listensource.y)->sector->ceilingpic == skyflatnum)
 			approx_dist = 0;
@@ -1249,6 +1222,8 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 			yh = listensource.y + 1024*FRACUNIT;
 			xl = listensource.x - 1024*FRACUNIT;
 			xh = listensource.x + 1024*FRACUNIT;
+			closex = listensource.x + 2048*FRACUNIT;
+			closey = listensource.y + 2048*FRACUNIT;
 			approx_dist = 1024*FRACUNIT;
 			for (y = yl; y <= yh; y += FRACUNIT*64)
 				for (x = xl; x <= xh; x += FRACUNIT*64)
@@ -1259,6 +1234,8 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 						newdist = S_CalculateSoundDistance(listensource.x, listensource.y, 0, x, y, 0);
 						if (newdist < approx_dist)
 						{
+							closex = x;
+							closey = y;
 							approx_dist = newdist;
 						}
 					}
@@ -1271,7 +1248,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 												source->x, source->y, source->z);
 	}
 
-	// Ring loss, deaths, etc, should all be heard louder.
+	// Taunts, deaths, etc, should all be heard louder.
 	if (sfxinfo->pitch & SF_X8AWAYSOUND)
 		approx_dist = FixedDiv(approx_dist,8*FRACUNIT);
 
@@ -1379,7 +1356,7 @@ void S_StartSoundName(void *mo, const char *soundname)
 
 		if (i == MAXNEWSOUNDS)
 		{
-			DEBPRINT("Cannot load another extra sound!\n");
+			CONS_Printf("Cannot load another extra sound!\n");
 			return;
 		}
 

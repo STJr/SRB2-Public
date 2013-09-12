@@ -23,6 +23,7 @@
 ///	The NOTHING packet is sent when connection is idle to acknowledge packets
 
 #include "doomdef.h"
+#include "dstrings.h"
 #include "g_game.h"
 #include "i_net.h"
 #include "i_system.h"
@@ -140,7 +141,6 @@ boolean Net_GetNetStat(void)
 #define URGENTFREESLOTENUM 6
 #define ACKTOSENDTIMEOUT (TICRATE/17)
 
-#ifndef NONET
 typedef struct
 {
 	UINT8 acknum;
@@ -154,17 +154,14 @@ typedef struct
 		doomdata_t data;
 	} pak;
 } ackpak_t;
-#endif
 
 typedef enum
 {
 	CLOSE = 1, // flag is set when connection is closing
 } node_flags_t;
 
-#ifndef NONET
 // table of packet that was not acknowleged can be resend (the sender window)
 static ackpak_t ackpak[MAXACKPACKETS];
-#endif
 
 typedef struct
 {
@@ -204,7 +201,6 @@ static node_t nodes[MAXNETNODES];
 #define NODETIMEOUT 14 //What the above boiled down to...
 #endif
 
-#ifndef NONET
 // return <0 if a < b (mod 256)
 //         0 if a = n (mod 256)
 //        >0 if a > b (mod 256)
@@ -265,7 +261,8 @@ static boolean GetFreeAcknum(UINT8 *freeack, boolean lowtimer)
 			return true;
 		}
 #ifdef PARANOIA
-	DEBPRINT("No more free ackpacket\n");
+	if (devparm)
+		I_OutputMsg("No more free ackpacket\n");
 #endif
 	if (netbuffer->packettype < PT_CANFAIL)
 		I_Error("Connection lost\n");
@@ -411,21 +408,15 @@ static boolean Processackpak(void)
 	}
 	return goodpacket;
 }
-#endif
 
 // send special packet with only ack on it
 void Net_SendAcks(INT32 node)
 {
-#ifdef NONET
-	(void)node;
-#else
 	netbuffer->packettype = PT_NOTHING;
 	M_Memcpy(netbuffer->u.textcmd, nodes[node].acktosend, MAXACKTOSEND);
 	HSendPacket(node, false, 0, MAXACKTOSEND);
-#endif
 }
 
-#ifndef NONET
 static void GotAcks(void)
 {
 	INT32 i, j;
@@ -449,7 +440,6 @@ static void GotAcks(void)
 					}
 				}
 }
-#endif
 
 static inline void Net_ConnectionTimeout(INT32 node)
 {
@@ -470,7 +460,6 @@ static inline void Net_ConnectionTimeout(INT32 node)
 // resend the data if needed
 void Net_AckTicker(void)
 {
-#ifndef NONET
 	INT32 i;
 
 	for (i = 0; i < MAXACKPACKETS; i++)
@@ -526,16 +515,12 @@ void Net_AckTicker(void)
 			}
 		}
 	}
-#endif
 }
 
 // remove last packet received ack before resending the ackret
 // (the higher layer doesn't have room, or something else ....)
 void Net_UnAcknowledgPacket(INT32 node)
 {
-#ifdef NONET
-	(void)node;
-#else
 	INT32 hm1 = (nodes[node].acktosend_head-1+MAXACKTOSEND) % MAXACKTOSEND;
 	DEBFILE(va("UnAcknowledge node %d\n", node));
 	if (!node)
@@ -567,18 +552,15 @@ void Net_UnAcknowledgPacket(INT32 node)
 		if (!nodes[node].firstacktosend)
 			nodes[node].firstacktosend = 1;
 	}
-#endif
 }
 
 boolean Net_AllAckReceived(void)
 {
-#ifndef NONET
 	INT32 i;
 
 	for (i = 0; i < MAXACKPACKETS; i++)
 		if (ackpak[i].acknum)
 			return false;
-#endif
 
 	return true;
 }
@@ -586,9 +568,6 @@ boolean Net_AllAckReceived(void)
 // wait for all ackreturns with timeout in seconds
 void Net_WaitAllAckReceived(UINT32 timeout)
 {
-#ifdef NONET
-	(void)timeout;
-#else
 	tic_t tictac = I_GetTime();
 	timeout = tictac + timeout*TICRATE;
 
@@ -601,7 +580,6 @@ void Net_WaitAllAckReceived(UINT32 timeout)
 		HGetPacket();
 		Net_AckTicker();
 	}
-#endif
 }
 
 static void InitNode(INT32 node)
@@ -622,10 +600,8 @@ static void InitAck(void)
 {
 	INT32 i;
 
-#ifndef NONET
 	for (i = 0; i < MAXACKPACKETS; i++)
 		ackpak[i].acknum = 0;
-#endif
 
 	for (i = 0; i < MAXNETNODES; i++)
 		InitNode(i);
@@ -633,9 +609,6 @@ static void InitAck(void)
 
 void Net_AbortPacketType(UINT8 packettype)
 {
-#ifdef NONET
-	(void)packettype;
-#else
 	INT32 i;
 	for (i = 0; i < MAXACKPACKETS; i++)
 		if (ackpak[i].acknum && (ackpak[i].pak.data.packettype == packettype
@@ -643,7 +616,6 @@ void Net_AbortPacketType(UINT8 packettype)
 		{
 			ackpak[i].acknum = 0;
 		}
-#endif
 }
 
 // -----------------------------------------------------------------
@@ -653,9 +625,6 @@ void Net_AbortPacketType(UINT8 packettype)
 // remove a node, clear all ack from this node and reset askret
 void Net_CloseConnection(INT32 node)
 {
-#ifdef NONET
-	(void)node;
-#else
 	INT32 i;
 	boolean forceclose = (node & FORCECLOSE) != 0;
 	node &= ~FORCECLOSE;
@@ -685,10 +654,8 @@ void Net_CloseConnection(INT32 node)
 	InitNode(node);
 	AbortSendFiles(node);
 	I_NetFreeNodenum(node);
-#endif
 }
 
-#ifndef NONET
 //
 // Checksum
 //
@@ -704,7 +671,6 @@ static UINT32 NetbufferChecksum(void)
 
 	return LONG(c);
 }
-#endif
 
 #ifdef DEBUGFILE
 
@@ -782,10 +748,10 @@ static void DebugPrintpacket(const char *header)
 				netbuffer->u.clientcfg.mode);
 			break;
 		case PT_SERVERTICS:
-			fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %s\n    ",
+			fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %"PRIdS"\n    ",
 				(UINT32)ExpandTics(netbuffer->u.serverpak.starttic), netbuffer->u.serverpak.numslots,
 				netbuffer->u.serverpak.numtics,
-				sizeu1((size_t)(&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics])));
+				(size_t)(&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(size_t)(
 				&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics]));
 			break;
@@ -863,7 +829,7 @@ boolean HSendPacket(INT32 node, boolean reliable, UINT8 acknum, size_t packetlen
 		if ((rebound_head+1) % MAXREBOUND == rebound_tail)
 		{
 #ifdef PARANOIA
-			DEBPRINT("No more rebound buf\n");
+			CONS_Printf("No more rebound buf\n");
 #endif
 			return false;
 		}
@@ -884,11 +850,6 @@ boolean HSendPacket(INT32 node, boolean reliable, UINT8 acknum, size_t packetlen
 	if (!netgame)
 		I_Error("Tried to transmit to another node");
 
-#ifdef NONET
-	(void)node;
-	(void)reliable;
-	(void)acknum;
-#else
 	// do this before GetFreeAcknum because this function backup
 	// the current packet
 	doomcom->remotenode = (INT16)node;
@@ -938,9 +899,6 @@ boolean HSendPacket(INT32 node, boolean reliable, UINT8 acknum, size_t packetlen
 	else if (debugfile)
 		DebugPrintpacket("NOTSEND");
 #endif
-
-#endif // ndef NONET
-
 	return true;
 }
 
@@ -971,8 +929,6 @@ boolean HGetPacket(void)
 
 	if (!netgame)
 		return false;
-
-#ifndef NONET
 
 	I_NetGet();
 
@@ -1010,7 +966,6 @@ boolean HGetPacket(void)
 		GotAcks();
 		return false;
 	}
-#endif // ndef NONET
 
 	return true;
 }
@@ -1090,7 +1045,7 @@ boolean D_CheckNetGame(void)
 			doomcom->extratics = (INT16)atoi(M_GetNextParm());
 		else
 			doomcom->extratics = 1;
-		CONS_Printf(M_GetText("Set extratics to %d\n"), doomcom->extratics);
+		CONS_Printf(text[SET_EXTRATICS], doomcom->extratics);
 	}
 
 	if (M_CheckParm("-bandwidth"))
@@ -1102,10 +1057,10 @@ boolean D_CheckNetGame(void)
 				net_bandwidth = 1000;
 			if (net_bandwidth > 100000)
 				hardware_MAXPACKETLENGTH = MAXPACKETLENGTH;
-			CONS_Printf(M_GetText("Network bandwidth set to %d\n"), net_bandwidth);
+			CONS_Printf(text[SET_BANDWIDTH], net_bandwidth);
 		}
 		else
-			I_Error("%s", M_GetText("usage: -bandwidth <byte_per_sec>"));
+			I_Error("usage: -bandwidth <byte_per_sec>");
 	}
 
 	software_MAXPACKETLENGTH = hardware_MAXPACKETLENGTH;
@@ -1121,16 +1076,16 @@ boolean D_CheckNetGame(void)
 			software_MAXPACKETLENGTH = (UINT16)p;
 		}
 		else
-			I_Error("%s", M_GetText("usage: -packetsize <bytes_per_packet>"));
+			I_Error("usage: -packetsize <bytes_per_packet>");
 	}
 
 	if (netgame)
 		multiplayer = true;
 
 	if (doomcom->id != DOOMCOM_ID)
-		I_Error("%s", M_GetText("Doomcom buffer invalid!"));
+		I_Error("Doomcom buffer invalid!");
 	if (doomcom->numnodes > MAXNETNODES)
-		I_Error(M_GetText("Too many nodes (%d), max:%d"), doomcom->numnodes, MAXNETNODES);
+		I_Error("Too many nodes (%d), max:%d", doomcom->numnodes, MAXNETNODES);
 
 	netbuffer = (doomdata_t *)(void *)&doomcom->data;
 
@@ -1138,7 +1093,7 @@ boolean D_CheckNetGame(void)
 #ifdef _arch_dreamcast
 	//debugfile = stderr;
 	if (debugfile)
-			CONS_Printf(M_GetText("debug output to: %s\n"), "STDERR");
+			CONS_Printf("debug output to: strerr\n");
 #else
 	if (M_CheckParm("-debugfile"))
 	{
@@ -1153,9 +1108,9 @@ boolean D_CheckNetGame(void)
 			debugfile = fopen(filename, "w");
 		}
 		if (debugfile)
-			CONS_Printf(M_GetText("debug output to: %s\n"), filename);
+			CONS_Printf(text[DEBUG_OUTPUT], filename);
 		else
-			CONS_Printf(M_GetText("\2cannot debug output to file %s!\n"), filename);
+			CONS_Printf(text[NODEBUG_OUTPUT], filename);
 	}
 #endif
 #endif
@@ -1177,16 +1132,16 @@ void Command_Ping_f(void)
 #ifndef NEWPING
 			const INT32 node = playernode[i];
 			if (playeringame[i] && node != 0)
-				CONS_Printf(M_GetText("%.2d : %s\n %d tics, %d ms.\n"), i, player_names[i],
+				CONS_Printf(text[CMD_PING], i, player_names[i],
 				GetLag(node), G_TicsToMilliseconds(GetLag(node)));
 #else
 			if (playeringame[i] && i != 0)
-				CONS_Printf(M_GetText("%.2d : %s\n %d ms\n"), i, player_names[i], playerpingtable[i]);
+				CONS_Printf(text[CMD_PING], i, player_names[i], playerpingtable[i]);
 #endif
 		}
 #ifndef NEWPING
 	}
-	else CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+	else CONS_Printf("%s", text[YOUARENOTTHESERVER]);
 #endif
 }
 

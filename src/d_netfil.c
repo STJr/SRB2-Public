@@ -51,6 +51,7 @@
 #include "doomdef.h"
 #include "doomstat.h"
 #include "d_main.h"
+#include "dstrings.h"
 #include "g_game.h"
 #include "i_net.h"
 #include "i_system.h"
@@ -129,7 +130,7 @@ UINT8 *PutFileNeeded(void)
 
 		// Don't write too far...
 		if (bytesused > sizeof(netbuffer->u.serverinfo.fileneeded))
-			I_Error("Too many wad files added to host a game. (%s, stopped on %s)\n", sizeu1(bytesused), wadfilename);
+			I_Error("Too many wad files added to host a game. (%"PRIdS", stopped on %s)\n", bytesused, wadfilename);
 
 		WRITEUINT8(p, filestatus);
 
@@ -264,9 +265,9 @@ boolean SendRequestFile(void)
 	WRITEUINT8(p, 0xFF);
 	I_GetDiskFreeSpace(&availablefreespace);
 	if (totalfreespaceneeded > availablefreespace)
-		I_Error("To play on this server you must download %s KB,\n"
-			"but you have only %s KB free space on this drive\n",
-			sizeu1((size_t)(totalfreespaceneeded>>10)), sizeu2((size_t)(availablefreespace>>10)));
+		I_Error("To play on this server you must download %"PRIdS" KB,\n"
+			"but you have only %"PRIdS" KB free space on this drive\n",
+			(size_t)(totalfreespaceneeded>>10), (size_t)(availablefreespace>>10));
 
 	// prepare to download
 	I_mkdir(downloaddir, 0755);
@@ -305,7 +306,8 @@ INT32 CL_CheckFiles(void)
 
 	for (i = 1; i < fileneedednum; i++)
 	{
-		DEBPRINT(va(M_GetText("searching for '%s' "), fileneeded[i].filename));
+		if (devparm)
+			CONS_Printf("searching for '%s' ", fileneeded[i].filename);
 
 		// check in allready loaded files
 		for (j = 1; wadfiles[j]; j++)
@@ -314,7 +316,8 @@ INT32 CL_CheckFiles(void)
 			if (!stricmp(wadfilename, fileneeded[i].filename) &&
 				!memcmp(wadfiles[j]->md5sum, fileneeded[i].md5sum, 16))
 			{
-				DEBPRINT(va("%s", M_GetText("already loaded\n")));
+				if (devparm)
+					CONS_Printf("already loaded\n");
 				fileneeded[i].status = FS_OPEN;
 				break;
 			}
@@ -323,7 +326,8 @@ INT32 CL_CheckFiles(void)
 			continue;
 
 		fileneeded[i].status = findfile(fileneeded[i].filename, fileneeded[i].md5sum, true);
-		DEBPRINT(va(M_GetText("found %d\n"), fileneeded[i].status));
+		if (devparm)
+			CONS_Printf("found %d\n", fileneeded[i].status);
 		if (fileneeded[i].status != FS_FOUND)
 			ret = 0;
 	}
@@ -561,7 +565,7 @@ void FiletxTicker(void)
 		if (ram)
 			M_Memcpy(p->data, &f->filename[transfer[i].position], size);
 		else if (fread(p->data, 1, size, transfer[i].currentfile) != size)
-			I_Error("FiletxTicker: can't read %s byte on %s at %d because %s", sizeu1(size), f->filename, transfer[i].position, strerror(ferror(transfer[i].currentfile)));
+			I_Error("FiletxTicker: can't read %"PRIdS" byte on %s at %d because %s", size,f->filename,transfer[i].position, strerror(ferror(transfer[i].currentfile)));
 		p->position = LONG(transfer[i].position);
 		// put flag so receiver know the totalsize
 		if (transfer[i].position + size == f->size)
@@ -651,7 +655,7 @@ void Got_Filetxpak(void)
 			fclose(fileneeded[filenum].phandle);
 			fileneeded[filenum].phandle = NULL;
 			fileneeded[filenum].status = FS_FOUND;
-			CONS_Printf(M_GetText("Downloading %s...(done)\n"),
+			CONS_Printf(text[DOWNLOADING_DONE],
 				fileneeded[filenum].filename);
 		}
 	}

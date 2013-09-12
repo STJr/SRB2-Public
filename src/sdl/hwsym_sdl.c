@@ -52,18 +52,12 @@
 #ifdef HWRENDER
 #include "../hardware/hw_drv.h"
 #include "ogl_sdl.h"
-#ifdef STATIC_OPENGL
-#include "../hardware/r_opengl/r_opengl.h"
-#endif
 #endif
 
 #ifdef HW3SOUND
 #include "../hardware/hw3dsdrv.h"
 #endif
 
-#define GETFUNC(func) \
-	else if (0 == strcmp(#func, funcName)) \
-		funcPointer = &func \
 //
 //
 /**	\brief	The *hwSym function
@@ -79,55 +73,93 @@
 void *hwSym(const char *funcName,void *handle)
 {
 	void *funcPointer = NULL;
-#ifdef HWRENDER
-	if (0 == strcmp("SetPalette", funcName))
-                funcPointer = &OglSdlSetPalette;
-	GETFUNC(Init);
-	GETFUNC(Draw2DLine);
-	GETFUNC(DrawPolygon);
-	GETFUNC(SetBlend);
-	GETFUNC(ClearBuffer);
-	GETFUNC(SetTexture);
-	GETFUNC(ReadRect);
-	GETFUNC(GClipRect);
-	GETFUNC(ClearMipMapCache);
-	GETFUNC(SetSpecialState);
-	GETFUNC(GetTextureUsed);
-	GETFUNC(DrawMD2);
-	GETFUNC(DrawMD2i);
-	GETFUNC(SetTransform);
-	GETFUNC(GetRenderVersion);
-#ifdef SHUFFLE
-	GETFUNC(PostImgRedraw);
-	GETFUNC(StartScreenWipe);
-	GETFUNC(EndScreenWipe);
-	GETFUNC(DoScreenWipe);
-	GETFUNC(DrawIntermissionBG);
-	GETFUNC(MakeScreenTexture);
-#endif //SHUFFLE
-#else //HWRENDER
 	if (0 == strcmp("FinishUpdate", funcName))
 		return funcPointer; //&FinishUpdate;
-#endif //!HWRENDER
+#ifdef HWRENDER
+	else if (0 == strcmp("Init", funcName))
+		funcPointer = &Init;
+	else if (0 == strcmp("Draw2DLine", funcName))
+		funcPointer = &Draw2DLine;
+	else if (0 == strcmp("DrawPolygon", funcName))
+		funcPointer = &DrawPolygon;
+	else if (0 == strcmp("SetBlend", funcName))
+		funcPointer = &SetBlend;
+	else if (0 == strcmp("ClearBuffer", funcName))
+		funcPointer = &ClearBuffer;
+	else if (0 == strcmp("SetTexture", funcName))
+		funcPointer = &SetTexture;
+	else if (0 == strcmp("ReadRect", funcName))
+		funcPointer = &ReadRect;
+	else if (0 == strcmp("GClipRect", funcName))
+		funcPointer = &GClipRect;
+	else if (0 == strcmp("ClearMipMapCache", funcName))
+		funcPointer = &ClearMipMapCache;
+	else if (0 == strcmp("SetSpecialState", funcName))
+		funcPointer = &SetSpecialState;
+	else if (0 == strcmp("SetPalette", funcName))
+		funcPointer = &OglSdlSetPalette;
+	else if (0 == strcmp("GetTextureUsed", funcName))
+		funcPointer = &GetTextureUsed;
+	else if (0 == strcmp("DrawMD2", funcName))
+		funcPointer = &DrawMD2;
+	else if (0 == strcmp("DrawMD2i", funcName))
+		funcPointer = &DrawMD2i;
+	else if (0 == strcmp("SetTransform", funcName))
+		funcPointer = &SetTransform;
+	else if (0 == strcmp("GetRenderVersion", funcName))
+		funcPointer = &GetRenderVersion;
+#ifdef SHUFFLE
+	else if (0 == strcmp("PostImgRedraw", funcName))
+		funcPointer = &PostImgRedraw;
+	else if (0 == strcmp("StartScreenWipe", funcName))
+		funcPointer = &StartScreenWipe;
+	else if (0 == strcmp("EndScreenWipe", funcName))
+		funcPointer = &EndScreenWipe;
+	else if (0 == strcmp("DoScreenWipe", funcName))
+		funcPointer = &DoScreenWipe;
+	else if (0 == strcmp("DrawIntermissionBG", funcName))
+		funcPointer = &DrawIntermissionBG;
+	else if (0 == strcmp("MakeScreenTexture", funcName))
+		funcPointer = &MakeScreenTexture;
+#endif
+#endif
 #ifdef STATIC3DS
-	GETFUNC(Startup);
-	GETFUNC(AddSfx);
-	GETFUNC(AddSource);
-	GETFUNC(StartSource);
-	GETFUNC(StopSource);
-	GETFUNC(GetHW3DSVersion);
-	GETFUNC(BeginFrameUpdate);
-	GETFUNC(EndFrameUpdate);
-	GETFUNC(IsPlaying);
-	GETFUNC(UpdateListener);
-	GETFUNC(UpdateSourceParms);
-	GETFUNC(SetGlobalSfxVolume);
-	GETFUNC(SetCone);
-	GETFUNC(Update3DSource);
-	GETFUNC(ReloadSource);
-	GETFUNC(KillSource);
-	GETFUNC(Shutdown);
-	GETFUNC(GetHW3DSTitle);
+	else if (0 == strcmp("Startup", funcName))
+		funcPointer = &Startup;
+	else if (0 == strcmp("AddSfx", funcName))
+		funcPointer = &AddSfx;
+	else if (0 == strcmp("AddSource", funcName))
+		funcPointer = &AddSource;
+	else if (0 == strcmp("StartSource", funcName))
+		funcPointer = &StartSource;
+	else if (0 == strcmp("StopSource", funcName))
+		funcPointer = &StopSource;
+	else if (0 == strcmp("GetHW3DSVersion", funcName))
+		funcPointer = &GetHW3DSVersion;
+	else if (0 == strcmp("BeginFrameUpdate", funcName))
+		funcPointer = &BeginFrameUpdate;
+	else if (0 == strcmp("EndFrameUpdate", funcName))
+		funcPointer = &EndFrameUpdate;
+	else if (0 == strcmp("IsPlaying", funcName))
+		funcPointer = &IsPlaying;
+	else if (0 == strcmp("UpdateListener", funcName))
+		funcPointer = &UpdateListener;
+	else if (0 == strcmp("UpdateSourceParms", funcName))
+		funcPointer = &UpdateSourceParms;
+	else if (0 == strcmp("SetGlobalSfxVolume", funcName))
+		funcPointer = &SetGlobalSfxVolume;
+	else if (0 == strcmp("SetCone", funcName))
+		funcPointer = &SetCone;
+	else if (0 == strcmp("Update3DSource", funcName))
+		funcPointer = &Update3DSource;
+	else if (0 == strcmp("ReloadSource", funcName))
+		funcPointer = &ReloadSource;
+	else if (0 == strcmp("KillSource", funcName))
+		funcPointer = &KillSource;
+	else if (0 == strcmp("Shutdown", funcName))
+		funcPointer = &Shutdown;
+	else if (0 == strcmp("GetHW3DSTitle", funcName))
+		funcPointer = &GetHW3DSTitle;
 #endif
 #ifdef NOLOADSO
 	else
@@ -136,8 +168,6 @@ void *hwSym(const char *funcName,void *handle)
 	else if (handle)
 		funcPointer = SDL_LoadFunction(handle,funcName);
 #endif
-	if (!funcPointer)
-		DEBPRINT(va("hwSym for %s: %s\n", funcName, SDL_GetError()));
 	return funcPointer;
 }
 
@@ -158,7 +188,7 @@ void *hwOpen(const char *hwfile)
 #else
 	void *tempso = NULL;
 	tempso = SDL_LoadObject(hwfile);
-	if (!tempso) DEBPRINT(va("hwOpen of %s: %s\n", hwfile, SDL_GetError()));
+	if (!tempso) CONS_Printf("hwOpen: %s\n",SDL_GetError());
 	return tempso;
 #endif
 }

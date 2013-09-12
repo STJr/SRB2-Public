@@ -41,7 +41,6 @@
 
 #include <math.h>
 #include "../doomdef.h"
-#include "../doomstat.h"
 
 #ifdef HWRENDER
 #include "hw_glob.h"
@@ -131,7 +130,7 @@ static boolean isPSectorValid(sector_t *sector)
 	if (!sector->pseudoSector) // check only pseudosectors, others dont care
 	{
 #ifdef PARANOIA
-		DEBPRINT("Alert! non-pseudosector fed to isPSectorClosed()\n");
+		CONS_Printf("Alert! non-pseudosector fed to isPSectorClosed()\n");
 #endif
 		return false;
 	}
@@ -288,8 +287,8 @@ static void phiBounds(double phi1, double phi2, double *phiMin, double *phiMax)
 	}
 
 #ifdef PARANOIA
-	DEBPRINT(va("phiMin = %f, phiMax = %f, phi1 = %f, phi2 = %f\n", *phiMin, *phiMax, phi1, phi2));
-	I_Error("phiBounds() out of range!\n");
+	I_OutputMsg("phiMin = %f, phiMax = %f, phi1 = %f, phi2 = %f\n", *phiMin, *phiMax, phi1, phi2);
+	I_Error("Holy shit, phiBounds() freaked out\n");
 #endif
 }
 
@@ -435,7 +434,9 @@ static double lineLength(line_t *line)
 static double calcLineoutLength(sector_t *sector)
 {
 	linechain_t *chain;
-	double length = 0.0L;
+	double length;
+
+	length = 0.0;
 	chain = sector->sectorLines;
 
 	while (NULL != chain) // sum up lengths of all lines
@@ -456,7 +457,7 @@ static void calcLineouts(sector_t *sector)
 
 	while (NULL != encSector)
 	{
-		if (encSector->lineoutLength < 0.0L) // if length has not yet been calculated
+		if (encSector->lineoutLength < 0.0) // if length has not yet been calculated
 		{
 			encSector->lineoutLength = calcLineoutLength(encSector);
 		}
@@ -897,7 +898,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdr->bottomtexture == 0)
 					{
 						if (sdr->midtexture == 0)
-							sdr->bottomtexture = R_TextureNumForName("REDWALL"); // Tails
+							sdr->bottomtexture = R_TextureNumForName("REDWALL", (UINT16)(sdr-sides)); // Tails
 						else
 							sdr->bottomtexture = sdr->midtexture;
 					}
@@ -908,7 +909,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdl->bottomtexture == 0)
 					{
 						if (sdl->midtexture == 0)
-							sdl->bottomtexture = R_TextureNumForName("REDWALL"); // Tails
+							sdl->bottomtexture = R_TextureNumForName("REDWALL", (UINT16)(sdl-sides)); // Tails
 						else
 							sdl->bottomtexture = sdl->midtexture;
 					}
@@ -923,7 +924,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdr->toptexture == 0)
 					{
 						if (sdr->midtexture == 0)
-							sdr->toptexture = R_TextureNumForName("REDWALL"); // Tails
+							sdr->toptexture = R_TextureNumForName("REDWALL", (UINT16)(sdr-sides)); // Tails
 						else
 							sdr->toptexture = sdr->midtexture;
 					}
@@ -934,7 +935,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdl->toptexture == 0)
 					{
 						if (sdl->midtexture == 0)
-							sdl->toptexture = R_TextureNumForName("REDWALL"); // Tails
+							sdl->toptexture = R_TextureNumForName("REDWALL", (UINT16)(sdl-sides)); // Tails
 						else
 							sdl->toptexture = sdl->midtexture;
 					}

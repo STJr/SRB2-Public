@@ -25,11 +25,9 @@
 
 // number of sprite lumps for spritewidth,offset,topoffset lookup tables
 // Fab: this is a hack : should allocate the lookup tables per sprite
-#define MAXVISSPRITES 2048 // added 2-2-98 was 128
+#define	MAXSPRITELUMPS 8192 // Increase maxspritelumps Graue 11-06-2003
 
-#define VISSPRITECHUNKBITS 6	// 2^6 = 64 sprites per chunk
-#define VISSPRITESPERCHUNK (1 << VISSPRITECHUNKBITS)
-#define VISSPRITEINDEXMASK (VISSPRITESPERCHUNK - 1)
+#define MAXVISSPRITES 2048 // added 2-2-98 was 128
 
 // Constant arrays used for psprite clipping
 //  and initializing clipping.

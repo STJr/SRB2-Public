@@ -53,10 +53,6 @@
 #define HAVE_SDLMETAKEYS
 #endif
 
-#ifdef HAVE_TTF
-#include "i_ttf.h"
-#endif
-
 #ifdef HAVE_IMAGE
 #include "SDL_image.h"
 #elseif !(defined (DC) || defined (_WIN32_WCE) || defined (PSP) || defined(GP2X))
@@ -112,12 +108,6 @@
 #include "ogl_sdl.h"
 #endif
 
-#ifdef REMOTE_DEBUGGING
-#ifdef _WII
-#include <debug.h>
-#endif
-#endif
-
 #ifdef HAVE_FILTER
 #define FILTERS
 #include "filter/filters.h"
@@ -126,10 +116,6 @@
 // maximum number of windowed modes (see windowedModes[][])
 #if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
 #define MAXWINMODES (1)
-#elif defined (WII)
-#define MAXWINMODES (8)
-#elif defined (_PS3)
-#define MAXWINMODES (26)
 #else
 #define MAXWINMODES (27)
 #endif
@@ -162,7 +148,7 @@ static SDL_bool disable_fullscreen = SDL_FALSE;
 #define USE_FULLSCREEN (disable_fullscreen||!allow_fullscreen)?0:cv_fullscreen.value
 static SDL_bool disable_mouse = SDL_FALSE;
 #define USE_MOUSEINPUT (!disable_mouse && cv_usemouse.value && SDL_GetAppState() & SDL_APPACTIVE)
-#define MOUSE_MENU false //(!disable_mouse && cv_usemouse.value && menuactive && !USE_FULLSCREEN)
+#define MOUSE_MENU (!disable_mouse && cv_usemouse.value && menuactive && !USE_FULLSCREEN && !windownnow)
 #define MOUSEBUTTONS_MAX MOUSEBUTTONS
 
 // first entry in the modelist which is not bigger than MAXVIDWIDTHxMAXVIDHEIGHT
@@ -178,7 +164,7 @@ static      SDL_Color    localPalette[256];
 static      SDL_Rect   **modeList = NULL;
 #ifdef DC
 static       Uint8       BitsPerPixel = 15;
-#elif defined (_WIN32_WCE) || defined (GP2X) || defined (PSP) || defined(WII)  || defined(_PS3)
+#elif defined (_WIN32_WCE) || defined (GP2X) || defined (PSP)
 static       Uint8       BitsPerPixel = 16;
 #else
 static       Uint8       BitsPerPixel = 8;
@@ -190,11 +176,7 @@ static const Uint32      surfaceFlagsW = SDL_HWPALETTE; //Can't handle WinCE cha
 #else
 static const Uint32      surfaceFlagsW = SDL_HWPALETTE/*|SDL_RESIZABLE*/;
 #endif
-#ifdef _PSP
-static const Uint32      surfaceFlagsF = SDL_HWSURFACE|SDL_FULLSCREEN;
-#else
 static const Uint32      surfaceFlagsF = SDL_HWPALETTE|SDL_FULLSCREEN;
-#endif
 static       SDL_bool    mousegrabok = SDL_TRUE;
 #define HalfWarpMouse(x,y) SDL_WarpMouse((Uint16)(x/2),(Uint16)(y/2))
 #if defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined(GP2X)
@@ -203,43 +185,40 @@ static       SDL_bool    videoblitok = SDL_TRUE;
 static       SDL_bool    videoblitok = SDL_FALSE;
 #endif
 static       SDL_bool    exposevideo = SDL_FALSE;
+static       SDL_bool    windownnow  = SDL_FALSE;
 
 // windowed video modes from which to choose from.
 static INT32 windowedModes[MAXWINMODES][2] =
 {
 #if !(defined (_WIN32_WCE) || defined (DC) || defined (PSP) || defined (GP2X))
-#ifndef WII
-#ifndef _PS3
-	{1920,1200}, // 1.60,6.00; WUXGA
-#endif
-	{1680,1050}, // 1.60,5.25; WSXGA+
-	{1600,1200}, // 1.33,5.00; UXGA
+	{1920,1200}, // 1.60,6.00
+	{1680,1050}, // 1.60,5.25
+	{1600,1200}, // 1.33,5.00
 	{1600,1000}, // 1.60,5.00
 	{1536,1152}, // 1.33,4.80
 	{1536, 960}, // 1.60,4.80
-	{1440, 900}, // 1.60,4.50; WXGA+
-	{1366, 768}, // 1.77,3.20; HD
-	{1360, 768}, // 1.77,3.20; HD
+	{1440, 900}, // 1.60,4.50
+	{1400,1050}, // 1.33,4.375
+	{1400, 875}, // 1.60,4.375
 	{1360, 850}, // 1.60,4.25
-	{1280, 960}, // 1.33,4.00; UVGA
-	{1280, 800}, // 1.60,4.00; WXGA
-	{1152, 864}, // 1.33,3.60; XGA+
+	{1280, 960}, // 1.33,4.00
+	{1280, 800}, // 1.60,4.00
+	{1152, 864}, // 1.33,3.60
 	{1120, 700}, // 1.60,3.50
-	{1024, 768}, // 1.33,3.20; XGA
+	{1024, 768}, // 1.33,3.20
 	{ 960, 720}, // 1.33,3.00
-	{ 960, 600}, // 1.60,3.00; SVGA
+	{ 960, 600}, // 1.60,3.00
 	{ 800, 600}, // 1.33,2.50
 	{ 800, 500}, // 1.60,2.50
-#endif
-	{ 640, 480}, // 1.33,2.00; VGA
+	{ 640, 480}, // 1.33,2.00
 	{ 640, 400}, // 1.60,2.00
 	{ 576, 432}, // 1.33,1.80
 	{ 512, 384}, // 1.33,1.60
 	{ 416, 312}, // 1.33,1.30
 	{ 400, 300}, // 1.33,1.25
-	{ 320, 240}, // 1.33,1.00; QVGA
+	{ 320, 240}, // 1.33,1.00
 #endif
-	{ 320, 200}, // 1.60,1.00; CGA
+	{ 320, 200}, // 1.60,1.00
 };
 
 static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
@@ -248,9 +227,6 @@ static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 #ifdef _WIN32_WCE
 	if (bpp < 16)
 		bpp = 16; // 256 mode poo
-#endif
-#ifdef _WII
-	bpp = 16; // 8-bit mode poo
 #endif
 #ifdef DC
 	if (bpp < 15)
@@ -271,10 +247,6 @@ static void SDLSetMode(INT32 width, INT32 height, INT32 bpp, Uint32 flags)
 #endif
 	if (SDLVD && strncasecmp(SDLVD,"glSDL",6) == 0) //for glSDL videodriver
 		vidSurface = SDL_SetVideoMode(width, height,0,SDL_DOUBLEBUF);
-#ifdef _WII // don't want it to use HWSURFACE, so make it first here
-	else if (SDL_VideoModeOK(width, height, bpp, flags|SDL_SWSURFACE|SDL_DOUBLEBUF) >= bpp) // SDL Wii uses double buffering
-		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_SWSURFACE|SDL_DOUBLEBUF);
-#endif
 	else if (cv_vidwait.value && videoblitok && SDL_VideoModeOK(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF) >= bpp)
 		vidSurface = SDL_SetVideoMode(width, height, bpp, flags|SDL_HWSURFACE|SDL_DOUBLEBUF);
 	else if (videoblitok && SDL_VideoModeOK(width, height, bpp, flags|SDL_HWSURFACE) >= bpp)
@@ -526,15 +498,22 @@ static INT32 SDLatekey(SDLKey sym)
 				rc = sym - SDLK_SPACE + ' ';
 			else if (sym >= 'A' && sym <= 'Z')
 				rc = sym - 'A' + 'a';
-			else if (sym)
-			{
-				DEBPRINT(va("\2Unknown Keycode %i, Name: %s\n",sym, SDL_GetKeyName( sym )));
-			}
+			else if (sym && devparm)
+				I_OutputMsg("\2Unknown Keycode %i, Name: %s\n",sym, SDL_GetKeyName( sym ));
 			else if (!sym) rc = 0;
 			break;
 	}
 
 	return rc;
+}
+
+static void SDLdoGrabMouse(void)
+{
+	if (SDL_GRAB_OFF == SDL_WM_GrabInput(SDL_GRAB_QUERY))
+	{
+		if (mousegrabok)
+			SDL_WM_GrabInput(SDL_GRAB_ON);
+	}
 }
 
 static void SDLdoUngrabMouse(void)
@@ -553,7 +532,7 @@ void SDLforceUngrabMouse(void)
 
 static void VID_Command_NumModes_f (void)
 {
-	CONS_Printf(M_GetText("%d video mode(s) available(s)\n"), VID_NumModes());
+	CONS_Printf ("%d video mode(s) available(s)\n", VID_NumModes());
 }
 
 static void SurfaceInfo(const SDL_Surface *infoSurface, const char *SurfaceText)
@@ -565,55 +544,55 @@ static void SurfaceInfo(const SDL_Surface *infoSurface, const char *SurfaceText)
 		return;
 
 	if (!SurfaceText)
-		SurfaceText = M_GetText("Unknown Surface");
+		SurfaceText = "Unknown Surface";
 
 	vfBPP = infoSurface->format?infoSurface->format->BitsPerPixel:0;
 
-	CONS_Printf("%s:\n", SurfaceText);
-	CONS_Printf(M_GetText(" %ix%i at %i bit color\n"), infoSurface->w, infoSurface->h, vfBPP);
+	CONS_Printf("%s:\n",SurfaceText);
+	CONS_Printf(" %ix%i at %i bit color\n",infoSurface->w,infoSurface->h,vfBPP);
 
 	if (infoSurface->flags&SDL_HWSURFACE)
-		CONS_Printf("%s", M_GetText(" Stored in video memory\n"));
+		CONS_Printf(" Stored in video memory\n");
 	else if (infoSurface->flags&SDL_OPENGL)
-		CONS_Printf("%s", M_GetText(" Stored in an OpenGL context\n"));
+		CONS_Printf(" Stored in an OpenGL context\n");
 	else if (infoSurface->flags&SDL_PREALLOC)
-		CONS_Printf("%s", M_GetText(" Uses preallocated memory\n"));
+		CONS_Printf(" Uses preallocated memory\n");
 	else
-		CONS_Printf("%s", M_GetText(" Stored in system memory\n"));
+		CONS_Printf(" Stored in system memory\n");
 
 	if (infoSurface->flags&SDL_ASYNCBLIT)
-		CONS_Printf("%s", M_GetText(" Uses asynchronous blits if possible\n"));
+		CONS_Printf(" Uses asynchronous blits if possible\n");
 	else
-		CONS_Printf("%s", M_GetText(" Uses synchronous blits if possible\n"));
+		CONS_Printf(" Uses synchronous blits if possible\n");
 
 	if (infoSurface->flags&SDL_ANYFORMAT)
-		CONS_Printf("%s", M_GetText(" Allows any pixel-format\n"));
+		CONS_Printf(" Allows any pixel-format\n");
 
 	if (infoSurface->flags&SDL_HWPALETTE)
-		CONS_Printf("%s", M_GetText(" Has exclusive palette access\n"));
+		CONS_Printf(" Has exclusive palette access\n");
 	else if (VidSur == infoSurface)
-		CONS_Printf("%s", M_GetText(" Has nonexclusive palette access\n"));
+		CONS_Printf(" Has nonexclusive palette access\n");
 
 	if (infoSurface->flags&SDL_DOUBLEBUF)
-		CONS_Printf("%s", M_GetText(" Double buffered\n"));
+		CONS_Printf(" Double buffered\n");
 	else if (VidSur == infoSurface)
-		CONS_Printf("%s", M_GetText(" No hardware flipping\n"));
+		CONS_Printf(" No hardware flipping\n");
 
 	if (infoSurface->flags&SDL_FULLSCREEN)
-		CONS_Printf("%s", M_GetText(" Full screen\n"));
+		CONS_Printf(" Full screen\n");
 	else if (infoSurface->flags&SDL_RESIZABLE)
-		CONS_Printf("%s", M_GetText(" Resizable window\n"));
+		CONS_Printf(" Resizable window\n");
 	else if (VidSur == infoSurface)
-		CONS_Printf("%s", M_GetText(" Nonresizable window\n"));
+		CONS_Printf(" Nonresizable window\n");
 
 	if (infoSurface->flags&SDL_HWACCEL)
-		CONS_Printf("%s", M_GetText(" Uses hardware acceleration blit\n"));
+		CONS_Printf(" Uses hardware acceleration blit\n");
 	if (infoSurface->flags&SDL_SRCCOLORKEY)
-		CONS_Printf("%s", M_GetText(" Use colorkey blitting\n"));
+		CONS_Printf(" Use colorkey blitting\n");
 	if (infoSurface->flags&SDL_RLEACCEL)
-		CONS_Printf("%s", M_GetText(" Colorkey RLE acceleration blit\n"));
+		CONS_Printf(" Colorkey RLE acceleration blit\n");
 	if (infoSurface->flags&SDL_SRCALPHA)
-		CONS_Printf("%s", M_GetText(" Use alpha blending acceleration blit\n"));
+		CONS_Printf(" Use alpha blending acceleration blit\n");
 
 }
 
@@ -623,48 +602,48 @@ static void VID_Command_Info_f (void)
 	videoInfo = SDL_GetVideoInfo(); //Alam: Double-Check
 	if (videoInfo)
 	{
-		CONS_Printf("%s", M_GetText("Video Interface Capabilities:\n"));
+		CONS_Printf("Video Interface Capabilities:\n");
 		if (videoInfo->hw_available)
-			CONS_Printf("%s", M_GetText(" Hardware surfaces\n"));
+			CONS_Printf(" Hardware surfaces\n");
 		if (videoInfo->wm_available)
-			CONS_Printf("%s", M_GetText(" Window manager\n"));
+			CONS_Printf(" Window manager\n");
 		//UnusedBits1  :6
 		//UnusedBits2  :1
 		if (videoInfo->blit_hw)
-			CONS_Printf("%s", M_GetText(" Accelerated blits HW-2-HW\n"));
+			CONS_Printf(" Accelerated blits HW-2-HW\n");
 		if (videoInfo->blit_hw_CC)
-			CONS_Printf("%s", M_GetText(" Accelerated blits HW-2-HW with Colorkey\n"));
+			CONS_Printf(" Accelerated blits HW-2-HW with Colorkey\n");
 		if (videoInfo->wm_available)
-			CONS_Printf("%s", M_GetText(" Accelerated blits HW-2-HW with Alpha\n"));
+			CONS_Printf(" Accelerated blits HW-2-HW with Alpha\n");
 		if (videoInfo->blit_sw)
 		{
-			CONS_Printf("%s", M_GetText(" Accelerated blits SW-2-HW\n"));
+			CONS_Printf(" Accelerated blits SW-2-HW\n");
 			if (!M_CheckParm("-noblit")) videoblitok = SDL_TRUE;
 		}
 		if (videoInfo->blit_sw_CC)
-			CONS_Printf("%s", M_GetText(" Accelerated blits SW-2-HW with Colorkey\n"));
+			CONS_Printf(" Accelerated blits SW-2-HW with Colorkey\n");
 		if (videoInfo->blit_sw_A)
-			CONS_Printf("%s", M_GetText(" Accelerated blits SW-2-HW with Alpha\n"));
+			CONS_Printf(" Accelerated blits SW-2-HW with Alpha\n");
 		if (videoInfo->blit_fill)
-			CONS_Printf("%s", M_GetText(" Accelerated Color filling\n"));
+			CONS_Printf(" Accelerated Color filling, Hmmm\n");
 		//UnusedBits3  :16
 		if (videoInfo->video_mem)
-			CONS_Printf(M_GetText(" There is %i KB of video memory\n"), videoInfo->video_mem);
+			CONS_Printf(" There is %i KB of video memory\n",videoInfo->video_mem);
 		else
-			CONS_Printf("%s", M_GetText(" There no video memory for SDL\n"));
+			CONS_Printf(" There no video memory for SDL\n");
 		//*vfmt
 	}
-	SurfaceInfo(bufSurface, M_GetText("Current Engine Mode"));
+	SurfaceInfo(bufSurface,"Current Engine Mode");
 #ifdef FILTERS
-	SurfaceInfo(preSurface, M_GetText("Prebuffer Mode"));
-	SurfaceInfo(f2xSurface, M_GetText("Postbuffer Mode"));
+	SurfaceInfo(preSurface,"Prebuffer Mode");
+	SurfaceInfo(f2xSurface,"Postbuffer Mode");
 #endif
-	SurfaceInfo(vidSurface, M_GetText("Current Video Mode"));
+	SurfaceInfo(vidSurface,"Current Video Mode");
 }
 
 static void VID_Command_ModeList_f(void)
 {
-#if !defined (DC) && !defined (_WIN32_WCE) && !defined (_PSP) &&  !defined(GP2X)
+#if !defined (DC) && !defined (_WIN32_WCE)
 	INT32 i;
 #ifdef HWRENDER
 	if (rendermode == render_opengl)
@@ -675,7 +654,7 @@ static void VID_Command_ModeList_f(void)
 
 	if (modeList == (SDL_Rect **)0 && cv_fullscreen.value)
 	{
-		CONS_Printf("%s", M_GetText("No video modes present\n"));
+		CONS_Printf("No video modes present\n");
 		cv_fullscreen.value = 0;
 	}
 	else if (modeList != (SDL_Rect **)0)
@@ -686,18 +665,18 @@ static void VID_Command_ModeList_f(void)
 		else while (modeList[numVidModes])
 			numVidModes++;
 	}
-	CONS_Printf(M_GetText("Found %d FullScreen Video Modes:\n"), numVidModes);
+	CONS_Printf("Found %d FullScreen Video Modes:\n", numVidModes);
 	for (i=0 ; i<numVidModes; i++)
 	{ // fullscreen modes
 		INT32 modeNum = firstEntry + i;
 		if (modeNum >= numVidModes)
 			break;
 
-		CONS_Printf(M_GetText("%dx%d and "),
+		CONS_Printf("%dx%d and ",
 				modeList[modeNum]->w,
 				modeList[modeNum]->h);
 	}
-	CONS_Printf("%s", M_GetText("None\n"));
+	CONS_Printf("None\n");
 #endif
 }
 
@@ -707,14 +686,14 @@ static void VID_Command_Mode_f (void)
 
 	if (COM_Argc()!= 2)
 	{
-		CONS_Printf (M_GetText("vid_mode <modenum> : set video mode, current video mode %i\n"), vid.modenum);
+		CONS_Printf ("vid_mode <modenum> : set video mode, currect video mode %i\n",vid.modenum);
 		return;
 	}
 
 	modenum = atoi(COM_Argv(1));
 
 	if (modenum >= VID_NumModes())
-		CONS_Printf ("%s", M_GetText("No such video mode\n"));
+		CONS_Printf ("No such video mode\n");
 	else
 		setmodeneeded = modenum+1; // request vid mode change
 }
@@ -758,17 +737,17 @@ static inline BOOL LoadDM(VOID)
 
 	DMdll = LoadLibraryA("dwmapi.dll");
 	if (DMdll)
-		DEBPRINT(va("dmwapi.dll loaded, Vista's Desktop Window Manager API\n"));
+		I_OutputMsg("dmwapi.dll loaded, Vista's Desktop Window Manager API\n");
 	else
 		return FALSE;
 
 	pfnDwmIsCompositionEnabled = (P_DwmIsCompositionEnabled)GetProcAddress(DMdll, "DwmIsCompositionEnabled");
 	if (pfnDwmIsCompositionEnabled)
-		DEBPRINT(va("Composition Aero API found, DwmIsCompositionEnabled\n"));
+		I_OutputMsg("Composition Aero API found, DwmIsCompositionEnabled\n");
 
 	pfnDwmEnableComposition = (P_DwmEnableComposition)GetProcAddress(DMdll, "DwmEnableComposition");
 	if (pfnDwmEnableComposition)
-		DEBPRINT(va("Composition Aero API found, DwmEnableComposition\n"));
+		I_OutputMsg("Composition Aero API found, DwmEnableComposition\n");
 
 	return TRUE;
 }
@@ -782,19 +761,19 @@ static inline VOID DisableAero(VOID)
 		return;
 
 	if (pfnDwmIsCompositionEnabled && SUCCEEDED(pfnDwmIsCompositionEnabled(&pfnDwmEnableCompositiond)))
-		DEBPRINT(va("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond));
+		I_OutputMsg("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond);
 	else
 		return;
 
 	if ((AeroWasEnabled = pfnDwmEnableCompositiond))
-		DEBPRINT("Disable the Aero rendering\n");
+		I_OutputMsg("Let disable the Aero rendering\n");
 	else
 		return;
 
 	if (pfnDwmEnableComposition && SUCCEEDED(pfnDwmEnableComposition(FALSE)))
-		DEBPRINT("Aero rendering disabled\n");
+		I_OutputMsg("Aero rendering disabled\n");
 	else
-		DEBPRINT("We failed to disable the Aero rendering\n");
+		I_OutputMsg("We failed to disable the Aero rendering\n");
 }
 
 static inline VOID ResetAero(VOID)
@@ -802,9 +781,9 @@ static inline VOID ResetAero(VOID)
 	if (pfnDwmEnableComposition && AeroWasEnabled)
 	{
 		if (SUCCEEDED(pfnDwmEnableComposition(AeroWasEnabled)))
-			DEBPRINT("Aero rendering setting restored\n");
+			I_OutputMsg("Aero rendering setting restored\n");
 		else
-			DEBPRINT("We failed to restore Aero rendering\n");
+			I_OutputMsg("We failed to restore Aero rendering\n");
 	}
 	UnloadDM();
 }
@@ -935,7 +914,7 @@ static inline void SDLJoyRemap(event_t *event)
 			default:
 				break;
 		}
-		//DEBPRINT(va("Button %i: event key %i and type: %i\n", button, event->data1, event->type));
+		//CONS_Printf("Button %i: event key %i and type: %i\n", button, event->data1, event->type);
 	}
 #elif defined(_PSP)
 	if (event->data1 > KEY_JOY1 + 9 + 2) // All button after D-Pad and Select/Start
@@ -1050,6 +1029,20 @@ void I_GetEvent(void)
 						//S_PauseSound();
 						if (gamestate == GS_LEVEL || gamestate == GS_DEMOSCREEN)
 							I_PauseSong(0); //pause it
+#if 0 //let not track the fullscreen mode
+						if (cv_fullscreen.value && windownnow)
+						{
+							if (SDL_WM_ToggleFullScreen(vidSurface))
+							{
+								cv_fullscreen.value = 0;
+								vid.modenum = VID_GetModeForSize(realwidth,realheight);
+							}
+							else CV_SetValue(&cv_fullscreen,0);
+						}
+						else if (cv_fullscreen.value && !windownnow)
+							windownnow = SDL_TRUE;
+						else windownnow = SDL_FALSE;
+#endif
 					}
 				}
 				if (MOUSE_MENU)
@@ -1245,7 +1238,7 @@ void I_StartupMouse(void)
 	else
 		firsttimeonmouse = SDL_FALSE;
 	if (cv_usemouse.value)
-		return;
+		SDLdoGrabMouse();
 	else
 		SDLdoUngrabMouse();
 }
@@ -1375,6 +1368,9 @@ static inline boolean I_SkipFrame(void)
 {
 	static boolean skip = false;
 
+	if (rendermode == render_opengl)
+		return true; //WTH?
+
 	if (render_soft != rendermode)
 		return false;
 
@@ -1445,14 +1441,14 @@ void I_FinishUpdate(void)
 			else if (vid.bpp == 2) bufSurface = SDL_CreateRGBSurfaceFrom(screens[0],vid.width,vid.height,15,
 				(int)vid.rowbytes,0x00007C00,0x000003E0,0x0000001F,0x00000000); // 555 mode
 			if (bufSurface) SDL_SetColors(bufSurface, localPalette, 0, 256);
-			else DEBPRINT("No system memory for SDL buffer surface\n");
+			else CONS_Printf("No system memory for SDL buffer surface\n");
 		}
 
 #ifdef FILTERS
 		FilterBlit(bufSurface);
 		if (f2xSurface) //Alam: filter!
 		{
-			//DEBPRINT("2x Filter Code\n");
+			//CONS_Printf("2x Filter Code\n");
 			blited = SDL_BlitSurface(f2xSurface,NULL,vidSurface,NULL);
 		}
 		else
@@ -1493,7 +1489,7 @@ void I_FinishUpdate(void)
 			Sint32 pH, pW; //Height, Width
 			bP = (Uint8 *)screens[0];
 			bW = (Uint16)(vid.rowbytes - vid.width);
-			//DEBPRINT("Old Copy Code\n");
+			//CONS_Printf("Old Copy Code\n");
 			if (SDL_MUSTLOCK(vidSurface)) lockedsf = SDL_LockSurface(vidSurface);
 			vP = (Uint8 *)vidSurface->pixels;
 			vW = (Uint16)(vidSurface->pitch - vidSurface->w*vidformat->BytesPerPixel);
@@ -1567,8 +1563,8 @@ void I_FinishUpdate(void)
 			SDL_Flip(vidSurface);
 		else if (blited != -2 && lockedsf == 0) //Alam: -2 for Win32 Direct, yea, i know
 			SDL_UpdateRect(vidSurface, rect.x, rect.y, 0, 0); //Alam: almost always
-		else
-			DEBPRINT(va("%s\n",SDL_GetError()));
+		else if (devparm)
+			I_OutputMsg("%s\n",SDL_GetError());
 	}
 #ifdef HWRENDER
 	else
@@ -1806,9 +1802,7 @@ static void* SDLGetDirect(void)
 
 INT32 VID_SetMode(INT32 modeNum)
 {
-#ifdef _WIN32_WCE
-	(void)modeNum;
-#else
+#ifndef _WIN32_WCE
 	SDLdoUngrabMouse();
 	vid.recalc = true;
 	BitsPerPixel = (Uint8)cv_scr_depth.value;
@@ -1933,11 +1927,7 @@ void I_StartupGraphics(void)
 #ifdef FILTERS
 	CV_RegisterVar (&cv_filter);
 #endif
-#ifdef _PSP // pitch is 0, mod of 0 crash
-	disable_mouse = true;
-#else
 	disable_mouse = M_CheckParm("-nomouse");
-#endif
 	if (disable_mouse)
 		I_PutEnv(SDLNOMOUSE);
 	if (!I_GetEnv("SDL_VIDEO_CENTERED"))
@@ -1949,7 +1939,6 @@ void I_StartupGraphics(void)
 	conio_shutdown();
 #endif
 
-#if !defined(HAVE_TTF)
 #ifdef _WIN32 // Initialize Audio as well, otherwise Win32's DirectX can not use audio
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0)
 #else //SDL_OpenAudio will do SDL_InitSubSystem(SDL_INIT_AUDIO)
@@ -1958,24 +1947,18 @@ void I_StartupGraphics(void)
 	{
 #ifdef _WIN32
 		if (SDL_WasInit(SDL_INIT_AUDIO)==0)
-			CONS_Printf(M_GetText("Couldn't initialize SDL's Audio System with Video System: %s\n"), SDL_GetError());
+			CONS_Printf("Couldn't initialize SDL's Audio System with Video System: %s\n", SDL_GetError());
 		if (SDL_WasInit(SDL_INIT_VIDEO)==0)
 #endif
 		{
-			CONS_Printf(M_GetText("Couldn't initialize SDL's Video System: %s\n"), SDL_GetError());
+			CONS_Printf("Couldn't initialize SDL's Video System: %s\n", SDL_GetError());
 			return;
 		}
 	}
-#ifdef REMOTE_DEBUGGING
-#ifdef _WII
-	_break(); // break for debugger
-#endif
-#endif
-#endif
 	{
 		char vd[100]; //stack space for video name
-		CONS_Printf(M_GetText("Starting up with video driver : %s\n"), SDL_VideoDriverName(vd,100));
-		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0 || strncasecmp(vd, "wii", 4) == 0 || strncasecmp(vd, "psl1ght", 8) == 0)
+		CONS_Printf("Starting up with video driver : %s\n", SDL_VideoDriverName(vd,100));
+		if (strncasecmp(vd, "gcvideo", 8) == 0 || strncasecmp(vd, "fbcon", 6) == 0)
 			framebuffer = SDL_TRUE;
 	}
 	if (M_CheckParm("-software"))
@@ -1990,10 +1973,6 @@ void I_StartupGraphics(void)
 	vid.direct = NULL; // Maybe direct access?
 	vid.bpp = 1; // This is the game engine's Bpp
 	vid.WndParent = NULL; //For the window?
-
-#ifdef HAVE_TTF
-	I_ShutdownTTF();
-#endif
 
 	// Window title
 #ifdef _WIN32_WCE
@@ -2017,7 +1996,7 @@ void I_StartupGraphics(void)
 	{
 		rendermode = render_opengl;
 		HWD.pfnInit             = hwSym("Init",NULL);
-		HWD.pfnFinishUpdate     = NULL;
+		HWD.pfnFinishUpdate     = hwSym("FinishUpdate",NULL);
 		HWD.pfnDraw2DLine       = hwSym("Draw2DLine",NULL);
 		HWD.pfnDrawPolygon      = hwSym("DrawPolygon",NULL);
 		HWD.pfnSetBlend         = hwSym("SetBlend",NULL);
@@ -2038,15 +2017,15 @@ void I_StartupGraphics(void)
 		HWD.pfnStartScreenWipe  = hwSym("StartScreenWipe",NULL);
 		HWD.pfnEndScreenWipe    = hwSym("EndScreenWipe",NULL);
 		HWD.pfnDoScreenWipe     = hwSym("DoScreenWipe",NULL);
-		HWD.pfnDrawIntermissionBG=hwSym("DrawIntermissionBG",NULL);
-		HWD.pfnMakeScreenTexture= hwSym("MakeScreenTexture",NULL);
+		HWD.pfnDrawIntermissionBG=hwSym("DrawIntermissionBG", NULL);
+		HWD.pfnMakeScreenTexture= hwSym("MakeScreenTexture", NULL);
 #endif
 		// check gl renderer lib
 		if (HWD.pfnGetRenderVersion() != VERSION)
-			I_Error("%s", M_GetText("The version of the renderer doesn't match the version of the executable\nBe sure you have installed SRB2 properly.\n"));
+			I_Error ("The version of the renderer doesn't match the version of the executable\nBe sure you have installed SRB2 properly.\n");
 #if 1 //#ifdef  _WIN32_WCE
-		vid.width = BASEVIDWIDTH;
-		vid.height = BASEVIDHEIGHT;
+		vid.width = 320;
+		vid.height = 240;
 #else
 		vid.width = 640; // hack to make voodoo cards work in 640x480
 		vid.height = 480;
@@ -2060,7 +2039,7 @@ void I_StartupGraphics(void)
 			SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 1);
 			SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 1);
 			SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 1);
-			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 			if (!OglSdlSurface(vid.width, vid.height, (USE_FULLSCREEN)))
 				if (!OglSdlSurface(vid.width, vid.height, !(USE_FULLSCREEN)))
 					rendermode = render_soft;
@@ -2073,20 +2052,12 @@ void I_StartupGraphics(void)
 #endif
 	if (render_soft == rendermode)
 	{
-#if defined(_WII)
-		vid.width = 640;
-		vid.height = 480;
-#elif defined(_PS3)
-		vid.width = 720;
-		vid.height = 480;
-#else
 		vid.width = BASEVIDWIDTH;
 		vid.height = BASEVIDHEIGHT;
-#endif
 		SDLSetMode(vid.width, vid.height, BitsPerPixel, surfaceFlagsW);
 		if (!vidSurface)
 		{
-			CONS_Printf(M_GetText("Could not set vidmode: %s\n") ,SDL_GetError());
+			CONS_Printf("Could not set vidmode: %s\n",SDL_GetError());
 			vid.rowbytes = 0;
 			graphics_started = true;
 			return;
@@ -2095,7 +2066,7 @@ void I_StartupGraphics(void)
 		vid.direct = SDLGetDirect();
 		vid.buffer = malloc(vid.rowbytes*vid.height*NUMSCREENS);
 		if (vid.buffer) memset(vid.buffer,0x00,vid.rowbytes*vid.height*NUMSCREENS);
-		else CONS_Printf("%s", M_GetText("Not enough memory for video buffer\n"));
+		else CONS_Printf ("Not enough memory for video buffer\n");
 	}
 	if (M_CheckParm("-nomousegrab"))
 		mousegrabok = SDL_FALSE;
@@ -2151,7 +2122,7 @@ void I_ShutdownGraphics(void)
 	//ResetAero();
 #endif
 	graphics_started = false;
-	CONS_Printf("%s", M_GetText("shut down\n"));
+	CONS_Printf("shut down\n");
 #ifdef HWRENDER
 	if (GLUhandle)
 		hwClose(GLUhandle);

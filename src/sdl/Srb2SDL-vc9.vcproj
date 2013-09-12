@@ -43,13 +43,13 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC\Debug\SDL/Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -138,13 +138,13 @@
 			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC\Debug\SDL/Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -236,7 +236,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC\Release\SDL/Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -247,11 +247,11 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\..\..\objs\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch"
+				PrecompiledHeaderFile=".\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
@@ -274,7 +274,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -338,7 +338,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC\Release\SDL/Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -349,11 +349,11 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\..\..\objs\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch"
+				PrecompiledHeaderFile=".\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
@@ -376,7 +376,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -1257,7 +1257,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1268,7 +1268,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1278,7 +1278,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1289,7 +1289,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1303,7 +1303,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1314,7 +1314,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1324,7 +1324,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1335,7 +1335,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1349,7 +1349,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1360,7 +1360,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1370,7 +1370,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1381,7 +1381,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>

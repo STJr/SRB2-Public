@@ -30,6 +30,7 @@
 #include "am_map.h"
 
 #include "doomdef.h"
+#include "dstrings.h"
 #include "d_main.h"
 #include "d_netcmd.h"
 
@@ -72,8 +73,6 @@
 
 #include "i_sound.h"
 
-#include "p_setup.h"
-
 #ifdef PC_DOS
 #include <stdio.h> // for snprintf
 int	snprintf(char *str, size_t n, const char *fmt, ...);
@@ -86,16 +85,7 @@ static boolean pandoralevelselect = false;
 static INT32 fromloadgame = 0;
 
 customsecrets_t customsecretinfo[15];
-
-typedef enum
-{
-	LLM_CREATESERVER,
-	LLM_LEVELSELECT,
-	LLM_TIMEATTACK,
-	LLM_SRB1LEVELSELECT
-} levellist_mode_t;
-
-levellist_mode_t levellistmode = LLM_CREATESERVER;
+INT32 inlevelselect = 0;
 
 static INT32 lastmapnum;
 static INT32 oldlastmapnum;
@@ -109,37 +99,6 @@ static INT32 oldlastmapnum;
 #define SLIDER_WIDTH (8*SLIDER_RANGE+6)
 #define MAXSTRINGLENGTH 32
 #define SERVERS_PER_PAGE 10
-
-typedef enum
-{
-	QUITMSG = 0,
-	QUITMSG1,
-	QUITMSG2,
-	QUITMSG3,
-	QUITMSG4,
-	QUITMSG5,
-	QUITMSG6,
-	QUITMSG7,
-
-	QUIT2MSG,
-	QUIT2MSG1,
-	QUIT2MSG2,
-	QUIT2MSG3,
-	QUIT2MSG4,
-	QUIT2MSG5,
-	QUIT2MSG6,
-
-	QUIT3MSG,
-	QUIT3MSG1,
-	QUIT3MSG2,
-	QUIT3MSG3,
-	QUIT3MSG4,
-	QUIT3MSG5,
-	QUIT3MSG6,
-	NUM_QUITMESSAGES
-} text_enum;
-
-const char *quitmsg[NUM_QUITMESSAGES];
 
 // Stuff for customizing the player select screen Tails 09-22-2003
 description_t description[15] =
@@ -206,7 +165,7 @@ static void M_NetOption(INT32 choice);
 
 static void M_GametypeOptions(INT32 choice);
 
-#ifdef HWRENDER
+#if defined (HWRENDER) && defined (SHUFFLE)
 static void M_OpenGLOption(INT32 choice);
 #endif
 
@@ -214,8 +173,8 @@ static void M_OpenGLOption(INT32 choice);
 static void M_NextServerPage(void);
 static void M_PrevServerPage(void);
 static void M_RoomInfoMenu(INT32 choice);
-static void M_SortServerList(void);
 #endif
+static void M_SortServerList(void);
 
 static const char *ALREADYPLAYING = "You are already playing.\nDo you wish to end the\ncurrent game? (Y/N)\n";
 
@@ -706,7 +665,6 @@ menu_t SinglePlayerDef =
 //===========================================================================
 // Connect Menu
 //===========================================================================
-#ifndef NONET
 static CV_PossibleValue_t serversort_cons_t[] = {
 	{0,"Ping"},
 	{1,"Players"},
@@ -715,6 +673,7 @@ static CV_PossibleValue_t serversort_cons_t[] = {
 
 consvar_t cv_serversort = {"serversort", "Ping", CV_HIDEN | CV_CALL, serversort_cons_t, M_SortServerList, 0, NULL, NULL, 0, 0, NULL};
 
+#ifndef NONET
 static CV_PossibleValue_t serversearch_cons_t[] = {
 	{0,"Local Lan"},
 	{1,"Internet"},
@@ -878,7 +837,7 @@ static void M_DrawConnectMenu(void)
 				break;
 			default:
 				cgametype = 'U';
-				DEBPRINT(va("M_DrawConnectMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype));
+				CONS_Printf("M_DrawConnectMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype);
 				break;
 		}
 
@@ -960,7 +919,7 @@ static void M_DrawConnectLANMenu(void)
 				break;
 			default:
 				cgametype = 'U';
-				DEBPRINT(va("M_DrawConnectLANMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype));
+				CONS_Printf("M_DrawConnectLANMenu: Unknown gametype %d\n", serverlist[slindex].info.gametype);
 				break;
 		}
 
@@ -1246,9 +1205,1043 @@ void M_AlterRoomInfo(void)
 // Start Server Menu
 //===========================================================================
 
-static CV_PossibleValue_t map_cons_t[] = {
-	{1,"MIN"},
-	{NUMMAPS, "MAX"}
+static CV_PossibleValue_t map_cons_t[LEVELARRAYSIZE] = {
+	{1,"MAP01"},
+	{2,"MAP02"},
+	{3,"MAP03"},
+	{4,"MAP04"},
+	{5,"MAP05"},
+	{6,"MAP06"},
+	{7,"MAP07"},
+	{8,"MAP08"},
+	{9,"MAP09"},
+	{10,"MAP10"},
+	{11,"MAP11"},
+	{12,"MAP12"},
+	{13,"MAP13"},
+	{14,"MAP14"},
+	{15,"MAP15"},
+	{16,"MAP16"},
+	{17,"MAP17"},
+	{18,"MAP18"},
+	{19,"MAP19"},
+	{20,"MAP20"},
+	{21,"MAP21"},
+	{22,"MAP22"},
+	{23,"MAP23"},
+	{24,"MAP24"},
+	{25,"MAP25"},
+	{26,"MAP26"},
+	{27,"MAP27"},
+	{28,"MAP28"},
+	{29,"MAP29"},
+	{30,"MAP30"},
+	{31,"MAP31"},
+	{32,"MAP32"},
+	{33,"MAP33"},
+	{34,"MAP34"},
+	{35,"MAP35"},
+	{36,"MAP36"},
+	{37,"MAP37"},
+	{38,"MAP38"},
+	{39,"MAP39"},
+	{40,"MAP40"},
+	{41,"MAP41"},
+	{42,"MAP42"},
+	{43,"MAP43"},
+	{44,"MAP44"},
+	{45,"MAP45"},
+	{46,"MAP46"},
+	{47,"MAP47"},
+	{48,"MAP48"},
+	{49,"MAP49"},
+	{50,"MAP50"},
+	{51,"MAP51"},
+	{52,"MAP52"},
+	{53,"MAP53"},
+	{54,"MAP54"},
+	{55,"MAP55"},
+	{56,"MAP56"},
+	{57,"MAP57"},
+	{58,"MAP58"},
+	{59,"MAP59"},
+	{60,"MAP60"},
+	{61,"MAP61"},
+	{62,"MAP62"},
+	{63,"MAP63"},
+	{64,"MAP64"},
+	{65,"MAP65"},
+	{66,"MAP66"},
+	{67,"MAP67"},
+	{68,"MAP68"},
+	{69,"MAP69"},
+	{70,"MAP70"},
+	{71,"MAP71"},
+	{72,"MAP72"},
+	{73,"MAP73"},
+	{74,"MAP74"},
+	{75,"MAP75"},
+	{76,"MAP76"},
+	{77,"MAP77"},
+	{78,"MAP78"},
+	{79,"MAP79"},
+	{80,"MAP80"},
+	{81,"MAP81"},
+	{82,"MAP82"},
+	{83,"MAP83"},
+	{84,"MAP84"},
+	{85,"MAP85"},
+	{86,"MAP86"},
+	{87,"MAP87"},
+	{88,"MAP88"},
+	{89,"MAP89"},
+	{90,"MAP90"},
+	{91,"MAP91"},
+	{92,"MAP92"},
+	{93,"MAP93"},
+	{94,"MAP94"},
+	{95,"MAP95"},
+	{96,"MAP96"},
+	{97,"MAP97"},
+	{98,"MAP98"},
+	{99,"MAP99"},
+	{100, "MAP100"},
+	{101, "MAP101"},
+	{102, "MAP102"},
+	{103, "MAP103"},
+	{104, "MAP104"},
+	{105, "MAP105"},
+	{106, "MAP106"},
+	{107, "MAP107"},
+	{108, "MAP108"},
+	{109, "MAP109"},
+	{110, "MAP110"},
+	{111, "MAP111"},
+	{112, "MAP112"},
+	{113, "MAP113"},
+	{114, "MAP114"},
+	{115, "MAP115"},
+	{116, "MAP116"},
+	{117, "MAP117"},
+	{118, "MAP118"},
+	{119, "MAP119"},
+	{120, "MAP120"},
+	{121, "MAP121"},
+	{122, "MAP122"},
+	{123, "MAP123"},
+	{124, "MAP124"},
+	{125, "MAP125"},
+	{126, "MAP126"},
+	{127, "MAP127"},
+	{128, "MAP128"},
+	{129, "MAP129"},
+	{130, "MAP130"},
+	{131, "MAP131"},
+	{132, "MAP132"},
+	{133, "MAP133"},
+	{134, "MAP134"},
+	{135, "MAP135"},
+	{136, "MAP136"},
+	{137, "MAP137"},
+	{138, "MAP138"},
+	{139, "MAP139"},
+	{140, "MAP140"},
+	{141, "MAP141"},
+	{142, "MAP142"},
+	{143, "MAP143"},
+	{144, "MAP144"},
+	{145, "MAP145"},
+	{146, "MAP146"},
+	{147, "MAP147"},
+	{148, "MAP148"},
+	{149, "MAP149"},
+	{150, "MAP150"},
+	{151, "MAP151"},
+	{152, "MAP152"},
+	{153, "MAP153"},
+	{154, "MAP154"},
+	{155, "MAP155"},
+	{156, "MAP156"},
+	{157, "MAP157"},
+	{158, "MAP158"},
+	{159, "MAP159"},
+	{160, "MAP160"},
+	{161, "MAP161"},
+	{162, "MAP162"},
+	{163, "MAP163"},
+	{164, "MAP164"},
+	{165, "MAP165"},
+	{166, "MAP166"},
+	{167, "MAP167"},
+	{168, "MAP168"},
+	{169, "MAP169"},
+	{170, "MAP170"},
+	{171, "MAP171"},
+	{172, "MAP172"},
+	{173, "MAP173"},
+	{174, "MAP174"},
+	{175, "MAP175"},
+	{176, "MAP176"},
+	{177, "MAP177"},
+	{178, "MAP178"},
+	{179, "MAP179"},
+	{180, "MAP180"},
+	{181, "MAP181"},
+	{182, "MAP182"},
+	{183, "MAP183"},
+	{184, "MAP184"},
+	{185, "MAP185"},
+	{186, "MAP186"},
+	{187, "MAP187"},
+	{188, "MAP188"},
+	{189, "MAP189"},
+	{190, "MAP190"},
+	{191, "MAP191"},
+	{192, "MAP192"},
+	{193, "MAP193"},
+	{194, "MAP194"},
+	{195, "MAP195"},
+	{196, "MAP196"},
+	{197, "MAP197"},
+	{198, "MAP198"},
+	{199, "MAP199"},
+	{200, "MAP200"},
+	{201, "MAP201"},
+	{202, "MAP202"},
+	{203, "MAP203"},
+	{204, "MAP204"},
+	{205, "MAP205"},
+	{206, "MAP206"},
+	{207, "MAP207"},
+	{208, "MAP208"},
+	{209, "MAP209"},
+	{210, "MAP210"},
+	{211, "MAP211"},
+	{212, "MAP212"},
+	{213, "MAP213"},
+	{214, "MAP214"},
+	{215, "MAP215"},
+	{216, "MAP216"},
+	{217, "MAP217"},
+	{218, "MAP218"},
+	{219, "MAP219"},
+	{220, "MAP220"},
+	{221, "MAP221"},
+	{222, "MAP222"},
+	{223, "MAP223"},
+	{224, "MAP224"},
+	{225, "MAP225"},
+	{226, "MAP226"},
+	{227, "MAP227"},
+	{228, "MAP228"},
+	{229, "MAP229"},
+	{230, "MAP230"},
+	{231, "MAP231"},
+	{232, "MAP232"},
+	{233, "MAP233"},
+	{234, "MAP234"},
+	{235, "MAP235"},
+	{236, "MAP236"},
+	{237, "MAP237"},
+	{238, "MAP238"},
+	{239, "MAP239"},
+	{240, "MAP240"},
+	{241, "MAP241"},
+	{242, "MAP242"},
+	{243, "MAP243"},
+	{244, "MAP244"},
+	{245, "MAP245"},
+	{246, "MAP246"},
+	{247, "MAP247"},
+	{248, "MAP248"},
+	{249, "MAP249"},
+	{250, "MAP250"},
+	{251, "MAP251"},
+	{252, "MAP252"},
+	{253, "MAP253"},
+	{254, "MAP254"},
+	{255, "MAP255"},
+	{256, "MAP256"},
+	{257, "MAP257"},
+	{258, "MAP258"},
+	{259, "MAP259"},
+	{260, "MAP260"},
+	{261, "MAP261"},
+	{262, "MAP262"},
+	{263, "MAP263"},
+	{264, "MAP264"},
+	{265, "MAP265"},
+	{266, "MAP266"},
+	{267, "MAP267"},
+	{268, "MAP268"},
+	{269, "MAP269"},
+	{270, "MAP270"},
+	{271, "MAP271"},
+	{272, "MAP272"},
+	{273, "MAP273"},
+	{274, "MAP274"},
+	{275, "MAP275"},
+	{276, "MAP276"},
+	{277, "MAP277"},
+	{278, "MAP278"},
+	{279, "MAP279"},
+	{280, "MAP280"},
+	{281, "MAP281"},
+	{282, "MAP282"},
+	{283, "MAP283"},
+	{284, "MAP284"},
+	{285, "MAP285"},
+	{286, "MAP286"},
+	{287, "MAP287"},
+	{288, "MAP288"},
+	{289, "MAP289"},
+	{290, "MAP290"},
+	{291, "MAP291"},
+	{292, "MAP292"},
+	{293, "MAP293"},
+	{294, "MAP294"},
+	{295, "MAP295"},
+	{296, "MAP296"},
+	{297, "MAP297"},
+	{298, "MAP298"},
+	{299, "MAP299"},
+	{300, "MAP300"},
+	{301, "MAP301"},
+	{302, "MAP302"},
+	{303, "MAP303"},
+	{304, "MAP304"},
+	{305, "MAP305"},
+	{306, "MAP306"},
+	{307, "MAP307"},
+	{308, "MAP308"},
+	{309, "MAP309"},
+	{310, "MAP310"},
+	{311, "MAP311"},
+	{312, "MAP312"},
+	{313, "MAP313"},
+	{314, "MAP314"},
+	{315, "MAP315"},
+	{316, "MAP316"},
+	{317, "MAP317"},
+	{318, "MAP318"},
+	{319, "MAP319"},
+	{320, "MAP320"},
+	{321, "MAP321"},
+	{322, "MAP322"},
+	{323, "MAP323"},
+	{324, "MAP324"},
+	{325, "MAP325"},
+	{326, "MAP326"},
+	{327, "MAP327"},
+	{328, "MAP328"},
+	{329, "MAP329"},
+	{330, "MAP330"},
+	{331, "MAP331"},
+	{332, "MAP332"},
+	{333, "MAP333"},
+	{334, "MAP334"},
+	{335, "MAP335"},
+	{336, "MAP336"},
+	{337, "MAP337"},
+	{338, "MAP338"},
+	{339, "MAP339"},
+	{340, "MAP340"},
+	{341, "MAP341"},
+	{342, "MAP342"},
+	{343, "MAP343"},
+	{344, "MAP344"},
+	{345, "MAP345"},
+	{346, "MAP346"},
+	{347, "MAP347"},
+	{348, "MAP348"},
+	{349, "MAP349"},
+	{350, "MAP350"},
+	{351, "MAP351"},
+	{352, "MAP352"},
+	{353, "MAP353"},
+	{354, "MAP354"},
+	{355, "MAP355"},
+	{356, "MAP356"},
+	{357, "MAP357"},
+	{358, "MAP358"},
+	{359, "MAP359"},
+	{360, "MAP360"},
+	{361, "MAP361"},
+	{362, "MAP362"},
+	{363, "MAP363"},
+	{364, "MAP364"},
+	{365, "MAP365"},
+	{366, "MAP366"},
+	{367, "MAP367"},
+	{368, "MAP368"},
+	{369, "MAP369"},
+	{370, "MAP370"},
+	{371, "MAP371"},
+	{372, "MAP372"},
+	{373, "MAP373"},
+	{374, "MAP374"},
+	{375, "MAP375"},
+	{376, "MAP376"},
+	{377, "MAP377"},
+	{378, "MAP378"},
+	{379, "MAP379"},
+	{380, "MAP380"},
+	{381, "MAP381"},
+	{382, "MAP382"},
+	{383, "MAP383"},
+	{384, "MAP384"},
+	{385, "MAP385"},
+	{386, "MAP386"},
+	{387, "MAP387"},
+	{388, "MAP388"},
+	{389, "MAP389"},
+	{390, "MAP390"},
+	{391, "MAP391"},
+	{392, "MAP392"},
+	{393, "MAP393"},
+	{394, "MAP394"},
+	{395, "MAP395"},
+	{396, "MAP396"},
+	{397, "MAP397"},
+	{398, "MAP398"},
+	{399, "MAP399"},
+	{400, "MAP400"},
+	{401, "MAP401"},
+	{402, "MAP402"},
+	{403, "MAP403"},
+	{404, "MAP404"},
+	{405, "MAP405"},
+	{406, "MAP406"},
+	{407, "MAP407"},
+	{408, "MAP408"},
+	{409, "MAP409"},
+	{410, "MAP410"},
+	{411, "MAP411"},
+	{412, "MAP412"},
+	{413, "MAP413"},
+	{414, "MAP414"},
+	{415, "MAP415"},
+	{416, "MAP416"},
+	{417, "MAP417"},
+	{418, "MAP418"},
+	{419, "MAP419"},
+	{420, "MAP420"},
+	{421, "MAP421"},
+	{422, "MAP422"},
+	{423, "MAP423"},
+	{424, "MAP424"},
+	{425, "MAP425"},
+	{426, "MAP426"},
+	{427, "MAP427"},
+	{428, "MAP428"},
+	{429, "MAP429"},
+	{430, "MAP430"},
+	{431, "MAP431"},
+	{432, "MAP432"},
+	{433, "MAP433"},
+	{434, "MAP434"},
+	{435, "MAP435"},
+	{436, "MAP436"},
+	{437, "MAP437"},
+	{438, "MAP438"},
+	{439, "MAP439"},
+	{440, "MAP440"},
+	{441, "MAP441"},
+	{442, "MAP442"},
+	{443, "MAP443"},
+	{444, "MAP444"},
+	{445, "MAP445"},
+	{446, "MAP446"},
+	{447, "MAP447"},
+	{448, "MAP448"},
+	{449, "MAP449"},
+	{450, "MAP450"},
+	{451, "MAP451"},
+	{452, "MAP452"},
+	{453, "MAP453"},
+	{454, "MAP454"},
+	{455, "MAP455"},
+	{456, "MAP456"},
+	{457, "MAP457"},
+	{458, "MAP458"},
+	{459, "MAP459"},
+	{460, "MAP460"},
+	{461, "MAP461"},
+	{462, "MAP462"},
+	{463, "MAP463"},
+	{464, "MAP464"},
+	{465, "MAP465"},
+	{466, "MAP466"},
+	{467, "MAP467"},
+	{468, "MAP468"},
+	{469, "MAP469"},
+	{470, "MAP470"},
+	{471, "MAP471"},
+	{472, "MAP472"},
+	{473, "MAP473"},
+	{474, "MAP474"},
+	{475, "MAP475"},
+	{476, "MAP476"},
+	{477, "MAP477"},
+	{478, "MAP478"},
+	{479, "MAP479"},
+	{480, "MAP480"},
+	{481, "MAP481"},
+	{482, "MAP482"},
+	{483, "MAP483"},
+	{484, "MAP484"},
+	{485, "MAP485"},
+	{486, "MAP486"},
+	{487, "MAP487"},
+	{488, "MAP488"},
+	{489, "MAP489"},
+	{490, "MAP490"},
+	{491, "MAP491"},
+	{492, "MAP492"},
+	{493, "MAP493"},
+	{494, "MAP494"},
+	{495, "MAP495"},
+	{496, "MAP496"},
+	{497, "MAP497"},
+	{498, "MAP498"},
+	{499, "MAP499"},
+	{500, "MAP500"},
+	{501, "MAP501"},
+	{502, "MAP502"},
+	{503, "MAP503"},
+	{504, "MAP504"},
+	{505, "MAP505"},
+	{506, "MAP506"},
+	{507, "MAP507"},
+	{508, "MAP508"},
+	{509, "MAP509"},
+	{510, "MAP510"},
+	{511, "MAP511"},
+	{512, "MAP512"},
+	{513, "MAP513"},
+	{514, "MAP514"},
+	{515, "MAP515"},
+	{516, "MAP516"},
+	{517, "MAP517"},
+	{518, "MAP518"},
+	{519, "MAP519"},
+	{520, "MAP520"},
+	{521, "MAP521"},
+	{522, "MAP522"},
+	{523, "MAP523"},
+	{524, "MAP524"},
+	{525, "MAP525"},
+	{526, "MAP526"},
+	{527, "MAP527"},
+	{528, "MAP528"},
+	{529, "MAP529"},
+	{530, "MAP530"},
+	{531, "MAP531"},
+	{532, "MAP532"},
+	{533, "MAP533"},
+	{534, "MAP534"},
+	{535, "MAP535"},
+	{536, "MAP536"},
+	{537, "MAP537"},
+	{538, "MAP538"},
+	{539, "MAP539"},
+	{540, "MAP540"},
+	{541, "MAP541"},
+	{542, "MAP542"},
+	{543, "MAP543"},
+	{544, "MAP544"},
+	{545, "MAP545"},
+	{546, "MAP546"},
+	{547, "MAP547"},
+	{548, "MAP548"},
+	{549, "MAP549"},
+	{550, "MAP550"},
+	{551, "MAP551"},
+	{552, "MAP552"},
+	{553, "MAP553"},
+	{554, "MAP554"},
+	{555, "MAP555"},
+	{556, "MAP556"},
+	{557, "MAP557"},
+	{558, "MAP558"},
+	{559, "MAP559"},
+	{560, "MAP560"},
+	{561, "MAP561"},
+	{562, "MAP562"},
+	{563, "MAP563"},
+	{564, "MAP564"},
+	{565, "MAP565"},
+	{566, "MAP566"},
+	{567, "MAP567"},
+	{568, "MAP568"},
+	{569, "MAP569"},
+	{570, "MAP570"},
+	{571, "MAP571"},
+	{572, "MAP572"},
+	{573, "MAP573"},
+	{574, "MAP574"},
+	{575, "MAP575"},
+	{576, "MAP576"},
+	{577, "MAP577"},
+	{578, "MAP578"},
+	{579, "MAP579"},
+	{580, "MAP580"},
+	{581, "MAP581"},
+	{582, "MAP582"},
+	{583, "MAP583"},
+	{584, "MAP584"},
+	{585, "MAP585"},
+	{586, "MAP586"},
+	{587, "MAP587"},
+	{588, "MAP588"},
+	{589, "MAP589"},
+	{590, "MAP590"},
+	{591, "MAP591"},
+	{592, "MAP592"},
+	{593, "MAP593"},
+	{594, "MAP594"},
+	{595, "MAP595"},
+	{596, "MAP596"},
+	{597, "MAP597"},
+	{598, "MAP598"},
+	{599, "MAP599"},
+	{600, "MAP600"},
+	{601, "MAP601"},
+	{602, "MAP602"},
+	{603, "MAP603"},
+	{604, "MAP604"},
+	{605, "MAP605"},
+	{606, "MAP606"},
+	{607, "MAP607"},
+	{608, "MAP608"},
+	{609, "MAP609"},
+	{610, "MAP610"},
+	{611, "MAP611"},
+	{612, "MAP612"},
+	{613, "MAP613"},
+	{614, "MAP614"},
+	{615, "MAP615"},
+	{616, "MAP616"},
+	{617, "MAP617"},
+	{618, "MAP618"},
+	{619, "MAP619"},
+	{620, "MAP620"},
+	{621, "MAP621"},
+	{622, "MAP622"},
+	{623, "MAP623"},
+	{624, "MAP624"},
+	{625, "MAP625"},
+	{626, "MAP626"},
+	{627, "MAP627"},
+	{628, "MAP628"},
+	{629, "MAP629"},
+	{630, "MAP630"},
+	{631, "MAP631"},
+	{632, "MAP632"},
+	{633, "MAP633"},
+	{634, "MAP634"},
+	{635, "MAP635"},
+	{636, "MAP636"},
+	{637, "MAP637"},
+	{638, "MAP638"},
+	{639, "MAP639"},
+	{640, "MAP640"},
+	{641, "MAP641"},
+	{642, "MAP642"},
+	{643, "MAP643"},
+	{644, "MAP644"},
+	{645, "MAP645"},
+	{646, "MAP646"},
+	{647, "MAP647"},
+	{648, "MAP648"},
+	{649, "MAP649"},
+	{650, "MAP650"},
+	{651, "MAP651"},
+	{652, "MAP652"},
+	{653, "MAP653"},
+	{654, "MAP654"},
+	{655, "MAP655"},
+	{656, "MAP656"},
+	{657, "MAP657"},
+	{658, "MAP658"},
+	{659, "MAP659"},
+	{660, "MAP660"},
+	{661, "MAP661"},
+	{662, "MAP662"},
+	{663, "MAP663"},
+	{664, "MAP664"},
+	{665, "MAP665"},
+	{666, "MAP666"},
+	{667, "MAP667"},
+	{668, "MAP668"},
+	{669, "MAP669"},
+	{670, "MAP670"},
+	{671, "MAP671"},
+	{672, "MAP672"},
+	{673, "MAP673"},
+	{674, "MAP674"},
+	{675, "MAP675"},
+	{676, "MAP676"},
+	{677, "MAP677"},
+	{678, "MAP678"},
+	{679, "MAP679"},
+	{680, "MAP680"},
+	{681, "MAP681"},
+	{682, "MAP682"},
+	{683, "MAP683"},
+	{684, "MAP684"},
+	{685, "MAP685"},
+	{686, "MAP686"},
+	{687, "MAP687"},
+	{688, "MAP688"},
+	{689, "MAP689"},
+	{690, "MAP690"},
+	{691, "MAP691"},
+	{692, "MAP692"},
+	{693, "MAP693"},
+	{694, "MAP694"},
+	{695, "MAP695"},
+	{696, "MAP696"},
+	{697, "MAP697"},
+	{698, "MAP698"},
+	{699, "MAP699"},
+	{700, "MAP700"},
+	{701, "MAP701"},
+	{702, "MAP702"},
+	{703, "MAP703"},
+	{704, "MAP704"},
+	{705, "MAP705"},
+	{706, "MAP706"},
+	{707, "MAP707"},
+	{708, "MAP708"},
+	{709, "MAP709"},
+	{710, "MAP710"},
+	{711, "MAP711"},
+	{712, "MAP712"},
+	{713, "MAP713"},
+	{714, "MAP714"},
+	{715, "MAP715"},
+	{716, "MAP716"},
+	{717, "MAP717"},
+	{718, "MAP718"},
+	{719, "MAP719"},
+	{720, "MAP720"},
+	{721, "MAP721"},
+	{722, "MAP722"},
+	{723, "MAP723"},
+	{724, "MAP724"},
+	{725, "MAP725"},
+	{726, "MAP726"},
+	{727, "MAP727"},
+	{728, "MAP728"},
+	{729, "MAP729"},
+	{730, "MAP730"},
+	{731, "MAP731"},
+	{732, "MAP732"},
+	{733, "MAP733"},
+	{734, "MAP734"},
+	{735, "MAP735"},
+	{736, "MAP736"},
+	{737, "MAP737"},
+	{738, "MAP738"},
+	{739, "MAP739"},
+	{740, "MAP740"},
+	{741, "MAP741"},
+	{742, "MAP742"},
+	{743, "MAP743"},
+	{744, "MAP744"},
+	{745, "MAP745"},
+	{746, "MAP746"},
+	{747, "MAP747"},
+	{748, "MAP748"},
+	{749, "MAP749"},
+	{750, "MAP750"},
+	{751, "MAP751"},
+	{752, "MAP752"},
+	{753, "MAP753"},
+	{754, "MAP754"},
+	{755, "MAP755"},
+	{756, "MAP756"},
+	{757, "MAP757"},
+	{758, "MAP758"},
+	{759, "MAP759"},
+	{760, "MAP760"},
+	{761, "MAP761"},
+	{762, "MAP762"},
+	{763, "MAP763"},
+	{764, "MAP764"},
+	{765, "MAP765"},
+	{766, "MAP766"},
+	{767, "MAP767"},
+	{768, "MAP768"},
+	{769, "MAP769"},
+	{770, "MAP770"},
+	{771, "MAP771"},
+	{772, "MAP772"},
+	{773, "MAP773"},
+	{774, "MAP774"},
+	{775, "MAP775"},
+	{776, "MAP776"},
+	{777, "MAP777"},
+	{778, "MAP778"},
+	{779, "MAP779"},
+	{780, "MAP780"},
+	{781, "MAP781"},
+	{782, "MAP782"},
+	{783, "MAP783"},
+	{784, "MAP784"},
+	{785, "MAP785"},
+	{786, "MAP786"},
+	{787, "MAP787"},
+	{788, "MAP788"},
+	{789, "MAP789"},
+	{790, "MAP790"},
+	{791, "MAP791"},
+	{792, "MAP792"},
+	{793, "MAP793"},
+	{794, "MAP794"},
+	{795, "MAP795"},
+	{796, "MAP796"},
+	{797, "MAP797"},
+	{798, "MAP798"},
+	{799, "MAP799"},
+	{800, "MAP800"},
+	{801, "MAP801"},
+	{802, "MAP802"},
+	{803, "MAP803"},
+	{804, "MAP804"},
+	{805, "MAP805"},
+	{806, "MAP806"},
+	{807, "MAP807"},
+	{808, "MAP808"},
+	{809, "MAP809"},
+	{810, "MAP810"},
+	{811, "MAP811"},
+	{812, "MAP812"},
+	{813, "MAP813"},
+	{814, "MAP814"},
+	{815, "MAP815"},
+	{816, "MAP816"},
+	{817, "MAP817"},
+	{818, "MAP818"},
+	{819, "MAP819"},
+	{820, "MAP820"},
+	{821, "MAP821"},
+	{822, "MAP822"},
+	{823, "MAP823"},
+	{824, "MAP824"},
+	{825, "MAP825"},
+	{826, "MAP826"},
+	{827, "MAP827"},
+	{828, "MAP828"},
+	{829, "MAP829"},
+	{830, "MAP830"},
+	{831, "MAP831"},
+	{832, "MAP832"},
+	{833, "MAP833"},
+	{834, "MAP834"},
+	{835, "MAP835"},
+	{836, "MAP836"},
+	{837, "MAP837"},
+	{838, "MAP838"},
+	{839, "MAP839"},
+	{840, "MAP840"},
+	{841, "MAP841"},
+	{842, "MAP842"},
+	{843, "MAP843"},
+	{844, "MAP844"},
+	{845, "MAP845"},
+	{846, "MAP846"},
+	{847, "MAP847"},
+	{848, "MAP848"},
+	{849, "MAP849"},
+	{850, "MAP850"},
+	{851, "MAP851"},
+	{852, "MAP852"},
+	{853, "MAP853"},
+	{854, "MAP854"},
+	{855, "MAP855"},
+	{856, "MAP856"},
+	{857, "MAP857"},
+	{858, "MAP858"},
+	{859, "MAP859"},
+	{860, "MAP860"},
+	{861, "MAP861"},
+	{862, "MAP862"},
+	{863, "MAP863"},
+	{864, "MAP864"},
+	{865, "MAP865"},
+	{866, "MAP866"},
+	{867, "MAP867"},
+	{868, "MAP868"},
+	{869, "MAP869"},
+	{870, "MAP870"},
+	{871, "MAP871"},
+	{872, "MAP872"},
+	{873, "MAP873"},
+	{874, "MAP874"},
+	{875, "MAP875"},
+	{876, "MAP876"},
+	{877, "MAP877"},
+	{878, "MAP878"},
+	{879, "MAP879"},
+	{880, "MAP880"},
+	{881, "MAP881"},
+	{882, "MAP882"},
+	{883, "MAP883"},
+	{884, "MAP884"},
+	{885, "MAP885"},
+	{886, "MAP886"},
+	{887, "MAP887"},
+	{888, "MAP888"},
+	{889, "MAP889"},
+	{890, "MAP890"},
+	{891, "MAP891"},
+	{892, "MAP892"},
+	{893, "MAP893"},
+	{894, "MAP894"},
+	{895, "MAP895"},
+	{896, "MAP896"},
+	{897, "MAP897"},
+	{898, "MAP898"},
+	{899, "MAP899"},
+	{900, "MAP900"},
+	{901, "MAP901"},
+	{902, "MAP902"},
+	{903, "MAP903"},
+	{904, "MAP904"},
+	{905, "MAP905"},
+	{906, "MAP906"},
+	{907, "MAP907"},
+	{908, "MAP908"},
+	{909, "MAP909"},
+	{910, "MAP910"},
+	{911, "MAP911"},
+	{912, "MAP912"},
+	{913, "MAP913"},
+	{914, "MAP914"},
+	{915, "MAP915"},
+	{916, "MAP916"},
+	{917, "MAP917"},
+	{918, "MAP918"},
+	{919, "MAP919"},
+	{920, "MAP920"},
+	{921, "MAP921"},
+	{922, "MAP922"},
+	{923, "MAP923"},
+	{924, "MAP924"},
+	{925, "MAP925"},
+	{926, "MAP926"},
+	{927, "MAP927"},
+	{928, "MAP928"},
+	{929, "MAP929"},
+	{930, "MAP930"},
+	{931, "MAP931"},
+	{932, "MAP932"},
+	{933, "MAP933"},
+	{934, "MAP934"},
+	{935, "MAP935"},
+	{936, "MAP936"},
+	{937, "MAP937"},
+	{938, "MAP938"},
+	{939, "MAP939"},
+	{940, "MAP940"},
+	{941, "MAP941"},
+	{942, "MAP942"},
+	{943, "MAP943"},
+	{944, "MAP944"},
+	{945, "MAP945"},
+	{946, "MAP946"},
+	{947, "MAP947"},
+	{948, "MAP948"},
+	{949, "MAP949"},
+	{950, "MAP950"},
+	{951, "MAP951"},
+	{952, "MAP952"},
+	{953, "MAP953"},
+	{954, "MAP954"},
+	{955, "MAP955"},
+	{956, "MAP956"},
+	{957, "MAP957"},
+	{958, "MAP958"},
+	{959, "MAP959"},
+	{960, "MAP960"},
+	{961, "MAP961"},
+	{962, "MAP962"},
+	{963, "MAP963"},
+	{964, "MAP964"},
+	{965, "MAP965"},
+	{966, "MAP966"},
+	{967, "MAP967"},
+	{968, "MAP968"},
+	{969, "MAP969"},
+	{970, "MAP970"},
+	{971, "MAP971"},
+	{972, "MAP972"},
+	{973, "MAP973"},
+	{974, "MAP974"},
+	{975, "MAP975"},
+	{976, "MAP976"},
+	{977, "MAP977"},
+	{978, "MAP978"},
+	{979, "MAP979"},
+	{980, "MAP980"},
+	{981, "MAP981"},
+	{982, "MAP982"},
+	{983, "MAP983"},
+	{984, "MAP984"},
+	{985, "MAP985"},
+	{986, "MAP986"},
+	{987, "MAP987"},
+	{988, "MAP988"},
+	{989, "MAP989"},
+	{990, "MAP990"},
+	{991, "MAP991"},
+	{992, "MAP992"},
+	{993, "MAP993"},
+	{994, "MAP994"},
+	{995, "MAP995"},
+	{996, "MAP996"},
+	{997, "MAP997"},
+	{998, "MAP998"},
+	{999, "MAP999"},
+	{1000, "MAP1000"},
+	{1001, "MAP1001"},
+	{1002, "MAP1002"},
+	{1003, "MAP1003"},
+	{1004, "MAP1004"},
+	{1005, "MAP1005"},
+	{1006, "MAP1006"},
+	{1007, "MAP1007"},
+	{1008, "MAP1008"},
+	{1009, "MAP1009"},
+	{1010, "MAP1010"},
+	{1011, "MAP1011"},
+	{1012, "MAP1012"},
+	{1013, "MAP1013"},
+	{1014, "MAP1014"},
+	{1015, "MAP1015"},
+	{1016, "MAP1016"},
+	{1017, "MAP1017"},
+	{1018, "MAP1018"},
+	{1019, "MAP1019"},
+	{1020, "MAP1020"},
+	{1021, "MAP1021"},
+	{1022, "MAP1022"},
+	{1023, "MAP1023"},
+	{1024, "MAP1024"},
+	{1025, "MAP1025"},
+	{1026, "MAP1026"},
+	{1027, "MAP1027"},
+	{1028, "MAP1028"},
+	{1029, "MAP1029"},
+	{1030, "MAP1030"},
+	{1031, "MAP1031"},
+	{1032, "MAP1032"},
+	{1033, "MAP1033"},
+	{1034, "MAP1034"},
+	{1035, "MAP1035"},
+	{INT16_MAX, NULL}
 };
 
 static void Newgametype_OnChange(void);
@@ -1265,10 +2258,10 @@ consvar_t cv_chooseskin = {"chooseskin", DEFAULTSKIN, CV_HIDEN|CV_CALL, skins_co
 
 CV_PossibleValue_t gametype_cons_t[] =
 {
-	{GT_COOP, "Coop"}, {GTF_CLASSICRACE, "Competition"},
-	{GT_MATCH, "Match"}, {GTF_TEAMMATCH, "Team Match"},
-	{GT_RACE, "Race"},
-	{GT_TAG, "Tag"}, {GTF_HIDEANDSEEK, "Hide and Seek"},
+	{GT_COOP, "Coop"}, {GT_MATCH, "Match"},
+	{GTF_TEAMMATCH, "Team Match"}, {GT_RACE, "Race"},
+	{GTF_CLASSICRACE, "Classic Race"}, {GT_TAG, "Tag"},
+	{GTF_HIDEANDSEEK, "Hide and Seek"},
 	{GT_CTF, "CTF"},
 #ifdef CHAOSISNOTDEADYET
 	{GT_CHAOS, "Chaos"},
@@ -1288,7 +2281,7 @@ static INT32 FindFirstMap(INT32 gtype)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (mapheaderinfo[i] && (mapheaderinfo[i]->typeoflevel & gtype))
+		if (mapheaderinfo[i].typeoflevel & gtype)
 			return i + 1;
 	}
 
@@ -1302,17 +2295,14 @@ static void Newgametype_OnChange(void)
 {
 	if (menuactive)
 	{
-		if(!mapheaderinfo[cv_nextmap.value-1])
-			P_AllocMapHeader((INT16)(cv_nextmap.value-1));
-
-		if ((cv_newgametype.value == GT_COOP && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_COOP)) ||
-			((cv_newgametype.value == GT_RACE || cv_newgametype.value == GTF_CLASSICRACE) && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_RACE)) ||
-			((cv_newgametype.value == GT_MATCH || cv_newgametype.value == GTF_TEAMMATCH) && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_MATCH)) ||
+		if ((cv_newgametype.value == GT_COOP && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_COOP)) ||
+			((cv_newgametype.value == GT_RACE || cv_newgametype.value == GTF_CLASSICRACE) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_RACE)) ||
+			((cv_newgametype.value == GT_MATCH || cv_newgametype.value == GTF_TEAMMATCH) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_MATCH)) ||
 #ifdef CHAOSISNOTDEADYET
-			(cv_newgametype.value == GT_CHAOS && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_CHAOS)) ||
+			(cv_newgametype.value == GT_CHAOS && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_CHAOS)) ||
 #endif
-			((cv_newgametype.value == GT_TAG || cv_newgametype.value == GTF_HIDEANDSEEK) && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_TAG)) ||
-			(cv_newgametype.value == GT_CTF && !(mapheaderinfo[cv_nextmap.value-1]->typeoflevel & TOL_CTF)))
+			((cv_newgametype.value == GT_TAG || cv_newgametype.value == GTF_HIDEANDSEEK) && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_TAG)) ||
+			(cv_newgametype.value == GT_CTF && !(mapheaderinfo[cv_nextmap.value-1].typeoflevel & TOL_CTF)))
 		{
 			INT32 value = 0;
 
@@ -1563,11 +2553,80 @@ menu_t TeamScrambleDef =
 	NULL
 };
 
-
-// Call before showing any level-select menus
-static void M_PrepareLevelSelect(void)
+//
+// M_PatchLevelNameTable
+//
+// Populates the cv_nextmap variable
+//
+// Modes:
+// 0 = Create Server Menu
+// 1 = Level Select Menu
+// 2 = Time Attack Menu
+// 3 = SRB1 Level Select Menu
+//
+static boolean M_PatchLevelNameTable(INT32 mode)
 {
-	if (levellistmode != LLM_CREATESERVER)
+	size_t i;
+	INT32 j;
+	INT32 currentmap;
+	boolean foundone = false;
+
+	for (j = 0; j < LEVELARRAYSIZE-2; j++)
+	{
+		i = 0;
+		currentmap = map_cons_t[j].value-1;
+
+		if (mapheaderinfo[currentmap].lvlttl[0] && ((mode == 0 && !mapheaderinfo[currentmap].hideinmenu && !((mapheaderinfo[currentmap].typeoflevel & TOL_SRB1) && !(grade & 2))) || (mode == 1 && mapheaderinfo[currentmap].levelselect && !(mapheaderinfo[currentmap].typeoflevel & TOL_SRB1)) || (mode == 2 && mapheaderinfo[currentmap].timeattack && mapvisited[currentmap]) || (mode == 3 && mapheaderinfo[currentmap].levelselect && (mapheaderinfo[currentmap].typeoflevel & TOL_SRB1))))
+		{
+			strlcpy(lvltable[j], mapheaderinfo[currentmap].lvlttl, sizeof (lvltable[j]));
+
+			i += strlen(mapheaderinfo[currentmap].lvlttl);
+
+			if (!mapheaderinfo[currentmap].nozone)
+			{
+				lvltable[j][i++] = ' ';
+				lvltable[j][i++] = 'Z';
+				lvltable[j][i++] = 'O';
+				lvltable[j][i++] = 'N';
+				lvltable[j][i++] = 'E';
+			}
+
+			if (mapheaderinfo[currentmap].actnum)
+			{
+				char actnum[3];
+				INT32 g;
+
+				lvltable[j][i++] = ' ';
+
+				sprintf(actnum, "%d", mapheaderinfo[currentmap].actnum);
+
+				for (g = 0; g < 3; g++)
+				{
+					if (actnum[g] == '\0')
+						break;
+
+					lvltable[j][i++] = actnum[g];
+				}
+			}
+
+			lvltable[j][i++] = '\0';
+			foundone = true;
+		}
+		else
+			lvltable[j][0] = '\0';
+
+		if (lvltable[j][0] == '\0')
+			map_cons_t[j].strvalue = NULL;
+		else
+			map_cons_t[j].strvalue = lvltable[j];
+	}
+
+	if (!foundone)
+		return false;
+
+	CV_SetValue(&cv_nextmap, cv_nextmap.value); // This causes crash sometimes?!
+
+	if (mode > 0)
 	{
 		INT32 value = 0;
 
@@ -1596,8 +2655,9 @@ static void M_PrepareLevelSelect(void)
 	}
 	else
 		Newgametype_OnChange(); // Make sure to start on an appropriate map if wads have been added
-}
 
+	return true;
+}
 
 static void M_MapChange(INT32 choice)
 {
@@ -1608,7 +2668,8 @@ static void M_MapChange(INT32 choice)
 		return;
 	}
 
-	levellistmode = LLM_CREATESERVER;
+	inlevelselect = 0;
+	M_PatchLevelNameTable(0);
 
 	// Special Cases
 	if (gametype == GT_MATCH && cv_matchtype.value) // Team Match
@@ -1622,7 +2683,6 @@ static void M_MapChange(INT32 choice)
 
 	CV_SetValue(&cv_nextmap, gamemap);
 
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&ChangeLevelDef);
 }
 
@@ -1656,54 +2716,10 @@ static void M_TeamScramble(INT32 choice)
 	M_SetupNextMenu(&TeamScrambleDef);
 }
 
-
-//
-// M_CanShowLevelInList
-//
-// Determines whether to show a given map in the various level-select lists.
-// Set gt = -1 to ignore gametype.
-//
-boolean M_CanShowLevelInList(INT32 mapnum, INT32 gt)
-{
-	return mapheaderinfo[mapnum]
-		&& mapheaderinfo[mapnum]->lvlttl[0]
-		&& !(levellistmode == LLM_CREATESERVER
-			&& (mapheaderinfo[mapnum]->hideinmenu
-				|| ((mapheaderinfo[mapnum]->typeoflevel & TOL_SRB1) && !(grade & 2))
-				|| ((gt == GT_COOP && !(mapheaderinfo[mapnum]->typeoflevel & TOL_COOP))
-				|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[mapnum]->typeoflevel & TOL_MATCH))
-				|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[mapnum]->typeoflevel & TOL_RACE))
-				|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[mapnum]->typeoflevel & TOL_TAG))
-#ifdef CHAOSISNOTDEADYET
-				|| (gt == GT_CHAOS && !(mapheaderinfo[mapnum]->typeoflevel & TOL_CHAOS))
-#endif
-				|| (gt == GT_CTF && !(mapheaderinfo[mapnum]->typeoflevel & TOL_CTF)))))
-			&& !(levellistmode == LLM_LEVELSELECT
-				&& (!mapheaderinfo[mapnum]->levelselect
-					|| (mapheaderinfo[mapnum]->typeoflevel & TOL_SRB1)))
-			&& !(levellistmode == LLM_TIMEATTACK
-				&& (!mapheaderinfo[mapnum]->timeattack
-					|| !mapvisited[mapnum]))
-			&& !(levellistmode == LLM_SRB1LEVELSELECT
-				&& (!mapheaderinfo[mapnum]->levelselect
-					|| !(mapheaderinfo[mapnum]->typeoflevel & TOL_SRB1)));
-}
-
-static INT32 M_CountLevelsToShowInList(void)
-{
-	INT32 mapnum, count = 0;
-
-	for (mapnum = 0; mapnum < NUMMAPS; mapnum++)
-		if (M_CanShowLevelInList(mapnum, -1))
-			count++;
-
-	return count;
-}
-
 //
 // M_PatchSkinNameTable
 //
-// Like the old M_PatchLevelNameTable, but for cv_chooseskin
+// Like M_PatchLevelNameTable, but for cv_chooseskin
 //
 static void M_PatchSkinNameTable(void)
 {
@@ -1742,14 +2758,13 @@ static inline void M_StartSplitServerMenu(void)
 		return;
 	}
 
-	levellistmode = LLM_CREATESERVER;
+	inlevelselect = 0;
+	M_PatchLevelNameTable(0);
 	StartSplitScreenGame = true;
 	ServerMenu[1].status = IT_DISABLED; // No advertise on Internet option.
 	ServerMenu[2].status = IT_DISABLED; // No room.
 	ServerMenu[3].status = IT_DISABLED; // No room info.
 	ServerMenu[4].status = IT_DISABLED; // No server name.
-
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&Serverdef);
 }
 
@@ -1763,13 +2778,12 @@ static void M_StartServerMenu(INT32 choice)
 		return;
 	}
 
-	levellistmode = LLM_CREATESERVER;
+	inlevelselect = 0;
+	M_PatchLevelNameTable(0);
 	StartSplitScreenGame = false;
 	ServerMenu[1].status = IT_STRING|IT_CVAR; // Make advertise on Internet option available.
 	M_AlterRoomOptions();
 	ServerMenu[4].status = IT_STRING|IT_CVAR|IT_CV_STRING; // Server name too.
-
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&Serverdef);
 
 }
@@ -1912,9 +2926,10 @@ static boolean M_QuitMultiPlayerMenu(void);
 
 static menuitem_t SetupMultiPlayerMenu[] =
 {
-	{IT_KEYHANDLER | IT_STRING,   NULL, "Your name",   M_HandleSetupMultiPlayer,  0},
+	{IT_KEYHANDLER | IT_STRING,   NULL, "Your name",   M_HandleSetupMultiPlayer,   0},
 
-	{IT_KEYHANDLER | IT_STRING,   NULL, "Your color",  M_HandleSetupMultiPlayer,  16},
+	{IT_CVAR | IT_STRING | IT_CV_NOPRINT,
+	                              NULL, "Your color",  &cv_playercolor,           16},
 
 	{IT_KEYHANDLER | IT_STRING,   NULL, "Your player", M_HandleSetupMultiPlayer,  96}, // Tails 01-18-2001
 
@@ -2014,12 +3029,10 @@ static state_t * multi_state;
 // this is set before entering the MultiPlayer setup menu,
 // for either player 1 or 2
 static char       setupm_name[MAXPLAYERNAME+1];
-static player_t *setupm_player;
+static player_t * setupm_player;
 static consvar_t *setupm_cvskin;
 static consvar_t *setupm_cvcolor;
 static consvar_t *setupm_cvname;
-static INT32 setupm_skin;
-static INT32 setupm_color;
 
 static void M_SetupMultiPlayer(INT32 choice)
 {
@@ -2037,12 +3050,11 @@ static void M_SetupMultiPlayer(INT32 choice)
 	SetupMultiPlayerDef.numitems = setupmultiplayer_skin +1;      //remove player2 setup controls and mouse2
 
 	// set for player 1
+	SetupMultiPlayerMenu[setupmultiplayer_color].itemaction = &cv_playercolor;
 	setupm_player = &players[consoleplayer];
 	setupm_cvskin = &cv_skin;
 	setupm_cvcolor = &cv_playercolor;
 	setupm_cvname = &cv_playername;
-	setupm_skin = cv_skin.value;
-	setupm_color = cv_playercolor.value;
 	M_SetupNextMenu (&SetupMultiPlayerDef);
 }
 
@@ -2062,12 +3074,11 @@ static void M_SetupMultiPlayerBis(INT32 choice)
 	SetupMultiPlayerDef.numitems = setupmulti_end;          //activate the setup controls for player 2
 
 	// set for splitscreen secondary player
+	SetupMultiPlayerMenu[setupmultiplayer_color].itemaction = &cv_playercolor2;
 	setupm_player = &players[secondarydisplayplayer];
 	setupm_cvskin = &cv_skin2;
 	setupm_cvcolor = &cv_playercolor2;
 	setupm_cvname = &cv_playername2;
-	setupm_skin = cv_skin2.value;
-	setupm_color = cv_playercolor2.value;
 	M_SetupNextMenu (&SetupMultiPlayerDef);
 }
 
@@ -2125,11 +3136,11 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	V_DrawString(mx + 98, my, V_ALLOWLOWERCASE, setupm_name);
 
 	// draw skin string
-	V_DrawString(mx + 90, my + 96, 0, (char *)&skins[setupm_skin].name);
+	V_DrawString(mx + 90, my + 96, 0, setupm_cvskin->string);
 
 	// draw the name of the color you have chosen
 	// Just so people don't go thinking that "Default" is Green.
-	V_DrawString(208, 72, 0, Color_Names[setupm_color]);
+	V_DrawString(208, 72, 0, setupm_cvcolor->string);
 
 	// draw text cursor for name
 	if (!itemOn && skullAnimCounter < 4) // blink cursor
@@ -2147,8 +3158,8 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	}
 
 	// skin 0 is default player sprite
-	if (R_SkinAvailable((char *)&skins[setupm_skin].name) != -1)
-		sprdef = &skins[R_SkinAvailable((char *)&skins[setupm_skin].name)].spritedef;
+	if (R_SkinAvailable(setupm_cvskin->string) != -1)
+		sprdef = &skins[R_SkinAvailable(setupm_cvskin->string)].spritedef;
 	else
 		sprdef = &skins[0].spritedef;
 
@@ -2159,23 +3170,22 @@ static void M_DrawSetupMultiPlayerMenu(void)
 	M_DrawTextBox(mx + 90, my + 8, PLBOXW, PLBOXH);
 
 	// draw player sprite
-	if (!setupm_color)
+	if (!setupm_cvcolor->value)
 	{
-		if (atoi(skins[setupm_skin].highres))
+		if (atoi(skins[setupm_cvskin->value].highres))
 			V_DrawScaledPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch);
 		else
 			V_DrawScaledPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch);
 	}
 	else
 	{
-		UINT8 *colormap = R_GetTranslationColormap(setupm_skin, setupm_color, 0);
+		const UINT8 *colormap = (const UINT8 *)translationtables[setupm_player->skin] - 256
+			+ (setupm_cvcolor->value<<8);
 
-		if (atoi(skins[setupm_skin].highres))
+		if (atoi(skins[setupm_cvskin->value].highres))
 			V_DrawSmallMappedPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch, colormap);
 		else
 			V_DrawMappedPatch(mx + 98 + (PLBOXW*8/2), my + 16 + (PLBOXH*8) - 8, 0, patch, colormap);
-
-		Z_Free(colormap);
 	}
 }
 
@@ -2245,6 +3255,7 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 {
 	size_t   l;
 	boolean  exitmenu = false;  // exit to previous menu and send name change
+	INT32      myskin = setupm_cvskin->value;
 
 	switch (choice)
 	{
@@ -2263,28 +3274,18 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 			break;
 
 		case KEY_LEFTARROW:
-			if (itemOn == 1)       //player color
+			if (itemOn == 2)       //player skin
 			{
 				S_StartSound(NULL,sfx_menu1); // Tails
-				setupm_color--;
-			}
-			else if (itemOn == 2)       //player skin
-			{
-				S_StartSound(NULL,sfx_menu1); // Tails
-				setupm_skin--;
+				myskin--;
 			}
 			break;
 
 		case KEY_RIGHTARROW:
-			if (itemOn == 1)       //player color
+			if (itemOn == 2)       //player skin
 			{
 				S_StartSound(NULL,sfx_menu1); // Tails
-				setupm_color++;
-			}
-			else if (itemOn == 2)       //player skin
-			{
-				S_StartSound(NULL,sfx_menu1); // Tails
-				setupm_skin++;
+				myskin++;
 			}
 			break;
 
@@ -2314,26 +3315,14 @@ static void M_HandleSetupMultiPlayer(INT32 choice)
 	}
 
 	// check skin
-	if (setupm_skin < 0)
-		setupm_skin = numskins-1;
-	if (setupm_skin > numskins-1)
-		setupm_skin = 0;
+	if (myskin <0)
+		myskin = numskins-1;
+	if (myskin >numskins-1)
+		myskin = 0;
 
-	// check color, we don't like yellow in some instances
-	if (gametype == GT_MATCH || gametype == GT_CTF)
-	{
-		if (setupm_color < 1)
-			setupm_color = MAXSKINCOLORS-2; // avoid yellow
-		if (setupm_color > MAXSKINCOLORS-2) // avoid yellow
-			setupm_color = 1; // don't allow zero
-	}
-	else
-	{
-		if (setupm_color < 1)
-			setupm_color = MAXSKINCOLORS-1;
-		if (setupm_color > MAXSKINCOLORS-1)
-			setupm_color = 1; // don't allow zero
-	}
+	// check skin change
+	if (myskin != setupm_player->skin)
+		COM_BufAddText (va("%s \"%s\"",setupm_cvskin->name,skins[myskin].name));
 
 	if (exitmenu)
 	{
@@ -2354,15 +3343,8 @@ static boolean M_QuitMultiPlayerMenu(void)
 		for (l= strlen(setupm_name)-1;
 		    (signed)l >= 0 && setupm_name[l] ==' '; l--)
 			setupm_name[l] =0;
-		COM_ImmedExecute (va("%s \"%s\"\n",setupm_cvname->name,setupm_name));
+		COM_BufAddText (va("%s \"%s\"\n",setupm_cvname->name,setupm_name));
 	}
-	// check skin change
-	if (setupm_skin != setupm_player->skin)
-		COM_ImmedExecute (va("%s \"%s\"",setupm_cvskin->name, skins[setupm_skin].name));
-	// check color change
-	if (setupm_color != setupm_player->skincolor)
-		COM_ImmedExecute (va("%s \"%s\"",setupm_cvcolor->name, Color_Names[setupm_color]));
-
 	return true;
 }
 
@@ -2392,7 +3374,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 	patch_t *patch;
 
 	// Black BG
-	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
+	V_DrawFill(0, 0, vid.width, vid.height, 31);
 
 	{
 		// Compact the menu
@@ -2425,8 +3407,6 @@ static void M_DrawSetupChoosePlayerMenu(void)
 
 	V_DrawScaledPatch(mx+160,my+8,0,patch);
 	V_DrawString(mx-16, my+80, 0, description[itemOn].info);
-
-	W_UnlockCachedPatch(patch);
 }
 
 //
@@ -2579,7 +3559,7 @@ static void M_DrawStats(void)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (!mapheaderinfo[i] || !(mapheaderinfo[i]->timeattack))
+		if (!(mapheaderinfo[i].timeattack))
 			continue;
 
 		if (timedata[i].time > 0)
@@ -2626,10 +3606,10 @@ static void M_DrawStats(void)
 		for (i = oldlastmapnum; i < NUMMAPS; i++)
 		{
 
-			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
+			if (mapheaderinfo[i].lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -2667,10 +3647,10 @@ static void M_DrawStats(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i]->actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
+			if (mapheaderinfo[i].actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -2716,10 +3696,10 @@ static void M_DrawStats2(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
+			if (mapheaderinfo[i].lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -2757,10 +3737,10 @@ static void M_DrawStats2(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i]->actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
+			if (mapheaderinfo[i].actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -2806,10 +3786,10 @@ static void M_DrawStats3(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
+			if (mapheaderinfo[i].lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -2847,10 +3827,10 @@ static void M_DrawStats3(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i]->actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
+			if (mapheaderinfo[i].actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -2896,10 +3876,10 @@ static void M_DrawStats4(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
+			if (mapheaderinfo[i].lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -2937,10 +3917,10 @@ static void M_DrawStats4(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i]->actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
+			if (mapheaderinfo[i].actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -2986,10 +3966,10 @@ static void M_DrawStats5(void)
 
 		for (i = oldlastmapnum+1; i < NUMMAPS; i++)
 		{
-			if (!mapheaderinfo[i] || mapheaderinfo[i]->lvlttl[0] == '\0')
+			if (mapheaderinfo[i].lvlttl[0] == '\0')
 				continue;
 
-			if (!(mapheaderinfo[i]->typeoflevel & TOL_SP))
+			if (!(mapheaderinfo[i].typeoflevel & TOL_SP))
 				continue;
 
 			if (!mapvisited[i])
@@ -3027,10 +4007,10 @@ static void M_DrawStats5(void)
 					V_DrawScaledPatch(54, y, 0, W_CachePatchName("NEEDIT", PU_CACHE));
 			}
 
-			if (mapheaderinfo[i]->actnum != 0)
-				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i]->lvlttl, mapheaderinfo[i]->actnum));
+			if (mapheaderinfo[i].actnum != 0)
+				V_DrawString(32+36, y, V_YELLOWMAP, va("%s %d", mapheaderinfo[i].lvlttl, mapheaderinfo[i].actnum));
 			else
-				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i]->lvlttl);
+				V_DrawString(32+36, y, V_YELLOWMAP, mapheaderinfo[i].lvlttl);
 
 			if (timedata[i].time)
 			{
@@ -3080,7 +4060,7 @@ static void M_SRB1Remake(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
+		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
 		return;
 	}
 
@@ -3097,7 +4077,7 @@ static void M_NightsGame(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
+		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
 		return;
 	}
 
@@ -3114,7 +4094,7 @@ static void M_MarioGame(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
+		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
 		return;
 	}
 
@@ -3131,7 +4111,7 @@ static void M_NAGZGame(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
+		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
 		return;
 	}
 
@@ -3147,7 +4127,7 @@ static void M_CustomWarp(INT32 choice)
 {
 	if (netgame && Playing())
 	{
-		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
+		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
 		return;
 	}
 
@@ -3217,16 +4197,9 @@ menu_t TimeAttackDef =
 	NULL
 };
 
-
+// Used only for time attack menu
 static void Nextmap_OnChange(void)
 {
-	char *leveltitle;
-
-	// Update the string in the consvar.
-	Z_Free(cv_nextmap.zstring);
-	leveltitle = G_BuildMapTitle(cv_nextmap.value);
-	cv_nextmap.string = cv_nextmap.zstring = leveltitle ? leveltitle : Z_StrDup(va("MAP%d", cv_nextmap.value));
-
 	if (currentMenu != &TimeAttackDef)
 		return;
 
@@ -3258,18 +4231,20 @@ static void M_TimeAttack(INT32 choice)
 
 	memset(skins_cons_t, 0, sizeof (skins_cons_t));
 
-	levellistmode = LLM_TIMEATTACK; // Don't be dependent on cv_newgametype
-
-	if (M_CountLevelsToShowInList() == 0)
+	if (!(M_PatchLevelNameTable(2)))
 	{
 		M_StartMessage("No time-attackable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
 
+	inlevelselect = 2; // Don't be dependent on cv_newgametype
+
 	M_PatchSkinNameTable();
 
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&TimeAttackDef);
+
+	CV_AddValue(&cv_nextmap, 1);
+	CV_AddValue(&cv_nextmap, -1);
 
 	G_SetGamestate(GS_TIMEATTACK);
 	S_ChangeMusic(mus_racent, true);
@@ -3308,7 +4283,7 @@ void M_DrawTimeAttackMenu(void)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (!mapheaderinfo[i] || !(mapheaderinfo[i]->timeattack))
+		if (!(mapheaderinfo[i].timeattack))
 			continue;
 
 		if (timedata[i].time > 0)
@@ -3631,13 +4606,13 @@ static void M_LevelSelectWarp(INT32 choice)
 	(void)choice;
 	if (netgame && Playing())
 	{
-		M_StartMessage(M_GetText("You are in a network game.\n""End it?\n(Y/N).\n"), M_ExitGameResponse, MM_YESNO);
+		M_StartMessage(text[NEWGAME],M_ExitGameResponse,MM_YESNO);
 		return;
 	}
 
 	if (W_CheckNumForName(G_BuildMapName(cv_nextmap.value)) == LUMPERROR)
 	{
-//		DEBPRINT(va("\2Internal game map '%s' not found\n", G_BuildMapName(cv_nextmap.value)));
+//		CONS_Printf("\2Internal game map '%s' not found\n", G_BuildMapName(cv_nextmap.value));
 		return;
 	}
 
@@ -3769,7 +4744,7 @@ boolean M_GotLowEnoughTime(INT32 ptime)
 
 	for (i = 0; i < NUMMAPS; i++)
 	{
-		if (!mapheaderinfo[i] || !(mapheaderinfo[i]->timeattack))
+		if (!(mapheaderinfo[i].timeattack))
 			continue;
 
 		if (timedata[i].time > 0)
@@ -4153,16 +5128,14 @@ static void M_SRB1LevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &SecretsDef;
-	levellistmode = LLM_SRB1LEVELSELECT;
+	inlevelselect = 3;
 	pandoralevelselect = true;
 
-	if (M_CountLevelsToShowInList() == 0)
+	if (!(M_PatchLevelNameTable(3)))
 	{
 		M_StartMessage("No selectable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
-
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
@@ -4170,16 +5143,14 @@ static void M_LevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &SecretsDef;
-	levellistmode = LLM_LEVELSELECT;
+	inlevelselect = 1;
 	pandoralevelselect = true;
 
-	if (M_CountLevelsToShowInList() == 0)
+	if (!(M_PatchLevelNameTable(1)))
 	{
 		M_StartMessage("No selectable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
-
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
@@ -4187,16 +5158,14 @@ static void M_CustomLevelSelect(INT32 choice)
 {
 	(void)choice;
 	LevelSelectDef.prevMenu = &CustomSecretsDef;
-	levellistmode = LLM_LEVELSELECT;
+	inlevelselect = 1;
 	pandoralevelselect = true;
 
-	if (M_CountLevelsToShowInList() == 0)
+	if (!(M_PatchLevelNameTable(1)))
 	{
 		M_StartMessage("No selectable levels found.\n",NULL,MM_NOTHING);
 		return;
 	}
-
-	M_PrepareLevelSelect();
 	M_SetupNextMenu(&LevelSelectDef);
 }
 
@@ -4347,10 +5316,10 @@ static menuitem_t VideoOptionsMenu[] =
 {
 	// Tails
 	{IT_STRING | IT_SUBMENU, NULL, "Video Modes...",      &VidModeDef,        0},
-#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	{IT_STRING|IT_CVAR,      NULL, "Fullscreen",          &cv_fullscreen,    10},
 #endif
-#ifdef HWRENDER
+#if defined (HWRENDER) && defined (SHUFFLE)
 	//17/10/99: added by Hurdler
 	{IT_CALL|IT_WHITESTRING, NULL, "3D Card Options...",  M_OpenGLOption,    20},
 #endif
@@ -4422,9 +5391,8 @@ static menuitem_t GameOptionsMenu[] =
 
 	{IT_STRING | IT_CVAR, NULL, "Console Color", &cons_backcolor, 60},
 	{IT_STRING | IT_CVAR, NULL, "Uppercase Console", &cv_allcaps, 70},
-	{IT_STRING | IT_CVAR, NULL, "Console Text Size", &cv_constextsize, 80},
 
-	{IT_STRING | IT_SUBMENU, NULL, "Data Options...", &DataOptionsDef, 100},
+	{IT_STRING | IT_SUBMENU, NULL, "Data Options...", &DataOptionsDef, 90},
 };
 
 menu_t GameOptionDef =
@@ -5067,31 +6035,27 @@ static void M_ControlDef2(void);
 //
 static menuitem_t ControlMenu[] =
 {
-	// Player Actions
-	{IT_CALL | IT_STRING2, NULL, "Forward",          M_ChangeControl, gc_forward    },
-	{IT_CALL | IT_STRING2, NULL, "Reverse",          M_ChangeControl, gc_backward   },
-	{IT_CALL | IT_STRING2, NULL, "Turn Left",        M_ChangeControl, gc_turnleft   },
-	{IT_CALL | IT_STRING2, NULL, "Turn Right",       M_ChangeControl, gc_turnright  },
-	{IT_CALL | IT_STRING2, NULL, "Jump",             M_ChangeControl, gc_jump       },
-	{IT_CALL | IT_STRING2, NULL, "Spin",             M_ChangeControl, gc_use        },
-	{IT_CALL | IT_STRING2, NULL, "Taunt",            M_ChangeControl, gc_taunt      },
-	{IT_CALL | IT_STRING2, NULL, "Toss Flag",        M_ChangeControl, gc_tossflag   },
-	{IT_CALL | IT_STRING2, NULL, "Ring Toss",        M_ChangeControl, gc_fire       },
+	{IT_CALL | IT_STRING2, NULL, "Forward",      M_ChangeControl, gc_forward    },
+	{IT_CALL | IT_STRING2, NULL, "Reverse",      M_ChangeControl, gc_backward   },
+	{IT_CALL | IT_STRING2, NULL, "Turn Left",    M_ChangeControl, gc_turnleft   },
+	{IT_CALL | IT_STRING2, NULL, "Turn Right",   M_ChangeControl, gc_turnright  },
+	{IT_CALL | IT_STRING2, NULL, "Jump",         M_ChangeControl, gc_jump       },
+	{IT_CALL | IT_STRING2, NULL, "Spin",         M_ChangeControl, gc_use        }, // Tails 12-04-99
+	{IT_CALL | IT_STRING2, NULL, "Ring Toss",    M_ChangeControl, gc_fire       },
 	{IT_CALL | IT_STRING2, NULL, "Ring Toss Normal",
-	                                                 M_ChangeControl, gc_firenormal },
-	// First person specific
-	{IT_CALL | IT_STRING2, NULL, "Strafe On",        M_ChangeControl, gc_strafe     },
-	{IT_CALL | IT_STRING2, NULL, "Strafe Left",      M_ChangeControl, gc_strafeleft },
-	{IT_CALL | IT_STRING2, NULL, "Strafe Right",     M_ChangeControl, gc_straferight},
-	{IT_CALL | IT_STRING2, NULL, "Look Up",          M_ChangeControl, gc_lookup     },
-	{IT_CALL | IT_STRING2, NULL, "Look Down",        M_ChangeControl, gc_lookdown   },
-	{IT_CALL | IT_STRING2, NULL, "Center View",      M_ChangeControl, gc_centerview },
-	{IT_CALL | IT_STRING2, NULL, "Mouselook",        M_ChangeControl, gc_mouseaiming},
-	// Misc
-	{IT_CALL | IT_STRING2, NULL, "Pause",            M_ChangeControl, gc_pause      },
+	                                             M_ChangeControl, gc_firenormal },
+	{IT_CALL | IT_STRING2, NULL, "Taunt",        M_ChangeControl, gc_taunt      },
+	{IT_CALL | IT_STRING2, NULL, "Toss Flag",    M_ChangeControl, gc_tossflag   },
+	{IT_CALL | IT_STRING2, NULL, "Strafe On",    M_ChangeControl, gc_strafe     },
+	{IT_CALL | IT_STRING2, NULL, "Strafe Left",  M_ChangeControl, gc_strafeleft },
+	{IT_CALL | IT_STRING2, NULL, "Strafe Right", M_ChangeControl, gc_straferight},
+	{IT_CALL | IT_STRING2, NULL, "Look Up",      M_ChangeControl, gc_lookup     },
+	{IT_CALL | IT_STRING2, NULL, "Look Down",    M_ChangeControl, gc_lookdown   },
+	{IT_CALL | IT_STRING2, NULL, "Center View",  M_ChangeControl, gc_centerview },
+	{IT_CALL | IT_STRING2, NULL, "Mouselook",    M_ChangeControl, gc_mouseaiming},
 
 	{IT_CALL | IT_WHITESTRING,
-	                       NULL, "next",             M_ControlDef2,   144           },
+	                       NULL, "next",         M_ControlDef2,               144},
 };
 
 menu_t ControlDef =
@@ -5115,10 +6079,10 @@ menu_t ControlDef =
 //
 static menuitem_t ControlMenu2[] =
 {
-	// Chat
 	{IT_CALL | IT_STRING2, NULL, "Talk key",         M_ChangeControl, gc_talkkey      },
 	{IT_CALL | IT_STRING2, NULL, "Team-Talk key",    M_ChangeControl, gc_teamkey      },
-	// Weapons
+	{IT_CALL | IT_STRING2, NULL, "Rankings/Scores",  M_ChangeControl, gc_scores       },
+	{IT_CALL | IT_STRING2, NULL, "Console",          M_ChangeControl, gc_console      },
 	{IT_CALL | IT_STRING2, NULL, "Next Weapon",      M_ChangeControl, gc_weaponnext   },
 	{IT_CALL | IT_STRING2, NULL, "Prev Weapon",      M_ChangeControl, gc_weaponprev   },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 1",    M_ChangeControl, gc_normalring   },
@@ -5128,13 +6092,10 @@ static menuitem_t ControlMenu2[] =
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 5",    M_ChangeControl, gc_grenadering  },
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 6",    M_ChangeControl, gc_explosionring},
 	{IT_CALL | IT_STRING2, NULL, "Weapon Slot 7",    M_ChangeControl, gc_railring     },
-	// Camera controls
 	{IT_CALL | IT_STRING2, NULL, "Rotate Camera L",  M_ChangeControl, gc_camleft      },
 	{IT_CALL | IT_STRING2, NULL, "Rotate Camera R",  M_ChangeControl, gc_camright     },
 	{IT_CALL | IT_STRING2, NULL, "Reset Camera",     M_ChangeControl, gc_camreset     },
-	// Misc
-	{IT_CALL | IT_STRING2, NULL, "Rankings/Scores",  M_ChangeControl, gc_scores       },
-	{IT_CALL | IT_STRING2, NULL, "Console",          M_ChangeControl, gc_console      },
+	{IT_CALL | IT_STRING2, NULL, "Pause",            M_ChangeControl, gc_pause        },
 
 	{IT_SUBMENU | IT_WHITESTRING,
 	                       NULL, "next",             &ControlDef,     140             },
@@ -5560,7 +6521,7 @@ static void M_DrawVideoMode(void)
 	// draw title
 	M_DrawMenuTitle();
 
-#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	VID_PrepareModeList(); // FIXME: hack
 #endif
 	vidm_nummodes = 0;
@@ -5568,15 +6529,15 @@ static void M_DrawVideoMode(void)
 
 #ifdef _WINDOWS
 	// clean that later: skip windowed mode 0, video modes menu only shows FULL SCREEN modes
-	if (nummodes <= NUMSPECIALMODES)
+	if (nummodes < 1)
 	{
 		// put the windowed mode so that there is at least one mode
-		modedescs[0].modenum = vid.modenum;
-		modedescs[0].desc = VID_GetModeName(vid.modenum);
+		modedescs[0].modenum = 0;
+		modedescs[0].desc = VID_GetModeName(0);
 		modedescs[0].iscur = 1;
 		vidm_nummodes = 1;
 	}
-	for (i = NUMSPECIALMODES; i < nummodes && vidm_nummodes < MAXMODEDESCS; i++)
+	for (i = 1; i <= nummodes && vidm_nummodes < MAXMODEDESCS; i++)
 #else
 	// DOS does not skip mode 0, because mode 0 is ALWAYS present
 	for (i = 0; i < nummodes && vidm_nummodes < MAXMODEDESCS; i++)
@@ -5823,11 +6784,11 @@ static void M_DrawGameStats(void)
 	}
 
 	if (savegameinfo[saveSlotSelected].skincolor == 0)
-		V_DrawScaledPatch(LoadDef.x+4,144+8,0,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
+		V_DrawScaledPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE));
 	else
 	{
-		UINT8 *colormap = R_GetTranslationColormap(savegameinfo[saveSlotSelected].skinnum, savegameinfo[saveSlotSelected].skincolor, 0);
-		V_DrawMappedPatch(LoadDef.x+4,144+8,0,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
+		const UINT8 *colormap = (const UINT8 *) translationtables[savegameinfo[saveSlotSelected].skinnum] - 256 + (savegameinfo[saveSlotSelected].skincolor<<8);
+		V_DrawMappedPatch ((INT32)((LoadDef.x+4)*vid.fdupx),(INT32)((144+8)*vid.fdupy), V_NOSCALESTART,W_CachePatchName(skins[savegameinfo[saveSlotSelected].skinnum].faceprefix, PU_CACHE), colormap);
 	}
 
 	V_DrawString(ecks + 16, 152, 0, savegameinfo[saveSlotSelected].playername);
@@ -5958,7 +6919,7 @@ static void M_ReadSavegameInfo(UINT32 slot)
 	length = FIL_ReadFile(savename, &savebuffer);
 	if (length == 0)
 	{
-		CONS_Printf("%s %s", M_GetText("[Message unsent]\n"), savename);
+		CONS_Printf("%s %s", text[HUSTR_MSGU], savename);
 		savegameinfo[slot].lives = -42;
 		return;
 	}
@@ -5976,14 +6937,10 @@ static void M_ReadSavegameInfo(UINT32 slot)
 	CHECKPOS
 	fake = READINT16(save_p);
 	if (fake-1 >= NUMMAPS) BADSAVE
-
-	if(!mapheaderinfo[fake-1])
-		P_AllocMapHeader((INT16)(fake-1));
-
-	strcpy(savegameinfo[slot].levelname, mapheaderinfo[fake-1]->lvlttl);
+	strcpy(savegameinfo[slot].levelname, mapheaderinfo[fake-1].lvlttl);
 	savegameinfo[slot].gamemap = fake;
 
-	savegameinfo[slot].actnum = mapheaderinfo[fake-1]->actnum;
+	savegameinfo[slot].actnum = mapheaderinfo[fake-1].actnum;
 
 	CHECKPOS
 	fake = READUINT16(save_p)-357; // emeralds
@@ -6089,7 +7046,7 @@ static void M_LoadGame(INT32 choice)
 	// change can't load message to can't load in server mode
 	if (netgame && !server)
 	{
-		M_StartMessage(M_GetText("Only the server can do a load net game!\n\npress a key."), NULL, MM_NOTHING);
+		M_StartMessage(text[LOADNET],NULL,MM_NOTHING);
 		return;
 	}
 
@@ -6142,7 +7099,7 @@ void M_EndGame(INT32 choice)
 	if (!Playing())
 		return;
 
-	M_StartMessage(M_GetText("Are you sure you want to end the game?\n\npress Y or N."), M_EndGameResponse, MM_YESNO);
+	M_StartMessage(text[ENDGAME],M_EndGameResponse,MM_YESNO);
 }
 
 //===========================================================================
@@ -6198,8 +7155,10 @@ static void M_QuitSRB2(INT32 choice)
 {
 	// We pick index 0 which is language sensitive, or one at random,
 	// between 1 and maximum number.
+	static char s[200];
 	(void)choice;
-	M_StartMessage(quitmsg[QUITMSG + (gametic % NUM_QUITMESSAGES)], M_QuitResponse, MM_YESNO);
+	sprintf(s, text[DOSY], text[QUITMSG + (gametic % NUM_QUITMESSAGES)]);
+	M_StartMessage(s, M_QuitResponse, MM_YESNO);
 }
 
 //===========================================================================
@@ -6400,7 +7359,7 @@ static void M_DrawMessageMenu(void)
 				memset(string, 0, MAXMSGLINELEN);
 				if (i >= MAXMSGLINELEN)
 				{
-					DEBPRINT(va("M_DrawMessageMenu: too long segment in %s\n", msg));
+					CONS_Printf("M_DrawMessageMenu: too long segment in %s\n", msg);
 					return;
 				}
 				else
@@ -6419,7 +7378,7 @@ static void M_DrawMessageMenu(void)
 		{
 			if (i >= MAXMSGLINELEN)
 			{
-				DEBPRINT(va("M_DrawMessageMenu: too long segment in %s\n", msg));
+				CONS_Printf("M_DrawMessageMenu: too long segment in %s\n", msg);
 				return;
 			}
 			else
@@ -6882,7 +7841,7 @@ boolean M_Responder(event_t *ev)
 					// Fade to black first
 					if (rendermode != render_none)
 					{
-						V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
+						V_DrawFill(0, 0, vid.width, vid.height, 31);
 						F_WipeEndScreen(0, 0, vid.width, vid.height);
 
 						F_RunWipe(2*TICRATE, false);
@@ -6999,7 +7958,7 @@ void M_Drawer(void)
 	if (customversionstring[0] != '\0')
 		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, customversionstring);
 	else
-		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, va("%s (%s)", VERSIONSTRING, comprevision));
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, VERSIONSTRING);
 }
 
 //
@@ -7166,31 +8125,6 @@ void M_Init(void)
 	if (dedicated)
 		return;
 
-	quitmsg[QUITMSG] = M_GetText("Eggman's tied explosives\nto your girlfriend, and\nwill activate them if\nyou press the 'Y' key!\nPress 'N' to save her!\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG1] = M_GetText("What would Tails say if\nhe saw you quitting the game?\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG2] = M_GetText("Hey!\nWhere do ya think you're goin'?\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG3] = M_GetText("Forget your studies!\nPlay some more!\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG4] = M_GetText("You're trying to say you\nlike Sonic 2K6 better than\nthis, right?\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG5] = M_GetText("Don't leave yet -- there's a\nsuper emerald around that corner!\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG6] = M_GetText("You'd rather work than play?\n\n(Press 'Y' to quit)");
-	quitmsg[QUITMSG7] = M_GetText("Go ahead and leave. See if I care...\n*sniffle*\n\n(Press 'Y' to quit)");
-
-	quitmsg[QUIT2MSG] = M_GetText("If you leave now,\nEggman will take over the world!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT2MSG1] = M_GetText("Don't quit!\nThere are animals\nto save!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT2MSG2] = M_GetText("Aw c'mon, just bop\na few more robots!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT2MSG3] = M_GetText("Did you get all those Chaos Emeralds?\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT2MSG4] = M_GetText("If you leave, I'll use\nmy spin attack on you!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT2MSG5] = M_GetText("Don't go!\nYou might find the hidden\nlevels!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT2MSG6] = M_GetText("Hit the 'N' key, Sonic!\nThe 'N' key!\n\n(Press 'Y' to quit)");
-
-	quitmsg[QUIT3MSG] = M_GetText("Are you really going to\ngive up?\nWe certainly would never give you up.\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT3MSG1] = M_GetText("Come on, just ONE more netgame!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT3MSG2] = M_GetText("Press 'N' to unlock\nthe Ultimate Cheat!\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT3MSG3] = M_GetText("Why don't you go back and try\njumping on that house to\nsee what happens?\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT3MSG4] = M_GetText("Every time you press 'Y', an\nSRB2 Developer cries...\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT3MSG5] = M_GetText("You'll be back to play soon, though...\n......right?\n\n(Press 'Y' to quit)");
-	quitmsg[QUIT3MSG6] = M_GetText("Aww, is Egg Rock Zone too\ndifficult for you?\n\n(Press 'Y' to quit)");
-
 	// This is used because DOOM 2 had only one HELP
 	//  page. I use CREDIT as second page now, but
 	//  kept this hack for educational purposes.
@@ -7227,22 +8161,9 @@ static menuitem_t OpenGLOptionsMenu[] =
 #endif
 	{IT_STRING|IT_CVAR|IT_CV_SLIDER,
 	                            NULL, "Translucent HUD", &cv_grtranslucenthud, 60},
-#ifdef ALAM_LIGHTING
-	{IT_SUBMENU|IT_WHITESTRING, NULL, "Lighting...",     &OGL_LightingDef,     70},
-#endif
 	{IT_SUBMENU|IT_WHITESTRING, NULL, "Fog...",          &OGL_FogDef,          80},
 	{IT_SUBMENU|IT_WHITESTRING, NULL, "Gamma...",        &OGL_ColorDef,        90},
 };
-
-#ifdef ALAM_LIGHTING
-static menuitem_t OGL_LightingMenu[] =
-{
-	{IT_STRING|IT_CVAR, NULL, "Coronas",          &cv_grcoronas,          0},
-	{IT_STRING|IT_CVAR, NULL, "Coronas size",     &cv_grcoronasize,      10},
-	{IT_STRING|IT_CVAR, NULL, "Dynamic lighting", &cv_grdynamiclighting, 20},
-	{IT_STRING|IT_CVAR, NULL, "Static lighting",  &cv_grstaticlighting,  30},
-};
-#endif
 
 static menuitem_t OGL_FogMenu[] =
 {
@@ -7271,20 +8192,6 @@ menu_t OpenGLOptionDef =
 	NULL
 };
 
-#ifdef ALAM_LIGHTING
-menu_t OGL_LightingDef =
-{
-	"M_OPTTTL",
-	"OPTIONS",
-	sizeof (OGL_LightingMenu)/sizeof (menuitem_t),
-	&OpenGLOptionDef,
-	OGL_LightingMenu,
-	M_DrawGenericMenu,
-	60, 40,
-	0,
-	NULL
-};
-#endif
 
 menu_t OGL_FogDef =
 {
@@ -7321,13 +8228,8 @@ static void M_DrawOpenGLMenu(void)
 	mx = OpenGLOptionDef.x;
 	my = OpenGLOptionDef.y;
 	M_DrawGenericMenu(); // use generic drawer for cursor, items and title
-#if 0
-	V_DrawString(BASEVIDWIDTH - mx - V_StringWidth(cv_scr_depth.string),
-		my + currentMenu->menuitems[2].alphaKey, V_YELLOWMAP, cv_scr_depth.string);
-#else
-	(void)mx;
-	(void)my;
-#endif
+//	V_DrawString(BASEVIDWIDTH - mx - V_StringWidth(cv_scr_depth.string),
+//		my + currentMenu->menuitems[2].alphaKey, V_YELLOWMAP, cv_scr_depth.string);
 }
 
 #define FOG_COLOR_ITEM  1
@@ -7366,6 +8268,7 @@ static void M_OGL_DrawColorMenu(void)
 //======================================================================
 // M_OpenGLOption()
 //======================================================================
+#ifdef SHUFFLE
 static void M_OpenGLOption(INT32 choice)
 {
 	(void)choice;
@@ -7374,7 +8277,7 @@ static void M_OpenGLOption(INT32 choice)
 	else
 		M_StartMessage("You are in software mode\nYou can't change the options\n", NULL, MM_NOTHING);
 }
-
+#endif
 //======================================================================
 // M_HandleFogColor()
 //======================================================================
@@ -7444,6 +8347,7 @@ static void M_PrevServerPage(void)
 {
 	if (serverlistpage > 0) serverlistpage--;
 }
+#endif
 
 // Descending order. The casts are safe as long as the caller doesn't
 // do anything stupid.
@@ -7472,7 +8376,6 @@ static void M_SortServerList(void)
 		break;
 	}
 }
-#endif
 
 // Message responder for turning on
 // cheats through the menu system.

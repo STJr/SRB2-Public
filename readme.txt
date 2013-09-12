@@ -56,17 +56,15 @@ Dependencies:
 
 Build instructions:
 
-make -C src LINUX=1
+cd src
+make LINUX=1 # you may optionally add DEBUGMODE=1 to build it
+             # with debugging symbols
 
 Build instructions to build for Wii Linux/SRB2Wii on a PowerPC system,
 follow cross-compiling instructions for cross-compiling on a x86 system:
 
-make -C src LINUX=1 WIILINUX=1
-
-Build instructions to build for Pandora (Linux) on a ARM system,
-follow cross-compiling instructions for cross-compiling on a x86 system:
-
-make -C src PANDORA=1
+cd src
+make LINUX=1 WIILINUX=1
 
 Solaris
 ~~~
@@ -86,7 +84,9 @@ Dependencies:
 
 Build instructions:
 
-gmake -C src SOLARIS=1
+cd src
+gmake SOLARIS=1 # you may optionally add DEBUGMODE=1 to build it
+                # with debugging symbols
 
 FreeBSD
 ~~~
@@ -105,7 +105,9 @@ Dependencies:
 
 Build instructions:
 
-gmake -C src FREEBSD=1
+cd src
+gmake FREEBSD=1 # you may optionally add DEBUGMODE=1 to build it
+                # with debugging symbols
 
 DJGPP/DOS
 ~~~
@@ -121,7 +123,9 @@ Dependencies:
 
 Build instructions:
 
-make -C src # to link with Watt-32, add WATTCP=1
+cd src
+make  # to link with Watt-32, add WATTCP=1
+      # you may optionally add DEBUGMODE=1 to build it with debugging symbols
       # for remote debugging over the COM port, add RDB=1
 
 Notes:

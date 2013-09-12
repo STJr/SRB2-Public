@@ -65,11 +65,6 @@
 
 #include <math.h>
 
-#ifdef GETTEXT
-#include <libintl.h>
-#include <locale.h>
-#endif
-
 #if !defined (_WIN32_WCE)
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -92,11 +87,11 @@
 //#define PARANOIA // do some tests that never fail but maybe
 // turn this on by make etc.. DEBUGMODE = 1 or use the Debug profile in the VC++ projects
 //#endif
-#if defined (_WIN32) || (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON) || defined (macintosh)
+#if defined (_WIN32) || defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) || defined (macintosh)
 #define LOGMESSAGES // write message in log.txt
 #endif
 
-#ifdef LOGMESSAGES
+#if defined (LOGMESSAGES) && !defined (_WINDOWS)
 extern FILE *logstream;
 #endif
 
@@ -138,8 +133,8 @@ extern FILE *logstream;
 #define PUSHACCEL (2*FRACUNIT) // Acceleration for MF2_SLIDEPUSH items.
 
 // Name of local directory for config files and savegames
-#if !defined(_arch_dreamcast) && !defined(_WIN32_WCE) && !defined(GP2X) && !defined(_WII) && !defined(_PS3)
-#if (((defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)) && !defined (__APPLE__)
+#if !defined(_arch_dreamcast) && !defined(_WIN32_WCE) && !defined(GP2X)
+#if ((defined (__unix__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)) && !defined (__APPLE__)
 #define DEFAULTDIR ".srb2"
 #else
 #define DEFAULTDIR "srb2"
@@ -160,55 +155,17 @@ extern FILE *logstream;
 */
 void I_Error(const char *error, ...) FUNCIERROR;
 
-/**	\brief	write a message to stderr (use before I_Quit) for when you need to quit with a msg, but need
- the return code 0 of I_Quit();
-
-	\param	error	message string
-
-	\return	void
-*/
-void I_OutputMsg(const char *error, ...) FUNCPRINTF;
-
 // console.h
 void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
 
-#ifdef _DEBUG
-#define DEBPRINT(msg) { if (cv_debug || devparm) { CONS_Printf("%s", msg); } else { I_OutputMsg("%s", msg); } }
-#else
-#define DEBPRINT(msg) { if (devparm) { I_OutputMsg("%s", msg); } }
-#endif
-
 #include "m_swap.h"
 
-// Things that used to be in dstrings.h
-#define DEVMAPS "devmaps"
-#define DEVDATA "devdata"
-
-#define SAVEGAMENAME "srb2sav"
-
-char savegamename[256];
-
 // m_misc.h
-#ifdef GETTEXT
-#define M_GetText(String) gettext(String)
-void M_StartupLocale(void);
-#else
-// If no translations are to be used, make a stub
-// M_GetText function that just returns the string.
-#define M_GetText(x) (x)
-#endif
 extern void *(*M_Memcpy)(void* dest, const void* src, size_t n) FUNCNONNULL;
 char *va(const char *format, ...) FUNCPRINTF;
-char *sizeu1(size_t num);
-char *sizeu2(size_t num);
-char *sizeu3(size_t num);
-char *sizeu4(size_t num);
-char *sizeu5(size_t num);
 
 // d_main.c
 extern boolean devparm; // development mode (-debug)
-// d_netcmd.c
-extern INT32 cv_debug;
 
 // =======================
 // Misc stuff for later...
@@ -251,21 +208,16 @@ extern const char *compdate, *comptime, *comprevision;
 //#define WEAPON_SFX
 //#define FISHCAKE /// \todo Remove this to disable cheating. Remove for release!
 //#define JOHNNYFUNCODE
-//#define DUMPCONSISTENCY // dumps the contents of a network save game upon consistency failure for debugging.
-#if !defined (_NDS) && !defined (_PSP)
-//#define SHUFFLE //Incomplete OpenGL sorting code
-#endif
+#define SHUFFLE //Incomplete OpenGL sorting code
 //#define CHAOSISNOTDEADYET // Pre-1.08 Chaos gametype code
 //#define POLYOBJECTS_PLANES // Polyobject fake flat code
 //#define BLUE_SPHERES // Blue spheres for future use.
 #define NEWPING //Improved way of dealing with ping values and a ping limit.
 #define SEENAMES // See name of player in your crosshair
 #define TRANSFIX //Gets translation table from mobj->skin rather than player->skin. Ported from SRB2JTE.
-//#define DELFILE // delfile command.  This is used ALL over the source now to get rid of extraneous functions,
-                  // so if you really want to enable DELFILE, do it here.
 
 #ifdef SHUFFLE
-//#define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.
+#define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.
 #endif
 
 #endif // __DOOMDEF__

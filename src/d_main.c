@@ -21,7 +21,7 @@
 ///	plus functions to parse command line parameters, configure game
 ///	parameters, and call the startup functions.
 
-#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -51,6 +51,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "am_map.h"
 #include "console.h"
 #include "d_net.h"
+#include "dstrings.h"
 #include "f_finale.h"
 #include "g_game.h"
 #include "hu_stuff.h"
@@ -75,7 +76,6 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "y_inter.h"
 #include "p_local.h" // chasecam
 #include "mserv.h" // cv_internetserver
-#include "m_misc.h" // screenshot functionality
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -108,8 +108,6 @@ boolean lastdraw = false;
 
 postimg_t postimgtype = postimg_none;
 INT32 postimgparam;
-postimg_t postimgtype2 = postimg_none;
-INT32 postimgparam2;
 
 #ifdef _XBOX
 boolean nomidimusic = true, nosound = true;
@@ -211,7 +209,7 @@ static void D_Display(void)
 {
 	static boolean menuactivestate = false;
 	static gamestate_t oldgamestate = -1;
-	boolean redrawsbar = false;
+	boolean redrawsbar = false, viewactivestate = false;
 	static boolean wipe = false;
 
 	if (dedicated)
@@ -268,10 +266,10 @@ static void D_Display(void)
 	{
 		if (wipe)
 		{
-			if (!(mapheaderinfo[gamemap-1]->interscreen[0] == '#'
+			if (!(mapheaderinfo[gamemap-1].interscreen[0] == '#'
 				&& gamestate == GS_INTERMISSION))
 			{
-				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
+				V_DrawFill(0, 0, vid.width, vid.height, 31);
 #if defined (SHUFFLE) && defined (HWRENDER)
 				if(rendermode != render_soft)
 				{
@@ -359,6 +357,7 @@ static void D_Display(void)
 	{
 		if (oldgamestate != GS_LEVEL)
 		{
+			viewactivestate = false; // view was not active
 #if 0
 			R_FillBackScreen(); // draw the pattern into the back screen
 #endif
@@ -403,9 +402,7 @@ static void D_Display(void)
 
 			// Image postprocessing effect
 			if (postimgtype)
-				V_DoPostProcessor(0, postimgtype, postimgparam);
-			if (postimgtype2)
-				V_DoPostProcessor(1, postimgtype2, postimgparam2);
+				V_DoPostProcessor(postimgtype);
 		}
 
 		if (lastdraw)
@@ -478,12 +475,7 @@ static void D_Display(void)
 			snprintf(s, sizeof s - 1, "SysMiss %.2f%%", lostpercent);
 			V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT-10, V_YELLOWMAP, s);
 		}
-
 		I_FinishUpdate(); // page flip or blit buffer
-
-		if (takescreenshot) // Only take screenshots after drawing.
-			M_DoScreenShot();
-
 		return;
 	}
 
@@ -532,11 +524,11 @@ void D_SRB2Loop(void)
 	// end of loading screen: CONS_Printf() will no more call FinishUpdate()
 	con_startup = false;
 
-	CONS_Printf("I_StartupKeyboard...\n");
+	CONS_Printf("%s", text[I_STARTUPKEYBOARD]);
 	I_StartupKeyboard();
 
 #ifdef _WINDOWS
-	CONS_Printf("I_StartupMouse...\n");
+	CONS_Printf("%s", text[I_STARTUPMOUSE]);
 	I_DoStartupMouse();
 #endif
 
@@ -772,7 +764,7 @@ static void IdentifyVersion(void)
 	char *srb2wad1, *srb2wad2;
 	const char *srb2waddir = NULL;
 
-#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	// change to the directory where 'srb2.srb' is found
 	srb2waddir = I_LocateWad();
 #endif
@@ -784,7 +776,7 @@ static void IdentifyVersion(void)
 	}
 	else
 	{
-#if !defined(_WIN32_WCE) && !defined(_PS3)
+#ifndef _WIN32_WCE
 		if (getcwd(srb2path, 256) != NULL)
 			srb2waddir = srb2path;
 		else
@@ -809,9 +801,9 @@ static void IdentifyVersion(void)
 	if (srb2wad1 == NULL && srb2wad2 == NULL)
 		I_Error("No more free memory to look in %s", srb2waddir);
 	if (srb2wad1 != NULL)
-		sprintf(srb2wad1, pandf, srb2waddir, "srb2.srb");
+		sprintf(srb2wad1, pandf, srb2waddir, text[SRB2SRB]);
 	if (srb2wad2 != NULL)
-		sprintf(srb2wad2, pandf, srb2waddir, "srb2.wad");
+		sprintf(srb2wad2, pandf, srb2waddir, text[SRB2WAD]);
 
 	// will be overwritten in case of -cdrom or unix/win home
 	snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, srb2waddir);
@@ -823,7 +815,7 @@ static void IdentifyVersion(void)
 	else if (srb2wad1 != NULL && FIL_ReadFileOK(srb2wad1))
 		D_AddFile(srb2wad1);
 	else
-		I_Error(M_GetText("SRB2.SRB/SRB2.WAD not found! Expected in %s, ss files: %s and %s\n"), srb2waddir, srb2wad1, srb2wad2);
+		I_Error("SRB2.SRB/SRB2.WAD not found! Expected in %s, ss files: %s and %s\n", srb2waddir, srb2wad1, srb2wad2);
 
 	if (srb2wad1)
 		free(srb2wad1);
@@ -837,9 +829,9 @@ static void IdentifyVersion(void)
 	D_AddFile(va(pandf,srb2waddir,"zones.dta")); //zones.dta
 
 	// Add the players
-	D_AddFile(va(pandf,srb2waddir, "sonic.plr")); //sonic.plr
-	D_AddFile(va(pandf,srb2waddir, "tails.plr")); //tails.plr
-	D_AddFile(va(pandf,srb2waddir, "knux.plr")); //knux.plr
+	D_AddFile(va(pandf,srb2waddir,text[SONICPLR])); //sonic.plr
+	D_AddFile(va(pandf,srb2waddir,text[TAILSPLR])); //tails.plr
+	D_AddFile(va(pandf,srb2waddir,text[KNUXPLR])); //knux.plr
 
 #ifndef _PSP // PSPDEV's CRT haves a limit of 16 files opened at a time
 	// Add the weapons
@@ -855,7 +847,7 @@ static void IdentifyVersion(void)
 #if defined (DC) && 0
 		const char *musicfile = "music_dc.dta";
 #else
-		const char *musicfile = "music.dta";
+		const char *musicfile = text[MUSICWAD];
 #endif
 		const char *musicpath = va(pandf,srb2waddir,musicfile);
 		int ms = W_VerifyNMUSlumps(musicpath); // Don't forget the music!
@@ -916,6 +908,14 @@ static inline void D_MakeTitleString(char *s)
 	strcpy(s, temp);
 }
 
+static inline void D_InitCutsceneInfo(void)
+{
+	INT32 i,j;
+
+	for (i = 0; i < 128; i++)
+		for (j = 0; j < 128; j++)
+			cutscenes[i].scene[j].text = NULL;
+}
 
 //
 // D_SRB2Main
@@ -932,12 +932,7 @@ void D_SRB2Main(void)
 	// keep error messages until the final flush(stderr)
 #if !defined (PC_DOS) && !defined (_WIN32_WCE) && !defined(NOTERMIOS)
 	if (setvbuf(stderr, NULL, _IOFBF, 1000))
-		DEBPRINT("setvbuf didnt work\n");
-#endif
-
-#ifdef GETTEXT
-	// initialise locale code
-	M_StartupLocale();
+		CONS_Printf("%s", text[SETVBUF_FAIL]);
 #endif
 
 	// get parameters from a response file (eg: srb2 @parms.txt)
@@ -983,18 +978,21 @@ void D_SRB2Main(void)
 #endif
 
 	if (devparm)
-		CONS_Printf("%s", M_GetText("Development mode ON.\n"));
+		CONS_Printf("%s",text[D_DEVSTR]);
+
+	P_ClearMapHeaderInfo();
+	D_InitCutsceneInfo();
 
 	// default savegame
-	strcpy(savegamename, SAVEGAMENAME"%u.ssg");
+	strcpy(savegamename,text[NORM_SAVEI]);
 
 	{
 		const char *userhome = D_Home(); //Alam: path to home
 
 		if (!userhome)
 		{
-#if ((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
-			I_Error("%s", M_GetText("Please set $HOME to your home directory\n"));
+#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
+			I_Error("Please set $HOME to your home directory\n");
 #elif defined (_WIN32_WCE) && 0
 			if (dedicated)
 				snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/d"CONFIGFILENAME);
@@ -1092,24 +1090,23 @@ void D_SRB2Main(void)
 	if (M_CheckParm("-warp") && M_IsNextParm())
 	{
 		pstartmap = atoi(M_GetNextParm());
-		if (!M_CheckParm("-server"))
-			modifiedgame = true;
+		modifiedgame = true;
 		autostart = true;
 		savemoddata = false;
 	}
 
-	CONS_Printf("%s", M_GetText("Z_Init: Init zone memory allocation daemon. \n"));
+	CONS_Printf("%s",text[Z_INIT]);
 	Z_Init();
 
 	// adapt tables to SRB2's needs, including extra slots for dehacked file support
 	P_PatchInfoTables();
 
-	CONS_Printf("%s", M_GetText("W_Init: Init WADfiles.\n"));
+	CONS_Printf("%s",text[W_INIT]);
 
 	//---------------------------------------------------- READY TIME
 	// we need to check for dedicated before initialization of some subsystems
 
-	CONS_Printf("I_StartupTimer...\n");
+	CONS_Printf("%s", text[I_STARTUPTIMER]);
 	I_StartupTimer();
 
 	// Make backups of some SOCcable tables.
@@ -1118,9 +1115,9 @@ void D_SRB2Main(void)
 	// load wad, including the main wad file
 	if (!W_InitMultipleFiles(startupwadfiles))
 #ifdef _DEBUG
-		CONS_Error(M_GetText("A WAD file was not found or not valid\n"));
+		CONS_Error("A WAD file was not found or not valid\n");
 #else
-		I_Error("%s", M_GetText("A WAD file was not found or not valid\n"));
+		I_Error("A WAD file was not found or not valid\n");
 #endif
 	D_CleanFile();
 
@@ -1138,30 +1135,17 @@ void D_SRB2Main(void)
 	// ...except it does if they slip maps in there, and that's what W_VerifyNMUSlumps is for.
 
 
-	mainwads = 8; // there are 8 wads not to unload
-
-/* TODO: incorporate this!
-	CONS_Printf("%s", "===========================================================================\n"
-	"                       Sonic Robo Blast II!\n"
-	"                       by Sonic Team Junior\n"
-	"                       http://www.srb2.org\n"
-	"      This is a modified version. Go to our site for the original.\n"
-	"===========================================================================\n");
-*/
+	mainwads = 7; // there 7 wads not to unload
 
 	// Check and print which version is executed.
-	CONS_Printf("%s", "===========================================================================\n"
-	"                   We hope you enjoy this game as\n"
-	"                     much as we did making it!\n"
-	"                            ...wait. =P\n"
-	"===========================================================================\n");
+	CONS_Printf("%s",text[COMERCIAL]);
 
 	cht_Init();
 
 	//---------------------------------------------------- READY SCREEN
 	// we need to check for dedicated before initialization of some subsystems
 
-	CONS_Printf("I_StartupGraphics...\n");
+	CONS_Printf("%s", text[I_STARTUPGRAPHICS]);
 	I_StartupGraphics();
 
 	//--------------------------------------------------------- CONSOLE
@@ -1169,16 +1153,11 @@ void D_SRB2Main(void)
 	SCR_Startup();
 
 	// we need the font of the console
-	CONS_Printf("%s", M_GetText("HU_Init: Setting up heads up display.\n"));
+	CONS_Printf("%s",text[HU_INIT]);
 	HU_Init();
 
 	COM_Init();
-	// libogc has a CON_Init function, we must rename SRB2's CON_Init in WII/libogc
-#ifndef _WII
 	CON_Init();
-#else
-	CON_InitWii();
-#endif
 
 	D_RegisterServerCommands();
 	D_RegisterClientCommands(); // be sure that this is called before D_CheckNetGame
@@ -1193,7 +1172,7 @@ void D_SRB2Main(void)
 	if (!M_CheckParm("-resetdata"))
 		G_LoadGameData();
 
-#if (defined (__unix__) && !defined (MSDOS)) || defined (UNIXCOMMON) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
 	VID_PrepareModeList(); // Regenerate Modelist according to cv_fullscreen
 #endif
 
@@ -1214,14 +1193,14 @@ void D_SRB2Main(void)
 	if (M_CheckParm("-nodownloading"))
 		COM_BufAddText("downloading 0\n");
 
-	CONS_Printf("%s", M_GetText("M_Init: Init miscellaneous info.\n"));
+	CONS_Printf("%s",text[M_INIT]);
 	M_Init();
 
-	CONS_Printf("%s", M_GetText("R_Init: Init SRB2 refresh daemon - "));
+	CONS_Printf("%s",text[R_INIT]);
 	R_Init();
 
 	// setting up sound
-	CONS_Printf("%s", M_GetText("S_Init: Setting up sound.\n"));
+	CONS_Printf("%s",text[S_SETSOUND]);
 	if (M_CheckParm("-nosound"))
 		nosound = true;
 	if (M_CheckParm("-nomusic")) // combines -nomidimusic and -nodigmusic
@@ -1237,14 +1216,14 @@ void D_SRB2Main(void)
 	I_InitMusic();
 	S_Init(cv_soundvolume.value, cv_digmusicvolume.value, cv_midimusicvolume.value);
 
-	CONS_Printf("%s", M_GetText("ST_Init: Init status bar.\n"));
+	CONS_Printf("%s",text[ST_INIT]);
 	ST_Init();
 
 	if (M_CheckParm("-internetserver"))
 		CV_SetValue(&cv_internetserver, 1);
 
 	// init all NETWORK
-	CONS_Printf("%s", M_GetText("D_CheckNetGame: Checking network game status.\n"));
+	CONS_Printf("%s",text[D_CHECKNET]);
 	if (D_CheckNetGame())
 		autostart = true;
 
@@ -1284,7 +1263,7 @@ void D_SRB2Main(void)
 
 		FIL_DefaultExtension(tmp, ".lmp");
 
-		CONS_Printf(M_GetText("Playing demo %s.\n"), tmp);
+		CONS_Printf(text[PLAYINGDEMO], tmp);
 
 		if (M_CheckParm("-playdemo"))
 		{
@@ -1301,8 +1280,7 @@ void D_SRB2Main(void)
 
 	if (M_CheckParm("-ultimatemode"))
 	{
-		autostart = true;
-		ultimatemode = true;
+		autostart = ultimatemode = true;
 	}
 
 	if (autostart || netgame || M_CheckParm("+connect") || M_CheckParm("-connect"))
@@ -1395,10 +1373,10 @@ const char *D_Home(void)
 		userhome = M_GetNextParm();
 	else
 	{
-#if defined (GP2X)
+#ifdef GP2X
 		usehome = false; //let use the CWD
 		return NULL;
-#elif !((defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__APPLE__) && !defined(_WIN32_WCE)
+#elif !(defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__APPLE__) && !defined(_WIN32_WCE)
 		if (FIL_FileOK(CONFIGFILENAME))
 			usehome = false; // Let's NOT use home
 		else

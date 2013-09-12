@@ -40,6 +40,7 @@
 #include "r_splats.h"
 #include "z_zone.h"
 #include "w_wad.h"
+#include "dstrings.h"
 #include "hu_stuff.h"
 
 #ifdef HW3SOUND
@@ -355,7 +356,7 @@ void P_ResetScore(player_t *player)
 {
 #ifdef CHAOSISNOTDEADYET
 	if (gametype == GT_CHAOS && player->scoreadd >= 5)
-		CONS_Printf(M_GetText("%s got a chain of %u!\n"), player_names[player-players], player->scoreadd);
+		CONS_Printf("%s got a chain of %u!\n", player_names[player-players], player->scoreadd);
 #endif
 
 	player->scoreadd = 0;
@@ -395,7 +396,8 @@ UINT8 P_FindLowestMare(void)
 		}
 	}
 
-	DEBPRINT(va("Lowest mare found: %d\n", mare));
+	if (cv_debug)
+		CONS_Printf("Lowest mare found: %d\n", mare);
 
 	return mare;
 }
@@ -419,7 +421,8 @@ boolean P_TransferToNextMare(player_t *player)
 	if (mare == 255)
 		return false;
 
-	DEBPRINT(va("Mare is %d\n", mare));
+	if (cv_debug)
+		CONS_Printf("Mare is %d\n", mare);
 
 	player->mare = mare;
 
@@ -542,7 +545,8 @@ void P_TransferToAxis(player_t *player, INT32 axisnum)
 	INT32 mare = player->mare;
 	fixed_t dist1, dist2 = 0;
 
-	DEBPRINT(va("Transferring to axis %d\nLeveltime: %u...\n", axisnum, leveltime));
+	if (cv_debug)
+		CONS_Printf("Transferring to axis %d\nLeveltime: %u...\n", axisnum, leveltime);
 
 	closestaxis = NULL;
 
@@ -579,13 +583,9 @@ void P_TransferToAxis(player_t *player, INT32 axisnum)
 	}
 
 	if (!closestaxis)
-	{
-		DEBPRINT(va("ERROR: Specified axis point to transfer to not found!\n%d\n", axisnum));
-	}
-	else
-	{
-		DEBPRINT(va("Transferred to axis %d, mare %d\n", closestaxis->health, closestaxis->threshold));
-	}
+		CONS_Printf("ERROR: Specified axis point to transfer to not found!\n%d\n", axisnum);
+	else if (cv_debug)
+		CONS_Printf("Transferred to axis %d, mare %d\n", closestaxis->health, closestaxis->threshold);
 
 	P_SetTarget(&player->mo->target, closestaxis);
 }
@@ -867,8 +867,10 @@ void P_ResetPlayer(player_t *player)
 //
 void P_GivePlayerRings(player_t *player, INT32 num_rings, boolean flingring)
 {
+#ifdef PARANOIA
 	if (!player->mo)
 		return;
+#endif
 
 	player->mo->health += num_rings;
 	player->health += num_rings;
@@ -920,7 +922,7 @@ void P_GivePlayerLives(player_t *player, INT32 numlives)
 void P_DoSuperTransformation(player_t *player, boolean giverings)
 {
 	player->powers[pw_super] = 1;
-	if (!mapheaderinfo[gamemap-1]->nossmusic && P_IsLocalPlayer(player))
+	if (!mapheaderinfo[gamemap-1].nossmusic && P_IsLocalPlayer(player))
 	{
 		S_StopMusic();
 		S_ChangeMusic(mus_supers, true);
@@ -943,7 +945,7 @@ void P_DoSuperTransformation(player_t *player, boolean giverings)
 	}
 
 	// Just in case.
-	if (!mapheaderinfo[gamemap-1]->nossmusic)
+	if (!mapheaderinfo[gamemap-1].nossmusic)
 	{
 		player->powers[pw_extralife] = 0;
 		player->powers[pw_invulnerability] = 0;
@@ -955,6 +957,7 @@ void P_DoSuperTransformation(player_t *player, boolean giverings)
 		HU_SetCEchoFlags(0);
 		HU_SetCEchoDuration(5);
 		HU_DoCEcho(va("%s\\is now super.\\\\\\\\", player_names[player-players]));
+		I_OutputMsg("%s is now super.\n", player_names[player-players]);
 	}
 
 	P_PlayerFlagBurst(player, false);
@@ -971,7 +974,7 @@ void P_AddPlayerScore(player_t *player, UINT32 amount)
 
 	// check for extra lives every 50000 pts
 	if (player->score > oldscore && player->score % 50000 < amount && (gametype == GT_RACE || gametype == GT_COOP)
-		&& !(mapheaderinfo[gamemap-1]->typeoflevel & TOL_NIGHTS))
+		&& !(mapheaderinfo[gamemap-1].typeoflevel & TOL_NIGHTS))
 	{
 		P_GivePlayerLives(player, (player->score/50000) - (oldscore/50000));
 
@@ -1009,12 +1012,12 @@ void P_RestoreMusic(player_t *player)
 		return;
 
 	if ((mus_playing == &S_music[mapmusic & 2047]) //the music is correct! don't come in and wreck our speed changes!
-		&& !(player->powers[pw_super] && !mapheaderinfo[gamemap-1]->nossmusic)
+		&& !(player->powers[pw_super] && !mapheaderinfo[gamemap-1].nossmusic)
 		&& !(player->powers[pw_invulnerability] > 1)
 		&& !(player->powers[pw_sneakers] > 1))
 		return;
 
-	if (player->powers[pw_super] && !mapheaderinfo[gamemap-1]->nossmusic)
+	if (player->powers[pw_super] && !mapheaderinfo[gamemap-1].nossmusic)
 	{
 		S_SpeedMusic(1.0f);
 		S_ChangeMusic(mus_supers, true);
@@ -1029,7 +1032,7 @@ void P_RestoreMusic(player_t *player)
 	}
 	else if (player->powers[pw_sneakers] > 1)
 	{
-		if (S_SpeedMusic(0.0f) && mapheaderinfo[gamemap-1]->speedmusic)
+		if (S_SpeedMusic(0.0f) && mapheaderinfo[gamemap-1].speedmusic)
 			S_SpeedMusic(1.4f);
 		else
 		{
@@ -1342,7 +1345,7 @@ void P_DoPlayerExit(player_t *player)
 	player->powers[pw_underwater] = 1; // So music resets
 
 	if (playeringame[player-players] && netgame && (gametype == GT_COOP || gametype == GT_RACE) && !circuitmap)
-		CONS_Printf(M_GetText("%s has completed the level.\n"), player_names[player-players]);
+		CONS_Printf(text[FINISHEDLEVEL], player_names[player-players]);
 }
 
 #define SPACESPECIAL 12
@@ -1575,6 +1578,7 @@ static void P_DoSuperStuff(player_t *player)
 				HU_SetCEchoFlags(0);
 				HU_SetCEchoDuration(5);
 				HU_DoCEcho(va("%s\\is no longer super.\\\\\\\\", player_names[player-players]));
+				I_OutputMsg("%s is no longer super.\n", player_names[player-players]);
 			}
 		}
 
@@ -1625,6 +1629,7 @@ static void P_DoSuperStuff(player_t *player)
 				HU_SetCEchoFlags(0);
 				HU_SetCEchoDuration(5);
 				HU_DoCEcho(va("%s\\is no longer super.\\\\\\\\", player_names[player-players]));
+				I_OutputMsg("%s is no longer super.\n", player_names[player-players]);
 			}
 
 			// Resume normal music if you're the console player
@@ -2193,7 +2198,7 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 INT32 P_GetPlayerControlDirection(player_t *player)
 {
 	ticcmd_t *cmd = &player->cmd;
-	angle_t controllerdirection, controlplayerdirection;
+	angle_t controldirection, controllerdirection, controlplayerdirection;
 	camera_t *thiscam;
 
 	if (splitscreen && player == &players[secondarydisplayplayer])
@@ -2225,7 +2230,7 @@ INT32 P_GetPlayerControlDirection(player_t *player)
 		tempx = tempx*FRACUNIT;
 		tempy = tempy*FRACUNIT;
 
-		controllerdirection =
+		controldirection = controllerdirection =
 			R_PointToAngle2(player->mo->x, player->mo->y, player->mo->x + tempx,
 				player->mo->y + tempy);
 
@@ -2257,7 +2262,7 @@ INT32 P_GetPlayerControlDirection(player_t *player)
 			return 0;
 	}
 
-	controllerdirection =
+	controldirection = controllerdirection =
 		R_PointToAngle2(player->mo->x, player->mo->y, P_ReturnThrustX(player->mo, player->mo->angle, cmd->forwardmove),
 			P_ReturnThrustY(player->mo, player->mo->angle, cmd->forwardmove));
 
@@ -3095,14 +3100,14 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 		if (cv_debug && (leveltime % TICRATE == 0))
 		{
-			DEBPRINT(va("Transfer1 : %d\n", transfer1->health));
-			DEBPRINT(va("Transfer2 : %d\n", transfer2->health));
+			CONS_Printf("Transfer1 : %d\n", transfer1->health);
+			CONS_Printf("Transfer2 : %d\n", transfer2->health);
 		}
 
-		//DEBPRINT(va("T1 is at %d, %d\n", transfer1->x>>FRACBITS, transfer1->y>>FRACBITS));
-		//DEBPRINT(va("T2 is at %d, %d\n", transfer2->x>>FRACBITS, transfer2->y>>FRACBITS));
-		//DEBPRINT(va("Distance from T1: %d\n", P_AproxDistance(transfer1->x - player->mo->x, transfer1->y - player->mo->y)>>FRACBITS));
-		//DEBPRINT(va("Distance from T2: %d\n", P_AproxDistance(transfer2->x - player->mo->x, transfer2->y - player->mo->y)>>FRACBITS));
+		//CONS_Printf("T1 is at %d, %d\n", transfer1->x>>FRACBITS, transfer1->y>>FRACBITS);
+		//CONS_Printf("T2 is at %d, %d\n", transfer2->x>>FRACBITS, transfer2->y>>FRACBITS);
+		//CONS_Printf("Distance from T1: %d\n", P_AproxDistance(transfer1->x - player->mo->x, transfer1->y - player->mo->y)>>FRACBITS);
+		//CONS_Printf("Distance from T2: %d\n", P_AproxDistance(transfer2->x - player->mo->x, transfer2->y - player->mo->y)>>FRACBITS);
 
 		// Transfer1 is closer to the player than transfer2
 		if (P_AproxDistance(transfer1->x - player->mo->x, transfer1->y - player->mo->y)>>FRACBITS
@@ -3119,11 +3124,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					DEBPRINT("Unable to find an axis - error code #1\n");
+					CONS_Printf("Unable to find an axis - error code #1\n");
 					return;
 				}
 
-				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
+				//CONS_Printf("Drawing a line from %d to ", axis->health);
 
 				transfer1line.v1->x = axis->x;
 				transfer1line.v1->y = axis->y;
@@ -3134,7 +3139,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 				if (cv_debug)
 					P_ShootLine(axis, transfer1, player->mo->z);
 
-				//DEBPRINT("closest %d\n", transfer1->health);
+				//CONS_Printf("closest %d\n", transfer1->health);
 
 				transfer1line.dx = transfer1line.v2->x - transfer1line.v1->x;
 				transfer1line.dy = transfer1line.v2->y - transfer1line.v1->y;
@@ -3172,11 +3177,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					DEBPRINT("Unable to find an axis - error code #2\n");
+					CONS_Printf("Unable to find an axis - error code #2\n");
 					return;
 				}
 
-				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
+				//CONS_Printf("Drawing a line from %d to ", axis->health);
 
 				transfer1line.v1->x = axis->x;
 				transfer1line.v1->y = axis->y;
@@ -3186,7 +3191,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				//axis = P_FindAxis(transfer1->threshold, transfer1->health-1);
 
-				//DEBPRINT(va("%d\n", axis->health));
+				//CONS_Printf("%d\n", axis->health);
 
 				transfer1line.v2->x = transfer1->x;
 				transfer1line.v2->y = transfer1->y;
@@ -3238,11 +3243,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					DEBPRINT("Unable to find an axis - error code #3\n");
+					CONS_Printf("Unable to find an axis - error code #3\n");
 					return;
 				}
 
-				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
+				//CONS_Printf("Drawing a line from %d to ", axis->health);
 
 				transfer2line.v1->x = axis->x;
 				transfer2line.v1->y = axis->y;
@@ -3250,7 +3255,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 				transfer2line.v2->x = transfer2->x;
 				transfer2line.v2->y = transfer2->y;
 
-				//DEBPRINT(va("closest %d\n", transfer2->health));
+				//CONS_Printf("closest %d\n", transfer2->health);
 
 				if (cv_debug)
 					P_ShootLine(axis, transfer2, player->mo->z);
@@ -3301,11 +3306,11 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				if (!axis)
 				{
-					DEBPRINT("Unable to find an axis - error code #4\n");
+					CONS_Printf("Unable to find an axis - error code #4\n");
 					return;
 				}
 
-				//DEBPRINT(va("Drawing a line from %d to ", axis->health));
+				//CONS_Printf("Drawing a line from %d to ", axis->health);
 
 				transfer2line.v1->x = axis->x;
 				transfer2line.v1->y = axis->y;
@@ -3315,7 +3320,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 
 				//axis = P_FindAxis(transfer2->threshold, transfer2->health-1);
 
-				//DEBPRINT(va("%d\n", axis->health));
+				//CONS_Printf("%d\n", axis->health);
 
 				transfer2line.v2->x = transfer2->x;
 				transfer2line.v2->y = transfer2->y;
@@ -3454,7 +3459,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 	if (!player->mo->target) // Uh-oh!
 	{
-		DEBPRINT("No axis points found!\n");
+		CONS_Printf("No axis points found!\n");
 		return;
 	}
 
@@ -4859,7 +4864,7 @@ static void P_NiGHTSMovement(player_t *player)
 
 			if (((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS) >= (1 << (16-ZSHIFT)))
 			{
-				CONS_Printf("%s", M_GetText("Sorry, you're too high to place this object (max: 4095 above bottom floor).\n"));
+				CONS_Printf("%s",text[TOOHIGH_4095]);
 				return;
 			}
 
@@ -4993,12 +4998,12 @@ static void P_NiGHTSMovement(player_t *player)
 
 			if ((cv_mapthingnum.value == 16 || cv_mapthingnum.value == 2008) && ((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS) >= (1 << (16-(ZSHIFT+1))))
 			{
-				CONS_Printf("%s", M_GetText("Sorry, you're too high to place this object (max: 2047 above bottom floor).\n"));
+				CONS_Printf("%s", text[TOOHIGH_2047]);
 				return;
 			}
 			else if (((player->mo->z - player->mo->subsector->sector->floorheight)>>FRACBITS) >= (1 << (16-ZSHIFT)))
 			{
-				CONS_Printf("%s", M_GetText("Sorry, you're too high to place this object (max: 4095 above bottom floor).\n"));
+				CONS_Printf("%s", text[TOOHIGH_4095]);
 				return;
 			}
 
@@ -5045,7 +5050,7 @@ static void P_NiGHTSMovement(player_t *player)
 			else
 				P_SpawnMapThing(mt);
 
-			CONS_Printf(M_GetText("Spawned at %d\n"), mt->options >> shift);
+			CONS_Printf("Spawned at %d\n", mt->options >> shift);
 
 			player->pflags |= PF_USEDOWN;
 		}
@@ -5115,7 +5120,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			|| mobjinfo[player->currentthing].flags & MF_BOSS
 			|| (states[mobjinfo[player->currentthing].spawnstate].sprite == SPR_DISS && player->currentthing != MT_MINUS));
 
-		CONS_Printf(M_GetText("Current mapthing is %d\n"), mobjinfo[player->currentthing].doomednum);
+		CONS_Printf("Current mapthing is %d\n", mobjinfo[player->currentthing].doomednum);
 		player->pflags |= PF_SKIDDOWN;
 	}
 	else if (cmd->buttons & BT_CAMRIGHT && !(player->pflags & PF_JUMPDOWN))
@@ -5132,7 +5137,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			|| mobjinfo[player->currentthing].flags & MF_BOSS
 			|| (states[mobjinfo[player->currentthing].spawnstate].sprite == SPR_DISS && player->currentthing != MT_MINUS));
 
-		CONS_Printf(M_GetText("Current mapthing is %d\n"), mobjinfo[player->currentthing].doomednum);
+		CONS_Printf("Current mapthing is %d\n", mobjinfo[player->currentthing].doomednum);
 		player->pflags |= PF_JUMPDOWN;
 	}
 
@@ -5209,8 +5214,10 @@ static void P_ObjectplaceMovement(player_t *player)
 			{
 				if (z >= (1 << (16-(ZSHIFT+1))))
 				{
-					CONS_Printf(M_GetText("Sorry, you're too %s to place this object (max: %d %s).\n"), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("low") : M_GetText("high"),
-						(1 << (16-(ZSHIFT+1))), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("below top ceiling") : M_GetText("above bottom floor"));
+					CONS_Printf("Sorry, you're too %s to place this object (max: %d %s).\n",
+						player->mo->target->flags & MF_SPAWNCEILING ? "low" : "high",
+						(1 << (16-(ZSHIFT+1))),
+						player->mo->target->flags & MF_SPAWNCEILING ? "below top ceiling" : "above bottom floor");
 					return;
 				}
 				zshift = ZSHIFT+1; // Shift it over 5 bits to make room for the flag info.
@@ -5219,8 +5226,10 @@ static void P_ObjectplaceMovement(player_t *player)
 			{
 				if (z >= (1 << (16-ZSHIFT)))
 				{
-					CONS_Printf(M_GetText("Sorry, you're too %s to place this object (max: %d %s).\n"), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("low") : M_GetText("high"),
-						(1 << (16-ZSHIFT)), player->mo->target->flags & MF_SPAWNCEILING ? M_GetText("below top ceiling") : M_GetText("above bottom floor"));
+					CONS_Printf("Sorry, you're too %s to place this object (max: %d %s).\n",
+						player->mo->target->flags & MF_SPAWNCEILING ? "low" : "high",
+						(1 << (16-ZSHIFT)),
+						player->mo->target->flags & MF_SPAWNCEILING ? "below top ceiling" : "above bottom floor");
 					return;
 				}
 				zshift = ZSHIFT;
@@ -5267,7 +5276,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			if (cv_mapthingnum.value != 0)
 			{
 				mt->type = (INT16)cv_mapthingnum.value;
-				CONS_Printf(M_GetText("Placed object mapthingum %d, not the one below.\n"), mt->type);
+				CONS_Printf("Placed object mapthingum %d, not the one below.\n", mt->type);
 			}
 			else
 				mt->type = (INT16)mobjinfo[player->currentthing].doomednum;
@@ -5277,7 +5286,7 @@ static void P_ObjectplaceMovement(player_t *player)
 			newthing = P_SpawnMobj(x << FRACBITS, y << FRACBITS, player->mo->target->flags & MF_SPAWNCEILING ? player->mo->subsector->sector->ceilingheight - ((z>>zshift)<<FRACBITS) : player->mo->subsector->sector->floorheight + ((z>>zshift)<<FRACBITS), player->currentthing);
 			newthing->angle = player->mo->angle;
 			newthing->spawnpoint = mt;
-			CONS_Printf(M_GetText("Placed object type %d at %d, %d, %d, %d\n"), newthing->info->doomednum, mt->x, mt->y, newthing->z>>FRACBITS, mt->angle);
+			CONS_Printf("Placed object type %d at %d, %d, %d, %d\n", newthing->info->doomednum, mt->x, mt->y, newthing->z>>FRACBITS, mt->angle);
 
 			player->pflags |= PF_ATTACKDOWN;
 		}
@@ -5323,7 +5332,7 @@ static void P_ObjectplaceMovement(player_t *player)
 							mapthing_t *newmt;
 							size_t z;
 
-							CONS_Printf("%s", M_GetText("Deleting...\n"));
+							CONS_Printf("Deleting...\n");
 
 							oldmapthings = mapthings;
 							nummapthings--;
@@ -5337,7 +5346,7 @@ static void P_ObjectplaceMovement(player_t *player)
 							{
 								if (oldmt->mobj == mo2)
 								{
-									CONS_Printf("%s", M_GetText("Deleted.\n"));
+									CONS_Printf("Deleted.\n");
 									newmt--;
 									continue;
 								}
@@ -5358,7 +5367,7 @@ static void P_ObjectplaceMovement(player_t *player)
 					}
 				}
 				else
-					CONS_Printf("%s", M_GetText("You cannot delete this item because it doesn't have a mapthing!\n"));
+					CONS_Printf("You cannot delete this item because it doesn't have a mapthing!\n");
 			}
 			done = false;
 		}
@@ -5523,7 +5532,7 @@ static void P_MovePlayer(player_t *player)
 					//Make joining players "it" after hidetime.
 					if (leveltime > (hidetime * TICRATE))
 					{
-						CONS_Printf(M_GetText("%s is now IT!\n"), player_names[player-players]); // Tell everyone who is it!
+						CONS_Printf("%s is it!\n", player_names[player-players]); // Tell everyone who is it!
 						player->pflags |= PF_TAGIT;
 					}
 
@@ -5534,18 +5543,18 @@ static void P_MovePlayer(player_t *player)
 				if (P_IsLocalPlayer(player) && displayplayer != consoleplayer)
 					displayplayer = consoleplayer;
 
-				CONS_Printf(M_GetText("%s entered the game.\n"), player_names[player-players]);
+				CONS_Printf(text[INGAME_SWITCH], player_names[player-players]);
 			}
 			else
 			{
 				if (P_IsLocalPlayer(player))
-					CONS_Printf("%s", M_GetText("You must wait until next round to enter the game.\n"));
+					CONS_Printf("You must wait until next round to enter the game.\n");
 				player->powers[pw_flashing] += 2*TICRATE; //to prevent message spam.
 			}
 		}
 		else
 		{
-			CONS_Printf("%s", M_GetText("Server does not allow team change.\n"));
+			CONS_Printf("Server does not allow team change.\n");
 			player->powers[pw_flashing] += 2*TICRATE; //to prevent message spam.
 		}
 	}
@@ -5560,8 +5569,37 @@ static void P_MovePlayer(player_t *player)
 		{
 			INT32 changeto;
 			INT32 red, blue;
+			INT32 redarray[MAXPLAYERS], bluearray[MAXPLAYERS];
 
 			red = blue = changeto = 0;
+
+			//We have to store the players in an array with the rest of their team.
+			//We can then pick which team the player will be assigned to.
+			for (i = 0; i < MAXPLAYERS; i++)
+			{
+				redarray[i] = 0;
+				bluearray[i] = 0;
+			}
+
+			for (i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					switch (players[i].ctfteam)
+					{
+					case 0:
+						break;
+					case 1:
+						redarray[red] = i; //store the player's node.
+						red++;
+						break;
+					case 2:
+						bluearray[blue] = i; //store the player's node.
+						blue++;
+						break;
+					}
+				}
+			}
 
 			//find a team by players, then by score, or random if all else fails.
 			if (blue > red)
@@ -5605,7 +5643,7 @@ static void P_MovePlayer(player_t *player)
 		}
 		else
 		{
-			CONS_Printf("%s", M_GetText("Server does not allow team change.\n"));
+			CONS_Printf("Server does not allow team change.\n");
 			player->powers[pw_flashing] += 2*TICRATE; //to prevent message spam.
 		}
 	}
@@ -6079,7 +6117,7 @@ static void P_MovePlayer(player_t *player)
 
 	if (!G_IsSpecialStage(gamemap)
 		&& (gametype == GT_COOP || gametype == GT_RACE)
-		&& !(mapheaderinfo[gamemap-1]->typeoflevel & TOL_NIGHTS)) // Don't do it in special stages.
+		&& !(mapheaderinfo[gamemap-1].typeoflevel & TOL_NIGHTS)) // Don't do it in special stages.
 	{
 		if ((player->health > 100) && (!player->xtralife))
 		{
@@ -6298,7 +6336,7 @@ static void P_MovePlayer(player_t *player)
 	}
 
 	// Resume normal music stuff.
-	if (player->powers[pw_invulnerability] == 1 && (!player->powers[pw_super] ||  mapheaderinfo[gamemap-1]->nossmusic))
+	if (player->powers[pw_invulnerability] == 1 && (!player->powers[pw_super] ||  mapheaderinfo[gamemap-1].nossmusic))
 	{
 		if (mariomode)
 		{
@@ -8351,7 +8389,8 @@ static void P_DoZoomTube(player_t *player)
 		player->mo->floorz = player->mo->subsector->sector->floorheight;
 		player->mo->ceilingz = player->mo->subsector->sector->ceilingheight;
 
-		DEBPRINT("Looking for next waypoint...\n");
+		if (cv_debug)
+			CONS_Printf("Looking for next waypoint...\n");
 
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -8377,7 +8416,8 @@ static void P_DoZoomTube(player_t *player)
 
 		if (waypoint)
 		{
-			DEBPRINT(va("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health));
+			if (cv_debug)
+				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
 
 			// calculate MOMX/MOMY/MOMZ for next waypoint
 			// change angle
@@ -8404,7 +8444,8 @@ static void P_DoZoomTube(player_t *player)
 		{
 			P_SetTarget(&player->mo->tracer, NULL); // Else, we just let him fly.
 
-			DEBPRINT("Next waypoint not found, releasing from track...\n");
+			if (cv_debug)
+				CONS_Printf("Next waypoint not found, releasing from track...\n");
 		}
 	}
 	else
@@ -8512,7 +8553,8 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 		P_SetThingPosition(player->mo);
 
-		DEBPRINT("Looking for next waypoint...\n");
+		if (cv_debug)
+			CONS_Printf("Looking for next waypoint...\n");
 
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -8537,7 +8579,8 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 		if (!(player->mo->tracer->flags & MF_SLIDEME) && !waypoint)
 		{
-			DEBPRINT("Next waypoint not found, wrapping to start...\n");
+			if (cv_debug)
+				CONS_Printf("Next waypoint not found, wrapping to start...\n");
 
 			// Wrap around back to first waypoint
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
@@ -8563,7 +8606,8 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 		if (waypoint)
 		{
-			DEBPRINT(va("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health));
+			if (cv_debug)
+				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
 
 			// calculate MOMX/MOMY/MOMZ for next waypoint
 			// change slope
@@ -8595,7 +8639,8 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 
 			P_SetTarget(&player->mo->tracer, NULL);
 
-			DEBPRINT("Next waypoint not found!\n");
+			if (cv_debug)
+				CONS_Printf("Next waypoint not found!\n");
 		}
 	}
 	else
@@ -8637,7 +8682,7 @@ static void P_NukeAllPlayers(player_t *player)
 		P_DamageMobj(mo, player->mo, player->mo, 1);
 	}
 
-	CONS_Printf(M_GetText("%s caused a world of pain.\n"), player_names[player-players]);
+	CONS_Printf(WORLD_OF_PAIN, player_names[player-players]);
 
 	return;
 }
@@ -8729,14 +8774,8 @@ boolean P_LookForEnemies(player_t *player)
 		if (mo->flags & MF_MONITOR && mo->state == &states[S_MONITOREXPLOSION5])
 			continue;
 
-#ifdef REMOVE_FOR_207
-		if (((mo->z > player->mo->z+MAXSTEPMOVE) && !(player->mo->eflags & MFE_VERTICALFLIP))
-			|| ((mo->z < player->mo->z) && (player->mo->eflags & MFE_VERTICALFLIP))) // Reverse gravity check - Flame.
-			continue; // Don't home upwards!
-#else
 		if (mo->z > player->mo->z+MAXSTEPMOVE)
 			continue; // Don't home upwards!
-#endif
 
 		if (P_AproxDistance(P_AproxDistance(player->mo->x-mo->x, player->mo->y-mo->y),
 			player->mo->z-mo->z) > RING_DIST)
@@ -9131,7 +9170,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 	if (!thiscam->chase)
 		P_ResetCamera(player, thiscam);
 
-	if (!player || !player->mo)
+	if (!player)
 		return;
 
 	mo = player->mo;
@@ -9578,13 +9617,14 @@ void P_PlayerThink(player_t *player)
 
 #ifdef PARANOIA
 	if (!player->mo)
-		I_Error("p_playerthink: players[%s].mo == NULL", sizeu1(playeri));
+		I_Error("p_playerthink: players[%"PRIdS"].mo == NULL", playeri);
 #endif
 
 	// todo: Figure out what is actually causing these problems in the first place...
 	if ((player->health <= 0 || player->mo->health <= 0) && player->playerstate == PST_LIVE) //you should be DEAD!
 	{
-		DEBPRINT(va("P_PlayerThink: Player %s in PST_LIVE with 0 health. (Zombie bug)\n", sizeu1(playeri)));
+		if (server && (netgame || cv_debug))
+			CONS_Printf("Note: Player %"PRIdS" in PST_LIVE with 0 health. (Zombie bug)\n", playeri);
 		player->playerstate = PST_DEAD;
 	}
 
@@ -9645,7 +9685,7 @@ void P_PlayerThink(player_t *player)
 
 #ifdef PARANOIA
 	if (player->playerstate == PST_REBORN)
-		I_Error("player %s is in PST_REBORN\n", sizeu1(playeri));
+		I_Error("player %"PRIdS" is in PST_REBORN\n", playeri);
 #endif
 
 	if (gametype == GT_RACE)
@@ -9678,7 +9718,7 @@ void P_PlayerThink(player_t *player)
 		else if (countdown == 1 && !player->exiting && player->lives > 0)
 		{
 			if (netgame && player->health > 0)
-				CONS_Printf(M_GetText("%s ran out of time.\n"), player_names[player-players]);
+				CONS_Printf(text[OUT_OF_TIME], player_names[player-players]);
 
 			player->pflags |= PF_TIMEOVER;
 
@@ -10054,7 +10094,7 @@ void P_PlayerThink(player_t *player)
 				}
 
 				if (i == numlines)
-					DEBPRINT(va("%d, %d\n", j, sectors[j].tag));
+					CONS_Printf("%d, %d\n", j, sectors[j].tag);
 			}
 		}
 
@@ -10076,7 +10116,7 @@ void P_PlayerAfterThink(player_t *player)
 	if (!player->mo)
 	{
 		const size_t playeri = (size_t)(player - players);
-		I_Error("P_PlayerAfterThink: players[%s].mo == NULL", sizeu1(playeri));
+		I_Error("P_PlayerAfterThink: players[%"PRIdS"].mo == NULL", playeri);
 	}
 #endif
 
@@ -10244,32 +10284,16 @@ void P_PlayerAfterThink(player_t *player)
 	{
 		player->mo->height = FixedDiv(P_GetPlayerHeight(player), FixedDiv(14*FRACUNIT,10*FRACUNIT));
 
-#ifdef REMOVE_FOR_207
-		// State check for the carrier - Flame
-		if (player->mo->tracer->player
-			&& !(player->mo->tracer->state >= &states[S_PLAY_SPC1]
-			&& player->mo->tracer->state <= &states[S_PLAY_SPC4]))
-				player->pflags &= ~PF_CARRIED;
-#endif
-
 		if (player->mo->eflags & MFE_VERTICALFLIP)
 		{
-			if ((player->mo->tracer->z + player->mo->tracer->height + player->mo->height + FRACUNIT) <= player->mo->tracer->ceilingz
-#ifdef REMOVE_FOR_207
-				&& (player->mo->tracer->eflags & MFE_VERTICALFLIP) // Reverse gravity check for the carrier - Flame
-#endif
-			)
+			if ((player->mo->tracer->z + player->mo->tracer->height + player->mo->height + FRACUNIT) <= player->mo->tracer->ceilingz)
 				player->mo->z = player->mo->tracer->z + player->mo->height + FRACUNIT;
 			else
 				player->pflags &= ~PF_CARRIED;
 		}
 		else
 		{
-			if ((player->mo->tracer->z - player->mo->height - FRACUNIT) >= player->mo->tracer->floorz
-#ifdef REMOVE_FOR_207
-				&& !(player->mo->tracer->eflags & MFE_VERTICALFLIP) // Correct gravity check for the carrier - Flame
-#endif
-				)
+			if ((player->mo->tracer->z - player->mo->height - FRACUNIT) >= player->mo->tracer->floorz)
 				player->mo->z = player->mo->tracer->z - player->mo->height - FRACUNIT;
 			else
 				player->pflags &= ~PF_CARRIED;
@@ -10381,82 +10405,71 @@ void P_PlayerAfterThink(player_t *player)
 		player->mo->flags |= MF_NOGRAVITY;
 	}
 
-	if ((player == &players[displayplayer] && !cv_chasecam.value)
-			|| (splitscreen && player == &players[secondarydisplayplayer] && !cv_chasecam2.value))
+	if (!splitscreen)
 	{
-		sector_t *sector = player->mo->subsector->sector;
-		postimg_t *type;
-		INT32 *param;
-
-		if (splitscreen && player == &players[secondarydisplayplayer])
+		if (!cv_chasecam.value)
 		{
-			type = &postimgtype2;
-			param = &postimgparam2;
-		}
-		else
-		{
-			type = &postimgtype;
-			param = &postimgparam;
-		}
-
-		// see if we are in heat (no, not THAT kind of heat...)
-
-		if (P_FindSpecialLineFromTag(13, sector->tag, -1) != -1)
-			*type = postimg_heat;
-		else if (sector->ffloors)
-		{
-			ffloor_t *rover;
-
-			for (rover = sector->ffloors; rover; rover = rover->next)
+			if (player == &players[displayplayer])
 			{
-				if (!(rover->flags & FF_EXISTS))
-					continue;
+				sector_t *sector = player->mo->subsector->sector;
 
-				if (*rover->topheight <= player->mo->z + player->viewheight
-					|| *rover->bottomheight > player->mo->z + player->viewheight)
-					continue;
+				// see if we are in heat (no, not THAT kind of heat...)
 
-				if (player->mo->z + player->viewheight < *rover->topheight)
+				if (P_FindSpecialLineFromTag(13, sector->tag, -1) != -1)
+					postimgtype = postimg_heat;
+				else if (sector->ffloors)
 				{
-					if (P_FindSpecialLineFromTag(13, rover->master->frontsector->tag, -1) != -1)
-						*type = postimg_heat;
+					ffloor_t *rover;
+
+					for (rover = sector->ffloors; rover; rover = rover->next)
+					{
+						if (!(rover->flags & FF_EXISTS))
+							continue;
+
+						if (*rover->topheight <= player->mo->z + player->viewheight
+							|| *rover->bottomheight > player->mo->z + player->viewheight)
+							continue;
+
+						if (player->mo->z + player->viewheight < *rover->topheight)
+						{
+							if (P_FindSpecialLineFromTag(13, rover->master->frontsector->tag, -1) != -1)
+								postimgtype = postimg_heat;
+						}
+					}
 				}
+
+				// see if we are in water (water trumps heat)
+				if (sector->ffloors)
+				{
+					ffloor_t *rover;
+
+					for (rover = sector->ffloors; rover; rover = rover->next)
+					{
+						if (!(rover->flags & FF_EXISTS) || !(rover->flags & FF_SWIMMABLE) || rover->flags & FF_BLOCKPLAYER)
+							continue;
+						if (*rover->topheight <= player->mo->z + player->viewheight
+							|| *rover->bottomheight > player->mo->z + player->viewheight)
+							continue;
+
+						if (player->mo->z + player->viewheight < *rover->topheight)
+							postimgtype = postimg_water;
+					}
+				}
+
+				if (player->mo->eflags & MFE_VERTICALFLIP)
+					postimgtype = postimg_flip;
+
+				/*
+				// Motion blur
+				if (player->speed > 35)
+				{
+					postimgtype = postimg_motion;
+					postimgparam = (player->speed - 32)/4;
+
+					if (postimgparam > 5)
+						postimgparam = 5;
+				}*/
 			}
 		}
-
-		// see if we are in water (water trumps heat)
-		if (sector->ffloors)
-		{
-			ffloor_t *rover;
-
-			for (rover = sector->ffloors; rover; rover = rover->next)
-			{
-				if (!(rover->flags & FF_EXISTS) || !(rover->flags & FF_SWIMMABLE) || rover->flags & FF_BLOCKPLAYER)
-					continue;
-				if (*rover->topheight <= player->mo->z + player->viewheight
-					|| *rover->bottomheight > player->mo->z + player->viewheight)
-					continue;
-
-				if (player->mo->z + player->viewheight < *rover->topheight)
-					*type = postimg_water;
-			}
-		}
-
-		if (player->mo->eflags & MFE_VERTICALFLIP)
-			*type = postimg_flip;
-
-#if 1
-		(void)param;
-#else
-		// Motion blur
-		if (player->speed > 35)
-		{
-			*type = postimg_motion;
-			*param = (player->speed - 32)/4;
-
-			if (*param > 5)
-				*param = 5;
-		}
-#endif
 	}
 }

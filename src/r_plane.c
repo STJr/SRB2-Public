@@ -364,7 +364,7 @@ static visplane_t *new_visplane(unsigned hash)
 	visplane_t *check = freetail;
 	if (!check)
 	{
-		check = calloc(2, sizeof (*check));
+		check = calloc(1, sizeof (*check));
 		if (check == NULL) I_Error("%s: Out of memory", "new_visplane"); // FIXME: ugly
 	}
 	else
@@ -527,6 +527,7 @@ visplane_t *R_CheckPlane(visplane_t *pl, INT32 start, INT32 stop)
 // overlap.
 void R_ExpandPlane(visplane_t *pl, INT32 start, INT32 stop)
 {
+	INT32 intrl, intrh;
 	INT32 unionl, unionh;
 //	INT32 x;
 
@@ -538,20 +539,24 @@ void R_ExpandPlane(visplane_t *pl, INT32 start, INT32 stop)
 
 	if (start < pl->minx)
 	{
+		intrl = pl->minx;
 		unionl = start;
 	}
 	else
 	{
 		unionl = pl->minx;
+		intrl = start;
 	}
 
 	if (stop > pl->maxx)
 	{
+		intrh = pl->maxx;
 		unionh = stop;
 	}
 	else
 	{
 		unionh = pl->maxx;
+		intrh = stop;
 	}
 /*
 	for (x = start; x <= stop; x++)
@@ -655,7 +660,6 @@ void R_DrawSinglePlane(visplane_t *pl)
 	INT32 x;
 	INT32 stop, angle;
 	size_t size;
-	ffloor_t *rover;
 
 	if (!(pl->minx <= pl->maxx))
 		return;
@@ -664,23 +668,6 @@ void R_DrawSinglePlane(visplane_t *pl)
 	spanfunc = basespanfunc;
 	if (pl->ffloor)
 	{
-		// Don't draw planes that shouldn't be drawn.
-		for (rover = pl->ffloor->target->ffloors; rover; rover = rover->next)
-		{
-			if ((pl->ffloor->flags & FF_CUTEXTRA) && (rover->flags & FF_EXTRA))
-			{
-				if (pl->ffloor->flags & FF_EXTRA)
-				{
-					// The plane is from an extra 3D floor... Check the flags so
-					// there are no undesired cuts.
-					if (((pl->ffloor->flags & (FF_FOG|FF_SWIMMABLE)) == (rover->flags & (FF_FOG|FF_SWIMMABLE)))
-						&& pl->height < *rover->topheight
-						&& pl->height > *rover->bottomheight)
-						return;
-				}
-			}
-		}
-
 		if (pl->ffloor->flags & FF_TRANSLUCENT)
 		{
 			spanfunc = R_DrawTranslucentSpan_8;

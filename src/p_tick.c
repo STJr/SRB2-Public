@@ -48,15 +48,13 @@ void Command_Numthinkers_f(void)
 
 	if (gamestate != GS_LEVEL)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
 		return;
 	}
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("numthinkers <#>: Count number of thinkers\n\t1: P_MobjThinker\n\t2: "
-		"P_RainThinker\n\t3: P_SnowThinker\n\t4: P_NullPrecipThinker\n\t5:"
-		" T_Friction\n\t6: T_Pusher\n\t7: P_RemoveThinkerDelayed\n"));
+		CONS_Printf("numthinkers <#>: Count number of thinkers\n\t1: P_MobjThinker\n\t2: P_RainThinker\n\t3: P_SnowThinker\n\t4: P_NullPrecipThinker\n\t5: T_Friction\n\t6: T_Pusher\n\t7: P_RemoveThinkerDelayed\n");
 		return;
 	}
 
@@ -66,34 +64,34 @@ void Command_Numthinkers_f(void)
 	{
 		case 1:
 			action = (actionf_p1)P_MobjThinker;
-			CONS_Printf("%s", M_GetText("Number of P_MobjThinker: "));
+			CONS_Printf("Number of P_MobjThinker: ");
 			break;
 		case 2:
 			action = (actionf_p1)P_RainThinker;
-			CONS_Printf("%s", M_GetText("Number of P_RainThinker: "));
+			CONS_Printf("Number of P_RainThinker: ");
 			break;
 		case 3:
 			action = (actionf_p1)P_SnowThinker;
-			CONS_Printf("%s", M_GetText("Number of P_SnowThinker: "));
+			CONS_Printf("Number of P_SnowThinker: ");
 			break;
 		case 4:
 			action = (actionf_p1)P_NullPrecipThinker;
-			CONS_Printf("%s", M_GetText("Number of P_NullPrecipThinker: "));
+			CONS_Printf("Number of P_NullPrecipThinker: ");
 			break;
 		case 5:
 			action = (actionf_p1)T_Friction;
-			CONS_Printf("%s", M_GetText("Number of T_Friction: "));
+			CONS_Printf("Number of T_Friction: ");
 			break;
 		case 6:
 			action = (actionf_p1)T_Pusher;
-			CONS_Printf("%s", M_GetText("Number of T_Pusher: "));
+			CONS_Printf("Number of T_Pusher: ");
 			break;
 		case 7:
 			action = (actionf_p1)P_RemoveThinkerDelayed;
-			CONS_Printf("%s", M_GetText("Number of P_RemoveThinkerDelayed: "));
+			CONS_Printf("Number of P_RemoveThinkerDelayed: ");
 			break;
 		default:
-			CONS_Printf("%s", M_GetText("That is not a valid number.\n"));
+			CONS_Printf("That is not a valid number.\n");
 			return;
 	}
 
@@ -116,7 +114,7 @@ void Command_CountMobjs_f(void)
 
 	if (gamestate != GS_LEVEL)
 	{
-		CONS_Printf("%s", M_GetText("You must be in a level to use this.\n"));
+		CONS_Printf("%s", text[MUSTBEINLEVEL]);
 		return;
 	}
 
@@ -128,7 +126,7 @@ void Command_CountMobjs_f(void)
 			i = atoi(COM_Argv(j));
 			if (i >= NUMMOBJTYPES)
 			{
-				CONS_Printf(M_GetText("Object number %d out of range (max %d).\n"), i, NUMMOBJTYPES-1);
+				CONS_Printf("Object number %d out of range (max %d).\n", i, NUMMOBJTYPES-1);
 				continue;
 			}
 
@@ -143,12 +141,12 @@ void Command_CountMobjs_f(void)
 					count++;
 			}
 
-			CONS_Printf(M_GetText("There are %d objects of type %d currently in the level.\n"), count, i);
+			CONS_Printf("There are %d objects of type %d currently in the level.\n", count, i);
 		}
 		return;
 	}
 
-	CONS_Printf("%s", M_GetText("Count of active objects in level:\n"));
+	CONS_Printf("Count of active objects in level:\n");
 
 	for (i = 0; i < NUMMOBJTYPES; i++)
 	{
@@ -165,7 +163,7 @@ void Command_CountMobjs_f(void)
 
 		CONS_Printf("%d: %d\n", i, count);
 	}
-	CONS_Printf("%s", M_GetText("Done\n"));
+	CONS_Printf("Done\n");
 }
 
 //
@@ -415,142 +413,6 @@ void P_DoTeamscrambling(void)
 		CV_SetValue(&cv_teamscramble, 0);
 }
 
-static inline void P_DoSpecialStageStuff(void)
-{
-	boolean inwater = false;
-	INT32 i;
-
-	// Can't drown in a special stage
-	for (i = 0; i < MAXPLAYERS; i++)
-	{
-		if (!playeringame[i])
-			continue;
-
-		players[i].powers[pw_underwater] = players[i].powers[pw_spacetime] = 0;
-	}
-
-	if (sstimer < 15*TICRATE+6 && sstimer > 7 && mapheaderinfo[gamemap-1]->speedmusic)
-		S_SpeedMusic(1.4f);
-
-	if (sstimer < 7 && sstimer > 0) // The special stage time is up!
-	{
-		sstimer = 0;
-		for (i = 0; i < MAXPLAYERS; i++)
-		{
-			if (playeringame[i])
-			{
-				players[i].exiting = (14*TICRATE)/5 + 1;
-				players[i].pflags &= ~PF_GLIDING;
-			}
-
-			if (i == consoleplayer)
-				S_StartSound(NULL, sfx_lose);
-		}
-
-		if (mapheaderinfo[gamemap-1]->speedmusic)
-			S_SpeedMusic(1.0f);
-	}
-
-	if (sstimer > 1) // As long as time isn't up...
-	{
-		UINT32 ssrings = 0;
-		// Count up the rings of all the players and see if
-		// they've collected the required amount.
-		for (i = 0; i < MAXPLAYERS; i++)
-			if (playeringame[i])
-			{
-				ssrings += (players[i].mo->health-1);
-
-				// If in water, deplete timer 6x as fast.
-				if ((players[i].mo->eflags & MFE_TOUCHWATER)
-					|| (players[i].mo->eflags & MFE_UNDERWATER))
-					inwater = true;
-			}
-
-		if (ssrings >= totalrings && totalrings > 0)
-		{
-			// Halt all the players
-			for (i = 0; i < MAXPLAYERS; i++)
-				if (playeringame[i])
-				{
-					players[i].mo->momx = players[i].mo->momy = 0;
-					players[i].exiting = (14*TICRATE)/5 + 1;
-				}
-
-			sstimer = 0;
-
-			P_GiveEmerald();
-		}
-
-		// Decrement the timer
-		if (!cv_objectplace.value)
-		{
-			if (inwater)
-				sstimer -= 6;
-			else
-				sstimer--;
-		}
-	}
-}
-
-static inline void P_DoTagStuff(void)
-{
-	INT32 i;
-
-	// tell the netgame who the initial IT person is.
-	if (leveltime == TICRATE)
-	{
-		for (i = 0; i < MAXPLAYERS; i++)
-		{
-			if (players[i].pflags & PF_TAGIT)
-			{
-				CONS_Printf(M_GetText("%s is now IT!\n"), player_names[i]); // Tell everyone who is it!
-				break;
-			}
-		}
-	}
-
-	//increment survivor scores
-	if (leveltime % TICRATE == 0 && leveltime > (hidetime * TICRATE))
-	{
-		INT32 spectators = 0;
-
-		for (i=0; i < MAXPLAYERS; i++) //count spectators to subtract from the player count.
-		{
-			if (players[i].spectator)
-				spectators++;
-		}
-
-		for (i=0; i < MAXPLAYERS; i++)
-		{
-			if (!(players[i].pflags & PF_TAGIT) && !(players[i].pflags & PF_TAGGED)
-				&& !players[i].spectator && playeringame[i] && players[i].playerstate == PST_LIVE)
-				P_AddPlayerScore(&players[i], (D_NumPlayers() - spectators) / 2); //points given is the number of participating players divided by two.
-		}
-	}
-}
-
-static inline void P_DoCTFStuff(void)
-{
-	// Automatic team balance for CTF and team match
-	if (leveltime % (TICRATE * 5) == 0) //only check once per five seconds for the sake of CPU conservation.
-	{
-		// Do not attempt to autobalance and scramble teams at the same time.
-		// Only the server should execute this. No verified admins, please.
-		if ((cv_autobalance.value && !cv_teamscramble.value) && cv_allowteamchange.value && server)
-			P_DoAutobalanceTeams();
-	}
-
-	// Team scramble code for team match and CTF.
-	if ((leveltime % (TICRATE/7)) == 0)
-	{
-		// If we run out of time in the level, the beauty is that
-		// the Y_Ticker() team scramble code will pick it up.
-		if (cv_teamscramble.value && server)
-			P_DoTeamscrambling();
-	}
-}
-
 //
 // P_Ticker
 //
@@ -570,7 +432,7 @@ void P_Ticker(void)
 		return;
 	}
 
-	postimgtype = postimgtype2 = postimg_none;
+	postimgtype = postimg_none;
 
 	P_MapStart();
 
@@ -581,8 +443,87 @@ void P_Ticker(void)
 	// Keep track of how long they've been playing!
 	totalplaytime++;
 
+///////////////////////
+//SPECIAL STAGE STUFF//
+///////////////////////
+
 	if (!useNightsSS && gamemap >= sstage_start && gamemap <= sstage_end)
-		P_DoSpecialStageStuff();
+	{
+		boolean inwater = false;
+
+		// Can't drown in a special stage
+		for (i = 0; i < MAXPLAYERS; i++)
+		{
+			if (!playeringame[i])
+				continue;
+
+			players[i].powers[pw_underwater] = players[i].powers[pw_spacetime] = 0;
+		}
+
+		if (sstimer < 15*TICRATE+6 && sstimer > 7 && mapheaderinfo[gamemap-1].speedmusic)
+			S_SpeedMusic(1.4f);
+
+		if (sstimer < 7 && sstimer > 0) // The special stage time is up!
+		{
+			sstimer = 0;
+			for (i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					players[i].exiting = (14*TICRATE)/5 + 1;
+					players[i].pflags &= ~PF_GLIDING;
+				}
+
+				if (i == consoleplayer)
+					S_StartSound(NULL, sfx_lose);
+			}
+
+			if (mapheaderinfo[gamemap-1].speedmusic)
+				S_SpeedMusic(1.0f);
+		}
+
+		if (sstimer > 1) // As long as time isn't up...
+		{
+			UINT32 ssrings = 0;
+			// Count up the rings of all the players and see if
+			// they've collected the required amount.
+			for (i = 0; i < MAXPLAYERS; i++)
+				if (playeringame[i])
+				{
+					ssrings += (players[i].mo->health-1);
+
+					// If in water, deplete timer 6x as fast.
+					if ((players[i].mo->eflags & MFE_TOUCHWATER)
+						|| (players[i].mo->eflags & MFE_UNDERWATER))
+						inwater = true;
+				}
+
+			if (ssrings >= totalrings && totalrings > 0)
+			{
+				// Halt all the players
+				for (i = 0; i < MAXPLAYERS; i++)
+					if (playeringame[i])
+					{
+						players[i].mo->momx = players[i].mo->momy = 0;
+						players[i].exiting = (14*TICRATE)/5 + 1;
+					}
+
+				sstimer = 0;
+
+				P_GiveEmerald();
+			}
+
+			// Decrement the timer
+			if (!cv_objectplace.value)
+			{
+				if (inwater)
+					sstimer -= 6;
+				else
+					sstimer--;
+			}
+		}
+	}
+/////////////////////////////////////////
 
 	if (runemeraldmanager)
 		P_EmeraldManager(); // Power stone mode
@@ -615,10 +556,62 @@ void P_Ticker(void)
 	timeinmap++;
 
 	if (gametype == GT_TAG)
-		P_DoTagStuff();
+	{
+		// tell the netgame who the initial IT person is.
+		// this can't happen on level load, otherwise you have
+		// to open the console to see the message.
+		if (leveltime == TICRATE)
+		{
+			for (i=0; i < MAXPLAYERS; i++)
+			{
+				if (players[i].pflags & PF_TAGIT)
+				{
+					CONS_Printf("%s is it!\n", player_names[i]); // Tell everyone who is it!
+					break;
+				}
+			}
+		}
+
+		//increment survivor scores
+		if (leveltime % TICRATE == 0 && leveltime > (hidetime * TICRATE))
+		{
+			INT32 spectators = 0;
+
+			for (i=0; i < MAXPLAYERS; i++) //count spectators to subtract from the player count.
+			{
+				if (players[i].spectator)
+					spectators++;
+			}
+
+			for (i=0; i < MAXPLAYERS; i++)
+			{
+				if (!(players[i].pflags & PF_TAGIT) && !(players[i].pflags & PF_TAGGED)
+					&& !players[i].spectator && playeringame[i] && players[i].playerstate == PST_LIVE)
+					P_AddPlayerScore(&players[i], (D_NumPlayers() - spectators) / 2); //points given is the number of participating players divided by two.
+			}
+		}
+	}
 
 	if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-		P_DoCTFStuff();
+	{
+		// Automatic team balance for CTF and team match
+		if (leveltime % (TICRATE * 5) == 0) //only check once per five seconds for the sake of CPU conservation.
+		{
+			// Do not attempt to autobalance and scramble teams at the same time.
+			// Only the server should execute this. No verified admins, please.
+			if ((cv_autobalance.value && !cv_teamscramble.value) && cv_allowteamchange.value && server)
+				P_DoAutobalanceTeams();
+		}
+
+		// Team scramble code for team match and CTF.
+		if ((leveltime % (TICRATE/7)) == 0)
+		{
+			// If we run out of time in the level, the beauty is that
+			// the Y_Ticker() team scramble code will pick it up.
+			if (cv_teamscramble.value && server)
+				P_DoTeamscrambling();
+		}
+	}
 
 	if (countdowntimer)
 	{

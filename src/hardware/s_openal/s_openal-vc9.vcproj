@@ -44,7 +44,7 @@
 				PreprocessorDefinitions="NDEBUG"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\s_openal\s_openal.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC\Release\s_openal/s_openal.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -138,7 +138,7 @@
 				PreprocessorDefinitions="NDEBUG"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\..\bin\VC9\Release\s_openal/s_openal.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC\Release\s_openal/s_openal.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -234,7 +234,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\s_openal\s_openal.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC\Debug\s_openal/s_openal.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -330,7 +330,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\..\bin\VC9\$(Platform)\$(Configuration)\s_openal\s_openal.tlb"
+				TypeLibraryName=".\..\..\..\bin\VC\Debug\s_openal/s_openal.tlb"
 				HeaderFileName=""
 			/>
 			<Tool

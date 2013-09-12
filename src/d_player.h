@@ -224,10 +224,8 @@ typedef struct player_s
 {
 	mobj_t *mo;
 
-	// Caveat: ticcmd_t is ATTRPACK! Be careful what precedes it.
-	ticcmd_t cmd;
-
 	playerstate_t playerstate;
+	ticcmd_t cmd;
 
 	// Determine POV, including viewpoint bobbing during movement.
 	// Focal origin above r.z

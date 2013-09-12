@@ -47,7 +47,7 @@ void HWR_DrawClippedPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option);
 void HWR_DrawTranslucentPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option);
 void HWR_DrawSmallPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap);
 void HWR_DrawMappedPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap);
-void HWR_MakePatch (const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap, boolean makebitmap);
+void HWR_MakePatch(const patch_t *patch, GLPatch_t *grPatch, GLMipmap_t *grMipmap);
 void HWR_CreatePlanePolygons(INT32 bspnum);
 void HWR_CreateStaticLightmaps(INT32 bspnum);
 void HWR_PrepLevelCache(size_t pnumtextures);
@@ -71,10 +71,6 @@ void HWR_DrawIntermissionBG(void);
 
 extern CV_PossibleValue_t granisotropicmode_cons_t[];
 
-extern consvar_t cv_grdynamiclighting;
-extern consvar_t cv_grstaticlighting;
-extern consvar_t cv_grcoronas;
-extern consvar_t cv_grcoronasize;
 extern consvar_t cv_grrenderquality;
 extern consvar_t cv_grfov;
 extern consvar_t cv_grmd2;
@@ -87,7 +83,6 @@ extern consvar_t cv_grgammablue;
 extern consvar_t cv_grfiltermode;
 extern consvar_t cv_granisotropicmode;
 extern consvar_t cv_grcorrecttricks;
-extern consvar_t cv_voodoocompatibility;
 extern consvar_t cv_grfovchange;
 extern consvar_t cv_grsolvetjoin;
 

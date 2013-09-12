@@ -242,7 +242,6 @@ angle_t FixedAngle(fixed_t fa)
 }
 
 
-#if !(defined _NDS) || !(defined NONET)
 fixed_t finetangent[4096] =
 {
 	-170910304, -56965752, -34178904, -24413316, -18988036, -15535599, -13145455, -11392683,
@@ -2043,7 +2042,6 @@ fixed_t finesine[10240] =
 	65531, 65531, 65532, 65532, 65533, 65533, 65534, 65534,
 	65534, 65535, 65535, 65535, 65535, 65535, 65535, 65535
 };
-#endif
 
 
 
@@ -2307,9 +2305,6 @@ angle_t tantoangle[2049] =
 	535533216, 535700704, 535868128, 536035456, 536202720, 536369888, 536536992, 536704000,
 	536870912
 };
-
-
-#ifdef NEED_FIXED_VECTOR
 
 static angle_t fineacon[65536*2] = {
 	  ANGLE_MAX, 2143707442, 2142143280, 2140943052, 2139931208, 2139039753, 2138233813, 2137492672, 2136802831, 2136154917, 2135542102, 2134959233, 2134402306, 2133868139, 2133354148, 2132858208,
@@ -10517,7 +10512,7 @@ FUNCMATH angle_t FixedAcos(fixed_t x)
 //
 // This checks to see if a point is inside the ranges of a polygon
 //
-angle_t FV2_AngleBetweenVectors(const vector2_t *Vector1, const vector2_t *Vector2)
+angle_t FV_AngleBetweenVectors(const vector_t *Vector1, const vector_t *Vector2)
 {
 	// Remember, above we said that the Dot Product of returns the cosine of the angle
 	// between 2 vectors?  Well, that is assuming they are unit vectors (normalize vectors).
@@ -10528,30 +10523,10 @@ angle_t FV2_AngleBetweenVectors(const vector2_t *Vector1, const vector2_t *Vecto
 	// But basically, if you have normalize vectors already, you can forget about the magnitude part.
 
 	// Get the dot product of the vectors
-	fixed_t dotProduct = FV2_Dot(Vector1, Vector2);
+	fixed_t dotProduct = FV_Dot(Vector1, Vector2);
 
 	// Get the product of both of the vectors magnitudes
-	fixed_t vectorsMagnitude = FixedMul(FV2_Magnitude(Vector1), FV2_Magnitude(Vector2));
-
-	// Return the arc cosine of the (dotProduct / vectorsMagnitude) which is the angle in RADIANS.
-	return FixedAcos(FixedDiv(dotProduct, vectorsMagnitude));
-}
-
-angle_t FV3_AngleBetweenVectors(const vector3_t *Vector1, const vector3_t *Vector2)
-{
-	// Remember, above we said that the Dot Product of returns the cosine of the angle
-	// between 2 vectors?  Well, that is assuming they are unit vectors (normalize vectors).
-	// So, if we don't have a unit vector, then instead of just saying  arcCos(DotProduct(A, B))
-	// We need to divide the dot product by the magnitude of the 2 vectors multiplied by each other.
-	// Here is the equation:   arc cosine of (V . W / || V || * || W || )
-	// the || V || means the magnitude of V.  This then cancels out the magnitudes dot product magnitudes.
-	// But basically, if you have normalize vectors already, you can forget about the magnitude part.
-
-	// Get the dot product of the vectors
-	fixed_t dotProduct = FV3_Dot(Vector1, Vector2);
-
-	// Get the product of both of the vectors magnitudes
-	fixed_t vectorsMagnitude = FixedMul(FV3_Magnitude(Vector1), FV3_Magnitude(Vector2));
+	fixed_t vectorsMagnitude = FixedMul(FV_Magnitude(Vector1), FV_Magnitude(Vector2));
 
 	// Return the arc cosine of the (dotProduct / vectorsMagnitude) which is the angle in RADIANS.
 	return FixedAcos(FixedDiv(dotProduct, vectorsMagnitude));
@@ -10562,11 +10537,11 @@ angle_t FV3_AngleBetweenVectors(const vector3_t *Vector1, const vector3_t *Vecto
 //
 // This checks to see if a point is inside the ranges of a polygon
 //
-boolean FV2_InsidePolygon(const vector2_t *vIntersection, const vector2_t *Poly, const INT32 vertexCount)
+boolean FV_InsidePolygon(const vector_t *vIntersection, const vector_t *Poly, const INT32 vertexCount)
 {
 	INT32 i;
 	UINT64 Angle = 0;					// Initialize the angle
-	vector2_t vA, vB;					// Create temp vectors
+	vector_t vA, vB;					// Create temp vectors
 
 	// Just because we intersected the plane, doesn't mean we were anywhere near the polygon.
 	// This functions checks our intersection point to make sure it is inside of the polygon.
@@ -10584,53 +10559,11 @@ boolean FV2_InsidePolygon(const vector2_t *vIntersection, const vector2_t *Poly,
 
 	for (i = 0; i < vertexCount; i++)		// Go in a circle to each vertex and get the angle between
 	{
-		FV2_Point2Vec(&Poly[i], vIntersection, &vA);	// Subtract the intersection point from the current vertex
+		FV_Point2Vec(&Poly[i], vIntersection, &vA);	// Subtract the intersection point from the current vertex
 												// Subtract the point from the next vertex
-		FV2_Point2Vec(&Poly[(i + 1) % vertexCount], vIntersection, &vB);
+		FV_Point2Vec(&Poly[(i + 1) % vertexCount], vIntersection, &vB);
 
-		Angle += FV2_AngleBetweenVectors(&vA, &vB);	// Find the angle between the 2 vectors and add them all up as we go along
-	}
-
-	// Now that we have the total angles added up, we need to check if they add up to 360 degrees.
-	// Since we are using the dot product, we are working in radians, so we check if the angles
-	// equals 2*PI.  We defined PI in 3DMath.h.  You will notice that we use a MATCH_FACTOR
-	// in conjunction with our desired degree.  This is because of the inaccuracy when working
-	// with floating point numbers.  It usually won't always be perfectly 2 * PI, so we need
-	// to use a little twiddling.  I use .9999, but you can change this to fit your own desired accuracy.
-
-	if(Angle >= ANGLE_MAX)	// If the angle is greater than 2 PI, (360 degrees)
-		return 1; // The point is inside of the polygon
-
-	return 0; // If you get here, it obviously wasn't inside the polygon.
-}
-
-boolean FV3_InsidePolygon(const vector3_t *vIntersection, const vector3_t *Poly, const INT32 vertexCount)
-{
-	INT32 i;
-	UINT64 Angle = 0;					// Initialize the angle
-	vector3_t vA, vB;					// Create temp vectors
-
-	// Just because we intersected the plane, doesn't mean we were anywhere near the polygon.
-	// This functions checks our intersection point to make sure it is inside of the polygon.
-	// This is another tough function to grasp at first, but let me try and explain.
-	// It's a brilliant method really, what it does is create triangles within the polygon
-	// from the intersection point.  It then adds up the inner angle of each of those triangles.
-	// If the angles together add up to 360 degrees (or 2 * PI in radians) then we are inside!
-	// If the angle is under that value, we must be outside of polygon.  To further
-	// understand why this works, take a pencil and draw a perfect triangle.  Draw a dot in
-	// the middle of the triangle.  Now, from that dot, draw a line to each of the vertices.
-	// Now, we have 3 triangles within that triangle right?  Now, we know that if we add up
-	// all of the angles in a triangle we get 360 right?  Well, that is kinda what we are doing,
-	// but the inverse of that.  Say your triangle is an isosceles triangle, so add up the angles
-	// and you will get 360 degree angles.  90 + 90 + 90 is 360.
-
-	for (i = 0; i < vertexCount; i++)		// Go in a circle to each vertex and get the angle between
-	{
-		FV3_Point2Vec(&Poly[i], vIntersection, &vA);	// Subtract the intersection point from the current vertex
-												// Subtract the point from the next vertex
-		FV3_Point2Vec(&Poly[(i + 1) % vertexCount], vIntersection, &vB);
-
-		Angle += FV3_AngleBetweenVectors(&vA, &vB);	// Find the angle between the 2 vectors and add them all up as we go along
+		Angle += FV_AngleBetweenVectors(&vA, &vB);	// Find the angle between the 2 vectors and add them all up as we go along
 	}
 
 	// Now that we have the total angles added up, we need to check if they add up to 360 degrees.
@@ -10651,9 +10584,9 @@ boolean FV3_InsidePolygon(const vector3_t *vIntersection, const vector3_t *Poly,
 //
 // This checks if a line is intersecting a polygon
 //
-boolean FV3_IntersectedPolygon(const vector3_t *vPoly, const vector3_t *vLine, const INT32 vertexCount, vector3_t *collisionPoint)
+boolean FV_IntersectedPolygon(const vector_t *vPoly, const vector_t *vLine, const INT32 vertexCount, vector_t *collisionPoint)
 {
-	vector3_t vNormal, vIntersection;
+	vector_t vNormal, vIntersection;
 	fixed_t originDistance = 0*FRACUNIT;
 
 
@@ -10661,7 +10594,7 @@ boolean FV3_IntersectedPolygon(const vector3_t *vPoly, const vector3_t *vLine, c
 	// there is no need to go on, so return false immediately.
 	// We pass in address of vNormal and originDistance so we only calculate it once
 
-	if(!FV3_IntersectedPlane(vPoly, vLine,   &vNormal,   &originDistance))
+	if(!FV_IntersectedPlane(vPoly, vLine,   &vNormal,   &originDistance))
 		return false;
 
 	// Now that we have our normal and distance passed back from IntersectedPlane(),
@@ -10670,13 +10603,13 @@ boolean FV3_IntersectedPolygon(const vector3_t *vPoly, const vector3_t *vLine, c
 	// this point test next, if we are inside the polygon.  To get the I-Point, we
 	// give our function the normal of the plane, the points of the line, and the originDistance.
 
-	FV3_IntersectionPoint(&vNormal, vLine, originDistance, &vIntersection);
+	FV_IntersectionPoint(&vNormal, vLine, originDistance, &vIntersection);
 
 	// Now that we have the intersection point, we need to test if it's inside the polygon.
 	// To do this, we pass in :
 	// (our intersection point, the polygon, and the number of vertices our polygon has)
 
-	if(FV3_InsidePolygon(&vIntersection, vPoly, vertexCount))
+	if(FV_InsidePolygon(&vIntersection, vPoly, vertexCount))
 	{
 		if (collisionPoint != NULL) // Optional - load the collision point.
 		{
@@ -10696,7 +10629,7 @@ boolean FV3_IntersectedPolygon(const vector3_t *vPoly, const vector3_t *vLine, c
 //
 // Rotates a vector around another vector
 //
-void FV3_Rotate(vector3_t *rotVec, const vector3_t *axisVec, const angle_t angle)
+void FV_Rotate(vector_t *rotVec, const vector_t *axisVec, const angle_t angle)
 {
 	// Rotate the point (x,y,z) around the vector (u,v,w)
 	fixed_t ux = FixedMul(axisVec->x, rotVec->x);
@@ -10741,7 +10674,7 @@ void FM_Rotate(matrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z)
 	const fixed_t sinA = FINESINE(angle>>ANGLETOFINESHIFT);
 	const fixed_t cosA = FINECOSINE(angle>>ANGLETOFINESHIFT);
 	const fixed_t invCosA = FRACUNIT - cosA;
-	vector3_t nrm;
+	vector_t nrm;
 	fixed_t xSq, ySq, zSq;
 	fixed_t sx, sy, sz;
 	fixed_t sxy, sxz, syz;
@@ -10749,7 +10682,7 @@ void FM_Rotate(matrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z)
 	nrm.x = x;
 	nrm.y = y;
 	nrm.z = z;
-	FV3_Normalize(&nrm);
+	FV_Normalize(&nrm);
 
 	x = nrm.x;
 	y = nrm.y;
@@ -10789,5 +10722,3 @@ void FM_Rotate(matrix_t *dest, angle_t angle, fixed_t x, fixed_t y, fixed_t z)
 	M(3, 3) = FRACUNIT;
 #undef M
 }
-
-#endif

@@ -139,7 +139,7 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t DMulScale16(fixed_t a, fixed_t b, 
 		);
 		return ret;
 	}
-#elif defined (__GNUC__) && defined (__arm__) && !defined(__thumb__) && !defined(NOASM) //ARMv4 ASM
+#elif defined (__GNUC__) && defined (__arm__) && !defined(NOASM) //ARMv4 ASM
 	FUNCMATH FUNCINLINE static inline fixed_t FixedMul(fixed_t a, fixed_t b) // let abuse smull
 	{
 		fixed_t ret;
@@ -174,7 +174,7 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t DMulScale16(fixed_t a, fixed_t b, 
 	}
 
 	#define __USE_C_FIXEDDIV__// Alam: I am lazy
-#elif defined (__GNUC__) && defined (__mips__) && !defined(NOASM) && 0 // PSP: MIPS CPU
+#elif defined (__GNUC__) && defined (__mips__) && !defined(NOASM) // PSP: MIPS CPU
 	FUNCMATH FUNCINLINE static inline fixed_t FixedMul(fixed_t a, fixed_t b) // asm
 	{
 		fixed_t ret;
@@ -258,8 +258,6 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedRem(fixed_t x, fixed_t y)
 		return x;
 }
 
-#if (defined NEED_FIXED_VECTOR) || !(defined HAVE_HYPOT)
-
 /**	\brief	The FixedSqrt function
 
 	\param	x	fixed_t number
@@ -269,8 +267,6 @@ FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedRem(fixed_t x, fixed_t y)
 
 */
 FUNCMATH fixed_t FixedSqrt(fixed_t x);
-
-#endif
 
 /**	\brief	The FixedHypot function
 
@@ -283,159 +279,42 @@ FUNCMATH fixed_t FixedSqrt(fixed_t x);
 */
 FUNCMATH fixed_t FixedHypot(fixed_t x, fixed_t y);
 
-/**	\brief	The FixedFloor function
-
-	\param	x	fixed_t number
-
-	\return	floor(x)
-
-
-*/
-FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedFloor(fixed_t x)
-{
-	const fixed_t a = abs(x); //absolute of x
-	const fixed_t i = (a>>FRACBITS)<<FRACBITS; // cut out the fractional part
-	const fixed_t f = i-a; // cut out the integral part
-	if (x != INT32_MIN)
-		return x-f; // return largest integral value not greater than argument
-	return INT32_MIN;
-}
-
-/**	\brief	The FixedTrunc function
-
-	\param	x	fixed_t number
-
-	\return trunc(x)
-
-
-*/
-FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedTrunc(fixed_t x)
-{
-	const fixed_t a = abs(x); //absolute of x
-	const fixed_t i = (a>>FRACBITS)<<FRACBITS; // cut out the fractional part
-	const fixed_t f = i-a; // cut out the integral part
-	if (x != INT32_MIN)
-	{ // return rounded to nearest whole number, towards zero
-		if (x > 0)
-			return x-f;
-		else
-			return x+f;
-	}
-	return INT32_MIN;
-}
-
-/**	\brief	The FixedCeil function
-
-	\param	x	fixed_t number
-
-	\return	ceil(x)
-
-
-*/
-FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedCeil(fixed_t x)
-{
-	const fixed_t a = abs(x); //absolute of x
-	const fixed_t i = (a>>FRACBITS)<<FRACBITS; // cut out the fractional part
-	const fixed_t f = i-a; // cut out the integral part
-	if (x == INT32_MIN)
-		return INT32_MIN;
-	else if (x < FixedFloor(INT32_MAX))
-		return x+(FRACUNIT-f); // return smallest integral value not less than argument
-	return INT32_MAX;
-}
-
-/**	\brief	The FixedRound function
-
-	\param	x	fixed_t number
-
-	\return	round(x)
-
-
-*/
-FUNCMATH FUNCINLINE static ATTRINLINE fixed_t FixedRound(fixed_t x)
-{
-	const fixed_t a = abs(x); //absolute of x
-	const fixed_t i = (a>>FRACBITS)<<FRACBITS; // cut out the fractional part
-	const fixed_t f = i-a; // cut out the integral part
-	if (x == INT32_MIN)
-		return INT32_MIN;
-	else if (x < FixedFloor(INT32_MAX))
-	{ // return rounded to nearest whole number, away from zero
-		if (x > 0)
-			return x+(FRACUNIT-f);
-		else
-			return x-(FRACUNIT-f);
-	}
-	return INT32_MAX;
-}
-
-#ifdef NEED_FIXED_VECTOR
-
-typedef struct
-{
-	fixed_t x;
-	fixed_t y;
-} vector2_t;
-
-vector2_t *FV2_Load(vector2_t *vec, fixed_t x, fixed_t y);
-vector2_t *FV2_UnLoad(vector2_t *vec, fixed_t *x, fixed_t *y);
-vector2_t *FV2_Copy(vector2_t *a_o, const vector2_t *a_i);
-vector2_t *FV2_AddEx(const vector2_t *a_i, const vector2_t *a_c, vector2_t *a_o);
-vector2_t *FV2_Add(vector2_t *a_i, const vector2_t *a_c);
-vector2_t *FV2_SubEx(const vector2_t *a_i, const vector2_t *a_c, vector2_t *a_o);
-vector2_t *FV2_Sub(vector2_t *a_i, const vector2_t *a_c);
-vector2_t *FV2_MulEx(const vector2_t *a_i, fixed_t a_c, vector2_t *a_o);
-vector2_t *FV2_Mul(vector2_t *a_i, fixed_t a_c);
-vector2_t *FV2_DivideEx(const vector2_t *a_i, fixed_t a_c, vector2_t *a_o);
-vector2_t *FV2_Divide(vector2_t *a_i, fixed_t a_c);
-vector2_t *FV2_Midpoint(const vector2_t *a_1, const vector2_t *a_2, vector2_t *a_o);
-fixed_t FV2_Distance(const vector2_t *p1, const vector2_t *p2);
-fixed_t FV2_Magnitude(const vector2_t *a_normal);
-fixed_t FV2_NormalizeEx(const vector2_t *a_normal, vector2_t *a_o);
-fixed_t FV2_Normalize(vector2_t *a_normal);
-vector2_t *FV2_NegateEx(const vector2_t *a_1, vector2_t *a_o);
-vector2_t *FV2_Negate(vector2_t *a_1);
-boolean FV2_Equal(const vector2_t *a_1, const vector2_t *a_2);
-fixed_t FV2_Dot(const vector2_t *a_1, const vector2_t *a_2);
-vector2_t *FV2_Point2Vec (const vector2_t *point1, const vector2_t *point2, vector2_t *a_o);
-
 typedef struct
 {
 	fixed_t x, y, z;
-} vector3_t;
+} vector_t;
 
-vector3_t *FV3_Load(vector3_t *vec, fixed_t x, fixed_t y, fixed_t z);
-vector3_t *FV3_UnLoad(vector3_t *vec, fixed_t *x, fixed_t *y, fixed_t *z);
-vector3_t *FV3_Copy(vector3_t *a_o, const vector3_t *a_i);
-vector3_t *FV3_AddEx(const vector3_t *a_i, const vector3_t *a_c, vector3_t *a_o);
-vector3_t *FV3_Add(vector3_t *a_i, const vector3_t *a_c);
-vector3_t *FV3_SubEx(const vector3_t *a_i, const vector3_t *a_c, vector3_t *a_o);
-vector3_t *FV3_Sub(vector3_t *a_i, const vector3_t *a_c);
-vector3_t *FV3_MulEx(const vector3_t *a_i, fixed_t a_c, vector3_t *a_o);
-vector3_t *FV3_Mul(vector3_t *a_i, fixed_t a_c);
-vector3_t *FV3_DivideEx(const vector3_t *a_i, fixed_t a_c, vector3_t *a_o);
-vector3_t *FV3_Divide(vector3_t *a_i, fixed_t a_c);
-vector3_t *FV3_Midpoint(const vector3_t *a_1, const vector3_t *a_2, vector3_t *a_o);
-fixed_t FV3_Distance(const vector3_t *p1, const vector3_t *p2);
-fixed_t FV3_Magnitude(const vector3_t *a_normal);
-fixed_t FV3_NormalizeEx(const vector3_t *a_normal, vector3_t *a_o);
-fixed_t FV3_Normalize(vector3_t *a_normal);
-vector3_t *FV3_NegateEx(const vector3_t *a_1, vector3_t *a_o);
-vector3_t *FV3_Negate(vector3_t *a_1);
-boolean FV3_Equal(const vector3_t *a_1, const vector3_t *a_2);
-fixed_t FV3_Dot(const vector3_t *a_1, const vector3_t *a_2);
-vector3_t *FV3_Cross(const vector3_t *a_1, const vector3_t *a_2, vector3_t *a_o);
-vector3_t *FV3_ClosestPointOnLine(const vector3_t *Line, const vector3_t *p, vector3_t *out);
-void FV3_ClosestPointOnTriangle(const vector3_t *tri, const vector3_t *point, vector3_t *result);
-vector3_t *FV3_Point2Vec(const vector3_t *point1, const vector3_t *point2, vector3_t *a_o);
-void FV3_Normal(const vector3_t *a_triangle, vector3_t *a_normal);
-fixed_t FV3_PlaneDistance(const vector3_t *a_normal, const vector3_t *a_point);
-boolean FV3_IntersectedPlane(const vector3_t *a_triangle, const vector3_t *a_line, vector3_t *a_normal, fixed_t *originDistance);
-fixed_t FV3_PlaneIntersection(const vector3_t *pOrigin, const vector3_t *pNormal, const vector3_t *rOrigin, const vector3_t *rVector);
-fixed_t FV3_IntersectRaySphere(const vector3_t *rO, const vector3_t *rV, const vector3_t *sO, fixed_t sR);
-vector3_t *FV3_IntersectionPoint(const vector3_t *vNormal, const vector3_t *vLine, fixed_t distance, vector3_t *ReturnVec);
-UINT8 FV3_PointOnLineSide(const vector3_t *point, const vector3_t *line);
-boolean FV3_PointInsideBox(const vector3_t *point, const vector3_t *box);
+vector_t *FV_Load(vector_t *vec, fixed_t x, fixed_t y, fixed_t z);
+vector_t *FV_Copy(vector_t *a_o, const vector_t *a_i);
+vector_t *FV_AddEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
+vector_t *FV_Add(vector_t *a_i, const vector_t *a_c);
+vector_t *FV_SubEx(const vector_t *a_i, const vector_t *a_c, vector_t *a_o);
+vector_t *FV_Sub(vector_t *a_i, const vector_t *a_c);
+vector_t *FV_MulEx(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
+vector_t *FV_Mul(vector_t *a_i, fixed_t a_c);
+vector_t *FV_DivideEx(const vector_t *a_i, fixed_t a_c, vector_t *a_o);
+vector_t *FV_Divide(vector_t *a_i, fixed_t a_c);
+vector_t *FV_Midpoint(const vector_t *a_1, const vector_t *a_2, vector_t *a_o);
+fixed_t FV_Distance(const vector_t *p1, const vector_t *p2);
+fixed_t FV_Magnitude(const vector_t *a_normal);
+fixed_t FV_NormalizeEx(const vector_t *a_normal, vector_t *a_o);
+fixed_t FV_Normalize(vector_t *a_normal);
+vector_t *FV_NegateEx(const vector_t *a_1, vector_t *a_o);
+vector_t *FV_Negate(vector_t *a_1);
+boolean FV_Equal(const vector_t *a_1, const vector_t *a_2);
+fixed_t FV_Dot(const vector_t *a_1, const vector_t *a_2);
+vector_t *FV_Cross(const vector_t *a_1, const vector_t *a_2, vector_t *a_o);
+vector_t *FV_ClosestPointOnLine(const vector_t *Line, const vector_t *p, vector_t *out);
+void FV_ClosestPointOnTriangle (const vector_t *tri, const vector_t *point, vector_t *result);
+vector_t *FV_Point2Vec (const vector_t *point1, const vector_t *point2, vector_t *a_o);
+void FV_Normal (const vector_t *a_triangle, vector_t *a_normal);
+fixed_t FV_PlaneDistance(const vector_t *a_normal, const vector_t *a_point);
+boolean FV_IntersectedPlane(const vector_t *a_triangle, const vector_t *a_line, vector_t *a_normal, fixed_t *originDistance);
+fixed_t FV_PlaneIntersection(const vector_t *pOrigin, const vector_t *pNormal, const vector_t *rOrigin, const vector_t *rVector);
+fixed_t FV_IntersectRaySphere(const vector_t *rO, const vector_t *rV, const vector_t *sO, fixed_t sR);
+vector_t *FV_IntersectionPoint(const vector_t *vNormal, const vector_t *vLine, fixed_t distance, vector_t *ReturnVec);
+UINT8 FV_PointOnLineSide(const vector_t *point, const vector_t *line);
+boolean FV_PointInsideBox(const vector_t *point, const vector_t *box);
 
 typedef struct
 {
@@ -444,11 +323,9 @@ typedef struct
 
 void FM_LoadIdentity(matrix_t* matrix);
 void FM_CreateObjectMatrix(matrix_t *matrix, fixed_t x, fixed_t y, fixed_t z, fixed_t anglex, fixed_t angley, fixed_t anglez, fixed_t upx, fixed_t upy, fixed_t upz, fixed_t radius);
-void FM_MultMatrixVec3(const matrix_t *matrix, const vector3_t *vec, vector3_t *out);
+void FM_MultMatrixVec(const matrix_t *matrix, const vector_t *vec, vector_t *out);
 void FM_MultMatrix(matrix_t *dest, const matrix_t *multme);
 void FM_Translate(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
 void FM_Scale(matrix_t *dest, fixed_t x, fixed_t y, fixed_t z);
-
-#endif // defined NEED_FIXED_VECTOR
 
 #endif //m_fixed.h

@@ -89,11 +89,6 @@ extern PFNWGLEXTSWAPCONTROLPROC wglSwapIntervalEXT;
 extern PFNWGLEXTGETSWAPINTERVALPROC wglGetSwapIntervalEXT;
 #endif
 
-#ifdef STATIC_OPENGL
-#define pglClear glClear
-#define pglGetIntegerv glGetIntegerv
-#define pglGetString glGetString
-#else
 /* 1.0 Miscellaneous functions */
 typedef void (APIENTRY * PFNglClear) (GLbitfield mask);
 extern PFNglClear pglClear;
@@ -101,7 +96,6 @@ typedef void (APIENTRY * PFNglGetIntegerv) (GLenum pname, GLint *params);
 extern PFNglGetIntegerv pglGetIntegerv;
 typedef const GLubyte* (APIENTRY  * PFNglGetString) (GLenum name);
 extern PFNglGetString pglGetString;
-#endif
 
 // ==========================================================================
 //                                                                     GLOBAL
@@ -110,7 +104,11 @@ extern PFNglGetString pglGetString;
 extern const GLubyte    *gl_extensions;
 extern RGBA_t           myPaletteData[];
 #ifndef SDL
+#ifdef _WINDOWS
+extern HANDLE           logstream;
+#else
 extern FILE             *logstream;
+#endif
 #endif
 extern GLint            screen_width;
 extern GLint            screen_height;
@@ -119,7 +117,7 @@ extern GLint            maximumAnisotropy;
 
 /**	\brief OpenGL flags for video driver
 */
-extern INT32            oglflags;
+extern INT32              oglflags;
 extern GLint            textureformatGL;
 
 typedef enum

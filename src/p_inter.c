@@ -20,6 +20,7 @@
 #include "doomdef.h"
 #include "i_system.h"
 #include "am_map.h"
+#include "dstrings.h"
 #include "g_game.h"
 #include "m_random.h"
 #include "p_local.h"
@@ -262,16 +263,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			toucher->momy = -toucher->momy;
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
-		else if (
-#ifdef REMOVE_FOR_207
-				((toucher->z + toucher->height >= special->z
-		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
-				|| (toucher->z <= special->z + special->height
-		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP))) // Reverse gravity check - Flame
-#else
-				toucher->z + toucher->height >= special->z
+		else if (toucher->z + toucher->height >= special->z
 		         && toucher->z < special->z
-#endif
 		         && toucher->player->charability == CA_FLY
 		         && (toucher->player->powers[pw_tailsfly]
 		             || toucher->state == &states[S_PLAY_SPC1]
@@ -314,16 +307,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 			P_DamageMobj(special, toucher, toucher, 1);
 		}
-		else if (
-#ifdef REMOVE_FOR_207
-				((toucher->z + toucher->height >= special->z
-		         && toucher->z < special->z && !(toucher->eflags & MFE_VERTICALFLIP))
-				|| (toucher->z <= special->z + special->height
-		         && toucher->z > special->z && (toucher->eflags & MFE_VERTICALFLIP))) // Reverse gravity check - Flame
-#else
-				toucher->z + toucher->height >= special->z
+		else if (toucher->z + toucher->height >= special->z
 		         && toucher->z < special->z
-#endif
 		         && toucher->player->charability == CA_FLY
 		         && (toucher->player->powers[pw_tailsfly]
 		             || toucher->state == &states[S_PLAY_SPC1]
@@ -331,12 +316,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 		             || toucher->state == &states[S_PLAY_SPC3]
 		             || toucher->state == &states[S_PLAY_SPC4])) // Tails can shred stuff with his propeller.
 		{
-#ifdef REMOVE_FOR_207
-			if ((toucher->momz < 0 && !(toucher->eflags & MFE_VERTICALFLIP))
-				|| (toucher->momz > 0 && (toucher->eflags & MFE_VERTICALFLIP)))
-#else
 			if (toucher->momz < 0)
-#endif
 				toucher->momz = -toucher->momz/2;
 
 			P_DamageMobj(special, toucher, toucher, 1);
@@ -776,7 +756,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			// We could technically have 91.1 Star Posts. 90 is cleaner.
 			if (special->health > 90)
 			{
-				DEBPRINT("Bad Starpost Number!\n");
+				CONS_Printf("Bad Starpost Number!\n");
 				return;
 			}
 
@@ -1422,7 +1402,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 					if (!P_PlayerTouchingSectorSpecial(player, 4, 3))
 					{
-						CONS_Printf(M_GetText("%s returned the red flag to base.\n"), player_names[player-players]);
+						CONS_Printf(text[REDFLAG_RETURNED], player_names[player-players]);
 
 						if (players[consoleplayer].ctfteam == player->ctfteam)
 							S_StartSound(NULL, sfx_hoop1);
@@ -1437,7 +1417,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				player->gotflag |= MF_REDFLAG;
 				S_StartSound (player->mo, sfx_lvpass);
 				P_SetMobjState(special, S_DISS);
-				CONS_Printf(M_GetText("%s picked up the red flag!\n"), player_names[player-players]);
+				CONS_Printf(text[REDFLAG_PICKUP], player_names[player-players]);
 				redflag = NULL;
 				player->pflags &= ~PF_GLIDING;
 				player->climbing = 0;
@@ -1473,7 +1453,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 						if (!P_PlayerTouchingSectorSpecial(player, 4, 4))
 						{
-							CONS_Printf(M_GetText("%s returned the blue flag to base.\n"), player_names[player-players]);
+							CONS_Printf(text[BLUEFLAG_RETURNED], player_names[player-players]);
 
 							if (players[consoleplayer].ctfteam == player->ctfteam)
 								S_StartSound(NULL, sfx_hoop1);
@@ -1488,7 +1468,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				player->gotflag |= MF_BLUEFLAG;
 				S_StartSound (player->mo, sfx_lvpass);
 				P_SetMobjState(special, S_DISS);
-				CONS_Printf(M_GetText("%s picked up the blue flag!\n"), player_names[player-players]);
+				CONS_Printf(text[BLUEFLAG_PICKUP], player_names[player-players]);
 				blueflag = NULL;
 				player->pflags &= ~PF_GLIDING;
 				player->climbing = 0;
@@ -1544,7 +1524,7 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 	if (!multiplayer && !netgame)
 		return;
 
-	str = M_GetText("%s%s%s died.\n");
+	str = text[PDEAD_DIED];
 
 	if (inflictor && (inflictor->flags2 & MF2_REFLECTED))
 		reflected = true;
@@ -1558,7 +1538,7 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 		I_Assert(inflictor != NULL);
 		if ((inflictor->flags & MF_PUSHABLE) && source->player)
 		{
-			CONS_Printf(M_GetText("%s%s%s crushed %s%s%s with a heavy object!\n"),
+			CONS_Printf(text[PDEAD_MATCHCRUSHED],
 				CTFTEAMCODE(source->player),
 				player_names[source->player - players],
 				CTFTEAMENDCODE(source->player),
@@ -1571,7 +1551,7 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 		{
 			if (source->player == target->player)
 			{
-				CONS_Printf(M_GetText("%s%s%s suicided.\n"),
+				CONS_Printf(text[PDEAD_SUICIDE],
 					CTFTEAMCODE(target->player),
 					player_names[target->player - players],
 					CTFTEAMENDCODE(target->player));
@@ -1582,35 +1562,35 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 				switch (inflictor->type)
 				{
 					case MT_SPINFIRE:
-						str = M_GetText("%s%s%s was fried by %s%s%s's fire trail.\n");
+						str = text[PHURT_FIRETRAIL];
 						useverb = false;
 						break;
 					case MT_THROWNBOUNCE:
-						str = M_GetText("%s%s%s was %s by %s%s%s's %sbounce ring.\n");
+						str = text[PHURT_B];
 						break;
 					case MT_THROWNAUTOMATIC:
-						str = M_GetText("%s%s%s was %s by %s%s%s's %sautomatic ring.\n");
+						str = text[PHURT_A];
 						break;
 					case MT_THROWNSCATTER:
-						str = M_GetText("%s%s%s was %s by %s%s%s's %sscatter ring.\n");
+						str = text[PHURT_S];
 						break;
 					case MT_THROWNEXPLOSION:
-						str = M_GetText("%s%s%s was %s by %s%s%s's %sexplosion ring.\n");
+						str = text[PHURT_E];
 						break;
 					case MT_THROWNGRENADE:
-						str = M_GetText("%s%s%s was %s by %s%s%s's %sgrenade ring.\n");
+						str = text[PHURT_G];
 						break;
 					case MT_REDRING:
 						if (inflictor->flags2 & MF2_RAILRING)
-							str = M_GetText("%s%s%s was %s by %s%s%s's %srail ring.\n");
+							str = text[PHURT_R];
 						//else if (inflictor->flags2 & MF2_SCATTER)
-						//	str = M_GetText("%s%s%s was %s by %s%s%s's %sscatter ring.\n");
+						//	str = text[PHURT_S];
 						else
-							str = M_GetText("%s%s%s was %s by %s%s%s's %sring.\n");
+							str = text[PHURT_RING];
 						break;
 
 					default:
-						str = M_GetText("%s%s%s was %s by %s%s%s.\n");
+						str = text[PHURT_MATCHDEFAULT];
 						break;
 				}
 
@@ -1619,11 +1599,11 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 						CTFTEAMCODE(target->player),
 						player_names[target->player - players],
 						CTFTEAMENDCODE(target->player),
-						M_GetText("killed"),
+						text[P_KILLEDVERB],
 						CTFTEAMCODE(source->player),
 						player_names[source->player - players],
 						CTFTEAMENDCODE(source->player),
-						reflected ? M_GetText("reflected ") : "");
+						reflected ? text[P_REFLECT] : "");
 				else
 					CONS_Printf(str,
 						CTFTEAMCODE(target->player),
@@ -1642,47 +1622,47 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 				case MT_DISS:
 					if (source->threshold == 42)
 					{
-						str = M_GetText("%s%s%s drowned.\n");
+						str = text[PDEAD_DROWNED];
 						useverb = false;
 					}
 					if (source->threshold == 43)
 					{
-						str = M_GetText("%s%s%s was impaled by spikes!\n");
+						str = text[PDEAD_SPIK];
 						useverb = false;
 					}
 					else if (source->threshold == 44)
 					{
-						str = M_GetText("%s%s%s was crushed.\n");
+						str = text[PDEAD_CRUSHED];
 						useverb = false;
 					}
 					break;
 				case MT_BLUECRAWLA:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by a blue crawla!\n");
+						str = text[PHURT_BCRAWLA];
 					break;
 				case MT_REDCRAWLA:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by a red crawla!\n");
+						str = text[PHURT_RCRAWLA];
 					break;
 				case MT_JETTGUNNER:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by a jetty-syn gunner!\n");
+						str = text[PHURT_JETG];
 					break;
 				case MT_JETTBOMBER:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by a jetty-syn bomber!\n");
+						str = text[PHURT_JETB];
 					break;
 				case MT_CRAWLACOMMANDER:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by a crawla commander!\n");
+						str = text[PHURT_CCRAWLA];
 					break;
 				case MT_EGGMOBILE:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by the Egg Mobile!\n");
+						str = text[PHURT_BOSS1];
 					break;
 				case MT_EGGMOBILE2:
 					if (netgame)
-						str = M_GetText("%s%s%s was %s by the Egg Slimer!\n");
+						str = text[PHURT_BOSS2];
 					break;
 				default:
 					useverb = false;
@@ -1694,25 +1674,25 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 	{ // source is NULL
 		// environment kills
 		if (P_PlayerTouchingSectorSpecial(target->player, 1, 1))
-			str = M_GetText("%s%s%s died.\n");
+			str = text[PDEAD_DIED];
 		else if (P_PlayerTouchingSectorSpecial(target->player, 1, 2))
-			str = M_GetText("%s%s%s fell in some nasty goop!\n");
+			str = text[PDEAD_GOOP];
 		else if (P_PlayerTouchingSectorSpecial(target->player, 1, 3))
-			str = M_GetText("%s%s%s burned to death!\n");
+			str = text[PDEAD_FIRE];
 		else if (P_PlayerTouchingSectorSpecial(target->player, 1, 4))
-			str = M_GetText("%s%s%s was electrocuted!\n");
+			str = text[PDEAD_ELEC];
 		else if (P_PlayerTouchingSectorSpecial(target->player, 1, 6)
 			|| P_PlayerTouchingSectorSpecial(target->player, 1, 7))
-			str = M_GetText("%s%s%s fell into a bottomless pit.\n");
+			str = text[PDEAD_PIT];
 		else if (P_PlayerTouchingSectorSpecial(target->player, 1, 12))
-			str = M_GetText("%s%s%s asphyxiated in space!\n");
+			str = text[PDEAD_SPAC];
 	}
 
 	if (useverb)
 		CONS_Printf(str,
 			CTFTEAMCODE(target->player),
 			player_names[target->player - players],
-			CTFTEAMENDCODE(target->player), M_GetText("killed"));
+			CTFTEAMENDCODE(target->player), text[P_KILLEDVERB]);
 	else
 		CONS_Printf(str,
 			CTFTEAMCODE(target->player),
@@ -1722,9 +1702,9 @@ static void P_DeathMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 	if ((gametype == GT_COOP || gametype == GT_RACE))
 	{
 		if (target->player->lives - 1 <= 0)
-			CONS_Printf(M_GetText("%s got a game over.\n"), player_names[target->player-players]);
+			CONS_Printf(text[PLAYERGAMEOVER],player_names[target->player-players]);
 		else
-			CONS_Printf(M_GetText("%s has %d lives remaining.\n"), player_names[target->player-players], target->player->lives);
+			CONS_Printf(text[PLAYERLIVESREMAINING], player_names[target->player-players], target->player->lives);
 	}
 }
 
@@ -1749,14 +1729,14 @@ static void P_HitMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 		source->player->ctfteam == target->player->ctfteam)
 		return;
 
-	str = M_GetText("%s%s%s was %s by %s%s%s.\n");
+	str = text[PHURT_HIT];
 
 	if (inflictor && (inflictor->flags2 & MF2_REFLECTED))
 		reflected = true;
 
 	if (source->player->blackow == 3)
 	{
-		str = M_GetText("%s%s%s got nuked by %s%s%s!\n");
+		str = text[PHURT_GOTNUKED];
 		useverb = false;
 	}
 	else if (inflictor)
@@ -1764,31 +1744,31 @@ static void P_HitMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 		switch (inflictor->type)
 		{
 			case MT_SPINFIRE:
-				str = M_GetText("%s%s%s was burnt by %s%s%s's fire trail.\n");
+				str = text[PHURT_GOTBURNED];
 				useverb = false;
 				break;
 			case MT_THROWNBOUNCE:
-				str = M_GetText("%s%s%s was %s by %s%s%s's %sbounce ring.\n");
+				str = text[PHURT_B];
 				break;
 			case MT_THROWNAUTOMATIC:
-				str = M_GetText("%s%s%s was %s by %s%s%s's %sautomatic ring.\n");
+				str = text[PHURT_A];
 				break;
 			case MT_THROWNSCATTER:
-				str = M_GetText("%s%s%s was %s by %s%s%s's %sscatter ring.\n");
+				str = text[PHURT_S];
 				break;
 			case MT_THROWNEXPLOSION:
-				str = M_GetText("%s%s%s was %s by %s%s%s's %sexplosion ring.\n");
+				str = text[PHURT_E];
 				break;
 			case MT_THROWNGRENADE:
-				str = M_GetText("%s%s%s was %s by %s%s%s's %sgrenade ring.\n");
+				str = text[PHURT_G];
 				break;
 			case MT_REDRING:
 				if (inflictor->flags2 & MF2_RAILRING)
-					str = M_GetText("%s%s%s was %s by %s%s%s's %srail ring.\n");
+					str = text[PHURT_R];
 				//else if (inflictor->flags2 & MF2_SCATTER)
-				//	str = M_GetText("%s%s%s was %s by %s%s%s's %sscatter ring.\n");
+				//	str = text[PHURT_S];
 				else
-					str = M_GetText("%s%s%s was %s by %s%s%s's %sring.\n");
+					str = text[PHURT_RING];
 				break;
 			default:
 				break;
@@ -1797,8 +1777,8 @@ static void P_HitMessages(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 
 	if (useverb)
 		CONS_Printf(str, CTFTEAMCODE(target->player), player_names[target->player-players],
-			CTFTEAMENDCODE(target->player), M_GetText("hit"), CTFTEAMCODE(source->player),
-			player_names[source->player-players], CTFTEAMENDCODE(source->player), reflected ? M_GetText("reflected ") : "");
+			CTFTEAMENDCODE(target->player), text[P_HITVERB], CTFTEAMCODE(source->player),
+			player_names[source->player-players], CTFTEAMENDCODE(source->player), reflected ? text[P_REFLECT] : "");
 	else
 		CONS_Printf(str, CTFTEAMCODE(target->player), player_names[target->player-players],
 			CTFTEAMENDCODE(target->player), CTFTEAMCODE(source->player),
@@ -1885,7 +1865,7 @@ void P_CheckSurvivors(void)
 		// Exception for hide and seek. If a round has started and the IT player leaves, end the round.
 		if (cv_tagtype.value && (leveltime >= (hidetime * TICRATE)))
 		{
-			CONS_Printf("%s", M_GetText("The IT player has left the game.\n"));
+			CONS_Printf("The IT player has left the game.\n");
 			if (server)
 				SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 
@@ -1896,7 +1876,7 @@ void P_CheckSurvivors(void)
 		{
 			INT32 newtagger = survivorarray[P_Random() % survivors];
 
-			CONS_Printf(M_GetText("%s is now IT!\n"), player_names[newtagger]); // Tell everyone who is it!
+			CONS_Printf("%s is it!\n", player_names[newtagger]); // Tell everyone who is it!
 			players[newtagger].pflags |= PF_TAGIT;
 
 			survivors--; //Get rid of the guy we just made IT.
@@ -1905,7 +1885,7 @@ void P_CheckSurvivors(void)
 			//If there is only one guy waiting on the game to fill or spectators to enter game, don't bother.
 			if (!survivors && (D_NumPlayers() - spectators) > 1)
 			{
-				CONS_Printf("%s", M_GetText("All players have been tagged!\n"));
+				CONS_Printf("All players have been tagged!\n");
 				if (server)
 					SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 			}
@@ -1917,7 +1897,7 @@ void P_CheckSurvivors(void)
 		//Unless it is one player waiting on a game, end the round.
 		if ((D_NumPlayers() - spectators) > 1)
 		{
-			CONS_Printf("%s", M_GetText("There are no players able to become IT.\n"));
+			CONS_Printf("There are no players able to become IT.\n");
 			if (server)
 				SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 		}
@@ -1929,7 +1909,7 @@ void P_CheckSurvivors(void)
 	//Except when the tagger is by himself and the rest of the game are spectators.
 	if (!survivors && (D_NumPlayers() - spectators) > 1)
 	{
-		CONS_Printf("%s", M_GetText("All players have been tagged!\n"));
+		CONS_Printf("All players have been tagged!\n");
 		if (server)
 			SendNetXCmd(XD_EXITLEVEL, NULL, 0);
 	}
@@ -2151,7 +2131,7 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 				if (cv_tagtype.value == 0)//suiciding in survivor makes you IT.
 				{
 					target->player->pflags |= PF_TAGIT;
-					CONS_Printf(M_GetText("%s is now IT!\n"), player_names[target->player-players]); // Tell everyone who is it!
+					CONS_Printf("%s is it!\n", player_names[target->player-players]); // Tell everyone who is it!
 					P_CheckSurvivors();
 				}
 				else
@@ -2169,7 +2149,7 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 						}
 
 						target->player->pflags |= PF_TAGGED;
-						CONS_Printf(M_GetText("%s was found!\n"), player_names[target->player-players]);
+						CONS_Printf("%s was found!\n", player_names[target->player-players]);
 						P_CheckSurvivors();
 					}
 				}
@@ -2450,12 +2430,12 @@ static inline boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 		if (cv_tagtype.value == 0) //survivor
 		{
 			target->player->pflags |= PF_TAGIT; //in survivor, the player becomes IT and helps hunt down the survivors.
-			CONS_Printf(M_GetText("%s is now IT!\n"), player_names[target->player-players]); // Tell everyone who is it!
+			CONS_Printf("%s is it!\n", player_names[target->player-players]); // Tell everyone who is it!
 		}
 		else
 		{
 			target->player->pflags |= PF_TAGGED; //in hide and seek, the player is tagged and stays stationary.
-			CONS_Printf(M_GetText("%s was found!\n"), player_names[target->player-players]); // Tell everyone who is it!
+			CONS_Printf("%s was found!\n", player_names[target->player-players]); // Tell everyone who is it!
 		}
 
 		//checks if tagger has tagged all players, if so, end round early.
@@ -2607,6 +2587,7 @@ static void P_KillPlayer(player_t *player, mobj_t *source, INT32 damage)
 		HU_SetCEchoFlags(0);
 		HU_SetCEchoDuration(5);
 		HU_DoCEcho(va("%s\\is no longer super.\\\\\\\\", player_names[player-players]));
+		I_OutputMsg("%s is no longer super.\n", player_names[player-players]);
 	}
 }
 
@@ -2846,7 +2827,7 @@ boolean P_DamageMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, INT32 da
 				return false;
 			else if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
 			{
-				if (target && source && target->target && source->player && target->target->player && (source->player->ctfteam == target->target->player->ctfteam))
+				if (source && source->player && (source->player->ctfteam == target->target->player->ctfteam))
 					return false;
 			}
 		}
@@ -3590,6 +3571,7 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 	INT32 i;
 	angle_t fa;
 	fixed_t ns;
+	INT32 amt;
 	fixed_t z = 0, momx = 0, momy = 0;
 
 	// Better safe than sorry.
@@ -3615,6 +3597,11 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 			num_stones++;
 		if (player->powers[pw_emeralds] & EMERALD7)
 			num_stones++;
+
+		if (num_stones > 0)
+			amt = 32/num_stones;
+		else
+			amt = 0;
 
 		for (i = 0; i < num_stones; i++)
 		{
@@ -3776,9 +3763,9 @@ void P_PlayerFlagBurst(player_t *player, boolean toss)
 	P_SetTarget(&flag->target, player->mo);
 
 	if (toss)
-		CONS_Printf(M_GetText("%s tossed the %s flag.\n"), player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
+		CONS_Printf(text[PLAYERTOSSFLAG], player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
 	else
-		CONS_Printf(M_GetText("%s dropped the %s flag.\n"), player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
+		CONS_Printf(text[PLAYERDROPFLAG], player_names[player-players], (type == MT_REDFLAG ? "red" : "blue"));
 
 	player->gotflag = 0;
 

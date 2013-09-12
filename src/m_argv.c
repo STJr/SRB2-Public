@@ -130,7 +130,7 @@ void M_PushSpecialParameters(void)
 
 /// \brief max args
 
-#if defined (_arch_dreamcast) || defined (_XBOX) || defined (_WII)
+#if defined (_arch_dreamcast) || defined (_XBOX)
 #define MAXARGVS 1
 #else
 #define MAXARGVS 256
@@ -158,17 +158,17 @@ void M_FindResponseFile(void)
 			// read the response file into memory
 			handle = fopen(&myargv[i][1], "rb");
 			if (!handle)
-				I_Error(M_GetText("Response file %s not found"), &myargv[i][1]);
+				I_Error("Response file %s not found", &myargv[i][1]);
 
-			CONS_Printf(M_GetText("Found response file %s\n"), &myargv[i][1]);
+			CONS_Printf("Found response file %s\n", &myargv[i][1]);
 			fseek(handle, 0, SEEK_END);
 			size = ftell(handle);
 			fseek(handle, 0, SEEK_SET);
 			file = malloc(size);
 			if (!file)
-				I_Error("%s", M_GetText("No more free memory for the respone file"));
+				I_Error("No more free memory for the respone file");
 			if (fread(file, size, 1, handle) != 1)
-				I_Error(M_GetText("Couldn't read response file because %s"), strerror(ferror(handle)));
+				I_Error("Couldn't read respone file because %s", strerror(ferror(handle)));
 			fclose(handle);
 
 			// keep all the command line arguments following @responsefile
@@ -180,7 +180,7 @@ void M_FindResponseFile(void)
 			if (!myargv)
 			{
 				free(file);
-				I_Error("%s", M_GetText("Not enough memory to read response file"));
+				I_Error("Not enough memory to read response file");
 			}
 			memset(myargv, 0, sizeof (char *) * MAXARGVS);
 			myargv[0] = firstargv;
@@ -211,7 +211,7 @@ void M_FindResponseFile(void)
 			myargc = indexinfile;
 
 			// display arguments
-			CONS_Printf(M_GetText("%d command-line args:\n"), myargc);
+			CONS_Printf("%d command-line args:\n", myargc);
 			for (k = 1; k < myargc; k++)
 				CONS_Printf("%s\n", myargv[k]);
 

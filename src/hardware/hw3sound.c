@@ -175,20 +175,6 @@ void HW3S_StopSound(void *origin)
 	}
 }
 
-void HW3S_StopSoundByID(void *origin, sfxenum_t sfx_id)
-{
-	INT32 snum;
-
-	for (snum = 0; snum < num_sources; snum++)
-	{
-		if (sources[snum].sfxinfo == &S_sfx[sfx_id] && sources[snum].origin == origin)
-		{
-			HW3S_KillSource(snum);
-			break;
-		}
-	}
-}
-
 void HW3S_StopSoundByNum(sfxenum_t sfxnum)
 {
 	INT32 snum;
@@ -235,7 +221,35 @@ static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean spli
 	source_t *  src;
 	INT32 sep = NORM_SEP, pitch = NORM_PITCH, volume = 255;
 
-	(void)splitsound;
+	mobj_t *listenmobj;
+	listener_t listener  = {0,0,0,0};
+
+	if (splitsound)
+		listenmobj = players[displayplayer].mo;
+	else
+		listenmobj = players[secondarydisplayplayer].mo;
+
+	if (splitsound && cv_chasecam2.value)
+	{
+		listener.x = camera2.x;
+		listener.y = camera2.y;
+		listener.z = camera2.z;
+		listener.angle = camera2.angle;
+	}
+	else if (!splitsound && cv_chasecam.value)
+	{
+		listener.x = camera.x;
+		listener.y = camera.y;
+		listener.z = camera.z;
+		listener.angle = camera.angle;
+	}
+	else if (listenmobj)
+	{
+		listener.x = listenmobj->x;
+		listener.y = listenmobj->y;
+		listener.z = listenmobj->z;
+		listener.angle = listenmobj->angle;
+	}
 
 	// Find an open source
 	for (snum = 0, src = sources; snum < num_sources; src++, snum++)
@@ -278,7 +292,7 @@ static INT32 HW3S_GetSource(const void *origin, sfxinfo_t *sfxinfo, boolean spli
 
 		if (snum == num_sources)
 		{
-			// No lower priority. Sorry, Charlie.
+			// FUCK!  No lower priority.  Sorry, Charlie.
 			return -1;
 		}
 		else
@@ -364,11 +378,48 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 	source_t        *source = NULL;
 	mobj_t *listenmobj = players[displayplayer].mo;
 	mobj_t *listenmobj2 = NULL;
+	listener_t listener  = {0,0,0,0};
+	listener_t listener2 = {0,0,0,0};
 
 	if (splitscreen) listenmobj2 = players[secondarydisplayplayer].mo;
 
 	if (nosound)
 		return -1;
+
+	if (cv_chasecam.value)
+	{
+		listener.x = camera.x;
+		listener.y = camera.y;
+		listener.z = camera.z;
+		listener.angle = camera.angle;
+	}
+	else if (listenmobj)
+	{
+		listener.x = listenmobj->x;
+		listener.y = listenmobj->y;
+		listener.z = listenmobj->z;
+		listener.angle = listenmobj->angle;
+	}
+	else if (origin)
+		return -1;
+
+	if (listenmobj2)
+	{
+		if (cv_chasecam2.value)
+		{
+			listener2.x = camera2.x;
+			listener2.y = camera2.y;
+			listener2.z = camera2.z;
+			listener2.angle = camera2.angle;
+		}
+		else
+		{
+			listener2.x = listenmobj2->x;
+			listener2.y = listenmobj2->y;
+			listener2.z = listenmobj2->z;
+			listener2.angle = listenmobj2->angle;
+		}
+	}
 
 	sfx = &S_sfx[sfx_id];
 
@@ -431,7 +482,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 			{
 				HW3DS.pfnStopSource(source->handle);
 				source->handle = HW3DS.pfnReloadSource(source->handle, sfx->volume);
-				//DEBPRINT("PlayerSound data reloaded\n");
+				//CONS_Printf("PlayerSound data reloaded\n");
 			}
 		}
 		else if (c_type == CT_AMBIENT)
@@ -474,7 +525,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 
 			if (s_num  < 0)
 			{
-				//DEBPRINT("No free source, aborting\n");
+				//CONS_Printf("No free source, aborting\n");
 				return -1;
 			}
 
@@ -525,7 +576,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 		{
 			HW3DS.pfnStopSource(source->handle);
 			source->handle = HW3DS.pfnReloadSource(source->handle, sfx->volume);
-			//DEBPRINT("PlayerSound data reloaded\n");
+			//CONS_Printf("PlayerSound data reloaded\n");
 		}
 	}
 	else if (c_type == CT_AMBIENT)
@@ -569,7 +620,7 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 
 		if (s_num  < 0)
 		{
-			//DEBPRINT("No free source, aborting\n");
+			//CONS_Printf("No free source, aborting\n");
 			return -1;
 		}
 
@@ -712,7 +763,7 @@ INT32 HW3S_Init(I_Error_t FatalErrorFunction, snddev_t *snd_dev)
 			p_attack_source2.handle > -1 && p_scream_source2.handle > -1 &&
 			ambient_source.left.handle > -1 && ambient_source.right.handle > -1;
 
-		//DEBPRINT("Player handles: attack %d, default %d\n", p_attack_source.handle, p_scream_source.handle);
+		//CONS_Printf("Player handles: attack %d, default %d\n", p_attack_source.handle, p_scream_source.handle);
 		return succ;
 	}
 	return 0;

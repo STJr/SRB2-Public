@@ -509,14 +509,14 @@ static void P_NetArchiveWorld(void)
 			if (si->textureoffset != SHORT(msd[li->sidenum[0]].textureoffset)<<FRACBITS)
 				diff |= LD_S1TEXOFF;
 			//SoM: 4/1/2000: Some textures are colormaps. Don't worry about invalid textures.
-			if (R_CheckTextureNumForName(msd[li->sidenum[0]].toptexture) != -1
-				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[0]].toptexture))
+			if (R_CheckTextureNumForName(msd[li->sidenum[0]].toptexture, li->sidenum[0]) != -1
+				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[0]].toptexture, li->sidenum[0]))
 				diff |= LD_S1TOPTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[0]].bottomtexture) != -1
-				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[0]].bottomtexture))
+			if (R_CheckTextureNumForName(msd[li->sidenum[0]].bottomtexture, li->sidenum[0]) != -1
+				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[0]].bottomtexture, li->sidenum[0]))
 				diff |= LD_S1BOTTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[0]].midtexture) != -1
-				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[0]].midtexture))
+			if (R_CheckTextureNumForName(msd[li->sidenum[0]].midtexture, li->sidenum[0]) != -1
+				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[0]].midtexture, li->sidenum[0]))
 				diff |= LD_S1MIDTEX;
 		}
 		if (li->sidenum[1] != 0xffff)
@@ -524,14 +524,14 @@ static void P_NetArchiveWorld(void)
 			si = &sides[li->sidenum[1]];
 			if (si->textureoffset != SHORT(msd[li->sidenum[1]].textureoffset)<<FRACBITS)
 				diff2 |= LD_S2TEXOFF;
-			if (R_CheckTextureNumForName(msd[li->sidenum[1]].toptexture) != -1
-				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[1]].toptexture))
+			if (R_CheckTextureNumForName(msd[li->sidenum[1]].toptexture, li->sidenum[1]) != -1
+				&& si->toptexture != R_TextureNumForName(msd[li->sidenum[1]].toptexture, li->sidenum[1]))
 				diff2 |= LD_S2TOPTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[1]].bottomtexture) != -1
-				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[1]].bottomtexture))
+			if (R_CheckTextureNumForName(msd[li->sidenum[1]].bottomtexture, li->sidenum[1]) != -1
+				&& si->bottomtexture != R_TextureNumForName(msd[li->sidenum[1]].bottomtexture, li->sidenum[1]))
 				diff2 |= LD_S2BOTTEX;
-			if (R_CheckTextureNumForName(msd[li->sidenum[1]].midtexture) != -1
-				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[1]].midtexture))
+			if (R_CheckTextureNumForName(msd[li->sidenum[1]].midtexture, li->sidenum[1]) != -1
+				&& si->midtexture != R_TextureNumForName(msd[li->sidenum[1]].midtexture, li->sidenum[1]))
 				diff2 |= LD_S2MIDTEX;
 			if (diff2)
 				diff |= LD_DIFF2;
@@ -571,7 +571,6 @@ static void P_NetArchiveWorld(void)
 		}
 	}
 	WRITEUINT16(put, 0xffff);
-	R_ClearTextureNumCache(false);
 
 	save_p = put;
 }
@@ -597,7 +596,7 @@ static void P_NetUnArchiveWorld(void)
 			break;
 
 		if (i > numsectors)
-			I_Error("Invalid sector number %u from server (expected end at %s)", i, sizeu1(numsectors));
+			I_Error("Invalid sector number %u from server (expected end at %"PRIdS")", i, numsectors);
 
 		diff = READUINT8(get);
 		if (diff & SD_DIFF2)
@@ -842,7 +841,7 @@ static void SaveCeilingThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a floormove_t thinker
 //
-static void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
+static inline void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 {
 	const floormove_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -863,7 +862,7 @@ static void SaveFloormoveThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a lightflash_t thinker
 //
-static void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
+static inline void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 {
 	const lightflash_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -877,7 +876,7 @@ static void SaveLightflashThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a strobe_t thinker
 //
-static void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
+static inline void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 {
 	const strobe_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -894,7 +893,7 @@ static void SaveStrobeThinker(const thinker_t *th, const UINT8 type)
 //
 // Saves a glow_t thinker
 //
-static void SaveGlowThinker(const thinker_t *th, const UINT8 type)
+static inline void SaveGlowThinker(const thinker_t *th, const UINT8 type)
 {
 	const glow_t *ht = (const void *)th;
 	WRITEUINT8(save_p, type);
@@ -1580,7 +1579,9 @@ static mobj_t *FindNewPosition(UINT32 oldposition)
 		if (mobj->mobjnum == oldposition)
 			return mobj;
 	}
-	DEBPRINT("mobj not found\n");
+	if (devparm)
+		CONS_Printf("\2not found\n");
+	DEBFILE("not found\n");
 	return NULL;
 }
 
@@ -1698,7 +1699,7 @@ static void LoadFloormoveThinker(actionf_p1 thinker)
 //
 // Loads a lightflash_t from a save game
 //
-static void LoadLightflashThinker(actionf_p1 thinker)
+static inline void LoadLightflashThinker(actionf_p1 thinker)
 {
 	lightflash_t *ht = Z_Malloc(sizeof (*ht), PU_LEVSPEC, NULL);
 	ht->thinker.function.acp1 = thinker;
@@ -2136,13 +2137,10 @@ static void P_NetUnArchiveThinkers(void)
 					if (i == NUMMOBJTYPES)
 					{
 						if (mobj->spawnpoint)
-						{
-							DEBPRINT(va("Found mobj with unknown map thing type %d\n", mobj->spawnpoint->type));
-						}
+							CONS_Printf("found mobj with unknown map thing type %d\n",
+							mobj->spawnpoint->type);
 						else
-						{
-							DEBPRINT("Found mobj with unknown map thing type NULL\n");
-						}
+							CONS_Printf("found mobj with unknown map thing type NULL\n");
 						I_Error("Savegame corrupted");
 					}
 					mobj->type = i;
@@ -2347,7 +2345,7 @@ static void P_NetUnArchiveThinkers(void)
 				LoadSpecialLevelThinker((actionf_p1)T_RaiseSector, 0);
 				break;
 
-			/// \todo rewrite all the code that uses an elevator_t but isn't an elevator
+			/// \todo rewrite all the shit that uses an elevator_t but isn't an elevator
 			/// \note working on it!
 			case tc_camerascanner:
 				LoadElevatorThinker((actionf_p1)T_CameraScanner, 0);
@@ -2536,7 +2534,7 @@ static inline void P_FinishMobjs(void)
 	}
 }
 
-static void P_RelinkPointers(void)
+static inline void P_RelinkPointers(void)
 {
 	thinker_t *currentthinker;
 	mobj_t *mobj;
@@ -2558,42 +2556,42 @@ static void P_RelinkPointers(void)
 				temp = (UINT32)(size_t)mobj->tracer;
 				mobj->tracer = NULL;
 				if (!P_SetTarget(&mobj->tracer, FindNewPosition(temp)))
-					DEBPRINT(va("tracer not found on %d\n", mobj->type));
+					CONS_Printf("tracer not found on %d\n", mobj->type);
 			}
 			if (mobj->target)
 			{
 				temp = (UINT32)(size_t)mobj->target;
 				mobj->target = NULL;
 				if (!P_SetTarget(&mobj->target, FindNewPosition(temp)))
-					DEBPRINT(va("target not found on %d\n", mobj->type));
+					CONS_Printf("target not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->capsule)
 			{
 				temp = (UINT32)(size_t)mobj->player->capsule;
 				mobj->player->capsule = NULL;
 				if (!P_SetTarget(&mobj->player->capsule, FindNewPosition(temp)))
-					DEBPRINT(va("capsule not found on %d\n", mobj->type));
+					CONS_Printf("capsule not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->axis1)
 			{
 				temp = (UINT32)(size_t)mobj->player->axis1;
 				mobj->player->axis1 = NULL;
 				if (!P_SetTarget(&mobj->player->axis1, FindNewPosition(temp)))
-					DEBPRINT(va("axis1 not found on %d\n", mobj->type));
+					CONS_Printf("axis1 not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->axis2)
 			{
 				temp = (UINT32)(size_t)mobj->player->axis2;
 				mobj->player->axis2 = NULL;
 				if (!P_SetTarget(&mobj->player->axis2, FindNewPosition(temp)))
-					DEBPRINT(va("axis2 not found on %d\n", mobj->type));
+					CONS_Printf("axis2 not found on %d\n", mobj->type);
 			}
 			if (mobj->player && mobj->player->awayviewmobj)
 			{
 				temp = (UINT32)(size_t)mobj->player->awayviewmobj;
 				mobj->player->awayviewmobj = NULL;
 				if (!P_SetTarget(&mobj->player->awayviewmobj, FindNewPosition(temp)))
-					DEBPRINT(va("awayviewmobj not found on %d\n", mobj->type));
+					CONS_Printf("awayviewmobj not found on %d\n", mobj->type);
 			}
 		}
 	}
@@ -2635,7 +2633,7 @@ static inline void P_NetArchiveSpecials(void)
 //
 // P_NetUnArchiveSpecials
 //
-static void P_NetUnArchiveSpecials(void)
+static inline void P_NetUnArchiveSpecials(void)
 {
 	size_t i;
 	INT32 j;
@@ -2700,11 +2698,6 @@ static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 	}
 	else
 		gamecomplete = false;
-
-	// gamemap changed; we assume that its map header is always valid,
-	// so make it so
-	if(!mapheaderinfo[gamemap-1])
-		P_AllocMapHeader(gamemap-1);
 
 	lastmapsaved = gamemap;
 
@@ -2804,12 +2797,6 @@ static inline boolean P_NetUnArchiveMisc(void)
 	INT32 i, j;
 
 	gamemap = READINT16(save_p);
-
-	// gamemap changed; we assume that its map header is always valid,
-	// so make it so
-	if(!mapheaderinfo[gamemap-1])
-		P_AllocMapHeader(gamemap-1);
-
 	G_SetGamestate(READINT16(save_p));
 
 	tokenlist = READUINT32(save_p);

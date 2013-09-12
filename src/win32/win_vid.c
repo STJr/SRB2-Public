@@ -138,17 +138,17 @@ static inline BOOL LoadDM(VOID)
 
 	DMdll = LoadLibraryA("dwmapi.dll");
 	if (DMdll)
-		DEBPRINT("dmwapi.dll loaded, Vista's Desktop Window Manager API\n");
+		I_OutputMsg("dmwapi.dll loaded, Vista's Desktop Window Manager API\n");
 	else
 		return FALSE;
 
 	pfnDwmIsCompositionEnabled = (P_DwmIsCompositionEnabled)GetProcAddress(DMdll, "DwmIsCompositionEnabled");
 	if (pfnDwmIsCompositionEnabled)
-		DEBPRINT("Composition Aero API found, DwmIsCompositionEnabled\n");
+		I_OutputMsg("Composition Aero API found, DwmIsCompositionEnabled\n");
 
 	pfnDwmEnableComposition = (P_DwmEnableComposition)GetProcAddress(DMdll, "DwmEnableComposition");
 	if (pfnDwmEnableComposition)
-		DEBPRINT("Composition Aero API found, DwmEnableComposition\n");
+		I_OutputMsg("Composition Aero API found, DwmEnableComposition\n");
 
 	return TRUE;
 }
@@ -162,19 +162,19 @@ static inline VOID DisableAero(VOID)
 		return;
 
 	if (pfnDwmIsCompositionEnabled && SUCCEEDED(pfnDwmIsCompositionEnabled(&pfnDwmEnableCompositiond)))
-		DEBPRINT("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond);
+		I_OutputMsg("Got the result of DwmIsCompositionEnabled, %i\n", pfnDwmEnableCompositiond);
 	else
 		return;
 
 	if ((AeroWasEnabled = pfnDwmEnableCompositiond))
-		DEBPRINT("Disable the Aero rendering\n");
+		I_OutputMsg("Let disable the Aero rendering\n");
 	else
 		return;
 
 	if (pfnDwmEnableComposition && SUCCEEDED(pfnDwmEnableComposition(FALSE)))
-		DEBPRINT("Aero rendering disabled\n");
+		I_OutputMsg("Aero rendering disabled\n");
 	else
-		DEBPRINT("We failed to disable the Aero rendering\n");
+		I_OutputMsg("We failed to disable the Aero rendering\n");
 }
 
 static inline VOID ResetAero(VOID)
@@ -182,9 +182,9 @@ static inline VOID ResetAero(VOID)
 	if (pfnDwmEnableComposition && AeroWasEnabled)
 	{
 		if (SUCCEEDED(pfnDwmEnableComposition(AeroWasEnabled)))
-			DEBPRINT("Aero rendering setting restored\n");
+			I_OutputMsg("Aero rendering setting restored\n");
 		else
-			DEBPRINT("We failed to restore Aero rendering\n");
+			I_OutputMsg("We failed to restore Aero rendering\n");
 	}
 	UnloadDM();
 }
@@ -233,7 +233,7 @@ void I_ShutdownGraphics(void)
 	if (!graphics_started)
 		return;
 
-	CONS_Printf("I_ShutdownGraphics: ");
+	CONS_Printf("I_ShutdownGraphics()\n");
 
 	//FreeConsole();
 
@@ -560,27 +560,24 @@ void I_SetPalette(RGBA_t *palette)
 //
 INT32 VID_NumModes(void)
 {
-	return numvidmodes;
+	return numvidmodes - NUMSPECIALMODES; //faB: dont accept the windowed mode 0
 }
 
 // return a video mode number from the dimensions
 // returns any available video mode if the mode was not found
 INT32 VID_GetModeForSize(INT32 w, INT32 h)
 {
-	vmode_t *pv = pvidmodes;
+	vmode_t *pv;
 	int modenum;
 
-	// skip windowed modes
-	for (modenum = 0; pv && modenum < NUMSPECIALMODES; modenum++)
-		pv = pv->pnext;
+#if NUMSPECIALMODES > 1
+"fix this: pv must point the first fullscreen mode in vidmodes list"
+#endif
 
-	// try fullscreen modes
-	for (modenum = NUMSPECIALMODES; pv; pv = pv->pnext, modenum++)
-		if (pv->width == (unsigned)w && pv->height == (unsigned)h)
-			return modenum;
+	// skip the 1st special mode so that it finds only fullscreen modes
+	pv = pvidmodes->pnext;
 
-	// didn't find full-screen mode; try windowed
-	for (pv = pvidmodes, modenum = 0; pv && modenum < NUMSPECIALMODES; pv = pv->pnext, modenum++)
+	for (modenum = 1; pv; pv = pv->pnext, modenum++)
 		if (pv->width == (unsigned)w && pv->height == (unsigned)h)
 			return modenum;
 
@@ -589,7 +586,7 @@ INT32 VID_GetModeForSize(INT32 w, INT32 h)
 	if (numvidmodes > NUMSPECIALMODES)
 	{
 		// Try default video mode first
-		if (w != cv_scr_width.value || h != cv_scr_height.value)
+		if (w != cv_scr_width.value && h != cv_scr_height.value)
 			return VID_GetModeForSize(cv_scr_width.value, cv_scr_height.value);
 
 		return NUMSPECIALMODES; // use first full screen mode
@@ -602,7 +599,7 @@ INT32 VID_GetModeForSize(INT32 w, INT32 h)
 // Enumerate DirectDraw modes available
 //
 static int nummodes = 0;
-static BOOL GetExtraModesCallback(int width, int height, int bpp, int pitch)
+static BOOL GetExtraModesCallback(int width, int height, int bpp)
 {
 	CONS_Printf("mode %d x %d x %d bpp\n", width, height, bpp);
 
@@ -618,7 +615,7 @@ static BOOL GetExtraModesCallback(int width, int height, int bpp, int pitch)
 	// check if we have space for this mode
 	if (nummodes >= MAX_EXTRA_MODES)
 	{
-		CONS_Printf("%s", M_GetText("mode skipped (too many)\n"));
+		CONS_Printf("mode skipped (too many)\n");
 		return FALSE;
 	}
 
@@ -657,13 +654,13 @@ static BOOL GetExtraModesCallback(int width, int height, int bpp, int pitch)
 
 	// exactly, the current FinishUdpate() gets the rowbytes itself after locking the video buffer
 	// so for now we put anything here
-	extra_modes[nummodes].rowbytes = pitch;
+	extra_modes[nummodes].rowbytes = width;
 	extra_modes[nummodes].windowed = false;
 	extra_modes[nummodes].misc = 0; // unused
 	extra_modes[nummodes].pextradata = NULL;
 	extra_modes[nummodes].setmode = VID_SetDirectDrawMode;
 
-	extra_modes[nummodes].numpages = 3; // triple-buffer (but this value is unused)
+	extra_modes[nummodes].numpages = 2; // double-buffer (but this value is unused)
 
 	extra_modes[nummodes].bytesperpixel = (bpp+1)>>3;
 
@@ -696,13 +693,18 @@ static inline VOID VID_GetExtraModes(VOID)
 // ---------------
 static VOID WindowMode_Init(VOID)
 {
-	int modenum;
+	int reqx = 0;
 
-	for (modenum = 0; modenum < NUMSPECIALMODES - 1; modenum++)
-		specialmodes[modenum].pnext = &specialmodes[modenum + 1];
 	specialmodes[NUMSPECIALMODES-1].pnext = pvidmodes;
 
-	pvidmodes = specialmodes;
+	if (M_CheckParm("-width") && M_IsNextParm())
+		reqx = atoi(M_GetNextParm());
+
+	if (reqx > BASEVIDWIDTH)
+		pvidmodes = &specialmodes[1];
+	else
+		pvidmodes = &specialmodes[0];
+
 	numvidmodes += NUMSPECIALMODES;
 }
 
@@ -766,7 +768,7 @@ static VOID VID_Init(VOID)
 		{
 			int hwdversion = HWD.pfnGetRenderVersion();
 			if (hwdversion != VERSION)
-				CONS_Printf("%s", M_GetText("WARNING: This r_opengl version is not supported, use it at your own risk.\n"));
+				CONS_Printf("WARNING: This r_opengl version is not supported, use it at your own risk.\n");
 
 			// perform initialisations
 			HWD.pfnInit(I_Error);
@@ -809,7 +811,8 @@ static VOID VID_Init(VOID)
 
 #ifdef _DEBUG // DEBUG
 	for (iMode = 0, pv = pvidmodes; pv; pv = pv->pnext, iMode++)
-		DEBPRINT(va("#%02d: %dx%dx%dbpp (desc: '%s')\n", iMode, pv->width, pv->height, pv->bytesperpixel, pv->name));
+		CONS_Printf("#%02d: %dx%dx%dbpp (desc: '%s')\n", iMode, pv->width, pv->height,
+			pv->bytesperpixel, pv->name);
 #endif
 
 	// set the startup screen in a window
@@ -829,9 +832,9 @@ static INT32 WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *currentm
 	int x = 0, y = 0, w = 0, h = 0;
 
 	UNREFERENCED_PARAMETER(currentmode);
-
-	DEBPRINT("VID_SetWindowedDisplayMode()\n");
-
+#ifdef DEBUG
+	CONS_Printf("VID_SetWindowedDisplayMode()\n");
+#endif
 
 	lvid->u.numpages = 1; // not used
 	lvid->direct = NULL; // DOS remains
@@ -857,14 +860,10 @@ static INT32 WINAPI VID_SetWindowedDisplayMode(viddef_t *lvid, vmode_t *currentm
 	bmiMain->bmiHeader.biCompression = BI_RGB;
 
 	// center window on the desktop
-	bounds.left = 0;
-	bounds.right = lvid->width;
-	bounds.top = 0;
-	bounds.bottom = lvid->height;
-	AdjustWindowRectEx(&bounds, GetWindowLong(hWndMain, GWL_STYLE), FALSE, GetWindowLong(hWndMain, GWL_EXSTYLE));
-
-	w = bounds.right-bounds.left;
-	h = bounds.bottom-bounds.top;
+	GetWindowRect(hWndMain, &bounds);
+	AdjustWindowRectEx(&bounds, GetWindowLong(hWndMain, GWL_STYLE), 0, 0);
+	w = bounds.right-bounds.left; //lvid->width
+	h = bounds.bottom-bounds.top; //lvid->height
 	x = (GetSystemMetrics(SM_CXSCREEN)-w)/2;
 	y = (GetSystemMetrics(SM_CYSCREEN)-h)/2;
 
@@ -918,15 +917,16 @@ INT32 VID_SetMode(INT32 modenum)
 {
 	int vstat;
 	vmode_t *pnewmode;
+	vmode_t *poldmode;
 
 	if (dedicated)
 		return 0;
 
-	DEBPRINT(va("VID_SetMode(%d)\n", modenum));
+	CONS_Printf("VID_SetMode(%d)\n", modenum);
 
 	// if mode 0 (windowed) we must not be fullscreen already,
 	// if other mode, check it is not mode 0 and existing
-	if ((modenum >= NUMSPECIALMODES) || bAppFullScreen)
+	if (modenum || bAppFullScreen)
 	{
 		if (modenum > numvidmodes || modenum < NUMSPECIALMODES)
 		{
@@ -944,6 +944,7 @@ INT32 VID_SetMode(INT32 modenum)
 		return 1;
 
 	// initialize the new mode
+	poldmode = pcurrentmode;
 	pcurrentmode = pnewmode;
 
 	// initialize vidbuffer size for setmode
@@ -976,7 +977,7 @@ INT32 VID_SetMode(INT32 modenum)
 	else if (!vstat)
 		I_Error("Couldn't set video mode %d (%dx%d %d bits)\n", modenum, vid.width, vid.height, (vid.bpp*8));// hardware could not setup mode
 	else
-		CONS_Printf(M_GetText("Mode changed to %d (%s)\n"), modenum, pcurrentmode->name);
+		CONS_Printf("Mode changed to %d (%s)\n", modenum, pcurrentmode->name);
 
 	vid.modenum = modenum;
 
@@ -1026,8 +1027,9 @@ static BOOL VID_FreeAndAllocVidbuffer(viddef_t *lvid)
 		return FALSE;
 
 	ZeroMemory(lvid->buffer, vidbuffersize);
-	DEBPRINT(va("VID_FreeAndAllocVidbuffer done, vidbuffersize: %x\n",(UINT32)vidbuffersize));
-
+#ifdef DEBUG
+	CONS_Printf("VID_FreeAndAllocVidbuffer done, vidbuffersize: %x\n",vidbuffersize);
+#endif
 	return TRUE;
 }
 
@@ -1040,9 +1042,9 @@ static BOOL VID_FreeAndAllocVidbuffer(viddef_t *lvid)
 static INT32 WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *currentmode)
 {
 	UNREFERENCED_PARAMETER(currentmode);
-
-	DEBPRINT("VID_SetDirectDrawMode...\n");
-
+#ifdef DEBUG
+	CONS_Printf("VID_SetDirectDrawMode...\n");
+#endif
 
 	// DD modes do double-buffer page flipping, but the game engine doesn't need this..
 	lvid->u.numpages = 2;
@@ -1079,7 +1081,7 @@ static INT32 WINAPI VID_SetDirectDrawMode(viddef_t *lvid, vmode_t *currentmode)
 //
 static void VID_Command_NumModes_f(void)
 {
-	CONS_Printf(M_GetText("%d video mode(s) available(s)\n"), VID_NumModes());
+	CONS_Printf("%d video mode(s) available(s)\n", VID_NumModes());
 }
 
 // vid_modeinfo <modenum>
@@ -1096,16 +1098,17 @@ static void VID_Command_ModeInfo_f(void)
 
 	if (modenum > VID_NumModes() || modenum < NUMSPECIALMODES) // don't accept the windowed modes
 	{
-		CONS_Printf("%s", M_GetText("No such video mode\n"));
+		CONS_Printf("No such video mode\n");
 		return;
 	}
 
 	pv = VID_GetModePtr(modenum);
 
 	CONS_Printf("%s\n", VID_GetModeName(modenum));
-	CONS_Printf(M_GetText("width: %d\nheight: %d\n"), pv->width, pv->height);
+	CONS_Printf("width: %d\nheight: %d\n", pv->width, pv->height);
 	if (rendermode == render_soft)
-		CONS_Printf(M_GetText("bytes per scanline: %d\nbytes per pixel: %d\nnumpages: %d\n"), pv->rowbytes, pv->bytesperpixel, pv->numpages);
+		CONS_Printf("bytes per scanline: %d\nbytes per pixel: %d\nnumpages: %d\n",
+			pv->rowbytes, pv->bytesperpixel, pv->numpages);
 }
 
 // vid_modelist
@@ -1117,7 +1120,7 @@ static void VID_Command_ModeList_f(void)
 	vmode_t *pv;
 
 	numodes = VID_NumModes();
-	for (i = NUMSPECIALMODES; i < numodes; i++)
+	for (i = NUMSPECIALMODES; i <= numodes; i++)
 	{
 		pv = VID_GetModePtr(i);
 		pinfo = VID_GetModeName(i);
@@ -1137,14 +1140,14 @@ static void VID_Command_Mode_f(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf(M_GetText("vid_mode <modenum> : set video mode, current video mode %i\n"), vid.modenum);
+		CONS_Printf("vid_mode <modenum> : set video mode\n");
 		return;
 	}
 
 	modenum = atoi(COM_Argv(1));
 
-	if (modenum > VID_NumModes() || modenum < NUMSPECIALMODES) // don't accept the windowed mode 0
-		CONS_Printf("%s", M_GetText("No video modes present\n"));
+	if (modenum > VID_NumModes() || modenum < 1) // don't accept the windowed mode 0
+		CONS_Printf("No such video mode\n");
 	else
 		setmodeneeded = modenum + 1; // request vid mode change
 }

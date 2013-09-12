@@ -18,9 +18,6 @@
 /// \brief Preparation of data for rendering,generation of lookups, caching, retrieval by name
 
 #include "doomdef.h"
-#ifdef CALLUM_TEXTURE
-#include "dehacked.h"
-#endif
 #include "g_game.h"
 #include "i_video.h"
 #include "r_local.h"
@@ -92,7 +89,7 @@ typedef struct
 // a patch or sprite is composed of zero or more columns.
 //
 
-size_t numspritelumps, max_spritelumps;
+size_t numspritelumps;
 
 // textures
 size_t numtextures = 0; // total number of textures found,
@@ -103,11 +100,7 @@ static UINT32 **texturecolumnofs; // column offset lookup table for each texture
 static UINT8 **texturecache; // graphics data for each generated full-size texture
 
 // texture width is a power of 2, so it can easily repeat along sidedefs using a simple mask
-#ifndef CALLUM_TEXTURE
 static INT32 *texturewidthmask;
-#else
-INT32 *texturewidthmask;
-#endif
 
 fixed_t *textureheight; // needed for texture pegging
 
@@ -124,13 +117,6 @@ static size_t flatmemory, spritememory, texturememory;
 // highcolor stuff
 INT16 color8to16[256]; // remap color index to highcolor rgb value
 INT16 *hicolormaps; // test a 32k colormap remaps high -> high
-
-// Painfully simple texture id cacheing to make maps load faster. :3
-static struct {
-	char name[9];
-	INT32 id;
-} *tidcache = NULL;
-static size_t tidcachelen = 0;
 
 //
 // MAPTEXTURE_T CACHING
@@ -150,6 +136,9 @@ static inline void R_DrawColumnInCache(column_t *patch, UINT8 *cache, INT32 orig
 {
 	INT32 count, position;
 	UINT8 *source;
+	UINT8 *dest;
+
+	dest = (UINT8 *)cache;
 
 	while (patch->topdelta != 0xff)
 	{
@@ -224,9 +213,9 @@ static UINT8 *R_GenerateTexture(size_t texnum)
 	// multi-patch textures (or 'composite')
 	blocksize = (texture->width * 4) + (texture->width * texture->height);
 	texturememory += blocksize;
-	block = Z_Malloc(blocksize+1, PU_STATIC, &texturecache[texnum]);
+	block = Z_Malloc(blocksize, PU_STATIC, &texturecache[texnum]);
 
-	memset(block, 0xF7, blocksize+1); // Transparency hack
+	memset(block, 247, blocksize); // Transparency hack
 
 	// columns lookup table
 	colofs = (UINT32 *)(void *)block;
@@ -309,7 +298,6 @@ void R_FlushTextureCache(void)
 // R_InitTextures
 // Initializes the texture list with the textures from the world map.
 //
-#ifndef CALLUM_TEXTURE
 void R_LoadTextures(void)
 {
 	maptexture_t *mtexture;
@@ -340,7 +328,7 @@ void R_LoadTextures(void)
 	name_p = pnames+4;
 	patchlookup = malloc(nummappatches*sizeof (*patchlookup));
 	if (!patchlookup)
-		I_Error("Could not malloc %s bytes for patchloopup", sizeu1((size_t)nummappatches*sizeof(*patchlookup)));
+		I_Error("Could not malloc %"PRIdS" bytes for patchloopup", (size_t)nummappatches*sizeof (*patchlookup));
 
 	for (i = 0; i < nummappatches; i++)
 	{
@@ -444,120 +432,6 @@ void R_LoadTextures(void)
 	for (i = 0; i < numtextures; i++)
 		texturetranslation[i] = (INT32)i;
 }
-#else
-#define TX_START "TX_START"
-#define TX_END "TX_END"
-void R_LoadTextures(void)
-{
-	size_t i;
-	INT32 j, k, w;
-	lumpnum_t texstart, texend;
-	patch_t *patchlump;
-	texpatch_t *patch;
-	texture_t *texture;
-
-	// Free previous memory before numtextures change.
-	for (i = 0; i < numtextures; i++)
-	{
-		Z_Free(textures[i]);
-		Z_Free(texturecache[i]);
-	}
-	Z_Free(texturetranslation);
-
-	// Load patches and textures.
-
-	// Get the number of textures to check.
-	// NOTE: Make SURE the system does not process
-	// the markers.
-	for (w = 0, numtextures = 0; w < numwadfiles; w++)
-	{
-		texstart = W_CheckNumForNamePwad(TX_START, w, 0) + 1;
-		texend = W_CheckNumForNamePwad(TX_END, w, 0);
-
-		if (texstart == INT16_MAX || texend == INT16_MAX)
-		{
-			if (!numtextures && w == (numwadfiles - 1))
-				I_Error("No textures detected in any WADs!\n");
-
-			continue;
-		}
-
-		numtextures += (UINT32)(texend - texstart);
-	}
-
-	// Allocate memory for all the textures we are initialising.
-	// There are actually 5 buffers allocated in one for convenience.
-	textures = Z_Malloc((numtextures * sizeof(void *)) * 5, PU_STATIC, NULL);
-
-	// Allocate texture column offset table.
-	texturecolumnofs = (void *)((UINT8 *)textures + (numtextures * sizeof(void *)));
-	// Allocate texture referencing cache.
-	texturecache     = (void *)((UINT8 *)textures + ((numtextures * sizeof(void *)) * 2));
-	// Allocate texture width mask table.
-	texturewidthmask = (void *)((UINT8 *)textures + ((numtextures * sizeof(void *)) * 3));
-	// Allocate texture height mask table.
-	textureheight    = (void *)((UINT8 *)textures + ((numtextures * sizeof(void *)) * 4));
-	// Create translation table for global animation.
-	texturetranslation = Z_Malloc((numtextures + 1) * sizeof(*texturetranslation), PU_STATIC, NULL);
-
-	for (i = 0; i < numtextures; i++)
-		texturetranslation[i] = i;
-
-	// This takes 90% of texture loading time. Precalculate whatever possible.
-	for (i = 0; i < numtextures; i++)
-		texturecache[i] = NULL;
-
-	// Loop through each WAD.
-	for (i = 0, w = 0; w < numwadfiles; w++)
-	{
-		// Get the lump numbers for the markers in the WAD, if they exist.
-		texstart = W_CheckNumForNamePwad(TX_START, w, 0) + 1;
-		texend = W_CheckNumForNamePwad(TX_END, w, 0);
-
-		if (texstart == INT16_MAX || texend == INT16_MAX)
-			continue;
-
-		// Work through each lump between the markers in the WAD.
-		for (j = 0; (unsigned)j < (texend - texstart); i++, j++)
-		{
-			patchlump = W_CacheLumpNumPwad(w, texstart + j, PU_CACHE);
-
-			// Then, check the lump directly to see if it's a texture SOC,
-			// and if it is, load it using dehacked instead.
-			if (strstr((const char *)patchlump, "TEXTURE"))
-			{
-				Z_Unlock(patchlump);
-				DEH_LoadDehackedLumpPwad(w, texstart + j);
-			}
-			else
-			{
-				texture = textures[i] = Z_Malloc(sizeof(texture_t), PU_STATIC, NULL);
-
-				// Set texture properties.
-				M_Memcpy(texture->name, W_CheckNameForNumPwad(w, texstart + j), sizeof(texture->name));
-				texture->width = SHORT(patchlump->width);
-				texture->height = SHORT(patchlump->height);
-				texture->patchcount = 1;
-
-				Z_Unlock(patchlump);
-
-				// Allocate information for the texture's patches.
-				patch = &texture->patches[0];
-
-				patch->originx = patch->originy = 0;
-				patch->patch = texstart + j;
-
-				k = 1;
-				while (k << 1 <= texture->width)
-					k <<= 1;
-
-				texturewidthmask[i] = k - 1;
-				textureheight[i] = texture->height << FRACBITS;
-			}
-		}
-	}
-}
-#endif
 
 static inline lumpnum_t R_CheckNumForNameList(const char *name, lumplist_t *list, size_t listsize)
 {
@@ -607,7 +481,7 @@ static void R_InitExtraColormaps(void)
 		colormaplumps[numcolormaplumps].numlumps = endnum - (startnum + 1);
 		numcolormaplumps++;
 	}
-	CONS_Printf(M_GetText("Number of Extra Colormaps: %s\n"), sizeu1(numcolormaplumps));
+	CONS_Printf("Number of Extra Colormaps: %"PRIdS"\n", numcolormaplumps);
 }
 
 lumpnum_t R_GetFlatNumForName(const char *name)
@@ -617,7 +491,7 @@ lumpnum_t R_GetFlatNumForName(const char *name)
 	if (lump == LUMPERROR)
 	{
 		if (strcmp(name, "F_SKY1"))
-			DEBPRINT(va("R_GetFlatNumForName: Could not find flat %.8s\n", name));
+			CONS_Printf("R_GetFlatNumForName: Could not find flat %.8s\n", name);
 		lump = W_CheckNumForName("REDFLR");
 	}
 
@@ -635,10 +509,12 @@ lumpnum_t R_GetFlatNumForName(const char *name)
 //
 static void R_InitSpriteLumps(void)
 {
-	numspritelumps = 0;
-	max_spritelumps = 8192;
+	// Doom used to set numspritelumps from S_END - S_START + 1
 
-	Z_Malloc(max_spritelumps*sizeof(*spritecachedinfo), PU_STATIC, &spritecachedinfo);
+	// FIXME: find a better solution for adding new sprites dynamically
+	numspritelumps = 0;
+
+	spritecachedinfo = Z_Malloc(MAXSPRITELUMPS*sizeof(*spritecachedinfo), PU_STATIC, NULL);
 }
 
 //
@@ -648,9 +524,9 @@ static void R_InitColormaps(void)
 {
 	lumpnum_t lump;
 
-	// Load in the light tables
+	// Load in the light tables, now 64k aligned for smokie...
 	lump = W_GetNumForName("COLORMAP");
-	colormaps = Z_MallocAlign(W_LumpLength (lump), PU_STATIC, NULL, 8);
+	colormaps = Z_MallocAlign(W_LumpLength (lump), PU_STATIC, NULL, 16);
 	W_ReadLump(lump, colormaps);
 
 	// Init Boom colormaps.
@@ -1023,7 +899,7 @@ void R_CreateColormap2(char *p1, char *p2, char *p3)
 #define ABS2(x) ((x) < 0 ? -(x) : (x))
 	if (rendermode == render_soft)
 	{
-		colormap_p = Z_MallocAlign((256 * 34) + 10, PU_LEVEL, NULL, 8);
+		colormap_p = Z_MallocAlign((256 * 34) + 10, PU_LEVEL, NULL, 16);
 		extra_colormaps[mapnum].colormap = (UINT8 *)colormap_p;
 
 		for (p = 0; p < 34; p++)
@@ -1174,22 +1050,12 @@ void R_InitData(void)
 	R_InitColormaps();
 }
 
-void R_ClearTextureNumCache(boolean btell)
-{
-	if (tidcache)
-		Z_Free(tidcache);
-	tidcache = NULL;
-	if (btell)
-		DEBPRINT(va("Fun Fact: There are %s textures used in this map.\n", sizeu1(tidcachelen)));
-	tidcachelen = 0;
-}
-
 //
 // R_CheckTextureNumForName
 //
 // Check whether texture is available. Filter out NoTexture indicator.
 //
-INT32 R_CheckTextureNumForName(const char *name)
+INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 {
 	size_t i;
 
@@ -1197,23 +1063,43 @@ INT32 R_CheckTextureNumForName(const char *name)
 	if (name[0] == '-')
 		return 0;
 
-	for (i = 0; i < tidcachelen; i++)
-		if (!strncasecmp(tidcache[i].name, name, 8))
-			return tidcache[i].id;
-
 	for (i = 0; i < numtextures; i++)
 		if (!strncasecmp(textures[i]->name, name, 8))
-		{
-			tidcachelen++;
-			Z_Realloc(tidcache, tidcachelen * sizeof(*tidcache), PU_STATIC, &tidcache);
-			strncpy(tidcache[tidcachelen-1].name, name, 8);
-			tidcache[tidcachelen-1].name[8] = '\0';
-#ifndef ZDEBUG
-			DEBPRINT(va("texture #%s: %s\n", sizeu1(tidcachelen), tidcache[tidcachelen-1].name));
-#endif
-			tidcache[tidcachelen-1].id = (INT32)i;
 			return (INT32)i;
+
+	// Ignore texture errors of colormaps and others in dedicated mode.
+	if (!dedicated && name[0] != '#')
+	{
+		if (sidenum == 0xffff)
+			CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found.\nDefaulting to REDWALL.\n", name);
+		else
+		{
+			size_t linenum = (size_t)-1;
+			int whichside = -1;
+
+			for (i = 0; i < numlines; i++)
+			{
+				if (lines[i].sidenum[0] == sidenum)
+				{
+					linenum = i;
+					whichside = 1;
+				}
+				else if (lines[i].sidenum[1] == sidenum)
+				{
+					linenum = i;
+					whichside = 2;
+				}
+			}
+
+			if (lines[linenum].special != 259) // Make-Your-Own FOF
+				CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found on sidedef #%d (line #%"PRIdS", side %d).\nDefaulting to REDWALL.\n", name, sidenum, linenum, whichside);
 		}
+	}
+
+	// Use a dummy texture for those not found.
+	for (i = 0; i < numtextures; i++)
+		if (!strncasecmp(textures[i]->name, "REDWALL", 8))
+			return (INT32)i;
 
 	return -1;
 }
@@ -1223,18 +1109,13 @@ INT32 R_CheckTextureNumForName(const char *name)
 //
 // Calls R_CheckTextureNumForName, aborts with error message.
 //
-INT32 R_TextureNumForName(const char *name)
+INT32 R_TextureNumForName(const char *name, UINT16 sidenum)
 {
-	const INT32 i = R_CheckTextureNumForName(name);
+	const INT32 i = R_CheckTextureNumForName(name, sidenum);
 
 	if (i == -1)
 	{
-		static INT32 redwall = -2;
-		DEBPRINT(va("WARNING: R_TextureNumForName: %.8s not found\n", name));
-		if (redwall == -2)
-			redwall = R_CheckTextureNumForName("REDWALL");
-		if (redwall != -1)
-			return redwall;
+		CONS_Printf("WARNING: R_TextureNumForName: %.8s not found\n", name);
 		return 1;
 	}
 	return i;
@@ -1270,7 +1151,7 @@ void R_PrecacheLevel(void)
 	// no need to precache all software textures in 3D mode
 	// (note they are still used with the reference software view)
 	texturepresent = calloc(numtextures, sizeof (*texturepresent));
-	if (texturepresent == NULL) I_Error("%s: Out of memory looking up textures", "R_PrecacheLevel");
+	if (texturepresent == NULL) I_Error("%s: Out of memory looking up textues", "R_PrecacheLevel");
 
 	for (j = 0; j < numsides; j++)
 	{
@@ -1333,8 +1214,11 @@ void R_PrecacheLevel(void)
 	free(spritepresent);
 
 	// FIXME: this is no longer correct with OpenGL render mode
-	DEBPRINT(va("Precache level done:\n"
-			"flatmemory:    %s k\n"
-			"texturememory: %s k\n"
-			"spritememory:  %s k\n", sizeu1(flatmemory>>10), sizeu2(texturememory>>10), sizeu3(spritememory>>10)));
+	if (devparm)
+	{
+		CONS_Printf("Precache level done:\n"
+			"flatmemory:    %"PRIdS" k\n"
+			"texturememory: %"PRIdS" k\n"
+			"spritememory:  %"PRIdS" k\n", flatmemory>>10, texturememory>>10, spritememory>>10);
+	}
 }

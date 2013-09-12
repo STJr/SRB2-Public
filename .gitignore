@@ -12,4 +12,3 @@ Win32_LIB_ASM_Release
 /src/comptime.h
 *.dgb
 *.debug
-*.debug.txt

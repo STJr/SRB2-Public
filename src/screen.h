@@ -49,15 +49,12 @@
 // we try to re-allocate a minimum of buffers for stability of the memory,
 // so all the small-enough tables based on screen size, are allocated once
 // and for all at the maximum size.
-#if defined (_WIN32_WCE) || defined (DC) || defined (_PSP) || defined (_NDS)
+#if defined (_WIN32_WCE) || defined (DC) || defined (_PSP)
 #define MAXVIDWIDTH 320
 #define MAXVIDHEIGHT 200
 #elif defined (GP2X)
 #define MAXVIDWIDTH 320 //720
 #define MAXVIDHEIGHT 240 //576
-#elif defined (WII) // Wii, VGA/640x480
-#define MAXVIDWIDTH 640
-#define MAXVIDHEIGHT 480
 #else
 #define MAXVIDWIDTH 1920 // don't set this too high because actually
 #define MAXVIDHEIGHT 1200 // lots of tables are allocated with the MAX size.
@@ -81,19 +78,13 @@ typedef struct viddef_s
 	INT32 recalc; // if true, recalc vid-based stuff
 	UINT8 *direct; // linear frame buffer, or vga base mem.
 	INT32 dupx, dupy; // scale 1, 2, 3 value for menus & overlays
-	INT32/*fixed_t*/ fdupx, fdupy; // same as dupx, dupy, but exact value when aspect ratio isn't 320/200
+	float fdupx, fdupy; // same as dupx, dupy, but exact value when aspect ratio isn't 320/200
 	INT32 bpp; // BYTES per pixel: 1 = 256color, 2 = highcolor
 
 	INT32 baseratio; // Used to get the correct value for lighting walls
 
 	// for Win32 version
 	DNWH WndParent; // handle of the application's window
-	UINT8 smalldupx, smalldupy; // factor for a little bit of scaling
-	UINT8 meddupx, meddupy; // factor for moderate, but not full, scaling
-#ifdef HWRENDER
-	INT32/*fixed_t*/ fsmalldupx, fsmalldupy;
-	INT32/*fixed_t*/ fmeddupx, fmeddupy;
-#endif
 } viddef_t;
 #define VIDWIDTH vid.width
 #define VIDHEIGHT vid.height
@@ -124,8 +115,8 @@ typedef struct vmode_s
 	INT32 misc; // misc for display driver (r_opengl.dll etc)
 } vmode_t;
 
-#define NUMSPECIALMODES  2
-extern vmode_t specialmodes[NUMSPECIALMODES];
+#define NUMSPECIALMODES  1
+extern vmode_t specialmodes[2];
 
 // ---------------------------------------------
 // color mode dependent drawer function pointers
@@ -141,7 +132,6 @@ extern void (*spanfunc)(void);
 extern void (*basespanfunc)(void);
 extern void (*splatfunc)(void);
 extern void (*transtransfunc)(void);
-extern void (*twosmultipatchfunc)(void);
 
 // -----
 // CPUID

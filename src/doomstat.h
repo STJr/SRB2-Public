@@ -73,6 +73,7 @@ extern INT16 gametype;
 extern boolean splitscreen;
 extern boolean circuitmap; // Does this level have 'circuit mode'?
 extern boolean fromlevelselect;
+extern INT32 cv_debug;
 
 // ========================================
 // Internal parameters for sound rendering.
@@ -98,8 +99,6 @@ extern boolean noblit;
 extern boolean lastdraw;
 extern postimg_t postimgtype;
 extern INT32 postimgparam;
-extern postimg_t postimgtype2;
-extern INT32 postimgparam2;
 
 extern INT32 viewwindowx, viewwindowy;
 extern INT32 viewwidth, scaledviewwidth;
@@ -147,7 +146,7 @@ typedef struct
 	INT32 numscenes; // Number of scenes in this cutscene
 } cutscene_t;
 
-extern cutscene_t *cutscenes[128];
+extern cutscene_t cutscenes[128];
 
 // For the Custom Exit linedef.
 extern INT16 nextmapoverride;
@@ -162,6 +161,9 @@ extern mobj_t *redflag, *blueflag; // Pointers to physical flags
 extern mapthing_t *rflagpoint, *bflagpoint; // Pointers to the flag spawn locations
 #define MF_REDFLAG 1
 #define MF_BLUEFLAG 2
+
+#define LEVELARRAYSIZE 1035+2
+extern char lvltable[LEVELARRAYSIZE+3][64];
 
 /** Map header information.
   */
@@ -197,7 +199,7 @@ typedef struct
 	UINT16 palette;      ///< PAL lump to use on this map
 } mapheader_t;
 
-extern mapheader_t* mapheaderinfo[NUMMAPS];
+extern mapheader_t mapheaderinfo[NUMMAPS];
 
 #define TOL_COOP        1 ///< Cooperative
 #define TOL_RACE        2 ///< Race

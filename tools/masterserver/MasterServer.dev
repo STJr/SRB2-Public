@@ -12,7 +12,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=-Wall_@@_-DDEBUG_@@_
 CppCompiler=-Wall_@@_-DDEBUG_@@_
-Linker=-lwsock32_@@_-lmysql_@@_
+Linker=-lwsock32_@@_
 IsCpp=1
 Icon=
 ExeOutput=..\..\bin
@@ -21,13 +21,13 @@ OverrideOutput=0
 OverrideOutputName=MasterServer.exe
 HostApplication=
 Folders=Common,Server
-CommandLine=28900
+CommandLine=
 UseCustomMakefile=0
 CustomMakefile=
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000000011001001001010
+CompilerSettings=0000000011001001001110
 
 [Unit1]
 FileName=common.cpp
@@ -129,6 +129,16 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
+[Unit12]
+FileName=srvlist.h
+CompileCpp=1
+Folder=Server
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
 [VersionInfo]
 Major=0
 Minor=1
@@ -149,16 +159,6 @@ AutoIncBuildNr=0
 
 [Unit7]
 FileName=stats.h
-CompileCpp=1
-Folder=Server
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit13]
-FileName=LIVE_MySQL.h
 CompileCpp=1
 Folder=Server
 Compile=1

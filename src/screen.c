@@ -54,7 +54,6 @@ void (*spanfunc)(void); // span drawer, use a 64x64 tile
 void (*splatfunc)(void); // span drawer w/ transparency
 void (*basespanfunc)(void); // default span func for color mode
 void (*transtransfunc)(void); // translucent translated column drawer
-void (*twosmultipatchfunc)(void); // for cols with transparent pixels
 
 // ------------------
 // global video state
@@ -65,15 +64,9 @@ INT32 setmodeneeded; //video mode change needed if > 0 (the mode number to set +
 static CV_PossibleValue_t scr_depth_cons_t[] = {{8, "8 bits"}, {16, "16 bits"}, {24, "24 bits"}, {32, "32 bits"}, {0, NULL}};
 
 //added : 03-02-98: default screen mode, as loaded/saved in config
-#ifdef WII
-consvar_t cv_scr_width = {"scr_width", "640", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_scr_height = {"scr_height", "480", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_scr_depth = {"scr_depth", "16 bits", CV_SAVE, scr_depth_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-#else
 consvar_t cv_scr_width = {"scr_width", "320", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_scr_height = {"scr_height", "200", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_scr_depth = {"scr_depth", "8 bits", CV_SAVE, scr_depth_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-#endif
 consvar_t cv_renderview = {"renderview", "On", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_fullscreen = {"fullscreen", "No", CV_SAVE|CV_CALL, CV_YesNo, SCR_ChangeFullscreen, 0, NULL, NULL, 0, 0, NULL};
 
@@ -86,14 +79,19 @@ UINT8 *scr_borderpatch; // flat used to fill the reduced view borders set at ST_
 
 // =========================================================================
 
+#ifdef RUSEASM
+// tell asm code the new rowbytes value.
+void ASMCALL ASM_PatchRowBytes(INT32 rowbytes);
+void ASMCALL MMX_PatchRowBytes(INT32 rowbytes);
+#endif
+
 //  Short and Tall sky drawer, for the current color mode
 void (*walldrawerfunc)(void);
 
-boolean R_ASM = true;
-boolean R_486 = false;
-boolean R_586 = false;
-boolean R_MMX = false;
-boolean R_SSE = false;
+boolean R_ASM = true;  //R_DrawColumn8_ASM
+boolean R_486 = false; //R_DrawColumn8_NOMMX
+boolean R_586 = false; //R_DrawColumn8_Pentium
+boolean R_MMX = false; //R_DrawColumn8_K6_MMX
 boolean R_3DNow = false;
 boolean R_MMXExt = false;
 boolean R_SSE2 = false;
@@ -126,33 +124,34 @@ void SCR_SetMode(void)
 		shadecolfunc = R_DrawShadeColumn_8;
 		fuzzcolfunc = R_DrawTranslucentColumn_8;
 		walldrawerfunc = R_DrawWallColumn_8;
-		twosmultipatchfunc = R_Draw2sMultiPatchColumn_8;
 #ifdef RUSEASM
 		if (R_ASM)
 		{
-			if (R_MMX)
-			{
-				colfunc = basecolfunc = R_DrawColumn_8_MMX;
-				//shadecolfunc = R_DrawShadeColumn_8_ASM;
-				//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
-				walldrawerfunc = R_DrawWallColumn_8_MMX;
-				twosmultipatchfunc = R_Draw2sMultiPatchColumn_8_MMX;
-				spanfunc = basespanfunc = R_DrawSpan_8_MMX;
-			}
-			else
-			{
-				colfunc = basecolfunc = R_DrawColumn_8_ASM;
-				//shadecolfunc = R_DrawShadeColumn_8_ASM;
-				//fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
-				walldrawerfunc = R_DrawWallColumn_8_ASM;
-				twosmultipatchfunc = R_Draw2sMultiPatchColumn_8_ASM;
-			}
+			//colfunc = basecolfunc = R_DrawColumn_8_ASM;
+			shadecolfunc = R_DrawShadeColumn_8_ASM;
+//			fuzzcolfunc = R_DrawTranslucentColumn_8_ASM;
+			//walldrawerfunc = R_DrawWallColumn_8_ASM;
 		}
+/*		if (R_486)
+		{
+			colfunc = basecolfunc = R_DrawColumn_8_NOMMX;
+			CONS_Printf("using 486 code\n");
+		}
+		if (R_586)
+		{
+			colfunc = basecolfunc = R_DrawColumn_8_Pentium;
+			CONS_Printf("upgrading to 586 code\n");
+		}
+		if (R_MMX)
+		{
+			colfunc = basecolfunc = R_DrawColumn_8_K6_MMX;
+			CONS_Printf("now using cool MMX code\n");
+		}*/
 #endif
 	}
 /*	else if (vid.bpp > 1)
 	{
-		DEBPRINT("using highcolor mode\n");
+		CONS_Printf("using highcolor mode\n");
 		spanfunc = basespanfunc = R_DrawSpan_16;
 		transcolfunc = R_DrawTranslatedColumn_16;
 		transtransfunc = R_DrawTranslucentColumn_16; // No 16bit operation for this function
@@ -164,9 +163,10 @@ void SCR_SetMode(void)
 	}*/
 	else
 		I_Error("unknown bytes per pixel mode %d\n", vid.bpp);
-#if !defined (DC) && !defined (WII)
+#ifndef DC
 	if (vid.width % BASEVIDWIDTH || vid.height % BASEVIDHEIGHT)
-		CONS_Printf(M_GetText("WARNING: Resolution is not aspect-correct!\nUse a multiple of %dx%d\n"), BASEVIDWIDTH, BASEVIDHEIGHT);
+		CONS_Printf("WARNING: Resolution is not aspect-correct!\n"
+			"Use a multiple of %dx%d\n", BASEVIDWIDTH, BASEVIDHEIGHT);
 #endif
 	// set the apprpriate drawer for the sky (tall or INT16)
 	setmodeneeded = 0;
@@ -190,11 +190,15 @@ void SCR_Startup(void)
 			R_3DNow = true;
 		if (RCpuInfo->MMXExt)
 			R_MMXExt = true;
-		if (RCpuInfo->SSE)
-			R_SSE = true;
 		if (RCpuInfo->SSE2)
 			R_SSE2 = true;
-		CONS_Printf("CPU Info: 486: %i, 586: %i, MMX: %i, 3DNow: %i, MMXExt: %i, SSE2: %i\n", R_486, R_586, R_MMX, R_3DNow, R_MMXExt, R_SSE2);
+
+		if (RCpuInfo->CPUs > 1)
+		{
+			R_ASM = false; //with more than 1 CPU, ASM go BOOM!
+		}
+		CONS_Printf("CPU Info: 486: %i, 586: %i, MMX: %i, 3DNow: %i, MMXExt: %i, SSE2: %i\n",
+		            R_486, R_586, R_MMX, R_3DNow, R_MMXExt, R_SSE2);
 	}
 
 	if (M_CheckParm("-noASM"))
@@ -209,14 +213,20 @@ void SCR_Startup(void)
 		R_3DNow = true;
 	if (M_CheckParm("-MMXExt"))
 		R_MMXExt = true;
-
-	if (M_CheckParm("-SSE"))
-		R_SSE = true;
-	if (M_CheckParm("-noSSE"))
-		R_SSE = false;
-
 	if (M_CheckParm("-SSE2"))
 		R_SSE2 = true;
+
+#if defined (_WIN32) && !defined (_WIN32_WCE) && !defined (_XBOX)
+	if (!RCpuInfo || !RCpuInfo->CPUs) //bad CPUID code?
+	{
+		LPCSTR cNOP = I_GetEnv("NUMBER_OF_PROCESSORS");
+		if (cNOP && atoi(cNOP) > 1 && !M_CheckParm("-ASM"))
+		{
+			R_ASM = false;
+			CONS_Printf("Disabling ASM code\n");
+		}
+	}
+#endif
 
 	M_SetupMemcpy();
 
@@ -229,30 +239,22 @@ void SCR_Startup(void)
 
 	vid.modenum = 0;
 
-	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
-	vid.fdupy =  FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
-	vid.dupx = vid.width / BASEVIDWIDTH;
-	vid.dupy = vid.height / BASEVIDHEIGHT;
-
-	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
-	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
-#ifdef HWRENDER
-	vid.fmeddupx = vid.meddupx*FRACUNIT;
-	vid.fmeddupy = vid.meddupy*FRACUNIT;
-#endif
-
-	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
-	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
-#ifdef HWRENDER
-	vid.fsmalldupx = vid.smalldupx*FRACUNIT;
-	vid.fsmalldupy = vid.smalldupy*FRACUNIT;
-#endif
+	vid.fdupx = (float)vid.width/BASEVIDWIDTH;
+	vid.fdupy = (float)vid.height/BASEVIDHEIGHT;
+	vid.dupx = (INT32)vid.fdupx;
+	vid.dupy = (INT32)vid.fdupy;
 
 	vid.baseratio = FRACUNIT;
 
+#ifdef RUSEASM
+	if (R_ASM)
+		ASM_PatchRowBytes(vid.rowbytes);
+//	if (R_486 || R_586 || R_MMX)
+//		MMX_PatchRowBytes(vid.rowbytes);
+#endif
+
 	V_Init();
 	CV_RegisterVar(&cv_ticrate);
-	CV_RegisterVar(&cv_constextsize);
 
 	V_SetPalette(0);
 }
@@ -271,22 +273,16 @@ void SCR_Recalc(void)
 	// calculated once and for all, used by routines in v_video.c
 	vid.dupx = vid.width / BASEVIDWIDTH;
 	vid.dupy = vid.height / BASEVIDHEIGHT;
-	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT);
-	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT);
+	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
+	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
 	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 
-	vid.meddupx = (UINT8)(vid.dupx >> 1) + 1;
-	vid.meddupy = (UINT8)(vid.dupy >> 1) + 1;
-#ifdef HWRENDER
-	vid.fmeddupx = vid.meddupx*FRACUNIT;
-	vid.fmeddupy = vid.meddupy*FRACUNIT;
-#endif
-
-	vid.smalldupx = (UINT8)(vid.dupx / 3) + 1;
-	vid.smalldupy = (UINT8)(vid.dupy / 3) + 1;
-#ifdef HWRENDER
-	vid.fsmalldupx = vid.smalldupx*FRACUNIT;
-	vid.fsmalldupy = vid.smalldupy*FRACUNIT;
+	// patch the asm code depending on vid buffer rowbytes
+#ifdef RUSEASM
+	if (R_ASM)
+		ASM_PatchRowBytes(vid.rowbytes);
+//	if (R_486 || R_586 || R_MMX)
+//		MMX_PatchRowBytes(vid.rowbytes);
 #endif
 
 	// toggle off automap because some screensize-dependent values will
@@ -337,13 +333,13 @@ void SCR_CheckDefaultMode(void)
 
 	if (scr_forcex && scr_forcey)
 	{
-		CONS_Printf(M_GetText("Using resolution: %d x %d\n"), scr_forcex, scr_forcey);
+		CONS_Printf("Using resolution: %d x %d\n", scr_forcex, scr_forcey);
 		// returns -1 if not found, thus will be 0 (no mode change) if not found
 		setmodeneeded = VID_GetModeForSize(scr_forcex, scr_forcey) + 1;
 	}
 	else
 	{
-		CONS_Printf(M_GetText("Default resolution: %d x %d (%d bits)\n"), cv_scr_width.value,
+		CONS_Printf("Default resolution: %d x %d (%d bits)\n", cv_scr_width.value,
 			cv_scr_height.value, cv_scr_depth.value);
 		// see note above
 		setmodeneeded = VID_GetModeForSize(cv_scr_width.value, cv_scr_height.value) + 1;

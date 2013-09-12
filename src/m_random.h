@@ -21,32 +21,22 @@
 #define __M_RANDOM__
 
 #include "doomtype.h"
-#include "m_fixed.h"
 
-// M_Random functions pull random numbers of various types that aren't network synced.
-// P_Random functions pulls random bytes from a 65535 byte lookup table that is network synced.
-
-// Returns a number from 0 to 255, from rand()
-// pulls a random byte like P_Random() but not synced across network.
+// Returns a number from 0 to 255, from a lookup table.
 UINT8 M_Random(void);
-INT32 M_SignedRandom(void);
-INT32 M_RandomRange(INT32 a, INT32 b);
-// Pulls a random fixed_t, not synced across network.
-fixed_t M_RandomPrecip(void);
 
 #ifdef DEBUGRANDOM
 #define P_Random() P_Random2(__FILE__, __LINE__)
 #define P_SignedRandom() P_SignedRandom2(__FILE__, __LINE__)
-#define P_RandomRange(c, d) P_RandomRange2(__FILE__, __LINE__, c, d)
 UINT8 P_Random2(const char *a, INT32 b);
 INT32 P_SignedRandom2(const char *a, INT32 b);
-INT32 P_RandomRange2(const char *a, INT32 b, INT32 c, INT32 d);
 #else
+// As M_Random, but used only by the play simulation.
 UINT8 P_Random(void);
 INT32 P_SignedRandom(void);
-INT32 P_RandomRange(INT32 a, INT32 b);
 #endif
 
+// Fix randoms for demos.
 void M_ClearRandom(void);
 UINT8 P_GetRandIndex(void);
 void P_SetRandIndex(UINT8 newrindex);

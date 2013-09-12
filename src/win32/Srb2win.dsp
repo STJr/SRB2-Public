@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /W3 /GX /Zi /Ot /Og /Oi /Op /Oy /Ob1 /Gy /I "..\..\libs\libpng-src" /I "..\..\libs\zlib" /D "NDEBUG" /D "_WINDOWS" /D "USEASM" /D "HAVE_PNG" /FR /FD /GF /Gs /GF /c
+# ADD CPP /nologo /G5 /W3 /GX /Zi /Ot /Og /Oi /Op /Oy /Ob1 /Gy /I "..\..\tools\libpng-src" /I "..\..\tools\zlib" /D "NDEBUG" /D "_WINDOWS" /D "USEASM" /D "HAVE_PNG" /FR /FD /GF /Gs /GF /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /o "NUL" /win32
 # SUBTRACT MTL /mktyplib203
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"..\..\objs\Release\Srb2win.bsc"
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 dxguid.lib user32.lib gdi32.lib winmm.lib advapi32.lib ws2_32.lib dinput.lib /nologo /subsystem:windows /pdb:"C:\srb2demo2\srb2.pdb" /debug /machine:I386 /out:"C:\srb2demo2\srb2win.exe"
+# ADD LINK32 dxguid.lib user32.lib gdi32.lib winmm.lib advapi32.lib wsock32.lib dinput.lib /nologo /subsystem:windows /pdb:"C:\srb2demo2\srb2.pdb" /debug /machine:I386 /out:"C:\srb2demo2\srb2win.exe"
 # SUBTRACT LINK32 /profile /pdb:none /incremental:yes /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "Srb2win - Win32 Debug"
@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G6 /W4 /Gm /GX /ZI /Od /Op /Oy /I "libs\libpng-src" /I "..\..\libs\libpng-src" /I "..\..\libs\zlib" /D "_DEBUG" /D "_WINDOWS" /D "USEASM" /D "HAVE_PNG" /FAcs /FR /FD /c
+# ADD CPP /nologo /G6 /W4 /Gm /GX /ZI /Od /Op /Oy /I "tools\libpng-src" /I "..\..\tools\libpng-src" /I "..\..\tools\zlib" /D "_DEBUG" /D "_WINDOWS" /D "USEASM" /D "HAVE_PNG" /FAcs /FR /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x40c /d "_DEBUG"
@@ -81,7 +81,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 dxguid.lib user32.lib gdi32.lib winmm.lib advapi32.lib ws2_32.lib dinput.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:"C:\srb2demo2\srb2debug.exe"
+# ADD LINK32 dxguid.lib user32.lib gdi32.lib winmm.lib advapi32.lib wsock32.lib dinput.lib /nologo /subsystem:windows /profile /debug /machine:I386 /out:"C:\srb2demo2\srb2debug.exe"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
@@ -216,7 +216,7 @@ InputPath=..\tmap.nas
 InputName=tmap
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -229,7 +229,7 @@ InputPath=..\tmap.nas
 InputName=tmap
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -249,7 +249,7 @@ InputPath=..\tmap_mmx.nas
 InputName=tmap_mmx
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -262,7 +262,7 @@ InputPath=..\tmap_mmx.nas
 InputName=tmap_mmx
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -281,7 +281,7 @@ InputPath=..\tmap_vc.nas
 InputName=tmap_vc
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 
@@ -294,7 +294,7 @@ InputPath=..\tmap_vc.nas
 InputName=tmap_vc
 
 "$(IntDir)/$(InputName).obj" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	nasm -g -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
+	nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)
 
 # End Custom Build
 

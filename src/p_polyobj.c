@@ -482,7 +482,7 @@ newseg:
 	// error: if we reach here, the seg search never found another seg to
 	// continue the loop, and thus the polyobject is open. This isn't allowed.
 	po->isBad = true;
-	DEBPRINT(va("Polyobject %d is not closed\n", po->id));
+	CONS_Printf("polyobject %d is not closed\n", po->id);
 }
 
 // structure used to store segs during explicit search process
@@ -546,7 +546,7 @@ static void Polyobj_findExplicit(polyobj_t *po)
 	if (numSegItems == 0)
 	{
 		po->isBad = true;
-		DEBPRINT(va("Polyobject %d is empty\n", po->id));
+		CONS_Printf("polyobject %d is empty\n", po->id);
 		return;
 	}
 
@@ -577,7 +577,7 @@ static void Polyobj_spawnPolyObj(INT32 num, mobj_t *spawnSpot, INT32 id)
 	// don't spawn a polyobject more than once
 	if (po->segCount)
 	{
-		DEBPRINT(va("Polyobj %d has more than one spawn spot", po->id));
+		CONS_Printf("polyobj %d has more than one spawn spot", po->id);
 		return;
 	}
 
@@ -637,7 +637,8 @@ static void Polyobj_spawnPolyObj(INT32 num, mobj_t *spawnSpot, INT32 id)
 		}
 	}
 
-	DEBPRINT(va("PO ID: %d; Num verts: %s\n", po->id, sizeu1(po->numVertices)));
+	if (cv_debug)
+		CONS_Printf("PO ID: %d; Num verts: %"PRIdS"\n", po->id, po->numVertices);
 
 	// if an error occurred above, quit processing this object
 	if (po->isBad)
@@ -673,7 +674,7 @@ static void Polyobj_spawnPolyObj(INT32 num, mobj_t *spawnSpot, INT32 id)
 	{
 		// bad polyobject due to id conflict
 		po->isBad = true;
-		DEBPRINT(va("Polyobject id conflict: %d\n", id));
+		CONS_Printf("polyobject id conflict: %d\n", id);
 	}
 	else
 	{
@@ -699,7 +700,7 @@ static void Polyobj_moveToSpawnSpot(mapthing_t *anchor)
 
 	if (!(po = Polyobj_GetForNum(anchor->angle)))
 	{
-		DEBPRINT(va("Bad polyobject %d for anchor point\n", anchor->angle));
+		CONS_Printf("bad polyobject %d for anchor point\n", anchor->angle);
 		return;
 	}
 
@@ -710,7 +711,7 @@ static void Polyobj_moveToSpawnSpot(mapthing_t *anchor)
 	// don't move any polyobject more than once
 	if (po->attached)
 	{
-		DEBPRINT(va("Polyobj %d has more than one anchor\n", po->id));
+		CONS_Printf("polyobj %d has more than one anchor\n", po->id);
 		return;
 	}
 
@@ -1507,7 +1508,7 @@ void T_PolyObjRotate(polyrotate_t *th)
 		I_Error("T_PolyObjRotate: thinker has invalid id %d\n", th->polyObjNum);
 #else
 	{
-		DEBPRINT(va("T_PolyObjRotate: thinker with invalid id %d removed.\n", th->polyObjNum));
+		CONS_Printf("T_PolyObjRotate: thinker with invalid id %d removed.\n", th->polyObjNum);
 		P_RemoveThinkerDelayed(&th->thinker);
 		return;
 	}
@@ -1579,7 +1580,7 @@ void T_PolyObjMove(polymove_t *th)
 		I_Error("T_PolyObjRotate: thinker has invalid id %d\n", th->polyObjNum);
 #else
 	{
-		DEBPRINT(va("T_PolyObjRotate: thinker with invalid id %d removed.\n", th->polyObjNum));
+		CONS_Printf("T_PolyObjRotate: thinker with invalid id %d removed.\n", th->polyObjNum);
 		P_RemoveThinkerDelayed(&th->thinker);
 		return;
 	}
@@ -1652,7 +1653,7 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 		I_Error("T_PolyObjWaypoint: thinker has invalid id %d\n", th->polyObjNum);
 #else
 	{
-		DEBPRINT(va("T_PolyObjWaypoint: thinker with invalid id %d removed.", th->polyObjNum));
+		CONS_Printf("T_PolyObjWaypoint: thinker with invalid id %d removed.", th->polyObjNum);
 		P_RemoveThinkerDelayed(&th->thinker);
 		return;
 	}
@@ -1683,7 +1684,7 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 
 	if (!target)
 	{
-		DEBPRINT("T_PolyObjWaypoint: Unable to find target waypoint!\n");
+		CONS_Printf("T_PolyObjWaypoint: Unable to find target waypoint!\n");
 		return;
 	}
 
@@ -1736,7 +1737,8 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 
 		if (!th->stophere)
 		{
-			DEBPRINT("Looking for next waypoint...\n");
+			if (cv_debug)
+				CONS_Printf("Looking for next waypoint...\n");
 
 			// Find next waypoint
 			for (wp = thinkercap.next; wp != &thinkercap; wp = wp->next)
@@ -1850,7 +1852,8 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 
 		if (waypoint)
 		{
-			DEBPRINT(va("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health));
+			if (cv_debug)
+				CONS_Printf("Found waypoint (sequence %d, number %d).\n", waypoint->threshold, waypoint->health);
 
 			target = waypoint;
 			th->pointnum = target->health;
@@ -1870,8 +1873,8 @@ void T_PolyObjWaypoint(polywaypoint_t *th)
 		{
 			momx = momy = momz = 0;
 
-			if (!th->stophere)
-				DEBPRINT("Next waypoint not found!\n");
+			if (cv_debug && !th->stophere)
+				CONS_Printf("Next waypoint not found!\n");
 
 			if (po->thinker == &th->thinker)
 				po->thinker = NULL;
@@ -1914,7 +1917,7 @@ void T_PolyDoorSlide(polyslidedoor_t *th)
 		I_Error("T_PolyDoorSlide: thinker has invalid id %d\n", th->polyObjNum);
 #else
 	{
-		DEBPRINT(va("T_PolyDoorSlide: thinker with invalid id %d removed.\n", th->polyObjNum));
+		CONS_Printf("T_PolyDoorSlide: thinker with invalid id %d removed.\n", th->polyObjNum);
 		P_RemoveThinkerDelayed(&th->thinker);
 		return;
 	}
@@ -2019,7 +2022,7 @@ void T_PolyDoorSwing(polyswingdoor_t *th)
 		I_Error("T_PolyDoorSwing: thinker has invalid id %d\n", th->polyObjNum);
 #else
 	{
-		DEBPRINT(va("T_PolyDoorSwing: thinker with invalid id %d removed.\n", th->polyObjNum));
+		CONS_Printf("T_PolyDoorSwing: thinker with invalid id %d removed.\n", th->polyObjNum);
 		P_RemoveThinkerDelayed(&th->thinker);
 		return;
 	}
@@ -2122,7 +2125,8 @@ INT32 EV_DoPolyObjRotate(polyrotdata_t *prdata)
 
 	if (!(po = Polyobj_GetForNum(prdata->polyObjNum)))
 	{
-		DEBPRINT(va("EV_DoPolyObjRotate: bad polyobj %d\n", prdata->polyObjNum));
+		CONS_Printf("EV_DoPolyObjRotate: bad polyobj %d\n",
+			prdata->polyObjNum);
 		return 0;
 	}
 
@@ -2182,7 +2186,8 @@ INT32 EV_DoPolyObjMove(polymovedata_t *pmdata)
 
 	if (!(po = Polyobj_GetForNum(pmdata->polyObjNum)))
 	{
-		DEBPRINT(va("EV_DoPolyObjMove: bad polyobj %d\n", pmdata->polyObjNum));
+		CONS_Printf("EV_DoPolyObjMove: bad polyobj %d\n",
+			pmdata->polyObjNum);
 		return 0;
 	}
 
@@ -2241,7 +2246,8 @@ INT32 EV_DoPolyObjWaypoint(polywaypointdata_t *pwdata)
 
 	if (!(po = Polyobj_GetForNum(pwdata->polyObjNum)))
 	{
-		DEBPRINT(va("EV_DoPolyObjWaypoint: bad polyobj %d\n", pwdata->polyObjNum));
+		CONS_Printf("EV_DoPolyObjWaypoint: bad polyobj %d\n",
+			pwdata->polyObjNum);
 		return 0;
 	}
 
@@ -2314,7 +2320,7 @@ INT32 EV_DoPolyObjWaypoint(polywaypointdata_t *pwdata)
 
 	if (!first)
 	{
-		DEBPRINT(va("EV_DoPolyObjWaypoint: Missing starting waypoint!\n"));
+		CONS_Printf("EV_DoPolyObjWaypoint: Missing starting waypoint!\n");
 		po->thinker = NULL;
 		P_RemoveThinker(&th->thinker);
 		return 0;
@@ -2373,7 +2379,7 @@ INT32 EV_DoPolyObjWaypoint(polywaypointdata_t *pwdata)
 
 	if (!target)
 	{
-		DEBPRINT(va("EV_DoPolyObjWaypoint: Missing target waypoint!\n"));
+		CONS_Printf("EV_DoPolyObjWaypoint: Missing target waypoint!\n");
 		po->thinker = NULL;
 		P_RemoveThinker(&th->thinker);
 		return 0;
@@ -2482,7 +2488,8 @@ INT32 EV_DoPolyDoor(polydoordata_t *doordata)
 
 	if (!(po = Polyobj_GetForNum(doordata->polyObjNum)))
 	{
-		DEBPRINT(va("EV_DoPolyDoor: bad polyobj %d\n", doordata->polyObjNum));
+		CONS_Printf("EV_DoPolyDoor: bad polyobj %d\n",
+						doordata->polyObjNum);
 		return 0;
 	}
 
@@ -2500,7 +2507,8 @@ INT32 EV_DoPolyDoor(polydoordata_t *doordata)
 		Polyobj_doSwingDoor(po, doordata);
 		break;
 	default:
-		DEBPRINT(va("EV_DoPolyDoor: unknown door type %d", doordata->doorType));
+		CONS_Printf("EV_DoPolyDoor: unknown door type %d",
+						doordata->doorType);
 		return 0;
 	}
 
@@ -2517,7 +2525,7 @@ void T_PolyObjFlag(polymove_t *th)
 		I_Error("T_PolyObjFlag: thinker has invalid id %d\n", th->polyObjNum);
 #else
 	{
-		DEBPRINT(va("T_PolyObjFlag: thinker with invalid id %d removed.\n", th->polyObjNum));
+		CONS_Printf("T_PolyObjFlag: thinker with invalid id %d removed.\n", th->polyObjNum);
 		P_RemoveThinkerDelayed(&th->thinker);
 		return;
 	}
@@ -2563,7 +2571,8 @@ INT32 EV_DoPolyObjFlag(line_t *pfdata)
 
 	if (!(po = Polyobj_GetForNum(pfdata->tag)))
 	{
-		DEBPRINT(va("EV_DoPolyFlag: bad polyobj %d\n", pfdata->tag));
+		CONS_Printf("EV_DoPolyFlag: bad polyobj %d\n",
+					pfdata->tag);
 		return 0;
 	}
 
@@ -2575,7 +2584,7 @@ INT32 EV_DoPolyObjFlag(line_t *pfdata)
 	// Must have even # of vertices
 	if (po->numVertices & 1)
 	{
-		DEBPRINT("EV_DoPolyFlag: Polyobject has odd # of vertices!\n");
+		CONS_Printf("EV_DoPolyFlag: Polyobject has odd # of vertices!\n");
 		return 0;
 	}
 

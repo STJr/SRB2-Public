@@ -19,12 +19,12 @@ void I_SetPalette(RGBA_t *palette)
 	(void)palette;
 }
 
-INT32 VID_NumModes(void)
+int VID_NumModes(void)
 {
 	return 0;
 }
 
-INT32 VID_GetModeForSize(INT32 w, INT32 h)
+int VID_GetModeForSize(int w, int h)
 {
 	(void)w;
 	(void)h;
@@ -33,13 +33,13 @@ INT32 VID_GetModeForSize(INT32 w, INT32 h)
 
 void VID_PrepareModeList(void){}
 
-INT32 VID_SetMode(INT32 modenum)
+int VID_SetMode(int modenum)
 {
 	(void)modenum;
 	return 0;
 }
 
-const char *VID_GetModeName(INT32 modenum)
+const char *VID_GetModeName(int modenum)
 {
 	(void)modenum;
 	return NULL;
@@ -51,7 +51,7 @@ void I_FinishUpdate(void){}
 
 void I_UpdateNoVsync(void) {}
 
-void I_WaitVBL(INT32 count)
+void I_WaitVBL(int count)
 {
 	(void)count;
 }

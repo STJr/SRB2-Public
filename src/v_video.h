@@ -34,7 +34,7 @@
 extern UINT8 *screens[5];
 
 extern const UINT8 gammatable[5][256];
-extern consvar_t cv_ticrate, cv_usegamma, cv_allcaps, cv_constextsize;
+extern consvar_t cv_ticrate, cv_usegamma, cv_allcaps;
 
 // Allocates buffer screens, call before R_Init.
 void V_Init(void);
@@ -55,21 +55,13 @@ extern RGBA_t *pLocalPalette;
 // like V_DrawPatch, + using a colormap.
 void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap);
 
-// Bottom 8 bits are used for parameter (screen or character)
-#define V_PARAMMASK          0x000000FF
-
 // flags hacked in scrn (not supported by all functions (see src))
-#define V_NOSCALEPATCH       0x00000100
-#define V_SMALLSCALEPATCH    0x00000200
-#define V_MEDSCALEPATCH      0x00000300
-#define V_SCALEPATCHMASK     0x00000300
-#define V_CHARCOLORSHIFT     11
-#define V_CHARCOLORMASK      0x00001c00
-// intervening bits unused
 #define V_NOSCALESTART       0x00010000  // don't scale x, y, start coords
 #define V_WRAPY              0x00020000  // Don't clamp texture on Y (for HW mode)
+// V_SCALEPATCH isn't even used anywhere in the entire project! thus, I'm hijacking it for something else ~MattW_CFI
+// #define V_SCALEPATCH         0x00040000  // scale patch
 #define V_ALLOWLOWERCASE     0x00040000  // allow fonts that have lowercase letters to use them
-// intervening bits unused
+#define V_NOSCALEPATCH       0x00080000  // don't scale patch
 #define V_YELLOWMAP          0x00100000  // draw yellow (for v_drawstring)
 #define V_SNAPTOTOP          0x00200000  // for centering
 #define V_TRANSLUCENT        0x00400000  // TRANS50 applied
@@ -136,7 +128,7 @@ INT32 V_CreditStringWidth(const char *string);
 // Find string width from hu_font chars
 INT32 V_StringWidth(const char *string);
 
-void V_DoPostProcessor(INT32 view, postimg_t type, INT32 param);
+void V_DoPostProcessor(postimg_t type);
 
 void V_DrawPatchFill(patch_t *pat);
 

@@ -31,6 +31,7 @@
 #include "i_video.h"
 #include "i_system.h"
 
+#include "dstrings.h"
 #include "st_stuff.h" // ST_HEIGHT
 #include "r_local.h"
 
@@ -182,7 +183,7 @@ void HU_LoadGraphics(void)
 		j++;
 		if (i >= HU_REALFONTSIZE && i != '~' - HU_FONTSTART && i != '`' - HU_FONTSTART) /// \note font end hack
 			continue;
-		hu_font[i] = (patch_t *)W_CachePatchName(buffer, PU_HUDGFX);;
+		hu_font[i] = (patch_t *)W_CachePatchName(buffer, PU_HUDGFX);
 	}
 
 	// cache the level title font for entire game execution
@@ -300,7 +301,7 @@ void MatchType_OnChange(void)
 
 	// If swapping to team match, ensure that all players that aren't already on a team become
 	// a spectator, or join the team of their color, if availiable. The quirk of this new gamtype
-	// handling causes us to have to do this.
+	// handling causes us to have to do this. -Jazz 3/4/09
 	if (cv_matchtype.value)
 	{
 		for (i = 0; i < MAXPLAYERS; i++)
@@ -372,7 +373,7 @@ static void DoSayCommand(SINT8 target, size_t usedargs, UINT8 flags)
 
 	if (cv_mute.value && !(server || adminplayer == consoleplayer))
 	{
-		CONS_Printf("%s", M_GetText("The chat is muted. You can't say anything at the moment.\n"));
+		CONS_Printf("The chat is muted. You can't say anything at the moment.\n");
 		return;
 	}
 
@@ -407,7 +408,7 @@ static void Command_Say_f(void)
 {
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("say <message>: send a message\n"));
+		CONS_Printf("say <message>: send a message\n");
 		return;
 	}
 
@@ -424,14 +425,14 @@ static void Command_Sayto_f(void)
 
 	if (COM_Argc() < 3)
 	{
-		CONS_Printf("%s", M_GetText("sayto <playername|playernum> <message>: send a message to a player\n"));
+		CONS_Printf("sayto <playername|playernum> <message>: send a message to a player\n");
 		return;
 	}
 
 	target = nametonum(COM_Argv(1));
 	if (target == -1)
 	{
-		CONS_Printf("%s", M_GetText("sayto: No player with that name!\n"));
+		CONS_Printf("sayto: No player with that name!\n");
 		return;
 	}
 	target++; // Internally we use 0 to 31, but say command uses 1 to 32.
@@ -447,13 +448,13 @@ static void Command_Sayteam_f(void)
 {
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("sayteam <message>: send a message to your team\n"));
+		CONS_Printf("sayteam <message>: send a message to your team\n");
 		return;
 	}
 
 	if (dedicated)
 	{
-		CONS_Printf("%s", M_GetText("Dedicated servers can't send team messages. Use \"say\".\n"));
+		CONS_Printf("Dedicated servers can't send team messages. Use \"say\".\n");
 		return;
 	}
 
@@ -467,13 +468,13 @@ static void Command_CSay_f(void)
 {
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("csay <message>: send a message to be shown in the middle of the screen\n"));
+		CONS_Printf("csay <message>: send a message to be shown in the middle of the screen\n");
 		return;
 	}
 
 	if(!server && adminplayer != consoleplayer)
 	{
-		CONS_Printf("%s", M_GetText("Only servers and admins can use csay.\n"));
+		CONS_Printf("Only servers and admins can use csay.\n");
 		return;
 	}
 
@@ -499,7 +500,8 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	if ((cv_mute.value || (flags & HU_CSAY)) && playernum != serverplayer && playernum != adminplayer)
 	{
 		CONS_Printf(cv_mute.value ?
-			M_GetText("Illegal say command received from %s while muted\n") : M_GetText("Illegal csay command received from non-admin %s\n"),
+			"Illegal say command received from %s while muted\n" :
+			"Illegal csay command received from non-admin %s\n",
 			player_names[playernum]);
 		if (server)
 		{
@@ -523,7 +525,8 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 		{
 			if (msg[i] & 0x80)
 			{
-				CONS_Printf(M_GetText("Illegal say command received from %s containing invalid characters\n"), player_names[playernum]);
+				CONS_Printf("Illegal say command received from %s containing invalid characters\n",
+					player_names[playernum]);
 				if (server)
 				{
 					XBOXSTATIC char buf[2];
@@ -538,10 +541,10 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	}
 
 	// If it's a CSAY, just CECHO and be done with it.
-	if (flags & HU_CSAY)
+	if(flags & HU_CSAY)
 	{
 		HU_SetCEchoDuration(5);
-		DEBPRINT("Server message: ");
+		I_OutputMsg("Server message: %s\n", msg);
 		HU_DoCEcho(msg);
 		return;
 	}
@@ -720,7 +723,7 @@ char HU_dequeueChatChar(void)
 static void HU_queueChatChar(char c)
 {
 	if (((head + 1) & (QUEUESIZE-1)) == tail)
-		CONS_Printf("%s", M_GetText("[Message unsent]\n")); // message not sent
+		CONS_Printf("%s", text[HUSTR_MSGU]); // message not sent
 	else
 	{
 		if (c == KEY_BACKSPACE)
@@ -815,8 +818,6 @@ boolean HU_Responder(event_t *ev)
 		if (shiftdown)
 			c = shiftxform[c];
 
-		(void)altdown;
-
 		if (c == '"') // Graue 07-04-2004: quote marks mess it up
 			c = '\'';
 
@@ -849,8 +850,6 @@ static void HU_DrawChat(void)
 	size_t i = 0;
 	const char *ntalk = "Say: ", *ttalk = "Say-Team: ";
 	const char *talk = ntalk;
-	INT32 charwidth = con_scalefactor << 3;
-	INT32 charheight = charwidth;
 
 	if (teamtalk)
 	{
@@ -865,26 +864,26 @@ static void HU_DrawChat(void)
 
 	while (talk[i])
 	{
-		V_DrawCharacter(HU_INPUTX + c, y, talk[i++] | cv_constextsize.value | V_NOSCALESTART, !cv_allcaps.value);
-		c += charwidth;
+		V_DrawCharacter(HU_INPUTX + (c<<3), y, talk[i++] | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		c++;
 	}
 
 	i = 0;
 	while (w_chat[i])
 	{
 		//Hurdler: isn't it better like that?
-		V_DrawCharacter(HU_INPUTX + c, y, w_chat[i++] | cv_constextsize.value | V_NOSCALESTART | t, !cv_allcaps.value);
+		V_DrawCharacter(HU_INPUTX + (c<<3), y, w_chat[i++] | V_NOSCALEPATCH|V_NOSCALESTART|t, !cv_allcaps.value);
 
-		c += charwidth;
-		if (c >= vid.width)
+		c++;
+		if (c >= (vid.width>>3))
 		{
 			c = 0;
-			y += charheight;
+			y += 8;
 		}
 	}
 
 	if (hu_tick < 4)
-		V_DrawCharacter(HU_INPUTX + c, y, '_' | cv_constextsize.value |V_NOSCALESTART|t, !cv_allcaps.value);
+		V_DrawCharacter(HU_INPUTX + (c<<3), y, '_' | V_NOSCALEPATCH|V_NOSCALESTART|t, !cv_allcaps.value);
 }
 
 
@@ -1178,12 +1177,12 @@ void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, I
 		{
 			if (players[tab[i].num].powers[pw_super])
 			{
-				colormap = R_GetTranslationColormap(players[tab[i].num].skin, players[tab[i].num].powers[pw_super] ? SKINCOLOR_YELLOW : players[tab[i].num].skincolor, GTC_CACHE);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
 				V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 			}
 			else
 			{
-				colormap = R_GetTranslationColormap(players[tab[i].num].skin, tab[i].color, GTC_CACHE);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
 				if (players[tab[i].num].health <= 0)
 					V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 				else
@@ -1272,12 +1271,12 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 
 		if (players[tab[i].num].powers[pw_super])
 		{
-			colormap = R_GetTranslationColormap(players[tab[i].num].skin, players[tab[i].num].powers[pw_super] ? SKINCOLOR_YELLOW : players[tab[i].num].skincolor, GTC_CACHE);
+			colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
 			V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 		}
 		else
 		{
-			colormap = R_GetTranslationColormap(players[tab[i].num].skin, tab[i].color, GTC_CACHE);
+			colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
 			if (players[tab[i].num].health <= 0)
 				V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 			else
@@ -1341,12 +1340,12 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 		{
 			if (players[tab[i].num].powers[pw_super])
 			{
-				colormap = R_GetTranslationColormap(players[tab[i].num].skin, players[tab[i].num].powers[pw_super] ? SKINCOLOR_YELLOW : players[tab[i].num].skincolor, GTC_CACHE);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (((players[tab[i].num].powers[pw_super]) ? 15 : players[tab[i].num].skincolor)<<8);
 				V_DrawSmallMappedPatch (x, y-4, 0, superprefix[players[tab[i].num].skin], colormap);
 			}
 			else
 			{
-				colormap = R_GetTranslationColormap(players[tab[i].num].skin, tab[i].color, GTC_CACHE);
+				colormap = (const UINT8 *) translationtables[players[tab[i].num].skin] - 256 + (tab[i].color<<8);
 				if (players[tab[i].num].health <= 0)
 					V_DrawSmallTranslucentMappedPatch (x, y-4, 0, faceprefix[players[tab[i].num].skin], colormap);
 				else
@@ -1698,8 +1697,6 @@ void HU_SetCEchoFlags(INT32 flags)
 
 void HU_DoCEcho(const char *msg)
 {
-	DEBPRINT(va("%s\n", msg)); // print to log
-
 	strncpy(cechotext, msg, sizeof(cechotext));
 	strncat(cechotext, "\\", sizeof(cechotext));
 	cechotext[sizeof(cechotext) - 1] = '\0';

@@ -30,74 +30,52 @@
 #include <sys/time.h>
 #endif // __OS2__
 
-#ifdef _PS3
-#define NO_IPV6 // PSL1GHT v2 do not have IPv6 support
-#endif
-
-#ifndef NO_IPV6
-#define HAVE_IPV6
-#endif
-
-#if defined (_WIN32) || defined (_WIN32_WCE)
-#define USE_WINSOCK
-#if defined (_WIN64) || defined (HAVE_IPV6)
-#define USE_WINSOCK2
-#else //_WIN64/HAVE_IPV6
-#define USE_WINSOCK1
-#endif
-#endif //WIN32 OS
-
-#ifdef _XBOX // XBox have on WinSock API?
-#undef USE_WINSOCK
-#undef USE_WINSOCK1
-#undef USE_WINSOCK2
-#endif
-
-#ifdef USE_WINSOCK2
-#include <ws2tcpip.h>
-#endif
-
 #include "doomdef.h"
 
 #if defined (NOMD5) && !defined (NONET)
 //#define NONET
 #endif
 
+#if !defined (NONET) && !defined (NOIPX)
+#define USEIPX //Alam: Remline to turn off IPX support
+#ifdef __linux__
+//#define HAVE_IP6
+#endif
+#endif
+
 #ifndef NONET
-#ifdef USE_WINSOCK1
+#if (defined (_WIN32) || defined (_WIN32_WCE)) && !defined (_XBOX)
 #include <winsock.h>
-#elif !defined (SCOUW2) && !defined (SCOUW7) && !defined (__OS2__)
+#ifdef USEIPX
+#include <wsipx.h>
+#endif
+#else
+#if !defined (SCOUW2) && !defined (SCOUW7) && !defined (__OS2__)
 #ifdef HAVE_LWIP
 #include <lwip/inet.h>
-#elif !defined (USE_WINSOCK)
+#else
 #include <arpa/inet.h>
-#endif //normal BSD API
+#endif
+#endif
 
 #ifdef HAVE_LWIP
 #include <lwip/sockets.h>
 #define ioctl lwip_ioctl
-#elif !defined (USE_WINSOCK) //!HAVE_LWIP
+#else
 #ifdef __APPLE_CC__
-#ifndef _BSD_SOCKLEN_T_
 #define _BSD_SOCKLEN_T_
-#endif //_BSD_SOCKLEN_T_
-#endif //__APPLE_CC__
+#endif
 #include <sys/socket.h>
 #include <netinet/in.h>
-#endif //normal BSD API
-
+#endif
 #if defined(_arch_dreamcast) && !defined(HAVE_LWIP)
 #include <kos/net.h>
 #elif defined(HAVE_LWIP)
 #include <lwip/lwip.h>
-#elif defined (_PS3)
-#include <net/select.h>
-#include <net/net.h>
-#elif !defined(USE_WINSOCK) //!HAVE_LWIP
+#else
 #include <netdb.h>
 #include <sys/ioctl.h>
-#endif //normal BSD API
-
+#endif
 #include <errno.h>
 #include <time.h>
 
@@ -105,31 +83,35 @@
 #include "sdl/SRB2DC/dchelp.h"
 #endif
 
-#if (defined (__unix__) && !defined (MSDOS)) || defined(__APPLE__) || defined (UNIXCOMMON)
-	#include <sys/time.h>
-#endif // UNIXCOMMON
-#endif // !NONET
+#define STD_STRING_LEN 256 // Just some standard length for a char string
 
-#ifdef USE_WINSOCK
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
+	#include <sys/time.h>
+	#ifdef __GLIBC__
+		#include <netipx/ipx.h>
+	#elif defined (USEIPX)
+		#ifdef FREEBSD
+			#include <netipx/ipx.h>
+		#elif defined (__CYGWIN__)
+			#include <wsipx.h>
+		#else
+			#include <linux/ipx.h>
+		#endif
+	#endif // USEIPX
+	#ifndef __CYGWIN__
+	typedef struct sockaddr_ipx SOCKADDR_IPX, *PSOCKADDR_IPX;
+	#endif
+#endif // UNIXCOMMON
+#endif // win32
+
+#if defined (_WIN32_WCE) || defined (_WIN32)
 	// some undefined under win32
 	#undef errno
 	//#define errno WSAGetLastError() //Alam_GBC: this is the correct way, right?
 	#define errno h_errno // some very strange things happen when not using h_error?!?
-	#ifdef EWOULDBLOCK
-	#undef EWOULDBLOCK
-	#endif
 	#define EWOULDBLOCK WSAEWOULDBLOCK
-	#ifdef EMSGSIZE
-	#undef EMSGSIZE
-	#endif
 	#define EMSGSIZE WSAEMSGSIZE
-	#ifdef ECONNREFUSED
-	#undef ECONNREFUSED
-	#endif
 	#define ECONNREFUSED WSAECONNREFUSED
-	#ifdef ETIMEDOUT
-	#undef ETIMEDOUT
-	#endif
 	#define ETIMEDOUT WSAETIMEDOUT
 	#ifndef IOC_VENDOR
 	#define IOC_VENDOR 0x18000000
@@ -139,12 +121,6 @@
 	#endif
 	#ifndef SIO_UDP_CONNRESET
 	#define SIO_UDP_CONNRESET _WSAIOW(IOC_VENDOR,12)
-	#endif
-	#ifndef AI_ADDRCONFIG
-	#define AI_ADDRCONFIG 0x00000400
-	#endif
-	#ifndef STATUS_INVALID_PARAMETER
-	#define STATUS_INVALID_PARAMETER 0xC000000D
 	#endif
 #endif
 
@@ -157,27 +133,57 @@
 #endif // libsocket
 #endif // djgpp
 
+#ifdef USEIPX
+
+#if defined (__DJGPP__) || defined (__OS2__)
+// ipx not yet supported in libsocket (cut and pasted from wsipx.h (winsock)
+typedef struct sockaddr_ipx
+{
+	INT16 sa_family;
+	char sa_netnum[4];
+	char sa_nodenum[6];
+	UINT16 sa_socket;
+} SOCKADDR_IPX, *PSOCKADDR_IPX;
+#define NSPROTO_IPX 1000
+#endif
+
+#ifndef AF_IPX
+#define AF_IPX 23 // Novell Internet Protocol
+#endif
+
+#ifndef PF_IPX
+#define PF_IPX AF_IPX
+#endif
+
+#ifndef NSPROTO_IPX
+#define NSPROTO_IPX PF_IPX
+#endif
+
+#endif
+
+#ifdef HAVE_IP6
+#include <netinet/in.h>
+#elif defined (_WIN32) || defined (__DJGPP__) || defined (__HAIKU__)
+#if !defined (_SA_FAMILY_T)
+typedef UINT16 sa_family_t;
+#endif
+#endif
+
 typedef union
 {
-	struct sockaddr     any;
-	struct sockaddr_in  ip4;
-#ifdef HAVE_IPV6
+	sa_family_t sa_family;
+	struct sockaddr_in ip;
+#ifdef USEIPX
+	struct sockaddr_ipx ipx;
+#endif
+#ifdef HAVE_IP6
 	struct sockaddr_in6 ip6;
 #endif
 } mysockaddr_t;
 
-#ifdef HAVE_MINIUPNPC
-#ifdef STATIC_MINIUPNPC
-#define STATICLIB
-#endif
-#include "miniupnpc/miniwget.h"
-#include "miniupnpc/miniupnpc.h"
-#include "miniupnpc/upnpcommands.h"
-#undef STATICLIB
-static UINT8 UPNP_support = TRUE;
-#endif
-
 #endif // !NONET
+
+static int ipx = 0;
 
 #define MAXBANS 100
 
@@ -185,12 +191,18 @@ static UINT8 UPNP_support = TRUE;
 #include "i_net.h"
 #include "d_net.h"
 #include "i_tcp.h"
+#ifndef NONET
+static mysockaddr_t clientaddress[MAXNETNODES+1];
+static boolean nodeconnected[MAXNETNODES+1];
+static mysockaddr_t banned[MAXBANS];
+static UINT8 bannedmask[MAXBANS];
+#endif
 #include "m_argv.h"
 
 #include "doomstat.h"
 
 // win32 or djgpp
-#if defined (USE_WINSOCK) || defined (__DJGPP__)
+#if defined (_WIN32) || defined (_WIN32_WCE) || defined (__DJGPP__)
 	// winsock stuff (in winsock a socket is not a file)
 	#define ioctl ioctlsocket
 	#define close closesocket
@@ -201,8 +213,7 @@ static UINT8 UPNP_support = TRUE;
 
 #endif
 
-#include "i_addrinfo.h"
-
+//#if defined (_WIN32) || defined (_WIN32_WCE) || defined (__CYGWIN__)
 #ifdef __DJGPP__
 
 #ifdef WATTCP
@@ -215,14 +226,16 @@ static UINT8 UPNP_support = TRUE;
 #define SELECTTEST
 #endif
 
-#define DEFAULTPORT "5029"
+//#endif
 
-#if defined (USE_WINSOCK) && !defined (NONET)
+#define DEFAULTPORT 5029
+
+#if (defined (_WIN32) || defined (_WIN32_WCE) || defined (_WIN32)) && !defined (NONET)
 typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
 #else
-#if (defined (__unix__) && !defined (MSDOS)) || defined (__APPLE__) || defined (__HAIKU__) || defined(_PS3)
+#if defined (__unix__) || defined (__APPLE__) || defined (__HAIKU__)
 typedef int SOCKET_TYPE;
 #else
 typedef unsigned long SOCKET_TYPE;
@@ -231,28 +244,17 @@ typedef unsigned long SOCKET_TYPE;
 #define ERRSOCKET (-1)
 #endif
 
-#if (defined (WATTCP) && !defined (__libsocket_socklen_t)) || defined (USE_WINSOCK1)
+#if defined (WATTCP) || defined (_WIN32)
 typedef int socklen_t;
 #endif
 
-#ifndef NONET
-static SOCKET_TYPE mysockets[MAXNETNODES+1] = {BADSOCKET};
-static size_t mysocketses = 0;
-static int myfamily[MAXNETNODES+1] = {0};
-static SOCKET_TYPE nodesocket[MAXNETNODES+1] = {BADSOCKET};
-static mysockaddr_t clientaddress[MAXNETNODES+1];
-static mysockaddr_t broadcastaddress[MAXNETNODES+1];
-static size_t broadcastaddresses = 0;
-static boolean nodeconnected[MAXNETNODES+1];
-static mysockaddr_t banned[MAXBANS];
-static UINT8 bannedmask[MAXBANS];
-#endif
+static SOCKET_TYPE mysocket = BADSOCKET;
 
 static size_t numbans = 0;
 static boolean SOCK_bannednode[MAXNETNODES+1]; /// \note do we really need the +1?
 static boolean init_tcp_driver = false;
 
-static char port_name[8] = DEFAULTPORT;
+UINT16 sock_port = DEFAULTPORT;
 
 #ifndef NONET
 
@@ -268,163 +270,58 @@ static void wattcp_outch(char s)
 }
 #endif
 
-#ifdef USE_WINSOCK2
-#define inet_ntop inet_ntopA
-#define HAVE_NTOP
-static const char* inet_ntopA(short af, const void *cp, char *buf, socklen_t len)
-{
-	DWORD Dlen = len, AFlen = 0;
-	SOCKADDR_STORAGE any;
-	LPSOCKADDR anyp = (LPSOCKADDR)&any;
-	LPSOCKADDR_IN any4 = (LPSOCKADDR_IN)&any;
-	LPSOCKADDR_IN6 any6 = (LPSOCKADDR_IN6)&any;
-
-	if (!buf)
-	{
-		WSASetLastError(STATUS_INVALID_PARAMETER);
-		return NULL;
-	}
-
-	if (af != AF_INET && af != AF_INET6)
-	{
-		WSASetLastError(WSAEAFNOSUPPORT);
-		return NULL;
-	}
-
-	ZeroMemory(&any, sizeof(SOCKADDR_STORAGE));
-	any.ss_family = af;
-
-	switch (af)
-	{
-		case AF_INET:
-		{
-			CopyMemory(&any4->sin_addr, cp, sizeof(IN_ADDR));
-			AFlen = sizeof(SOCKADDR_IN);
-			break;
-		}
-		case AF_INET6:
-		{
-			CopyMemory(&any6->sin6_addr, cp, sizeof(IN6_ADDR));
-			AFlen = sizeof(SOCKADDR_IN6);
-			break;
-		}
-	}
-
-	if (WSAAddressToStringA(anyp, AFlen, NULL, buf, &Dlen) == SOCKET_ERROR)
-		return NULL;
-	return buf;
-}
-#elif !defined (USE_WINSOCK1)
-#define HAVE_NTOP
-#endif
-
-#ifdef HAVE_MINIUPNPC // based on old XChat patch
-static struct UPNPUrls urls;
-static struct IGDdatas data;
-static char lanaddr[64];
-
-static void I_ShutdownUPnP(void)
-{
-	FreeUPNPUrls(&urls);
-}
-
-static inline void I_InitUPnP(void)
-{
-	struct UPNPDev * devlist = NULL;
-	int upnp_error = -2;
-	CONS_Printf("%s", M_GetText("Looking for UPnP Internet Gateway Device\n"));
-	devlist = upnpDiscover(2000, NULL, NULL, 0, false, &upnp_error);
-	if (devlist)
-	{
-		struct UPNPDev *dev = devlist;
-		char * descXML;
-		int descXMLsize = 0;
-		while (dev)
-		{
-			if (strstr (dev->st, "InternetGatewayDevice"))
-				break;
-			dev = dev->pNext;
-		}
-		if (!dev)
-			dev = devlist; /* defaulting to first device */
-
-		CONS_Printf(M_GetText("Found UPnP device :\n desc: %s\n st: %s\n"),
-		           dev->descURL, dev->st);
-
-		UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr));
-		CONS_Printf(M_GetText("Local LAN ip address : %s\n"), lanaddr);
-		descXML = miniwget(dev->descURL, &descXMLsize);
-		if (descXML)
-		{
-			parserootdesc(descXML, descXMLsize, &data);
-			free(descXML);
-			descXML = NULL;
-			memset(&urls, 0, sizeof(struct UPNPUrls));
-			memset(&data, 0, sizeof(struct IGDdatas));
-			GetUPNPUrls(&urls, &data, dev->descURL);
-			I_AddExitFunc(I_ShutdownUPnP);
-		}
-		freeUPNPDevlist(devlist);
-	}
-	else if (upnp_error == UPNPDISCOVER_SOCKET_ERROR)
-	{
-		CONS_Printf("%s", M_GetText("Failed to talk to any UPnP device\n"));
-	}
-}
-
-static inline void I_UPnP_add(const char * addr, const char *port, const char * servicetype)
-{
-	if (addr == NULL)
-		addr = lanaddr;
-	if (!urls.controlURL || urls.controlURL[0] == '\0')
-		return;
-	UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-	                    port, port, addr, "SRB2", servicetype, NULL, NULL);
-}
-
-static inline void I_UPnP_rem(const char *port, const char * servicetype)
-{
-	if (!urls.controlURL || urls.controlURL[0] == '\0')
-		return;
-	UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype,
-	                       port, servicetype, NULL);
-}
-#endif
-
 static const char *SOCK_AddrToStr(mysockaddr_t *sk)
 {
 	static char s[64]; // 255.255.255.255:65535 or IPv6:65535
-#ifdef HAVE_NTOP
-	void *addr;
-
-	if(sk->any.sa_family == AF_INET)
-		addr = &sk->ip4.sin_addr;
-#ifdef HAVE_IPV6
-	else if(sk->any.sa_family == AF_INET6)
-		addr = &sk->ip6.sin6_addr;
-#endif
-	else
-		addr = NULL;
-
-	if(addr == NULL)
-		sprintf(s, "No address");
-	else if(inet_ntop(sk->any.sa_family, addr, s, sizeof (s)) == NULL)
-		sprintf(s, "Unknown family type, error #%u", errno);
-#ifdef HAVE_IPV6
-	else if(sk->any.sa_family == AF_INET6 && sk->ip6.sin6_port != 0)
-		strcat(s, va(":%d", ntohs(sk->ip6.sin6_port)));
-#endif
-	else if(sk->any.sa_family == AF_INET  && sk->ip4.sin_port  != 0)
-		strcat(s, va(":%d", ntohs(sk->ip4.sin_port)));
-#else
-	if (sk->any.sa_family == AF_INET)
+	if (sk->sa_family == AF_INET)
 	{
-		strcpy(s, inet_ntoa(sk->ip4.sin_addr));
-		if (sk->ip4.sin_port != 0) strcat(s, va(":%d", ntohs(sk->ip4.sin_port)));
+		strcpy(s, inet_ntoa(sk->ip.sin_addr));
+		if (sk->ip.sin_port != 0) strcat(s, va(":%d", ntohs(sk->ip.sin_port)));
 	}
+#ifdef USEIPX
+	else
+#if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
+	if (sk->sa_family == AF_IPX)
+	{
+#ifdef FREEBSD
+		sprintf(s, "%s", ipx_ntoa(sk->ipx.sipx_addr));
+#else
+		sprintf(s,"%08x.%02x%02x%02x%02x%02x%02x:%d", sk->ipx.sipx_network,
+			(UINT8)sk->ipx.sipx_node[0],
+			(UINT8)sk->ipx.sipx_node[1],
+			(UINT8)sk->ipx.sipx_node[2],
+			(UINT8)sk->ipx.sipx_node[3],
+			(UINT8)sk->ipx.sipx_node[4],
+			(UINT8)sk->ipx.sipx_node[5],
+			sk->ipx.sipx_port);
+#endif
+	}
+#else
+	if (sk->sa_family == AF_IPX)
+	{
+		sprintf(s, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x:%d",
+			(UINT8)sk->ipx.sa_netnum[0],
+			(UINT8)sk->ipx.sa_netnum[1],
+			(UINT8)sk->ipx.sa_netnum[2],
+			(UINT8)sk->ipx.sa_netnum[3],
+			(UINT8)sk->ipx.sa_nodenum[0],
+			(UINT8)sk->ipx.sa_nodenum[1],
+			(UINT8)sk->ipx.sa_nodenum[2],
+			(UINT8)sk->ipx.sa_nodenum[3],
+			(UINT8)sk->ipx.sa_nodenum[4],
+			(UINT8)sk->ipx.sa_nodenum[5],
+			sk->ipx.sa_socket);
+	}
+#endif // UNIXCOMMON
+#endif // USEIPX
+#ifdef HAVE_IP6
+	if (sk->sa_family == AF_INET6)
+	{
+		inet_ntop(AF_INET6, &sk->ip6.sin6_addr, s, sizeof (sk->ip6));
+	}
+#endif
 	else
 		sprintf(s, "Unknown type");
-#endif
 	return s;
 }
 #endif
@@ -467,25 +364,46 @@ static const char *SOCK_GetBanMask(size_t ban)
 	return NULL;
 }
 
+#ifdef USEIPX
+static boolean IPX_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
+{
+	(void)mask;
+#if (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__)
+#ifdef FREEBSD
+	return ipx_neteq(a->ipx.sipx_addr, b->ipx.sipx_addr)
+		&& ipx_hosteq(a->ipx.sipx_addr, b->ipx.sipx_addr);
+#else
+	return ((!memcmp(&(a->ipx.sipx_network), &(b->ipx.sipx_network), 4))
+		&& (!memcmp(&(a->ipx.sipx_node), &(b->ipx.sipx_node), 6)));
+#endif
+#else
+	return ((!memcmp(&(a->ipx.sa_netnum), &(b->ipx.sa_netnum), 4))
+		&& (!memcmp(&(a->ipx.sa_nodenum), &(b->ipx.sa_nodenum), 6)));
+#endif // UNIXCOMMON
+}
+#endif // USEIPX
+
 #ifndef NONET
-static boolean SOCK_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
+static boolean UDP_cmpaddr(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask)
 {
 	UINT32 bitmask = INADDR_NONE;
 
 	if (mask && mask < 32)
 		bitmask = htonl(-1 << (32 - mask));
 
-	if (b->any.sa_family == AF_INET)
-		return (a->ip4.sin_addr.s_addr & bitmask) == (b->ip4.sin_addr.s_addr & bitmask)
-			&& (b->ip4.sin_port == 0 || (a->ip4.sin_port == b->ip4.sin_port));
-#ifdef HAVE_IPV6
-	else if (b->any.sa_family == AF_INET6)
+	if (b->sa_family == AF_INET)
+		return (a->ip.sin_addr.s_addr & bitmask) == (b->ip.sin_addr.s_addr & bitmask)
+			&& (b->ip.sin_port == 0 || (a->ip.sin_port == b->ip.sin_port));
+#ifdef HAVE_IP6
+	else if (b->sa_family == AF_INET6)
 		return memcmp(&a->ip6.sin6_addr, &b->ip6.sin6_addr, sizeof(b->ip6.sin6_addr))
 			&& (b->ip6.sin6_port == 0 || (a->ip6.sin6_port == b->ip6.sin6_port));
 #endif
 	else
 		return false;
 }
+
+static boolean (*SOCK_cmpaddr)(mysockaddr_t *a, mysockaddr_t *b, UINT8 mask);
 
 static SINT8 getfreenode(void)
 {
@@ -519,63 +437,77 @@ static void cleanupnodes(void)
 #ifndef NONET
 static void SOCK_Get(void)
 {
-	size_t i, n;
 	int j;
 	ssize_t c;
-	mysockaddr_t fromaddress;
 	socklen_t fromlen;
+	mysockaddr_t fromaddress;
 
-	for (n = 0; n < mysocketses; n++)
+	fromlen = (socklen_t)sizeof(fromaddress);
+	c = recvfrom(mysocket, (char *)&doomcom->data, MAXPACKETLENGTH, 0,
+		(void *)&fromaddress, &fromlen);
+	if (c == ERRSOCKET)
 	{
-		fromlen = (socklen_t)sizeof(fromaddress);
-		c = recvfrom(mysockets[n], (char *)&doomcom->data, MAXPACKETLENGTH, 0,
-			(void *)&fromaddress, &fromlen);
-		if (c != ERRSOCKET)
+		if ((errno == EWOULDBLOCK) || (errno == EMSGSIZE) || (errno == ECONNREFUSED) || (errno == ETIMEDOUT))
 		{
-			// find remote node number
-			for (j = 0; j <= MAXNETNODES; j++) //include LAN
-			{
-				if (SOCK_cmpaddr(&fromaddress, &clientaddress[j], 0))
-				{
-					doomcom->remotenode = (INT16)j; // good packet from a game player
-					doomcom->datalength = (INT16)c;
-					nodesocket[j] = mysockets[n];
-					return;
-				}
-			}
-			// not found
+			doomcom->remotenode = -1; // no packet
+			return;
+		}
+#if defined (_WIN32)
+		else if (errno == WSAECONNRESET) // 2k has some extra errors
+		{
+			DEBFILE("Connection reset (likely that the server isn't running)\n"); //Alam_GBC: how about DEBFILE instead of annoying the user?
+			//D_QuitNetGame(); // Graue 07-04-2004: win32 only and quit
+			doomcom->remotenode = -1;      // no packet too
+			return;
+			/// \todo see if the D_QuitNetGame actually fixes it, or whether it crashes or something
+			/// Alam_GBC: this WSAECONNRESET happends alot when talking to a masterlist server, i am guess when talking too much at a time
+			/// Later, hmmm, SIO_UDP_CONNRESET turned off should fix this
+		}
+#endif
+		I_Error("SOCK_Get error #%u: %s\n\n(Disabling any firewalls and/or rebooting your computer may fix this problem)", errno, strerror(errno));
+	}
 
-			// find a free slot
-			cleanupnodes();
-			j = getfreenode();
-			if (j > 0)
-			{
-				M_Memcpy(&clientaddress[j], &fromaddress, fromlen);
-				nodesocket[j] = mysockets[n];
-				DEBFILE(va("New node detected: node:%d address:%s\n", j,
-						SOCK_GetNodeAddress(j)));
-				doomcom->remotenode = (INT16)j; // good packet from a game player
-				doomcom->datalength = (INT16)c;
-
-				// check if it's a banned dude so we can send a refusal later
-				for (i = 0; i < numbans; i++)
-				{
-					if (SOCK_cmpaddr(&fromaddress, &banned[i], bannedmask[i]))
-					{
-						SOCK_bannednode[j] = true;
-						DEBFILE("This dude has been banned\n");
-						break;
-					}
-				}
-				if (i == numbans)
-					SOCK_bannednode[j] = false;
-				return;
-			}
-			else
-				DEBFILE("New node detected: No more free slots\n");
-
+	// find remote node number
+	for (j = 0; j < MAXNETNODES; j++)
+	{
+		if (SOCK_cmpaddr(&fromaddress, &clientaddress[j], 0))
+		{
+			doomcom->remotenode = (INT16)j; // good packet from a game player
+			doomcom->datalength = (INT16)c;
+			return;
 		}
 	}
+
+	// not found
+
+	// find a free slot
+	cleanupnodes();
+	j = getfreenode();
+	if (j > 0)
+	{
+		size_t i;
+		M_Memcpy(&clientaddress[j], &fromaddress, fromlen);
+		DEBFILE(va("New node detected: node:%d address:%s\n", j,
+				SOCK_GetNodeAddress(j)));
+		doomcom->remotenode = (INT16)j; // good packet from a game player
+		doomcom->datalength = (INT16)c;
+
+		// check if it's a banned dude so we can send a refusal later
+		for (i = 0; i < numbans; i++)
+		{
+			if (SOCK_cmpaddr(&fromaddress, &banned[i], bannedmask[i]))
+			{
+				SOCK_bannednode[j] = true;
+				DEBFILE("This dude has been banned\n");
+				break;
+			}
+		}
+		if (i == numbans)
+			SOCK_bannednode[j] = false;
+		return;
+	}
+
+	DEBFILE("New node detected: No more free slots\n");
 	doomcom->remotenode = -1; // no packet
 }
 #endif
@@ -583,51 +515,58 @@ static void SOCK_Get(void)
 // check if we can send (do not go over the buffer)
 #ifndef NONET
 
-static fd_set masterset;
+static fd_set set;
 
 #ifdef SELECTTEST
-static boolean FD_CPY(fd_set *src, fd_set *dst, SOCKET_TYPE *fd, size_t len)
-{
-	size_t i;
-	boolean testset = false;
-	FD_ZERO(dst);
-	for (i = 0; i < len;i++)
-	{
-		if(fd[i] != BADSOCKET && fd[i] != (SOCKET_TYPE)ERRSOCKET &&
-		   FD_ISSET(fd[i], src) && !FD_ISSET(fd[i], dst)) // no checking for dups
-		{
-			FD_SET(fd[i], dst);
-			testset = true;
-		}
-	}
-	return testset;
-}
-
 static boolean SOCK_CanSend(void)
 {
 	struct timeval timeval_for_select = {0, 0};
-	fd_set tset;
+	fd_set          tset;
 	int wselect;
 
-	if(!FD_CPY(&masterset, &tset, mysockets, mysocketses))
-		return false;
+	M_Memcpy(&tset, &set, sizeof (tset));
 	wselect = select(255, NULL, &tset, NULL, &timeval_for_select);
 	if (wselect >= 1)
-		return true;
+	{
+		if (FD_ISSET(mysocket, &tset))
+			return true;
+		else
+			return false;
+	}
+	else if (wselect == 0)
+	{
+		return false;
+	}
+	else if (wselect == ERRSOCKET)
+	{
+		return false;
+	}
 	return false;
 }
 
 static boolean SOCK_CanGet(void)
 {
 	struct timeval timeval_for_select = {0, 0};
-	fd_set tset;
+	fd_set          tset;
 	int rselect;
 
-	if(!FD_CPY(&masterset, &tset, mysockets, mysocketses))
-		return false;
+	M_Memcpy(&tset, &set, sizeof (tset));
 	rselect = select(255, &tset, NULL, NULL, &timeval_for_select);
 	if (rselect >= 1)
-		return true;
+	{
+		if (FD_ISSET(mysocket, &tset))
+			return true;
+		else
+			return false;
+	}
+	else if (rselect == 0)
+	{
+		return false;
+	}
+	else if (rselect == ERRSOCKET)
+	{
+		return false;
+	}
 	return false;
 }
 #endif
@@ -636,76 +575,14 @@ static boolean SOCK_CanGet(void)
 #ifndef NONET
 static void SOCK_Send(void)
 {
-	ssize_t c = ERRSOCKET;
-	socklen_t d4 = (socklen_t)sizeof(struct sockaddr_in);
-#ifdef HAVE_IPV6
-	socklen_t d6 = (socklen_t)sizeof(struct sockaddr_in6);
-#endif
-	socklen_t d, da = (socklen_t)sizeof(mysockaddr_t);
-	size_t i, j;
+	ssize_t c;
+	socklen_t d = (socklen_t)sizeof(struct sockaddr);
 
 	if (!nodeconnected[doomcom->remotenode])
 		return;
 
-	if (doomcom->remotenode == BROADCASTADDR)
-	{
-		for (i = 0; i < mysocketses; i++)
-		{
-			for (j = 0; j < broadcastaddresses; j++)
-			{
-				if (myfamily[i] == broadcastaddress[j].any.sa_family)
-				{
-					if (broadcastaddress[i].any.sa_family == AF_INET)
-						d = d4;
-#ifdef HAVE_IPV6
-					if (broadcastaddress[i].any.sa_family == AF_INET6)
-						d = d6;
-#endif
-					else
-						d = da;
-
-					c = sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
-						&broadcastaddress[j].any, d);
-				}
-			}
-		}
-		return;
-	}
-	else if (nodesocket[doomcom->remotenode] == BADSOCKET)
-	{
-		for (i = 0; i < mysocketses; i++)
-		{
-			if (myfamily[i] == clientaddress[doomcom->remotenode].any.sa_family)
-			{
-				if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET)
-					d = d4;
-#ifdef HAVE_IPV6
-				else if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
-					d = d6;
-#endif
-				else
-					d = da;
-
-				sendto(mysockets[i], (char *)&doomcom->data, doomcom->datalength, 0,
-					&clientaddress[doomcom->remotenode].any, d);
-			}
-		}
-		return;
-	}
-	else
-	{
-		if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET)
-			d = d4;
-#ifdef HAVE_IPV6
-		if (clientaddress[doomcom->remotenode].any.sa_family == AF_INET6)
-			d = d6;
-#endif
-		else
-			d = da;
-
-		c = sendto(nodesocket[doomcom->remotenode], (char *)&doomcom->data, doomcom->datalength, 0,
-			&clientaddress[doomcom->remotenode].any, d);
-	}
+	c = sendto(mysocket, (char *)&doomcom->data, doomcom->datalength, 0,
+		(struct sockaddr *)&clientaddress[doomcom->remotenode], d);
 
 	if (c == ERRSOCKET && errno != ECONNREFUSED && errno != EWOULDBLOCK)
 		I_Error("SOCK_Send, error sending to node %d (%s) #%u: %s", doomcom->remotenode,
@@ -717,13 +594,12 @@ static void SOCK_Send(void)
 static void SOCK_FreeNodenum(INT32 numnode)
 {
 	// can't disconnect from self :)
-	if (!numnode || numnode > MAXNETNODES)
+	if (!numnode)
 		return;
 
 	DEBFILE(va("Free node %d (%s)\n", numnode, SOCK_GetNodeAddress(numnode)));
 
 	nodeconnected[numnode] = false;
-	nodesocket[numnode] = BADSOCKET;
 
 	// put invalid address
 	memset(&clientaddress[numnode], 0, sizeof (clientaddress[numnode]));
@@ -734,26 +610,35 @@ static void SOCK_FreeNodenum(INT32 numnode)
 // UDPsocket
 //
 #ifndef NONET
-
-// allocate a socket
-static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen)
+static SOCKET_TYPE UDP_Socket(void)
 {
-	SOCKET_TYPE s = socket(family, SOCK_DGRAM, IPPROTO_UDP);
-	int opt;
-	socklen_t opts;
-#ifdef FIONBIO
+	SOCKET_TYPE s = BADSOCKET;
+	struct sockaddr_in address;
+#ifdef HAVE_IP6
+	struct sockaddr_in6 address6;
+#endif
+	UINT16 sock_port_local;
+
 #ifdef WATTCP
 	char trueval = true;
 #else
 	unsigned long trueval = true;
 #endif
-#endif
+	int i;
+	socklen_t j;
 
+	// allocate a socket
+#ifdef HAVE_IP6
+	s = socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 	if (s == (SOCKET_TYPE)ERRSOCKET || s == BADSOCKET)
-		return (SOCKET_TYPE)ERRSOCKET;
-#ifdef USE_WINSOCK
+#endif
+	s = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (s == (SOCKET_TYPE)ERRSOCKET || s == BADSOCKET)
+		I_Error("UDP_Socket error #%u: Can't create socket: %s", errno, strerror(errno));
+
+#ifdef _WIN32
 	{ // Alam_GBC: disable the new UDP connection reset behavior for Win2k and up
-#ifdef USE_WINSOCK2
+#if 0
 		DWORD dwBytesReturned = 0;
 		BOOL bfalse = FALSE;
 		WSAIoctl(s, SIO_UDP_CONNRESET, &bfalse, sizeof(bfalse),
@@ -765,290 +650,196 @@ static SOCKET_TYPE UDP_Bind(int family, struct sockaddr *addr, socklen_t addrlen
 	}
 #endif
 
-	I_OutputMsg("Binding to %s\n", SOCK_AddrToStr((mysockaddr_t *)addr));
-
-	if (family == AF_INET)
+	memset(&address, 0, sizeof (address));
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = htonl(INADDR_NONE);
+	if (M_CheckParm("-bindaddr"))
 	{
-		if (((struct sockaddr_in *)addr)->sin_addr.s_addr == htonl(INADDR_ANY))
-		{
-			opt = true;
-			opts = (socklen_t)sizeof(opt);
-			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, opts);
-		}
-		// make it broadcastable
-		opt = true;
-		opts = (socklen_t)sizeof(opt);
-		if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&opt, opts))
-		{
-			CONS_Printf("%s", M_GetText("Could not get broadcast rights\n")); // I do not care anymore
-		}
+		if (!M_IsNextParm())
+			I_Error("syntax: -bindaddr <ip-address>");
+		address.sin_addr.s_addr = inet_addr(M_GetNextParm());
 	}
-#ifdef HAVE_IPV6
-	else if (family == AF_INET6)
+	if (address.sin_addr.s_addr == htonl(INADDR_NONE))
 	{
-		if (memcmp(addr, &in6addr_any, sizeof(in6addr_any)) == 0) //IN6_ARE_ADDR_EQUAL
-		{
-			opt = true;
-			opts = (socklen_t)sizeof(opt);
-			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, opts);
-		}
-#ifdef IPV6_V6ONLY
-		// make it IPv6 ony
-		opt = true;
-		opts = (socklen_t)sizeof(opt);
-		if (setsockopt(s, SOL_SOCKET, IPV6_V6ONLY, (char *)&opt, opts))
-		{
-			CONS_Printf("%s", M_GetText("Could not limit IPv6 bind\n")); // I do not care anymore
-		}
-#endif
-	}
-#endif
-
-	if (bind(s, addr, addrlen) == ERRSOCKET)
-	{
-		close(s);
-		I_OutputMsg("Binding failed\n");
-		return (SOCKET_TYPE)ERRSOCKET;
+		address.sin_addr.s_addr = htonl(INADDR_ANY);
+		j = (socklen_t)sizeof(trueval);
+		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, j);
 	}
 
-#ifdef FIONBIO
-	// make it non blocking
-	opt = true;
-	if (ioctl(s, FIONBIO, &trueval) != 0)
-	{
-		close(s);
-		I_OutputMsg("Seting FIOBIO on failed\n");
-		return (SOCKET_TYPE)ERRSOCKET;
-	}
-#endif
-
-	opts = (socklen_t)sizeof(opt);
-	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&opt, &opts);
-	CONS_Printf(M_GetText("Network system buffer: %dKb\n"), opt>>10);
-
-	if (opt < 64<<10) // 64k
-	{
-		opt = 64<<10;
-		opts = (socklen_t)sizeof(opt);
-		setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&opt, opts);
-		getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&opt, &opts);
-		if (opt < 64<<10)
-			CONS_Printf("%s", M_GetText("Can't set buffer length to 64k, file transfer will be bad\n"));
-		else
-			CONS_Printf(M_GetText("Network system buffer set to: %dKb\n"), opt>>10);
-	}
-
-	return s;
-}
-
-static boolean UDP_Socket(void)
-{
-	const char *sock_port = NULL;
-	size_t s;
-	struct my_addrinfo *ai, *runp, hints;
-	int gaie;
-#ifdef HAVE_IPV6
-	const INT32 b_ipv6 = M_CheckParm("-ipv6");
-#endif
-
-
-	for (s = 0; s < mysocketses; s++)
-		mysockets[s] = BADSOCKET;
-	for (s = 0; s < MAXNETNODES+1; s++)
-		nodesocket[s] = BADSOCKET;
-	FD_ZERO(&masterset);
-	s = 0;
-
-	memset(&hints, 0x00, sizeof (hints));
-	hints.ai_flags = AI_NUMERICHOST;
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_protocol = IPPROTO_UDP;
-
+	//Hurdler: I'd like to put a server and a client on the same computer
+	//BP: in fact for client we can use any free port we want i have read
+	//    in some doc that connect in udp can do it for us...
+	address.sin_port = htons(0); //????
 	if (M_CheckParm("-clientport"))
 	{
 		if (!M_IsNextParm())
 			I_Error("syntax: -clientport <portnum>");
-		sock_port = M_GetNextParm();
+		sock_port_local = (UINT16)atoi(M_GetNextParm());
 	}
 	else
-		sock_port = port_name;
+		sock_port_local = sock_port;
 
-	if (M_CheckParm("-bindaddr"))
+	address.sin_port = htons(sock_port_local);
+
+	//setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, sizeof (trueval));
+
+	j = (socklen_t)sizeof(address);
+	if (bind(s, (void *)&address, j) == ERRSOCKET)
 	{
-		while (M_IsNextParm())
-		{
-			gaie = I_getaddrinfo(M_GetNextParm(), sock_port, &hints, &ai);
-			if (gaie == 0)
-			{
-				runp = ai;
-				while (runp != NULL && s < MAXNETNODES+1)
-				{
-					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
-					if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
-					{
-						FD_SET(mysockets[s], &masterset);
-						myfamily[s] = hints.ai_family;
-						s++;
-					}
-					runp = runp->ai_next;
-				}
-				I_freeaddrinfo(ai);
-			}
-		}
-	}
-	else
-	{
-		gaie = I_getaddrinfo("0.0.0.0", sock_port, &hints, &ai);
-		if (gaie == 0)
-		{
-			runp = ai;
-			while (runp != NULL && s < MAXNETNODES+1)
-			{
-				mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
-				if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
-				{
-					FD_SET(mysockets[s], &masterset);
-					myfamily[s] = hints.ai_family;
-					s++;
-#ifdef HAVE_MINIUPNPC
-					if (UPNP_support)
-					{
-						I_UPnP_rem(sock_port, "UDP");
-						I_UPnP_add(NULL, sock_port, "UDP");
-					}
+#ifdef _WIN32
+		if (errno == WSAEADDRINUSE)
+			I_Error("UDP_Socket error: The address and port SRB2 had attempted to bind to is already in use.\n"
+				"\nThis isn't a normal error, and probably indicates that something network-related\n"
+				"on your computer is configured improperly.");
 #endif
-				}
-				runp = runp->ai_next;
-			}
-			I_freeaddrinfo(ai);
-		}
+		I_Error("UDP_Socket error #%u: %s", errno, strerror(errno));
 	}
-#ifdef HAVE_IPV6
-	if (b_ipv6)
+
+#ifdef HAVE_IP6
+	memset(&address6, 0, sizeof (address6));
+	address6.sin6_family = AF_INET6;
+	address6.sin6_addr = in6addr_any;
+
+	//Hurdler: I'd like to put a server and a client on the same computer
+	//BP: in fact for client we can use any free port we want i have read
+	//    in some doc that connect in udp can do it for us...
+	address6.sin6_port = htons(sock_port_local);
+
+	if (bind(s, (void *)&address6, sizeof (address6)) == ERRSOCKET)
 	{
-		hints.ai_family = AF_INET6;
-		if (M_CheckParm("-bindaddr6"))
-		{
-			while (M_IsNextParm())
-			{
-				gaie = I_getaddrinfo(M_GetNextParm(), sock_port, &hints, &ai);
-				if (gaie == 0)
-				{
-					runp = ai;
-					while (runp != NULL && s < MAXNETNODES+1)
-					{
-						mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
-						if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
-						{
-							FD_SET(mysockets[s], &masterset);
-							myfamily[s] = hints.ai_family;
-							s++;
-						}
-						runp = runp->ai_next;
-					}
-					I_freeaddrinfo(ai);
-				}
-			}
-		}
+		CONS_Printf("failed to bind with IPv6 stack");
+	}
+#endif
+
+	// make it non blocking
+	if (ioctl(s, FIONBIO, &trueval) != 0)
+	{
+		I_Error("UDP_Socket error. Could not set socket to non blocking mode");
+	}
+
+	// make it broadcastable
+	j = (socklen_t)sizeof(trueval);
+	if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&trueval, j))
+	{
+		I_Error("UDP_Socket error. Could not set socket to allow broadcast");
+	}
+
+	j = (socklen_t)sizeof(i);
+	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an INT32 value is written to a (char *); portability!!!!!!!
+	CONS_Printf("Network system buffer: %dKb\n", i>>10);
+
+	if (i < 64<<10) // 64k
+	{
+		i = 64<<10;
+		j = (socklen_t)sizeof(i);
+		setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, j);
+		getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j); // FIXME: so an INT32 value is written to a (char *); portability!!!!!!!
+		if (i < 64<<10)
+			CONS_Printf("Can't set buffer length to 64k, file transfer will be bad\n");
 		else
-		{
-			gaie = I_getaddrinfo("::", sock_port, &hints, &ai);
-			if (gaie == 0)
-			{
-				runp = ai;
-				while (runp != NULL && s < MAXNETNODES+1)
-				{
-					mysockets[s] = UDP_Bind(runp->ai_family, runp->ai_addr, (socklen_t)runp->ai_addrlen);
-					if (mysockets[s] != (SOCKET_TYPE)ERRSOCKET)
-					{
-						FD_SET(mysockets[s], &masterset);
-						myfamily[s] = hints.ai_family;
-						s++;
-					}
-					runp = runp->ai_next;
-				}
-				I_freeaddrinfo(ai);
-			}
-		}
+			CONS_Printf("Network system buffer set to: %dKb\n",i>>10);
 	}
-#endif
-
-	mysocketses = s;
-	if (s == 0) // no sockets?
-		return false;
-
-	s = 0;
 
 	// ip + udp
 	packetheaderlength = 20 + 8; // for stats
 
-	hints.ai_family = AF_INET;
-	gaie = I_getaddrinfo("127.0.0.1", "0", &hints, &ai);
-	if (gaie == 0)
-	{
-		runp = ai;
-		while (runp != NULL)
-		{
-			memcpy(&clientaddress[s], runp->ai_addr, runp->ai_addrlen);
-			s++;
-			runp = runp->ai_next;
-		}
-		I_freeaddrinfo(ai);
-	}
-	else
-	{
-		clientaddress[s].any.sa_family = AF_INET;
-		clientaddress[s].ip4.sin_port = htons(0);
-		clientaddress[s].ip4.sin_addr.s_addr = htonl(INADDR_LOOPBACK); //GetLocalAddress(); // my own ip
-		s++;
-	}
+	clientaddress[0].sa_family = AF_INET;
+	clientaddress[0].ip.sin_port = htons(sock_port_local);
+	clientaddress[0].ip.sin_addr.s_addr = htonl(INADDR_LOOPBACK); //GetLocalAddress(); // my own ip
 	// setup broadcast adress to BROADCASTADDR entry
-	gaie = I_getaddrinfo("255.255.255.255", "0", &hints, &ai);
-	if (gaie == 0)
-	{
-		runp = ai;
-		while (runp != NULL)
-		{
-			memcpy(&broadcastaddress[s], runp->ai_addr, runp->ai_addrlen);
-			s++;
-			runp = runp->ai_next;
-		}
-		I_freeaddrinfo(ai);
-	}
-	else
-	{
-		broadcastaddress[s].any.sa_family = AF_INET;
-		broadcastaddress[s].ip4.sin_port = htons(0);
-		broadcastaddress[s].ip4.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-		s++;
-	}
-#ifdef HAVE_IPV6
-	if (b_ipv6)
-	{
-		hints.ai_family = AF_INET6;
-		gaie = I_getaddrinfo("ff02::1", "0", &hints, &ai);
-		if (gaie == 0)
-		{
-			runp = ai;
-			while (runp != NULL)
-			{
-				memcpy(&broadcastaddress[s], runp->ai_addr, runp->ai_addrlen);
-				s++;
-				runp = runp->ai_next;
-			}
-			I_freeaddrinfo(ai);
-		}
-	}
-#endif
-
-	broadcastaddresses = s;
+	clientaddress[BROADCASTADDR].sa_family = AF_INET;
+	clientaddress[BROADCASTADDR].ip.sin_port = htons(sock_port_local);
+	clientaddress[BROADCASTADDR].ip.sin_addr.s_addr = htonl(INADDR_BROADCAST);
 
 	doomcom->extratics = 1; // internet is very high ping
 
-	return true;
+	SOCK_cmpaddr = UDP_cmpaddr;
+	return s;
 }
 #endif
+
+#ifdef USEIPX
+static SOCKET_TYPE IPX_Socket(void)
+{
+	SOCKET_TYPE s = BADSOCKET;
+	SOCKADDR_IPX address;
+#ifdef WATTCP
+	char trueval = true;
+#else
+	unsigned long trueval = true;
+#endif
+	int i;
+	socklen_t j;
+
+	// allocate a socket
+	s = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
+	if (s == (SOCKET_TYPE)ERRSOCKET || s == BADSOCKET)
+		I_Error("IPX_socket error #%u: Can't create socket: %s", errno, strerror(errno));
+
+	memset(&address, 0, sizeof (address));
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
+	address.sipx_family = AF_IPX;
+	address.sipx_port = htons(sock_port);
+#else
+	address.sa_family = AF_IPX;
+	address.sa_socket = htons(sock_port);
+#endif // UNIXCOMMON
+	if (bind(s, (void *)&address, sizeof (address)) == ERRSOCKET)
+		I_Error("IPX_Bind error #%u: %s", errno, strerror(errno));
+
+	// make it non blocking
+	ioctl(s, FIONBIO, &trueval);
+
+	// make it broadcastable
+	setsockopt(s, SOL_SOCKET, SO_BROADCAST, (char *)&trueval, sizeof (trueval));
+
+	// set receive buffer to 64Kb
+	j = sizeof (i);
+	getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, &j);
+	CONS_Printf("Network system receive buffer: %dKb\n",i>>10);
+	if (i < 128<<10)
+	{
+		i = 64<<10;
+		if (setsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&i, sizeof (i)))
+		{
+			CONS_Printf("Network system receive buffer set to: %dKb\n",i>>10);
+			CONS_Printf("Can't set receive buffer length to 64k, file transfer will be bad\n");
+		}
+		else
+		{
+			CONS_Printf("Network system receive buffer set to: %dKb\n",i>>10);
+		}
+	}
+
+	// ipx header
+	packetheaderlength = 30; // for stats
+
+	// setup broadcast adress to BROADCASTADDR entry
+#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) && !defined (__CYGWIN__)
+	clientaddress[BROADCASTADDR].sa_family = AF_IPX;
+	clientaddress[BROADCASTADDR].ipx.sipx_port = htons(sock_port);
+#ifndef FREEBSD
+	clientaddress[BROADCASTADDR].ipx.sipx_network = 0;
+	for (i = 0; i < 6; i++)
+		clientaddress[BROADCASTADDR].ipx.sipx_node[i] = (UINT8)0xFF;
+#else
+	clientaddress[BROADCASTADDR].ipx.sipx_addr.x_net.s_net[0] = 0;
+	clientaddress[BROADCASTADDR].ipx.sipx_addr.x_net.s_net[1] = 0;
+	for (i = 0; i < 6; i++)
+		clientaddress[BROADCASTADDR].ipx.sipx_addr.x_host.c_host[i] = (UINT8)0xFF;
+#endif
+#else
+	clientaddress[BROADCASTADDR].sa_family = AF_IPX;
+	clientaddress[BROADCASTADDR].ipx.sa_socket = htons(sock_port);
+	for (i = 0; i < 4; i++)
+		clientaddress[BROADCASTADDR].ipx.sa_netnum[i] = 0;
+	for (i = 0; i < 6; i++)
+		clientaddress[BROADCASTADDR].ipx.sa_nodenum[i] = (UINT8)0xFF;
+#endif // UNIXCOMMON
+	SOCK_cmpaddr = IPX_cmpaddr;
+	return s;
+}
+#endif // USEIPX
 
 boolean I_InitTcpDriver(void)
 {
@@ -1056,14 +847,9 @@ boolean I_InitTcpDriver(void)
 #ifndef NONET
 	if (!init_tcp_driver)
 	{
-#ifdef USE_WINSOCK
-#ifdef USE_WINSOCK2
-		const WORD VerNeed = MAKEWORD(2,2);
-#else
-		const WORD VerNeed = MAKEWORD(1,1);
-#endif
+#ifdef _WIN32
 		WSADATA WSAData;
-		const int WSAresult = WSAStartup(VerNeed, &WSAData);
+		const int WSAresult = WSAStartup(MAKEWORD(1,1),&WSAData);
 		if (WSAresult != 0)
 		{
 			LPCSTR WSError = NULL;
@@ -1079,32 +865,22 @@ boolean I_InitTcpDriver(void)
 					WSError = "Limit on the number of tasks supported by the Windows Sockets implementation has been reached";
 					break;
 				case WSAEFAULT:
-					WSError = "WSAData is not a valid pointer? What kind of setup do you have?";
+					WSError = "WTF? The WSAData is not a valid pointer? What kind of setup do you have?";
 					break;
 				default:
 					WSError = va("Error code %u",WSAresult);
 					break;
 			}
-			if (WSAresult != WSAVERNOTSUPPORTED)
-				DEBPRINT(va("WinSock(TCP/IP) error: %s\n",WSError));
+			if (WSAresult != WSAVERNOTSUPPORTED) CONS_Printf("WinSock(TCP/IP) error: %s\n",WSError);
 		}
-#ifdef USE_WINSOCK2
-		if(LOBYTE(WSAData.wVersion) != 2 ||
-			HIBYTE(WSAData.wVersion) != 2)
-		{
-			WSACleanup();
-			DEBPRINT("No WinSock(TCP/IP) 2.2 driver detected\n");
-		}
-#else
 		if (LOBYTE(WSAData.wVersion) != 1 ||
 			HIBYTE(WSAData.wVersion) != 1)
 		{
 			WSACleanup();
-			DEBPRINT("No WinSock(TCP/IP) 1.1 driver detected\n");
+			CONS_Printf("No WinSock(TCP/IP) 1.1 driver detected");
 		}
-#endif
-		DEBPRINT(va("WinSock description: %s\n",WSAData.szDescription));
-		DEBPRINT(va("WinSock System Status: %s\n",WSAData.szSystemStatus));
+		CONS_Printf("WinSock description: %s\n",WSAData.szDescription);
+		CONS_Printf("WinSock System Status: %s\n",WSAData.szSystemStatus);
 #endif
 #ifdef HAVE_LWIP
 		lwip_kos_init();
@@ -1132,28 +908,28 @@ boolean I_InitTcpDriver(void)
 				init_tcp_driver = true;
 				break;
 			case 3:
-				DEBPRINT("No packet driver detected\n");
+				CONS_Printf("No packet driver detected");
 				break;
 			case 4:
-				DEBPRINT("Error while talking to packet driver\n");
+				CONS_Printf("Error while talking to packet driver");
 				break;
 			case 5:
-				DEBPRINT("BOOTP failed\n");
+				CONS_Printf("BOOTP failed");
 				break;
 			case 6:
-				DEBPRINT("DHCP failed\n");
+				CONS_Printf("DHCP failed");
 				break;
 			case 7:
-				DEBPRINT("RARP failed\n");
+				CONS_Printf("RARP failed");
 				break;
 			case 8:
-				DEBPRINT("TCP/IP failed\n");
+				CONS_Printf("TCP/IP failed");
 				break;
 			case 9:
-				DEBPRINT("PPPoE login/discovery failed\n");
+				CONS_Printf("PPPoE login/discovery failed");
 				break;
 			default:
-				DEBPRINT("Unknown error with TCP/IP stack\n");
+				CONS_Printf("Unknown error with TCP/IP stack");
 				break;
 		}
 		hires_timer(0);
@@ -1161,47 +937,31 @@ boolean I_InitTcpDriver(void)
 		if (__lsck_init())
 			init_tcp_driver = true;
 		else
-			DEBPRINT("No Tcp/Ip driver detected\n");
+			CONS_Printf("No Tcp/Ip driver detected");
 #endif // libsocket
 #endif // __DJGPP__
-#ifdef _PS3
-		netInitialize();
-#endif
 #ifndef __DJGPP__
 		init_tcp_driver = true;
 #endif
 	}
 #endif
 	if (!tcp_was_up && init_tcp_driver)
-	{
 		I_AddExitFunc(I_ShutdownTcpDriver);
-#ifdef HAVE_MINIUPNPC
-		if (M_CheckParm("-useUPnP"))
-			I_InitUPnP();
-		else
-			UPNP_support = false;
-#endif
-	}
 	return init_tcp_driver;
 }
 
 #ifndef NONET
 static void SOCK_CloseSocket(void)
 {
-	size_t i;
-	for (i=0; i < MAXNETNODES+1; i++)
+	if (mysocket != (SOCKET_TYPE)ERRSOCKET && mysocket != BADSOCKET)
 	{
-		if (mysockets[i] != (SOCKET_TYPE)ERRSOCKET
-		 && mysockets[i] != BADSOCKET
-		 && FD_ISSET(mysockets[i], &masterset))
-		{
+// quick fix bug in libsocket 0.7.4 beta 4 under winsock 1.1 (win95)
 #if !defined (__DJGPP__) || defined (WATTCP)
-			FD_CLR(mysockets[i], &masterset);
-			close(mysockets[i]);
+		FD_CLR(mysocket, &set);
+		close(mysocket);
 #endif
-		}
-		mysockets[i] = BADSOCKET;
 	}
+	mysocket = BADSOCKET;
 }
 #endif
 
@@ -1211,8 +971,7 @@ void I_ShutdownTcpDriver(void)
 	SOCK_CloseSocket();
 
 	CONS_Printf("I_ShutdownTcpDriver: ");
-#ifdef USE_WINSOCK
-	WS_addrinfocleanup();
+#ifdef _WIN32
 	WSACleanup();
 #endif
 #ifdef HAVE_LWIP
@@ -1228,10 +987,7 @@ void I_ShutdownTcpDriver(void)
 	__lsck_uninit();
 #endif // libsocket
 #endif // __DJGPP__
-#ifdef _PS3
-	netDeinitialize();
-#endif
-	CONS_Printf("%s", M_GetText("shut down\n"));
+	CONS_Printf("shut down\n");
 	init_tcp_driver = false;
 #endif
 }
@@ -1239,61 +995,68 @@ void I_ShutdownTcpDriver(void)
 #ifndef NONET
 static SINT8 SOCK_NetMakeNode(const char *hostname)
 {
-	SINT8 newnode = -1;
+	SINT8 newnode;
 	char *localhostname = strdup(hostname);
-	char *portchar = NULL;
-	char *t = strdup(localhostname);
-	struct my_addrinfo *ai, *runp, hints;
-	int gaie;
+	char *portchar;
+	UINT16 portnum = htons(sock_port);
 
 	DEBFILE(va("Creating new node: %s\n", hostname));
-
-	memset (&hints, 0x00, sizeof (hints));
-	hints.ai_flags = 0;
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_protocol = IPPROTO_UDP;
 
 	// retrieve portnum from address!
 	strtok(localhostname, ":");
 	portchar = strtok(NULL, ":");
 	if (portchar)
-		portchar = strdup(portchar);
-	else
-		portchar = strdup(port_name);
+		portnum = htons((UINT16)atoi(portchar));
 	free(localhostname);
 
 	// server address only in ip
-	// remove the port in the hostname as we've it already
-	t = localhostname = strdup(hostname);
-	while ((*t != ':') && (*t != '\0'))
-		t++;
-	*t = '\0';
-
-	gaie = I_getaddrinfo(localhostname, portchar, &hints, &ai);
-	if (gaie == 0)
+#ifdef USEIPX
+	if (ipx) // ipx only
+		return BROADCASTADDR;
+	else // tcp/ip
+#endif
 	{
+		struct hostent *hostentry; // host information entry
+		char *t;
+
+		// remove the port in the hostname as we've it already
+		t = localhostname = strdup(hostname);
+		while ((*t != ':') && (*t != '\0'))
+			t++;
+		*t = '\0';
+
 		cleanupnodes();
 		newnode = getfreenode();
-	}
-	free(localhostname);
-	free(portchar);
-	if (newnode == -1)
-	{
-		I_freeaddrinfo(ai);
-		return -1;
-	}
-	else
-		runp = ai;
-
-	while (runp != NULL)
-	{
+		if (newnode == -1)
+		{
+			free(localhostname);
+			return -1;
+		}
 		// find ip of the server
-		memcpy(&clientaddress[newnode], runp->ai_addr, runp->ai_addrlen);
-		runp = NULL;
+		clientaddress[newnode].sa_family = AF_INET;
+		clientaddress[newnode].ip.sin_port = portnum;
+		clientaddress[newnode].ip.sin_addr.s_addr = inet_addr(localhostname);
+
+		if (clientaddress[newnode].ip.sin_addr.s_addr == htonl(INADDR_NONE)) // not a ip ask to the dns
+		{
+			CONS_Printf("Resolving %s\n",localhostname);
+			hostentry = gethostbyname(localhostname);
+			if (!hostentry)
+			{
+				CONS_Printf("%s unknown\n", localhostname);
+				I_NetFreeNodenum(newnode);
+				free(localhostname);
+				return -1;
+			}
+			clientaddress[newnode].ip.sin_addr.s_addr = *((UINT32 *)hostentry->h_addr_list[0]);
+
+			CONS_Printf("Resolved %s\n", SOCK_GetNodeAddress(newnode));
+		}
+
+		free(localhostname);
+
+		return newnode;
 	}
-	I_freeaddrinfo(ai);
-	return newnode;
 }
 #endif
 
@@ -1304,9 +1067,10 @@ static boolean SOCK_OpenSocket(void)
 
 	memset(clientaddress, 0, sizeof (clientaddress));
 
-	nodeconnected[0] = true; // always connected to self
-	for (i = 1; i < MAXNETNODES; i++)
+	for (i = 0; i < MAXNETNODES; i++)
 		nodeconnected[i] = false;
+
+	nodeconnected[0] = true; // always connected to self
 	nodeconnected[BROADCASTADDR] = true;
 	I_NetSend = SOCK_Send;
 	I_NetGet = SOCK_Get;
@@ -1322,35 +1086,36 @@ static boolean SOCK_OpenSocket(void)
 
 	// build the socket but close it first
 	SOCK_CloseSocket();
-	return UDP_Socket();
-#else
-	return false;
+#ifdef USEIPX
+	if (ipx)
+	{
+		mysocket = IPX_Socket();
+		net_bandwidth = 800000;
+		hardware_MAXPACKETLENGTH = MAXPACKETLENGTH;
+	}
+	else
+#endif // USEIPX
+		mysocket = UDP_Socket();
+	// for select
+	FD_ZERO(&set);
+	FD_SET(mysocket,&set);
 #endif
+	return (boolean)(mysocket != (SOCKET_TYPE)ERRSOCKET && mysocket != BADSOCKET);
 }
 
 static boolean SOCK_Ban(INT32 node)
 {
-	if (node > MAXNETNODES)
-		return false;
 #ifdef NONET
+	(void)node;
 	return false;
 #else
 	if (numbans == MAXBANS)
 		return false;
 
+	bannedmask[numbans] = 32;
 	M_Memcpy(&banned[numbans], &clientaddress[node], sizeof (mysockaddr_t));
-	if (banned[numbans].any.sa_family == AF_INET)
-	{
-		banned[numbans].ip4.sin_port = 0;
-		bannedmask[numbans] = 32;
-	}
-#ifdef HAVE_IPV6
-	else if (banned[numbans].any.sa_family == AF_INET6)
-	{
-		banned[numbans].ip6.sin6_port = 0;
-		bannedmask[numbans] = 128;
-	}
-#endif
+	if (banned[numbans].sa_family == AF_INET)
+		banned[numbans].ip.sin_port = 0;
 	numbans++;
 	return true;
 #endif
@@ -1363,48 +1128,27 @@ static boolean SOCK_SetBanAddress(const char *address, const char *mask)
 	(void)mask;
 	return false;
 #else
-	struct my_addrinfo *ai, *runp, hints;
-	int gaie;
-
 	if (numbans == MAXBANS || !address)
 		return false;
 
-	memset(&hints, 0x00, sizeof(hints));
-	hints.ai_flags = 0;
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_protocol = IPPROTO_UDP;
+	banned[numbans].ip.sin_addr.s_addr = inet_addr(address);
 
-	gaie = I_getaddrinfo(address, "0", &hints, &ai);
-	if (gaie != 0)
+	if (banned[numbans].ip.sin_addr.s_addr == htonl(INADDR_NONE))
 		return false;
+	else
+		banned[numbans].ip.sin_port = 0;
 
-	runp = ai;
+	banned[numbans].sa_family = AF_INET;
 
-	while(runp != NULL && numbans != MAXBANS)
-	{
-		memcpy(&banned[numbans], runp->ai_addr, runp->ai_addrlen);
+	if (mask)
+		bannedmask[numbans] = (UINT8)atoi(mask);
+	else
+		bannedmask[numbans] = 32;
 
-		if (mask)
-			bannedmask[numbans] = (UINT8)atoi(mask);
-#ifdef HAVE_IPV6
-		else if (runp->ai_family == AF_INET6)
-			bannedmask[numbans] = 128;
-#endif
-		else
-			bannedmask[numbans] = 32;
+	if (bannedmask[numbans] > 32)
+		bannedmask[numbans] = 32;
 
-		if (bannedmask[numbans] > 32 && runp->ai_family == AF_INET)
-			bannedmask[numbans] = 32;
-#ifdef HAVE_IPV6
-		else if (bannedmask[numbans] > 128 && runp->ai_family == AF_INET6)
-			bannedmask[numbans] = 128;
-#endif
-		numbans++;
-		runp = runp->ai_next;
-	}
-
-	I_freeaddrinfo(ai);
+	numbans++;
 
 	return true;
 #endif
@@ -1419,6 +1163,9 @@ boolean I_InitTcpNetwork(void)
 {
 	char serverhostname[255];
 	boolean ret = false;
+#ifdef USEIPX
+	ipx = M_CheckParm("-ipx");
+#endif
 	// initilize the OS's TCP/IP stack
 	if (!I_InitTcpDriver())
 		return false;
@@ -1426,11 +1173,10 @@ boolean I_InitTcpNetwork(void)
 	if (M_CheckParm("-udpport"))
 	{
 		if (M_IsNextParm())
-			strcpy(port_name, M_GetNextParm());
+			sock_port = (UINT16)atoi(M_GetNextParm());
 		else
-			strcpy(port_name, "0");
+			sock_port = 0;
 	}
-	current_port = (UINT16)atoi(port_name);
 
 	// parse network game options,
 	if (M_CheckParm("-server") || dedicated)
@@ -1474,7 +1220,7 @@ boolean I_InitTcpNetwork(void)
 			serverhostname[0] = 0; // assuming server in the LAN, use broadcast to detect it
 
 		// server address only in ip
-		if (serverhostname[0])
+		if (serverhostname[0] && !ipx)
 		{
 			COM_BufAddText("connect \"");
 			COM_BufAddText(serverhostname);
@@ -1504,5 +1250,3 @@ boolean I_InitTcpNetwork(void)
 
 	return ret;
 }
-
-#include "i_addrinfo.c"

@@ -31,18 +31,9 @@
 #endif
 
 #ifndef NONET
-
-#ifndef NO_IPV6
-#define HAVE_IPV6
-#endif
-
 #if (defined (_WIN32) || defined (_WIN32_WCE)) && !defined (_XBOX)
 #define RPC_NO_WINDOWS_H
-#ifdef HAVE_IPV6
-#include <ws2tcpip.h>
-#else
 #include <winsock.h>     // socket(),...
-#endif //!HAVE_IPV6
 #else
 #ifdef __OS2__
 #include <sys/types.h>
@@ -56,16 +47,12 @@
 #else
 #include <arpa/inet.h>
 #ifdef __APPLE_CC__
-#ifndef _BSD_SOCKLEN_T_
 #define _BSD_SOCKLEN_T_
-#endif
 #endif
 #include <sys/socket.h> // socket(),...
 #include <netinet/in.h> // sockaddr_in
-#ifdef _PS3
-#include <net/select.h>
-#elif !defined(_arch_dreamcast)
-#include <netdb.h> // getaddrinfo(),...
+#ifndef _arch_dreamcast
+#include <netdb.h> // gethostbyname(),...
 #include <sys/ioctl.h>
 #endif
 #endif
@@ -99,8 +86,6 @@
 #ifdef _WIN32_WCE
 #include "sdl/SRB2CE/cehelp.h"
 #endif
-
-#include "i_addrinfo.h"
 
 // ================================ DEFINITIONS ===============================
 
@@ -198,9 +183,14 @@ typedef struct
 #undef errno
 #define errno h_errno // some very strange things happen when not using h_error
 #endif
-#ifndef AI_ADDRCONFIG
-#define AI_ADDRCONFIG 0x00000400
 #endif
+
+#if !defined (__APPLE_CC__)  && !defined(HAVE_LWIP) && (defined (_WIN32) || defined (_WIN32_WCE) || defined (__OS2__) || defined (SOLARIS) || defined(_arch_dreamcast)) && !defined (NONET)
+// it seems windows doesn't define that... maybe some other OS? OS/2
+static INT32 inet_aton(const char *hostname, struct in_addr *addr)
+{
+	return (addr->s_addr = inet_addr(hostname)) != htonl(INADDR_NONE);
+}
 #endif
 
 static void Command_Listserv_f(void);
@@ -218,14 +208,14 @@ INT32 oldroomnum = 0;
 static enum { MSCS_NONE, MSCS_WAITING, MSCS_REGISTERED, MSCS_FAILED } con_state = MSCS_NONE;
 
 static INT32 msnode = -1;
-UINT16 current_port = 0;
+#define current_port sock_port
 
 #if (defined (_WIN32) || defined (_WIN32_WCE) || defined (_WIN32)) && !defined (NONET)
 typedef SOCKET SOCKET_TYPE;
 #define BADSOCKET INVALID_SOCKET
 #define ERRSOCKET (SOCKET_ERROR)
 #else
-#if (defined (__unix__) && !defined (MSDOS)) || defined (__APPLE__) || defined (__HAIKU__) || defined (_PS3)
+#if defined (__unix__) || defined (__APPLE__) || defined (__HAIKU__)
 typedef int SOCKET_TYPE;
 #else
 typedef unsigned long SOCKET_TYPE;
@@ -234,12 +224,13 @@ typedef unsigned long SOCKET_TYPE;
 #define ERRSOCKET (-1)
 #endif
 
-#if (defined (WATTCP) && !defined (__libsocket_socklen_t)) || defined (_WIN32)
+#if defined (WATTCP) || defined (_WIN32)
 typedef int socklen_t;
 #endif
 
 #ifndef NONET
 static SOCKET_TYPE socket_fd = BADSOCKET; // WINSOCK socket
+static struct sockaddr_in addr;
 static struct timeval select_timeout;
 static fd_set wset;
 static size_t recvfull(SOCKET_TYPE s, char *buf, size_t len, int flags);
@@ -343,7 +334,7 @@ static INT32 GetServersList(void)
 		if (!msg.length)
 		{
 			if (!count)
-				CONS_Printf("%s", M_GetText("No servers currently running.\n"));
+				CONS_Printf("No servers currently running.\n");
 			return MS_NO_ERROR;
 		}
 		count++;
@@ -370,7 +361,7 @@ static inline INT32 GetMSMOTD(void)
 		if (!msg.length)
 		{
 			if (!count)
-				CONS_Printf("%s", M_GetText("No servers currently running.\n"));
+				CONS_Printf("No servers currently running.\n");
 			return MS_NO_ERROR;
 		}
 		count++;
@@ -381,85 +372,81 @@ static inline INT32 GetMSMOTD(void)
 }
 
 //
+// MS_GetIP()
+//
+#ifndef NONET
+static INT32 MS_GetIP(const char *hostname)
+{
+	struct hostent *host_ent;
+	if (!inet_aton(hostname, (void *)&addr.sin_addr))
+	{
+		/// \todo only when we are connected to the Internet, or use a non blocking call
+		host_ent = gethostbyname(hostname);
+		if (!host_ent)
+			return MS_GETHOSTBYNAME_ERROR;
+		M_Memcpy(&addr.sin_addr, host_ent->h_addr_list[0], sizeof (struct in_addr));
+	}
+	return 0;
+}
+#endif
+
+//
 // MS_Connect()
 //
 static INT32 MS_Connect(const char *ip_addr, const char *str_port, INT32 async)
 {
 #ifdef NONET
-	(void)ip_addr;
-	(void)str_port;
-	(void)async;
+	str_port = ip_addr = NULL;
+	async = MS_CONNECT_ERROR;
+	return async;
 #else
-	struct my_addrinfo *ai, *runp, hints;
-	int gaie;
-
-	memset (&hints, 0x00, sizeof(hints));
-#ifdef AI_ADDRCONFIG
-	hints.ai_flags = AI_ADDRCONFIG;
-#endif
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	//I_InitTcpNetwork(); this is already done on startup in D_SRB2Main()
+	socklen_t j = (socklen_t)sizeof(addr);
+//	I_InitTcpNetwork(); this is already done on startup in D_SRB2Main()
 	if (!I_InitTcpDriver()) // this is done only if not already done
 		return MS_SOCKET_ERROR;
+	memset(&addr, 0, sizeof (addr));
+	addr.sin_family = AF_INET;
 
-	gaie = I_getaddrinfo(ip_addr, str_port, &hints, &ai);
-	if (gaie != 0)
+	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (socket_fd == BADSOCKET || socket_fd == (SOCKET_TYPE)ERRSOCKET)
+		return MS_SOCKET_ERROR;
+
+	if (MS_GetIP(ip_addr) == MS_GETHOSTBYNAME_ERROR)
 		return MS_GETHOSTBYNAME_ERROR;
-	else
-		runp = ai;
+	addr.sin_port = htons((UINT16)atoi(str_port));
 
-	while (runp != NULL)
+	if (async) // do asynchronous connection
 	{
-		socket_fd = socket(runp->ai_family, runp->ai_socktype, runp->ai_protocol);
-		if (socket_fd != BADSOCKET && socket_fd != (SOCKET_TYPE)ERRSOCKET)
-		{
-			if (async) // do asynchronous connection
-			{
-#ifdef FIONBIO
 #ifdef WATTCP
-				char res = 1;
+		char res = 1;
 #else
-				unsigned long res = 1;
+		unsigned long res = 1;
 #endif
 
-				ioctl(socket_fd, FIONBIO, &res);
-#endif
+		ioctl(socket_fd, FIONBIO, &res);
 
-				if (connect(socket_fd, runp->ai_addr, (socklen_t)runp->ai_addrlen) == ERRSOCKET)
-				{
+		if (connect(socket_fd, (void *)&addr, j) == ERRSOCKET)
+		{
 #ifdef _WIN32 // humm, on win32/win64 it doesn't work with EINPROGRESS (stupid windows)
-					if (WSAGetLastError() != WSAEWOULDBLOCK)
+			if (WSAGetLastError() != WSAEWOULDBLOCK)
 #else
-					if (errno != EINPROGRESS)
+			if (errno != EINPROGRESS)
 #endif
-					{
-						con_state = MSCS_FAILED;
-						CloseConnection();
-						I_freeaddrinfo(ai);
-						return MS_CONNECT_ERROR;
-					}
-				}
-				con_state = MSCS_WAITING;
-				FD_ZERO(&wset);
-				FD_SET(socket_fd, &wset);
-				select_timeout.tv_sec = 0, select_timeout.tv_usec = 0;
-				I_freeaddrinfo(ai);
-				return 0;
-			}
-			else if (connect(socket_fd, runp->ai_addr, (socklen_t)runp->ai_addrlen) != ERRSOCKET)
 			{
-				I_freeaddrinfo(ai);
-				return 0;
+				con_state = MSCS_FAILED;
+				CloseConnection();
+				return MS_CONNECT_ERROR;
 			}
 		}
-		runp = runp->ai_next;
+		con_state = MSCS_WAITING;
+		FD_ZERO(&wset);
+		FD_SET(socket_fd, &wset);
+		select_timeout.tv_sec = 0, select_timeout.tv_usec = 0;
 	}
-	I_freeaddrinfo(ai);
+	else if (connect(socket_fd, (void *)&addr, j) == ERRSOCKET)
+		return MS_CONNECT_ERROR;
+	return 0;
 #endif
-	return MS_CONNECT_ERROR;
 }
 
 #define NUM_LIST_SERVER MAXSERVERLIST
@@ -475,8 +462,8 @@ const msg_server_t *GetShortServersList(INT32 room)
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
-		M_StartMessage(M_GetText("There was a problem connecting to\nthe Master Server"), NULL, MM_NOTHING);
+		CONS_Printf("cannot connect to the master server\n");
+		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
 		return NULL;
 	}
 
@@ -516,8 +503,8 @@ INT32 GetRoomsList(boolean hosting)
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
-		M_StartMessage(M_GetText("There was a problem connecting to\nthe Master Server"), NULL, MM_NOTHING);
+		CONS_Printf("cannot connect to the master server\n");
+		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
 		return -1;
 	}
 
@@ -542,9 +529,9 @@ INT32 GetRoomsList(boolean hosting)
 			char banmsg[1000];
 			M_Memcpy(&banned_info[0], msg.buffer, sizeof (msg_ban_t));
 			if (hosting)
-				sprintf(banmsg, M_GetText("You have been banned from\nhosting netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s"),banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
+				sprintf(banmsg, "You have been banned from\nhosting netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s",banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
 			else
-				sprintf(banmsg, M_GetText("You have been banned from\njoining netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s"),banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
+				sprintf(banmsg, "You have been banned from\njoining netgames.\n\nUnder the following IP Range:\n%s - %s\n\nFor the following reason:\n%s\n\nYour ban will expire on:\n%s",banned_info[0].ipstart,banned_info[0].ipend,banned_info[0].reason,banned_info[0].endstamp);
 			M_StartMessage(banmsg, NULL, MM_NOTHING);
 			cv_internetserver.value = false;
 			return -2;
@@ -567,8 +554,8 @@ INT32 GetRoomsList(boolean hosting)
 	else
 	{
 		room_list[0].id = 1;
-		strcpy(room_list[0].motd,M_GetText("Master Server Offline."));
-		strcpy(room_list[0].name,M_GetText("Offline"));
+		strcpy(room_list[0].motd,"Master Server Offline.");
+		strcpy(room_list[0].name,"Offline");
 		return -1;
 	}
 }
@@ -582,8 +569,8 @@ const char *GetMODVersion(void)
 	// we must be connected to the master server before writing to it
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
-		M_StartMessage(M_GetText("There was a problem connecting to\nthe Master Server"), NULL, MM_NOTHING);
+		CONS_Printf("cannot connect to the master server\n");
+		M_StartMessage("There was a problem connecting to\nthe Master Server", NULL, MM_NOTHING);
 		return NULL;
 	}
 
@@ -612,20 +599,20 @@ static void Command_Listserv_f(void)
 {
 	if (con_state == MSCS_WAITING)
 	{
-		CONS_Printf("%s", M_GetText("Not yet registered to the master server.\n"));
+		CONS_Printf("Not yet registered to the master server.\n");
 		return;
 	}
 
-	CONS_Printf("%s", M_GetText("Retrieving server list...\n"));
+	CONS_Printf("Retrieving server list...\n");
 
 	if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 	{
-		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
+		CONS_Printf("cannot connect to the master server\n");
 		return;
 	}
 
 	if (GetServersList())
-		CONS_Printf("%s", M_GetText("cannot get server list\n"));
+		CONS_Printf("cannot get server list\n");
 
 	CloseConnection();
 }
@@ -647,7 +634,7 @@ FUNCMATH static const char *int2str(INT32 n)
 static INT32 ConnectionFailed(void)
 {
 	con_state = MSCS_FAILED;
-	CONS_Printf("%s", M_GetText("Connection to master server failed\n"));
+	CONS_Printf("Connection to master server failed\n");
 	CloseConnection();
 	return MS_CONNECT_ERROR;
 }
@@ -678,7 +665,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 		if (retry++ > 30) // an about 30 second timeout
 		{
 			retry = 0;
-			CONS_Printf("%s", M_GetText("Timeout on masterserver\n"));
+			CONS_Printf("Timeout on masterserver\n");
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -689,7 +676,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 	{
 		if (MS_Connect(GetMasterServerIP(), GetMasterServerPort(), 0))
 		{
-			CONS_Printf(M_GetText("Masterserver error on select #%u: %s\n"), errno, strerror(errno));
+			CONS_Printf("Mastserver error on select #%u: %s\n", errno, strerror(errno));
 			MSLastPing = timestamp;
 			return ConnectionFailed();
 		}
@@ -701,7 +688,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 	getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, (char *)&i, &j);
 	if (i) // it was bad
 	{
-		CONS_Printf(M_GetText("Masterserver getsockopt error #%u: %s\n"), errno, strerror(errno));
+		CONS_Printf("Masterserver getsockopt error #%u: %s\n", errno, strerror(errno));
 		MSLastPing = timestamp;
 		return ConnectionFailed();
 	}
@@ -712,8 +699,8 @@ static INT32 AddToMasterServer(boolean firstadd)
 		if(room == 0)
 			room = -1;
 	}
-	else if(dedicated) // This isn't much better than room = -1, but at least it doesn't leave you wondering why nobody is joining.
-		I_Error("%s", M_GetText("Dedicated internet servers must use the -room parameter!"));
+	else if(dedicated)
+		room = -1;
 	else
 		room = cv_chooseroom.value;
 
@@ -744,7 +731,7 @@ static INT32 AddToMasterServer(boolean firstadd)
 	}
 
 	if(con_state != MSCS_REGISTERED)
-		CONS_Printf("%s", M_GetText("Master Server Updated Successfully!\n"));
+		CONS_Printf("Master Server Updated Successfully!\n");
 
 	MSLastPing = timestamp;
 	con_state = MSCS_REGISTERED;
@@ -823,13 +810,18 @@ void MSOpenUDPSocket(void)
 		// If it's already open, there's nothing to do.
 		if (msnode < 0)
 		{
-			const char *mshost = GetMasterServerIP();
-			const char *msport = GetMasterServerPort();
-			size_t len = strlen(mshost)+1+strlen(msport)+1; /*hostname:65536*/
-			char *hostname = malloc(len);
-			sprintf(hostname, "%s:%s", mshost, msport);
+			char hostname[24];
+
+			MS_GetIP(GetMasterServerIP());
+
+			sprintf(hostname, "%s:%d",
+#ifdef _arch_dreamcast
+				inet_ntoa(*(UINT32 *)&addr.sin_addr),
+#else
+				inet_ntoa(addr.sin_addr),
+#endif
+				atoi(GetMasterServerPort())+1);
 			msnode = I_NetMakeNode(hostname);
-			free(hostname);
 		}
 	}
 	else
@@ -848,14 +840,14 @@ void RegisterServer(void)
 	if (con_state == MSCS_REGISTERED || con_state == MSCS_WAITING)
 			return;
 
-	CONS_Printf("%s", M_GetText("Registering this server to the master server...\n"));
+	CONS_Printf("Registering this server to the master server...\n");
 
 	strcpy(registered_server.ip, GetMasterServerIP());
 	strcpy(registered_server.port, GetMasterServerPort());
 
 	if (MS_Connect(registered_server.ip, registered_server.port, 1))
 	{
-		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
+		CONS_Printf("cannot connect to the master server\n");
 		return;
 	}
 	MSOpenUDPSocket();
@@ -893,7 +885,7 @@ static inline void SendPingToMasterServer(void)
 // Here, have a simpler MS Ping... - Cue
 	if(time(NULL) > (MSLastPing+(60*2)) && con_state != MSCS_NONE)
 	{
-		//DEBPRINT(va("%ld (current time) is greater than %d (Last Ping Time)\n", time(NULL), MSLastPing));
+		//CONS_Printf("%ld (current time) is greater than %d (Last Ping Time)\n", time(NULL), MSLastPing);
 		if(MSLastPing < 1)
 			AddToMasterServer(true);
 		else
@@ -913,10 +905,6 @@ void SendAskInfoViaMS(INT32 node, tic_t asktime)
 	// This must be called after calling MSOpenUDPSocket, due to the
 	// static buffer.
 	address = I_GetNodeAddress(node);
-
-	// no address?
-	if (!address)
-		return;
 
 	// Copy the IP address into the buffer.
 	inip = mshpp.ip;
@@ -948,16 +936,16 @@ void UnregisterServer(void)
 
 	con_state = MSCS_NONE;
 
-	CONS_Printf("%s", M_GetText("Unregistering this server to the master server...\n"));
+	CONS_Printf("Unregistering this server to the master server...\n");
 
 	if (MS_Connect(registered_server.ip, registered_server.port, 0))
 	{
-		CONS_Printf("%s", M_GetText("cannot connect to the master server\n"));
+		CONS_Printf("cannot connect to the master server\n");
 		return;
 	}
 
 	if (RemoveFromMasterSever() < 0)
-		CONS_Printf("%s", M_GetText("cannot remove this server from the master server\n"));
+		CONS_Printf("cannot remove this server from the master server\n");
 
 	CloseConnection();
 	MSCloseUDPSocket();
@@ -985,9 +973,7 @@ static void InternetServer_OnChange(void)
 	if(cv_internetserver.value && Playing())
 	{
 		CV_StealthSetValue(&cv_internetserver, 0);
-		CONS_Printf("%s", M_GetText("You cannot register on the Master Server mid-game, "
-		" please end your current session and re-host if"
-		"you wish to advertise your server on the Master Server.\n"));
+		CONS_Printf("You cannot register on the Master Server mid-game, please end your current session and re-host if you wish to advertise your server on the Master Server.\n");
 		return;
 	}
 #ifndef NONET

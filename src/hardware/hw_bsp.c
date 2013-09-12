@@ -91,7 +91,7 @@ void HWR_InitPolyPool(void)
 	if ((pnum = M_CheckParm("-polypoolsize")))
 		POLYPOOLSIZE = atoi(myargv[pnum+1])*1024; // (in kb)
 
-	DEBPRINT("HWR_InitPolyPool(): allocating %d bytes\n", POLYPOOLSIZE);
+	CONS_Printf("HWR_InitPolyPool(): allocating %d bytes\n", POLYPOOLSIZE);
 	gr_polypool = malloc(POLYPOOLSIZE);
 	if (!gr_polypool)
 		I_Error("HWR_InitPolyPool(): couldn't malloc polypool\n");
@@ -617,7 +617,7 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *b
 			// do we have a valid polygon ?
 			if (poly && poly->numpts > 2)
 			{
-				DEBPRINT("Adding a new subsector\n");
+				CONS_Printf("Adding a new subsector\n");
 				if (addsubsector == numsubsectors + NEWSUBSECTORS)
 					I_Error("WalkBSPNode: not enough addsubsectors\n");
 				else if (addsubsector > 0x7fff)
@@ -646,16 +646,15 @@ static void WalkBSPNode(INT32 bspnum, poly_t *poly, UINT16 *leafnode, fixed_t *b
 				sprintf(s, "%d%%", (++ls_percent)<<1);
 				x = BASEVIDWIDTH/2;
 				y = BASEVIDHEIGHT/2;
-				V_DrawFill(0, 0, vid.width, vid.height, 31); // Black background to match fade in effect
-				//V_DrawPatchFill(W_CachePatchName("SRB2BACK",PU_CACHE)); // SRB2 background, ehhh too bright.
+				V_DrawPatchFill(W_CachePatchName("SRB2BACK",PU_CACHE));
 				M_DrawTextBox(x-58, y-8, 13, 1);
 				V_DrawString(x-50, y, V_YELLOWMAP, "Loading...");
 				V_DrawString(x+50-V_StringWidth(s), y, V_YELLOWMAP, s);
 
-				// Is this really necessary at this point..?
-				V_DrawCenteredString(BASEVIDWIDTH/2, 40, V_YELLOWMAP, "OPENGL MODE IS INCOMPLETE AND MAY");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "NOT DISPLAY SOME SURFACES.");
-				V_DrawCenteredString(BASEVIDWIDTH/2, 70, V_YELLOWMAP, "USE AT SONIC'S RISK.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 40, V_YELLOWMAP, "OPENGL MODE IS INCOMPLETE");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 50, V_YELLOWMAP, "AND MAY CRASH YOUR");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 60, V_YELLOWMAP, "COMPUTER.");
+				V_DrawCenteredString(BASEVIDWIDTH/2, 80, V_YELLOWMAP, "USE AT OWN RISK.");
 
 				I_UpdateNoVsync();
 			}
@@ -841,7 +840,8 @@ static INT32 SolveTProblem(void)
 	if (cv_grsolvetjoin.value == 0)
 		return 0;
 
-	DEBPRINT("Solving T-joins. This may take a while. Please wait...\n");
+	if (cv_debug)
+		CONS_Printf("Solving T-joins. This may take a while. Please wait...\n");
 	CON_Drawer(); //let the user know what we are doing
 	I_FinishUpdate(); // page flip or blit buffer
 
@@ -854,7 +854,7 @@ static INT32 SolveTProblem(void)
 			for (i = 0; i < p->numpts; i++)
 				SearchSegInBSP((INT32)numnodes-1, &p->pts[i], p);
 	}
-	//DEBPRINT("numsplitpoly %d\n", numsplitpoly);
+	//CONS_Printf("numsplitpoly %d\n", numsplitpoly);
 	return numsplitpoly;
 }
 
@@ -889,7 +889,7 @@ static void AdjustSegs(void)
 
 #ifdef POLYOBJECTS
 			// Don't touch polyobject segs. We'll compensate
-			// for this when we go about drawing them.
+			// for this when we go about drawing them. -Jazz
 			if (lseg->polyseg)
 				continue;
 #endif
@@ -965,7 +965,8 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	size_t i;
 	fixed_t rootbbox[4];
 
-	DEBPRINT("Creating polygons, please wait...\n");
+	if (cv_debug)
+		CONS_Printf("Creating polygons, please wait...\n");
 	ls_count = ls_percent = 0; // reset the loading status
 	CON_Drawer(); //let the user know what we are doing
 	I_FinishUpdate(); // page flip or blit buffer
@@ -973,19 +974,19 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	HWR_ClearPolys();
 
 	// find min/max boundaries of map
-	//DEBPRINT("Looking for boundaries of map...\n");
+	//CONS_Printf("Looking for boundaries of map...\n");
 	M_ClearBox(rootbbox);
 	for (i = 0;i < numvertexes; i++)
 		M_AddToBox(rootbbox, vertexes[i].x, vertexes[i].y);
 
-	//DEBPRINT("Generating subsector polygons... %d subsectors\n", numsubsectors);
+	//CONS_Printf("Generating subsector polygons... %d subsectors\n", numsubsectors);
 
 	HWR_FreeExtraSubsectors();
 	// allocate extra data for each subsector present in map
 	totsubsectors = numsubsectors + NEWSUBSECTORS;
 	extrasubsectors = calloc(totsubsectors, sizeof (*extrasubsectors));
 	if (extrasubsectors == NULL)
-		I_Error("couldn't malloc extrasubsectors totsubsectors %s\n", sizeu1(totsubsectors));
+		I_Error("couldn't malloc extrasubsectors totsubsectors %"PRIdS"\n", totsubsectors);
 
 	// allocate table for back to front drawing of subsectors
 	/*gr_drawsubsectors = (INT16 *)malloc(sizeof (*gr_drawsubsectors) * totsubsectors);
@@ -1015,17 +1016,17 @@ void HWR_CreatePlanePolygons(INT32 bspnum)
 	WalkBSPNode(bspnum, rootp, NULL,rootbbox);
 
 	i = SolveTProblem();
-	//DEBPRINT("%d point divides a polygon line\n",i);
+	//CONS_Printf("%d point div a polygone line\n",i);
 	AdjustSegs();
 
 	//debug debug..
 	//if (nobackpoly)
-	//    DEBPRINT("no back polygon %u times\n",nobackpoly);
+	//    CONS_Printf("no back polygon %u times\n",nobackpoly);
 	//"(should happen only with the deep water trick)"
 	//if (skipcut)
-	//    DEBPRINT("%u cuts were skipped because of only one point\n",skipcut);
+	//    CONS_Printf("%u cuts were skipped because of only one point\n",skipcut);
 
-	//DEBPRINT("done: %u total subsector convex polygons\n", totalsubsecpolys);
+	//CONS_Printf("done: %u total subsector convex polygons\n", totalsubsecpolys);
 }
 
 #endif //HWRENDER

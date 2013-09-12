@@ -21,7 +21,6 @@
 #define __P_SETUP__
 
 #include "doomdata.h"
-#include "doomstat.h"
 #include "r_defs.h"
 
 // map md5, sent to players via PT_SERVERINFO
@@ -63,13 +62,11 @@ void P_LoadThingsOnly(void);
 void P_RehitStarposts(void);
 boolean P_SetupLevel(INT32 map, boolean skipprecip);
 boolean P_AddWadFile(const char *wadfilename, char **firstmapname);
-#ifdef DELFILE
 boolean P_DelWadFile(void);
-#endif
 boolean P_RunSOC(const char *socfilename);
 void P_WriteThings(lumpnum_t lump);
 size_t P_PrecacheLevelFlats(void);
 void P_InitMapHeaders(void);
-void P_AllocMapHeader(INT16 i);
+void P_ClearMapHeaderInfo(void);
 
 #endif

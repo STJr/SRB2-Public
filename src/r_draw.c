@@ -91,6 +91,9 @@ UINT8 *dc_transmap; // one of the translucency tables
 // translation stuff here
 // ----------------------
 
+UINT8 *translationtables[MAXSKINS];
+UINT8 *defaulttranslationtables;
+UINT8 *bosstranslationtables;
 
 /**	\brief R_DrawTranslatedColumn uses this
 */
@@ -123,18 +126,6 @@ UINT32 nflatxshift, nflatyshift, nflatshiftup, nflatmask;
 //                   TRANSLATION COLORMAP CODE
 // =========================================================================
 
-#define DEFAULT_TT_CACHE_INDEX MAXSKINS
-#define BOSS_TT_CACHE_INDEX (MAXSKINS + 1)
-#define SKIN_RAMP_LENGTH 16
-#define DEFAULT_STARTTRANSCOLOR 160
-#define NUM_PALETTE_ENTRIES 256
-#define MAXTRANSLATIONS MAXSKINCOLORS
-
-static UINT8** translationtablecache[MAXSKINS + 2] = {NULL};
-
-
-// See also the enum skincolors_t
-// TODO Callum: Can this be translated?
 const char *Color_Names[MAXSKINCOLORS] =
 {
 	"None",
@@ -157,16 +148,32 @@ const char *Color_Names[MAXSKINCOLORS] =
 
 CV_PossibleValue_t Color_cons_t[MAXSKINCOLORS+1];
 
+/**	\brief the R_LoadSkinTable
+
+	Creates the translation tables to map the green color ramp to
+	another ramp (gray, brown, red, ...)
+
+	This is precalculated for drawing the player sprites in the player's
+	chosen color
+*/
+
+void R_LoadSkinTable(void)
+{
+	INT32 i;
+
+	for (i = 0; i < MAXSKINS; i++)
+		translationtables[i] = Z_MallocAlign (256*(MAXSKINCOLORS-1), PU_STATIC, NULL, 16);
+}
+
 /**	\brief The R_InitTranslationTables
 
   load in color translation tables
 */
 void R_InitTranslationTables(void)
 {
-#ifdef _NDS
-	// Ugly temporary NDS hack.
-	transtables = (UINT8*)0x2000000;
-#else
+	INT32 i, j;
+	UINT8 bi;
+
 	// Load here the transparency lookup tables 'TINTTAB'
 	// NOTE: the TINTTAB resource MUST BE aligned on 64k for the asm
 	// optimised code (in other words, transtables pointer low word is 0)
@@ -182,176 +189,199 @@ void R_InitTranslationTables(void)
 	W_ReadLump(W_GetNumForName("TRANS70"), transtables+0x60000);
 	W_ReadLump(W_GetNumForName("TRANS80"), transtables+0x70000);
 	W_ReadLump(W_GetNumForName("TRANS90"), transtables+0x80000);
-#endif
+
+	// The old "default" transtable for thok mobjs and such
+	defaulttranslationtables =
+		Z_MallocAlign(256*MAXSKINCOLORS, PU_STATIC, NULL, 16);
+
+	// Translate the colors specified
+	for (i = 0; i < 256; i++)
+	{
+		if (i >= 160 && i <= 175)
+		{
+			bi = (UINT8)(i & 0xf);
+
+			// todo: Is there any particular reason why every color in the palette cannot become a player color?
+			defaulttranslationtables[i      ] = (UINT8)(0xd0 + bi); // Cyan
+			defaulttranslationtables[i+  256] = (UINT8)(0x40 + bi); // Peach // Tails 02-19-2000
+			defaulttranslationtables[i+2*256] = (UINT8)(0xf8 + bi/2); // Lavender
+			defaulttranslationtables[i+3*256] = (UINT8)(0x00 + bi); // silver // tails 02-19-2000
+			defaulttranslationtables[i+4*256] = (UINT8)(0x50 + bi); // orange // tails 02-19-2000
+			defaulttranslationtables[i+5*256] = (UINT8)(0x80 + bi); // light red
+			defaulttranslationtables[i+6*256] = (UINT8)(0xe0 + bi); // light blue
+
+			// Steel blue
+			defaulttranslationtables[i+7*256] = (UINT8)(0xc8 + bi/2);
+
+			defaulttranslationtables[i+8*256] = (UINT8)(0x90 + bi/2); // Pink
+			defaulttranslationtables[i+9*256] = (UINT8)(0x20 + bi); // Beige
+
+			// Purple
+			defaulttranslationtables[i+10*256] = (UINT8)(0xc0 + bi/2);
+
+			// Green
+			defaulttranslationtables[i+11*256] = (UINT8)(0xa0 + bi);
+
+			// White
+			defaulttranslationtables[i+12*256] = (UINT8)(0x00 + bi/2);
+
+			// Gold
+			defaulttranslationtables[i+13*256] = (UINT8)(0x70 + bi/2);
+
+			// Yellow
+			switch (bi)
+			{
+				case 0:
+				case 1:
+					defaulttranslationtables[i+14*256] = 0x70;   // yellow
+					break;
+				case 2:
+				case 3:
+					defaulttranslationtables[i+14*256] = 0x71;   // yellow
+					break;
+				case 4:
+				case 5:
+					defaulttranslationtables[i+14*256] = 0x72;   // yellow
+					break;
+				case 6:
+				case 7:
+					defaulttranslationtables[i+14*256] = 0x73;   // yellow
+					break;
+				case 8:
+				case 9:
+					defaulttranslationtables[i+14*256] = 0x74;   // yellow
+					break;
+				case 10:
+				case 11:
+					defaulttranslationtables[i+14*256] = 0x75;   // yellow
+					break;
+				case 12:
+				case 13:
+					defaulttranslationtables[i+14*256] = 0x76;   // yellow
+					break;
+				default:
+					defaulttranslationtables[i+14*256] = 0x77;   // yellow
+					break;
+			}
+		}
+		else // Keep other colors as is.
+		{
+			for (j = 0; j < MAXSKINCOLORS; j++)
+				defaulttranslationtables[i+j*256] = (UINT8)i;
+		}
+	}
+
+	bosstranslationtables = Z_MallocAlign(256, PU_STATIC, NULL, 16);
+
+	for (i = 0; i < 256; i++)
+		bosstranslationtables[i] = (UINT8)i;
+	bosstranslationtables[31] = 0; // White!
 }
 
+/**	\brief	The R_InitSkinTranslationTables function
 
-/**	\brief	Generates a translation colormap.
+	Allow skins to choose which color is translated! Tails 06-07-2002
 
-	\param	dest_colormap	colormap to populate
-	\param	skinnum		number of skin, TC_DEFAULT or TC_BOSS
-	\param	color		translation color
+	\param	starttranscolor	starting color
+	\param	skinnum	number of skin
 
 	\return	void
+
+
 */
-static void R_GenerateTranslationColormap(UINT8 *dest_colormap, INT32 skinnum, UINT8 color)
+void R_InitSkinTranslationTables(INT32 starttranscolor, INT32 skinnum)
 {
-	// Table of indices into the palette of the first entries of each translated ramp
-	const UINT8 skinbasecolors[] = {0xd0, 0x40, 0xf8, 0x00, 0x50, 0x7d, 0xe0, 0xc8, 0x90, 0x20, 0xc0, 0xa0, 0x00, 0x70, 0x61};
-	INT32 i;
-	INT32 starttranscolor;
+	INT32 i, j;
+	UINT8 bi;
 
-	// Handle a couple of simple special cases
-	if (skinnum == TC_BOSS || color == SKINCOLOR_NONE)
+	// Translate the colors specified by the skin information.
+	for (i = 0; i < 256; i++)
 	{
-		for (i = 0; i < NUM_PALETTE_ENTRIES; i++)
-			dest_colormap[i] = (UINT8)i;
-
-		// White!
-		if (skinnum == TC_BOSS)
-			dest_colormap[31] = 0;
-
-		return;
-	}
-
-	starttranscolor = (skinnum != TC_DEFAULT) ? atoi(skins[skinnum].starttranscolor) : DEFAULT_STARTTRANSCOLOR;
-
-	// Fill in the entries of the palette that are fixed
-	for (i = 0; i < starttranscolor; i++)
-		dest_colormap[i] = (UINT8)i;
-
-	for (i = (UINT8)(starttranscolor + 16); i < NUM_PALETTE_ENTRIES; i++)
-		dest_colormap[i] = (UINT8)i;
-
-	// Build the translated ramp
-	switch (color)
-	{
-	case SKINCOLOR_LIGHTRED:
-		// Light red is an exception in the default case
-		if (skinnum == TC_DEFAULT)
+		if (i >= starttranscolor && i < starttranscolor+16)
 		{
-			for (i = 0; i < SKIN_RAMP_LENGTH; i++)
-				dest_colormap[starttranscolor + i] = (UINT8)(0x80 + i);
-			break;
+			bi = (UINT8)((i - starttranscolor) & 0xf);
+
+			translationtables[skinnum][i      ] = (UINT8)(0xd0 + bi); // Cyan
+			translationtables[skinnum][i+  256] = (UINT8)(0x40 + bi); // Peach // Tails 02-19-2000
+			translationtables[skinnum][i+2*256] = (UINT8)(0xf8 + bi/2); // Lavender
+			translationtables[skinnum][i+3*256] = (UINT8)(0x00 + bi); // silver // tails 02-19-2000
+			translationtables[skinnum][i+4*256] = (UINT8)(0x50 + bi); // orange // tails 02-19-2000
+			translationtables[skinnum][i+5*256] = (UINT8)(0x7d + bi); // light red
+			translationtables[skinnum][i+6*256] = (UINT8)(0xe0 + bi); // light blue
+
+			// Steel blue
+			translationtables[skinnum][i+7*256] = (UINT8)(0xc8 + bi/2);
+
+			translationtables[skinnum][i+8*256] = (UINT8)(0x90 + bi/2); // Pink
+			translationtables[skinnum][i+9*256] = (UINT8)(0x20 + bi); // Beige
+
+			// Purple
+			translationtables[skinnum][i+10*256] = (UINT8)(0xc0 + bi/2);
+
+			// Green
+			translationtables[skinnum][i+11*256] = (UINT8)(0xa0 + bi);
+
+			// White
+			translationtables[skinnum][i+12*256] = (UINT8)(0x00 + bi/2);
+
+			// Gold
+			translationtables[skinnum][i+13*256] = (UINT8)(0x70 + bi/2);
+
+			// Yellow
+			switch (bi)
+			{
+				case 0:
+					translationtables[skinnum][i+14*256] = 97;
+					break;
+				case 1:
+					translationtables[skinnum][i+14*256] = 98;   // yellow
+					break;
+				case 2:
+					translationtables[skinnum][i+14*256] = 99; // yellow
+					break;
+				case 3:
+					translationtables[skinnum][i+14*256] = 100;   // yellow
+					break;
+				case 4:
+					translationtables[skinnum][i+14*256] = 101; // yellow
+					break;
+				case 5:
+					translationtables[skinnum][i+14*256] = 102;   // yellow
+					break;
+				case 6:
+					translationtables[skinnum][i+14*256] = 103; // yellow
+					break;
+				case 7:
+					translationtables[skinnum][i+14*256] = 104;   // yellow
+					break;
+				case 8:
+				case 9:
+					translationtables[skinnum][i+14*256] = 113;   // yellow
+					break;
+				case 10:
+					translationtables[skinnum][i+14*256] = 114;   // yellow
+					break;
+				case 11:
+				case 12:
+				case 13:
+					translationtables[skinnum][i+14*256] = 115;   // yellow
+					break;
+				case 15:
+					translationtables[skinnum][i+14*256] = 117; // yellow
+					break;
+				default:
+					translationtables[skinnum][i+14*256] = 116;   // yellow
+					break;
+			}
 		}
-
-		// Fall through if we're not in the default case
-
-	case SKINCOLOR_CYAN:
-	case SKINCOLOR_PEACH:
-	case SKINCOLOR_SILVER:
-	case SKINCOLOR_ORANGE:
-	case SKINCOLOR_LIGHTBLUE:
-	case SKINCOLOR_BEIGE:
-	case SKINCOLOR_GREEN:
-		// Full-length ramp
-		for (i = 0; i < SKIN_RAMP_LENGTH; i++)
-			dest_colormap[starttranscolor + i] = (UINT8)(skinbasecolors[color - 1] + i);
-		break;
-
-	case SKINCOLOR_LAVENDER:
-	case SKINCOLOR_STEELBLUE:
-	case SKINCOLOR_PINK:
-	case SKINCOLOR_PURPLE:
-	case SKINCOLOR_WHITE:
-	case SKINCOLOR_GOLD:
-		// Half-length ramp
-		for (i = 0; i < SKIN_RAMP_LENGTH; i++)
-			dest_colormap[starttranscolor + i] = (UINT8)(skinbasecolors[color - 1] + (i >> 1));
-		break;
-
-	case SKINCOLOR_YELLOW:
-		// Different ramps in the default and skin cases
-		if (skinnum == TC_DEFAULT)
+		else // Keep other colors as-is.
 		{
-			// Half-length ramp
-			for (i = 0; i < SKIN_RAMP_LENGTH; i++)
-				dest_colormap[starttranscolor + i] = (UINT8)(0x70 + (i >> 1));
+			// NOTE: Why MAXSKINCOLORS-1 here, but MAXSKINCOLORS
+			// in the above R_InitTranslationTables?
+			for (j = 0; j < (MAXSKINCOLORS-1) * 256; j += 256)
+				translationtables[skinnum][i+j] = (UINT8)i;
 		}
-		else
-		{
-			// Aribtrary ramp
-
-			for (i = 0; i < 8; i++)
-				dest_colormap[starttranscolor + i] = (UINT8)(skinbasecolors[color - 1] + i);
-
-			dest_colormap[starttranscolor + 8] = dest_colormap[starttranscolor + 9] = 0x71;
-			dest_colormap[starttranscolor + 10] = 0x72;
-			dest_colormap[starttranscolor + 11] = dest_colormap[starttranscolor + 12] = dest_colormap[starttranscolor + 13] = 0x73;
-			dest_colormap[starttranscolor + 14] = 0x74;
-			dest_colormap[starttranscolor + 15] = 0x75;
-		}
-
-		break;
-
-	default:
-		I_Error("Invalid skin color.");
-		break;
 	}
-}
-
-
-/**	\brief	Retrieves a translation colormap from the cache.
-
-	\param	skinnum	number of skin, TC_DEFAULT or TC_BOSS
-	\param	color	translation color
-	\param	flags	set GTC_CACHE to use the cache
-
-	\return	Colormap. If not cached, caller should Z_Free.
-*/
-UINT8* R_GetTranslationColormap(INT32 skinnum, skincolors_t color, UINT8 flags)
-{
-	UINT8* ret;
-	INT32 skintableindex;
-
-	// Adjust if we want the default colormap
-	if (skinnum == TC_DEFAULT) skintableindex = DEFAULT_TT_CACHE_INDEX;
-	else if (skinnum == TC_BOSS) skintableindex = BOSS_TT_CACHE_INDEX;
-	else skintableindex = skinnum;
-
-	if (flags & GTC_CACHE)
-	{
-
-		// Allocate table for skin if necessary
-		if (!translationtablecache[skintableindex])
-			translationtablecache[skintableindex] = Z_Calloc(MAXTRANSLATIONS * sizeof(UINT8**), PU_STATIC, NULL);
-
-		// Get colormap
-		ret = translationtablecache[skintableindex][color];
-	}
-	else ret = NULL;
-
-	// Generate the colormap if necessary
-	if (!ret)
-	{
-		ret = Z_MallocAlign(NUM_PALETTE_ENTRIES, (flags & GTC_CACHE) ? PU_LEVEL : PU_STATIC, NULL, 8);
-		R_GenerateTranslationColormap(ret, skinnum, color);
-
-		// Cache the colormap if desired
-		if (flags & GTC_CACHE)
-			translationtablecache[skintableindex][color] = ret;
-	}
-
-	return ret;
-}
-
-
-
-/**	\brief	Flushes cache of translation colormaps.
-
-	Flushes cache of translation colormaps, but doesn't actually free the
-	colormaps themselves. These are freed when PU_LEVEL blocks are purged,
-	at or before which point, this function should be called.
-
-	\return	void
-*/
-void R_FlushTranslationColormapCache(void)
-{
-	INT32 i;
-
-	for (i = 0; i < (INT32)(sizeof(translationtablecache) / sizeof(translationtablecache[0])); i++)
-		if (translationtablecache[i])
-			memset(translationtablecache[i], 0, MAXTRANSLATIONS * sizeof(UINT8**));
 }
 
 // ==========================================================================

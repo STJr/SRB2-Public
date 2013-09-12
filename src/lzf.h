@@ -52,32 +52,8 @@
 #define LZF_VERSION 0x0105 /* 1.5 */
 
 /*
- * Compress in_len bytes stored at the memory block starting at
- * in_data and write the result to out_data, up to a maximum length
- * of out_len bytes.
- *
- * If the output buffer is not large enough or any error occurs
- * return 0, otherwise return the number of bytes used (which might
- * be considerably larger than in_len, so it makes sense to always
- * use out_len == in_len - 1), to ensure _some_ compression, and store
- * the data uncompressed otherwise.
- *
- * lzf_compress might use different algorithms on different systems and
- * even diferent runs, thus might result in different compressed strings
- * depending on the phase of the moon or similar factors. However, all
- * these strings are architecture-independent and will result in the
- * original data when decompressed using lzf_decompress.
- *
- * The buffers must not be overlapping.
- *
- * If the option LZF_STATE_ARG is enabled, an extra argument must be
- * supplied which is not reflected in this header file. Refer to lzfP.h
- * and lzf_c.c.
- *
+ * lzf_compress removed by Graue -- unused in SRB2.
  */
-size_t
-lzf_compress (const void *const in_data,  size_t in_len,
-              void             *out_data, size_t out_len);
 
 /*
  * Decompress data compressed with some version of the lzf_compress

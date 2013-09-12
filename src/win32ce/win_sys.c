@@ -271,7 +271,7 @@ void I_Sleep(void)
 
 
 // should move to i_video
-void I_WaitVBL(INT32 count)
+void I_WaitVBL(int count)
 {
 	count = 0;
 }
@@ -523,7 +523,7 @@ void I_OutputMsg(const char *fmt, ...)
 	HANDLE co = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD bytesWritten;
 	va_list argptr;
-	char txt[8192];
+	char txt[128];
 
 	va_start(argptr,fmt);
 	vsprintf(txt, fmt, argptr);
@@ -2988,7 +2988,7 @@ static BOOL CALLBACK DIEnumJoysticksCount (LPCDIDEVICEINSTANCE lpddi,
 	return DIENUM_CONTINUE;
 }
 
-INT32 I_NumJoys(void)
+int I_NumJoys(void)
 {
 	HRESULT hr;
 	needjoy = -1;
@@ -3001,7 +3001,7 @@ INT32 I_NumJoys(void)
 
 }
 
-const char *I_GetJoyName(INT32 joyindex)
+const char *I_GetJoyName(int joyindex)
 {
 	HRESULT hr;
 	needjoy = joyindex;
@@ -3063,7 +3063,7 @@ static UINT8 ASCIINames[256] =
 
 // Return a key that has been pushed, or 0 (replace getchar() at game startup)
 //
-INT32 I_GetKey(void)
+int I_GetKey(void)
 {
 	event_t *ev;
 
@@ -3286,7 +3286,7 @@ static void I_ShutdownDirectInput(void)
 // This stuff should get rid of the exception and page faults when
 // SRB2 bugs out with an error. Now it should exit cleanly.
 //
-INT32 I_StartupSystem(void)
+int I_StartupSystem(void)
 {
 	HRESULT hr;
 
@@ -3454,7 +3454,7 @@ char *I_GetUserName(void)
 	return username;
 }
 
-INT32 I_mkdir(const char *dirname, INT32 unixright)
+int I_mkdir(const char *dirname, int unixright)
 {
 	(void)unixright; /// \todo should implement ntright under nt...
 	return CreateDirectoryA(dirname, NULL);
@@ -3465,7 +3465,7 @@ char * I_GetEnv(const char *name)
 	return getenv(name);
 }
 
-INT32 I_PutEnv(char *variable)
+int I_PutEnv(char *variable)
 {
 	return putenv(variable);
 }

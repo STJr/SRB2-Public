@@ -28,7 +28,6 @@
 #define RPC_NO_WINDOWS_H
 #include <windows.h>
 #include <time.h>
-#undef GETTEXT
 #include "r_opengl.h"
 
 
@@ -39,7 +38,7 @@
 #ifdef DEBUG_TO_FILE
 static unsigned long nb_frames = 0;
 static clock_t my_clock;
-FILE *logstream;
+HANDLE logstream = INVALID_HANDLE_VALUE;
 #endif
 
 static  HDC     hDC           = NULL;       // the window's device context
@@ -81,8 +80,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 			// Initialize once for each new process.
 			// Return FALSE to fail DLL load.
 #ifdef DEBUG_TO_FILE
-			logstream = fopen("ogllog.txt", "wt");
-			if (logstream == NULL)
+			logstream = CreateFileA("ogllog.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+			                        FILE_ATTRIBUTE_NORMAL/*|FILE_FLAG_WRITE_THROUGH*/, NULL);
+			if (logstream == INVALID_HANDLE_VALUE)
 				return FALSE;
 #endif
 			DisableThreadLibraryCalls(hinstDLL);
@@ -99,10 +99,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 		case DLL_PROCESS_DETACH:
 			// Perform any necessary cleanup.
 #ifdef DEBUG_TO_FILE
-			if (logstream)
+			if (logstream != INVALID_HANDLE_VALUE)
 			{
-				fclose(logstream);
-				logstream  = NULL;
+				CloseHandle(logstream);
+				logstream  = INVALID_HANDLE_VALUE;
 			}
 #endif
 			break;
@@ -111,57 +111,45 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, // handle to DLL module
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.
 }
 
-#ifdef STATIC_OPENGL
-#define pwglGetProcAddress wglGetProcAddress;
-#define pwglCreateContext wglCreateContext;
-#define pwglDeleteContext wglDeleteContext;
-#define pwglMakeCurrent wglMakeCurrent;
-#else
-static HMODULE OGL32, GLU32;
 typedef void *(WINAPI *PFNwglGetProcAddress) (const char *);
-static PFNwglGetProcAddress pwglGetProcAddress;
 typedef HGLRC (WINAPI *PFNwglCreateContext) (HDC hdc);
-static PFNwglCreateContext pwglCreateContext;
 typedef BOOL (WINAPI *PFNwglDeleteContext) (HGLRC hglrc);
-static PFNwglDeleteContext pwglDeleteContext;
 typedef BOOL (WINAPI *PFNwglMakeCurrent) (HDC hdc, HGLRC hglrc);
+static HMODULE OGL32, GLU32;
+static PFNwglGetProcAddress pwglGetProcAddress;
+static PFNwglCreateContext pwglCreateContext;
+static PFNwglDeleteContext pwglDeleteContext;
 static PFNwglMakeCurrent pwglMakeCurrent;
-#endif
 
-#ifndef STATIC_OPENGL
 void *GetGLFunc(const char *proc)
 {
 	void *func = NULL;
-	if (strncmp(proc, "glu", 3) == 0)
-	{
-		if (GLU32)
-			func = GetProcAddress(GLU32, proc);
-		else
-			return NULL;
-	}
 	if (pwglGetProcAddress)
 		func = pwglGetProcAddress(proc);
 	if (!func)
 		func = GetProcAddress(OGL32, proc);
+	if (!func)
+		func = GetProcAddress(GLU32, proc);
 	return func;
 }
-#endif
 
 boolean LoadGL(void)
 {
-#ifndef STATIC_OPENGL
 	OGL32 = LoadLibrary("OPENGL32.DLL");
+	GLU32 = LoadLibrary("GLU32.DLL");
 
-	if (!OGL32)
+	if (OGL32)
+		pwglCreateContext = NULL;
+	else
 		return 0;
 
-	GLU32 = LoadLibrary("GLU32.DLL");
+	if (!GLU32)
+		return 0;
 
 	pwglGetProcAddress = GetGLFunc("wglGetProcAddress");
 	pwglCreateContext = GetGLFunc("wglCreateContext");
 	pwglDeleteContext = GetGLFunc("wglDeleteContext");
 	pwglMakeCurrent = GetGLFunc("wglMakeCurrent");
-#endif
 	return SetupGLfunc();
 }
 
@@ -242,7 +230,7 @@ static INT32 WINAPI SetRes(viddef_t *lvid, vmode_t *pcurrentmode)
 	LPCSTR renderer;
 	BOOL WantFullScreen = !(lvid->u.windowed);  //(lvid->u.windowed ? 0 : CDS_FULLSCREEN);
 
-	UNREFERENCED_PARAMETER(pcurrentmode);
+	pcurrentmode = NULL;
 	DBG_Printf ("SetMode(): %dx%d %d bits (%s)\n",
 	            lvid->width, lvid->height, lvid->bpp*8,
 	            WantFullScreen ? "fullscreen" : "windowed");
@@ -546,7 +534,7 @@ EXPORT void HWRAPI(FinishUpdate) (INT32 waitvbl)
 #ifdef USE_WGL_SWAP
 	static INT32 oldwaitvbl = 0;
 #else
-	UNREFERENCED_PARAMETER(waitvbl);
+	waitvbl = 0;
 #endif
 	// DBG_Printf ("FinishUpdate()\n");
 #ifdef DEBUG_TO_FILE

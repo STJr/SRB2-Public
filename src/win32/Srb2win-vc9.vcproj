@@ -47,14 +47,14 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\Debug\Win32/Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OmitFramePointers="false"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;USEASM;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				RuntimeLibrary="1"
@@ -81,7 +81,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxguid.lib winmm.lib ws2_32.lib dinput8.lib"
+				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
 				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -145,14 +145,14 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\Debug\Win32/Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				OmitFramePointers="false"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -181,7 +181,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxguid.lib winmm.lib ws2_32.lib dinput8.lib"
+				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
 				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -244,7 +244,7 @@
 				PreprocessorDefinitions="NDEBUG"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\Release\Win32/Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -255,7 +255,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USEASM;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -281,7 +281,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxguid.lib winmm.lib ws2_32.lib dinput8.lib"
+				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
 				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -344,7 +344,7 @@
 				PreprocessorDefinitions="NDEBUG"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\Srb2win.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\Release\Win32/Srb2win.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -355,7 +355,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;HAVE_PNG;COMPVERSION;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -381,7 +381,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxguid.lib winmm.lib ws2_32.lib dinput8.lib"
+				AdditionalDependencies="dxguid.lib winmm.lib wsock32.lib dinput8.lib"
 				OutputFile="$(OutDir)\srb2win.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -998,7 +998,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1009,7 +1009,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1019,7 +1019,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1030,7 +1030,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1044,7 +1044,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1055,7 +1055,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1065,7 +1065,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1076,7 +1076,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1090,7 +1090,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1101,7 +1101,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1111,7 +1111,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1122,7 +1122,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;"
+						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>

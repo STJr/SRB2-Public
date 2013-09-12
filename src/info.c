@@ -25,15 +25,13 @@
 #include "m_misc.h"
 #include "z_zone.h"
 #include "d_player.h"
-#include "lzf.h"
 #ifdef HWRENDER
 #include "hardware/hw_light.h"
 #endif
 
-static char *sprnamesbackup;
-static state_t *statesbackup;
-static mobjinfo_t *mobjinfobackup;
-static size_t sprnamesbackupsize, statesbackupsize, mobjinfobackupsize;
+static char sprnamesbackup[NUMSPRITES + 1][5];
+static state_t statesbackup[NUMSTATES];
+static mobjinfo_t mobjinfobackup[NUMMOBJTYPES];
 
 char sprnames[NUMSPRITES + 1][5] =
 {
@@ -2545,7 +2543,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		1,              // damage
 		0,              // activesound
 		MF_ENEMY|MF_SHOOTABLE|MF_NOGRAVITY|MF_MISSILE, // flags
-		(statenum_t)ANG15// raisestate: largest angle to turn in one tic (here, 15 degrees)
+		ANG15           // raisestate: largest angle to turn in one tic (here, 15 degrees)
 	},
 
 	{           // MT_SKIM
@@ -8230,7 +8228,11 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNBOUNCE1,// spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
+#ifdef WEAPON_SFX
+		sfx_bnce1,      // seesound
+#else
 		sfx_thok,       // seesound
+#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8257,7 +8259,11 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNAUTOMATIC1, // spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
+#ifdef WEAPON_SFX
+		sfx_s3k_129,    // seesound
+#else
 		sfx_thok,       // seesound
+#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8284,7 +8290,11 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNSCATTER,// spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
+#ifdef WEAPON_SFX
+		sfx_s3k_129,    // seesound
+#else
 		sfx_thok,       // seesound
+#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8311,7 +8321,11 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNEXPLOSION1, // spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
+#ifdef WEAPON_SFX
+		sfx_s3k_45,     // seesound
+#else
 		sfx_thok,       // seesound
+#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -8338,7 +8352,11 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		S_THROWNGRENADE1, // spawnstate
 		1000,           // spawnhealth
 		S_NULL,         // seestate
+#ifdef WEAPON_SFX
+		sfx_s3k_32,     // seesound 30?
+#else
 		sfx_thok,       // seesound
+#endif
 		8,              // reactiontime
 		sfx_None,       // attacksound
 		S_NULL,         // painstate
@@ -10899,9 +10917,6 @@ void P_PatchInfoTables(void)
 		tempname[2] = (char)('0' + (char)(((i-SPR_FIRSTFREESLOT+1)/10)%10));
 		tempname[3] = (char)('0' + (char)((i-SPR_FIRSTFREESLOT+1)%10));
 		tempname[4] = '\0';
-#ifdef HWRENDER
-		t_lspr[i] = &lspr[NOLIGHT];
-#endif
 	}
 	sprnames[i][0] = '\0'; // i == NUMSPRITES
 	memset(&states[S_FIRSTFREESLOT], 0, sizeof (state_t) * NUMSTATEFREESLOTS);
@@ -10961,56 +10976,19 @@ void P_PatchInfoTables(void)
 
 void P_BackupTables(void)
 {
-	// Allocate buffers in size equal to that of the uncompressed data to begin with
-	sprnamesbackup = Z_Malloc(sizeof(sprnames), PU_STATIC, NULL);
-	statesbackup = Z_Malloc(sizeof(states), PU_STATIC, NULL);
-	mobjinfobackup = Z_Malloc(sizeof(mobjinfo), PU_STATIC, NULL);
-
-	// Sprite names
-	sprnamesbackupsize = lzf_compress(sprnames, sizeof(sprnames), sprnamesbackup, sizeof(sprnames));
-	if (sprnamesbackupsize > 0)
-		sprnamesbackup = Z_Realloc(sprnamesbackup, sprnamesbackupsize, PU_STATIC, NULL);
-	else
-		M_Memcpy(sprnamesbackup, sprnames, sizeof(sprnames));
-
-	// States
-	statesbackupsize = lzf_compress(states, sizeof(states), statesbackup, sizeof(states));
-	if (statesbackupsize > 0)
-		statesbackup = Z_Realloc(statesbackup, statesbackupsize, PU_STATIC, NULL);
-	else
-		M_Memcpy(statesbackup, states, sizeof(states));
-
-	// Mobj info
-	mobjinfobackupsize = lzf_compress(mobjinfo, sizeof(mobjinfo), mobjinfobackup, sizeof(mobjinfo));
-	if (mobjinfobackupsize > 0)
-		mobjinfobackup = Z_Realloc(mobjinfobackup, mobjinfobackupsize, PU_STATIC, NULL);
-	else
-		M_Memcpy(mobjinfobackup, mobjinfo, sizeof(mobjinfo));
+	M_Memcpy(sprnamesbackup, sprnames, sizeof(sprnames));
+	M_Memcpy(statesbackup, states, sizeof(states));
+	M_Memcpy(mobjinfobackup, mobjinfo, sizeof(mobjinfo));
 }
 
 void P_ResetData(INT32 flags)
 {
 	if (flags & 1)
-	{
-		if (sprnamesbackupsize > 0)
-			lzf_decompress(sprnamesbackup, sprnamesbackupsize, sprnames, sizeof(sprnames));
-		else
-			M_Memcpy(sprnames, sprnamesbackup, sizeof(sprnamesbackup));
-	}
+		M_Memcpy(sprnames, sprnamesbackup, sizeof(sprnamesbackup));
 
 	if (flags & 2)
-	{
-		if (statesbackupsize > 0)
-			lzf_decompress(statesbackup, statesbackupsize, states, sizeof(states));
-		else
-			M_Memcpy(states, statesbackup, sizeof(statesbackup));
-	}
+		M_Memcpy(states, statesbackup, sizeof(statesbackup));
 
 	if (flags & 4)
-	{
-		if (mobjinfobackupsize > 0)
-			lzf_decompress(mobjinfobackup, mobjinfobackupsize, mobjinfo, sizeof(mobjinfo));
-		else
-			M_Memcpy(mobjinfo, mobjinfobackup, sizeof(mobjinfobackup));
-	}
+		M_Memcpy(mobjinfo, mobjinfobackup, sizeof(mobjinfobackup));
 }

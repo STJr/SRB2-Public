@@ -168,7 +168,7 @@ static boolean P_CrossSubsector(size_t num, register los_t *los)
 
 #ifdef RANGECHECK
 	if (num >= numsubsectors)
-		I_Error("P_CrossSubsector: ss %s with numss = %s\n", sizeu1(num), sizeu2(numsubsectors));
+		I_Error("P_CrossSubsector: ss %"PRIdS" with numss = %"PRIdS"\n", num, numsubsectors);
 #endif
 
 	// haleyjd 02/23/06: this assignment should be after the above check
@@ -370,7 +370,11 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
 	//
 	if (s1 == s2) // Both sectors are the same.
 	{
+		fixed_t sight1, sight2;
 		ffloor_t *rover;
+
+		sight1 = t1->z + (t1->height>>2);
+		sight2 = t2->z + (t2->height>>2);
 
 		for (rover = s1->ffloors; rover; rover = rover->next)
 		{

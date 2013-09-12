@@ -34,6 +34,7 @@
 #include "am_map.h"
 #include "d_main.h"
 #include "v_video.h"
+#include "dstrings.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
@@ -95,9 +96,7 @@ angle_t xtoviewangle[MAXVIDWIDTH+1];
 // holds the fixed_t tangent values for view angles,
 // ranging from INT32_MIN to 0 to INT32_MAX.
 
-#if !(defined _NDS) || !(defined NONET)
 fixed_t *finecosine = &finesine[FINEANGLES/4];
-#endif
 
 lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t *scalelightfixed[MAXLIGHTSCALE];
@@ -135,7 +134,8 @@ void SplitScreen_OnChange(void)
 	{
 		if (splitscreen)
 		{
-			CONS_Printf("%s", M_GetText("Splitscreen not supported in netplay, sorry!\n"));
+			CONS_Printf("Splitscreen not supported in netplay, "
+				"sorry!\n");
 			splitscreen = false;
 		}
 		return;
@@ -598,8 +598,6 @@ void R_ExecuteSetViewSize(void)
 		distscale[i] = FixedDiv(FRACUNIT, cosadj);
 	}
 
-	memset(scalelight, 0xFF, sizeof(scalelight));
-
 	// Calculate the light levels to use for each level/scale combination.
 	for (i = 0; i< LIGHTLEVELS; i++)
 	{
@@ -633,22 +631,29 @@ void R_ExecuteSetViewSize(void)
 
 void R_Init(void)
 {
+	R_LoadSkinTable();
+
 	// screensize independent
-	DEBPRINT("\nR_InitData");
+	if (devparm)
+		CONS_Printf("\nR_InitData");
 	R_InitData();
 
-	DEBPRINT("\nR_InitViewBorder");
+	if (devparm)
+		CONS_Printf("\nR_InitViewBorder");
 	R_InitViewBorder();
 	R_SetViewSize(); // setsizeneeded is set true
 
-	DEBPRINT("\nR_InitPlanes");
+	if (devparm)
+		CONS_Printf("\nR_InitPlanes");
 	R_InitPlanes();
 
 	// this is now done by SCR_Recalc() at the first mode set
-	DEBPRINT("\nR_InitLightTables");
+	if (devparm)
+		CONS_Printf("\nR_InitLightTables");
 	R_InitLightTables();
 
-	DEBPRINT("\nR_InitTranslationTables\n");
+	if (devparm)
+		CONS_Printf("\nR_InitTranslationTables\n");
 	R_InitTranslationTables();
 
 	R_InitDrawNodes();
@@ -784,7 +789,7 @@ void R_SetupFrame(player_t *player)
 #ifdef PARANOIA
 		{
 			const size_t playeri = (size_t)(player - players);
-			I_Error("R_SetupFrame: viewmobj null (player %s)", sizeu1(playeri));
+			I_Error("R_SetupFrame: viewmobj null (player %"PRIdS")", playeri);
 		}
 #else
 		return;
@@ -867,7 +872,7 @@ void R_RenderPlayerView(player_t *player)
 #endif
 
 	if (cv_homremoval.value && player == &players[displayplayer]) // if this is display player 1
-		V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31); // No HOM effect!
+		V_DrawFill(0, 0, vid.width, vid.height, 31); // No HOM effect!
 
 	// check for new console commands.
 	NetUpdate();
@@ -884,7 +889,7 @@ void R_RenderPlayerView(player_t *player)
 	RDMSR(0x10, &mycount);
 	mytotal += mycount; // 64bit add
 
-	DEBPRINT(va("RenderBSPNode: 0x%d %d\n", *((INT32 *)&mytotal + 1), (INT32)mytotal));
+	CONS_Printf("RenderBSPNode: 0x%d %d\n", *((INT32 *)&mytotal + 1), (INT32)mytotal);
 #endif
 //profile stuff ---------------------------------------------------------
 
@@ -960,12 +965,7 @@ void R_RegisterEngineStuff(void)
 	CV_RegisterVar(&cv_grgammared);
 	CV_RegisterVar(&cv_grfovchange);
 	CV_RegisterVar(&cv_grfog);
-	CV_RegisterVar(&cv_voodoocompatibility);
 	CV_RegisterVar(&cv_grfogcolor);
-	CV_RegisterVar(&cv_grstaticlighting);
-	CV_RegisterVar(&cv_grdynamiclighting);
-	CV_RegisterVar(&cv_grcoronas);
-	CV_RegisterVar(&cv_grcoronasize);
 #endif
 
 #ifdef HWRENDER

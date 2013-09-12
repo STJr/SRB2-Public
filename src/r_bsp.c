@@ -725,7 +725,7 @@ static void R_Subsector(size_t num)
 
 #ifdef RANGECHECK
 	if (num >= numsubsectors)
-		I_Error("R_Subsector: ss %s with numss = %s\n", sizeu1(num), sizeu2(numsubsectors));
+		I_Error("R_Subsector: ss %"PRIdS" with numss = %"PRIdS"\n", num, numsubsectors);
 #endif
 
 	// subsectors added at run-time
@@ -970,7 +970,7 @@ static void R_Subsector(size_t num)
 
 	while (count--)
 	{
-//		DEBPRINT(va("Adding normal line %d...(%d)\n", line->linedef-lines, leveltime));
+//		CONS_Printf("Adding normal line %d...(%d)\n", line->linedef-lines, leveltime);
 		R_AddLine(line);
 		line++;
 		curline = NULL; /* cph 2001/11/18 - must clear curline now we're done with it, so stuff doesn't try using it for other things */

@@ -36,7 +36,6 @@
 #include "g_game.h" // for player_names
 #include "d_netcmd.h"
 #include "hu_stuff.h"
-#include "p_setup.h"
 
 //========
 // protos.
@@ -101,7 +100,7 @@ void COM_BufAddText(const char *ptext)
 
 	if (com_text.cursize + l >= com_text.maxsize)
 	{
-		CONS_Printf("%s", M_GetText("Command buffer full!\n"));
+		CONS_Printf("Command buffer full!\n");
 		return;
 	}
 	VS_Write(&com_text, ptext, l);
@@ -478,7 +477,7 @@ static void COM_ExecuteString(char *ptext)
 	// Hurdler: added at Ebola's request ;)
 	// (don't flood the console in software mode with bad gr_xxx command)
 	if (!CV_Command() && con_destlines)
-		CONS_Printf(M_GetText("Unknown command '%s'\n"), COM_Argv(0));
+		CONS_Printf("Unknown command '%s'\n", COM_Argv(0));
 }
 
 // =========================================================================
@@ -495,7 +494,7 @@ static void COM_Alias_f(void)
 
 	if (COM_Argc() < 3)
 	{
-		CONS_Printf("%s", M_GetText("alias <name> <command>\n"));
+		CONS_Printf("alias <name> <command>\n");
 		return;
 	}
 
@@ -568,26 +567,27 @@ static void COM_CEchoDuration_f(void)
   */
 static void COM_Exec_f(void)
 {
+	size_t length;
 	UINT8 *buf = NULL;
 
 	if (COM_Argc() < 2 || COM_Argc() > 3)
 	{
-		CONS_Printf("%s", M_GetText("exec <filename> : run a script file\n"));
+		CONS_Printf("exec <filename> : run a script file\n");
 		return;
 	}
 
 	// load file
-	FIL_ReadFile(COM_Argv(1), &buf);
+	length = FIL_ReadFile(COM_Argv(1), &buf);
 
 	if (!buf)
 	{
 		if (!COM_CheckParm("-noerror"))
-			CONS_Printf(M_GetText("couldn't execute file %s\n"), COM_Argv(1));
+			CONS_Printf("couldn't execute file %s\n", COM_Argv(1));
 		return;
 	}
 
 	if (!COM_CheckParm("-silent"))
-		CONS_Printf(M_GetText("executing %s\n"), COM_Argv(1));
+		CONS_Printf("executing %s\n", COM_Argv(1));
 
 	// insert text file into the command buffer
 	COM_BufAddText((char *)buf);
@@ -621,8 +621,8 @@ static void COM_Help_f(void)
 		cvar = CV_FindVar(COM_Argv(1));
 		if (cvar)
 		{
-			CONS_Printf(M_GetText("Variable %s:\n"), cvar->name);
-			CONS_Printf("%s", M_GetText("  flags :"));
+			CONS_Printf("Variable %s:\n",cvar->name);
+			CONS_Printf("  flags :");
 			if (cvar->flags & CV_SAVE)
 				CONS_Printf("AUTOSAVE ");
 			if (cvar->flags & CV_FLOAT)
@@ -641,14 +641,14 @@ static void COM_Help_f(void)
 					for (i = 1; cvar->PossibleValue[i].strvalue != NULL; i++)
 						if (!stricmp(cvar->PossibleValue[i].strvalue, "MAX"))
 							break;
-					CONS_Printf(M_GetText("  range from %d to %d\n"), cvar->PossibleValue[0].value,
+					CONS_Printf("  range from %d to %d\n", cvar->PossibleValue[0].value,
 						cvar->PossibleValue[i].value);
-					CONS_Printf(M_GetText(" Current value: %d\n"), cvar->value);
+					CONS_Printf(" Current value: %d\n", cvar->value);
 				}
 				else
 				{
 					const char *cvalue = NULL;
-					CONS_Printf(M_GetText("  possible value : %s\n"), cvar->name);
+					CONS_Printf("  possible value : %s\n", cvar->name);
 					while (cvar->PossibleValue[i].strvalue)
 					{
 						CONS_Printf("    %-2d : %s\n", cvar->PossibleValue[i].value,
@@ -658,21 +658,21 @@ static void COM_Help_f(void)
 						i++;
 					}
 					if (cvalue)
-						CONS_Printf(M_GetText(" Current value: %s\n"), cvalue);
+						CONS_Printf(" Current value: %s\n", cvalue);
 					else
-						CONS_Printf(M_GetText(" Current value: %d\n"), cvar->value);
+						CONS_Printf(" Current value: %d\n", cvar->value);
 				}
 			}
 			else
-				CONS_Printf(M_GetText(" Current value: %d\n"), cvar->value);
+				CONS_Printf(" Current value: %d\n", cvar->value);
 		}
 		else
-			CONS_Printf("%s", M_GetText("No Help for this command/variable\n"));
+			CONS_Printf("No Help for this command/variable\n");
 	}
 	else
 	{
 		// commands
-		CONS_Printf("\2%s", M_GetText("Commands\n"));
+		CONS_Printf("\2Commands\n");
 		for (cmd = com_commands; cmd; cmd = cmd->next)
 		{
 			if (!(strcmp(cmd->name, "emilydampstone")))
@@ -686,7 +686,7 @@ static void COM_Help_f(void)
 		}
 
 		// variables
-		CONS_Printf("\2%s", M_GetText("\nVariables\n"));
+		CONS_Printf("\2\nVariables\n");
 		for (cvar = consvar_vars; cvar; cvar = cvar->next)
 		{
 			if (!(cvar->flags & CV_NOSHOWHELP))
@@ -694,9 +694,10 @@ static void COM_Help_f(void)
 			i++;
 		}
 
-		CONS_Printf("\2%s", M_GetText("\nread help file for more or type help <command or variable>\n"));
+		CONS_Printf("\2\nread help file for more or type help <command or variable>\n");
 
-		DEBPRINT(va(M_GetText("\2Total : %d\n"), i));
+		if (devparm)
+			CONS_Printf("\2Total : %d\n", i);
 	}
 }
 
@@ -710,19 +711,20 @@ static void COM_Toggle_f(void)
 
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("Toggle <cvar_name> : Toggle the value of a cvar\n"));
+		CONS_Printf("Toggle <cvar_name>\n"
+			"Toggle the value of a cvar\n");
 		return;
 	}
 	cvar = CV_FindVar(COM_Argv(1));
 	if (!cvar)
 	{
-		CONS_Printf(M_GetText("%s is not a cvar\n"), COM_Argv(1));
+		CONS_Printf("%s is not a cvar\n",COM_Argv(1));
 		return;
 	}
 
 	if (!(cvar->PossibleValue == CV_YesNo || cvar->PossibleValue == CV_OnOff))
 	{
-		CONS_Printf(M_GetText("%s is not a boolean value\n"), COM_Argv(1));
+		CONS_Printf("%s is not a boolean value\n",COM_Argv(1));
 		return;
 	}
 
@@ -786,7 +788,7 @@ void *VS_GetSpace(vsbuf_t *buf, size_t length)
 			I_Error("overflow 111");
 
 		if (length > buf->maxsize)
-			I_Error("overflow l%s 112", sizeu1(length));
+			I_Error("overflow l%"PRIdS" 112", length);
 
 		buf->overflowed = true;
 		CONS_Printf("VS buffer overflow");
@@ -910,14 +912,14 @@ void CV_RegisterVar(consvar_t *variable)
 	// first check to see if it has already been defined
 	if (CV_FindVar(variable->name))
 	{
-		CONS_Printf(M_GetText("Variable %s is already defined\n"), variable->name);
+		CONS_Printf("Variable %s is already defined\n", variable->name);
 		return;
 	}
 
 	// check for overlap with a command
 	if (COM_Exists(variable->name))
 	{
-		CONS_Printf(M_GetText("%s is a command name\n"), variable->name);
+		CONS_Printf("%s is a command name\n", variable->name);
 		return;
 	}
 
@@ -940,10 +942,10 @@ void CV_RegisterVar(consvar_t *variable)
 
 #ifdef PARANOIA
 	if ((variable->flags & CV_NOINIT) && !(variable->flags & CV_CALL))
-		I_Error(M_GetText("variable %s has CV_NOINIT without CV_CALL"),
+		I_Error("variable %s has CV_NOINIT without CV_CALL",
 			variable->name);
 	if ((variable->flags & CV_CALL) && !variable->func)
-		I_Error(M_GetText("variable %s has CV_CALL without a function"),
+		I_Error("variable %s has CV_CALL without a function",
 			variable->name);
 #endif
 
@@ -1023,7 +1025,7 @@ static void Setvalue(consvar_t *var, const char *valstr, boolean stealth)
 					break;
 #ifdef PARANOIA
 			if (!var->PossibleValue[i].strvalue)
-				I_Error(M_GetText("Bounded cvar \"%s\" without maximum!"), var->name);
+				I_Error("Bounded cvar \"%s\" without maximum!", var->name);
 #endif
 			if (v < var->PossibleValue[0].value || !stricmp(valstr, "MIN"))
 			{
@@ -1084,10 +1086,10 @@ error:
 
 			// ...or not.
 			if (var != &cv_nextmap) // Suppress errors for cv_nextmap
-				CONS_Printf(M_GetText("\"%s\" is not a possible value for \"%s\"\n"), valstr, var->name);
+				CONS_Printf("\"%s\" is not a possible value for \"%s\"\n", valstr, var->name);
 
 			if (var->defaultvalue == valstr)
-				I_Error(M_GetText("Variable %s default value \"%s\" is not a possible value\n"),
+				I_Error("Variable %s default value \"%s\" is not a possible value\n",
 					var->name, var->defaultvalue);
 			return;
 found:
@@ -1115,10 +1117,10 @@ found:
 finish:
 	if (var->flags & CV_SHOWMODIFONETIME || var->flags & CV_SHOWMODIF)
 	{
-		CONS_Printf(M_GetText("%s set to %s\n"), var->name, var->string);
+		CONS_Printf("%s set to %s\n", var->name, var->string);
 		var->flags &= ~CV_SHOWMODIFONETIME;
 	}
-	DEBFILE(va(M_GetText("%s set to %s\n"), var->name, var->string));
+	DEBFILE(va("%s set to %s\n", var->name, var->string));
 	var->flags |= CV_MODIFIED;
 	// raise 'on change' code
 	if (var->flags & CV_CALL && !stealth)
@@ -1143,7 +1145,7 @@ static void Got_NetVar(UINT8 **p, INT32 playernum)
 	if (playernum != serverplayer && playernum != adminplayer && !serverloading)
 	{
 		// not from server or remote admin, must be hacked/buggy client
-		CONS_Printf(M_GetText("Illegal netvar command received from %s\n"), player_names[playernum]);
+		CONS_Printf("Illegal netvar command received from %s\n", player_names[playernum]);
 
 		if (server)
 		{
@@ -1163,13 +1165,13 @@ static void Got_NetVar(UINT8 **p, INT32 playernum)
 
 	if (!cvar)
 	{
-		CONS_Printf(M_GetText("\2Netvar not found with netid %hu\n"), netid);
+		CONS_Printf("\2Netvar not found with netid %hu\n", netid);
 		return;
 	}
 #if 0 //defined (GP2X) || defined (PSP)
-	CONS_Printf(M_GetText("Netvar received: %s [netid=%d] value %s\n"), cvar->name, netid, svalue);
+	CONS_Printf("Netvar received: %s [netid=%d] value %s\n", cvar->name, netid, svalue);
 #endif
-	DEBFILE(va(M_GetText("Netvar received: %s [netid=%d] value %s\n"), cvar->name, netid, svalue));
+	DEBFILE(va("Netvar received: %s [netid=%d] value %s\n", cvar->name, netid, svalue));
 
 	Setvalue(cvar, svalue, stealth);
 }
@@ -1225,7 +1227,7 @@ static void CV_SetCVar(consvar_t *var, const char *value, boolean stealth)
 {
 #ifdef PARANOIA
 	if (!var)
-		I_Error("%s", M_GetText("CV_Set: no variable\n"));
+		I_Error("CV_Set: no variable\n");
 	if (!var->string)
 		I_Error("CV_Set: %s no string set!\n", var->name);
 #endif
@@ -1247,7 +1249,8 @@ static void CV_SetCVar(consvar_t *var, const char *value, boolean stealth)
 		UINT8 *p = buf;
 		if (!(server || (adminplayer == consoleplayer)))
 		{
-			CONS_Printf(M_GetText("Only the server can change this variable: %s %s\n"), var->name, var->string);
+			CONS_Printf("Only the server can change this variable: %s %s\n",
+				var->name, var->string);
 			return;
 		}
 		// Restrict multiplayer cheat variables from being changed unless cheats are enabled.
@@ -1256,9 +1259,9 @@ static void CV_SetCVar(consvar_t *var, const char *value, boolean stealth)
 			if (!cv_cheats.value && (netgame || multiplayer))
 			{
 				if (menuactive)
-					M_StartMessage(M_GetText("Changing this variable\nrequires cheats to be enabled.\nDo you wish to enable cheats? (Y/N)\n"), M_CheatActivationResponder, MM_YESNO);
+					M_StartMessage(va("%s", text[CHEATS_ACTIVATE]), M_CheatActivationResponder, MM_YESNO);
 				else
-					CONS_Printf("%s", M_GetText("Cheats must be enabled to use this.\n"));
+					CONS_Printf("%s", text[CHEATS_REQUIRED]);
 				return;
 			}
 			else if (!cv_debug && !(netgame || multiplayer)) // Still restrict if you're in single player and not in devmode.
@@ -1280,7 +1283,8 @@ static void CV_SetCVar(consvar_t *var, const char *value, boolean stealth)
 	else
 		if ((var->flags & CV_NOTINNET) && netgame)
 		{
-			CONS_Printf(M_GetText("This variable can't be changed while in netgame: %s %s\n"), var->name, var->string);
+			CONS_Printf("This variable can't be changed while in netgame: %s %s\n",
+				var->name, var->string);
 			return;
 		}
 		else
@@ -1360,43 +1364,7 @@ void CV_AddValue(consvar_t *var, INT32 increment)
 	if (var->PossibleValue)
 	{
 #define MINVAL 0
-		if (var == &cv_nextmap)
-		{
-			// Special case for the nextmap variable, used only directly from the menu
-			INT32 oldvalue = var->value - 1, gt;
-			gt = cv_newgametype.value;
-			if (increment != 0) // Going up!
-			{
-				newvalue = var->value - 1;
-				do
-				{
-					if(increment > 0) // Going up!
-					{
-						newvalue++;
-						if (newvalue == NUMMAPS)
-							newvalue = 0;
-					}
-					else // Going down!
-					{
-						newvalue--;
-						if (newvalue == -1)
-							newvalue = NUMMAPS-1;
-					}
-
-					if (newvalue == oldvalue)
-						gt = -1; // don't loop forever if there's none of a certain gametype
-
-					if(!mapheaderinfo[newvalue])
-						P_AllocMapHeader((INT16)newvalue);
-
-				} while (!M_CanShowLevelInList(newvalue, gt));
-
-				var->value = newvalue + 1;
-				var->func();
-				return;
-			}
-		}
-		else if (var->PossibleValue[MINVAL].strvalue && !strcmp(var->PossibleValue[MINVAL].strvalue, "MIN"))
+		if (var->PossibleValue[MINVAL].strvalue && !strcmp(var->PossibleValue[MINVAL].strvalue, "MIN"))
 		{
 			// search the next to last
 			for (max = 0; var->PossibleValue[max+1].strvalue; max++)
@@ -1422,7 +1390,67 @@ void CV_AddValue(consvar_t *var, INT32 increment)
 
 			max--;
 
-			if (var == &cv_chooseskin)
+			if (var == &cv_nextmap)
+			{
+				// Special case for the nextmap variable, used only directly from the menu
+				INT32 oldvalue = var->value - 1, gt;
+				gt = cv_newgametype.value;
+				if (increment > 0) // Going up!
+				{
+					newvalue = var->value - 1;
+					do
+					{
+						newvalue++;
+						if (newvalue == NUMMAPS)
+							newvalue = 0;
+						if (newvalue == oldvalue)
+							gt = -1; // don't loop forever if there's none of a certain gametype
+					} while (var->PossibleValue[newvalue].strvalue == NULL
+						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue].typeoflevel & TOL_COOP))
+							|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue].typeoflevel & TOL_MATCH))
+							|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue].typeoflevel & TOL_RACE))
+							|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue].typeoflevel & TOL_TAG))
+#ifdef CHAOSISNOTDEADYET
+							|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue].typeoflevel & TOL_CHAOS))
+#endif
+							|| (gt == GT_CTF && !(mapheaderinfo[newvalue].typeoflevel & TOL_CTF))) && inlevelselect == 0)
+						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue].levelselect))
+						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue].timeattack && mapvisited[newvalue]))
+						);
+					var->value = newvalue + 1;
+					var->string = var->PossibleValue[newvalue].strvalue;
+					var->func();
+					return;
+				}
+				else if (increment < 0) // Going down!
+				{
+					newvalue = var->value - 1;
+					do
+					{
+						newvalue--;
+						if (newvalue == -1)
+							newvalue = NUMMAPS-1;
+						if (newvalue == oldvalue)
+							gt = -1; // don't loop forever if there's none of a certain gametype
+					} while (var->PossibleValue[newvalue].strvalue == NULL
+						|| (((gt == GT_COOP && !(mapheaderinfo[newvalue].typeoflevel & TOL_COOP))
+						|| ((gt == GT_MATCH || gt == GTF_TEAMMATCH) && !(mapheaderinfo[newvalue].typeoflevel & TOL_MATCH))
+						|| ((gt == GT_RACE || gt == GTF_CLASSICRACE) && !(mapheaderinfo[newvalue].typeoflevel & TOL_RACE))
+						|| ((gt == GT_TAG || gt == GTF_HIDEANDSEEK) && !(mapheaderinfo[newvalue].typeoflevel & TOL_TAG))
+#ifdef CHAOSISNOTDEADYET
+						|| (gt == GT_CHAOS && !(mapheaderinfo[newvalue].typeoflevel & TOL_CHAOS))
+#endif
+						|| (gt == GT_CTF && !(mapheaderinfo[newvalue].typeoflevel & TOL_CTF))) && inlevelselect == 0)
+						|| (inlevelselect == 1 && !(mapheaderinfo[newvalue].levelselect))
+						|| (inlevelselect == 2 && !(mapheaderinfo[newvalue].timeattack && mapvisited[newvalue]))
+						);
+					var->value = newvalue + 1;
+					var->string = var->PossibleValue[newvalue].strvalue;
+					var->func();
+					return;
+				}
+			}
+			else if (var == &cv_chooseskin)
 			{
 				// Special case for the chooseskin variable, used only directly from the menu
 				if (increment > 0) // Going up!
@@ -1490,7 +1518,7 @@ static boolean CV_Command(void)
 	// perform a variable print or set
 	if (COM_Argc() == 1)
 	{
-		CONS_Printf(M_GetText("\"%s\" is \"%s\" default is \"%s\"\n"), v->name, v->string, v->defaultvalue);
+		CONS_Printf("\"%s\" is \"%s\" default is \"%s\"\n", v->name, v->string, v->defaultvalue);
 		return true;
 	}
 

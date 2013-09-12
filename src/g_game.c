@@ -19,6 +19,7 @@
 
 #include "doomdef.h"
 #include "console.h"
+#include "dstrings.h"
 #include "d_main.h"
 #include "f_finale.h"
 #include "p_setup.h"
@@ -118,7 +119,7 @@ boolean useNightsSS = false;
 tic_t countdowntimer = 0;
 UINT8 countdowntimeup = false;
 
-cutscene_t *cutscenes[128];
+cutscene_t cutscenes[128];
 
 INT16 nextmapoverride;
 INT32 nextmapgametype;
@@ -132,7 +133,7 @@ mapthing_t *rflagpoint;
 mapthing_t *bflagpoint;
 
 // Map Header Information
-mapheader_t* mapheaderinfo[NUMMAPS] = {NULL};
+mapheader_t mapheaderinfo[NUMMAPS];
 
 static boolean exitgame = false;
 
@@ -141,6 +142,8 @@ UINT32 token; // Number of tokens collected in a level
 UINT32 tokenlist; // List of tokens collected
 INT32 tokenbits; // Used for setting token bits
 INT32 sstimer; // Time allotted in the special stage
+
+char lvltable[LEVELARRAYSIZE+3][64];
 
 tic_t totalplaytime;
 INT32 numemblems = 40;
@@ -269,27 +272,7 @@ static void Analog2_OnChange(void);
 
 static CV_PossibleValue_t crosshair_cons_t[] = {{0, "Off"}, {1, "Cross"}, {2, "Angle"}, {3, "Point"}, {0, NULL}};
 static CV_PossibleValue_t joyaxis_cons_t[] = {{0, "None"},
-#ifdef _WII
-{1, "LStick.X"}, {2, "LStick.Y"}, {-1, "LStick.X-"}, {-2, "LStick.Y-"},
-#if JOYAXISSET > 1
-{3, "RStick.X"}, {4, "RStick.Y"}, {-3, "RStick.X-"}, {-4, "RStick.Y-"},
-#endif
-#if JOYAXISSET > 2
-{5, "RTrigger"}, {6, "LTrigger"}, {-5, "RTrigger-"}, {-6, "LTrigger-"},
-#endif
-#if JOYAXISSET > 3
-{7, "Pitch"}, {8, "Roll"}, {-7, "Pitch-"}, {-8, "Roll-"},
-#endif
-#if JOYAXISSET > 3
-{7, "Pitch"}, {8, "Roll"}, {-7, "Pitch-"}, {-8, "Roll-"},
-#endif
-#if JOYAXISSET > 4
-{7, "Yaw"}, {8, "Dummy"}, {-7, "Yaw-"}, {-8, "Dummy-"},
-#endif
-#if JOYAXISSET > 4
-{9, "LAnalog"}, {10, "RAnalog"}, {-9, "LAnalog-"}, {-10, "RAnalog-"},
-#endif
-#elif defined (WMINPUT)
+#ifdef WMINPUT
 {1, "LStick.X"}, {2, "LStick.Y"}, {-1, "LStick.X-"}, {-2, "LStick.Y-"},
 #if JOYAXISSET > 1
 {3, "RStick.X"}, {4, "RStick.Y"}, {-3, "RStick.X-"}, {-4, "RStick.Y-"},
@@ -321,14 +304,8 @@ static CV_PossibleValue_t joyaxis_cons_t[] = {{0, "None"},
 #endif
 #endif
  {0, NULL}};
-#ifdef _WII
-#if JOYAXISSET > 5
-"More Axis Sets"
-#endif
-#else
 #if JOYAXISSET > 4
 "More Axis Sets"
-#endif
 #endif
 
 consvar_t cv_crosshair = {"crosshair", "Cross", CV_SAVE, crosshair_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -361,7 +338,7 @@ typedef enum
 	AXISFIRENORMAL,
 } axis_input_e;
 
-#if defined (_WII) || defined  (WMINPUT)
+#ifdef WMINPUT
 consvar_t cv_turnaxis = {"joyaxis_turn", "LStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_moveaxis = {"joyaxis_move", "LStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_sideaxis = {"joyaxis_side", "RStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -396,7 +373,7 @@ consvar_t cv_fireaxis = {"joyaxis_fire", "None", CV_SAVE, joyaxis_cons_t, NULL, 
 consvar_t cv_firenaxis = {"joyaxis_firenormal", "None", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 #endif
 
-#if defined (_WII) || defined  (WMINPUT)
+#ifdef WMINPUT
 consvar_t cv_turnaxis2 = {"joyaxis2_turn", "LStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_moveaxis2 = {"joyaxis2_move", "LStick.Y", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_sideaxis2 = {"joyaxis2_side", "RStick.X", CV_SAVE, joyaxis_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -1413,15 +1390,12 @@ void G_DoLoadLevel(boolean resetplayer)
 
 	if (gamestate == GS_INTERMISSION)
 		Y_EndIntermission();
-
 	G_SetGamestate(GS_LEVEL);
-
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (resetplayer || (playeringame[i] && players[i].playerstate == PST_DEAD))
 			players[i].playerstate = PST_REBORN;
 	}
-
 #if 0 //this never worked like intended anyway! <<;
 	if (resetplayer)
 	{
@@ -1429,8 +1403,6 @@ void G_DoLoadLevel(boolean resetplayer)
 		mapmusic &= ~2048;
 	}
 #endif
-
-	// Setup the level.
 	if (!P_SetupLevel(gamemap, false))
 	{
 		// fail so reset game stuff
@@ -1523,7 +1495,7 @@ boolean G_Responder(event_t *ev)
 				ST_changeDemoView();
 
 			// tell who's the view
-			CONS_Printf(M_GetText("Viewpoint: %s\n"), player_names[displayplayer]);
+			CONS_Printf("Viewpoint: %s\n", player_names[displayplayer]);
 
 			return true;
 		}
@@ -1613,14 +1585,14 @@ boolean G_Responder(event_t *ev)
 					{
 						if (!(gamestate == GS_LEVEL || gamestate == GS_INTERMISSION))
 						{
-							CONS_Printf("%s", M_GetText("You can't pause here.\n"));
+							CONS_Printf("%s", text[PAUSEINFO]);
 							return true;
 						}
 
 						COM_ImmedExecute("pause");
 					}
 					else
-						CONS_Printf("%s", M_GetText("You are not the server. You cannot do this.\n"));
+						CONS_Printf("%s", text[SERVERPAUSE]);
 					return true;
 				}
 				else
@@ -1981,7 +1953,7 @@ void G_PlayerReborn(INT32 player)
 	if (P_IsLocalPlayer(p) && !(splitscreen && p == &players[secondarydisplayplayer]))
 	{
 		if (!(mapmusic & 2048)) // TODO: Might not need this here
-			mapmusic = mapheaderinfo[gamemap-1]->musicslot;
+			mapmusic = mapheaderinfo[gamemap-1].musicslot;
 
 		S_ChangeMusic(mapmusic & 2047, true);
 	}
@@ -1993,7 +1965,7 @@ void G_PlayerReborn(INT32 player)
 	p->mare = P_FindLowestMare();
 
 	if (cv_debug)
-		CONS_Printf(M_GetText("Current mare is %d\n"), p->mare);
+		CONS_Printf("Current mare is %d\n", p->mare);
 
 	if (p->mare == 255)
 		p->mare = 0;
@@ -2028,6 +2000,7 @@ static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 {
 	fixed_t x;
 	fixed_t y;
+	subsector_t *ss;
 	INT32 i;
 
 	// maybe there is no player start
@@ -2049,6 +2022,7 @@ static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 
 	x = mthing->x << FRACBITS;
 	y = mthing->y << FRACBITS;
+	ss = R_PointInSubsector(x, y);
 
 	if (!P_CheckPosition(players[playernum].mo, x, y))
 		return false;
@@ -2080,11 +2054,11 @@ void G_DeathMatchSpawnPlayer(INT32 playernum)
 			}
 
 		// Use a coop start dependent on playernum
-		CONS_Printf("%s", M_GetText("No deathmatch start in this map - shifting to player starts to avoid crash...\n"));
+		CONS_Printf("No deathmatch start in this map - shifting to player starts to avoid crash...\n");
 	}
 
 	if (!numcoopstarts)
-		I_Error("%s", M_GetText("There aren't enough starts in this map!\n"));
+		I_Error("There aren't enough starts in this map!\n");
 
 	i = playernum % numcoopstarts;
 	P_SpawnPlayer(playerstarts[i], playernum);
@@ -2104,7 +2078,7 @@ void G_CoopSpawnPlayer(INT32 playernum, boolean starpost)
 			case 1: // Red Team
 				if (!numredctfstarts)
 				{
-					CONS_Printf("%s", M_GetText("No Red Team start in this map, resorting to Deathmatch starts!\n"));
+					CONS_Printf("No Red Team start in this map, resorting to Deathmatch starts!\n");
 					goto startdeath;
 				}
 
@@ -2121,7 +2095,7 @@ void G_CoopSpawnPlayer(INT32 playernum, boolean starpost)
 			case 2: // Blue Team
 				if (!numbluectfstarts)
 				{
-					CONS_Printf("%s", M_GetText("No Blue Team start in this map, resorting to Deathmatch starts!\n"));
+					CONS_Printf("No Blue Team start in this map, resorting to Deathmatch starts!\n");
 					goto startdeath;
 				}
 
@@ -2190,7 +2164,7 @@ void G_DoReborn(INT32 playernum)
 			player->starpostnum = 0;
 			player->starpostbit = 0;
 		}
-		if (mapheaderinfo[gamemap-1]->noreload && !imcontinuing && !timeattacking)
+		if (mapheaderinfo[gamemap-1].noreload && !imcontinuing && !timeattacking)
 		{
 			INT32 i;
 
@@ -2287,7 +2261,7 @@ void G_ExitLevel(void)
 		}
 
 		if (gametype != GT_COOP)
-			CONS_Printf("%s", M_GetText("The round has ended.\n"));
+			CONS_Printf("%s", text[ROUND_END]);
 	}
 }
 
@@ -2324,7 +2298,7 @@ static INT16 TOLFlag(INT32 pgametype)
 	if (pgametype == GT_TAG)   return TOL_TAG;
 	if (pgametype == GT_CTF)   return TOL_CTF;
 
-	CONS_Printf(M_GetText("Unknown gametype! %d\n"), pgametype);
+	CONS_Printf("Error: Weird gametype! %d\n", pgametype);
 	return INT16_MAX;
 }
 
@@ -2338,32 +2312,24 @@ static INT16 TOLFlag(INT32 pgametype)
   */
 static INT16 RandMap(INT16 tolflags, INT16 pprevmap)
 {
-	INT16 *okmaps = Z_Malloc(NUMMAPS * sizeof(INT16), PU_STATIC, NULL);
+	XBOXSTATIC INT16 okmaps[NUMMAPS];
 	INT32 numokmaps = 0;
 	INT16 ix;
 	INT32 mapnum;
 
 	// Find all the maps that are ok and and put them in an array.
 	for (ix = 0; ix < NUMMAPS; ix++)
-		if (mapheaderinfo[ix] && (mapheaderinfo[ix]->typeoflevel & tolflags) == tolflags && ix != pprevmap) // Don't pick the same map.
+		if ((mapheaderinfo[ix].typeoflevel & tolflags) == tolflags && ix != pprevmap) // Don't pick the same map.
 			okmaps[numokmaps++] = ix;
 
 	if (numokmaps == 0)
-	{
-		ix = 0; // Sorry, none match. You get MAP01.
-	}
-	else
-	{
-		mapnum = M_Random() << 8;
-		mapnum |= M_Random();
-		mapnum %= numokmaps;
+		return 1; // Sorry, none match. You get MAP01.
 
-		ix = okmaps[mapnum];
-	}
+	mapnum = M_Random() << 8;
+	mapnum |= M_Random();
+	mapnum %= numokmaps;
 
-	Z_Free(okmaps);
-
-	return ix + 1;
+	return (INT16)(okmaps[mapnum]+1);
 }
 
 //
@@ -2394,7 +2360,7 @@ void G_DoCompleted(void)
 	if (nextmapoverride != 0)
 		nextmap = (INT16)(nextmapoverride-1);
 	else
-		nextmap = (INT16)(mapheaderinfo[gamemap-1]->nextlevel-1);
+		nextmap = (INT16)(mapheaderinfo[gamemap-1].nextlevel-1);
 
 	// Remember last map for when you come out of the special stage.
 	if (!G_IsSpecialStage(gamemap))
@@ -2408,29 +2374,18 @@ void G_DoCompleted(void)
 	{
 		INT16 tolflag = TOLFlag(gametype);
 
-		if(!mapheaderinfo[nextmap])
-			P_AllocMapHeader(nextmap);
-
 		if (nextmap >= 0 && nextmap < NUMMAPS
-			&& !(mapheaderinfo[nextmap]->typeoflevel & tolflag))
+			&& !(mapheaderinfo[nextmap].typeoflevel & tolflag))
 		{
 			register INT16 cm = nextmap;
 			UINT8 visitedmap[(NUMMAPS+7)/8];
 
 			memset(visitedmap, 0, sizeof (visitedmap));
 
-			if(!mapheaderinfo[cm])
-				P_AllocMapHeader(cm);
-
-			if(!mapheaderinfo[cm])
-			{
-				CONS_Printf("Next map given (MAP %d) doesn't exist! Reverting to MAP01.\n", cm+1);
-				cm = 1;
-			}
-			else while (!(mapheaderinfo[cm]->typeoflevel & tolflag))
+			while (!(mapheaderinfo[cm].typeoflevel & tolflag))
 			{
 				visitedmap[cm/8] |= (1<<(cm%8));
-				cm = (INT16)(mapheaderinfo[cm]->nextlevel-1);
+				cm = (INT16)(mapheaderinfo[cm].nextlevel-1);
 				if (cm >= NUMMAPS || cm < 0) // out of range (either 1100-1102 or error)
 				{
 					cm = nextmap; //Start the loop again so that the error checking below is executed.
@@ -2438,7 +2393,7 @@ void G_DoCompleted(void)
 					//Make sure the map actually exists before you try to go to it!
 					if ((W_CheckNumForName(G_BuildMapName(cm + 1)) == LUMPERROR))
 					{
-						CONS_Printf(M_GetText("Next map given (MAP %d) doesn't exist! Reverting to MAP01.\n"), cm+1);
+						CONS_Printf("Next map given (MAP %d) doesn't exist! Reverting to MAP01.\n", cm+1);
 						cm = 1;
 						break;
 					}
@@ -2451,11 +2406,14 @@ void G_DoCompleted(void)
 					// finding one supporting the current
 					// gametype. Thus, print a warning,
 					// and just use this map anyways.
-					CONS_Printf(M_GetText("Warning: Can't find a compatible map after map %d; using map %d even though it is not compatible with the current gametype\n"), prevmap+1, cm+1);
+					CONS_Printf("Warning: Can't find a "
+						"compatible map after map %d; "
+						"using map %d even though it "
+						"is not compatible with the "
+						"current gametype\n",
+							prevmap+1, cm+1);
 					break;
 				}
-				if(!mapheaderinfo[cm])
-					P_AllocMapHeader(cm);
 			}
 			nextmap = cm;
 		}
@@ -2537,8 +2495,8 @@ void G_AfterIntermission(void)
 {
 	HU_ClearCEcho();
 
-	if (mapheaderinfo[gamemap-1]->cutscenenum && !timeattacking) // Start a custom cutscene.
-		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->cutscenenum-1, false, false);
+	if (mapheaderinfo[gamemap-1].cutscenenum) // Start a custom cutscene.
+		F_StartCustomCutscene(mapheaderinfo[gamemap-1].cutscenenum-1, false, false);
 	else
 	{
 		if (nextmap < 1100-1)
@@ -2716,7 +2674,7 @@ void G_SaveGameData(void)
 	save_p = savebuffer = (UINT8 *)malloc(GAMEDATASIZE);
 	if (!save_p)
 	{
-		CONS_Printf("%s", M_GetText("No more free memory for saving game data\n"));
+		CONS_Printf("No more free memory for saving game data\n");
 		return;
 	}
 
@@ -2775,7 +2733,7 @@ void G_LoadGame(UINT32 slot, INT16 mapoverride)
 	length = FIL_ReadFile(savename, &savebuffer);
 	if (!length)
 	{
-		CONS_Printf(M_GetText("Couldn't read file %s\n"), savename);
+		CONS_Printf(text[CANTREADFILE], savename);
 		return;
 	}
 
@@ -2845,7 +2803,7 @@ void G_SaveGame(UINT32 savegameslot)
 		save_p = savebuffer = (UINT8 *)malloc(SAVEGAMESIZE);
 		if (!save_p)
 		{
-			CONS_Printf("%s", M_GetText("No more free memory for saving game data\n"));
+			CONS_Printf("No more free memory for savegame\n");
 			return;
 		}
 
@@ -2867,9 +2825,9 @@ void G_SaveGame(UINT32 savegameslot)
 	gameaction = ga_nothing;
 
 	if (cv_debug && saved)
-		CONS_Printf("%s", M_GetText("Game saved.\n"));
+		CONS_Printf("%s", text[GGSAVED]);
 	else if (!saved)
-		CONS_Printf(M_GetText("Error while writing to %s for save slot %u, base: %s\n"), backup, savegameslot,savegamename);
+		CONS_Printf("Error while writing to %s for save slot %u, base: %s\n",backup,savegameslot,savegamename);
 }
 
 //
@@ -2970,67 +2928,32 @@ void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer, boolean
 	}
 
 	gamemap = (INT16)M_MapNumber(mapname[3], mapname[4]); // get xx out of MAPxx
-
-	// gamemap changed; we assume that its map header is always valid,
-	// so make it so
-	if(!mapheaderinfo[gamemap-1])
-		P_AllocMapHeader(gamemap-1);
-
-	maptol = mapheaderinfo[gamemap-1]->typeoflevel;
-	globalweather = mapheaderinfo[gamemap-1]->weather;
-
+	maptol = mapheaderinfo[gamemap-1].typeoflevel;
+	globalweather = mapheaderinfo[gamemap-1].weather;
 
 	ultimatemode = pultmode;
 	playerdeadview = false;
 	automapactive = false;
 
-	if (!skipprecutscene && mapheaderinfo[gamemap-1]->precutscenenum && !timeattacking) // Start a custom cutscene.
-		F_StartCustomCutscene(mapheaderinfo[gamemap-1]->precutscenenum-1, true, resetplayer);
+	if (!skipprecutscene && mapheaderinfo[gamemap-1].precutscenenum) // Start a custom cutscene.
+		F_StartCustomCutscene(mapheaderinfo[gamemap-1].precutscenenum-1, true, resetplayer);
 	else
 		G_DoLoadLevel(resetplayer);
 
 	if (netgame)
 	{
-		char *title = G_BuildMapTitle(gamemap);
-
-		CONS_Printf(M_GetText("Map is now \"%s"), G_BuildMapName(gamemap));
-		if (title)
+		const INT32 actnum = mapheaderinfo[gamemap-1].actnum;
+		CONS_Printf(text[MAPISNOW], G_BuildMapName(gamemap));
+		if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
 		{
-			CONS_Printf(": %s", title);
-			Z_Free(title);
+			CONS_Printf(": %s", mapheaderinfo[gamemap-1].lvlttl);
+			if (!mapheaderinfo[gamemap-1].nozone)
+				CONS_Printf(" %s",text[ZONE]);
+			if (actnum > 0)
+				CONS_Printf(" %2d", actnum);
 		}
 		CONS_Printf("\"\n");
 	}
-}
-
-
-char *G_BuildMapTitle(INT32 mapnum)
-{
-	char *title = NULL;
-
-	if (strcmp(mapheaderinfo[mapnum-1]->lvlttl, ""))
-	{
-		size_t len = 1;
-		const char *zonetext = NULL;
-		const INT32 actnum = mapheaderinfo[mapnum-1]->actnum;
-
-		len += strlen(mapheaderinfo[mapnum-1]->lvlttl);
-		if (!mapheaderinfo[mapnum-1]->nozone)
-		{
-			zonetext = M_GetText("ZONE");
-			len += strlen(zonetext) + 1;	// ' ' + zonetext
-		}
-		if (actnum > 0)
-			len += 1 + 11;			// ' ' + INT32
-
-		title = Z_Malloc(len, PU_STATIC, NULL);
-
-		sprintf(title, "%s", mapheaderinfo[mapnum-1]->lvlttl);
-		if (zonetext) sprintf(title + strlen(title), " %s", zonetext);
-		if (actnum > 0) sprintf(title + strlen(title), " %d", actnum);
-	}
-
-	return title;
 }
 
 //
@@ -3221,6 +3144,7 @@ void G_DeferedPlayDemo(const char *name)
 void G_DoPlayDemo(char *defdemoname)
 {
 	INT32 i;
+	INT16 map;
 	lumpnum_t l;
 
 	// load demo file / resource
@@ -3231,7 +3155,7 @@ void G_DoPlayDemo(char *defdemoname)
 		FIL_DefaultExtension(defdemoname, ".lmp");
 		if (!FIL_ReadFile(defdemoname, &demobuffer))
 		{
-			CONS_Printf(M_GetText("\2ERROR: cannot open file '%s'.\n"), defdemoname);
+			CONS_Printf("\2ERROR: couldn't open file '%s'.\n", defdemoname);
 			gameaction = ga_nothing;
 			return;
 		}
@@ -3243,7 +3167,7 @@ void G_DoPlayDemo(char *defdemoname)
 	// read demo header
 	gameaction = ga_nothing;
 	(void)READUINT8(demo_p); // ultmode
-	(void)READUINT8(demo_p);
+	map = READUINT8(demo_p);
 
 	(void)READUINT8(demo_p);
 
@@ -3301,7 +3225,7 @@ void G_MovieMode(boolean enable)
 {
 	if (enable)
 	{
-		CONS_Printf("%s", M_GetText("Movie mode enabled.\n"));
+		CONS_Printf("Movie mode enabled.\n");
 		singletics = true;
 		moviemode = true;
 #ifdef HAVE_PNG
@@ -3310,7 +3234,7 @@ void G_MovieMode(boolean enable)
 	}
 	else
 	{
-		CONS_Printf("%s", M_GetText("Movie mode disabled.\n"));
+		CONS_Printf("Movie mode disabled.\n");
 		singletics = false;
 		moviemode = false;
 #ifdef HAVE_PNG
@@ -3321,7 +3245,7 @@ void G_MovieMode(boolean enable)
 
 void G_DoneLevelLoad(void)
 {
-	CONS_Printf(M_GetText("Loaded level in %f sec\n"), (double)(I_GetTime() - demostarttime) / TICRATE);
+	CONS_Printf("Loaded level in %f sec\n", (double)(I_GetTime() - demostarttime) / TICRATE);
 	framecount = 0;
 	demostarttime = I_GetTime();
 }
@@ -3369,7 +3293,9 @@ boolean G_CheckDemoStatus(void)
 		timingdemo = false;
 		f1 = (double)demotime;
 		f2 = (double)framecount*TICRATE;
-		CONS_Printf(M_GetText("timed %u gametics in %d realtics\n%f seconds, %f avg fps\n"), leveltime,demotime,f1/TICRATE,f2/f1);
+		CONS_Printf("timed %u gametics in %d realtics\n"
+			"%f seconds, %f avg fps\n",
+			leveltime,demotime,f1/TICRATE,f2/f1);
 		if (restorecv_vidwait != cv_vidwait.value)
 			CV_SetValue(&cv_vidwait, restorecv_vidwait);
 		D_AdvanceDemo();
@@ -3398,9 +3324,9 @@ boolean G_CheckDemoStatus(void)
 		if (!timeattacking)
 		{
 			if (saved)
-				CONS_Printf(M_GetText("\2Demo %s recorded\n"), demoname);
+				CONS_Printf("\2Demo %s recorded\n",demoname);
 			else
-				CONS_Printf(M_GetText("\2Demo %s not saved\n"), demoname);
+				CONS_Printf("\2Demo %s not saved\n",demoname);
 		}
 
 		timeattacking = false;

@@ -339,7 +339,7 @@ static UINT8 joystick2_detected = false;
 //
 
 
-FUNCINLINE static ATTRINLINE int I_WaitJoyButton (int js)
+static inline int I_WaitJoyButton (int js)
 {
 	CON_Drawer ();
 	I_FinishUpdate ();        // page flip or blit buffer
@@ -649,7 +649,7 @@ void I_Quit (void)
 
 
 //added:12-02-98: does want to work!!!! rhaaahahha
-void I_WaitVBL(INT32 count)
+void I_WaitVBL(int count)
 {
 	while (count-->0);
 	{
@@ -734,7 +734,7 @@ static END_OF_FUNCTION(I_MicrosoftMouseIntHandler);
 #endif
 
 // wait ms milliseconde
-FUNCINLINE static ATTRINLINE void I_Delay(int ms)
+static inline void I_Delay(int ms)
 {
 	tic_t  starttime;
 
@@ -751,7 +751,7 @@ FUNCINLINE static ATTRINLINE void I_Delay(int ms)
 //
 //  Removes the mouse2 handler.
 //
-static void I_ShutdownMouse2(void)
+static inline void I_ShutdownMouse2(void)
 {
 	event_t event;
 	int i;
@@ -785,7 +785,7 @@ static UINT16 ComPort[4]={0x3F8,0x2F8,0x3E8,0x2E8};
 //
 //  Installs the mouse2 handler.
 //
-void I_StartupMouse2(void)
+void I_StartupMouse2()
 {
 	tic_t i;
 	boolean  found;
@@ -1123,7 +1123,7 @@ void I_GetJoystick2Events(void)
 	}
 }
 
-void I_GetMouseEvents(void)
+void I_GetMouseEvents()
 {
 	//mouse movement
 	event_t event;
@@ -1248,12 +1248,12 @@ void I_GetEvent (void)
 	I_GetJoystick2Events();
 }
 
-INT32 I_NumJoys(void)
+int I_NumJoys(void)
 {
 	return MAX_JOYSTICKS;
 }
 
-const char *I_GetJoyName(INT32 joyindex)
+const char *I_GetJoyName(int joyindex)
 {
 #if MAX_JOYSTICKS > 8
 "More Joystick Names?"
@@ -1441,7 +1441,7 @@ static END_OF_FUNCTION(I_KeyboardHandler);
 //  Return a key that has been pushed, or 0
 //  (replace getchar() at game startup)
 //
-INT32 I_GetKey (void)
+int I_GetKey (void)
 {
 	int rc=0;
 	if ( keyboard_started )
@@ -1479,7 +1479,7 @@ static _go32_dpmi_seginfo oldkeyinfo,newkeyinfo;
 //
 //  Removes the keyboard handler.
 //
-static inline void I_ShutdownKeyboard(void)
+static inline void I_ShutdownKeyboard()
 {
 	if ( !keyboard_started )
 		return;
@@ -1495,7 +1495,7 @@ static inline void I_ShutdownKeyboard(void)
 //
 //  Installs the keyboard handler.
 //
-void I_StartupKeyboard(void)
+void I_StartupKeyboard()
 {
 	if (keyboard_started)
 		return;
@@ -1632,7 +1632,7 @@ static char msg[] = "Oh no! Back to reality!\r\n";
 // This stuff should get rid of the exception and page faults when
 // SRB2 bugs out with an error. Now it should exit cleanly.
 //
-INT32 I_StartupSystem(void)
+int I_StartupSystem(void)
 {
 	I_DetectOS();
 	check_cpu();
@@ -1667,7 +1667,7 @@ INT32 I_StartupSystem(void)
 //
 //  NOTE : Shutdown user funcs. are effectively called in reverse order.
 //
-void I_ShutdownSystem(void)
+void I_ShutdownSystem()
 {
 	int c;
 
@@ -1703,9 +1703,9 @@ char *I_GetUserName(void)
 	return username;
 }
 
-INT32 I_mkdir(const char *pdirname, INT32 unixright)
+int I_mkdir(const char *dirname, int unixright)
 {
-	return mkdir(pdirname, unixright);
+	return mkdir(dirname,unixright);
 }
 
 char * I_GetEnv(const char *name)
@@ -1713,7 +1713,7 @@ char * I_GetEnv(const char *name)
 	return getenv(name);
 }
 
-INT32 I_PutEnv(char *variable)
+int I_PutEnv(char *variable)
 {
 	return putenv(variable);
 }

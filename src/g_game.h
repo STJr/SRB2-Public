@@ -92,7 +92,6 @@ void G_PlayerReborn(INT32 player);
 void G_DoCompleted(void);
 void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer,
 	boolean skipprecutscene);
-char *G_BuildMapTitle(INT32 mapnum);
 
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1, but a warp test can start elsewhere

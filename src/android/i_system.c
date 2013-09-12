@@ -143,12 +143,12 @@ void I_InitJoystick(void){}
 
 void I_InitJoystick2(void){}
 
-INT32 I_NumJoys(void)
+int I_NumJoys(void)
 {
   return 0;
 }
 
-const char *I_GetJoyName(INT32 joyindex)
+const char *I_GetJoyName(int joyindex)
 {
   (void)joyindex;
   return NULL;
@@ -181,7 +181,7 @@ void I_StartupMouse2(void){}
 
 void I_StartupKeyboard(void){}
 
-INT32 I_GetKey(void)
+int I_GetKey(void)
 {
   return 0;
 }

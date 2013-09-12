@@ -18,8 +18,6 @@
 #ifndef _IPCS_H_
 #define _IPCS_H_
 
-#include "common.h"
-
 #if defined (_WIN32) || defined ( __OS2__)
 #include <io.h>
 #include <sys/types.h>
@@ -31,6 +29,12 @@ typedef int socklen_t;
 #ifdef _WIN32
 #include <winsock.h>
 #define close closesocket
+#define SHUT_RD SD_RECEIVE
+
+#ifndef SD_RECEIVE
+#define SD_RECEIVE 0
+#endif
+
 #else
 #include <arpa/inet.h>   // inet_addr(),...
 #endif
@@ -42,7 +46,7 @@ typedef int socklen_t;
 // ================================ DEFINITIONS ===============================
 
 #define PACKET_SIZE 1024
-#define MAX_CLIENT    512
+#define MAX_CLIENT    64
 
 #ifndef _WIN32
 #define NO_ERROR                      0
@@ -77,14 +81,6 @@ typedef int socklen_t;
 #define ANSWER_ASK_SERVER_MSG        207
 #define GET_MOTD_MSG                 208
 #define SEND_MOTD_MSG                209
-#define GET_ROOMS_MSG				 210
-#define SEND_ROOMS_MSG				 211
-#define GET_ROOMS_HOST_MSG			 212
-#define GET_VERSION_MSG				 213
-#define SEND_VERSION_MSG			 214
-#define GET_BANNED_MSG				 215
-#define PING_SERVER_MSG				 216
-
 #define UDP_RECV_MSG                 300
 #define TIMEOUT_MSG                  301
 #define HTTP_REQUEST_MSG       875770417    // "4321"
@@ -98,131 +94,35 @@ typedef int socklen_t;
 #define ADD_PSERVER_MSG        0xabacab81    // this number just need to be different than the others
 #define REMOVE_PSERVER_MSG     0xabacab82
 
-// Sent FROM Client
-#define LIVE_AUTH_USER				 600
-#define LIVE_AUTH_KEY				 601
-#define LIVE_GET_USER				 602
-#define LIVE_UPDATE_LOCATION		 603
-#define LIVE_UPDATE_PUBLIC_KEY		 604
-#define LIVE_AUTH_PUBLIC_KEY		 605
-
-// Sent TO Client
-#define LIVE_INVALID_KEY			 800
-#define LIVE_INVALID_USER			 801
-#define LIVE_AUTHORISED_KEY			 802
-#define	LIVE_SEND_USER				 803
-#define LIVE_VALIDATED_USER			 804
-
-// Location Types
-#define LIVE_LOCATION_SP			 100
-#define LIVE_LOCATION_MENU			 101
-#define LIVE_LOCATION_MP_JOIN		 102
-#define LIVE_LOCATION_MP_HOST		 103
-#define LIVE_LOCATION_MP_LOCAL		 104
-#define LIVE_LOCATION_MP_PRIVATE	 105
-
-#define HEADER_SIZE ((UINT32)sizeof (UINT32)*4)
+#define HEADER_SIZE ((long)sizeof (long)*3)
 
 #define HEADER_MSG_POS      0
 #define IP_MSG_POS         16
 #define PORT_MSG_POS       32
 #define HOSTNAME_MSG_POS   40
 
-#if defined(_MSC_VER)
-#pragma pack(1)
-#endif
-
 // Keep this structure 8 bytes aligned (current size is 80)
 typedef struct
 {
-	char header[16]; // information such as password
+	union
+	{
+		char buffer[16]; // information such as password
+		unsigned int signature;
+	} header;
+
 	char ip[16];
 	char port[8];
-	char name[32];
-	INT32 room;
-	char key[32]; // Secret key for linking dedicated servers to accounts
+	char name[32];       
 	char version[8]; // format is: x.yy.z (like 1.30.2 or 1.31)
-} ATTRPACK msg_server_t;
+} msg_server_t;
 
 typedef struct
 {
-	char header[16];
-	UINT32 id;
-	char name[32];
-	char motd[256];
-} ATTRPACK msg_rooms_t;
-
-typedef struct
-{
-	char header[16];
-	char ipstart[16];
-	char ipend[16];
-	char endstamp[32];
-	char reason[256];
-	UINT8 hostonly;
-} ATTRPACK msg_ban_t;
-
-typedef struct
-{
-	char header[16];
-	INT32 id;
-	char username[100];
-	char password[32];
-} ATTRPACK msg_live_auth_t;
-
-typedef struct
-{
-	char header[16];
-	INT32 uid;
-	char username[100];
-	INT32 location_type;
-	char location_ip[32];
-	INT32 location_port;
-	INT32 lastseen_type;
-	char lastseen_data1[256];
-	char lastseen_data2[256];
-	char lastseen_data3[256];
-} ATTRPACK msg_live_user_t;
-
-typedef struct
-{
-	char header[16];
-	UINT8 location_type;
-	char location_ip[32];
-	INT32 location_port;
-	char location_data1[256];
-	char location_data2[256];
-	char location_data3[256];
-} ATTRPACK msg_live_updatelocation_t;
-
-typedef struct
-{
-	char header[16];
-	char publickey[256];
-	char username[256];
-} ATTRPACK msg_live_validateuser_t;
-
-typedef struct
-{
-	char header[16];
-	char username[256];
-	UINT8 keytype;
-	char keydata[256];
-} ATTRPACK msg_live_update_key_t;
-
-
-typedef struct
-{
-	UINT32 id;
-	INT32 type;
-	INT32 room;
-	INT32 length;
+	long id;
+	long type;
+	long length;
 	char buffer[PACKET_SIZE];
-} ATTRPACK msg_t;
-
-#if defined(_MSC_VER)
-#pragma pack()
-#endif
+} msg_t;
 
 class CSocket
 {
@@ -231,7 +131,7 @@ protected:
 	msg_t msg;
 	fd_set rset;
 public:
-	int getIP(const char *);
+	int getIP(char *);
 	CSocket();
 	~CSocket();
 };
@@ -249,17 +149,17 @@ private:
 
 public:
 	int deleteClient(size_t id);
-	int listen(const char *str_port);
-	int accept(void);
+	int listen(char *str_port);
+	int accept();
 	int read(msg_t *msg);
-	const char *getUdpIP(void);
+	const char *getUdpIP();
 	const char *getUdpPort(bool);
 	int write(msg_t *msg);
-	int writeUDP(const char *data, size_t length, const char *ip, UINT16 port);
+	int writeUDP(char *data, int length, char *ip, unsigned short port);
 	const char *getClientIP(size_t id);
 	const char *getClientPort(size_t id);
-	CServerSocket(void);
-	~CServerSocket(void);
+	CServerSocket();
+	~CServerSocket();
 };
 
 class CClientSocket : public CSocket
@@ -267,11 +167,11 @@ class CClientSocket : public CSocket
 private:
 	SOCKET socket_fd;
 public:
-	int connect(const char *ip_addr, const char *str_port);
+	int connect(char *ip_addr, char *str_port);
 	int read(msg_t *msg);
 	int write(msg_t *msg);
-	CClientSocket(void);
-	~CClientSocket(void);
+	CClientSocket();
+	~CClientSocket();
 };
 
 // ================================== PROTOS ==================================

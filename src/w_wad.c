@@ -33,9 +33,7 @@
 #endif
 
 #include "doomdef.h"
-#include "doomstat.h"
 #include "doomtype.h"
-
 #include "w_wad.h"
 #include "z_zone.h"
 
@@ -93,20 +91,6 @@ typedef struct
 	size_t len;
 } lumpchecklist_t;
 
-#define MAKEWADLUMPNUM(wad, lump) (lumpnum_t)(((wad) << 16) | (lump & 0xFFFF))
-
-// Must be a power of two
-#define LUMPNUMCACHESIZE 64
-
-typedef struct lumpnum_cache_s
-{
-	char lumpname[8];
-	lumpnum_t lumpnum;
-} lumpnum_cache_t;
-
-static lumpnum_cache_t lumpnumcache[LUMPNUMCACHESIZE];
-static UINT16 lumpnumcacheindex = 0;
-
 //===========================================================================
 //                                                                    GLOBALS
 //===========================================================================
@@ -121,12 +105,7 @@ wadfile_t *wadfiles[MAX_WADFILES]; // 0 to numwadfiles-1 are valid
 void W_Shutdown(void)
 {
 	while (numwadfiles--)
-	{
 		fclose(wadfiles[numwadfiles]->handle);
-		Z_Free(wadfiles[numwadfiles]->lumpinfo);
-		Z_Free(wadfiles[numwadfiles]->filename);
-		Z_Free(wadfiles[numwadfiles]);
-	}
 }
 
 //===========================================================================
@@ -154,7 +133,7 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 		lump = W_CheckNumForNamePwad("MAINCFG", wadnum, lump);
 		if (lump == INT16_MAX)
 			break;
-		CONS_Printf(M_GetText("Loading main config from %s\n"), wadfiles[wadnum]->filename);
+		CONS_Printf("Loading main config from %s\n", wadfiles[wadnum]->filename);
 		DEH_LoadDehackedLumpPwad(wadnum, lump);
 	}
 
@@ -164,7 +143,7 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
 		lump = W_CheckNumForNamePwad("OBJCTCFG", wadnum, lump);
 		if (lump == INT16_MAX)
 			break;
-		CONS_Printf(M_GetText("Loading object config from %s\n"), wadfiles[wadnum]->filename);
+		CONS_Printf("Loading object config from %s\n", wadfiles[wadnum]->filename);
 		DEH_LoadDehackedLumpPwad(wadnum, lump);
 	}
 }
@@ -189,27 +168,23 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 	if ((fhandle = fopen(filename, "rb")) != NULL)
 	{
 		tic_t t = I_GetTime();
-		DEBPRINT(va("Making MD5 for %s\n",filename));
+#ifndef _arch_dreamcast
+		if (devparm)
+#endif
+		CONS_Printf("Making MD5 for %s\n",filename);
 		if (md5_stream(fhandle, resblock) == 1)
-		{
-			fclose(fhandle);
 			return 1;
-		}
-		DEBPRINT(va("MD5 calc for %s took %f seconds\n",
-			filename, (float)(I_GetTime() - t)/TICRATE));
+#ifndef _arch_dreamcast
+		if (devparm)
+#endif
+		CONS_Printf("MD5 calc for %s took %f seconds\n",
+			filename, (float)(I_GetTime() - t)/TICRATE);
 		fclose(fhandle);
 		return 0;
 	}
 #endif
 	return 1;
 }
-
-// Invalidates the cache of lump numbers. Call this whenever a wad is added.
-static void W_InvalidateLumpnumCache(void)
-{
-	memset(lumpnumcache, 0, sizeof (lumpnumcache));
-}
-
 
 //  Allocate a wadfile, setup the lumpinfo (directory) and
 //  lumpcache, add the wadfile to the current active wadfiles
@@ -229,6 +204,9 @@ UINT16 W_LoadWadFile(const char *filename)
 	wadfile_t *wadfile;
 	UINT32 numlumps;
 	size_t i;
+#ifdef HWRENDER
+	GLPatch_t *grPatch;
+#endif
 	INT32 compressed = 0;
 	size_t packetsize = 0;
 	serverinfo_pak *dummycheck = NULL;
@@ -236,13 +214,13 @@ UINT16 W_LoadWadFile(const char *filename)
 	// Shut the compiler up.
 	(void)dummycheck;
 
-	//DEBPRINT(va("Loading %s\n", filename));
+	//CONS_Printf("Loading %s\n", filename);
 	//
 	// check if limit of active wadfiles
 	//
 	if (numwadfiles >= MAX_WADFILES)
 	{
-		CONS_Printf("%s", M_GetText("Maximum wad files reached\n"));
+		CONS_Printf("Maximum wad files reached\n");
 		return INT16_MAX;
 	}
 
@@ -263,13 +241,13 @@ UINT16 W_LoadWadFile(const char *filename)
 		{
 			if ((handle = fopen(filename, "rb")) == NULL)
 			{
-				CONS_Printf(M_GetText("Can't open %s\n"), filename);
+				CONS_Printf("Can't open %s\n", filename);
 				return INT16_MAX;
 			}
 		}
 		else
 		{
-			CONS_Printf(M_GetText("File %s not found.\n"), filename);
+			CONS_Printf("File %s not found.\n", filename);
 			return INT16_MAX;
 		}
 	}
@@ -287,7 +265,7 @@ UINT16 W_LoadWadFile(const char *filename)
 
 	if (packetsize > sizeof(dummycheck->fileneeded))
 	{
-		CONS_Printf("%s", M_GetText("Maximum wad files reached\n"));
+		CONS_Printf("Maximum wad files reached\n");
 		if (handle)
 			fclose(handle);
 		return INT16_MAX;
@@ -318,7 +296,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		// read the header
 		if (fread(&header, 1, sizeof header, handle) < sizeof header)
 		{
-			CONS_Printf(M_GetText("Can't read wad header from %s because %s\n"), filename, strerror(ferror(handle)));
+			CONS_Printf("Can't read wad header from %s because %s\n", filename, strerror(ferror(handle)));
 			return INT16_MAX;
 		}
 
@@ -328,7 +306,7 @@ UINT16 W_LoadWadFile(const char *filename)
 			&& memcmp(header.identification, "PWAD", 4) != 0
 			&& memcmp(header.identification, "SDLL", 4) != 0)
 		{
-			CONS_Printf(M_GetText("%s doesn't have IWAD or PWAD id\n"), filename);
+			CONS_Printf("%s doesn't have IWAD or PWAD id\n", filename);
 			return INT16_MAX;
 		}
 
@@ -341,7 +319,7 @@ UINT16 W_LoadWadFile(const char *filename)
 		if (fseek(handle, header.infotableofs, SEEK_SET) == -1
 			|| fread(fileinfo, 1, i, handle) < i)
 		{
-			CONS_Printf(M_GetText("%s wadfile directory is corrupt; maybe %s\n"), filename, strerror(ferror(handle)));
+			CONS_Printf("%s wadfile directory is corrupt; maybe %s\n", filename, strerror(ferror(handle)));
 			free(fileinfov);
 			return INT16_MAX;
 		}
@@ -407,24 +385,28 @@ UINT16 W_LoadWadFile(const char *filename)
 	Z_Calloc(numlumps * sizeof (*wadfile->lumpcache), PU_STATIC, &wadfile->lumpcache);
 
 #ifdef HWRENDER
-	// allocates GLPatch info structures and store them in a tree
-	wadfile->hwrcache = M_AATreeAlloc(AATREE_ZUSER);
+	// allocates GLPatch info structures STATIC from the start,
+	// because these were causing a lot of fragmentation of the heap,
+	// considering they are never freed.
+	grPatch = Z_Calloc(numlumps * sizeof (*grPatch), PU_HWRPATCHINFO, &(wadfile->hwrcache)); // never freed
+	for (i = 0; i < numlumps; i++)
+	{
+		// store the software patch lump number for each GLPatch
+		grPatch[i].patchlump = (numwadfiles<<16) + (UINT16)i;
+	}
 #endif
 
 	//
 	// add the wadfile
 	//
-	CONS_Printf(M_GetText("Added file %s (%u lumps)\n"), filename, numlumps);
+	CONS_Printf("Added file %s (%u lumps)\n", filename, numlumps);
 	wadfiles[numwadfiles] = wadfile;
 	W_LoadDehackedLumps(numwadfiles);
-
-	W_InvalidateLumpnumCache();
 
 	numwadfiles++;
 	return wadfile->numlumps;
 }
 
-#ifdef DELFILE
 void W_UnloadWadFile(UINT16 num)
 {
 	INT32 i;
@@ -432,11 +414,11 @@ void W_UnloadWadFile(UINT16 num)
 	lumpcache_t *lumpcache;
 	if (num == 0)
 	{
-		CONS_Printf(M_GetText("You can't remove the IWAD %s!\n"), wadfiles[0]->filename);
+		CONS_Printf("You can't remove the IWAD %s!\n", wadfiles[0]->filename);
 		return;
 	}
 	else
-		CONS_Printf(M_GetText("Removing WAD %s...\n"), wadfiles[num]->filename);
+		CONS_Printf("Removing WAD %s...\n", wadfiles[num]->filename);
 
 	DEH_UnloadDehackedWad(num);
 	wadfiles[num] = NULL;
@@ -445,7 +427,7 @@ void W_UnloadWadFile(UINT16 num)
 #ifdef HWRENDER
 	if (rendermode != render_soft && rendermode != render_none)
 		HWR_FreeTextureCache();
-	M_AATreeFree(delwad->hwrcache);
+	Z_Free(delwad->hwrcache);
 #endif
 	if (*lumpcache)
 	{
@@ -456,9 +438,8 @@ void W_UnloadWadFile(UINT16 num)
 	fclose(delwad->handle);
 	Z_Free(delwad->filename);
 	Z_Free(delwad);
-	CONS_Printf("%s", M_GetText(" done unloading WAD\n"));
+	CONS_Printf(" done unloading WAD\n");
 }
-#endif
 
 /** Tries to load a series of files.
   * All files are wads unless they have an extension of ".soc".
@@ -481,7 +462,7 @@ INT32 W_InitMultipleFiles(char **filenames)
 	// will be realloced as lumps are added
 	for (; *filenames; filenames++)
 	{
-		//DEBPRINT(va("Loading %s\n", *filenames));
+		//CONS_Printf("Loading %s\n", *filenames);
 		rc &= (W_LoadWadFile(*filenames) != INT16_MAX) ? 1 : 0;
 	}
 
@@ -569,17 +550,6 @@ lumpnum_t W_CheckNumForName(const char *name)
 	INT32 i;
 	lumpnum_t check = INT16_MAX;
 
-	// Check the lumpnumcache first. Loop backwards so that we check
-	// most recent entries first
-	for (i = lumpnumcacheindex + LUMPNUMCACHESIZE; i > lumpnumcacheindex; i--)
-	{
-		if (strncmp(lumpnumcache[i & (LUMPNUMCACHESIZE - 1)].lumpname, name, 8) == 0)
-		{
-			lumpnumcacheindex = i & (LUMPNUMCACHESIZE - 1);
-			return lumpnumcache[lumpnumcacheindex].lumpnum;
-		}
-	}
-
 	// scan wad files backwards so patch lump files take precedence
 	for (i = numwadfiles - 1; i >= 0; i--)
 	{
@@ -587,17 +557,8 @@ lumpnum_t W_CheckNumForName(const char *name)
 		if (check != INT16_MAX)
 			break; //found it
 	}
-
 	if (check == INT16_MAX) return LUMPERROR;
-	else
-	{
-		// Update the cache.
-		lumpnumcacheindex = (lumpnumcacheindex + 1) & (LUMPNUMCACHESIZE - 1);
-		strncpy(lumpnumcache[lumpnumcacheindex].lumpname, name, 8);
-		lumpnumcache[lumpnumcacheindex].lumpnum = MAKEWADLUMPNUM(i, check);
-
-		return lumpnumcache[lumpnumcacheindex].lumpnum;
-	}
+	else return (i<<16)+check;
 }
 
 //
@@ -683,7 +644,7 @@ static void *W_ReadCompressedLump(UINT16 wad, UINT16 lump)
 	if (retval == 0 && errno == E2BIG)
 	{
 		I_Error("wad %d, lump %d: compressed data too big "
-			"(bigger than %s)", wad, lump, sizeu1(l->size));
+			"(bigger than %"PRIdS")", wad, lump, l->size);
 	}
 	else if (retval == 0 && errno == EINVAL)
 		I_Error("wad %d, lump %d: invalid compressed data", wad, lump);
@@ -692,8 +653,8 @@ static void *W_ReadCompressedLump(UINT16 wad, UINT16 lump)
 	if (retval != l->size)
 	{
 		I_Error("wad %d, lump %d: decompressed to wrong number of "
-			"bytes (expected %s, got %s)", wad, lump,
-			sizeu1(l->size), sizeu2(retval));
+			"bytes (expected %"PRIdS", got %"PRIdS")", wad, lump,
+			l->size, retval);
 	}
 	Z_Free(compressed);
 	return data;
@@ -883,7 +844,7 @@ static inline void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 	if (!TestValidLump(wad, lump))
 		return NULL;
 
-	grPatch = HWR_GetCachedGLPatchPwad(wad, lump);
+	grPatch = &(wadfiles[wad]->hwrcache[lump]);
 
 	if (grPatch->mipmap.grInfo.data)
 	{
@@ -893,14 +854,12 @@ static inline void *W_CachePatchNumPwad(UINT16 wad, UINT16 lump, INT32 tag)
 	}
 	else
 	{
-		patch_t *ptr = NULL;
-
-		// Only load the patch if we haven't initialised the grPatch yet
-		if (grPatch->mipmap.width == 0)
-			ptr = W_CacheLumpNumPwad(grPatch->wadnum, grPatch->lumpnum, PU_STATIC);
-
-		// Run HWR_MakePatch in all cases, to recalculate some things
-		HWR_MakePatch(ptr, grPatch, &grPatch->mipmap, false);
+		// first time init grPatch fields
+		// we need patch w,h,offset,...
+		// this code will be executed latter in GetPatch, anyway
+		// do it now
+		patch_t *ptr = W_CacheLumpNum(grPatch->patchlump, PU_STATIC);
+		HWR_MakePatch(ptr, grPatch, &grPatch->mipmap);
 		Z_Free(ptr);
 	}
 
@@ -914,18 +873,6 @@ void *W_CachePatchNum(lumpnum_t lumpnum, INT32 tag)
 }
 
 #endif // HWRENDER
-
-void W_UnlockCachedPatch(void *patch)
-{
-	// The hardware code does its own memory management, as its patches
-	// have different lifetimes from software's.
-#ifdef HWRENDER
-	if (rendermode != render_soft && rendermode != render_none)
-		HWR_UnlockCachedPatch((GLPatch_t*)patch);
-	else
-#endif
-		Z_Unlock(patch);
-}
 
 void *W_CachePatchName(const char *name, INT32 tag)
 {
@@ -1005,7 +952,10 @@ void W_VerifyFileMD5(UINT16 wadfilenum, const char *matchmd5)
 #else
 		I_Error
 #endif
-			(M_GetText("File is corrupt or has been modified: %s (found md5: %s, wanted: %s)\n"), wadfiles[wadfilenum]->filename, actualmd5text, matchmd5);
+			("File is corrupt or has been modified: %s "
+			"(found md5: %s, wanted: %s)\n",
+			wadfiles[wadfilenum]->filename,
+			actualmd5text, matchmd5);
 	}
 #endif
 }

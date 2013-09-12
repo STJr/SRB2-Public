@@ -39,6 +39,14 @@
 #include "m_argv.h"
 #include "i_system.h"
 
+#ifdef _WIN32_WCE
+#include "sdl/SRB2CE/cehelp.h"
+#endif
+
+#ifdef _XBOX
+#include "sdl/SRB2XBOX/xboxhelp.h"
+#endif
+
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
 #endif
@@ -47,21 +55,11 @@
 #include "sdl/hwsym_sdl.h"
 #endif
 
-#if defined (_WIN32)
-#define PRIdS "Iu"
-#elif defined (_PSP) || defined (_arch_dreamcast) || defined (DJGPP) || defined (_WII) || defined (_NDS) || defined (_PS3)
-#define PRIdS "u"
-#else
-#define PRIdS "zu"
-#endif
-
 #ifdef HAVE_PNG
 
 #ifndef _MSC_VER
-#ifndef _WII
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
-#endif
 #endif
 #endif
 
@@ -74,9 +72,6 @@
 #endif
 
  #include "png.h"
- #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
-  #define NO_PNG_DEBUG // 1.4.0 move png_debug to pngpriv.h
- #endif
  #ifdef PNG_WRITE_SUPPORTED
   #define USE_PNG // Only actually use PNG if write is supported.
   #if defined (PNG_WRITE_APNG_SUPPORTED) //|| !defined(PNG_STATIC)
@@ -137,7 +132,6 @@ consvar_t cv_zlib_window_bitsa = {"apng_z_window_bits", "Default", CV_SAVE, zlib
 
 consvar_t cv_apng_disable = {"apng_disable", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-boolean takescreenshot = false; // Take a screenshot this tic
 boolean moviemode = false; // disable screenshot message in Movie mode
 
 /** Returns the map number for a map identified by the last two characters in
@@ -169,30 +163,6 @@ INT32 M_MapNumber(char first, char second)
 // ==========================================================================
 //                         FILE INPUT / OUTPUT
 // ==========================================================================
-
-// some libcs has no access function, make our own
-#if defined (_WIN32_WCE) || defined (_XBOX) || defined (_WII) || defined (_PS3)
-int access(const char *path, int amode)
-{
-	int accesshandle = -1;
-	FILE *handle = NULL;
-	if (amode == 6) // W_OK|R_OK
-		handle = fopen(path, "r+");
-	else if (amode == 4) // R_OK
-		handle = fopen(path, "r");
-	else if (amode == 2) // W_OK
-		handle = fopen(path, "a+");
-	else if (amode == 0) //F_OK
-		handle = fopen(path, "rb");
-	if (handle)
-	{
-		accesshandle = 0;
-		fclose(handle);
-	}
-	return accesshandle;
-}
-#endif
-
 
 //
 // FIL_WriteFile
@@ -276,7 +246,7 @@ size_t FIL_ReadFile(char const *name, UINT8 **buffer)
   */
 boolean FIL_FileExists(char const *name)
 {
-	return access(name,0)+1; //F_OK
+	return access(name,0)+1;
 }
 
 
@@ -287,7 +257,7 @@ boolean FIL_FileExists(char const *name)
   */
 boolean FIL_WriteFileOK(char const *name)
 {
-	return access(name,2)+1; //W_OK
+	return access(name,2)+1;
 }
 
 
@@ -298,7 +268,7 @@ boolean FIL_WriteFileOK(char const *name)
   */
 boolean FIL_ReadFileOK(char const *name)
 {
-	return access(name,4)+1; //R_OK
+	return access(name,4)+1;
 }
 
 /** Check if the filename OK to read/write
@@ -308,7 +278,7 @@ boolean FIL_ReadFileOK(char const *name)
   */
 boolean FIL_FileOK(char const *name)
 {
-	return access(name,6)+1; //R_OK|W_OK
+	return access(name,6)+1;
 }
 
 
@@ -395,7 +365,7 @@ void Command_SaveConfig_f(void)
 
 	if (COM_Argc() < 2)
 	{
-		CONS_Printf("%s", M_GetText("saveconfig <filename[.cfg]> [-silent] : save config to a file\n"));
+		CONS_Printf("saveconfig <filename[.cfg]> [-silent] : save config to a file\n");
 		return;
 	}
 	strcpy(tmpstr, COM_Argv(1));
@@ -403,7 +373,7 @@ void Command_SaveConfig_f(void)
 
 	M_SaveConfig(tmpstr);
 	if (stricmp(COM_Argv(2), "-silent"))
-		CONS_Printf(M_GetText("config saved as %s\n"), configfile);
+		CONS_Printf("config saved as %s\n", configfile);
 }
 
 /** Loads a game config, possibly from a particular file.
@@ -414,7 +384,7 @@ void Command_LoadConfig_f(void)
 {
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("loadconfig <filename[.cfg]> : load config from a file\n"));
+		CONS_Printf("loadconfig <filename[.cfg]> : load config from a file\n");
 		return;
 	}
 
@@ -431,7 +401,7 @@ void Command_ChangeConfig_f(void)
 {
 	if (COM_Argc() != 2)
 	{
-		CONS_Printf("%s", M_GetText("changeconfig <filename[.cfg]> : save current config and load another\n"));
+		CONS_Printf("changeconfig <filename[.cfg]> : save current config and load another\n");
 		return;
 	}
 
@@ -451,7 +421,7 @@ void M_FirstLoadConfig(void)
 	if (M_CheckParm("-config") && M_IsNextParm())
 	{
 		strcpy(configfile, M_GetNextParm());
-		CONS_Printf(M_GetText("config file: %s\n"), configfile);
+		CONS_Printf("config file: %s\n",configfile);
 	}
 
 	// load default control
@@ -484,7 +454,7 @@ void M_SaveConfig(const char *filename)
 	{
 		if (!strstr(filename, ".cfg"))
 		{
-			CONS_Printf("%s", M_GetText("Config filename must be .cfg\n"));
+			CONS_Printf("M_SaveConfig(): filename is not .cfg\n");
 			return;
 		}
 
@@ -494,7 +464,7 @@ void M_SaveConfig(const char *filename)
 			strcpy(configfile, filename);
 		else
 		{
-			CONS_Printf(M_GetText("Couldn't save game config file %s\n"), filename);
+			CONS_Printf("Couldn't save game config file %s\n", filename);
 			return;
 		}
 	}
@@ -502,14 +472,14 @@ void M_SaveConfig(const char *filename)
 	{
 		if (!strstr(configfile, ".cfg"))
 		{
-			CONS_Printf("%s", M_GetText("Config filename must be .cfg\n"));
+			CONS_Printf("M_SaveConfig(): filename is not .cfg\n");
 			return;
 		}
 
 		f = fopen(configfile, "w");
 		if (!f)
 		{
-			CONS_Printf(M_GetText("Couldn't save game config file %s\n"), configfile);
+			CONS_Printf("Couldn't save game config file %s\n", configfile);
 			return;
 		}
 	}
@@ -584,13 +554,13 @@ static const char *Newsnapshotfile(const char *pathname, const char *ext)
 #ifdef HAVE_PNG
 FUNCNORETURN static void PNG_error(png_structp PNG, png_const_charp pngtext)
 {
-	//DEBPRINT(va("libpng error at %p: %s", PNG, pngtext));
+	//CONS_Printf("libpng error at %p: %s", PNG, pngtext);
 	I_Error("libpng error at %p: %s", PNG, pngtext);
 }
 
 static void PNG_warn(png_structp PNG, png_const_charp pngtext)
 {
-	DEBPRINT(va("libpng warning at %p: %s", PNG, pngtext));
+	CONS_Printf("libpng warning at %p: %s", PNG, pngtext);
 }
 
 static void M_PNGhdr(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_uint_32 width, PNG_CONST png_uint_32 height, PNG_CONST png_byte *palette)
@@ -627,11 +597,9 @@ static void M_PNGhdr(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_
 static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png_byte movie)
 {
 #ifdef PNG_TEXT_SUPPORTED
-#define SRB2PNGTXT 11 //PNG_KEYWORD_MAX_LENGTH(79) is the max
+#define SRB2PNGTXT 8
 	png_text png_infotext[SRB2PNGTXT];
-	char keytxt[SRB2PNGTXT][12] = {
-	"Title", "Author", "Description", "Playername", "Mapnum", "Mapname",
-	"Location", "Interface", "Revision", "Build Date", "Build Time"};
+	char keytxt[SRB2PNGTXT][12] = {"Title", "Author", "Description", "Playername", "Mapnum", "Mapname", "Location", "Interface"}; //PNG_KEYWORD_MAX_LENGTH(79) is the max
 	char titletxt[] = "Sonic Robo Blast 2"VERSIONSTRING;
 	png_charp authortxt = I_GetUserName();
 	png_charp playertxt =  cv_playername.zstring;
@@ -651,20 +619,17 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	char maptext[8];
 	char lvlttltext[48];
 	char locationtxt[40];
-	char ctrevision[40];
-	char ctdate[40];
-	char cttime[40];
 
 	if (gamestate == GS_LEVEL)
 		snprintf(maptext, 8, "%s", G_BuildMapName(gamemap));
 	else
 		snprintf(maptext, 8, "Unknown");
 
-	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1]->lvlttl)
+	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1].lvlttl)
 		snprintf(lvlttltext, 48, "%s%s%s",
-			mapheaderinfo[gamemap-1]->lvlttl,
-			(mapheaderinfo[gamemap-1]->nozone) ? "" : " ZONE",
-			(mapheaderinfo[gamemap-1]->actnum > 0) ? va(" %d",mapheaderinfo[gamemap-1]->actnum) : "");
+			mapheaderinfo[gamemap-1].lvlttl,
+			(mapheaderinfo[gamemap-1].nozone) ? "" : " ZONE",
+			(mapheaderinfo[gamemap-1].actnum > 0) ? va(" %d",mapheaderinfo[gamemap-1].actnum) : "");
 	else
 		snprintf(lvlttltext, 48, "Unknown");
 
@@ -693,9 +658,6 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	png_infotext[5].text = lvlttltext;
 	png_infotext[6].text = locationtxt;
 	png_infotext[7].text = interfacetxt;
-	png_infotext[8].text = strncpy(ctrevision, comprevision, sizeof(ctrevision)-1);
-	png_infotext[9].text = strncpy(ctdate, compdate, sizeof(ctdate)-1);
-	png_infotext[10].text = strncpy(cttime, comptime, sizeof(cttime)-1);
 
 	png_set_text(png_ptr, png_info_ptr, png_infotext, SRB2PNGTXT);
 #undef SRB2PNGTXT
@@ -863,6 +825,7 @@ static void M_PNGFrame(png_structp png_ptr, png_infop png_info_ptr, png_bytep pn
 static inline boolean M_PNGfind_acTL(void)
 {
 	png_byte cn[8]; // 4 bytes for len then 4 byes for name
+	long curpos = 0; // then , [0-2^31] bytes for data, then 4 bytes for CRC
 	long endpos = ftell(apng_FILE); // not the real end of file, just what of libpng wrote
 	for (fseek(apng_FILE, 0, SEEK_SET); // let go to the start of the file
 	     ftell(apng_FILE)+12 < endpos;  // let not go over the file bound
@@ -873,6 +836,7 @@ static inline boolean M_PNGfind_acTL(void)
 			return false; // failed to read data
 		if (fseek(apng_FILE, -8, SEEK_CUR) != 0) //rewind 8 bytes
 			return false; // failed to rewird
+		curpos = ftell(apng_FILE);
 		if (!png_memcmp(cn+4, acTL_cn, 4)) //cmp for chuck header
 			return true; // found it
 	}
@@ -889,9 +853,7 @@ static void M_PNGfix_acTL(png_structp png_ptr, png_infop png_info_ptr)
 #endif
 		apng_set_acTL(png_ptr, png_info_ptr, apng_frames, 0);
 
-#ifndef NO_PNG_DEBUG
 	png_debug(1, "in png_write_acTL\n");
-#endif
 
 	png_ptr->num_frames_to_write = apng_frames;
 
@@ -914,7 +876,8 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	apng_FILE = fopen(filename,"wb+"); // + mode for reading
 	if (!apng_FILE)
 	{
-		DEBPRINT(va("M_StartMovie: Error on opening %s for write\n", filename));
+		CONS_Printf("M_StartMovie: Error on opening %s for write\n",
+		            filename);
 		return false;
 	}
 
@@ -922,7 +885,7 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	 PNG_error, PNG_warn);
 	if (!apng_ptr)
 	{
-		DEBPRINT("M_StartMovie: Error on initialize libpng\n");
+		CONS_Printf("M_StartMovie: Error on initialize libpng\n");
 		fclose(apng_FILE);
 		remove(filename);
 		return false;
@@ -931,7 +894,7 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	apng_info_ptr = png_create_info_struct(apng_ptr);
 	if (!apng_info_ptr)
 	{
-		DEBPRINT("M_StartMovie: Error on allocate for libpng\n");
+		CONS_Printf("M_StartMovie: Error on allocate for libpng\n");
 		png_destroy_write_struct(&apng_ptr,  NULL);
 		fclose(apng_FILE);
 		remove(filename);
@@ -1007,13 +970,9 @@ failure:
 	if (!ret)
 	{
 		if (freename)
-		{
-			DEBPRINT(va("Couldn't create aPNG file %s in %s\n", freename, pathname));
-		}
+			CONS_Printf("Couldn't create aPNG file %s in %s\n", freename, pathname);
 		else
-		{
-			DEBPRINT(va("Couldn't create aPNG file (all 10000 slots used!) in %s\n", pathname));
-		}
+			CONS_Printf("Couldn't create aPNG file (all 10000 slots used!) in %s\n", pathname);
 	}
 	return ret;
 #else
@@ -1051,7 +1010,7 @@ void M_SaveFrame(void)
 	if (apng_frames == PNG_UINT_31_MAX)
 	{
 		M_StopMovie();
-		CONS_Printf("%s", M_GetText("Recording into next new file\n"));
+		CONS_Printf("recording into next new file\n");
 		M_StartMovie();
 	}
 #else
@@ -1112,7 +1071,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	png_FILE = fopen(filename,"wb");
 	if (!png_FILE)
 	{
-		DEBPRINT(va("M_SavePNG: Error on opening %s for write\n", filename));
+		CONS_Printf("M_SavePNG: Error on opening %s for write\n", filename);
 		return false;
 	}
 
@@ -1120,7 +1079,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	 PNG_error, PNG_warn);
 	if (!png_ptr)
 	{
-		DEBPRINT("M_SavePNG: Error on initialize libpng\n");
+		CONS_Printf("M_SavePNG: Error on initialize libpng\n");
 		fclose(png_FILE);
 		remove(filename);
 		return false;
@@ -1129,7 +1088,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	png_info_ptr = png_create_info_struct(png_ptr);
 	if (!png_info_ptr)
 	{
-		DEBPRINT("M_SavePNG: Error on allocate for libpng\n");
+		CONS_Printf("M_SavePNG: Error on allocate for libpng\n");
 		png_destroy_write_struct(&png_ptr,  NULL);
 		fclose(png_FILE);
 		remove(filename);
@@ -1142,7 +1101,7 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 	if (setjmp(png_jmpbuf(png_ptr)))
 #endif
 	{
-		//DEBPRINT(va("libpng write error on %s\n", filename));
+		//CONS_Printf("libpng write error on %s\n", filename);
 		png_destroy_write_struct(&png_ptr, &png_info_ptr);
 		fclose(png_FILE);
 		remove(filename);
@@ -1269,11 +1228,6 @@ static boolean WritePCXfile(const char *filename, const UINT8 *data, int width, 
 #endif
 #endif
 
-void M_ScreenShot(void)
-{
-	takescreenshot = true;
-}
-
 /** Takes a screenshot.
   * The screenshot is saved as "srb2xxxx.pcx" (or "srb2xxxx.tga" in hardware
   * rendermode) where xxxx is the lowest four-digit number for which a file
@@ -1281,15 +1235,12 @@ void M_ScreenShot(void)
   *
   * \sa HWR_ScreenShot
   */
-void M_DoScreenShot(void)
+void M_ScreenShot(void)
 {
 #if NUMSCREENS > 2
 	const char *freename = NULL, *pathname = ".";
 	boolean ret = false;
 	UINT8 *linear = NULL;
-
-	// Don't take multiple screenshots, obviously
-	takescreenshot = false;
 
 	if (cv_screenshot_option.value == 0)
 		pathname = usehome ? srb2home : srb2path;
@@ -1343,61 +1294,17 @@ failure:
 	if (ret)
 	{
 		if (!moviemode)
-			CONS_Printf(M_GetText("screen shot %s saved in %s\n"), freename, pathname);
+			CONS_Printf("screen shot %s saved in %s\n", freename, pathname);
 	}
 	else
 	{
 		if (freename)
-			CONS_Printf(M_GetText("Couldn't create screen shot %s in %s\n"), freename, pathname);
+			CONS_Printf("Couldn't create screen shot %s in %s\n", freename, pathname);
 		else
-			CONS_Printf(M_GetText("Couldn't create screen shot (all 10000 slots used!) in %s\n"), pathname);
+			CONS_Printf("Couldn't create screen shot (all 10000 slots used!) in %s\n", pathname);
 	}
 #endif
 }
-
-// ==========================================================================
-//                       TRANSLATION FUNCTIONS
-// ==========================================================================
-
-// M_StartupLocale.
-// Sets up gettext to translate SRB2's strings.
-#ifdef GETTEXT
-#if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#define GETTEXTDOMAIN1 "/usr/share/locale"
-#define GETTEXTDOMAIN2 "/usr/local/share/locale"
-#elif defined (_WIN32)
-#define GETTEXTDOMAIN1 "."
-#endif
-
-void M_StartupLocale(void)
-{
-	char *textdomhandle = NULL;
-
-	CONS_Printf("M_StartupLocale...\n");
-
-	setlocale(LC_ALL, "");
-	// FIXME: global name define anywhere?
-#ifdef GETTEXTDOMAIN1
-	textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN1);
-#endif
-#ifdef GETTEXTDOMAIN2
-	if (!textdomhandle)
-		textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN2);
-#endif
-#ifdef GETTEXTDOMAIN3
-	if (!textdomhandle)
-		textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN3);
-#endif
-#ifdef GETTEXTDOMAIN4
-	if (!textdomhandle)
-		textdomhandle = bindtextdomain("srb2", GETTEXTDOMAIN4);
-#endif
-	if (textdomhandle)
-		textdomain("srb2");
-	else
-		CONS_Printf("Could not find locale text domain!\n");
-}
-#endif
 
 // ==========================================================================
 //                        MISC STRING FUNCTIONS
@@ -1438,47 +1345,6 @@ void strcatbf(char *s1, const char *s2, const char *s3)
 	strcpy(s1, s2);
 	strcat(s1, s3);
 	strcat(s1, tmp);
-}
-
-/** Set of functions to take in a size_t as an argument,
-  * put the argument in a character buffer, and return the
-  * pointer to that buffer.
-  * This is to eliminate usage of PRIdS, so gettext can work
-  * with *all* of SRB2's strings.
-  */
-char *sizeu1(size_t num)
-{
-	static char sizeu1_buf[28];
-	sprintf(sizeu1_buf, "%"PRIdS, num);
-	return sizeu1_buf;
-}
-
-char *sizeu2(size_t num)
-{
-	static char sizeu2_buf[28];
-	sprintf(sizeu2_buf, "%"PRIdS, num);
-	return sizeu2_buf;
-}
-
-char *sizeu3(size_t num)
-{
-	static char sizeu3_buf[28];
-	sprintf(sizeu3_buf, "%"PRIdS, num);
-	return sizeu3_buf;
-}
-
-char *sizeu4(size_t num)
-{
-	static char sizeu4_buf[28];
-	sprintf(sizeu4_buf, "%"PRIdS, num);
-	return sizeu4_buf;
-}
-
-char *sizeu5(size_t num)
-{
-	static char sizeu5_buf[28];
-	sprintf(sizeu5_buf, "%"PRIdS, num);
-	return sizeu5_buf;
 }
 
 #if defined (__GNUC__) && defined (__i386__) // from libkwave, under GPL
@@ -1758,15 +1624,15 @@ static FUNCTARGET("mmx") void *mmx1_cpy(void *dest, const void *src, size_t n) /
 // Alam: why? memcpy may be __cdecl/_System and our code may be not the same type
 static void *cpu_cpy(void *dest, const void *src, size_t n)
 {
-	if (src == NULL)
+	if(src == NULL)
 	{
-		DEBPRINT(va("Memcpy from 0x0?!: %p %p %s\n", dest, src, sizeu1(n)));
+		I_OutputMsg("Memcpy from 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
 		return dest;
 	}
 
 	if(dest == NULL)
 	{
-		DEBPRINT(va("Memcpy to 0x0?!: %p %p %s\n", dest, src, sizeu1(n)));
+		I_OutputMsg("Memcpy to 0x0?!: %p %p %"PRIdS"\n", dest, src, n);
 		return dest;
 	}
 
@@ -1903,159 +1769,4 @@ void M_SetupMemcpy(void)
 #if 0
 	M_Memcpy = cpu_cpy;
 #endif
-}
-
-
-// A partial implementation of AA trees,
-// according to the algorithms given on Wikipedia.
-// http://en.wikipedia.org/wiki/AA_tree
-
-
-
-typedef struct aatree_node_s
-{
-	INT32	level;
-	INT32	key;
-	void*	value;
-
-	struct aatree_node_s *left, *right;
-} aatree_node_t;
-
-struct aatree_s
-{
-	aatree_node_t	*root;
-	UINT32		flags;
-};
-
-aatree_t *M_AATreeAlloc(UINT32 flags)
-{
-	aatree_t *aatree = Z_Malloc(sizeof (aatree_t), PU_STATIC, NULL);
-	aatree->root = NULL;
-	aatree->flags = flags;
-	return aatree;
-}
-
-static void M_AATreeFree_Node(aatree_node_t *node)
-{
-	if (node->left) M_AATreeFree_Node(node->left);
-	if (node->right) M_AATreeFree_Node(node->right);
-	Z_Free(node);
-}
-
-void M_AATreeFree(aatree_t *aatree)
-{
-	if (aatree->root)
-		M_AATreeFree_Node(aatree->root);
-
-	Z_Free(aatree);
-}
-
-static aatree_node_t *M_AATreeSkew(aatree_node_t *node)
-{
-	if (node && node->left && node->left->level == node->level)
-	{
-		// Not allowed: horizontal left-link. Reverse the
-		// horizontal link and hook the orphan back in.
-		aatree_node_t *oldleft = node->left;
-		node->left = oldleft->right;
-		oldleft->right = node;
-
-		return oldleft;
-	}
-
-	// No change needed.
-	return node;
-}
-
-static aatree_node_t *M_AATreeSplit(aatree_node_t *node)
-{
-	if (node && node->right && node->right->right && node->level == node->right->right->level)
-	{
-		// Not allowed: two consecutive horizontal right-links.
-		// The middle one becomes the new root at this point,
-		// with suitable adjustments below.
-
-		aatree_node_t *oldright = node->right;
-		node->right = oldright->left;
-		oldright->left = node;
-		oldright->level++;
-
-		return oldright;
-	}
-
-	// No change needed.
-	return node;
-}
-
-static aatree_node_t *M_AATreeSet_Node(aatree_node_t *node, UINT32 flags, INT32 key, void* value)
-{
-	if (!node)
-	{
-		// Nothing here, so just add where we are
-
-		node = Z_Malloc(sizeof (aatree_node_t), PU_STATIC, NULL);
-		node->level = 1;
-		node->key = key;
-		if (value && (flags & AATREE_ZUSER)) Z_SetUser(value, &node->value);
-		else node->value = value;
-		node->left = node->right = NULL;
-	}
-	else
-	{
-		if (key < node->key)
-			node->left = M_AATreeSet_Node(node->left, flags, key, value);
-		else if (key > node->key)
-			node->right = M_AATreeSet_Node(node->right, flags, key, value);
-		else
-		{
-			if (value && (flags & AATREE_ZUSER)) Z_SetUser(value, &node->value);
-			else node->value = value;
-		}
-
-		node = M_AATreeSkew(node);
-		node = M_AATreeSplit(node);
-	}
-
-	return node;
-}
-
-void M_AATreeSet(aatree_t *aatree, INT32 key, void* value)
-{
-	aatree->root = M_AATreeSet_Node(aatree->root, aatree->flags, key, value);
-}
-
-// Caveat: we don't distinguish between nodes that don't exists
-// and nodes with value == NULL.
-static void *M_AATreeGet_Node(aatree_node_t *node, INT32 key)
-{
-	if (node)
-	{
-		if (node->key == key)
-			return node->value;
-		else if(node->key < key)
-			return M_AATreeGet_Node(node->right, key);
-		else
-			return M_AATreeGet_Node(node->left, key);
-	}
-
-	return NULL;
-}
-
-void *M_AATreeGet(aatree_t *aatree, INT32 key)
-{
-	return M_AATreeGet_Node(aatree->root, key);
-}
-
-
-static void M_AATreeIterate_Node(aatree_node_t *node, aatree_iter_t callback)
-{
-	if (node->left) M_AATreeIterate_Node(node->left, callback);
-	callback(node->key, node->value);
-	if (node->right) M_AATreeIterate_Node(node->right, callback);
-}
-
-void M_AATreeIterate(aatree_t *aatree, aatree_iter_t callback)
-{
-	if (aatree->root)
-		M_AATreeIterate_Node(aatree->root, callback);
 }
