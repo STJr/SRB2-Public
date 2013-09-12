@@ -102,7 +102,7 @@ FUNCINLINE static ATTRINLINE int GetResult1 (Uint32 A, Uint32 B, Uint32 C, Uint3
   int x = 0;
   int y = 0;
   int r = 0;
-  E = 0;
+  (void)E;
 
   if (A == C)
 	x += 1;
@@ -124,7 +124,7 @@ FUNCINLINE static ATTRINLINE int GetResult2 (Uint32 A, Uint32 B, Uint32 C, Uint3
   int x = 0;
   int y = 0;
   int r = 0;
-  E = 0;
+  (void)E;
 
   if (A == C)
 	  x += 1;

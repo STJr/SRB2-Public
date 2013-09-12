@@ -59,8 +59,12 @@
 #     To Cross-Compile, CC=gcc-version make * PREFIX=<dir>
 #     Compile with GCC 2.97 version, add 'GCC29=1'
 #     Compile with GCC 4.0x version, add 'GCC40=1'
-#     Compile with GCC 4.1x version, add 'GCC41=1' (and GCC 4.2)
+#     Compile with GCC 4.1x version, add 'GCC41=1'
+#     Compile with GCC 4.2x version, add 'GCC42=1'
 #     Compile with GCC 4.3x version, add 'GCC43=1'
+#     Compile with GCC 4.4x version, add 'GCC44=1'
+#     Compile with GCC 4.5x version, add 'GCC45=1'
+#     Compile with GCC 4.6x version, add 'GCC46=1'
 #     Compile a profile version, add 'PROFILEMODE=1'
 #     Compile a debug version, add 'DEBUGMODE=1'
 #     Compile with extra warnings, add 'WARNINGMODE=1'
@@ -76,8 +80,8 @@
 #     Compile without BSD API, add 'NONET=1'
 #     Compile without IPX/SPX, add 'NOIPX=1'
 #     Compile Mingw/SDL with S_DS3S, add 'DS3D=1'
-#     Comple with S_FMOD3D, add 'FMOD=1' (WIP)
-#     Comple with S_OPENAL, add 'OPENAL=1' (WIP)
+#     Compile with S_FMOD3D, add 'FMOD=1' (WIP)
+#     Compile with S_OPENAL, add 'OPENAL=1' (WIP)
 #     To link with the whole SDL_Image lib to load Icons, add 'SDL_IMAGE=1' but it isn't not realy needed
 #     To link with SDLMain to hide console or make on a console-less binary, add 'SDLMAIN=1'
 #
@@ -94,6 +98,8 @@ D_FILES=$(D_DIR)/srb2.srb \
 	$(D_DIR)/drill.dta \
 	$(D_DIR)/soar.dta \
 	$(D_DIR)/music.dta \
+
+PKG_CONFIG?=pkg-config
 
 ifdef WIILINUX
 LINUX=1
@@ -184,13 +190,16 @@ ifndef ECHO
 	CC:=@$(CC)
 	CXX:=@$(CXX)
 	OBJCOPY:=@$(OBJCOPY)
+	OBJDUMP:=@$(OBJDUMP)
 	STRIP:=@$(STRIP)
 	WINDRES:=@$(WINDRES)
-	DLLWRAP:=@$(DLLWRAP)
 	CP:=@$(CP)
-	MKDIR:=$(MKDIR)
-	MKISOFS:=$(MKISOFS)
-	DD:=$(DD)
+	MKDIR:=@$(MKDIR)
+	MKISOFS:=@$(MKISOFS)
+	DD:=@$(DD)
+	GZIP:=@$(GZIP)
+	UPX:=@$(UPX)
+	UPX_OPTS+=-q
 endif
 
 ifdef NONET
@@ -222,9 +231,6 @@ endif
 
 ifndef NOVERSION
 OPTS += -DCOMPVERSION
-ifdef ComSpec
-COMSPEC=$(ComSpec)
-endif
 endif
 
 ifndef NONX86
@@ -247,6 +253,10 @@ endif
 ifndef NOPNG
 OPTS+=-DHAVE_PNG
 
+ifdef PNG_PKGCONFIG
+PNG_CFLAGS?=$(shell $(PKG_CONFIG) $(PNG_PKGCONFIG) --cflags)
+PNG_LDFLAGS?=$(shell $(PKG_CONFIG) $(PNG_PKGCONFIG) --libs)
+else
 ifdef PREFIX
 PNG_CONFIG?=$(PREFIX)-libpng-config
 else
@@ -259,6 +269,7 @@ PNG_LDFLAGS?=$(shell $(PNG_CONFIG) --static --ldflags)
 else
 PNG_CFLAGS?=$(shell $(PNG_CONFIG) --cflags)
 PNG_LDFLAGS?=$(shell $(PNG_CONFIG) --ldflags)
+endif
 endif
 
 LIBS+=$(PNG_LDFLAGS)
@@ -293,13 +304,24 @@ ifdef DEBUGMODE
 
 	# build with debugging information
 	WINDRESFLAGS = -D_DEBUG
-	CFLAGS+=-g -O0 $(OPTS) $(M5) -Wall -DPARANOIA -DRANGECHECK $(WINDRESFLAGS)
+	CFLAGS+=-O0 -Wall -DPARANOIA -DRANGECHECK
 else
 
 
 	# build a normal optimised version
 	WINDRESFLAGS = -DNDEBUG
-	CFLAGS+=-g $(OPTS) $(M5) -Os $(WINDRESFLAGS)
+	CFLAGS+=-O2
+endif
+	CFLAGS+=-g $(OPTS) $(M5) $(WINDRESFLAGS)
+
+ifdef YASM
+ifdef STABS
+	NASMOPTS?= -g stabs
+else
+	NASMOPTS?= -g dwarf2
+endif
+else
+	NASMOPTS?= -g
 endif
 
 ifdef PROFILEMODE
@@ -307,9 +329,15 @@ ifdef PROFILEMODE
 	CFLAGS:=-pg $(CFLAGS)
 endif
 
+ifdef ZDEBUG
+	CPPFLAGS+=-DZDEBUG
+endif
+
+OPTS+=$(CPPFLAGS)
+
 # default EXENAME if all else fails
 EXENAME?=srb2
-DGBNAME?=$(EXENAME).debug
+DBGNAME?=$(EXENAME).debug
 
 # not too sophisticated dependency
 OBJS:=$(i_main_o) \
@@ -397,11 +425,17 @@ ifdef PSP
 all:	 pre-build $(BIN)/$(BINNAME) post-build
 endif
 
+ifdef DC
+all:	 pre-build $(BIN)/$(BINNAME) post-build
+endif
+
+ifndef DC
 ifndef PSP
 ifndef XBOX
 ifdef MINGW
 ifndef SDL
 all:	 pre-build $(BIN)/$(EXENAME) dll
+endif
 endif
 endif
 endif
@@ -417,12 +451,13 @@ endif
 
 cleandep:
 	$(REMOVE) $(OBJDIR)/depend.dep
+	$(REMOVE) comptime.h
 
 pre-build:
 ifdef NOVERSION
 	-@touch comptime.c
 else
-ifdef COMSPEC
+ifdef WINDOWSHELL
 	-..\comptime.bat .
 else
 	-@../comptime.sh .
@@ -443,23 +478,46 @@ endif
 
 #make a big srb2.s that is the disasm of the exe (dos only ?)
 asm:
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -g $(OBJDIR)/i_main.o \
-	-o $(OBJDIR)/tmp.exe $(LIBS)
-	objdump  -d $(OBJDIR)/tmp.exe --no-show-raw-insn > srb2.s
+	$(CC) $(LDFLAGS) $(OBJS) -o $(OBJDIR)/tmp.exe $(LIBS)
+	$(OBJDUMP) -d $(OBJDIR)/tmp.exe --no-show-raw-insn > srb2.s
 	$(REMOVE) $(OBJDIR)/tmp.exe
 
 # executable
+# NOTE: DJGPP's objcopy do not have --add-gnu-debuglink
 
-$(BIN)/$(EXENAME): $(OBJS)
-	-@mkdir -p $(BIN)
+$(BIN)/$(EXENAME): $(POS) $(OBJS)
+	-$(MKDIR) $(BIN)
 	@echo Linking $(EXENAME)...
 	$(LD) $(LDFLAGS) $(OBJS) -o $(BIN)/$(EXENAME) $(LIBS)
-	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DGBNAME)
+ifndef VALGRIND
+ifndef NOOBJDUMP
+	@echo Dumping debugging info
+	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(EXENAME) > $(BIN)/$(DBGNAME).txt
+	-$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+ifndef WINDOWSHELL
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt
+endif
+endif
+ifndef PSP
+	$(OBJCOPY) $(BIN)/$(EXENAME) $(BIN)/$(DBGNAME)
 	$(OBJCOPY) --strip-debug $(BIN)/$(EXENAME)
-	$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DGBNAME) $(BIN)/$(EXENAME)
+	-$(OBJCOPY) --add-gnu-debuglink=$(BIN)/$(DBGNAME) $(BIN)/$(EXENAME)
+endif
+ifndef NOUPX
+	-$(UPX) $(UPX_OPTS) $(BIN)/$(EXENAME)
+endif
+endif
+
+reobjdump:
+	@echo Redumping debugging info
+	$(OBJDUMP) $(OBJDUMP_OPTS) $(BIN)/$(DBGNAME) > $(BIN)/$(DBGNAME).txt
+	-$(GZIP) $(GZIP_OPTS) $(BIN)/$(DBGNAME).txt
+ifndef WINDOWSHELL
+	-$(GZIP) $(GZIP_OPT2) $(BIN)/$(DBGNAME).txt
+endif
 
 $(OBJDIR):
-	-@mkdir -p $(OBJDIR)
+	-$(MKDIR) $(OBJDIR)
 
 ifndef SDL
 ifdef NOHW
@@ -469,35 +527,49 @@ dll : opengl_dll
 endif
 ifdef MINGW
 all_dll: opengl_dll minigl_dll ds3d_dll fmod_dll openal_dll
-opengl_dll : $(OBJDIR)/r_opengl.o $(OBJDIR)/ogl_win.o hardware/r_mingw.def
+
+opengl_dll: $(BIN)/r_opengl.dll
+$(BIN)/r_opengl.dll: $(OBJDIR)/ogl_win.o $(OBJDIR)/r_opengl.o
+	-$(MKDIR) $(BIN)
 	@echo Linking R_OpenGL.dll...
-	$(DLLWRAP) --def hardware/r_mingw.def $(OBJDIR)/r_opengl.o $(OBJDIR)/ogl_win.o -lgdi32 -mwindows $(M5) -s -o $(BIN)/r_opengl.dll
+	$(CC) --shared  $^ -o $@ -g -Wl,--add-stdcall-alias -lgdi32
 
-minigl_dll: $(OBJDIR)/r_minigl.o hardware/r_mingw.def
+minigl_dll: $(BIN)/r_minigl.dll
+$(BIN)/r_minigl.dll: $(OBJDIR)/r_minigl.o
+	-$(MKDIR) $(BIN)
 	@echo Linking R_MiniGL.dll...
-	$(DLLWRAP) --def hardware/r_mingw.def $(OBJDIR)/r_minigl.o -lgdi32 -mwindows $(M5) -s -o $(BIN)/r_minigl.dll
+	$(CC) --shared  $^ -o $@ -g -Wl,--add-stdcall-alias -lgdi32
 
-ds3d_dll: $(OBJDIR)/s_ds3d.o hardware/s_mingw.def
+ds3d_dll: $(BIN)/s_ds3d.dll
+$(BIN)/s_ds3d.dll: $(OBJDIR)/s_ds3d.o
 	@echo Linking S_DS3d.dll...
-	$(DLLWRAP) --def hardware/s_mingw.def $(OBJDIR)/s_ds3d.o -ldsound -luuid -mwindows $(M5) -s -o $(BIN)/s_ds3d.dll
+	$(CC) --shared  $^ -o $@ -g -Wl,--add-stdcall-alias -ldsound -luuid
 
-fmod_dll: $(OBJDIR)/s_fmod.o hardware/s_mingw.def
+fmod_dll: $(BIN)/s_fmod.dll
+$(BIN)/s_fmod.dll: $(OBJDIR)/s_fmod.o
+	-$(MKDIR) $(BIN)
 	@echo Linking S_FMOD.dll...
-	$(DLLWRAP) --def hardware/s_mingw.def $(OBJDIR)/s_fmod.o -lfmod -mwindows $(M5) -s -o $(BIN)/s_fmod.dll
+	$(CC) --shared  $^ -o $@ -g -Wl,--add-stdcall-alias -lfmod
 
-openal_dll: $(OBJDIR)/s_openal.o hardware/s_mingw.def
+openal_dll: $(BIN)/s_openal.dll
+$(BIN)/s_openal.dll: $(OBJDIR)/s_openal.o
+	-$(MKDIR) $(BIN)
 	@echo Linking S_OpenAL.dll...
-	$(DLLWRAP) --def hardware/s_mingw.def $(OBJDIR)/s_openal.o -lopenal32 -mwindows $(M5) -s -o $(BIN)/s_openal.dll
+	$(CC) --shared  $^ -o $@ -g -Wl,--add-stdcall-alias -lopenal32
 else
 all_dll: fmod_so openal_so
 
-fmod_so: $(OBJDIR)/s_fmod.o
+fmod_so: $(BIN)/s_fmod.so
+$(BIN)/s_fmod.so: $(OBJDIR)/s_fmod.o
+	-$(MKDIR) $(BIN)
 	@echo Linking S_FMOD.so...
-	$(CC) -s -Os -o $(BIN)/s_fmod.so -shared -nostartfiles $(OBJDIR)/s_fmod.o -L. -lfmod -lm
+	$(CC) --shared $^ -o $@ -g --nostartfiles -lm -lfmod
 
-openal_so: $(OBJDIR)/s_openal.o
+openal_so: $(BIN)/s_openal.so
+$(BIN)/s_openal.so: $(OBJDIR)/s_openal.o
+	-$(MKDIR) $(BIN)
 	@echo Linking S_OpenAL.so...
-	$(CC) -s -Os -o $(BIN)/s_openal.so -shared -nostartfiles $(OBJDIR)/s_openal.o -lopenal -lm
+	$(CC) --shared $^ -o $@ -g --nostartfiles -lm -lopenal
 
 endif
 
@@ -532,6 +604,8 @@ endif
 
 $(OBJDIR)/depend.dep:
 	@echo "Creating dependency file, depend.dep"
+	@echo > comptime.h
+	-$(MKDIR) $(OBJDIR)
 	$(CC) $(CFLAGS) -MM *.c > $(OBJDIR)/depend.ped
 	$(CC) $(CFLAGS) -MM $(INTERFACE)/*.c >> $(OBJDIR)/depend.ped
 ifndef NOHW
@@ -551,6 +625,11 @@ $(OBJDIR)/v_video.o: v_video.c doomdef.h doomtype.h g_state.h m_swap.h r_local.h
 	$(CC) $(CFLAGS) -fno-omit-frame-pointer $(WFLAGS) -c $< -o $@
 endif
 
+ifdef VALGRIND
+$(OBJDIR)/z_zone.o: z_zone.c
+	$(CC) $(CFLAGS) $(WFLAGS) -DHAVE_VALGRIND $(VALGRIND_CFLAGS) -c $< -o $@
+endif
+
 $(OBJDIR)/comptime.o: comptime.c pre-build
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 
@@ -564,10 +643,10 @@ $(OBJDIR)/%.o: hardware/%.c
 	$(CC) $(CFLAGS) $(WFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: %.nas
-	$(NASM) -o $@ -f $(NASMFORMAT) $<
+	$(NASM) $(NASMOPTS) -o $@ -f $(NASMFORMAT) $<
 
 $(OBJDIR)/vid_copy.o: vid_copy.s asm_defs.inc
-	$(CC) $(OPTS) -x assembler-with-cpp -c $< -o $@
+	$(CC) $(OPTS) $(ASFLAGS) -x assembler-with-cpp -c $< -o $@
 
 $(OBJDIR)/%.o: %.s
 	$(CC) $(OPTS) -x assembler-with-cpp -c $< -o $@
@@ -601,13 +680,14 @@ $(BIN)/1ST_READ.BIN: $(BIN)/$(BINNAME) $(BIN)/scramble
 	$(BIN)/scramble $< $@
 
 $(BIN)/scramble: $(INTERFACE)/SRB2DC/scramble.c
+	-$(MKDIR) $(BIN)
 	$(HOSTCC) $< -o $@
 
 iso: $(BIN)/SRB2DC.iso
 cdi: $(BIN)/SRB2DC.cdi
 
 $(BIN)/SRB2DC.iso.pass1: $(BIN)/1ST_READ.BIN $(BIN)/IP.BIN
-	$(MKDIR) $(BIN)/cdrom
+	-$(MKDIR) $(BIN)/cdrom
 	$(CP) $(BIN)/1ST_READ.BIN $(D_FILES) $(BIN)/cdrom
 	$(MKISOFS) -l -r -o $@ $(BIN)/cdrom
 
@@ -619,6 +699,8 @@ $(BIN)/SRB2DC.iso: $(BIN)/SRB2DC.iso.pass2 $(BIN)/IP.BIN
 
 $(BIN)/SRB2DC.cdi: $(BIN)/SRB2DC.iso.pass2 $(BIN)/SRB2DC.cdi.pass1 $(BIN)/IP.BIN
 	@cat $(BIN)/SRB2DC.cdi.pass1 $(BIN)/IP.BIN $(BIN)/SRB2DC.iso.pass2 > $@
+
+post-build: $(BIN)/1ST_READ.BIN
 endif
 
 ifdef XBOX

@@ -1,6 +1,6 @@
 # Windows EOL
 *.cs -crlf -whitespace
-*.mk -crlf -wwhitespace
+*.mk -crlf -whitespace
 *.bat -crlf -whitespace
 *.dev -crlf -whitespace
 *.dsp -crlf -whitespace

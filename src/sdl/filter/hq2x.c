@@ -3118,7 +3118,7 @@ FUNCINLINE static ATTRINLINE void InitLUTs(void)
 void filter_hq2x(Uint8 *srcPtr, Uint32 srcPitch, Uint8 *dstPtr, Uint32 dstPitch, int width, int height)
 {
 	static Uint8 doneLUT = 1;
-	srcPitch = 0;
+	(void)srcPitch;
 	if(doneLUT) InitLUTs();
 	else doneLUT = 0;
 	hq2x_32( srcPtr, dstPtr, width, height, dstPitch );

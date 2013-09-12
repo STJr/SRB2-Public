@@ -66,6 +66,17 @@ typedef long ssize_t;
 #define UINT32 unsigned int
 #define INT64  int64
 #define UINT64 uint64
+#elif defined (__DJGPP__)
+#define UINT8 unsigned char
+#define SINT8 signed char
+
+#define UINT16 unsigned short int
+#define INT16 signed short int
+
+#define INT32 signed long
+#define UINT32 unsigned long
+#define INT64  signed long long
+#define UINT64 unsigned long long
 #else
 #define __STDC_LIMIT_MACROS
 #include <stdint.h>
@@ -233,7 +244,7 @@ union FColorRGBA
 		UINT8 blue;
 		UINT8 alpha;
 	} s;
-};
+} ATTRPACK;
 typedef union FColorRGBA RGBA_t;
 
 typedef enum
@@ -269,12 +280,15 @@ typedef UINT32 tic_t;
 #define FUNCNORETURN __attribute__ ((noreturn))
 #if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) && defined (__MINGW32__)
 #include "inttypes.h"
-#if defined  (__USE_MINGW_ANSI_STDIO) && __USER_MINGW_ANSI_STDIO > 0
+#if 0 //defined  (__USE_MINGW_ANSI_STDIO) && __USE_MINGW_ANSI_STDIO > 0
 #define FUNCPRINTF __attribute__ ((format(gnu_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(gnu_printf, 1, 2),noreturn))
-#else // !__USE_MINGW_ANSI_STDIO
+#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
 #define FUNCPRINTF __attribute__ ((format(ms_printf, 1, 2)))
 #define FUNCIERROR __attribute__ ((format(ms_printf, 1, 2),noreturn))
+#else
+#define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
+#define FUNCIERROR __attribute__ ((format(printf, 1, 2),noreturn))
 #endif
 #else
 #define FUNCPRINTF __attribute__ ((format(printf, 1, 2)))
@@ -295,7 +309,8 @@ typedef UINT32 tic_t;
 #define FUNCTARGET(X)  __attribute__ ((__target__ (X)))
 #endif
 #endif
-#define ATTRPACK __attribute__ ((packed))
+#define ATTRPACK __attribute__((packed))
+#define ATTRUNUSED __attribute__((unused))
 #ifdef _XBOX
 #define FILESTAMP I_OutputMsg("%s:%d\n",__FILE__,__LINE__);
 #define XBOXSTATIC static

@@ -24,7 +24,7 @@
 #include "doomtype.h"
 
 #ifdef __GNUC__ // __attribute__ ((X))
-#if (__GNUC__ > 4) || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 3 || (__GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 4)))
+#if (__GNUC__ > 4) || (__GNUC__ == 4 && (__GNUC_MINOR__ >= 3 || (__GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ >= 5)))
 #define FUNCALLOC(X) __attribute__((alloc_size(X)))
 #endif // odd, it is documented in GCC 4.3.0 but it exists in 4.2.4, at least
 #endif
@@ -66,6 +66,11 @@ void Z_ChangeTag2(void *ptr, INT32 tag, const char *file, INT32 line);
 void Z_ChangeTag2(void *ptr, INT32 tag);
 #endif
 
+#ifdef PARANOIA
+void Z_SetUser2(void *ptr, void **newuser, const char *file, INT32 line);
+#else
+void Z_SetUser2(void *ptr, void **newuser);
+#endif
 #ifdef ZDEBUG
 #define Z_Free(p) Z_Free2(p, __FILE__, __LINE__)
 void Z_Free2(void *ptr, const char *file, INT32 line);
@@ -89,6 +94,7 @@ void *Z_ReallocAlign(void *ptr, size_t size, INT32 tag, void *user, INT32 alignb
 #endif
 
 size_t Z_TagUsage(INT32 tagnum);
+size_t Z_TagsUsage(INT32 lowtag, INT32 hightag);
 
 char *Z_StrDup(const char *in);
 
@@ -99,6 +105,12 @@ char *Z_StrDup(const char *in);
 #define Z_ChangeTag(p,t) Z_ChangeTag2(p, t, __FILE__, __LINE__)
 #else
 #define Z_ChangeTag(p,t) Z_ChangeTag2(p, t)
+#endif
+
+#ifdef PARANOIA
+#define Z_SetUser(p,u) Z_SetUser2(p, u, __FILE__, __LINE__)
+#else
+#define Z_SetUser(p,u) Z_SetUser2(p, u)
 #endif
 
 #endif
