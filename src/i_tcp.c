@@ -63,8 +63,10 @@
 #define ioctl lwip_ioctl
 #else
 #ifdef __APPLE_CC__
+#ifndef _BSD_SOCKLEN_T_
 #define _BSD_SOCKLEN_T_
-#endif
+#endif //_BSD_SOCKLEN_T_
+#endif //__APPLE_CC__
 #include <sys/socket.h>
 #include <netinet/in.h>
 #endif
