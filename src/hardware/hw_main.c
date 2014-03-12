@@ -41,6 +41,9 @@
 #include "../i_system.h"
 #endif
 
+#include "hw_md2.h"
+#include "../m_random.h"
+
 #define R_FAKEFLOORS
 //#define HWPRECIP
 #define SORTING
@@ -64,7 +67,7 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing);
 
 #ifdef SORTING
 void HWR_AddTransparentFloor(lumpnum_t lumpnum, extrasubsector_t *xsub, fixed_t fixedheight,
-                             INT32 lightlevel, INT32 alpha, sector_t *FOFSector);
+                             INT32 lightlevel, INT32 alpha, sector_t *FOFSector, FBITFIELD blend, boolean fogplane, extracolormap_t *planecolormap);
 #else
 static void HWR_Add3DWater(lumpnum_t lumpnum, extrasubsector_t *xsub, fixed_t fixedheight,
                            INT32 lightlevel, INT32 alpha, sector_t *FOFSector);
@@ -109,13 +112,13 @@ consvar_t cv_grfov = {"gr_fov", "90", CV_FLOAT|CV_CALL, grfov_cons_t, CV_grFov_O
 consvar_t cv_grfogdensity = {"gr_fogdensity", "25", CV_CALL|CV_NOINIT, CV_Unsigned,
                              CV_FogDensity_ONChange, 0, NULL, NULL, 0, 0, NULL};
 #else
-consvar_t cv_grfogdensity = {"gr_fogdensity", "300", 0, CV_Unsigned,
+consvar_t cv_grfogdensity = {"gr_fogdensity", "150", 0, CV_Unsigned,
                              CV_FogDensity_ONChange, 0, NULL, NULL, 0, 0, NULL};
 #endif
 
 // Unfortunately, this can no longer be saved...
 #ifdef SHUFFLE
-consvar_t cv_grfiltermode = {"gr_filtermode", "Nearest_Mipmap", CV_CALL, grfiltermode_cons_t,
+consvar_t cv_grfiltermode = {"gr_filtermode", "Nearest", CV_CALL, grfiltermode_cons_t,
                              CV_filtermode_ONChange, 0, NULL, NULL, 0, 0, NULL};
 #else
 consvar_t cv_grfiltermode = {"gr_filtermode", "Bilinear", CV_CALL, grfiltermode_cons_t,
@@ -380,9 +383,9 @@ static float gr_fovlud;
 static UINT8 lightleveltonumlut[256];
 
 // added to SRB2's sector lightlevel to make things a bit brighter (sprites/walls/planes)
-FUNCMATH static UINT8 LightLevelToLum(INT32 l)
+FUNCMATH UINT8 LightLevelToLum(INT32 l)
 {
-#ifdef HARDWAREFIX
+/*#ifdef HARDWAREFIX
 	if (!cv_grfog.value)
 	{
 		if(l > 255)
@@ -391,7 +394,7 @@ FUNCMATH static UINT8 LightLevelToLum(INT32 l)
 			l = 0;
 		return lightleveltonumlut[l];
 	}
-#endif
+#endif*/
 	return (UINT8)(255*gld_CalcLightLevel(l));
 /*
 	l = lightleveltonumlut[l];
@@ -416,53 +419,112 @@ static inline void InitLumLut(void)
 
 #ifdef HARDWAREFIX
 //#define FOGFACTOR 300 //was 600 >> Covered by cv_grfogdensity
-#define NORMALFOG 0x19000000
-#define CALCFOGALPHA(x,y) (UINT8)(((float)(x)/((0x19 - (y))/12.0f+1.0f)))
-#define CALCLIGHT(x,y) ((float)(x)/((0xFF - (y))/127.0f+1.0f))
-static UINT32 HWR_Lighting(INT32 light, UINT32 color)
+#define NORMALFOG 0x00000000
+#define FADEFOG 0x19000000
+#define CALCFOGDENSITY(x) ((float)((5220.0f*(1.0f/((x)/41.0f+1.0f)))-(5220.0f*(1.0f/(255.0f/41.0f+1.0f))))) // Approximate fog calculation based off of software walls
+#define CALCFOGDENSITYFLOOR(x) ((float)((40227.0f*(1.0f/((x)/11.0f+1.0f)))-(40227.0f*(1.0f/(255.0f/11.0f+1.0f))))) // Approximate fog calculation based off of software floors
+#define CALCLIGHT(x,y) ((float)(x)*((y)/255.0f))
+UINT32 HWR_Lighting(INT32 light, UINT32 color, UINT32 fadecolor, boolean fogblockpoly, boolean plane)
 {
-	RGBA_t realcolor, surfcolor;
+	RGBA_t realcolor, fogcolor, surfcolor;
+	INT32 alpha, fogalpha;
 
 	realcolor.rgba = color;
+	fogcolor.rgba = fadecolor;
+
+	alpha = (realcolor.s.alpha*255)/25;
+	fogalpha = (fogcolor.s.alpha*255)/25;
+
+	if (cv_grfog.value && cv_grsoftwarefog.value) // Only do this when fog is on, software fog mode is on, and the poly is not from a fog block
+	{
+		// Modulate the colors by alpha.
+		realcolor.s.red = (UINT8)(CALCLIGHT(alpha,realcolor.s.red));
+		realcolor.s.green = (UINT8)(CALCLIGHT(alpha,realcolor.s.green));
+		realcolor.s.blue = (UINT8)(CALCLIGHT(alpha,realcolor.s.blue));
+
+		// Set the surface colors and further modulate the colors by light.
+		surfcolor.s.red = (UINT8)(CALCLIGHT((0xFF-alpha),255)+CALCLIGHT(realcolor.s.red,255));
+		surfcolor.s.green = (UINT8)(CALCLIGHT((0xFF-alpha),255)+CALCLIGHT(realcolor.s.green,255));
+		surfcolor.s.blue = (UINT8)(CALCLIGHT((0xFF-alpha),255)+CALCLIGHT(realcolor.s.blue,255));
+		surfcolor.s.alpha = 0xFF;
+
+		// Modulate the colors by alpha.
+		fogcolor.s.red = (UINT8)(CALCLIGHT(fogalpha,fogcolor.s.red));
+		fogcolor.s.green = (UINT8)(CALCLIGHT(fogalpha,fogcolor.s.green));
+		fogcolor.s.blue = (UINT8)(CALCLIGHT(fogalpha,fogcolor.s.blue));
+	}
+	else
+	{
+		// Modulate the colors by alpha.
+		realcolor.s.red = (UINT8)(CALCLIGHT(alpha,realcolor.s.red));
+		realcolor.s.green = (UINT8)(CALCLIGHT(alpha,realcolor.s.green));
+		realcolor.s.blue = (UINT8)(CALCLIGHT(alpha,realcolor.s.blue));
+
+		// Set the surface colors and further modulate the colors by light.
+		surfcolor.s.red = (UINT8)(CALCLIGHT((0xFF-alpha),light)+CALCLIGHT(realcolor.s.red,light));
+		surfcolor.s.green = (UINT8)(CALCLIGHT((0xFF-alpha),light)+CALCLIGHT(realcolor.s.green,light));
+		surfcolor.s.blue = (UINT8)(CALCLIGHT((0xFF-alpha),light)+CALCLIGHT(realcolor.s.blue,light));
+
+		// Modulate the colors by alpha.
+		fogcolor.s.red = (UINT8)(CALCLIGHT(fogalpha,fogcolor.s.red));
+		fogcolor.s.green = (UINT8)(CALCLIGHT(fogalpha,fogcolor.s.green));
+		fogcolor.s.blue = (UINT8)(CALCLIGHT(fogalpha,fogcolor.s.blue));
+
+		// Set the surface colors and further modulate the colors by light.
+		surfcolor.s.red = surfcolor.s.red+((UINT8)(CALCLIGHT((0xFF-fogalpha),(255-light))+CALCLIGHT(fogcolor.s.red,(255-light))));
+		surfcolor.s.green = surfcolor.s.green+((UINT8)(CALCLIGHT((0xFF-fogalpha),(255-light))+CALCLIGHT(fogcolor.s.green,(255-light))));
+		surfcolor.s.blue = surfcolor.s.blue+((UINT8)(CALCLIGHT((0xFF-fogalpha),(255-light))+CALCLIGHT(fogcolor.s.blue,(255-light))));
+		surfcolor.s.alpha = 0xFF;
+	}
 
 	if(cv_grfog.value)
 	{
-		surfcolor.s.red = (UINT8)(0xFF-(realcolor.s.green+realcolor.s.blue)/2);
-		surfcolor.s.green = (UINT8)(0xFF-(realcolor.s.red+realcolor.s.blue)/2);
-		surfcolor.s.blue = (UINT8)(0xFF-(realcolor.s.red+realcolor.s.green)/2);
-		surfcolor.s.alpha = 0xFF;
-
-		if(light == 0xFF && color == NORMALFOG)
+		if (cv_grsoftwarefog.value)
 		{
-			light = 0xFE;
-			color = realcolor.rgba = 0x19FFFFFF;
+			fogcolor.s.red = (UINT8)((CALCLIGHT(fogcolor.s.red,(255-light)))+(CALCLIGHT(realcolor.s.red,light)));
+			fogcolor.s.green = (UINT8)((CALCLIGHT(fogcolor.s.green,(255-light)))+(CALCLIGHT(realcolor.s.green,light)));
+			fogcolor.s.blue = (UINT8)((CALCLIGHT(fogcolor.s.blue,(255-light)))+(CALCLIGHT(realcolor.s.blue,light)));
+
+			// Set the fog options.
+			if (cv_grsoftwarefog.value == 1 && plane) // With floors, software draws them way darker for their distance
+				HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, (INT32)(CALCFOGDENSITYFLOOR(light)));
+			else // everything else is drawn like walls
+				HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, (INT32)(CALCFOGDENSITY(light)));
+		}
+		else
+		{
+			fogcolor.s.red = (UINT8)((CALCLIGHT(fogcolor.s.red,(255-light)))+(CALCLIGHT(realcolor.s.red,light)));
+			fogcolor.s.green = (UINT8)((CALCLIGHT(fogcolor.s.green,(255-light)))+(CALCLIGHT(realcolor.s.green,light)));
+			fogcolor.s.blue = (UINT8)((CALCLIGHT(fogcolor.s.blue,(255-light)))+(CALCLIGHT(realcolor.s.blue,light)));
+
+			fogalpha = (UINT8)((CALCLIGHT(fogalpha,(255-light)))+(CALCLIGHT(alpha,light)));
+
+			// Set the fog options.
+			light = (UINT8)(CALCLIGHT(light,(255-fogalpha)));
+			HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, (INT32)(cv_grfogdensity.value-(cv_grfogdensity.value*(float)light/255.0f)));
 		}
 
-		// Modulate the colors by alpha.
-		realcolor.s.red = CALCFOGALPHA(realcolor.s.red,realcolor.s.alpha);
-		realcolor.s.green = CALCFOGALPHA(realcolor.s.green,realcolor.s.alpha);
-		realcolor.s.blue = CALCFOGALPHA(realcolor.s.blue,realcolor.s.alpha);
-
-		// Set the fog options.
-		light = CALCFOGALPHA(light,realcolor.s.alpha);
-		HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, (INT32)(cv_grfogdensity.value-(cv_grfogdensity.value*(float)light/255.0f)));
-		HWD.pfnSetSpecialState(HWD_SET_FOG_COLOR, (realcolor.s.red*0x10000)+(realcolor.s.green*0x100)+realcolor.s.blue);
+		HWD.pfnSetSpecialState(HWD_SET_FOG_COLOR, (fogcolor.s.red*0x10000)+(fogcolor.s.green*0x100)+fogcolor.s.blue);
 		HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 1);
 	}
-	else
-	{ // No fog? Sucks for j00.
-		// Modulate the colors by alpha.
-		realcolor.s.red = CALCFOGALPHA(realcolor.s.red,realcolor.s.alpha);
-		realcolor.s.green = CALCFOGALPHA(realcolor.s.green,realcolor.s.alpha);
-		realcolor.s.blue = CALCFOGALPHA(realcolor.s.blue,realcolor.s.alpha);
-
-		// Set the surface colors and further modulate the colors by light.
-		surfcolor.s.red = (UINT8)CALCLIGHT(0xFF-(realcolor.s.green+realcolor.s.blue)/2,light);
-		surfcolor.s.green = (UINT8)CALCLIGHT(0xFF-(realcolor.s.red+realcolor.s.blue)/2,light);
-		surfcolor.s.blue = (UINT8)CALCLIGHT(0xFF-(realcolor.s.red+realcolor.s.green)/2,light);
-		surfcolor.s.alpha = 0xFF;
-	}
 	return surfcolor.rgba;
+}
+
+static UINT8 HWR_FogBlockAlpha(INT32 light, UINT32 color, UINT32 fadecolor) // Let's see if this can work
+{
+	RGBA_t realcolor, fogcolor, surfcolor;
+	INT32 alpha, fogalpha;
+
+	realcolor.rgba = color;
+	fogcolor.rgba = fadecolor;
+
+	alpha = (realcolor.s.alpha*255)/25;
+	fogalpha = (fogcolor.s.alpha*255)/25;
+
+	// Fog blocks seem to get slightly more opaque with more opaque colourmap opacity, and much more opaque with darker brightness
+	surfcolor.s.alpha = (UINT8)(CALCLIGHT(light, ((0xFF-light)+alpha)/2)+CALCLIGHT(0xFF-light, ((light)+fogalpha)/2));
+
+	return surfcolor.s.alpha;
 }
 #endif
 
@@ -480,7 +542,7 @@ static FOutVector  planeVerts[MAXPLANEVERTICES];
 // HWR_RenderPlane  : Render a floor or ceiling convex polygon
 // -----------------+
 static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fixedheight,
-                           FBITFIELD PolyFlags, INT32 lightlevel, lumpnum_t lumpnum, sector_t *FOFsector)
+                           FBITFIELD PolyFlags, INT32 lightlevel, lumpnum_t lumpnum, sector_t *FOFsector, UINT8 alpha, boolean fogplane, extracolormap_t *planecolormap)
 {
 	polyvertex_t *  pv;
 	float           height; //constant y for all points on the convex flat polygon
@@ -492,6 +554,7 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	INT32 flatflag;
 	size_t len;
 	float scrollx = 0.0f, scrolly = 0.0f;
+	angle_t angle = 0;
 	FSurfaceInfo    Surf;
 
 	// no convex poly were generated for this subsector
@@ -559,11 +622,13 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 		{
 			scrollx = FIXED_TO_FLOAT(FOFsector->floor_xoffs)/fflatsize;
 			scrolly = FIXED_TO_FLOAT(FOFsector->floor_yoffs)/fflatsize;
+			angle = FOFsector->floorpic_angle>>ANGLETOFINESHIFT;
 		}
 		else // it's a ceiling
 		{
 			scrollx = FIXED_TO_FLOAT(FOFsector->ceiling_xoffs)/fflatsize;
 			scrolly = FIXED_TO_FLOAT(FOFsector->ceiling_yoffs)/fflatsize;
+			angle = FOFsector->ceilingpic_angle>>ANGLETOFINESHIFT;
 		}
 	}
 	else if (gr_frontsector)
@@ -572,12 +637,32 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 		{
 			scrollx = FIXED_TO_FLOAT(gr_frontsector->floor_xoffs)/fflatsize;
 			scrolly = FIXED_TO_FLOAT(gr_frontsector->floor_yoffs)/fflatsize;
+			angle = gr_frontsector->floorpic_angle>>ANGLETOFINESHIFT;
 		}
 		else // it's a ceiling
 		{
 			scrollx = FIXED_TO_FLOAT(gr_frontsector->ceiling_xoffs)/fflatsize;
 			scrolly = FIXED_TO_FLOAT(gr_frontsector->ceiling_yoffs)/fflatsize;
+			angle = gr_frontsector->ceilingpic_angle>>ANGLETOFINESHIFT;
 		}
+	}
+
+	fixed_t tempxsow, tempytow;
+
+	if (angle) // Only needs to be done if there's an altered angle
+	{
+		// This needs to be done so that it scrolls in a different direction after rotation like software
+		tempxsow = FLOAT_TO_FIXED(scrollx);
+		tempytow = FLOAT_TO_FIXED(scrolly);
+		scrollx = (FIXED_TO_FLOAT(FixedMul(tempxsow, FINECOSINE(angle)) - FixedMul(tempytow, FINESINE(angle))));
+		scrolly = (FIXED_TO_FLOAT(FixedMul(tempxsow, FINESINE(angle)) + FixedMul(tempytow, FINECOSINE(angle))));
+
+		// This needs to be done so everything aligns after rotation
+		// It would be done so that rotation is done, THEN the translation, but I couldn't get it to rotate AND scroll like software does
+		tempxsow = FLOAT_TO_FIXED(flatxref);
+		tempytow = FLOAT_TO_FIXED(flatyref);
+		flatxref = (FIXED_TO_FLOAT(FixedMul(tempxsow, FINECOSINE(angle)) - FixedMul(tempytow, FINESINE(angle))));
+		flatyref = (FIXED_TO_FLOAT(FixedMul(tempxsow, FINESINE(angle)) + FixedMul(tempytow, FINECOSINE(angle))));
 	}
 
 	for (i = 0; i < nrPlaneVerts; i++,v3d++,pv++)
@@ -585,6 +670,22 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 		// Hurdler: add scrolling texture on floor/ceiling
 		v3d->sow = (float)((pv->x / fflatsize) - flatxref + scrollx);
 		v3d->tow = (float)(flatyref - (pv->y / fflatsize) + scrolly);
+
+		//v3d->sow = (float)(pv->x / fflatsize);
+		//v3d->tow = (float)(pv->y / fflatsize);
+
+		// Need to rotate before translate
+		if (angle) // Only needs to be done if there's an altered angle
+		{
+			tempxsow = FLOAT_TO_FIXED(v3d->sow);
+			tempytow = FLOAT_TO_FIXED(v3d->tow);
+			v3d->sow = (FIXED_TO_FLOAT(FixedMul(tempxsow, FINECOSINE(angle)) - FixedMul(tempytow, FINESINE(angle))));
+			v3d->tow = (FIXED_TO_FLOAT(-FixedMul(tempxsow, FINESINE(angle)) - FixedMul(tempytow, FINECOSINE(angle))));
+		}
+
+		//v3d->sow = (float)(v3d->sow - flatxref + scrollx);
+		//v3d->tow = (float)(flatyref - v3d->tow + scrolly);
+
 		v3d->x = pv->x;
 		v3d->y = height;
 		v3d->z = pv->y;
@@ -620,7 +721,7 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	Surf.FlatColor.s.blue = LightLevelToLum(lightlevel); //  Don't take from the frontsector, or the game will crash
 #endif
 
-	// colormap test
+/*	// colormap test
 	if (gr_frontsector)
 	{
 		sector_t *psector = gr_frontsector;
@@ -640,9 +741,9 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 		}
 		if (psector->extra_colormap)
 #ifdef HARDWAREFIX
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),psector->extra_colormap->rgba);
+			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),psector->extra_colormap->rgba,psector->extra_colormap->fadergba, false, true);
 		else
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),NORMALFOG);
+			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),NORMALFOG,FADEFOG, false, true);
 #else
 		{
 			RGBA_t temp;
@@ -659,14 +760,25 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	}
 #ifdef HARDWAREFIX
 	else
-		Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),NORMALFOG);
-#endif
+		Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),NORMALFOG,FADEFOG, false, true);
+#endif*/
+
+	if (planecolormap)
+		if (fogplane)
+			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), planecolormap->rgba, planecolormap->fadergba, true, false);
+		else
+			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), planecolormap->rgba, planecolormap->fadergba, false, true);
+	else
+		if (fogplane)
+			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, true, false);
+		else
+			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, false, true);
 
 	if (PolyFlags & PF_Translucent)
 	{
-		Surf.FlatColor.s.alpha = (UINT8)(PolyFlags>>24);
+		Surf.FlatColor.s.alpha = alpha;
 		HWD.pfnDrawPolygon(&Surf, planeVerts, nrPlaneVerts,
-		                   PF_Translucent|PF_Modulated|PF_Occlude|PF_Clip);
+		                   PolyFlags|PF_Modulated|PF_Occlude|PF_Clip);
 	}
 	else
 	{
@@ -838,7 +950,7 @@ FBITFIELD HWR_TranstableToAlpha(INT32 transtablenum, FSurfaceInfo *pSurf)
 //         clipped so that only a visible portion of the wall seg is drawn.
 // floorheight, ceilingheight : depend on wall upper/lower/middle, comes from the sectors.
 
-static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, INT32 texnum, FBITFIELD blend);
+static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, INT32 texnum, FBITFIELD blend, boolean fogwall, INT32 lightlevel, extracolormap_t *wallcolormap);
 
 // -----------------+
 // HWR_ProjectWall  :
@@ -852,7 +964,7 @@ static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo * pSurf, 
 */
 static void HWR_ProjectWall(wallVert3D   * wallVerts,
                                     FSurfaceInfo * pSurf,
-                                    FBITFIELD blendmode)
+                                    FBITFIELD blendmode, INT32 lightlevel, extracolormap_t *wallcolormap)
 {
 	FOutVector  trVerts[4];
 	FOutVector  *wv;
@@ -888,6 +1000,15 @@ static void HWR_ProjectWall(wallVert3D   * wallVerts,
 	wv->x   = wallVerts->x;
 	wv->y   = wallVerts->y;
 	wv->z   = wallVerts->z;
+
+	if (wallcolormap)
+	{
+		pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), wallcolormap->rgba, wallcolormap->fadergba, false, false);
+	}
+	else
+	{
+		pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, false, false);
+	}
 
 	HWD.pfnDrawPolygon(pSurf, trVerts, 4, blendmode|PF_Modulated|PF_Occlude|PF_Clip);
 
@@ -967,10 +1088,34 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 //		if (!list[i].caster)
 //			continue;
 
+		solid = false;
+
 		if (list[i].caster)
-			solid = list[i].caster->flags & (cutflag&~FF_TRANSLUCENT);
+		{
+			if (sector->lightlist[i].caster->flags & FF_SOLID && !(cutflag & FF_EXTRA))
+				solid = true;
+			else if (sector->lightlist[i].caster->flags & FF_CUTEXTRA && cutflag & FF_EXTRA)
+			{
+				if (sector->lightlist[i].caster->flags & FF_EXTRA)
+				{
+					if (sector->lightlist[i].caster->flags == cutflag) // Only merge with your own types
+						solid = true;
+				}
+				else
+					solid = true;
+			}
+			else
+				solid = false;
+		}
 		else
 			solid = false;
+
+		if (cutflag == FF_CUTSOLIDS) // These are regular walls sent in from StoreWallRange, they shouldn't be cut from this
+			solid = false;
+
+		if (cutflag & FF_SOLID) // these weren't being cut before anyway, although they probably should be in the right conditions
+			solid = false;
+
 
 		height = FIXED_TO_FLOAT(list[i].height);
 		if (solid)
@@ -983,6 +1128,9 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 			continue;
 		}
 
+		FUINT lightnum;
+		extracolormap_t *colormap;
+
 		//Found a break;
 		bot = height;
 
@@ -990,8 +1138,7 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 			bot = realbot;
 
 		{
-			FUINT lightnum;
-			sector_t *psector;
+
 
 #ifndef HARDWAREFIX
 			lightnum = LightLevelToLum(*list[i-1].lightlevel);
@@ -1001,15 +1148,19 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 #endif
 
 			// colormap test
-			psector =  list[i-1].caster ? &sectors[list[i-1].caster->secnum] : gr_frontsector;
 #ifdef HARDWAREFIX
-			lightnum = LightLevelToLum(psector->lightlevel);
-#endif
-			if (psector->extra_colormap)
-#ifdef HARDWAREFIX
-				Surf->FlatColor.rgba = HWR_Lighting(lightnum,psector->extra_colormap->rgba);
+			if (list[i-1].caster)
+			{
+				lightnum = *list[i-1].lightlevel;
+				colormap = list[i-1].extra_colormap;
+			}
 			else
-				Surf->FlatColor.rgba = HWR_Lighting(lightnum,NORMALFOG);
+			{
+				lightnum = sector->lightlevel;
+				colormap = sector->extra_colormap;
+			}
+#endif
+#ifdef HARDWAREFIX
 			Surf->FlatColor.s.alpha = alpha;
 #else
 			{
@@ -1039,11 +1190,11 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 
 		glTex = HWR_GetTexture(texnum);
 		if (cutflag & FF_TRANSLUCENT)
-			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent);
+			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent, false, lightnum, colormap);
 		else if (glTex->mipmap.flags & TF_TRANSPARENT)
-			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment);
+			HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment, false, lightnum, colormap);
 		else
-			HWR_ProjectWall(wallVerts, Surf, PF_Masked);
+			HWR_ProjectWall(wallVerts, Surf, PF_Masked, lightnum, colormap);
 
 		if (solid)
 			top = bheight;
@@ -1051,14 +1202,14 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 			top = height;
 	}
 
+	FUINT lightnum;
+	extracolormap_t *colormap;
+
 	bot = realbot;
 	if (top <= realbot)
 		return;
 
 	{
-		FUINT   lightnum;
-		sector_t    *psector;
-
 #ifndef HARDWAREFIX
 		lightnum = LightLevelToLum(*list[i-1].lightlevel);
 		// store Surface->FlatColor to modulate wall texture
@@ -1066,15 +1217,19 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 			= (UINT8)lightnum;
 #endif
 
-		psector =  list[i-1].caster ? &sectors[list[i-1].caster->secnum] : gr_frontsector;
 #ifdef HARDWAREFIX
-		lightnum = LightLevelToLum(psector->lightlevel);
-#endif
-		if (psector->extra_colormap)
-#ifdef HARDWAREFIX
-			Surf->FlatColor.rgba = HWR_Lighting(lightnum,psector->extra_colormap->rgba);
+		if (list[i-1].caster)
+		{
+			lightnum = *list[i-1].lightlevel;
+			colormap = list[i-1].extra_colormap;
+		}
 		else
-			Surf->FlatColor.rgba = HWR_Lighting(lightnum,NORMALFOG);
+		{
+			lightnum = sector->lightlevel;
+			colormap = sector->extra_colormap;
+		}
+#endif
+#ifdef HARDWAREFIX
 		Surf->FlatColor.s.alpha = alpha;
 #else
 		{
@@ -1100,11 +1255,168 @@ static void HWR_SplitWall(sector_t *sector, wallVert3D *wallVerts, INT32 texnum,
 
 	glTex = HWR_GetTexture(texnum);
 	if (cutflag & FF_TRANSLUCENT)
-		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent);
+		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Translucent, false, lightnum, colormap);
 	else if (glTex->mipmap.flags & TF_TRANSPARENT)
-		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment);
+		HWR_AddTransparentWall(wallVerts, Surf, texnum, PF_Environment, false, lightnum, colormap);
 	else
-		HWR_ProjectWall(wallVerts, Surf, PF_Masked);
+		HWR_ProjectWall(wallVerts, Surf, PF_Masked, lightnum, colormap);
+}
+
+
+//
+// HWR_SplitFog
+// Exclusively for fog
+//
+static void HWR_SplitFog(sector_t *sector, wallVert3D *wallVerts, FSurfaceInfo* Surf, INT32 cutflag, FUINT lightnum, extracolormap_t *colormap)
+{
+	/* SoM: split up and light walls according to the
+	 lightlist. This may also include leaving out parts
+	 of the wall that can't be seen */
+	float realtop, realbot, top, bot;
+	float pegt, pegb, pegmul;
+	float height = 0.0f, bheight = 0.0f;
+	INT32   solid, i;
+	lightlist_t *  list = sector->lightlist;
+#ifdef HARDWAREFIX
+	const UINT8 alpha = Surf->FlatColor.s.alpha;
+#endif
+
+	realtop = top = wallVerts[2].y;
+	realbot = bot = wallVerts[0].y;
+	pegt = wallVerts[2].t;
+	pegb = wallVerts[0].t;
+	pegmul = (pegb - pegt) / (top - bot);
+
+	for (i = 1; i < sector->numlights; i++)
+	{
+		if (top < realbot)
+			return;
+
+	//Hurdler: fix a crashing bug, but is it correct?
+//		if (!list[i].caster)
+//			continue;
+
+		solid = false;
+
+		if (list[i].caster)
+		{
+			if (sector->lightlist[i].caster->flags & FF_SOLID && !(cutflag & FF_EXTRA))
+				solid = true;
+			else if (sector->lightlist[i].caster->flags & FF_CUTEXTRA && cutflag & FF_EXTRA)
+			{
+				if (sector->lightlist[i].caster->flags & FF_EXTRA)
+				{
+					if (sector->lightlist[i].caster->flags == cutflag)
+						solid = true;
+				}
+				else
+					solid = true;
+			}
+			else
+				solid = false;
+		}
+		else
+			solid = false;
+
+		height = FIXED_TO_FLOAT(list[i].height);
+
+		if (solid)
+			bheight = FIXED_TO_FLOAT(*list[i].caster->bottomheight);
+
+		if (height >= top)
+		{
+			if (solid && top > bheight)
+				top = bheight;
+			continue;
+		}
+
+		//Found a break;
+		bot = height;
+
+		if (bot < realbot)
+			bot = realbot;
+
+		{
+
+
+#ifndef HARDWAREFIX
+			lightnum = LightLevelToLum(*list[i-1].lightlevel);
+			// store Surface->FlatColor to modulate wall texture
+			Surf->FlatColor.s.red = Surf->FlatColor.s.green = Surf->FlatColor.s.blue =
+				(UINT8)lightnum;
+#endif
+
+#ifdef HARDWAREFIX
+			Surf->FlatColor.s.alpha = alpha;
+#else
+			{
+				RGBA_t temp;
+				INT32 alpha;
+
+				temp.rgba = psector->extra_colormap->rgba;
+				alpha = (INT32)((26 - temp.s.alpha)*lightnum);
+
+				Surf->FlatColor.s.red =
+					(UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+				Surf->FlatColor.s.blue =
+					(UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+				Surf->FlatColor.s.green =
+					(UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
+				Surf->FlatColor.s.alpha = 0xff;
+			}
+#endif
+		}
+
+		wallVerts[3].t = wallVerts[2].t = pegt + ((realtop - top) * pegmul);
+		wallVerts[0].t = wallVerts[1].t = pegt + ((realtop - bot) * pegmul);
+
+		// set top/bottom coords
+		wallVerts[2].y = wallVerts[3].y = top;
+		wallVerts[0].y = wallVerts[1].y = bot;
+
+		if (!solid) // Don't draw it if there's more fog behind it
+			HWR_AddTransparentWall(wallVerts, Surf, 0, PF_Translucent|PF_NoTexture, true, lightnum, colormap);
+
+		top = height;
+	}
+
+	bot = realbot;
+	if (top <= realbot)
+		return;
+
+	{
+#ifndef HARDWAREFIX
+		lightnum = LightLevelToLum(*list[i-1].lightlevel);
+		// store Surface->FlatColor to modulate wall texture
+		Surf->FlatColor.s.red = Surf->FlatColor.s.green = Surf->FlatColor.s.blue
+			= (UINT8)lightnum;
+#endif
+
+#ifdef HARDWAREFIX
+		Surf->FlatColor.s.alpha = alpha;
+#else
+		{
+			RGBA_t  temp;
+			INT32     alpha;
+
+			temp.rgba = psector->extra_colormap->rgba;
+			alpha = (INT32)((26 - temp.s.alpha)*lightnum);
+			Surf->FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf->FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf->FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf->FlatColor.s.alpha = 0xFF;
+		}
+#endif
+	}
+
+	wallVerts[3].t = wallVerts[2].t = pegt + ((realtop - top) * pegmul);
+	wallVerts[0].t = wallVerts[1].t = pegt + ((realtop - bot) * pegmul);
+
+	// set top/bottom coords
+	wallVerts[2].y = wallVerts[3].y = top;
+	wallVerts[0].y = wallVerts[1].y = bot;
+
+	HWR_AddTransparentWall(wallVerts, Surf, 0, PF_Translucent|PF_NoTexture, true, lightnum, colormap);
 }
 
 
@@ -1129,6 +1441,7 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 	fixed_t h, l; // 3D sides and 2s middle textures
 
 	FUINT lightnum = 0; // shut up compiler
+	extracolormap_t *colormap;
 	FSurfaceInfo Surf;
 
 	if (startfrac > endfrac)
@@ -1184,7 +1497,8 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 	}
 
 #ifdef HARDWAREFIX
-	lightnum = LightLevelToLum(gr_frontsector->lightlevel);
+	lightnum = gr_frontsector->lightlevel;
+	colormap = gr_frontsector->extra_colormap;
 #else
 	//  use different light tables
 	//  for horizontal / vertical / diagonal
@@ -1211,20 +1525,8 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 
 	if (gr_frontsector)
 	{
-		sector_t *sector = gr_frontsector;
-
-		// colormap test
-		if (sector->ffloors)
-		{
-			ffloor_t *caster = sector->lightlist[R_GetPlaneLight(sector, sector->floorheight, false)].caster;
-			sector = caster ? &sectors[caster->secnum] : sector;
-		}
-		if (sector->extra_colormap)
-#ifdef HARDWAREFIX
-			Surf.FlatColor.rgba = HWR_Lighting(lightnum,sector->extra_colormap->rgba);
-		else
-			Surf.FlatColor.rgba = HWR_Lighting(lightnum,NORMALFOG);
-#else
+		Surf.FlatColor.s.alpha = 255;
+#ifndef HARDWAREFIX
 		{
 			RGBA_t temp;
 			INT32 alpha;
@@ -1241,10 +1543,6 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 		}
 #endif
 	}
-#ifdef HARDWAREFIX
-	else
-		Surf.FlatColor.rgba = HWR_Lighting(lightnum,NORMALFOG);
-#endif
 
 	if (gr_backsector)
 	{
@@ -1261,6 +1559,7 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 		}
 
 		// hack to allow height changes in outdoor areas
+		// This is what gets rid of the upper textures if there should be sky
 		if (gr_frontsector->ceilingpic == skyflatnum &&
 			gr_backsector->ceilingpic  == skyflatnum)
 		{
@@ -1301,9 +1600,9 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			if (gr_frontsector->numlights)
 				HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[gr_sidedef->toptexture], &Surf, FF_CUTSOLIDS);
 			else if (grTex->mipmap.flags & TF_TRANSPARENT)
-				HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->toptexture], PF_Environment);
+				HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->toptexture], PF_Environment, false, lightnum, colormap);
 			else
-				HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
+				HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 		}
 
 		// check BOTTOM TEXTURE
@@ -1340,42 +1639,49 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			if (gr_frontsector->numlights)
 				HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[gr_sidedef->bottomtexture], &Surf, FF_CUTSOLIDS);
 			else if (grTex->mipmap.flags & TF_TRANSPARENT)
-				HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->bottomtexture], PF_Environment);
+				HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[gr_sidedef->bottomtexture], PF_Environment, false, lightnum, colormap);
 			else
-				HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
+				HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 		}
 		gr_midtexture = texturetranslation[gr_sidedef->midtexture];
 		if (gr_midtexture)
 		{
 			FBITFIELD blendmode;
-			fixed_t  popentop, popenbottom, polytop, polybottom;
-			fixed_t fvisiblefloor, fvisibleceiling, bvisiblefloor, bvisibleceiling;
-			boolean heightsecd = false;
+			sector_t *front, *back;
+			fixed_t  popentop, popenbottom, polytop, polybottom, lowcut, highcut;
 			fixed_t     texturevpeg = 0;
+			INT32 repeats;
 
-			if (gr_frontsector->heightsec != -1)
+			if (gr_linedef->frontsector->heightsec != -1)
+				front = &sectors[gr_linedef->frontsector->heightsec];
+			else
+				front = gr_linedef->frontsector;
+
+			if (gr_linedef->backsector->heightsec != -1)
+				back = &sectors[gr_linedef->backsector->heightsec];
+			else
+				back = gr_linedef->backsector;
+
+			if (gr_sidedef->repeatcnt)
+				repeats = 1 + gr_sidedef->repeatcnt;
+			else if (gr_linedef->flags & ML_EFFECT5)
 			{
-				fvisiblefloor = sectors[gr_frontsector->heightsec].floorheight;
-				fvisibleceiling = sectors[gr_frontsector->heightsec].ceilingheight;
-				heightsecd = true;
+				fixed_t high, low;
+
+				if (front->ceilingheight > back->ceilingheight)
+					high = back->ceilingheight;
+				else
+					high = front->ceilingheight;
+
+				if (front->floorheight > back->floorheight)
+					low = front->floorheight;
+				else
+					low = back->floorheight;
+
+				repeats = (high - low)/textureheight[gr_sidedef->midtexture];
 			}
 			else
-			{
-				fvisiblefloor = gr_frontsector->floorheight;
-				fvisibleceiling = gr_frontsector->ceilingheight;
-			}
-
-			if (gr_backsector->heightsec != -1)
-			{
-				bvisiblefloor = sectors[gr_backsector->heightsec].floorheight;
-				bvisibleceiling = sectors[gr_backsector->heightsec].ceilingheight;
-				heightsecd = true;
-			}
-			else
-			{
-				bvisiblefloor = gr_backsector->floorheight;
-				bvisibleceiling = gr_backsector->ceilingheight;
-			}
+				repeats = 1;
 
 			// SoM: a little note: This code re-arranging will
 			// fix the bug in Nimrod map02. popentop and popenbottom
@@ -1384,36 +1690,58 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			// heights of the polygon, and h & l, are the final (clipped)
 			// poly coords.
 
-			popentop = worldtop < worldhigh ? worldtop : worldhigh;
-			popenbottom = worldbottom > worldlow ? worldbottom : worldlow;
+#ifdef POLYOBJECTS
+			// NOTE: With polyobjects, whenever you need to check the properties of the polyobject sector it belongs to,
+			// you must use the linedef's backsector to be correct
+			// From CB
+			if (gr_curline->polyseg)
+			{
+				popentop = back->ceilingheight;
+				popenbottom = back->floorheight;
+			}
+#endif
+			else
+			{
+				popentop = front->ceilingheight < back->ceilingheight ? front->ceilingheight : back->ceilingheight;
+				popenbottom = front->floorheight > back->floorheight ? front->floorheight : back->floorheight;
+			}
 
 			if (gr_linedef->flags & ML_DONTPEGBOTTOM)
 			{
 				polybottom = popenbottom + gr_sidedef->rowoffset;
-				polytop = polybottom + textureheight[gr_midtexture];
+				polytop = polybottom + textureheight[gr_midtexture]*repeats;
 			}
 			else
 			{
 				polytop = popentop + gr_sidedef->rowoffset;
-				polybottom = polytop - textureheight[gr_midtexture];
+				polybottom = polytop - textureheight[gr_midtexture]*repeats;
 			}
-			if ((fvisibleceiling == bvisibleceiling)
-			    /*|| (gr_linedef->flags & ML_DONTDRAW)*/)
-				h = polytop;
-			else
-				h = polytop < popentop ? polytop : popentop;
 
-			if ((fvisiblefloor == bvisiblefloor)
-			    /*|| (gr_linedef->flags & ML_DONTDRAW)*/)
-				l = polybottom;
+			// CB
+#ifdef POLYOBJECTS
+			// NOTE: With polyobjects, whenever you need to check the properties of the polyobject sector it belongs to,
+			// you must use the linedef's backsector to be correct
+			if (gr_curline->polyseg)
+			{
+				lowcut = polybottom;
+				highcut = polytop;
+			}
+#endif
 			else
-				l = polybottom > popenbottom ? polybottom : popenbottom;
+			{
+				// The cut-off values of a linedef can always be constant, since every line has an absoulute front and or back sector
+				lowcut = front->floorheight > back->floorheight ? front->floorheight : back->floorheight;
+				highcut = front->ceilingheight < back->ceilingheight ? front->ceilingheight : back->ceilingheight;
+			}
+
+			h = polytop > highcut ? highcut : polytop;
+			l = polybottom < lowcut ? lowcut : polybottom;
 
 			if (drawtextured)
 			{
 				// PEGGING
 				if (gr_linedef->flags & ML_DONTPEGBOTTOM)
-					texturevpeg = textureheight[gr_sidedef->midtexture] - h + polybottom;
+					texturevpeg = textureheight[gr_sidedef->midtexture]*repeats - h + polybottom;
 				else
 					texturevpeg = polytop - h;
 
@@ -1428,8 +1756,8 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			// set top/bottom coords
 			// Take the texture peg into account, rather than changing the offsets past
 			// where the polygon might not be.
-			wallVerts[2].y = wallVerts[3].y = FIXED_TO_FLOAT(h - texturevpeg);
-			wallVerts[0].y = wallVerts[1].y = FIXED_TO_FLOAT(l - texturevpeg);
+			wallVerts[2].y = wallVerts[3].y = FIXED_TO_FLOAT(h);
+			wallVerts[0].y = wallVerts[1].y = FIXED_TO_FLOAT(l);
 
 			// set alpha for transparent walls (new boom and legacy linedef types)
 			// ooops ! this do not work at all because render order we should render it in backtofront order
@@ -1486,14 +1814,12 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			if (grTex->mipmap.flags & TF_TRANSPARENT)
 				blendmode = PF_Environment;
 
-			blendmode |= PF_RemoveYWrap;
-
 			if (gr_frontsector->numlights)
 				HWR_SplitWall(gr_frontsector, wallVerts, gr_midtexture, &Surf, FF_CUTSOLIDS);
 			else if (!(blendmode & PF_Masked))
-				HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, blendmode);
+				HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, blendmode, false, lightnum, colormap);
 			else
-				HWR_ProjectWall(wallVerts, &Surf, blendmode);
+				HWR_ProjectWall(wallVerts, &Surf, blendmode, lightnum, colormap);
 
 			// If there is a colormap change, remove it.
 /*			if (!(Surf.FlatColor.s.red + Surf.FlatColor.s.green + Surf.FlatColor.s.blue == Surf.FlatColor.s.red/3)
@@ -1536,9 +1862,9 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 			else
 			{
 				if (grTex->mipmap.flags & TF_TRANSPARENT)
-					HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, PF_Environment);
+					HWR_AddTransparentWall(wallVerts, &Surf, gr_midtexture, PF_Environment, false, lightnum, colormap);
 				else
-					HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
+					HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 			}
 		}
 	}
@@ -1549,6 +1875,7 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 	if (gr_frontsector && gr_backsector && gr_frontsector->tag != gr_backsector->tag && (gr_backsector->ffloors || gr_frontsector->ffloors))
 	{
 		ffloor_t * rover;
+		ffloor_t * r2;
 		fixed_t    highcut = 0, lowcut = 0;
 
 		highcut = gr_frontsector->ceilingheight < gr_backsector->ceilingheight ? gr_frontsector->ceilingheight : gr_backsector->ceilingheight;
@@ -1563,7 +1890,6 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 				if (*rover->topheight < lowcut || *rover->bottomheight > highcut)
 					continue;
 
-
 				h = *rover->topheight;
 				l = *rover->bottomheight;
 				if (h > highcut)
@@ -1576,7 +1902,14 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 				wallVerts[2].y = wallVerts[3].y = FIXED_TO_FLOAT(h);
 				wallVerts[0].y = wallVerts[1].y = FIXED_TO_FLOAT(l);
 
-				if (drawtextured)
+				if (rover->flags & FF_FOG)
+				{
+					wallVerts[3].t = wallVerts[2].t = 0;
+					wallVerts[0].t = wallVerts[1].t = 0;
+					wallVerts[0].s = wallVerts[3].s = 0;
+					wallVerts[2].s = wallVerts[1].s = 0;
+				}
+				else if (drawtextured)
 				{
 					grTex = HWR_GetTexture(texturetranslation[sides[rover->master->sidenum[0]].midtexture]);
 
@@ -1585,14 +1918,39 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					wallVerts[0].s = wallVerts[3].s = cliplow * grTex->scaleX;
 					wallVerts[2].s = wallVerts[1].s = cliphigh * grTex->scaleX;
 				}
-				if (!(rover->flags & FF_FOG))
+
+				if (rover->flags & FF_FOG)
+				{
+					FBITFIELD blendmode;
+
+					blendmode = PF_Translucent|PF_NoTexture;
+
+					lightnum = rover->master->frontsector->lightlevel;
+					colormap = rover->master->frontsector->extra_colormap;
+
+					if (rover->master->frontsector->extra_colormap)
+					{
+
+						Surf.FlatColor.s.alpha = HWR_FogBlockAlpha(rover->master->frontsector->lightlevel,rover->master->frontsector->extra_colormap->rgba,rover->master->frontsector->extra_colormap->fadergba);
+					}
+					else
+					{
+						Surf.FlatColor.s.alpha = HWR_FogBlockAlpha(rover->master->frontsector->lightlevel,NORMALFOG,FADEFOG);
+					}
+
+					if (gr_frontsector->numlights)
+						HWR_SplitFog(gr_frontsector, wallVerts, &Surf, rover->flags, lightnum, colormap);
+					else
+						HWR_AddTransparentWall(wallVerts, &Surf, 0, blendmode, true, lightnum, colormap);
+				}
+				else
 				{
 					FBITFIELD blendmode = PF_Masked;
 
 					if (rover->flags & FF_TRANSLUCENT)
 					{
 						blendmode = PF_Translucent;
-						Surf.FlatColor.s.alpha = (UINT8)rover->alpha;
+						Surf.FlatColor.s.alpha = (UINT8)rover->alpha-1 > 255 ? 255 : rover->alpha-1;
 					}
 					else if (grTex->mipmap.flags & TF_TRANSPARENT)
 					{
@@ -1600,18 +1958,19 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					}
 
 					if (gr_frontsector->numlights)
-						HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, (rover->flags & FF_EXTRA ? FF_CUTEXTRA : FF_CUTSOLIDS)|(rover->flags & FF_TRANSLUCENT ? FF_TRANSLUCENT : 0));
+						HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, rover->flags);
 					else
 					{
 						if (blendmode != PF_Masked)
-							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode);
+							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode, false, lightnum, colormap);
 						else
-							HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
+							HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 					}
 				}
 			}
 		}
-		else if (gr_frontsector->ffloors)
+
+		if (gr_frontsector->ffloors) // Putting this seperate should allow 2 FOF sectors to be connected without too many errors? I think?
 		{
 			for (rover = gr_frontsector->ffloors; rover; rover = rover->next)
 			{
@@ -1632,7 +1991,14 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 				wallVerts[2].y = wallVerts[3].y = FIXED_TO_FLOAT(h);
 				wallVerts[0].y = wallVerts[1].y = FIXED_TO_FLOAT(l);
 
-				if (drawtextured)
+				if (rover->flags & FF_FOG)
+				{
+					wallVerts[3].t = wallVerts[2].t = 0;
+					wallVerts[0].t = wallVerts[1].t = 0;
+					wallVerts[0].s = wallVerts[3].s = 0;
+					wallVerts[2].s = wallVerts[1].s = 0;
+				}
+				else if (drawtextured)
 				{
 					grTex = HWR_GetTexture(texturetranslation[sides[rover->master->sidenum[0]].midtexture]);
 
@@ -1641,14 +2007,38 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					wallVerts[0].s = wallVerts[3].s = cliplow * grTex->scaleX;
 					wallVerts[2].s = wallVerts[1].s = cliphigh * grTex->scaleX;
 				}
-				if (!(rover->flags & FF_FOG))
+
+				if (rover->flags & FF_FOG)
+				{
+					FBITFIELD blendmode;
+
+					blendmode = PF_Translucent|PF_NoTexture;
+
+					lightnum = rover->master->frontsector->lightlevel;
+					colormap = rover->master->frontsector->extra_colormap;
+
+					if (rover->master->frontsector->extra_colormap)
+					{
+						Surf.FlatColor.s.alpha = HWR_FogBlockAlpha(rover->master->frontsector->lightlevel,rover->master->frontsector->extra_colormap->rgba,rover->master->frontsector->extra_colormap->fadergba);
+					}
+					else
+					{
+						Surf.FlatColor.s.alpha = HWR_FogBlockAlpha(rover->master->frontsector->lightlevel,NORMALFOG,FADEFOG);
+					}
+
+					if (gr_backsector->numlights)
+						HWR_SplitFog(gr_backsector, wallVerts, &Surf, rover->flags, lightnum, colormap);
+					else
+						HWR_AddTransparentWall(wallVerts, &Surf, 0, blendmode, true, lightnum, colormap);
+				}
+				else
 				{
 					FBITFIELD blendmode = PF_Masked;
 
 					if (rover->flags & FF_TRANSLUCENT)
 					{
 						blendmode = PF_Translucent;
-						Surf.FlatColor.s.alpha = (UINT8)rover->alpha;
+						Surf.FlatColor.s.alpha = (UINT8)rover->alpha-1 > 255 ? 255 : rover->alpha-1;
 					}
 					else if (grTex->mipmap.flags & TF_TRANSPARENT)
 					{
@@ -1656,13 +2046,13 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					}
 
 					if (gr_backsector->numlights)
-						HWR_SplitWall(gr_backsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, (rover->flags & FF_EXTRA ? FF_CUTEXTRA : FF_CUTSOLIDS)|(rover->flags & FF_TRANSLUCENT ? FF_TRANSLUCENT : 0));
+						HWR_SplitWall(gr_backsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, rover->flags);
 					else
 					{
 						if (blendmode != PF_Masked)
-							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode);
+							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode, false, lightnum, colormap);
 						else
-							HWR_ProjectWall(wallVerts, &Surf, PF_Masked);
+							HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 					}
 				}
 			}
@@ -2256,8 +2646,10 @@ static void HWR_Subsector(size_t num)
 	INT32 floorlightlevel;
 	INT32 ceilinglightlevel;
 	INT32 locFloorHeight, locCeilingHeight;
-	INT32 light;
+	INT32 light = 0;
 	fixed_t wh;
+	extracolormap_t *floorcolormap;
+	extracolormap_t *ceilingcolormap;
 
 #ifdef PARANOIA //no risk while developing, enough debugging nights!
 	if (num >= addsubsector)
@@ -2295,6 +2687,8 @@ static void HWR_Subsector(size_t num)
 	gr_frontsector = R_FakeFlat(gr_frontsector, &tempsec, &floorlightlevel,
 								&ceilinglightlevel, false);
 	//FIXME: Use floorlightlevel and ceilinglightlevel insted of lightlevel.
+
+	floorcolormap = ceilingcolormap = gr_frontsector->extra_colormap;
 
 	// ------------------------------------------------------------------------
 	// sector lighting, DISABLED because it's done in HWR_StoreWallRange
@@ -2343,9 +2737,18 @@ static void HWR_Subsector(size_t num)
 			sub->sector->moved = gr_frontsector->moved = false;
 		}
 
-		floorlightlevel = *gr_frontsector->lightlist[R_GetPlaneLight(gr_frontsector, locFloorHeight, false)].lightlevel;
-		ceilinglightlevel = *gr_frontsector->lightlist[R_GetPlaneLight(gr_frontsector, locCeilingHeight, false)].lightlevel;
+		light = R_GetPlaneLight(gr_frontsector, locFloorHeight, false);
+		if (gr_frontsector->floorlightsec == -1)
+			floorlightlevel = *gr_frontsector->lightlist[light].lightlevel;
+		floorcolormap = gr_frontsector->lightlist[light].extra_colormap;
+
+		light = R_GetPlaneLight(gr_frontsector, locCeilingHeight, false);
+		if (gr_frontsector->ceilinglightsec == -1)
+			ceilinglightlevel = *gr_frontsector->lightlist[light].lightlevel;
+		ceilingcolormap = gr_frontsector->lightlist[light].extra_colormap;
 	}
+
+	sub->sector->extra_colormap = gr_frontsector->extra_colormap;
 
 	// render floor ?
 #ifdef DOPLANES
@@ -2357,7 +2760,7 @@ static void HWR_Subsector(size_t num)
 			if (sub->validcount != validcount)
 			{
 				HWR_GetFlat(levelflats[gr_frontsector->floorpic].lumpnum);
-				HWR_RenderPlane(gr_frontsector, &extrasubsectors[num], locFloorHeight, PF_Occlude, floorlightlevel, levelflats[gr_frontsector->floorpic].lumpnum, NULL);
+				HWR_RenderPlane(gr_frontsector, &extrasubsectors[num], locFloorHeight, PF_Occlude, floorlightlevel, levelflats[gr_frontsector->floorpic].lumpnum, NULL, 255, false, floorcolormap);
 			}
 		}
 		else
@@ -2365,7 +2768,6 @@ static void HWR_Subsector(size_t num)
 #ifdef POLYSKY
 			HWR_RenderSkyPlane(&extrasubsectors[num], locFloorHeight);
 #endif
-			drawsky = true;
 		}
 	}
 
@@ -2376,7 +2778,7 @@ static void HWR_Subsector(size_t num)
 			if (sub->validcount != validcount)
 			{
 				HWR_GetFlat(levelflats[gr_frontsector->ceilingpic].lumpnum);
-				HWR_RenderPlane(NULL, &extrasubsectors[num], locCeilingHeight, PF_Occlude, ceilinglightlevel, levelflats[gr_frontsector->ceilingpic].lumpnum,NULL);
+				HWR_RenderPlane(NULL, &extrasubsectors[num], locCeilingHeight, PF_Occlude, ceilinglightlevel, levelflats[gr_frontsector->ceilingpic].lumpnum,NULL, 255, false, ceilingcolormap);
 			}
 		}
 		else
@@ -2384,9 +2786,16 @@ static void HWR_Subsector(size_t num)
 #ifdef POLYSKY
 			HWR_RenderSkyPlane(&extrasubsectors[num], locCeilingHeight);
 #endif
-			drawsky = true;
 		}
 	}
+
+#ifndef POLYSKY
+	// Moved here because before, when above the ceiling and the floor does not have the sky flat, it doesn't draw the sky
+	if (gr_frontsector->ceilingpic == skyflatnum || gr_frontsector->floorpic == skyflatnum)
+	{
+		drawsky = true;
+	}
+#endif
 
 #ifdef R_FAKEFLOORS
 	if (gr_frontsector->ffloors)
@@ -2407,9 +2816,27 @@ static void HWR_Subsector(size_t num)
 			if (*rover->bottomheight <= gr_frontsector->ceilingheight &&
 			    *rover->bottomheight >= gr_frontsector->floorheight &&
 			    ((dup_viewz < *rover->bottomheight && !(rover->flags & FF_INVERTPLANES)) ||
-			     (dup_viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES))))
+			     (dup_viewz > *rover->bottomheight && (rover->flags & FF_BOTHPLANES || rover->flags & FF_INVERTPLANES))))
 			{
-				if (rover->flags & (FF_TRANSLUCENT|FF_FOG)) // SoM: Flags are more efficient
+				if (rover->flags & FF_FOG)
+				{
+					UINT8 alpha;
+
+					light = R_GetPlaneLight(gr_frontsector, *rover->bottomheight, dup_viewz < *rover->bottomheight ? true : false);
+
+					if (rover->master->frontsector->extra_colormap)
+						alpha = HWR_FogBlockAlpha(*gr_frontsector->lightlist[light].lightlevel, rover->master->frontsector->extra_colormap->rgba, rover->master->frontsector->extra_colormap->fadergba);
+					else
+						alpha = HWR_FogBlockAlpha(*gr_frontsector->lightlist[light].lightlevel, NORMALFOG, FADEFOG);
+
+					HWR_AddTransparentFloor(0,
+					                       &extrasubsectors[num],
+					                       *rover->bottomheight,
+					                       *gr_frontsector->lightlist[light].lightlevel,
+					                       alpha, rover->master->frontsector, PF_Translucent|PF_NoTexture,
+										   true, rover->master->frontsector->extra_colormap);
+				}
+				else if (rover->flags & FF_TRANSLUCENT) // SoM: Flags are more efficient
 				{
 					light = R_GetPlaneLight(gr_frontsector, *rover->bottomheight, dup_viewz < *rover->bottomheight ? true : false);
 #ifndef SORTING
@@ -2423,7 +2850,8 @@ static void HWR_Subsector(size_t num)
 					                       &extrasubsectors[num],
 					                       *rover->bottomheight,
 					                       *gr_frontsector->lightlist[light].lightlevel,
-					                       rover->alpha, rover->master->frontsector);
+					                       rover->alpha-1 > 255 ? 255 : rover->alpha-1, rover->master->frontsector, PF_Translucent,
+										   false, gr_frontsector->lightlist[light].extra_colormap);
 #endif
 				}
 				else
@@ -2431,15 +2859,33 @@ static void HWR_Subsector(size_t num)
 					HWR_GetFlat(levelflats[*rover->bottompic].lumpnum);
 					light = R_GetPlaneLight(gr_frontsector, *rover->bottomheight, dup_viewz < *rover->bottomheight ? true : false);
 					HWR_RenderPlane(NULL, &extrasubsectors[num], *rover->bottomheight, PF_Occlude, *gr_frontsector->lightlist[light].lightlevel, levelflats[*rover->bottompic].lumpnum,
-					                rover->master->frontsector);
+					                rover->master->frontsector, 255, false, gr_frontsector->lightlist[light].extra_colormap);
 				}
 			}
 			if (*rover->topheight >= gr_frontsector->floorheight &&
 			    *rover->topheight <= gr_frontsector->ceilingheight &&
 			    ((dup_viewz > *rover->topheight && !(rover->flags & FF_INVERTPLANES)) ||
-			     (dup_viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES))))
+			     (dup_viewz < *rover->topheight && (rover->flags & FF_BOTHPLANES || rover->flags & FF_INVERTPLANES))))
 			{
-				if (rover->flags & (FF_TRANSLUCENT|FF_FOG))
+				if (rover->flags & FF_FOG)
+				{
+					UINT8 alpha;
+
+					light = R_GetPlaneLight(gr_frontsector, *rover->topheight, dup_viewz < *rover->topheight ? true : false);
+
+					if (rover->master->frontsector->extra_colormap)
+						alpha = HWR_FogBlockAlpha(*gr_frontsector->lightlist[light].lightlevel, rover->master->frontsector->extra_colormap->rgba, rover->master->frontsector->extra_colormap->fadergba);
+					else
+						alpha = HWR_FogBlockAlpha(*gr_frontsector->lightlist[light].lightlevel, NORMALFOG, FADEFOG);
+
+					HWR_AddTransparentFloor(0,
+					                       &extrasubsectors[num],
+					                       *rover->topheight,
+					                       *gr_frontsector->lightlist[light].lightlevel,
+					                       alpha, rover->master->frontsector, PF_Translucent|PF_NoTexture,
+										   true, rover->master->frontsector->extra_colormap);
+				}
+				else if (rover->flags & FF_TRANSLUCENT)
 				{
 					light = R_GetPlaneLight(gr_frontsector, *rover->topheight, dup_viewz < *rover->topheight ? true : false);
 #ifndef SORTING
@@ -2453,7 +2899,8 @@ static void HWR_Subsector(size_t num)
 					                        &extrasubsectors[num],
 					                        *rover->topheight,
 					                        *gr_frontsector->lightlist[light].lightlevel,
-					                        rover->alpha, rover->master->frontsector);
+					                        rover->alpha-1 > 255 ? 255 : rover->alpha-1, rover->master->frontsector, PF_Translucent,
+											false, gr_frontsector->lightlist[light].extra_colormap);
 #endif
 
 				}
@@ -2462,7 +2909,7 @@ static void HWR_Subsector(size_t num)
 					HWR_GetFlat(levelflats[*rover->toppic].lumpnum);
 					light = R_GetPlaneLight(gr_frontsector, *rover->topheight, dup_viewz < *rover->topheight ? true : false);
 					HWR_RenderPlane(NULL, &extrasubsectors[num], *rover->topheight, PF_Occlude, *gr_frontsector->lightlist[light].lightlevel, levelflats[*rover->toppic].lumpnum,
-					                  rover->master->frontsector);
+					                  rover->master->frontsector, 255, false, gr_frontsector->lightlist[light].extra_colormap);
 				}
 			}
 		}
@@ -2535,7 +2982,7 @@ static void HWR_Subsector(size_t num)
 			HWR_RenderPlane(gr_frontsector,
 				&extrasubsectors[num], wh, PF_Translucent,
 				gr_frontsector->lightlevel, doomwaterflat,
-				NULL);
+				NULL, 255, false, gr_frontsector->lightlist[light].extra_colormap);
 		}
 	}
 	// -------------------- WATER IN DEV. TEST ------------------------
@@ -2920,41 +3367,6 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 	//Hurdler: 25/04/2000: now support colormap in hardware mode
 	HWR_GetMappedPatch(gpatch, spr->colormap);
 
-	// sprite lighting by modulating the RGB components
-	/// \todo coloured
-#ifndef HARDWAREFIX
-	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = spr->sectorlight;
-#endif
-
-	// colormap test
-	{
-		sector_t *sector = spr->mobj->subsector->sector;
-
-		if (sector->ffloors)
-		{
-			ffloor_t *caster = sector->lightlist[R_GetPlaneLight(sector, spr->mobj->z, false)].caster;
-			sector = caster ? &sectors[caster->secnum] : sector;
-		}
-		if (sector->extra_colormap)
-#ifdef HARDWAREFIX
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(sector->lightlevel),sector->extra_colormap->rgba);
-		else
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(sector->lightlevel),NORMALFOG);
-#else
-		{
-			RGBA_t temp;
-			INT32 alpha;
-
-			temp.rgba = sector->extra_colormap->rgba;
-			alpha = (26 - temp.s.alpha)*spr->sectorlight;
-			Surf.FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
-			Surf.FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
-			Surf.FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
-			Surf.FlatColor.s.alpha = 0xff;
-		}
-#endif
-	}
-
 	// Draw shadow BEFORE SPRITE.
 	if (cv_shadow.value // Shadows enabled
 		&& !(spr->mobj->flags & MF_SCENERY && spr->mobj->flags & MF_SPAWNCEILING && spr->mobj->flags & MF_NOGRAVITY) // Ceiling scenery have no shadow.
@@ -3042,6 +3454,25 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 			swallVerts[2].z = swallVerts[3].z = spr->tz + gpatch->height - (gpatch->height-gpatch->topoffset);
 		}
 
+		// Huh setting the Y higher? Also moving this before to stop the alterations affecting it after scaling.
+		if (spr->mobj && spr->mobj->scale != 100)
+		{
+			const float radius = (spr->x2-spr->x1)/2;
+			const float scale = (float)(100-spr->mobj->scale);
+			if(spr->mobj->flags & MF_HIRES)
+			{
+				swallVerts[0].x = swallVerts[3].x += FLOATSCALE(radius,scale)/2;
+				swallVerts[2].x = swallVerts[1].x -= FLOATSCALE(radius,scale)/2;
+				swallVerts[2].z = swallVerts[3].z -= FLOATSCALE(gpatch->height,scale);
+			}
+			else
+			{
+				swallVerts[0].x = swallVerts[3].x += FLOATSCALE(radius,scale);
+				swallVerts[2].x = swallVerts[1].x -= FLOATSCALE(radius,scale);
+				swallVerts[2].z = swallVerts[3].z -= FLOATSCALE(gpatch->height,scale);
+			}
+		}
+
 		// transform
 		wv = swallVerts;
 
@@ -3081,27 +3512,41 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		else
 			swallVerts[0].tow = swallVerts[1].tow = gpatch->max_t;
 
-#if 0
-		Surf.FlatColor.s.red = 0x00;
-		Surf.FlatColor.s.blue = 0x00;
-		Surf.FlatColor.s.green = 0x00;
-#endif
+		sSurf.FlatColor.s.red = 0x00;
+		sSurf.FlatColor.s.blue = 0x00;
+		sSurf.FlatColor.s.green = 0x00;
 
 		if (spr->mobj->frame & FF_TRANSMASK || spr->mobj->flags2 & MF2_SHADOW)
 		{
 #ifdef HARDWAREFIX
 			sector_t *sector = spr->mobj->subsector->sector;
+			UINT8 lightlevel = LightLevelToLum(sector->lightlevel);
+			extracolormap_t *colormap = sector->extra_colormap;
 
-			if (sector->ffloors)
+			if (sector->numlights)
 			{
-				ffloor_t *caster = sector->lightlist[R_GetPlaneLight(sector, spr->mobj->z, false)].caster;
-				sector = caster ? &sectors[caster->secnum] : sector;
+				INT32 light = R_GetPlaneLight(sector, spr->mobj->floorz, false);
+
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
+				else
+					lightlevel = LightLevelToLum(255);
+
+				if (sector->lightlist[light].extra_colormap)
+					colormap = sector->lightlist[light].extra_colormap;
+			}
+			else
+			{
+				lightlevel = LightLevelToLum(sector->lightlevel);
+
+				if (sector->extra_colormap)
+					colormap = sector->extra_colormap;
 			}
 
-			if (sector->extra_colormap)
-				Surf.FlatColor.rgba = HWR_Lighting(spr->sectorlight/2,sector->extra_colormap->rgba);
+			if (colormap)
+				sSurf.FlatColor.rgba = HWR_Lighting(lightlevel/2, colormap->rgba, colormap->fadergba, false, true);
 			else
-				Surf.FlatColor.rgba = HWR_Lighting(spr->sectorlight/2,NORMALFOG);
+				sSurf.FlatColor.rgba = HWR_Lighting(lightlevel/2, NORMALFOG, FADEFOG, false, true);
 #else
 			// sprite lighting by modulating the RGB components
 			sSurf.FlatColor.s.red = sSurf.FlatColor.s.green = sSurf.FlatColor.s.blue = (UINT8)(spr->sectorlight/2);
@@ -3115,31 +3560,10 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 #endif
 
 		/// \todo do the test earlier
-		if (!cv_grmd2.value || (md2_models[spr->mobj->sprite].scale < 0.0f))
+		if (!cv_grmd2.value || (md2_models[spr->mobj->sprite].scale < 0.0f) || (md2_models[spr->mobj->sprite].notfound = true) || (md2_playermodels[(skin_t*)spr->mobj->skin-skins].scale < 0.0f) || (md2_playermodels[(skin_t*)spr->mobj->skin-skins].notfound = true))
 		{
 			if (0x80 > floorheight/4)
 			{
-				if(spr->mobj && spr->mobj->scale != 100)
-				{
-					const float radius = (spr->x2-spr->x1)/2;
-					const float scale = (float)(100-spr->mobj->scale);
-					if(spr->mobj->flags & MF_HIRES)
-					{
-						wallVerts[0].x = wallVerts[3].x += FLOATSCALE(radius,scale)/2;
-						wallVerts[2].x = wallVerts[1].x -= FLOATSCALE(radius,scale)/2;
-						wallVerts[0].y = wallVerts[1].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale/2);
-						wallVerts[2].y = wallVerts[3].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale/2);
-						wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
-					}
-					else
-					{
-						wallVerts[0].x = wallVerts[3].x += FLOATSCALE(radius,scale);
-						wallVerts[2].x = wallVerts[1].x -= FLOATSCALE(radius,scale);
-						wallVerts[0].y = wallVerts[1].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale);
-						wallVerts[2].y = wallVerts[3].y += FLOATSCALE(abs(gpatch->topoffset-gpatch->height),scale);
-						wallVerts[2].y = wallVerts[3].y -= FLOATSCALE(gpatch->height,scale);
-					}
-				}
 				sSurf.FlatColor.s.alpha = (UINT8)(0x80 - floorheight/4);
 				HWD.pfnDrawPolygon(&sSurf, swallVerts, 4, PF_Translucent|PF_Modulated|PF_Clip);
 			}
@@ -3147,6 +3571,88 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 	}
 
 noshadow:
+
+	// This needs to be AFTER the shadows so that the regular sprites aren't drawn completely black.
+	// sprite lighting by modulating the RGB components
+	/// \todo coloured
+#ifndef HARDWAREFIX
+	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = spr->sectorlight;
+#endif
+
+	// colormap test
+	{
+#ifdef HARDWAREFIX
+		sector_t *sector = spr->mobj->subsector->sector;
+		UINT8 lightlevel = LightLevelToLum(sector->lightlevel);
+		extracolormap_t *colormap = sector->extra_colormap;
+
+		if (sector->numlights)
+		{
+			INT32 light = R_GetPlaneLight(sector, spr->mobj->z, false);
+
+			if ((sector->lightlist[light].height > (spr->mobj->z + spr->mobj->height)) && !(sector->lightlist[light].flags & FF_NOSHADE))
+			{
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
+				else
+					lightlevel = LightLevelToLum(255);
+
+				if (sector->lightlist[light].extra_colormap)
+					colormap = sector->lightlist[light].extra_colormap;
+			}
+			else // If we can't use the light at its bottom, we'll use the light at its top
+			{
+				light = R_GetPlaneLight(sector, spr->mobj->z + spr->mobj->height, false);
+
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
+				else
+					lightlevel = LightLevelToLum(255);
+
+				if (sector->lightlist[light].extra_colormap)
+					colormap = sector->lightlist[light].extra_colormap;
+			}
+		}
+		else
+		{
+			if (!(spr->mobj->frame & FF_FULLBRIGHT))
+				lightlevel = LightLevelToLum(sector->lightlevel);
+			else
+				lightlevel = LightLevelToLum(255);
+
+			if (sector->extra_colormap)
+				colormap = sector->extra_colormap;
+		}
+
+		if (spr->mobj->frame & FF_FULLBRIGHT)
+			lightlevel = LightLevelToLum(255);
+
+		if (colormap)
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, colormap->rgba, colormap->fadergba, false, false);
+		else
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, false, false);
+#else
+
+		sector_t *sector = spr->mobj->subsector->sector;
+
+		if (sector->ffloors)
+		{
+			ffloor_t *caster = sector->lightlist[R_GetPlaneLight(sector, spr->mobj->z, false)].caster;
+			sector = caster ? &sectors[caster->secnum] : sector;
+		}
+		{
+			RGBA_t temp;
+			INT32 alpha;
+
+			temp.rgba = sector->extra_colormap->rgba;
+			alpha = (26 - temp.s.alpha)*spr->sectorlight;
+			Surf.FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
+			Surf.FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
+			Surf.FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
+			Surf.FlatColor.s.alpha = 0xff;
+		}
+#endif
+	}
 
 	/// \todo do the test earlier
 	if (!cv_grmd2.value || (md2_models[spr->mobj->sprite].scale < 0.0f))
@@ -3184,6 +3690,12 @@ static inline void HWR_DrawPrecipitationSprite(gr_vissprite_t *spr)
 	FOutVector *wv;
 	GLPatch_t *gpatch; // sprite patch converted to hardware
 	FSurfaceInfo Surf;
+
+	if (!spr->mobj)
+		return;
+
+	if (!spr->mobj->subsector)
+		return;
 
 	// cache sprite graphics
 	gpatch = W_CachePatchNum(spr->patchlumpnum, PU_CACHE);
@@ -3231,12 +3743,41 @@ static inline void HWR_DrawPrecipitationSprite(gr_vissprite_t *spr)
 	//Hurdler: 25/04/2000: now support colormap in hardware mode
 	HWR_GetMappedPatch(gpatch, spr->colormap);
 
+	sector_t *sector = spr->mobj->subsector->sector;
+
+	if (sector->ffloors)
+	{
+		ffloor_t *caster = sector->lightlist[R_GetPlaneLight(sector, spr->mobj->z, false)].caster;
+		sector = caster ? &sectors[caster->secnum] : sector;
+	}
+
+
 	// sprite lighting by modulating the RGB components
-	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = spr->sectorlight;
+	if (sector->extra_colormap)
+#ifdef HARDWAREFIX
+			Surf.FlatColor.rgba = HWR_Lighting(spr->sectorlight,sector->extra_colormap->rgba,sector->extra_colormap->fadergba, false, false);
+		else
+			Surf.FlatColor.rgba = HWR_Lighting(spr->sectorlight,NORMALFOG,FADEFOG, false, false);
+#endif
 
-	blend = HWR_TranstableToAlpha((spr->mobj->frame & FF_TRANSMASK)>>FF_TRANSSHIFT, &Surf);
+	if (spr->mobj->flags2 & MF2_SHADOW)
+	{
+		Surf.FlatColor.s.alpha = 0x40;
+		blend = PF_Translucent;
+	}
+	else if (spr->mobj->frame & FF_TRANSMASK)
+		blend = HWR_TranstableToAlpha((spr->mobj->frame & FF_TRANSMASK)>>FF_TRANSSHIFT, &Surf);
+	else
+	{
+		// BP: i agree that is little better in environement but it don't
+		//     work properly under glide nor with fogcolor to ffffff :(
+		// Hurdler: PF_Environement would be cool, but we need to fix
+		//          the issue with the fog before
+		Surf.FlatColor.s.alpha = 0xFF;
+		blend = PF_Translucent|PF_Occlude;
+	}
 
-	HWD.pfnDrawPolygon(&Surf, wallVerts, 4, blend|PF_Modulated|PF_Clip|PF_Occlude);
+	HWD.pfnDrawPolygon(&Surf, wallVerts, 4, blend|PF_Modulated|PF_Clip);
 }
 #endif
 
@@ -3305,12 +3846,15 @@ typedef struct
 #ifndef SORTING
 	fixed_t       fixedheight;
 #endif
+	boolean fogwall;
+	INT32 lightlevel;
+	extracolormap_t *wallcolormap; // Doing the lighting in HWR_RenderWall now for correct fog after sorting
 } wallinfo_t;
 
 static wallinfo_t *wallinfo = NULL;
 static size_t numwalls = 0; // a list of transparent walls to be drawn
 
-static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIELD blend);
+static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIELD blend, boolean fogwall, INT32 lightlevel, extracolormap_t *wallcolormap);
 
 #define MAX_TRANSPARENTWALL 256
 
@@ -3322,6 +3866,9 @@ typedef struct
 	lumpnum_t lumpnum;
 	INT32 alpha;
 	sector_t *FOFSector;
+	FBITFIELD blend;
+	boolean fogplane;
+	extracolormap_t *planecolormap;
 	INT32 drawcount;
 } planeinfo_t;
 
@@ -3350,7 +3897,7 @@ static INT32 drawcount = 0;
 
 // This will likely turn into a copy of HWR_Add3DWater and replace it.
 void HWR_AddTransparentFloor(lumpnum_t lumpnum, extrasubsector_t *xsub,
-	fixed_t fixedheight, INT32 lightlevel, INT32 alpha, sector_t *FOFSector)
+	fixed_t fixedheight, INT32 lightlevel, INT32 alpha, sector_t *FOFSector, FBITFIELD blend, boolean fogplane, extracolormap_t *planecolormap)
 {
 	if (!(numplanes % MAX_TRANSPARENTFLOOR))
 	{
@@ -3364,6 +3911,9 @@ void HWR_AddTransparentFloor(lumpnum_t lumpnum, extrasubsector_t *xsub,
 	planeinfo[numplanes].xsub = xsub;
 	planeinfo[numplanes].alpha = alpha;
 	planeinfo[numplanes].FOFSector = FOFSector;
+	planeinfo[numplanes].blend = blend;
+	planeinfo[numplanes].fogplane = fogplane;
+	planeinfo[numplanes].planecolormap = planecolormap;
 	planeinfo[numplanes].drawcount = drawcount++;
 	numplanes++;
 }
@@ -3475,19 +4025,20 @@ static void HWR_CreateDrawNodes(void)
 	{
 		if (sortnode[sortindex[i]].plane)
 		{
-			FBITFIELD PolyFlags = PF_Translucent | (sortnode[sortindex[i]].plane->alpha<<24);
-
 			// We aren't traversing the BSP tree, so make gr_frontsector null to avoid crashes.
 			gr_frontsector = NULL;
 
-			HWR_GetFlat(sortnode[sortindex[i]].plane->lumpnum);
-			HWR_RenderPlane(NULL, sortnode[sortindex[i]].plane->xsub, sortnode[sortindex[i]].plane->fixedheight, PolyFlags, sortnode[sortindex[i]].plane->lightlevel,
-				sortnode[sortindex[i]].plane->lumpnum, sortnode[sortindex[i]].plane->FOFSector);
+			if (!(sortnode[sortindex[i]].plane->blend & PF_NoTexture))
+				HWR_GetFlat(sortnode[sortindex[i]].plane->lumpnum);
+			HWR_RenderPlane(NULL, sortnode[sortindex[i]].plane->xsub, sortnode[sortindex[i]].plane->fixedheight, sortnode[sortindex[i]].plane->blend, sortnode[sortindex[i]].plane->lightlevel,
+				sortnode[sortindex[i]].plane->lumpnum, sortnode[sortindex[i]].plane->FOFSector, sortnode[sortindex[i]].plane->alpha, sortnode[sortindex[i]].plane->fogplane, sortnode[sortindex[i]].plane->planecolormap);
 		}
 		else if (sortnode[sortindex[i]].wall)
 		{
-			HWR_GetTexture(sortnode[sortindex[i]].wall->texnum);
-			HWR_RenderWall(sortnode[sortindex[i]].wall->wallVerts, &sortnode[sortindex[i]].wall->Surf, sortnode[sortindex[i]].wall->blend);
+			if (!(sortnode[sortindex[i]].wall->blend & PF_NoTexture))
+				HWR_GetTexture(sortnode[sortindex[i]].wall->texnum);
+			HWR_RenderWall(sortnode[sortindex[i]].wall->wallVerts, &sortnode[sortindex[i]].wall->Surf, sortnode[sortindex[i]].wall->blend, sortnode[sortindex[i]].wall->fogwall,
+				sortnode[sortindex[i]].wall->lightlevel, sortnode[sortindex[i]].wall->wallcolormap);
 		}
 	}
 
@@ -3517,11 +4068,17 @@ static void HWR_DrawSprites(void)
 		     spr = spr->next)
 		{
 #ifdef HWPRECIP
-			if (spr->precip == true)
+			if (spr->precip)
 				HWR_DrawPrecipitationSprite(spr);
 			else
 #endif
-				HWR_DrawSprite(spr);
+				if (spr->mobj->skin)
+				{
+					if (!cv_grmd2.value || (cv_grmd2.value && md2_playermodels[(skin_t*)spr->mobj->skin-skins].notfound == true))
+						HWR_DrawSprite(spr);
+				}
+				else if (!cv_grmd2.value || (cv_grmd2.value && md2_models[spr->mobj->sprite].notfound == true))
+					HWR_DrawSprite(spr);
 		}
 	}
 }
@@ -3540,7 +4097,20 @@ static void HWR_DrawMD2S(void)
 			spr != &gr_vsprsortedhead;
 			spr = spr->next)
 		{
-			HWR_DrawMD2(spr);
+#ifdef HWPRECIP
+			if (!spr->precip)
+			{
+#endif
+				if (spr->mobj && spr->mobj->skin)
+				{
+					if ((md2_playermodels[(skin_t*)spr->mobj->skin-skins].notfound == false) && (md2_playermodels[(skin_t*)spr->mobj->skin-skins].scale > 0.0f))
+						HWR_DrawMD2(spr);
+				}
+				else if (md2_models[spr->mobj->sprite].notfound == false && md2_models[spr->mobj->sprite].scale > 0.0f)
+					HWR_DrawMD2(spr);
+#ifdef HWPRECIP
+			}
+#endif
 		}
 	}
 }
@@ -3582,7 +4152,7 @@ static void HWR_AddSprites(sector_t *sec)
 			if (!thing)
 				continue;
 
-			if ((thing->flags2 & MF2_DONTDRAW) == 0)
+			if (!(thing->flags2 & MF2_DONTDRAW))
 			{
 				adx = abs(players[displayplayer].mo->x - thing->x);
 				ady = abs(players[displayplayer].mo->y - thing->y);
@@ -3614,11 +4184,11 @@ static void HWR_AddSprites(sector_t *sec)
 			if (!thing)
 				continue;
 
-			if ((thing->flags2 & MF2_DONTDRAW) == 0)
+			if (!(thing->flags2 & MF2_DONTDRAW))
 				HWR_ProjectSprite(thing);
 
 			if (cv_objectplace.value
-			&& (thing->flags2 & MF2_DONTDRAW) == 0)
+			&& (!thing->flags2 & MF2_DONTDRAW))
 				objectsdrawn++;
 
 			if (!thing->snext)
@@ -3815,30 +4385,6 @@ static void HWR_ProjectSprite(mobj_t *thing)
 
 	//CONS_Printf("------------------\nH: sprite  : %d\nH: frame   : %x\nH: type    : %d\nH: sname   : %s\n\n",
 	//            thing->sprite, thing->frame, thing->type, sprnames[thing->sprite]);
-
-	if (thing->state && (thing->state->frame & FF_FULLBRIGHT))
-		/// \todo disable also the fog
-		vis->sectorlight = 0xff;
-	else
-	{
-		sector_t *sector;
-		if (thing->subsector)
-			sector = thing->subsector->sector;
-		else
-			sector = R_PointInSubsector(thing->x, thing->y)->sector;
-
-		if (sector)
-		{
-			if (sector->ffloors)
-			{
-				ffloor_t *caster = sector->lightlist[R_GetPlaneLight(sector, thing->z+thing->height/2, false)].caster;
-				sector = caster ? &sectors[caster->secnum] : sector;
-			}
-			vis->sectorlight = LightLevelToLum(sector->lightlevel & 0xff);
-		}
-		else
-			vis->sectorlight = sectorlight;
-	}
 
 	if (thing->eflags & MFE_VERTICALFLIP)
 		vis->vflip = true;
@@ -4108,6 +4654,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	//------------------------------------------------------------------------
 	HWR_ClearView();
 
+	/* // I don't think this is ever used.
 	if (cv_grfog.value)
 	{
 		camera_t *camview;
@@ -4167,6 +4714,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	}
 	else
 		HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 0); // Turn it off
+		*/
 
 	if (drawsky)
 		HWR_DrawSkyBackground(player);
@@ -4253,6 +4801,10 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	}
 #endif
 
+	// put it off for menus etc
+	if (cv_grfog.value)
+		HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 0);
+
 #ifdef SHUFFLE
 	HWR_DoPostProcessor();
 #endif
@@ -4260,9 +4812,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	NetUpdate();
 
 	//------------------------------------------------------------------------
-	// put it off for menus etc
-	if (cv_grfog.value)
-		HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 0);
+
 
 	// added by Hurdler for correct splitscreen
 	// moved here by hurdler so it works with the new near clipping plane
@@ -4530,13 +5080,13 @@ static void HWR_Render3DWater(void)
 
 		HWR_GetFlat(planeinfo[i].lumpnum);
 		HWR_RenderPlane(NULL, planeinfo[i].xsub, planeinfo[i].fixedheight, PolyFlags, planeinfo[i].lightlevel, planeinfo[i].lumpnum,
-			planeinfo[i].FOFSector);
+			planeinfo[i].FOFSector, planeinfo[i].alpha, planeinfo[i].fogplane, planeinfo[i].planecolormap);
 	}
 	numfloors = 0;
 }
 #endif
 
-static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, INT32 texnum, FBITFIELD blend)
+static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, INT32 texnum, FBITFIELD blend, boolean fogwall, INT32 lightlevel, extracolormap_t *wallcolormap)
 {
 	if (!(numwalls % MAX_TRANSPARENTWALL))
 	{
@@ -4551,6 +5101,9 @@ static void HWR_AddTransparentWall(wallVert3D *wallVerts, FSurfaceInfo *pSurf, I
 #ifdef SORTING
 	wallinfo[numwalls].drawcount = drawcount++;
 #endif
+	wallinfo[numwalls].fogwall = fogwall;
+	wallinfo[numwalls].lightlevel = lightlevel;
+	wallinfo[numwalls].wallcolormap = wallcolormap;
 	numwalls++;
 }
 #ifndef SORTING
@@ -4580,12 +5133,12 @@ static void HWR_RenderTransparentWalls(void)
 	for (i = 0; i < numwalls; i++)
 	{
 		HWR_GetTexture(wallinfo[i].texnum);
-		HWR_RenderWall(wallinfo[i].wallVerts, &wallinfo[i].Surf, wallinfo[i].blend);
+		HWR_RenderWall(wallinfo[i].wallVerts, &wallinfo[i].Surf, wallinfo[i].blend, wallinfo[i].wall->fogwall, wallinfo[i].wall->lightlevel, wallinfo[i].wall->wallcolormap);
 	}
 	numwalls = 0;
 }
 #endif
-static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIELD blend)
+static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIELD blend, boolean fogwall, INT32 lightlevel, extracolormap_t *wallcolormap)
 {
 	FOutVector  trVerts[4];
 	UINT8       i;
@@ -4605,6 +5158,26 @@ static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIE
 		wv->y   = wallVerts->y;
 		wv->z = wallVerts->z;
 	}
+
+	UINT8 alpha = pSurf->FlatColor.s.alpha; // retain the alpha
+
+	// Lighting is done here instead so that fog isn't drawn incorrectly on transparent walls after sorting
+	if (wallcolormap)
+	{
+		if (fogwall)
+			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), wallcolormap->rgba, wallcolormap->fadergba, true, false);
+		else
+			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), wallcolormap->rgba, wallcolormap->fadergba, false, false);
+	}
+	else
+	{
+		if (fogwall)
+			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, true, false);
+		else
+			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, false, false);
+	}
+
+	pSurf->FlatColor.s.alpha = alpha; // put the alpha back after lighting
 
 	if (blend & PF_Environment)
 		HWD.pfnDrawPolygon(pSurf, trVerts, 4, blend|PF_Modulated|PF_Clip|PF_Occlude); // PF_Occlude must be used for solid objects
@@ -4634,18 +5207,29 @@ void HWR_DoPostProcessor(void)
 	if(gamestate != GS_INTERMISSION)
 		HWD.pfnMakeScreenTexture();
 
-	// Drunken vision! WooOOooo~
-	if (postimgtype == postimg_water)
+	if (postimgtype == postimg_water || postimgtype == postimg_heat)
 	{
 		// 10 by 10 grid. 2 coordinates (xy)
 		float v[SCREENVERTS][SCREENVERTS][2];
 		static double disStart = 0;
 		UINT8 x, y;
+		INT32 WAVELENGTH;
+		INT32 AMPLITUDE;
+		INT32 FREQUENCY;
 
 		// Modifies the wave.
-		const INT32 WAVELENGTH = 20; // Lower is longer
-		const INT32 AMPLITUDE = 20; // Lower is bigger
-		const INT32 FREQUENCY = 16; // Lower is faster
+		if (postimgtype == postimg_water)
+		{
+			WAVELENGTH = 20; // Lower is longer
+			AMPLITUDE = 20; // Lower is bigger
+			FREQUENCY = 16; // Lower is faster
+		}
+		else
+		{
+			WAVELENGTH = 10; // Lower is longer
+			AMPLITUDE = 30; // Lower is bigger
+			FREQUENCY = 4; // Lower is faster
+		}
 
 		for (x = 0; x < SCREENVERTS; x++)
 		{
@@ -4743,7 +5327,7 @@ void HWR_DrawIntermissionBG(void)
 
 void HWR_DoScreenWipe(void)
 {
-	HWRWipeCounter -= 0.07f;
+	HWRWipeCounter -= 0.035f;
 /*
 	if(cv_debug)
 		CONS_Printf("In HWR_DoScreenWipe(). Alpha =%f\n", HWRWipeCounter);

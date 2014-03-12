@@ -73,7 +73,6 @@ typedef struct gr_vissprite_s
 	lumpnum_t patchlumpnum;
 	boolean flip;
 	UINT8 translucency;       //alpha level 0-255
-	UINT8 sectorlight;        // ...
 	mobj_t *mobj;
 	boolean precip; // Tails 08-25-2002
 	boolean vflip;

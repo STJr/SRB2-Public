@@ -32,6 +32,9 @@
 #include "r_plane.h"
 #include "p_tick.h"
 #include "p_local.h"
+#ifdef HWRENDER
+#include "hardware/hw_md2.h"
+#endif
 
 #ifdef PC_DOS
 #include <stdio.h> // for snprintf
@@ -411,6 +414,10 @@ void R_AddSpriteDefs(UINT16 wadnum)
 
 		if (R_AddSingleSpriteDef(spritename, &sprites[i], wadnum, start, end))
 		{
+#ifdef HWRENDER
+			if (rendermode == render_opengl)
+				HWR_AddSpriteMD2(i);
+#endif
 			// if a new sprite was added (not just replaced)
 			addsprites++;
 			if (devparm)
@@ -2849,6 +2856,11 @@ next_token:
 
 		ST_LoadFaceGraphics(skins[numskins].faceprefix, skins[numskins].superprefix, numskins);
 		ST_LoadFaceNameGraphics(skins[numskins].nameprefix, numskins);
+
+#ifdef HWRENDER
+		if (rendermode == render_opengl)
+			HWR_AddPlayerMD2(numskins);
+#endif
 
 		numskins++;
 	}

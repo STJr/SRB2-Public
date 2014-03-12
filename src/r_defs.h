@@ -65,6 +65,7 @@ typedef struct
 
 	// rgba is used in hw mode for colored sector lighting
 	INT32 rgba; // similar to maskcolor in sw mode
+	INT32 fadergba; // The colour the colourmaps fade to
 
 	lighttable_t *colormap;
 } extracolormap_t;

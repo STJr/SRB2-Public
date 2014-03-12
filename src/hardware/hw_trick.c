@@ -924,7 +924,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdr->toptexture == 0)
 					{
 						if (sdr->midtexture == 0)
-							sdr->toptexture = R_TextureNumForName("REDWALL", (UINT16)(sdr-sides)); // Tails
+							sdr->toptexture = 0; // Tails // When this was REDWALL it was causing issues in the sky sometimes
 						else
 							sdr->toptexture = sdr->midtexture;
 					}
@@ -935,7 +935,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdl->toptexture == 0)
 					{
 						if (sdl->midtexture == 0)
-							sdl->toptexture = R_TextureNumForName("REDWALL", (UINT16)(sdl-sides)); // Tails
+							sdl->toptexture = 0; // Tails // When this was REDWALL it was causing issues in the sky sometimes
 						else
 							sdl->toptexture = sdl->midtexture;
 					}

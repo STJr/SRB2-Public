@@ -8170,6 +8170,7 @@ static menuitem_t OGL_FogMenu[] =
 	{IT_STRING|IT_CVAR,       NULL, "Fog",         &cv_grfog,         0},
 	{IT_STRING|IT_KEYHANDLER, NULL, "Fog color",   M_HandleFogColor, 10},
 	{IT_STRING|IT_CVAR,       NULL, "Fog density", &cv_grfogdensity, 20},
+	{IT_STRING|IT_CVAR,       NULL, "Software Fog",&cv_grsoftwarefog,30},
 };
 
 static menuitem_t OGL_ColorMenu[] =

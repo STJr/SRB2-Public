@@ -120,11 +120,16 @@ typedef struct
 	float       offset;
 	md2_model_t *model;
 	void        *grpatch;
+	boolean	notfound;
+	long skin;
 } md2_t;
 
 extern md2_t md2_models[NUMSPRITES];
+extern md2_t md2_playermodels[MAXSKINS];
 
 void HWR_InitMD2(void);
 void HWR_DrawMD2(gr_vissprite_t *spr);
+void HWR_AddPlayerMD2(int skin);
+void HWR_AddSpriteMD2(int spritenum);
 
 #endif // _HW_MD2_H_

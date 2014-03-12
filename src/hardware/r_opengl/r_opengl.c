@@ -273,6 +273,8 @@ typedef void (APIENTRY * PFNglLightModelfv) (GLenum pname, GLfloat *params);
 static PFNglLightModelfv pglLightModelfv;
 typedef void (APIENTRY * PFNglMaterialfv) (GLint face, GLenum pname, GLfloat *params);
 static PFNglMaterialfv pglMaterialfv;
+typedef void (APIENTRY * PFNglLightfv) (GLenum light, GLenum pname, GLfloat *params);
+static PFNglLightfv pglLightfv;
 
 /* Raster functions */
 typedef void (APIENTRY  * PFNglReadPixels) (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
@@ -382,6 +384,7 @@ boolean SetupGLfunc(void)
 	pglShadeModel = GetGLFunc("glShadeModel");
 	pglLightModelfv = GetGLFunc("glLightModelfv");
 	pglMaterialfv = GetGLFunc("glMaterialfv");
+	pglLightfv = GetGLFunc("glLightfv");
 
 	pglReadPixels = GetGLFunc("glReadPixels");
 
@@ -459,6 +462,7 @@ void SetStates(void)
 	FUINT Data[8*8];
 	INT32 i;
 	float LightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat LightPos[] = {0.0f, 1.0f, 0.0f, 0.0f};
 
 	DBG_Printf("SetStates()\n");
 
@@ -517,6 +521,7 @@ void SetStates(void)
 	// Lighting for models
 	pglLightModelfv(GL_LIGHT_MODEL_AMBIENT, LightDiffuse);
 	pglEnable (GL_LIGHT0);
+	pglLightfv(GL_LIGHT0, GL_POSITION, LightPos);
 
 	// bp : when no t&l :)
 	pglLoadIdentity();

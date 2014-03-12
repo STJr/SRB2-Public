@@ -82,14 +82,7 @@ static INT32 F_DoWipe(INT32 width, INT32 height, tic_t ticks)
 
 	while (ticks--)
 	{
-		// slowdown
-		if (slowdown++)
-		{
-			slowdown = 0;
-			return false;
-		}
-
-#ifdef SHUFFLE
+#if defined (SHUFFLE) && defined (HWRENDER)
 		if(rendermode != render_soft)
 		{
 
@@ -98,6 +91,14 @@ static INT32 F_DoWipe(INT32 width, INT32 height, tic_t ticks)
 			continue;
 		}
 #endif
+
+		// slowdown
+		if (slowdown++)
+		{
+			slowdown = 0;
+			return false;
+		}
+
 		w = wipe_scr;
 		e = wipe_scr_end;
 
@@ -129,7 +130,7 @@ void F_WipeStartScreen(void)
 #ifndef NOWIPE
 	if(rendermode != render_soft)
 	{
-#ifdef SHUFFLE
+#if defined (SHUFFLE) && defined (HWRENDER)
 		HWR_StartScreenWipe();
 #endif
 		return;

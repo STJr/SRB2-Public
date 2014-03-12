@@ -34,6 +34,9 @@
 #include "../m_misc.h"
 #include "../w_wad.h"
 #include "../z_zone.h"
+#include "../r_things.h"
+
+#include "hw_main.h"
 
 #ifdef HAVE_PNG
 
@@ -227,6 +230,7 @@ float avertexnormals[NUMVERTEXNORMALS][3] = {
 };
 
 md2_t md2_models[NUMSPRITES];
+md2_t md2_playermodels[MAXSKINS];
 
 /*
  * free model
@@ -878,16 +882,27 @@ static void md2_loadTexture(md2_t *model)
 void HWR_InitMD2(void)
 {
 	size_t i;
+	INT32 s;
 	FILE *f;
-	char name[5], filename[32];
+	char name[18], filename[32];
 	float scale, offset;
 
 	CONS_Printf("InitMD2()...\n");
+	for (s = 0; s < MAXSKINS; s++)
+	{
+		md2_playermodels[s].scale = -1.0f;
+		md2_playermodels[s].model = NULL;
+		md2_playermodels[s].grpatch = NULL;
+		md2_playermodels[s].skin = -1;
+		md2_playermodels[s].notfound = true;
+	}
 	for (i = 0; i < NUMSPRITES; i++)
 	{
 		md2_models[i].scale = -1.0f;
 		md2_models[i].model = NULL;
 		md2_models[i].grpatch = NULL;
+		md2_models[i].skin = -1;
+		md2_models[i].notfound = true;
 	}
 	// read the md2.dat file
 
@@ -897,26 +912,142 @@ void HWR_InitMD2(void)
 		CONS_Printf("Error while loading md2.dat\n");
 		return;
 	}
-	while (fscanf(f, "%4s %31s %f %f", name, filename, &scale, &offset) == 4)
+
+	md2_t *md2;
+
+	while (fscanf(f, "%19s %31s %f %f", name, filename, &scale, &offset) == 4)
 	{
 		for (i = 0; i < NUMSPRITES; i++)
 		{
-			if (strcmp(name, sprnames[i]) == 0)
+			if (stricmp(name, sprnames[i]) == 0)
 			{
+				if (stricmp(name, "PLAY") == 0)
+					continue;
+
 				//CONS_Printf("  Found: %s %s %f %f\n", name, filename, scale, offset);
 				md2_models[i].scale = scale;
 				md2_models[i].offset = offset;
+				md2_models[i].notfound = false;
 				strcpy(md2_models[i].filename, filename);
+				md2 = &md2_models[i];
 				break;
 			}
+			if (i == NUMSPRITES)
+			{
+				CONS_Printf("MD2 for sprite %s not found\n", name);
+				md2_models[i].notfound = true;
+			}
 		}
-		if (i == NUMSPRITES)
-			CONS_Printf("    Not found: %s\n", name);
+
+		for (s = 0; s < MAXSKINS; s++)
+		{
+			if (stricmp(name, skins[s].name) == 0)
+			{
+				//CONS_Printf("  Found: %s %s %f %f\n", name, filename, scale, offset);
+				md2_playermodels[s].skin = s;
+				md2_playermodels[s].scale = scale;
+				md2_playermodels[s].offset = offset;
+				md2_playermodels[s].notfound = false;
+				strcpy(md2_playermodels[s].filename, filename);
+				md2 = &md2_playermodels[s];
+				break;
+			}
+			if (s == MAXSKINS-1)
+			{
+				CONS_Printf("MD2 for player skin %s not found\n", name);
+				md2_playermodels[s].notfound = true;
+			}
+		}
+
 	}
 	fclose(f);
 }
 
 
+void HWR_AddPlayerMD2(int skin) // For MD2's that were added after startup
+{
+	FILE *f;
+	char name[18], filename[32];
+	float scale, offset;
+
+	CONS_Printf("AddPlayerMD2()...\n");
+
+	// read the md2.dat file
+
+	f = fopen("md2.dat", "rt");
+	if (!f)
+	{
+		CONS_Printf("Error while loading md2.dat\n");
+		return;
+	}
+
+	// Check for any MD2s that match the names of player skins!
+	while (fscanf(f, "%19s %31s %f %f", name, filename, &scale, &offset) == 4)
+	{
+		if (stricmp(name, skins[skin].name) == 0)
+		{
+			md2_playermodels[skin].skin = skin;
+			md2_playermodels[skin].scale = scale;
+			md2_playermodels[skin].offset = offset;
+			md2_playermodels[skin].notfound = false;
+			strcpy(md2_playermodels[skin].filename, filename);
+			break;
+		}
+		if (skin == MAXSKINS-1)
+		{
+			CONS_Printf("MD2 for player skin %s not found\n", name);
+			md2_playermodels[skin].notfound = true;
+		}
+	}
+
+	fclose(f);
+
+}
+
+void HWR_AddSpriteMD2(int spritenum) // For MD2s that were added after startup
+{
+	FILE *f;
+	// name[18] is used to check for names in the md2.dat file that match with sprites or player skins
+	// sprite names are always 4 characters long, and names is for player skins can be up to 19 characters long
+	char name[18], filename[32];
+	float scale, offset;
+
+	// Read the md2.dat file
+
+	f = fopen("md2.dat", "rt");
+
+	if (!f)
+	{
+		CONS_Printf("Error while loading md2.dat\n");
+		return;
+	}
+
+	// Check for any MD2s that match the names of player skins!
+	while (fscanf(f, "%19s %31s %f %f", name, filename, &scale, &offset) == 4)
+	{
+		{
+			if (stricmp(name, sprnames[spritenum]) == 0)
+			{
+				if (stricmp(name, "PLAY") == 0) // Handled already NEWMD2: Per sprite, per-skin check
+					continue;
+
+				md2_models[spritenum].scale = scale;
+				md2_models[spritenum].offset = offset;
+				md2_models[spritenum].notfound = false;
+				strcpy(md2_models[spritenum].filename, filename);
+				break;
+			}
+
+			if (spritenum == NUMSPRITES-1)
+			{
+				CONS_Printf("MD2 for sprite %s not found\n", name);
+				md2_models[spritenum].notfound = true;
+			}
+		}
+	}
+
+	fclose(f);
+}
 
 // -----------------+
 // HWR_DrawMD2      : Draw MD2
@@ -937,6 +1068,8 @@ void HWR_InitMD2(void)
 	res?
 	run?
 	*/
+#define NORMALFOG 0x00000000
+#define FADEFOG 0x19000000
 void HWR_DrawMD2(gr_vissprite_t *spr)
 {
 	GLPatch_t *gpatch; // sprite patch converted to hardware
@@ -959,37 +1092,62 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 	//12/12/99: Hurdler: same comment as above (for md2)
 	HWR_GetMappedPatch(gpatch, spr->colormap);
 
-	// model lighting by modulating the RGB components
-	/// \todo Handled colored lighting
-	Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = spr->sectorlight;
 	// MD2 colormap fix
 	// colormap test
 	{
 		sector_t *sector = spr->mobj->subsector->sector;
+		UINT8 lightlevel = LightLevelToLum(sector->lightlevel);
+		extracolormap_t *colormap = sector->extra_colormap;
 
-		if (sector->ffloors)
+		if (sector->numlights)
 		{
-			ffloor_t *caster;
+			INT32 light = R_GetPlaneLight(sector, spr->mobj->z, false);
 
-			caster = sector->lightlist[R_GetPlaneLight(sector, spr->mobj->z+spr->mobj->height, false)].caster;
-			sector = caster ? &sectors[caster->secnum] : sector;
+			if (sector->lightlist[light].height > (spr->mobj->z + spr->mobj->height))
+			{
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
+				else
+					lightlevel = LightLevelToLum(255);
+
+				if (sector->lightlist[light].extra_colormap)
+					colormap = sector->lightlist[light].extra_colormap;
+			}
+			else // If we can't use the light at its bottom, we'll use the light at its top
+			{
+				light = R_GetPlaneLight(sector, spr->mobj->z + spr->mobj->height, false);
+
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
+				else
+					lightlevel = LightLevelToLum(255);
+
+				if (sector->lightlist[light].extra_colormap)
+					colormap = sector->lightlist[light].extra_colormap;
+			}
 		}
-		if (sector->extra_colormap)
+		else
 		{
-			RGBA_t temp;
-			INT32 alpha;
+			if (!(spr->mobj->frame & FF_FULLBRIGHT))
+				lightlevel = LightLevelToLum(sector->lightlevel);
+			else
+				lightlevel = LightLevelToLum(255);
 
-			temp.rgba = sector->extra_colormap->rgba;
-			alpha = (26 - temp.s.alpha)*spr->sectorlight;
-			Surf.FlatColor.s.red = (UINT8)((alpha + temp.s.alpha*temp.s.red)/26);
-			Surf.FlatColor.s.blue = (UINT8)((alpha + temp.s.alpha*temp.s.blue)/26);
-			Surf.FlatColor.s.green = (UINT8)((alpha + temp.s.alpha*temp.s.green)/26);
-			Surf.FlatColor.s.alpha = 0xff;
+			if (sector->extra_colormap)
+				colormap = sector->extra_colormap;
 		}
+
+		if (spr->mobj->frame & FF_FULLBRIGHT)
+			lightlevel = LightLevelToLum(255);
+
+		if (colormap)
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, colormap->rgba, colormap->fadergba, false, false);
+		else
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, false, false);
 	}
 
 	// Look at HWR_ProjetctSprite for more
-	if (cv_grmd2.value && (md2_models[spr->mobj->sprite].scale > 0) && !spr->precip)
+	if (cv_grmd2.value && ((md2_models[spr->mobj->sprite].scale > 0.0f) || (md2_playermodels[(skin_t*)spr->mobj->skin-skins].scale > 0.0f)) && !spr->precip)
 	{
 		FBITFIELD blend = 0;
 		GLPatch_t *oldgpatch = gpatch;
@@ -998,6 +1156,9 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		UINT32 tics = spr->mobj->tics;
 		md2_frame_t *curr, *next = NULL;
 		const UINT8 flip = (UINT8)((spr->mobj->eflags & MFE_VERTICALFLIP) == MFE_VERTICALFLIP);
+
+		spritedef_t *sprdef;
+		spriteframe_t *sprframe;
 
 		if (spr->mobj->flags2 & MF2_SHADOW)
 		{
@@ -1017,7 +1178,14 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 
 		// 1. load model+texture if not already loaded
 		// 2. draw model with correct position, rotation,...
-		md2 = &md2_models[spr->mobj->sprite];
+		if (spr->mobj->skin)
+		{
+			md2 = &md2_playermodels[(skin_t*)spr->mobj->skin-skins];
+			md2->skin = (skin_t*)spr->mobj->skin-skins;
+		}
+		else
+			md2 = &md2_models[spr->mobj->sprite];
+
 		if (!md2->model)
 		{
 			//CONS_Printf("Loading MD2... (%s)", sprnames[spr->mobj->sprite]);
@@ -1044,14 +1212,16 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 			HWD.pfnSetTexture(&oldgpatch->mipmap);
 
 		//FIXME: this is not yet correct
-		frame = spr->mobj->frame % md2->model->header.numFrames;
+		frame = (spr->mobj->frame & FF_FRAMEMASK) % md2->model->header.numFrames;
 		buff = md2->model->glCommandBuffer;
 		curr = &md2->model->frames[frame];
 		if (cv_grmd2.value == 1
 		    && spr->mobj->state->nextstate != S_DISS
-		    && spr->mobj->state->nextstate != S_NULL)
+		    && spr->mobj->state->nextstate != S_NULL
+			&& !(spr->mobj->player && (spr->mobj->state->nextstate == S_PLAY_TAP1 || spr->mobj->state->nextstate == S_PLAY_TAP2) && spr->mobj->state == &states[S_PLAY_STND])
+			)
 		{
-			const INT32 nextframe = states[spr->mobj->state->nextstate].frame % md2->model->header.numFrames;
+			const INT32 nextframe = (states[spr->mobj->state->nextstate].frame & FF_FRAMEMASK) % md2->model->header.numFrames;
 			next = &md2->model->frames[nextframe];
 		}
 
@@ -1064,8 +1234,21 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		else
 			p.z = FIXED_TO_FLOAT(spr->mobj->z);
 
+		if (spr->mobj->skin)
+			sprdef = &((skin_t *)spr->mobj->skin)->spritedef;
+		else
+			sprdef = &sprites[spr->mobj->sprite];
+
+		sprframe = &sprdef->spriteframes[spr->mobj->frame & FF_FRAMEMASK];
+
+		if (sprframe->rotate)
 		{
 			const fixed_t anglef = AngleFixed(spr->mobj->angle);
+			p.angley = FIXED_TO_FLOAT(anglef);
+		}
+		else
+		{
+			const fixed_t anglef = AngleFixed((R_PointToAngle(spr->mobj->x, spr->mobj->y))-ANGLE_180);
 			p.angley = FIXED_TO_FLOAT(anglef);
 		}
 		p.anglex = 0.0f;
@@ -1075,7 +1258,16 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 		color[2] = Surf.FlatColor.s.blue;
 		color[3] = Surf.FlatColor.s.alpha;
 
-		HWD.pfnDrawMD2i(buff, curr, durs, tics, next, &p, md2->scale, flip, color);
+		// SRB2CBTODO: MD2 scaling support
+		float finalscale = md2->scale;
+
+		if (spr->mobj->scale != 100)
+		{
+			float normscale = md2->scale;
+			finalscale = (float)(normscale*(((float)spr->mobj->scale)/100.0f));
+		}
+
+		HWD.pfnDrawMD2i(buff, curr, durs, tics, next, &p, finalscale, flip, color);
 
 	}
 }

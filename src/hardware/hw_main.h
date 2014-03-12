@@ -69,6 +69,10 @@ void HWR_PrepFadeToBlack(void);
 void HWR_DrawIntermissionBG(void);
 #endif
 
+// This stuff is put here so MD2's can use them
+UINT32 HWR_Lighting(INT32 light, UINT32 color, UINT32 fadecolor, boolean fogblockpoly, boolean plane);
+FUNCMATH UINT8 LightLevelToLum(INT32 l);
+
 extern CV_PossibleValue_t granisotropicmode_cons_t[];
 
 extern consvar_t cv_grrenderquality;
@@ -77,6 +81,7 @@ extern consvar_t cv_grmd2;
 extern consvar_t cv_grfog;
 extern consvar_t cv_grfogcolor;
 extern consvar_t cv_grfogdensity;
+extern consvar_t cv_grsoftwarefog;
 extern consvar_t cv_grgammared;
 extern consvar_t cv_grgammagreen;
 extern consvar_t cv_grgammablue;

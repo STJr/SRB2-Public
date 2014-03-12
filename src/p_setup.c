@@ -1179,23 +1179,72 @@ static void P_LoadSideDefs2(lumpnum_t lumpnum)
 				else
 				{
 					// for now, full support of toptexture only
-					if (msd->toptexture[0] == '#')
+					if ((msd->toptexture[0] == '#' && msd->toptexture[1] && msd->toptexture[2] && msd->toptexture[3] && msd->toptexture[4] && msd->toptexture[5] && msd->toptexture[6])
+						|| (msd->bottomtexture[0] == '#' && msd->bottomtexture[1] && msd->bottomtexture[2] && msd->bottomtexture[3] && msd->bottomtexture[4] && msd->bottomtexture[5] && msd->bottomtexture[6]))
 					{
-						char *col = msd->toptexture;
+						char *col;
 
 						sec->midmap = R_CreateColormap(msd->toptexture, msd->midtexture,
 							msd->bottomtexture);
 						sd->toptexture = sd->bottomtexture = 0;
-#define HEX2INT(x) (x >= '0' && x <= '9' ? x - '0' : x >= 'a' && x <= 'f' ? x - 'a' + 10 : x >= 'A' && x <= 'F' ? x - 'A' + 10 : 0)
-#define ALPHA2INT(x) (x >= 'a' && x <= 'z' ? x - 'a' : x >= 'A' && x <= 'Z' ? x - 'A' : 0)
+
 						sec->extra_colormap = &extra_colormaps[sec->midmap];
-						sec->extra_colormap->rgba =
-							(HEX2INT(col[1]) << 4) + (HEX2INT(col[2]) << 0) +
-							(HEX2INT(col[3]) << 12) + (HEX2INT(col[4]) << 8) +
-							(HEX2INT(col[5]) << 20) + (HEX2INT(col[6]) << 16) +
-							(ALPHA2INT(col[7]) << 24);
+
+						if (msd->toptexture[0] == '#' && msd->toptexture[1] && msd->toptexture[2] && msd->toptexture[3] && msd->toptexture[4] && msd->toptexture[5] && msd->toptexture[6])
+						{
+							col = msd->toptexture;
+
+#define HEX2INT(x) (x >= '0' && x <= '9' ? x - '0' : x >= 'a' && x <= 'f' ? x - 'a' + 10 : x >= 'A' && x <= 'F' ? x - 'A' + 10 : 0)
+#define ALPHA2INT(x) (x >= 'a' && x <= 'z' ? x - 'a' : x >= 'A' && x <= 'Z' ? x - 'A' : x >= '0' && x <= '9' ? 25 : 0)
+							if (msd->toptexture[7])
+							{
+								sec->extra_colormap->rgba =
+									(HEX2INT(col[1]) << 4) + (HEX2INT(col[2]) << 0) +
+									(HEX2INT(col[3]) << 12) + (HEX2INT(col[4]) << 8) +
+									(HEX2INT(col[5]) << 20) + (HEX2INT(col[6]) << 16) +
+									(ALPHA2INT(col[7]) << 24);
+							}
+							else
+							{
+								sec->extra_colormap->rgba =
+									(HEX2INT(col[1]) << 4) + (HEX2INT(col[2]) << 0) +
+									(HEX2INT(col[3]) << 12) + (HEX2INT(col[4]) << 8) +
+									(HEX2INT(col[5]) << 20) + (HEX2INT(col[6]) << 16) +
+									(25 << 24);
+							}
+						}
+						else
+						{
+							sec->extra_colormap->rgba = 0;
+						}
+
+						if (msd->bottomtexture[0] == '#' && msd->bottomtexture[1] && msd->bottomtexture[2] && msd->bottomtexture[3] && msd->bottomtexture[4] && msd->bottomtexture[5] && msd->bottomtexture[6])
+						{
+							col = msd->bottomtexture;
+
+							if (msd->bottomtexture[7])
+							{
+								sec->extra_colormap->fadergba =
+									(HEX2INT(col[1]) << 4) + (HEX2INT(col[2]) << 0) +
+									(HEX2INT(col[3]) << 12) + (HEX2INT(col[4]) << 8) +
+									(HEX2INT(col[5]) << 20) + (HEX2INT(col[6]) << 16) +
+									(ALPHA2INT(col[7]) << 24);
+							}
+							else
+							{
+								sec->extra_colormap->fadergba =
+									(HEX2INT(col[1]) << 4) + (HEX2INT(col[2]) << 0) +
+									(HEX2INT(col[3]) << 12) + (HEX2INT(col[4]) << 8) +
+									(HEX2INT(col[5]) << 20) + (HEX2INT(col[6]) << 16) +
+									(25 << 24);
+							}
 #undef ALPHA2INT
 #undef HEX2INT
+						}
+						else
+						{
+							sec->extra_colormap->fadergba = 0x19000000;
+						}
 					}
 					else
 					{
